@@ -8,8 +8,9 @@ const Dashboard = () => {
   return (
     <div className="grid gap-6">
       <div className="grid grid-cols-2 gap-6">
+        <BarChart />
         <SplineChart />
-        <BarChart/>
+
         <Card>
           <CardHeader>
             <CardTitle>Recent Orders</CardTitle>

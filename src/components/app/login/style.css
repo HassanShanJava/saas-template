@@ -1,7 +1,6 @@
-body{
-   background-image: url("../../assets/landing-bg.svg");
+.loginpage-image{
+  background-image: url("../../../assets/landing-bg.svg");
   background-position: center;
-  background-color: linear-gradient(to right,  #860469,#200119);
   background-repeat: no-repeat;
   width: 100vw;
   height: 100%;
@@ -12,7 +11,7 @@ body{
 
 @font-face {
   font-family: RaceSports;
-  src: url("../../utils/fonts/RaceSport.ttf");
+  src: url("../../../utils/fonts/RaceSport.ttf");
 }
 
 .hero-topHeading{

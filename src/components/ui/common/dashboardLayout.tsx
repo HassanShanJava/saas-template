@@ -123,7 +123,7 @@ const DashboardLayout =()=>{
       </div>
       <div className="flex-1 overflow-auto">
         <Header />
-        <main className="p-6">
+        <main className="p-0">
           <Outlet />
           {/* <div className="grid gap-6">
             <div className="grid grid-cols-2 gap-6">

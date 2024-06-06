@@ -1,45 +1,18 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import SplineChart from "./component/spline-chart";
-import BarChart from "./component/bar-chart";
+// import SplineChart from "./component/spline-chart";
 import DashboardHeader from "./component/dashboard-header";
-import MyBarChart, { MyResponsiveBar } from "./component/barchart";
-const data = [
-  {
-    key: "0",
-    value: 500,
-  },
-  {
-    key: "100",
-    value: 400,
-  },
-  {
-    key: "200",
-    value: 300,
-  },
-  {
-    key: "300",
-    value: 200,
-  },
-  {
-    key: "400",
-    value: 100,
-  },
-  {
-    key: "500",
-    value: 0,
-  },
-];
+import SimpleBarChart from "./component/barchart";
+import SplineChart from "./component/spline-chart";
+
 
 const Dashboard = () => {
   return (
     <div className="grid gap-6">
       <DashboardHeader/>
       <div className="grid grid-cols-2 gap-6">
-        <MyBarChart/>
-        <BarChart />
+        <SimpleBarChart/>
         <SplineChart />
-        <MyResponsiveBar data={data} />
         <Card>
           <CardHeader>
             <CardTitle>Recent Orders</CardTitle>

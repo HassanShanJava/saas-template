@@ -3,8 +3,13 @@ import { Button } from "@/components/ui/button";
 import "./style.css"
 import { Link, Outlet } from "react-router-dom";
 import { Header } from "./header";
-
+import { useLocation } from "react-router-dom";
 const DashboardLayout =()=>{
+  function isActiveLink(currentPath:string, targetPath:string) {
+    return currentPath === targetPath;
+  }
+  const location=useLocation();
+  console.log("click",location.pathname)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -32,18 +37,24 @@ const DashboardLayout =()=>{
             <MenuIcon className="h-6 w-6" />
           </Button>
         </div>
-        <nav className="flex flex-col gap-1 px-2">
+        <nav className="flex flex-col gap-1 px-2 py-2">
           <Link
             to="/admin/dashboard"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
-            }`}
+            }
+             ${
+               isActiveLink(location.pathname, "/admin/dashboard")
+                 ? "bg-[#D0FD3E]"
+                 : ""
+             }
+            `}
           >
-            <div className="bg-gray-600">
-              <img
-                src="/dashboardicon.svg"
-                className={`h-4 w-4 ${!isSidebarOpen && "hidden"} items-center`}
-              ></img>
+            <div className="w-8 h-8 bg-[#B5E41C] rounded-lg justify-center flex items-center">              
+                <img
+                  src="/dashboardicon.svg"
+                  className={`w-4 h-4 ${!isSidebarOpen && "hidden"} items-center `}
+                ></img>
             </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Dashboard</span>
           </Link>
@@ -117,7 +128,9 @@ const DashboardLayout =()=>{
             }`}
           >
             <UsersIcon className="h-5 w-5" />
-            <span className={`${!isSidebarOpen && "hidden"}`}>System Design</span>
+            <span className={`${!isSidebarOpen && "hidden"}`}>
+              System Design
+            </span>
           </Link>
         </nav>
       </div>

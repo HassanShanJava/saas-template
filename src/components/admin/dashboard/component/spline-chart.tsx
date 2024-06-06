@@ -74,6 +74,7 @@ function FilledtimeseriesChart(props:any) {
         useMesh={true}
         curve="monotoneX"
         enableArea={true}
+        enableGridX={false}
         gridYValues={6}
         defs={[
           {
@@ -111,6 +112,7 @@ function FilledtimeseriesChart(props:any) {
           },
           grid: {
             line: {
+              strokeDasharray: "3 3",
               stroke: "#f3f4f6",
             },
           },

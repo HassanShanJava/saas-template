@@ -1,214 +1,89 @@
-// import { ResponsiveBar } from "@nivo/bar";
 
-// const data = [
-//   { month: "January", value: 200 },
-//   { month: "February", value: 350 },
-//   { month: "March", value: 150 },
-//   { month: "April", value: 450 },
-//   { month: "May", value: 300 },
-//   { month: "June", value: 400 },
-//   { month: "July", value: 250 },
-//   { month: "August", value: 100 },
-//   { month: "September", value: 50 },
-//   { month: "October", value: 350 },
-//   { month: "November", value: 250 },
-//   { month: "December", value: 200 },
-// ];
+import {
+  BarChart,
+  Bar,
+  YAxis,
+  Tooltip,
+} from "recharts";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+// Sample data array with metrics
+const data = [
+  { name: "Page A", uv: 4000},
+  { name: "Page B", uv: 3000},
+  { name: "Page C", uv: 2000 },
+  { name: "Page D", uv: 2780 },
+  { name: "Page E", uv: 1890 },
+  { name: "Page F", uv: 2390 },
+  { name: "Page G", uv: 3490 },
+];
 
-// const MyBarChart = () => (
-//   <ResponsiveBar
-//     data={data}
-//     keys={["value"]}
-//     indexBy="month"
-//     margin={{ top: 50, right: 30, bottom: 50, left: 130 }}
-//     padding={0.3}
-//     layout="vertical"
-//     borderRadius={4}
-//     axisRight={null}
-//     axisBottom={{
-//       tickSize: 5,
-//       tickPadding: 5,
-//       tickRotation: -45,
-//     }}
-//     axisLeft={{
-//       tickSize: 5,
-//       tickPadding: 5,
-//       tickRotation: 0,
-//       legendPosition: "middle",
-//       legendOffset: -90,
-//     }}
-//     enableGridX={false}
-//     enableGridY={false}
-//     theme={{
-//       background: "#200119", // Set background color
-//       axis: {
-//         domain: {
-//           line: {
-//             stroke: "#ffffff", // Set axis line color
-//             strokeWidth: 1, // Optional: Set axis line width
-//           },
-//         },
-//         ticks: {
-//           line: {
-//             stroke: "#ffffff", // Set tick line color
-//             strokeWidth: 1, // Optional: Set tick line width
-//           },
-//           text: {
-//             fill: "#ffffff", // Set tick text color
-//           },
-//         },
-//       },
-//       grid: {
-//         line: {
-//           stroke: "#dddddd", // Set grid line color
-//           strokeWidth: 1, // Optional: Set grid line width
-//         },
-//       },
-//       legends: {
-//         text: {
-//           fill: "#333333", // Set legend text color
-//         },
-//       },
-//     }}
-//   />
-// );
+const CustomBar = (props:any) => {
+  const { x, y, width, height, fill } = props;
+  const radius = 10; // Adjust this value to change rounding
 
-// export default MyBarChart;
-import { ResponsiveBar } from "@nivo/bar";
-
-const  MyBarChart = () => (
-  <ResponsiveBar
-    data={[
-      {
-        month: "Jan",
-        a: 310,
-        b: 210,
-        c: 100,
-        d: 280,
-        e: 500,
-        f: 400,
-        g: 480,
-        h: 280,
-        i: 140,
-      },
-    ]}
-    keys={["a", "b", "c", "d", "e", "f", "g", "h", "i"]}
-    indexBy="month"
-    margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
-    padding={0.3}
-    valueScale={{ type: "linear" }}
-    indexScale={{ type: "band" }}
-    labelSkipWidth={12}
-    labelSkipHeight={12}
-    labelTextColor="black"
-    legends={[
-      {
-        dataFrom: "keys",
-        anchor: "bottom-right",
-        direction: "column",
-        justify: false,
-        translateX: 120,
-        translateY: 0,
-        itemsSpacing: 2,
-        itemWidth: 100,
-        itemHeight: 20,
-        itemDirection: "left-to-right",
-        itemOpacity: 0.85,
-        symbolSize: 20,
-        effects: [
-          {
-            on: "hover",
-            style: {
-              itemOpacity: 1,
-            },
-          },
-        ],
-      },
-    ]}
-    role="application"
-    ariaLabel="Nivo bar chart demo"
-    barAriaLabel={(e) => `${e.id}: ${e.formattedValue} (${e.indexValue})`}
-  />
-);
-
-export default MyBarChart;
-
-
-
-export const MyResponsiveBar = ({ data }:any) => (
-  <ResponsiveBar
-    data={data}
-    keys={["value"]}
-    indexBy={"key"}
-    margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
-    padding={0.1}
-    colors={{ scheme: "nivo" }}
-    defs={[
-      {
-        id: "dots",
-        type: "patternDots",
-        background: "inherit",
-        color: "#38bcb2",
-        size: 4,
-        padding: 1,
-        stagger: true,
-      },
-    ]}
-    fill={[
-      {
-        match: {
-          id: "value",
-        },
-        id: "dots",
-      },
-    ]}
-    borderColor={{ from: "color", modifiers: [["darker", 1.6]] }}
-    axisTop={null}
-    axisRight={null}
-    axisBottom={{
-      tickSize: 5,
-      tickPadding: 5,
-      tickRotation: 0,
-      legend: "",
-      legendOffset: 36,
+  return (
+    <rect
+      x={x}
+      y={y - 5} // Adjust this value to control floating height
+      width={width}
+      height={height - 5} // Adjust this value to control floating height
+      fill={fill}
+      rx={radius}
+      ry={radius}
+    />
+  );
+};
+// Custom Tooltip component
+const CustomTooltip = ({ active, payload }:any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-tooltip " style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}>
+        <p className="intro">{`UV: ${payload[0].value}`}</p>
       
-    }}
-    axisLeft={{
-      tickSize: 5,
-      tickPadding: 5,
-      tickRotation: 0,
-      legend: "",
-      legendOffset: 40,
-      
-    }}
-    labelSkipWidth={12}
-    labelSkipHeight={12}
-    legends={[
-      {
-        dataFrom: "keys",
-        anchor: "bottom-right",
-        direction: "column",
-        justify: false,
-        translateX: 120,
-        translateY: 0,
-        itemsSpacing: 2,
-        itemWidth: 100,
-        itemHeight: 20,
-        itemDirection: "left-to-right",
-        itemOpacity: 0.85,
-        symbolSize: 20,
-        effects: [
-          {
-            on: "hover",
-            style: {
-              itemOpacity: 1,
-            },
-          },
-        ],
-      },
-    ]}
-    animate={true}
-  />
-);
+      </div>
+    );
+  }
 
+  return null;
+};
 
+const SimpleBarChart = () => {
+  return (
+    <Card
+      style={{ backgroundColor: "#200119", padding: "20px" }}
+      className="h-full w-full max-w-2xl rounded-lg"
+    >
+      <CardHeader>
+        <CardTitle className="text-white">Bar Chart</CardTitle>
+        <CardDescription>
+          A Bar chart with randomly generated data.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <BarChart
+          width={400}
+          height={200}
+          data={data}
+          margin={{
+            top: 5,
+            right: 30,
+            left: 20,
+            bottom: 5,
+          }}
+        >
+          <YAxis axisLine={false} tickLine={false} />
+          <Tooltip shared={false} trigger="hover" content={<CustomTooltip />} />
+          <Bar dataKey="uv" fill="#ffffff" barSize={14} shape={<CustomBar />} />
+        </BarChart>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default SimpleBarChart;

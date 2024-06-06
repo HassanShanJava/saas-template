@@ -2,22 +2,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 // import SplineChart from "./component/spline-chart";
 import DashboardHeader from "./component/dashboard-header";
-import SimpleBarChart from "./component/barchart";
 import SplineChart from "./component/spline-chart";
+import SimpleBarChart from "./component/barchart";
+import CardComponent from "./component/card-component";
 
 
 const Dashboard = () => {
   return (
-    <div className="grid gap-6">
-      <DashboardHeader/>
-      <div className="grid grid-cols-2 gap-6">
-        <SimpleBarChart/>
+    <div className="grid gap-6 bg-[#F8F9FA]">
+      <DashboardHeader />
+      <CardComponent />
+      <div className="grid grid-cols-2 gap-6 p-4">
+        <SimpleBarChart />
         <SplineChart />
+      </div>
+      <div className="p-2">
         <Card>
           <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
-            <CardDescription>
-              View and manage your recent orders.
+            <CardTitle className="text-2xl font-bold">Clients</CardTitle>
+            <CardDescription className="pt-1 text-gray-400 ">
+                <i className="fa-solid text-green-400 fa-circle-check"></i>
+              <span className="ml-2 text-gray-400 font-bold text-base">
+                Active Client
+              </span>{" "}
+              This month.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -53,52 +61,7 @@ const Dashboard = () => {
             </Table>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Products</CardTitle>
-            <CardDescription>
-              View and manage your top-selling products.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>Sales</TableHead>
-                  <TableHead>Revenue</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell>T-Shirt</TableCell>
-                  <TableCell>1,234</TableCell>
-                  <TableCell>$12,345.67</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Hoodie</TableCell>
-                  <TableCell>789</TableCell>
-                  <TableCell>$7,890.12</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Jeans</TableCell>
-                  <TableCell>456</TableCell>
-                  <TableCell>$4,567.89</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Analytics</CardTitle>
-          <CardDescription>
-            View and analyze your business performance.
-          </CardDescription>
-        </CardHeader>
-        <CardContent></CardContent>
-      </Card>
     </div>
   );
 }

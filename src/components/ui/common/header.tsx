@@ -28,13 +28,19 @@ export const Header = () => {
           </div>
 
           <div className="flex flex-row justify-center items-center gap-5">
-            <div className="border-r-2 border-gray-400 flex flex-row gap-3 p-3 justify-center items-center">
+            <div
+              className="border-r-2  border-gray-400 flex flex-row gap-3 p-3 justify-center items-center"
+            >
               <div className="w-8 h-8  border-[1px] border-gray-400 rounded-full justify-center flex items-center">
                 <i className="fa-solid fa-globe "></i>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full w-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full w-2"
+                  >
                     <i className="fa-solid fa-caret-down"></i>
                   </Button>
                 </DropdownMenuTrigger>
@@ -67,7 +73,11 @@ export const Header = () => {
               <h1 className="text-black text-base"> Akira One</h1>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full w-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full w-2"
+                  >
                     <i className="fa-solid fa-caret-down"></i>
                   </Button>
                 </DropdownMenuTrigger>

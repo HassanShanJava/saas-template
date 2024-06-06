@@ -11,9 +11,9 @@ export default function SplineChart() {
   return (
     <Card className="h-full w-full max-w-2xl">
       <CardHeader>
-        <CardTitle>Spline Chart</CardTitle>
-        <CardDescription>
-          A spline chart with randomly generated data.
+        <CardTitle className="font-bold text-black text-xl">Sales Overview</CardTitle>
+        <CardDescription className="text-green-400 text-xl pt-0">
+          (+5) more in 2021
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -50,11 +50,12 @@ const DashboardLayout =()=>{
              }
             `}
           >
-            <div className="w-8 h-8 bg-[#B5E41C] rounded-lg justify-center flex items-center">              
-                <img
-                  src="/dashboardicon.svg"
-                  className={`w-4 h-4 ${!isSidebarOpen && "hidden"} items-center `}
-                ></img>
+            <div className="w-8 h-8 bg-[#B5E41C] rounded-lg justify-center flex items-center">
+              {/* <img
+                src="/dashboardicon.svg"
+                className={`w-4 h-4 ${!isSidebarOpen && "hidden"} items-center `}
+              ></img> */}
+              <DashBoardIcon className="w-4 h-4"/>
             </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Dashboard</span>
           </Link>
@@ -62,9 +63,16 @@ const DashboardLayout =()=>{
             to="/admin/client"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
-            }`}
+            }
+             ${
+               isActiveLink(location.pathname, "/admin/client")
+                 ? "bg-[#D0FD3E]"
+                 : ""
+             }
+            `}
           >
-            <UsersIcon className="h-5 w-5" />
+            <MultiUserIcon className="h-5 w-5"/>
+            {/* <UsersIcon className="h-5 w-5" /> */}
             <span className={`${!isSidebarOpen && "hidden"}`}>Client</span>
           </Link>
           <Link
@@ -254,6 +262,25 @@ export default DashboardLayout;
 //   );
 // }
 
+function MultiUserIcon(props: any) {
+  return (
+    <svg
+      width="15"
+      height="14"
+      viewBox="0 0 15 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1.35693 13V11.6667C1.35693 10.9594 1.63789 10.2811 2.13798 9.78105C2.63808 9.28095 3.31636 9 4.0236 9H6.69027C7.39751 9 8.07579 9.28095 8.57589 9.78105C9.07598 10.2811 9.35693 10.9594 9.35693 11.6667V13M10.0236 1.08667C10.5972 1.23354 11.1056 1.56714 11.4687 2.03488C11.8318 2.50262 12.0288 3.07789 12.0288 3.67C12.0288 4.26212 11.8318 4.83739 11.4687 5.30513C11.1056 5.77287 10.5972 6.10647 10.0236 6.25334M13.3569 13V11.6667C13.3535 11.0781 13.1555 10.5072 12.7938 10.043C12.432 9.57869 11.9268 9.24715 11.3569 9.10002M8.0236 3.66667C8.0236 5.13943 6.82969 6.33333 5.35693 6.33333C3.88417 6.33333 2.69027 5.13943 2.69027 3.66667C2.69027 2.19391 3.88417 1 5.35693 1C6.82969 1 8.0236 2.19391 8.0236 3.66667Z"
+        stroke="#2D3748"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+}
 
 function MenuIcon(props:any) {
   return (
@@ -337,7 +364,22 @@ function MenuIcon(props:any) {
 //     </svg>
 //   );
 // }
-
+function DashBoardIcon(props:any){
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1.33333 8.41927H6.33333C6.79167 8.41927 7.16667 8.04427 7.16667 7.58594V0.919271C7.16667 0.460937 6.79167 0.0859375 6.33333 0.0859375H1.33333C0.875 0.0859375 0.5 0.460937 0.5 0.919271V7.58594C0.5 8.04427 0.875 8.41927 1.33333 8.41927ZM1.33333 15.0859H6.33333C6.79167 15.0859 7.16667 14.7109 7.16667 14.2526V10.9193C7.16667 10.4609 6.79167 10.0859 6.33333 10.0859H1.33333C0.875 10.0859 0.5 10.4609 0.5 10.9193V14.2526C0.5 14.7109 0.875 15.0859 1.33333 15.0859ZM9.66667 15.0859H14.6667C15.125 15.0859 15.5 14.7109 15.5 14.2526V7.58594C15.5 7.1276 15.125 6.7526 14.6667 6.7526H9.66667C9.20833 6.7526 8.83333 7.1276 8.83333 7.58594V14.2526C8.83333 14.7109 9.20833 15.0859 9.66667 15.0859ZM8.83333 0.919271V4.2526C8.83333 4.71094 9.20833 5.08594 9.66667 5.08594H14.6667C15.125 5.08594 15.5 4.71094 15.5 4.2526V0.919271C15.5 0.460937 15.125 0.0859375 14.6667 0.0859375H9.66667C9.20833 0.0859375 8.83333 0.460937 8.83333 0.919271Z"
+        fill="black"
+      />
+    </svg>
+  );
+}
 function UsersIcon(props:any) {
   return (
     <svg

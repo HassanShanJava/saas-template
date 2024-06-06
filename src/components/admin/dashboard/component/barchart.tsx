@@ -1,26 +1,24 @@
-
 import {
   BarChart,
   Bar,
   YAxis,
   Tooltip,
 } from "recharts";
+import { Progress } from "@/components/ui/progress";
+
 import {
   Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
   CardContent,
 } from "@/components/ui/card";
 // Sample data array with metrics
 const data = [
-  { name: "Page A", uv: 4000},
-  { name: "Page B", uv: 3000},
-  { name: "Page C", uv: 2000 },
-  { name: "Page D", uv: 2780 },
-  { name: "Page E", uv: 1890 },
-  { name: "Page F", uv: 2390 },
-  { name: "Page G", uv: 3490 },
+  { name: "Page A", uv: 400},
+  { name: "Page B", uv: 300},
+  { name: "Page C", uv: 200 },
+  { name: "Page D", uv: 278 },
+  { name: "Page E", uv: 189 },
+  { name: "Page F", uv: 239 },
+  { name: "Page G", uv: 349 },
 ];
 
 const CustomBar = (props:any) => {
@@ -54,34 +52,130 @@ const CustomTooltip = ({ active, payload }:any) => {
 };
 
 const SimpleBarChart = () => {
+  
   return (
-    <Card
-      style={{ backgroundColor: "#200119", padding: "20px" }}
-      className="h-full w-full max-w-2xl rounded-lg"
-    >
-      <CardHeader>
-        <CardTitle className="text-white">Bar Chart</CardTitle>
-        <CardDescription>
-          A Bar chart with randomly generated data.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <BarChart
-          width={400}
-          height={200}
-          data={data}
-          margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
-        >
-          <YAxis axisLine={false} tickLine={false} />
-          <Tooltip shared={false} trigger="hover" content={<CustomTooltip />} />
-          <Bar dataKey="uv" fill="#ffffff" barSize={14} shape={<CustomBar />} />
-        </BarChart>
-      </CardContent>
+    <Card className="p-2">
+      <Card
+        style={{ backgroundColor: "#200119", padding: "10px" }}
+        className="h-[40vh] w-full max-w-2xl rounded-xl"
+      >
+        <CardContent className="p-0">
+          <BarChart
+            width={400}
+            height={200}
+            data={data}
+            margin={{
+              top: 5,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <YAxis
+              axisLine={false}
+              min={0}
+              tickLine={false}
+              domain={[0, "dataMax"]}
+              ticks={[0, 100, 200, 300, 400, 500]}
+            />
+            <Tooltip
+              shared={false}
+              trigger="hover"
+              content={<CustomTooltip />}
+            />
+            <Bar
+              dataKey="uv"
+              fill="#ffffff"
+              barSize={14}
+              shape={<CustomBar />}
+            />
+          </BarChart>
+        </CardContent>
+      </Card>
+      <h2 className="pt-2 font-semibold text-base"> Active Users</h2>
+      <p className="text-sm text-gray-400 ">
+        <span className="text-green-400 text-sm font-semibold m-2">(+25)</span>
+        more than last week
+      </p>
+      <div className="flex flex-row justify-between items-center w-full">
+        <div className="w-24 p-2">
+          <div className=" flex justify-between items-center">
+            <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-[#D0FD3E]">
+              <img src="/wallet.svg" className={`w-4 h-4 items-center `}></img>
+            </div>
+            <h2 className="font-bold text-sm text-gray-400"> Users</h2>
+          </div>
+          <div>
+            <p className="text-[#2D3748] text-xl font-bold">32,000</p>
+          </div>
+          <div className="pt-4">
+            <Progress
+              className="h-1 w-full"
+              value={67}
+              color={"#D0FD3E"}
+              max={100}
+            />
+          </div>
+        </div>
+        <div className="w-24 p-2">
+          <div className=" flex justify-between items-center">
+            <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-[#D0FD3E]">
+              <img src="/rocket.svg" className={`w-4 h-4 items-center `}></img>
+            </div>
+            <h2 className="font-bold text-sm text-gray-400"> Leads</h2>
+          </div>
+          <div>
+            <p className="text-[#2D3748] text-xl font-bold">2,42k</p>
+          </div>
+          <div className="pt-4">
+            <Progress
+              className="h-1 w-full"
+              value={67}
+              color={"#D0FD3E"}
+              max={100}
+            />
+          </div>
+        </div>
+        <div className="w-24 p-2">
+          <div className=" flex justify-between items-center">
+            <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-[#D0FD3E]">
+              {/* <img src="/wallet.svg" className={`w-4 h-4 items-center `}></img> */}
+              <i className="fa-solid fa-cart-shopping w-4 h-4 flex justify-center items-center"></i>
+            </div>
+            <h2 className="font-bold text-sm text-gray-400"> Sales</h2>
+          </div>
+          <div>
+            <p className="text-[#2D3748] text-xl font-bold">25,000 $</p>
+          </div>
+          <div className="pt-4">
+            <Progress
+              className="h-1 w-full"
+              value={67}
+              color={"#D0FD3E"}
+              max={100}
+            />
+          </div>
+        </div>
+        <div className="w-24 p-2">
+          <div className=" flex justify-between items-center">
+            <div className=" flex justify-center items-center w-7 h-7 rounded-lg bg-[#D0FD3E]">
+              <img src="/star.svg" className={`w-4 h-4 items-center `}></img>
+            </div>
+            <h2 className="font-bold text-sm text-gray-400"> Sales</h2>
+          </div>
+          <div>
+            <p className="text-[#2D3748] text-xl font-bold">320</p>
+          </div>
+          <div className="pt-4">
+            <Progress
+              className="h-1 w-full"
+              value={67}
+              color={"#D0FD3E"}
+              max={100}
+            />
+          </div>
+        </div>
+      </div>
     </Card>
   );
 };

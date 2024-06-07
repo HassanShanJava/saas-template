@@ -4,6 +4,11 @@ import tailwindAnimate from 'tailwindcss-animate';
 export default {
   darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+   fill: theme => ({
+       'gray': theme('colors.gray.200'),
+       'green': theme('colors.green.500'),
+       'blue': theme('colors.blue.500'),
+     }),
   theme: {
     container: {
       center: true,

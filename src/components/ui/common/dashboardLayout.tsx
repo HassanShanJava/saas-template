@@ -50,12 +50,25 @@ const DashboardLayout =()=>{
              }
             `}
           >
-            <div className="w-8 h-8 bg-[#B5E41C] rounded-lg justify-center flex items-center">
+            <div
+              className={`w-8 h-8   ${
+                isActiveLink(location.pathname, "/admin/dashboard")
+                  ? "bg-[#B5E41C]"
+                  : "bg-gray-100"
+              }
+              rounded-lg justify-center flex items-center`}
+            >
               {/* <img
                 src="/dashboardicon.svg"
                 className={`w-4 h-4 ${!isSidebarOpen && "hidden"} items-center `}
               ></img> */}
-              <DashBoardIcon className="w-4 h-4"/>
+              <DashBoardIcon
+                className={`w-4 h-4   ${
+                  isActiveLink(location.pathname, "/admin/dashboard")
+                    ? ""
+                    : "bg-transparent text-gray-500"
+                }`}
+              />
             </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Dashboard</span>
           </Link>
@@ -71,10 +84,25 @@ const DashboardLayout =()=>{
              }
             `}
           >
-            <MultiUserIcon className="h-5 w-5"/>
-            {/* <UsersIcon className="h-5 w-5" /> */}
+            <div
+              className={`w-8 h-8   ${
+                isActiveLink(location.pathname, "/admin/client")
+                  ? "bg-[#B5E41C]"
+                  : "bg-gray-100"
+              }
+              rounded-lg justify-center flex items-center`}
+            >
+              <MultiUserIcon
+                className={`w-4 h-4   ${
+                  isActiveLink(location.pathname, "/admin/client")
+                    ? ""
+                    : "bg-transparent text-gray-500"
+                }`}
+              />
+            </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Client</span>
           </Link>
+         
           <Link
             to="#"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
@@ -262,13 +290,14 @@ export default DashboardLayout;
 //   );
 // }
 
-function MultiUserIcon(props: any) {
+function MultiUserIcon(props:any) {
   return (
     <svg
+    {...props}
       width="15"
       height="14"
       viewBox="0 0 15 14"
-      fill="none"
+    fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
@@ -367,6 +396,7 @@ function MenuIcon(props:any) {
 function DashBoardIcon(props:any){
   return (
     <svg
+      {...props}
       width="16"
       height="16"
       viewBox="0 0 16 16"
@@ -375,7 +405,7 @@ function DashBoardIcon(props:any){
     >
       <path
         d="M1.33333 8.41927H6.33333C6.79167 8.41927 7.16667 8.04427 7.16667 7.58594V0.919271C7.16667 0.460937 6.79167 0.0859375 6.33333 0.0859375H1.33333C0.875 0.0859375 0.5 0.460937 0.5 0.919271V7.58594C0.5 8.04427 0.875 8.41927 1.33333 8.41927ZM1.33333 15.0859H6.33333C6.79167 15.0859 7.16667 14.7109 7.16667 14.2526V10.9193C7.16667 10.4609 6.79167 10.0859 6.33333 10.0859H1.33333C0.875 10.0859 0.5 10.4609 0.5 10.9193V14.2526C0.5 14.7109 0.875 15.0859 1.33333 15.0859ZM9.66667 15.0859H14.6667C15.125 15.0859 15.5 14.7109 15.5 14.2526V7.58594C15.5 7.1276 15.125 6.7526 14.6667 6.7526H9.66667C9.20833 6.7526 8.83333 7.1276 8.83333 7.58594V14.2526C8.83333 14.7109 9.20833 15.0859 9.66667 15.0859ZM8.83333 0.919271V4.2526C8.83333 4.71094 9.20833 5.08594 9.66667 5.08594H14.6667C15.125 5.08594 15.5 4.71094 15.5 4.2526V0.919271C15.5 0.460937 15.125 0.0859375 14.6667 0.0859375H9.66667C9.20833 0.0859375 8.83333 0.460937 8.83333 0.919271Z"
-        fill="black"
+        fill="currentColor"
       />
     </svg>
   );

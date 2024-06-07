@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Separator } from "@/components/ui/separator";
 export const Header = () => {
   return (
     <>
@@ -27,10 +28,8 @@ export const Header = () => {
             </div>
           </div>
 
-          <div className="flex flex-row justify-center items-center gap-5">
-            <div
-              className="border-r-2  border-gray-400 flex flex-row gap-3 p-3 justify-center items-center"
-            >
+          <div className="flex flex-row justify-center items-center gap-3">
+            <div className="flex flex-row gap-3 p-3 justify-center items-center">
               <div className="w-8 h-8  border-[1px] border-gray-400 rounded-full justify-center flex items-center">
                 <i className="fa-solid fa-globe "></i>
               </div>
@@ -54,6 +53,7 @@ export const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+            <Separator orientation="vertical" className=" h-10" />
             <div className="flex flex-row  justify-center items-center gap-4">
               <div className="w-8 h-8  border-[1px] border-gray-400 rounded-full justify-center flex items-center">
                 <i className="fa-regular fa-envelope"></i>
@@ -62,6 +62,8 @@ export const Header = () => {
                 <i className="fa-regular fa-bell"></i>
               </div>
             </div>
+            <Separator orientation="vertical" className=" h-10" />
+
             <div className="justify-center items-center flex gap-1">
               <img
                 src="/userSvg.svg"

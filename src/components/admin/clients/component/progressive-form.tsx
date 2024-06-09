@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FormDataSchema } from "@/schema/formSchema";
 import { z } from "zod";
@@ -8,6 +8,18 @@ import { Button } from "@/components/ui/button";
 import { IoIosArrowForward } from "react-icons/io";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 type Inputs = z.infer<typeof FormDataSchema>;
 
@@ -28,6 +40,8 @@ interface Props {
   updateParentState: (newState: boolean) => void;
 }
 export default function Form({ updateParentState }: Props) {
+    const [date, setDate] = React.useState<Date>();
+
   const [previousStep, setPreviousStep] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const delta = currentStep - previousStep;
@@ -51,6 +65,7 @@ export default function Form({ updateParentState }: Props) {
   type FieldName = keyof Inputs;
 
   const next = async () => {
+    const [date, setDate] = React.useState<Date>();
     const fields = steps[currentStep].fields;
     const output = await trigger(fields as FieldName[], { shouldFocus: true });
 
@@ -153,44 +168,265 @@ export default function Form({ updateParentState }: Props) {
           // transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <div className="flex justify-center items-center flex-col ">
-              <div className="justify-between items-center grid gap-3 grid-cols-12 px-5">
-                <div className="col-span-4 ">
-                  <div className="flex gap-2 px-2">
-                    <h1 className="text-black font-bold ">Full Name</h1>
-                    <Badge className="bg-[#EBEFF4] border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
-                      Required
-                    </Badge>
+              <div className="w-full px-5">
+                <div className="flex justify-between items-center w-full ">
+                  <div className="flex flex-col w-64 justify-start">
+                    <div className="flex gap-4 justify-start items-center">
+                      {" "}
+                      <h3 className=" text-sm font-bold">Full Name</h3>
+                      <Badge className="bg-[#EBEFF4] border-2 border-[#DBE2EC] text-[#64748B] text-xs rounded-md hover:opacity-70 hover:bg-transparent">
+                        Required
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm">
+                        Enter your legal name as it appears on your official
+                        identification.
+                      </p>
+                    </div>
                   </div>
-                  <div className="col-span-1">
-                    <p>
-                      Enter your legal name as it appears on your official
-                      identification.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-2 col-span-8 ">
-                  <div className="col-span-4 w-full">
-                    <Input
-                      id="text"
-                      type="text"
-                      placeholder="Enter First Name"
-                      className="w-[90%] bg-transparent outline-none"
-                    />
-                  </div>
-                  <div className="col-span-4 w-full">
-                    <Input
-                      id="text"
-                      type="text"
-                      placeholder="Enter Second Name"
-                      className="w-[90%] bg-transparent outline-none"
-                    />
+                  <div className="flex w-[70%] justify-center items-center gap-2">
+                    <div className="w-[45%]">
+                      <Input
+                        id="text"
+                        type="text"
+                        placeholder="Enter First Name"
+                        className=" bg-transparent outline-none"
+                      />
+                    </div>
+                    <div className="w-[45%]">
+                      <Input
+                        id="text"
+                        type="text"
+                        placeholder="Enter Second Name"
+                        className="bg-transparent outline-none"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-              <div>data 2</div>
-              <div>data 3</div>
-              <div>data 4</div>
-              <div>data 5</div>
+              <div className="w-full px-5 mt-3">
+                <div className="flex justify-between items-center w-full ">
+                  <div className="flex flex-col w-[17.5rem] justify-start">
+                    <div className="flex gap-4 justify-start items-center">
+                      {" "}
+                      <h3 className=" font-bold text-sm ">Date Of Birth</h3>
+                      <Badge className="bg-[#EBEFF4] text-sm border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                        Required
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm">
+                        This informationm is required to verify your age and
+                        provide age-appropirate services.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex w-[70%] justify-center items-center gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full m-3 justify-start text-left font-normal",
+                            !date && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {date ? (
+                            format(date, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={setDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full px-5 mt-3">
+                <div className="flex justify-between items-center w-full ">
+                  <div className="flex flex-col w-[17.5rem] justify-start">
+                    <div className="flex gap-4 justify-start items-center">
+                      {" "}
+                      <h3 className=" text-sm font-bold">Gender</h3>
+                      <Badge className="bg-[#EBEFF4] border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                        Required
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm">
+                        Select your gender from the options.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex w-[70%] justify-start items-center gap-2 border-2 border-gray-300 rounded-lg h-10 ">
+                    <RadioGroup defaultValue="Male" className="flex gap-4">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Male" id="r1" />
+                        <Label htmlFor="r1">Male</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Female" id="r2" />
+                        <Label htmlFor="r2">Female</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Prefer not to say" id="r3" />
+                        <Label htmlFor="r3">Prefer not to say</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full px-5 mt-3">
+                <div className="flex justify-between items-center w-full ">
+                  <div className="flex flex-col w-[17.5rem] justify-start">
+                    <div className="flex gap-4 justify-start items-center">
+                      {" "}
+                      <h3 className=" font-bold text-sm ">Email</h3>
+                      <Badge className="bg-[#EBEFF4] text-sm border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                        Required
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm">
+                        Please provide a valid email address that you have
+                        access to.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex w-[70%] justify-center items-center gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full m-3 justify-start text-left font-normal",
+                            !date && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {date ? (
+                            format(date, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={setDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full px-5 mt-3">
+                <div className="flex justify-between items-center w-full ">
+                  <div className="flex flex-col w-[17.5rem] justify-start">
+                    <div className="flex gap-4 justify-start items-center">
+                      {" "}
+                      <h3 className=" font-bold text-sm ">Phone No</h3>
+                      <Badge className="bg-[#EBEFF4] text-sm border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                        Required
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm">
+                        Please provide a valid phone number where we can reach
+                        you if needed.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex w-[70%] justify-center items-center gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full m-3 justify-start text-left font-normal",
+                            !date && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {date ? (
+                            format(date, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={setDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full px-5 mt-3">
+                <div className="flex justify-between items-center w-full ">
+                  <div className="flex flex-col w-[17.5rem] justify-start">
+                    <div className="flex gap-4 justify-start items-center">
+                      {" "}
+                      <h3 className=" font-bold text-sm ">Email</h3>
+                      <Badge className="bg-[#EBEFF4] text-sm border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                        Required
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm">
+                        Please provide a valid email address that you have
+                        access to.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex w-[70%] justify-center items-center gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full m-3 justify-start text-left font-normal",
+                            !date && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {date ? (
+                            format(date, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={setDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              </div>
             </div>
             {/* <h2 className="text-base font-semibold leading-7 text-gray-900">
               Personal Information
@@ -425,7 +661,7 @@ export default function Form({ updateParentState }: Props) {
             type="button"
             onClick={prev}
             disabled={currentStep === 0}
-            className="rounded bg-white px-2 py-1 text-sm font-semibold text-sky-900 shadow-sm ring-1 ring-inset ring-sky-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -446,7 +682,7 @@ export default function Form({ updateParentState }: Props) {
             type="button"
             onClick={next}
             disabled={currentStep === steps.length - 1}
-            className="rounded  px-2 py-1 text-sm font-semibold text-black bg-[#D0FD3E]  w-28 shadow-sm ring-1 ring-inset ring-sky-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded  px-2 py-1 text-sm font-semibold text-black bg-[#D0FD3E]  w-28 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {/* <svg
               xmlns="http://www.w3.org/2000/svg"

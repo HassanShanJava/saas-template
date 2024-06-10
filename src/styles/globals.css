@@ -37,6 +37,7 @@
     --primary-1: 73 100% 52%; /*green*/
     --secondary1: 0 0% 73%; /*gray text color*/
     --background-gray: 0 0% 53%; /* dark gray */
+    --border-color-check: 0 0% 37%; /* check box border */
     --secondary-foreground1: 0 0% 100%; /*white*/
   }
 }

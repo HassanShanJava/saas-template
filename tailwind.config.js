@@ -21,6 +21,7 @@ export default {
         foreground: "hsl(var(--foreground))",
         textprimary: "hsl(var(--primary-1))",
         textgray: "hsl(var(--secondary1))",
+        checkboxborder: "hsl(var(--border-color-check))",
         textwhite: "hsl(var(--secondary-foreground1))",
         bggray: "hsl(var(--background-gray))",
         primary: {

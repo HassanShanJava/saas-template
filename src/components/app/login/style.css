@@ -1,5 +1,5 @@
 .loginpage-image{
-  background-image: url("../../../assets/landing-bg.svg");
+  background-image: url("../../../assets/background.svg");
   background-position: center;
   background-repeat: no-repeat;
   width: 100vw;
@@ -9,11 +9,18 @@
   background-size: cover;
 }
 
+.font-poppins{
+  font-family: "Poppins";
+}
 @font-face {
   font-family: RaceSports;
-  src: url("../../../utils/fonts/RaceSport.ttf");
+  src: url("../../../utils/fonts/RacingSansOne.ttf");
 }
 
 .hero-topHeading{
  font-family: RaceSports;
+}
+
+.custom-gradient-bg {
+  background: linear-gradient(164.2deg, #5D5D5D 9.85%, rgba(115, 115, 115, 0) 98.72%);
 }

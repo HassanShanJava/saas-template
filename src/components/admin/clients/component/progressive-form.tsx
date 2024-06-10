@@ -9,7 +9,14 @@ import { IoIosArrowForward } from "react-icons/io";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Mail, Phone } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
@@ -27,7 +34,7 @@ const steps = [
   {
     id: "1",
     name: "Personal Information",
-    fields: ["firstName", "lastName", "email"],
+    fields: ["firstName", "lastName", "dob", "gender", "email","phoneno","subscription"],
   },
   {
     id: "2",
@@ -59,13 +66,12 @@ export default function Form({ updateParentState }: Props) {
 
   const processForm: SubmitHandler<Inputs> = (data) => {
     console.log(data);
-    reset();
+    // reset();
   };
 
   type FieldName = keyof Inputs;
 
   const next = async () => {
-    const [date, setDate] = React.useState<Date>();
     const fields = steps[currentStep].fields;
     const output = await trigger(fields as FieldName[], { shouldFocus: true });
 
@@ -87,8 +93,9 @@ export default function Form({ updateParentState }: Props) {
     }
   };
 
+  console.log(register)
   return (
-    <section className="absolute inset-0 flex flex-col justify-between p-6 ">
+    <section className="absolute inset-0 flex flex-col justify-between p-5 ">
       {/* steps */}
       <nav aria-label="Progress">
         <ol
@@ -158,7 +165,7 @@ export default function Form({ updateParentState }: Props) {
 
       {/* Form */}
       <form
-        className="mt-4 py-4 border-2 border-gray-200 rounded-xl max-w-[100%] h-full"
+        className="mt-1.5 py-2 border-2 border-gray-200 rounded-xl max-w-[100%] h-full"
         onSubmit={handleSubmit(processForm)}
       >
         {currentStep === 0 && (
@@ -168,12 +175,12 @@ export default function Form({ updateParentState }: Props) {
           // transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <div className="flex justify-center items-center flex-col ">
-              <div className="w-full px-5">
-                <div className="flex justify-between items-center w-full ">
+              <div className="w-full px-5 grid-cols-12">
+                <div className="flex justify-between items-center w-full col-span-4 ">
                   <div className="flex flex-col w-64 justify-start">
                     <div className="flex gap-4 justify-start items-center">
                       {" "}
-                      <h3 className=" text-sm font-bold">Full Name</h3>
+                      <h3 className="text-sm font-bold">Full Name</h3>
                       <Badge className="bg-[#EBEFF4] border-2 border-[#DBE2EC] text-[#64748B] text-xs rounded-md hover:opacity-70 hover:bg-transparent">
                         Required
                       </Badge>
@@ -185,33 +192,45 @@ export default function Form({ updateParentState }: Props) {
                       </p>
                     </div>
                   </div>
-                  <div className="flex w-[70%] justify-center items-center gap-2">
-                    <div className="w-[45%]">
+                  <div className="flex w-[70%] justify-center items-center gap-4 col-span-8">
+                    <div className="w-[45%] col-span-4">
                       <Input
-                        id="text"
+                        id="firstname"
+                        {...register("firstName")}
                         type="text"
                         placeholder="Enter First Name"
                         className=" bg-transparent outline-none"
                       />
+                      {errors.firstName?.message && (
+                        <p className="mt-2 text-sm text-red-400">
+                          {errors.firstName.message}
+                        </p>
+                      )}
                     </div>
-                    <div className="w-[45%]">
+                    <div className="w-[45%] col-span-4">
                       <Input
-                        id="text"
+                        id="lastName"
+                        {...register("lastName")}
                         type="text"
                         placeholder="Enter Second Name"
                         className="bg-transparent outline-none"
                       />
+                      {errors.lastName?.message && (
+                        <p className="mt-2 text-sm text-red-400">
+                          {errors.lastName.message}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="w-full px-5 mt-3">
+              <div className="w-full px-5 mt-1">
                 <div className="flex justify-between items-center w-full ">
                   <div className="flex flex-col w-[17.5rem] justify-start">
                     <div className="flex gap-4 justify-start items-center">
                       {" "}
                       <h3 className=" font-bold text-sm ">Date Of Birth</h3>
-                      <Badge className="bg-[#EBEFF4] text-sm border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                      <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
                         Required
                       </Badge>
                     </div>
@@ -245,20 +264,27 @@ export default function Form({ updateParentState }: Props) {
                           mode="single"
                           selected={date}
                           onSelect={setDate}
+                          id="dob"
+                          {...register("dob")}
                           initialFocus
                         />
                       </PopoverContent>
                     </Popover>
+                    {errors.dob?.message && (
+                      <p className="mt-2 text-sm text-red-400">
+                        {errors.dob.message}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
-              <div className="w-full px-5 mt-3">
+              <div className="w-full px-5 mt-1">
                 <div className="flex justify-between items-center w-full ">
                   <div className="flex flex-col w-[17.5rem] justify-start">
                     <div className="flex gap-4 justify-start items-center">
                       {" "}
-                      <h3 className=" text-sm font-bold">Gender</h3>
-                      <Badge className="bg-[#EBEFF4] border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                      <h3 className=" font-bold text-sm ">Gender</h3>
+                      <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
                         Required
                       </Badge>
                     </div>
@@ -268,31 +294,49 @@ export default function Form({ updateParentState }: Props) {
                       </p>
                     </div>
                   </div>
-                  <div className="flex w-[70%] justify-start items-center gap-2 border-2 border-gray-300 rounded-lg h-10 ">
-                    <RadioGroup defaultValue="Male" className="flex gap-4">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Male" id="r1" />
-                        <Label htmlFor="r1">Male</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Female" id="r2" />
-                        <Label htmlFor="r2">Female</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Prefer not to say" id="r3" />
-                        <Label htmlFor="r3">Prefer not to say</Label>
-                      </div>
-                    </RadioGroup>
+                  <div className="flex w-[70%] justify-center items-center gap-2">
+                    <div
+                      className={
+                        "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                      }
+                    >
+                      <RadioGroup
+                        {...register("gender")}
+                        defaultValue="male"
+                        className="w-full h-full px-3 flex justify-between items-center"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="male" id="gender" />
+                          <Label htmlFor="r1">Male</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="female" id="gender" />
+                          <Label htmlFor="r2">Female</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem
+                            value="prefer not to say"
+                            id="gender"
+                          />
+                          <Label htmlFor="r3">Prefer not to say</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                    {errors.gender?.message && (
+                      <p className="mt-2 text-sm text-red-400">
+                        {errors.gender.message}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
-              <div className="w-full px-5 mt-3">
+              <div className="w-full px-5 mt-1">
                 <div className="flex justify-between items-center w-full ">
                   <div className="flex flex-col w-[17.5rem] justify-start">
                     <div className="flex gap-4 justify-start items-center">
                       {" "}
                       <h3 className=" font-bold text-sm ">Email</h3>
-                      <Badge className="bg-[#EBEFF4] text-sm border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                      <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
                         Required
                       </Badge>
                     </div>
@@ -304,42 +348,37 @@ export default function Form({ updateParentState }: Props) {
                     </div>
                   </div>
                   <div className="flex w-[70%] justify-center items-center gap-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full m-3 justify-start text-left font-normal",
-                            !date && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? (
-                            format(date, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                          initialFocus
+                    <div
+                      className={
+                        "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
+                      }
+                    >
+                      <div className="flex items-center w-full gap-2 px-2 py-2 rounded-md border border-gray-300">
+                        <Mail className="w-6 h-6 text-gray-500" />
+                        <Input
+                          id="email"
+                          {...register("email")}
+                          type="text"
+                          placeholder="Email"
+                          className="w-full  text-base border-none "
                         />
-                      </PopoverContent>
-                    </Popover>
+                      </div>
+                      {errors.email?.message && (
+                        <p className="mt-2 text-sm text-red-400">
+                          {errors.email.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="w-full px-5 mt-3">
+              <div className="w-full px-5 mt-1">
                 <div className="flex justify-between items-center w-full ">
                   <div className="flex flex-col w-[17.5rem] justify-start">
                     <div className="flex gap-4 justify-start items-center">
                       {" "}
                       <h3 className=" font-bold text-sm ">Phone No</h3>
-                      <Badge className="bg-[#EBEFF4] text-sm border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                      <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
                         Required
                       </Badge>
                     </div>
@@ -351,79 +390,72 @@ export default function Form({ updateParentState }: Props) {
                     </div>
                   </div>
                   <div className="flex w-[70%] justify-center items-center gap-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full m-3 justify-start text-left font-normal",
-                            !date && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? (
-                            format(date, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                          initialFocus
+                    <div
+                      className={
+                        "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
+                      }
+                    >
+                      <div className="flex items-center w-full gap-2 px-2 py-2 rounded-md border border-gray-300">
+                        <Phone className="w-6 h-6 text-gray-500" />
+                        <input
+                          id="phoneno"
+                          {...register("phoneno")}
+                          type="text"
+                          placeholder="Phone No."
+                          className="w-full bg-transparent text-xs"
                         />
-                      </PopoverContent>
-                    </Popover>
+                      </div>
+                      {errors.phoneno?.message && (
+                        <p className="mt-2 text-sm text-red-400">
+                          {errors.phoneno.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="w-full px-5 mt-3">
+              <div className="w-full px-5 mt-1">
                 <div className="flex justify-between items-center w-full ">
                   <div className="flex flex-col w-[17.5rem] justify-start">
                     <div className="flex gap-4 justify-start items-center">
                       {" "}
-                      <h3 className=" font-bold text-sm ">Email</h3>
-                      <Badge className="bg-[#EBEFF4] text-sm border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                      <h3 className=" font-bold text-sm ">Subscription</h3>
+                      <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
                         Required
                       </Badge>
                     </div>
                     <div>
                       <p className="text-sm">
-                        Please provide a valid email address that you have
-                        access to.
+                        Choose your Subscription or division from the list of
+                        available options.
                       </p>
                     </div>
                   </div>
                   <div className="flex w-[70%] justify-center items-center gap-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full m-3 justify-start text-left font-normal",
-                            !date && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? (
-                            format(date, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <div
+                      className={
+                        "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
+                      }
+                    >
+                      <Select {...register("Subscription")}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue
+                            placeholder="Select subscription"
+                            className="text-gray-300 font-semibold"
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="light">Light</SelectItem>
+                          <SelectItem value="dark">Dark</SelectItem>
+                          <SelectItem value="system">System</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {errors.Subscription?.message && (
+                      <p className="mt-2 text-sm text-red-400">
+                        {errors.Subscription.message}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

@@ -10,6 +10,9 @@ import menuItems from "./content";
 import { RadioGroupForm } from "./shadcn";
 import { SelectForm } from "./shadcnn";
 import { Toaster } from "../ui/toaster";
+import MyForm from "./testForm";
+import RadioGrouponeForm from "./radioForm";
+import { SelectOneForm } from "./useFormSelect";
 
 export default function Component() {
   const [activeMenu, setActiveMenu] = useState("main");
@@ -42,8 +45,8 @@ export default function Component() {
             <>
               {menuItems
                 .filter((menuItem) => menuItem.subMenu) // Filter out items without submenu
-                .map((menuItem, index) =>
-                  console.log(menuItem)
+                .map(
+                  (menuItem, index) => console.log(menuItem)
                   // <Link
                   //   key={index}
                   //   to="#"
@@ -165,8 +168,14 @@ export default function Component() {
       </div>
       <div className="flex-1 overflow-auto">
         <main className="p-6">
-          <RadioGroupForm />
-          <SelectForm />
+          {/* <RadioGroupForm />
+          <SelectForm /> */}
+          {/* <MyForm/>
+           */}
+          {/* <RadioGrouponeForm /> */}
+          {/* <SelectOneForm/> */}
+          <MyonlyForm />
+          
           <Toaster />
         </main>
       </div>
@@ -192,6 +201,7 @@ export default function Component() {
 // import { Link } from "react-router-dom";
 // import  React  from 'react';
 // import { ChevronDownIcon, ChevronLeftIcon, MountainIcon } from "lucide-react";
+import MyonlyForm from './onemove';
 
 // export default function TextComp({ menuItems }:any) {
 //   const [activeMenu, setActiveMenu] = useState("main");

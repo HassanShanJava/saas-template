@@ -6,10 +6,15 @@ export const FormDataSchema = z.object({
   dob: z.date({
     required_error: "A date of birth is required.",
   }),
-  gender: z.string().min(1, "Gender is required"),
+  gender: z
+    .enum(["male", "female", "prefer not to say"])
+    .or(z.string().optional())
+    .refine((val) => val !== undefined && val !== "", {
+      message: "Please select a gender.",
+    }),
   email: z.string().min(1, "Email is required").email("Invalid email address"),
   phoneno: z.string().min(1, "Phone no is required"),
-  Subscription: z.string().min(1, "Subscription is required"),
+  subscription: z.enum(["full-month", "half-month", "trial"]),
   country: z.string().min(1, "Country is required"),
   address: z.string().min(1, "Address is required"),
   bankaccount: z.string().min(12, "Bank account is required"),

@@ -5,8 +5,7 @@ import {
 } from "@/components/ui/sheet";
 import { useState } from "react";
 import { PlusIcon } from "@radix-ui/react-icons";
-import Form from "./progressive-form";
-
+import FormData from "./progressive-form";
 export function SideBarForm() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -21,7 +20,7 @@ export function SideBarForm() {
       </Button>
       <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <SheetContent className="sm:max-w-[80vw]">
-          <Form updateParentState={setIsDrawerOpen}/>
+          <FormData updateParentState={setIsDrawerOpen}/>
         </SheetContent>
       </Sheet>
     </>

@@ -17,7 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -36,7 +43,8 @@ const steps = [
     fields: [
       "firstName",
       "lastName",
-     
+     "dob",
+     "gender",
       "email",
       "phoneno",
       "subscription",
@@ -56,11 +64,16 @@ const steps = [
 interface Props {
   updateParentState: (newState: boolean) => void;
 }
-export default function Form({ updateParentState }: Props) {
+export default function FormData({ updateParentState }: Props) {
   const [date, setDate] = React.useState<Date>();
   const [previousStep, setPreviousStep] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const delta = currentStep - previousStep;
+
+  // const form = useForm({
+  //   resolver: zodResolver(FormDataSchema),
+  // });
+
 
   const {
     register,
@@ -68,6 +81,7 @@ export default function Form({ updateParentState }: Props) {
     watch,
     reset,
     trigger,
+    setValue,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(FormDataSchema),
@@ -176,9 +190,9 @@ export default function Form({ updateParentState }: Props) {
       <form className="h-full" onSubmit={handleSubmit(processForm)}>
         {currentStep === 0 && (
           <motion.div
-            // initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            // animate={{ x: 0, opacity: 1 }}
-            // transition={{ duration: 0.3, ease: "easeInOut" }}
+          // initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+          // animate={{ x: 0, opacity: 1 }}
+          // transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <div className=" border-2 border-gray-200 max-w-[100%] h-full mt-5 py-4 rounded-xl  px-3">
               <div className="flex justify-center items-center flex-col gap-2 ">
@@ -270,9 +284,17 @@ export default function Form({ updateParentState }: Props) {
                           <Calendar
                             mode="single"
                             selected={date}
-                            onSelect={setDate}
-                            id="dob"
-                            {...register("dob")}
+                            onSelect={(selectedDate) => {
+                              if (selectedDate) {
+                                setDate(selectedDate);
+                                setValue("dob", selectedDate, {
+                                  shouldValidate: true,
+                                });
+                              }
+                            }}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
                             initialFocus
                           />
                         </PopoverContent>
@@ -334,6 +356,12 @@ export default function Form({ updateParentState }: Props) {
                           {errors.gender.message}
                         </p>
                       )}
+                      {/* {errors.gender &&
+                        typeof errors.gender.message === "string" && (
+                          <p className="mt-2 text-sm text-red-400">
+                            {errors.gender.message}
+                          </p>
+                        )} */}
                     </div>
                   </div>
                 </div>
@@ -450,7 +478,7 @@ export default function Form({ updateParentState }: Props) {
                           "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
                         }
                       >
-                        <Select {...register("Subscription")}>
+                        {/* <Select {...register("subscription")} defaultValue="">
                           <SelectTrigger className="w-full">
                             <SelectValue
                               placeholder="Select subscription"
@@ -458,15 +486,69 @@ export default function Form({ updateParentState }: Props) {
                             />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="light">Full month</SelectItem>
-                            <SelectItem value="dark">half month</SelectItem>
-                            <SelectItem value="system">trail</SelectItem>
+                            <SelectItem value="Full month">
+                              Full month
+                            </SelectItem>
+                            <SelectItem value="half month">
+                              half month
+                            </SelectItem>
+                            <SelectItem value="trail" >
+                              trail
+                            </SelectItem>
                           </SelectContent>
-                        </Select>
+                        </Select> */}
+
+                        {/* <Select {...register("subscription")} defaultValue="" 
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue
+                              placeholder="Select subscription"
+                              className="text-gray-300 font-semibold"
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Full month">
+                              Full month
+                            </SelectItem>
+                            <SelectItem value="half month">
+                              half month
+                            </SelectItem>
+                            <SelectItem value="trail">trail</SelectItem>
+                          </SelectContent>
+                        </Select> */}
+
+                        <div>
+                          <select
+                            {...register("subscription")}
+                            defaultValue={""}
+                            className="block border w-full h-10 pl-3 pr-10 text-base border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                          >
+                            <option value="">Select an option</option>{" "}
+                            {/* Placeholder text */}
+                            <option value="full-month">Full Month</option>
+                            <option value="half-month">Half Month</option>
+                            <option value="trial">Trial</option>
+                          </select>
+                          <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                            <svg
+                              className="w-5 h-5 text-gray-400"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                              aria-hidden="true"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M7.293 6.707a1 1 0 011.414 0L10 8.586l1.293-1.293a1 1 0 111.414 1.414l-2 2a1 1 0 01-1.414 0l-2-2a1 1 0 010-1.414zM7 11a1 1 0 100 2h6a1 1 0 100-2H7z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        </div>
                       </div>
-                      {errors.Subscription?.message && (
+                      {errors.subscription && (
                         <p className="mt-2 text-sm text-red-400">
-                          {errors.Subscription.message}
+                          select subscription plan first
                         </p>
                       )}
                     </div>

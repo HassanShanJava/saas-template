@@ -158,12 +158,33 @@ const DashboardLayout =()=>{
             <span className={`${!isSidebarOpen && "hidden"}`}>Engagements</span>
           </Link>
           <Link
-            to="/admin/client"
+            to="/admin/system_settings"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
-              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
-            }`}
+								isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+							}
+							${
+									isActiveLink(location.pathname, "/admin/system_settings")
+										? "bg-[#D0FD3E]"
+										: ""
+							}
+						`}
           >
-            <UsersIcon className="h-5 w-5" />
+						<div
+							className={`w-8 h-8   ${
+								isActiveLink(location.pathname, "/admin/system_settings")
+									? "bg-[#B5E41C]"
+									: "bg-gray-100"
+							}
+							rounded-lg justify-center flex items-center`}
+						>
+							<MultiUserIcon
+								className={`w-4 h-4   ${
+									isActiveLink(location.pathname, "/admin/client")
+										? "bg-transparent text-gray-500"
+										: ""
+								}`}
+							/>
+						</div>
             <span className={`${!isSidebarOpen && "hidden"}`}>
               System Design
             </span>

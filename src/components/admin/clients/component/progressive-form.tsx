@@ -478,45 +478,6 @@ export default function FormData({ updateParentState }: Props) {
                           "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
                         }
                       >
-                        {/* <Select {...register("subscription")} defaultValue="">
-                          <SelectTrigger className="w-full">
-                            <SelectValue
-                              placeholder="Select subscription"
-                              className="text-gray-300 font-semibold"
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Full month">
-                              Full month
-                            </SelectItem>
-                            <SelectItem value="half month">
-                              half month
-                            </SelectItem>
-                            <SelectItem value="trail" >
-                              trail
-                            </SelectItem>
-                          </SelectContent>
-                        </Select> */}
-
-                        {/* <Select {...register("subscription")} defaultValue="" 
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue
-                              placeholder="Select subscription"
-                              className="text-gray-300 font-semibold"
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Full month">
-                              Full month
-                            </SelectItem>
-                            <SelectItem value="half month">
-                              half month
-                            </SelectItem>
-                            <SelectItem value="trail">trail</SelectItem>
-                          </SelectContent>
-                        </Select> */}
-
                         <div>
                           <select
                             {...register("subscription")}
@@ -822,8 +783,8 @@ export default function FormData({ updateParentState }: Props) {
             </Button>
             <Button
               type="button"
-              onClick={next}
-              disabled={currentStep === steps.length - 1}
+              // onClick={next}
+              // disabled={currentStep === steps.length - 1}
               className="rounded  px-2 py-1 text-sm font-semibold text-black bg-[#D0FD3E]  w-28 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Next

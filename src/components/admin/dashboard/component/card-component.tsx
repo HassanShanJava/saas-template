@@ -4,7 +4,7 @@ import {
 
 const CardComponent = () => {
   return (
-    <div className="px-3 flex flex-row justify-between items-center">
+    <div className="px-3 gap-[0.125rem] flex flex-row justify-between items-center">
       <div className=" flex flex-row justify-between items-center">
         <Card className="flex flex-row py-1 px-3 w-60 justify-between">
           <div className="flex flex-row justify-between items-center w-full">

@@ -9,7 +9,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Mail, Phone } from "lucide-react";
+import { Calendar as CalendarIcon, Mail, Phone, PhoneCall } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -29,26 +29,35 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
 type Inputs = z.infer<typeof FormDataSchema>;
-
 const steps = [
   {
     id: "1",
     name: "Personal Information",
-    fields: ["firstName", "lastName", "dob", "gender", "email","phoneno","subscription"],
+    fields: [
+      "firstName",
+      "lastName",
+     
+      "email",
+      "phoneno",
+      "subscription",
+    ],
   },
   {
     id: "2",
     name: "Address Setup",
-    fields: ["country", "state", "city", "street", "zip"],
+    fields: ["address", "country", "zip"],
   },
-  { id: "3", name: "Bank Details" },
+  {
+    id: "3",
+    name: "Bank Details",
+    fields: ["bankaccount", "swiftcode", "cardholdername","bankname"],
+  },
 ];
 interface Props {
   updateParentState: (newState: boolean) => void;
 }
 export default function Form({ updateParentState }: Props) {
-    const [date, setDate] = React.useState<Date>();
-
+  const [date, setDate] = React.useState<Date>();
   const [previousStep, setPreviousStep] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const delta = currentStep - previousStep;
@@ -95,7 +104,7 @@ export default function Form({ updateParentState }: Props) {
 
   console.log(register)
   return (
-    <section className="absolute inset-0 flex flex-col justify-between p-5 ">
+    <section className="absolute inset-0 flex flex-col justify-between p-10 ">
       {/* steps */}
       <nav aria-label="Progress">
         <ol
@@ -114,7 +123,7 @@ export default function Form({ updateParentState }: Props) {
             <li key={step.name} className="flex items-center relative">
               {currentStep > index ? (
                 <div className="flex justify-start items-center gap-2  transition-colors">
-                  <div className="flex w-8 h-8 rounded-full bg-orange-600 justify-center items-center">
+                  <div className="flex w-10 h-10 rounded-full bg-orange-600 justify-center items-center">
                     <span className="text-sm font-medium text-white">
                       {step.id}
                     </span>
@@ -123,7 +132,7 @@ export default function Form({ updateParentState }: Props) {
                     {step.name}
                   </span>
                   {index < steps.length - 1 && (
-                    <div className="h-[2px] w-52 bg-gray-300"></div>
+                    <div className="h-[2px] w-80 bg-gray-300"></div>
                   )}
                 </div>
               ) : currentStep === index ? (
@@ -131,7 +140,7 @@ export default function Form({ updateParentState }: Props) {
                   className="flex justify-start items-center gap-2"
                   aria-current="step"
                 >
-                  <div className="flex w-8 h-8 rounded-full bg-orange-600 justify-center items-center">
+                  <div className="flex w-10 h-10 rounded-full bg-orange-600 justify-center items-center">
                     <span className="text-sm font-medium text-white ">
                       {step.id}
                     </span>
@@ -140,12 +149,12 @@ export default function Form({ updateParentState }: Props) {
                     {step.name}
                   </span>
                   {index < steps.length - 1 && (
-                    <div className="h-[2px] w-52 bg-gray-300"></div>
+                    <div className="h-[2px] w-80 bg-gray-300"></div>
                   )}
                 </div>
               ) : (
                 <div className="flex justify-start items-center gap-2 transition-colors ">
-                  <div className="flex w-8 h-8 rounded-full bg-white border-2 border-gray-200 justify-center items-center">
+                  <div className="flex w-10 h-10 rounded-full bg-white border-2 border-gray-200 justify-center items-center">
                     <span className="text-sm font-medium text-gray-500">
                       {step.id}
                     </span>
@@ -154,7 +163,7 @@ export default function Form({ updateParentState }: Props) {
                     {step.name}
                   </span>
                   {index < steps.length - 1 && (
-                    <div className="h-[2px] w-52 bg-gray-300"></div>
+                    <div className="h-[2px] w-80 bg-gray-300"></div>
                   )}
                 </div>
               )}
@@ -164,510 +173,377 @@ export default function Form({ updateParentState }: Props) {
       </nav>
 
       {/* Form */}
-      <form
-        className="mt-1.5 py-2 border-2 border-gray-200 rounded-xl max-w-[100%] h-full"
-        onSubmit={handleSubmit(processForm)}
-      >
+      <form className="h-full" onSubmit={handleSubmit(processForm)}>
         {currentStep === 0 && (
           <motion.div
-          // initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-          // animate={{ x: 0, opacity: 1 }}
-          // transition={{ duration: 0.3, ease: "easeInOut" }}
+            // initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            // animate={{ x: 0, opacity: 1 }}
+            // transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            <div className="flex justify-center items-center flex-col ">
-              <div className="w-full px-5 grid-cols-12">
-                <div className="flex justify-between items-center w-full col-span-4 ">
-                  <div className="flex flex-col w-64 justify-start">
-                    <div className="flex gap-4 justify-start items-center">
-                      {" "}
-                      <h3 className="text-sm font-bold">Full Name</h3>
-                      <Badge className="bg-[#EBEFF4] border-2 border-[#DBE2EC] text-[#64748B] text-xs rounded-md hover:opacity-70 hover:bg-transparent">
-                        Required
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-sm">
-                        Enter your legal name as it appears on your official
-                        identification.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex w-[70%] justify-center items-center gap-4 col-span-8">
-                    <div className="w-[45%] col-span-4">
-                      <Input
-                        id="firstname"
-                        {...register("firstName")}
-                        type="text"
-                        placeholder="Enter First Name"
-                        className=" bg-transparent outline-none"
-                      />
-                      {errors.firstName?.message && (
-                        <p className="mt-2 text-sm text-red-400">
-                          {errors.firstName.message}
+            <div className=" border-2 border-gray-200 max-w-[100%] h-full mt-5 py-4 rounded-xl  px-3">
+              <div className="flex justify-center items-center flex-col gap-2 ">
+                <div className="w-full px-5 grid-cols-12">
+                  <div className="flex justify-between items-center w-full col-span-4 ">
+                    <div className="flex flex-col w-64 justify-start">
+                      <div className="flex gap-4 justify-start items-center">
+                        {" "}
+                        <h3 className="text-sm font-bold">Full Name</h3>
+                        <Badge className="bg-[#EBEFF4] border-2 border-[#DBE2EC] text-[#64748B] text-xs rounded-md hover:opacity-70 hover:bg-transparent">
+                          Required
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm">
+                          Enter your legal name as it appears on your official
+                          identification.
                         </p>
-                      )}
+                      </div>
                     </div>
-                    <div className="w-[45%] col-span-4">
-                      <Input
-                        id="lastName"
-                        {...register("lastName")}
-                        type="text"
-                        placeholder="Enter Second Name"
-                        className="bg-transparent outline-none"
-                      />
-                      {errors.lastName?.message && (
-                        <p className="mt-2 text-sm text-red-400">
-                          {errors.lastName.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full px-5 mt-1">
-                <div className="flex justify-between items-center w-full ">
-                  <div className="flex flex-col w-[17.5rem] justify-start">
-                    <div className="flex gap-4 justify-start items-center">
-                      {" "}
-                      <h3 className=" font-bold text-sm ">Date Of Birth</h3>
-                      <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
-                        Required
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-sm">
-                        This informationm is required to verify your age and
-                        provide age-appropirate services.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex w-[70%] justify-center items-center gap-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full m-3 justify-start text-left font-normal",
-                            !date && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? (
-                            format(date, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                          id="dob"
-                          {...register("dob")}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    {errors.dob?.message && (
-                      <p className="mt-2 text-sm text-red-400">
-                        {errors.dob.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="w-full px-5 mt-1">
-                <div className="flex justify-between items-center w-full ">
-                  <div className="flex flex-col w-[17.5rem] justify-start">
-                    <div className="flex gap-4 justify-start items-center">
-                      {" "}
-                      <h3 className=" font-bold text-sm ">Gender</h3>
-                      <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
-                        Required
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-sm">
-                        Select your gender from the options.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex w-[70%] justify-center items-center gap-2">
-                    <div
-                      className={
-                        "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground"
-                      }
-                    >
-                      <RadioGroup
-                        {...register("gender")}
-                        defaultValue="male"
-                        className="w-full h-full px-3 flex justify-between items-center"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="male" id="gender" />
-                          <Label htmlFor="r1">Male</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="female" id="gender" />
-                          <Label htmlFor="r2">Female</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem
-                            value="prefer not to say"
-                            id="gender"
-                          />
-                          <Label htmlFor="r3">Prefer not to say</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                    {errors.gender?.message && (
-                      <p className="mt-2 text-sm text-red-400">
-                        {errors.gender.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="w-full px-5 mt-1">
-                <div className="flex justify-between items-center w-full ">
-                  <div className="flex flex-col w-[17.5rem] justify-start">
-                    <div className="flex gap-4 justify-start items-center">
-                      {" "}
-                      <h3 className=" font-bold text-sm ">Email</h3>
-                      <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
-                        Required
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-sm">
-                        Please provide a valid email address that you have
-                        access to.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex w-[70%] justify-center items-center gap-2">
-                    <div
-                      className={
-                        "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
-                      }
-                    >
-                      <div className="flex items-center w-full gap-2 px-2 py-2 rounded-md border border-gray-300">
-                        <Mail className="w-6 h-6 text-gray-500" />
+                    <div className="flex w-[70%] justify-center items-center gap-4 col-span-8">
+                      <div className="w-[45%] col-span-4">
                         <Input
-                          id="email"
-                          {...register("email")}
+                          id="firstname"
+                          {...register("firstName")}
                           type="text"
-                          placeholder="Email"
-                          className="w-full  text-base border-none "
+                          placeholder="Enter First Name"
+                          className=" bg-transparent outline-none"
                         />
+                        {errors.firstName?.message && (
+                          <p className="mt-2 text-sm text-red-400">
+                            {errors.firstName.message}
+                          </p>
+                        )}
                       </div>
-                      {errors.email?.message && (
-                        <p className="mt-2 text-sm text-red-400">
-                          {errors.email.message}
-                        </p>
-                      )}
+                      <div className="w-[45%] col-span-4">
+                        <Input
+                          id="lastName"
+                          {...register("lastName")}
+                          type="text"
+                          placeholder="Enter Second Name"
+                          className="bg-transparent outline-none"
+                        />
+                        {errors.lastName?.message && (
+                          <p className="mt-2 text-sm text-red-400">
+                            {errors.lastName.message}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="w-full px-5 mt-1">
-                <div className="flex justify-between items-center w-full ">
-                  <div className="flex flex-col w-[17.5rem] justify-start">
-                    <div className="flex gap-4 justify-start items-center">
-                      {" "}
-                      <h3 className=" font-bold text-sm ">Phone No</h3>
-                      <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
-                        Required
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-sm">
-                        Please provide a valid phone number where we can reach
-                        you if needed.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex w-[70%] justify-center items-center gap-2">
-                    <div
-                      className={
-                        "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
-                      }
-                    >
-                      <div className="flex items-center w-full gap-2 px-2 py-2 rounded-md border border-gray-300">
-                        <Phone className="w-6 h-6 text-gray-500" />
-                        <input
-                          id="phoneno"
-                          {...register("phoneno")}
-                          type="text"
-                          placeholder="Phone No."
-                          className="w-full bg-transparent text-xs"
-                        />
+                <div className="w-full px-5 mt-1">
+                  <div className="flex justify-between items-center w-full ">
+                    <div className="flex flex-col w-[17.5rem] justify-start">
+                      <div className="flex gap-4 justify-start items-center">
+                        {" "}
+                        <h3 className=" font-bold text-sm ">Date Of Birth</h3>
+                        <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                          Required
+                        </Badge>
                       </div>
-                      {errors.phoneno?.message && (
-                        <p className="mt-2 text-sm text-red-400">
-                          {errors.phoneno.message}
+                      <div>
+                        <p className="text-sm">
+                          This informationm is required to verify your age and
+                          provide age-appropirate services.
                         </p>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full px-5 mt-1">
-                <div className="flex justify-between items-center w-full ">
-                  <div className="flex flex-col w-[17.5rem] justify-start">
-                    <div className="flex gap-4 justify-start items-center">
-                      {" "}
-                      <h3 className=" font-bold text-sm ">Subscription</h3>
-                      <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
-                        Required
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-sm">
-                        Choose your Subscription or division from the list of
-                        available options.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex w-[70%] justify-center items-center gap-2">
-                    <div
-                      className={
-                        "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
-                      }
-                    >
-                      <Select {...register("Subscription")}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue
-                            placeholder="Select subscription"
-                            className="text-gray-300 font-semibold"
+                    <div className="flex w-[70%] justify-center items-center gap-2">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full m-3 justify-start text-left font-normal",
+                              !date && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {date ? (
+                              format(date, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={date}
+                            onSelect={setDate}
+                            id="dob"
+                            {...register("dob")}
+                            initialFocus
                           />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="light">Light</SelectItem>
-                          <SelectItem value="dark">Dark</SelectItem>
-                          <SelectItem value="system">System</SelectItem>
-                        </SelectContent>
-                      </Select>
+                        </PopoverContent>
+                      </Popover>
+                      {errors.dob?.message && (
+                        <p className="mt-2 text-sm text-red-400">
+                          {errors.dob.message}
+                        </p>
+                      )}
                     </div>
-                    {errors.Subscription?.message && (
-                      <p className="mt-2 text-sm text-red-400">
-                        {errors.Subscription.message}
-                      </p>
-                    )}
+                  </div>
+                </div>
+                <div className="w-full px-5 mt-1">
+                  <div className="flex justify-between items-center w-full ">
+                    <div className="flex flex-col w-[17.5rem] justify-start">
+                      <div className="flex gap-4 justify-start items-center">
+                        {" "}
+                        <h3 className=" font-bold text-sm ">Gender</h3>
+                        <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                          Required
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm">
+                          Select your gender from the options.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex w-[70%] justify-center items-center gap-2">
+                      <div
+                        className={
+                          "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                        }
+                      >
+                        <RadioGroup
+                          {...register("gender")}
+                          defaultValue="male"
+                          className="w-full h-full px-3 flex justify-between items-center"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="male" id="gender" />
+                            <Label htmlFor="r1">Male</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="female" id="gender" />
+                            <Label htmlFor="r2">Female</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem
+                              value="prefer not to say"
+                              id="gender"
+                            />
+                            <Label htmlFor="r3">Prefer not to say</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+                      {errors.gender?.message && (
+                        <p className="mt-2 text-sm text-red-400">
+                          {errors.gender.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full px-5 mt-1">
+                  <div className="flex justify-between items-center w-full ">
+                    <div className="flex flex-col w-[17.5rem] justify-start">
+                      <div className="flex gap-4 justify-start items-center">
+                        {" "}
+                        <h3 className=" font-bold text-sm ">Email</h3>
+                        <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                          Required
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm">
+                          Please provide a valid email address that you have
+                          access to.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex w-[70%] justify-center items-center gap-2">
+                      <div
+                        className={
+                          "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
+                        }
+                      >
+                        <div className="flex items-center w-full gap-2 px-2 py-2 rounded-md border border-gray-300 focus-within:ring-2 focus-within:ring-gray-500">
+                          <Mail className="w-6 h-6 text-gray-500" />
+                          <input
+                            id="email"
+                            {...register("email", {
+                              required: "Email is Required",
+                              pattern: {
+                                value: /^\S+@\S+$/i,
+                                message: "Invalid email address",
+                              },
+                            })}
+                            type="text"
+                            placeholder="Email"
+                            className="w-full text-sm border-none outline-none ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                        {errors.email?.message && (
+                          <p className="mt-2 text-sm text-red-400">
+                            {errors.email.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full px-5 mt-1">
+                  <div className="flex justify-between items-center w-full ">
+                    <div className="flex flex-col w-[17.5rem] justify-start">
+                      <div className="flex gap-4 justify-start items-center">
+                        {" "}
+                        <h3 className=" font-bold text-sm ">Phone No</h3>
+                        <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                          Required
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm">
+                          Please provide a valid phone number where we can reach
+                          you if needed.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex w-[70%] justify-center items-center gap-2">
+                      <div
+                        className={
+                          "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
+                        }
+                      >
+                        <div className="flex items-center w-full gap-2 px-2 py-2 rounded-md border border-gray-300 focus-within:ring-2 focus-within:ring-gray-500">
+                          <PhoneCall className="w-6 h-6 text-gray-500" />
+                          <input
+                            id="phoneno"
+                            {...register("phoneno")}
+                            type="text"
+                            placeholder="phoneno"
+                            className="w-full text-sm border-none outline-none ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                        {errors.phoneno?.message && (
+                          <p className="mt-2 text-sm text-red-400">
+                            {errors.phoneno.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full px-5 mt-1">
+                  <div className="flex justify-between items-center w-full ">
+                    <div className="flex flex-col w-[17.5rem] justify-start">
+                      <div className="flex gap-4 justify-start items-center">
+                        {" "}
+                        <h3 className=" font-bold text-sm ">Subscription</h3>
+                        <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                          Required
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm">
+                          Choose your Subscription or division from the list of
+                          available options.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex w-[70%] justify-center items-center gap-2">
+                      <div
+                        className={
+                          "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
+                        }
+                      >
+                        <Select {...register("Subscription")}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue
+                              placeholder="Select subscription"
+                              className="text-gray-300 font-semibold"
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="light">Full month</SelectItem>
+                            <SelectItem value="dark">half month</SelectItem>
+                            <SelectItem value="system">trail</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {errors.Subscription?.message && (
+                        <p className="mt-2 text-sm text-red-400">
+                          {errors.Subscription.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            {/* <h2 className="text-base font-semibold leading-7 text-gray-900">
-              Personal Information
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-gray-600">
-              Provide your personal details.
-            </p>
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="firstName"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  First name
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    id="firstName"
-                    {...register("firstName")}
-                    autoComplete="given-name"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                  />
-                  {errors.firstName?.message && (
-                    <p className="mt-2 text-sm text-red-400">
-                      {errors.firstName.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="lastName"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Last name
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    id="lastName"
-                    {...register("lastName")}
-                    autoComplete="family-name"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                  />
-                  {errors.lastName?.message && (
-                    <p className="mt-2 text-sm text-red-400">
-                      {errors.lastName.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="sm:col-span-4">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Email address
-                </label>
-                <div className="mt-2">
-                  <input
-                    id="email"
-                    type="email"
-                    {...register("email")}
-                    autoComplete="email"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                  />
-                  {errors.email?.message && (
-                    <p className="mt-2 text-sm text-red-400">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div> */}
           </motion.div>
         )}
 
         {currentStep === 1 && (
           <motion.div
-          // initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-          // animate={{ x: 0, opacity: 1 }}
-          // transition={{ duration: 0.3, ease: "easeInOut" }}
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            <h2 className="text-base font-semibold leading-7 text-gray-900">
-              Address
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-gray-600">
-              Address where you can receive mail.
-            </p>
-
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="country"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Country
-                </label>
-                <div className="mt-2">
-                  <select
-                    id="country"
-                    {...register("country")}
-                    autoComplete="country-name"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  >
-                    <option>United States</option>
-                    <option>Canada</option>
-                    <option>Mexico</option>
-                  </select>
-                  {errors.country?.message && (
-                    <p className="mt-2 text-sm text-red-400">
-                      {errors.country.message}
+            <div className=" border-2 border-gray-200 max-w-[100%] h-full mt-5 py-4 rounded-xl  px-3">
+              <div className="flex justify-between items-center w-full col-span-4 ">
+                <div className="flex flex-col w-64 justify-start">
+                  <div className="flex gap-4 justify-start items-center">
+                    {" "}
+                    <h3 className="text-sm font-bold">Address</h3>
+                    <Badge className="bg-[#EBEFF4] border-2 border-[#DBE2EC] text-[#64748B] text-xs rounded-md hover:opacity-70 hover:bg-transparent">
+                      Required
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm">
+                      Enter your address, Zip code and country.
                     </p>
-                  )}
+                  </div>
                 </div>
-              </div>
-
-              <div className="col-span-full">
-                <label
-                  htmlFor="street"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Street address
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    id="street"
-                    {...register("street")}
-                    autoComplete="street-address"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                  />
-                  {errors.street?.message && (
-                    <p className="mt-2 text-sm text-red-400">
-                      {errors.street.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="sm:col-span-2 sm:col-start-1">
-                <label
-                  htmlFor="city"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  City
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    id="city"
-                    {...register("city")}
-                    autoComplete="address-level2"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                  />
-                  {errors.city?.message && (
-                    <p className="mt-2 text-sm text-red-400">
-                      {errors.city.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="state"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  State / Province
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    id="state"
-                    {...register("state")}
-                    autoComplete="address-level1"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                  />
-                  {errors.state?.message && (
-                    <p className="mt-2 text-sm text-red-400">
-                      {errors.state.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="zip"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  ZIP / Postal code
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    id="zip"
-                    {...register("zip")}
-                    autoComplete="postal-code"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6"
-                  />
-                  {errors.zip?.message && (
-                    <p className="mt-2 text-sm text-red-400">
-                      {errors.zip.message}
-                    </p>
-                  )}
+                <div className="flex w-[70%] justify-center items-center gap-4 flex-col">
+                  <div className="w-full flex ">
+                    <Input
+                      id="address"
+                      {...register("address")}
+                      type="text"
+                      placeholder="Enter your address"
+                      className=" bg-transparent outline-none"
+                    />
+                    {errors.address?.message && (
+                      <p className="mt-2 text-sm text-red-400">
+                        {errors.address.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className=" w-[100%] flex justify-between items-center">
+                    <div className="w-[50%]">
+                      <Input
+                        id="county"
+                        {...register("zip")}
+                        type="text"
+                        placeholder="Enter your Zip code"
+                        className=" bg-transparent outline-none"
+                      />
+                      {errors.zip?.message && (
+                        <p className="mt-2 text-sm text-red-400">
+                          {errors.zip.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="w-[45%]">
+                      <Input
+                        id="country"
+                        {...register("country")}
+                        type="text"
+                        placeholder="Enter your country"
+                        className=" bg-transparent outline-none"
+                      />
+                      {errors.country?.message && (
+                        <p className="mt-2 text-sm text-red-400">
+                          {errors.country.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -675,65 +551,204 @@ export default function Form({ updateParentState }: Props) {
         )}
 
         {currentStep === 2 && (
-          <>
-            <h2 className="text-base font-semibold leading-7 text-gray-900">
-              Complete
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-gray-600">
-              Thank you for your submission.
-            </p>
-          </>
+          <motion.div
+            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            <div className=" border-2 border-gray-200 max-w-[100%]  mt-5 py-4 rounded-xl  px-3">
+              <div className="flex justify-center items-center flex-col gap-2 ">
+                <div className="w-full px-5 mt-1">
+                  <div className="flex justify-between items-center w-full ">
+                    <div className="flex flex-col w-[17.5rem] justify-start">
+                      <div className="flex gap-4 justify-start items-center">
+                        {" "}
+                        <h3 className=" font-bold text-sm ">Bank Account No</h3>
+                        <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                          Required
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm">Enter 12 Digit Number</p>
+                      </div>
+                    </div>
+                    <div className="flex w-[70%] justify-center items-center gap-2">
+                      <div
+                        className={
+                          "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
+                        }
+                      >
+                        <div className="flex items-center w-full gap-2 px-2 py-2 rounded-md border border-gray-300 focus-within:ring-2 focus-within:ring-gray-500">
+                          <input
+                            id="bankaccount"
+                            {...register("bankaccount")}
+                            type="text"
+                            placeholder="XXXX-XXXXXXXX"
+                            className="w-full text-sm border-none outline-none ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                        {errors.bankaccount?.message && (
+                          <p className="mt-2 text-sm text-red-400">
+                            {errors.bankaccount.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full px-5 mt-1">
+                  <div className="flex justify-between items-center w-full ">
+                    <div className="flex flex-col w-[17.5rem] justify-start">
+                      <div className="flex gap-4 justify-start items-center">
+                        {" "}
+                        <h3 className=" font-bold text-sm ">
+                          BIC / Swift Code
+                        </h3>
+                        <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                          Required
+                        </Badge>
+                      </div>
+                      <div>
+                        <p className="text-sm">Enter 12 Digit Number</p>
+                      </div>
+                    </div>
+                    <div className="flex w-[70%] justify-center items-center gap-2">
+                      <div
+                        className={
+                          "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
+                        }
+                      >
+                        <div className="flex items-center w-full gap-2 px-2 py-2 rounded-md border border-gray-300 focus-within:ring-2 focus-within:ring-gray-500">
+                          <input
+                            id="swiftcode"
+                            {...register("swiftcode")}
+                            type="text"
+                            placeholder="XXXX-XXXXXXXX"
+                            className="w-full text-sm border-none outline-none ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                        {errors.swiftcode?.message && (
+                          <p className="mt-2 text-sm text-red-400">
+                            {errors.swiftcode.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full px-5 mt-1">
+                  <div className="flex justify-between items-center w-full ">
+                    <div className="flex flex-col w-[17.5rem] justify-start">
+                      <div className="flex gap-4 justify-start items-center">
+                        {" "}
+                        <h3 className=" font-bold text-sm ">
+                          Card Holder Name
+                        </h3>
+                        <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                          Required
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex w-[70%] justify-center items-center gap-2">
+                      <div
+                        className={
+                          "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
+                        }
+                      >
+                        <div className="flex items-center w-full gap-2 px-2 py-2 rounded-md border border-gray-300 focus-within:ring-2 focus-within:ring-gray-500">
+                          <input
+                            id="cardholdername"
+                            {...register("cardholdername")}
+                            type="text"
+                            placeholder="Enter name"
+                            className="w-full text-sm border-none outline-none ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                        {errors.cardholdername?.message && (
+                          <p className="mt-2 text-sm text-red-400">
+                            {errors.cardholdername.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full px-5 mt-1">
+                  <div className="flex justify-between items-center w-full ">
+                    <div className="flex flex-col w-[17.5rem] justify-start">
+                      <div className="flex gap-4 justify-start items-center">
+                        {" "}
+                        <h3 className=" font-bold text-sm ">
+                          Card Holder Name
+                        </h3>
+                        <Badge className="bg-[#EBEFF4] text-xs border-2 border-[#DBE2EC] text-[#64748B] rounded-md hover:opacity-70 hover:bg-transparent">
+                          Required
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex w-[70%] justify-center items-center gap-2">
+                      <div
+                        className={
+                          "w-full m-3 justify-center items-center text-left font-normal h-11 rounded-lg bg-background"
+                        }
+                      >
+                        <div className="flex items-center w-full gap-2 px-2 py-2 rounded-md border border-gray-300 focus-within:ring-2 focus-within:ring-gray-500">
+                          <input
+                            id="bankname"
+                            {...register("bankname")}
+                            type="text"
+                            placeholder="Enter Bank Name"
+                            className="w-full text-sm border-none outline-none ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                        {errors.bankname?.message && (
+                          <p className="mt-2 text-sm text-red-400">
+                            {errors.bankname.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         )}
-      </form>
-
-      {/* Navigation */}
-      <div className="mt-1 pt-1">
-        <div className="flex justify-between">
-          <Button
-            type="button"
-            onClick={prev}
-            disabled={currentStep === 0}
-            className="rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="h-6 w-6"
+        {/* Navigation */}
+        <div className="mt-1 pt-1">
+          <div className="flex justify-between">
+            <Button
+              type="button"
+              onClick={prev}
+              disabled={currentStep === 0}
+              className="rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5L8.25 12l7.5-7.5"
-              />
-            </svg>
-          </Button>
-          <Button
-            type="button"
-            onClick={next}
-            disabled={currentStep === steps.length - 1}
-            className="rounded  px-2 py-1 text-sm font-semibold text-black bg-[#D0FD3E]  w-28 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {/* <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="h-6 w-6"
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="h-6 w-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5L8.25 12l7.5-7.5"
+                />
+              </svg>
+            </Button>
+            <Button
+              type="button"
+              onClick={next}
+              disabled={currentStep === steps.length - 1}
+              className="rounded  px-2 py-1 text-sm font-semibold text-black bg-[#D0FD3E]  w-28 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8.25 4.5l7.5 7.5-7.5 7.5"
-              />
-            </svg> */}
-            Next
-          </Button>
+              Next
+            </Button>
+          </div>
         </div>
-      </div>
+      </form>
     </section>
   );
 }

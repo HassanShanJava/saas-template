@@ -9,7 +9,7 @@ import CardComponent from "./component/card-component";
 
 const Dashboard = () => {
   return (
-    <div className="grid gap-6 bg-[#F8F9FA] p-3">
+    <div className="grid gap-6  p-3">
       {/* <DashboardHeader /> */}
       <CardComponent />
       <div className="grid grid-cols-2 gap-6 p-4">

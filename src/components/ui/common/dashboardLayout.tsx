@@ -31,13 +31,13 @@ const DashboardLayout =()=>{
               Let's Move
             </span>
           </Link>
-          <Button
+          {/* <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           >
             <MenuIcon className="h-6 w-6" />
-          </Button>
+          </Button> */}
         </div>
         <nav className="flex flex-col gap-1 px-2 py-2">
           <Link
@@ -104,7 +104,7 @@ const DashboardLayout =()=>{
             </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Client</span>
           </Link>
-         
+
           <Link
             to="#"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
@@ -174,9 +174,9 @@ const DashboardLayout =()=>{
       </div>
       <div className="flex-1 overflow-auto">
         <Header />
-        <main className="p-0">
+        <main className="p-0 bg-bgbackground">
           <Outlet />
-          <Toaster/>
+          <Toaster />
         </main>
       </div>
     </div>

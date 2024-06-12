@@ -39,6 +39,8 @@
     --background-gray: 0 0% 53%; /* dark gray */
     --border-color-check: 0 0% 37%; /* check box border */
     --secondary-foreground1: 0 0% 100%; /*white*/
+    --background-color:0, 0%, 97%; /*background-color*/
+    --text-main-color: 0, 0%, 0%;/*main text color*/
   }
 }
  

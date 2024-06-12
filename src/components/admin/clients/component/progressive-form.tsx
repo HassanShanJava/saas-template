@@ -43,8 +43,8 @@ const steps = [
     fields: [
       "firstName",
       "lastName",
-     "dob",
-     "gender",
+      "dob",
+      "gender",
       "email",
       "phoneno",
       "subscription",
@@ -53,13 +53,14 @@ const steps = [
   {
     id: "2",
     name: "Address Setup",
-    fields: ["address", "country", "zip"],
+    fields: ["country", "address", "zip"],
   },
   {
     id: "3",
     name: "Bank Details",
-    fields: ["bankaccount", "swiftcode", "cardholdername","bankname"],
+    fields: ["bankaccount", "swiftcode", "cardholdername", "bankname"],
   },
+  { id: "Step 4", name: "Complete" },
 ];
 interface Props {
   updateParentState: (newState: boolean) => void;
@@ -70,11 +71,6 @@ export default function FormData({ updateParentState }: Props) {
   const [currentStep, setCurrentStep] = useState(0);
   const delta = currentStep - previousStep;
 
-  // const form = useForm({
-  //   resolver: zodResolver(FormDataSchema),
-  // });
-
-
   const {
     register,
     handleSubmit,
@@ -82,41 +78,47 @@ export default function FormData({ updateParentState }: Props) {
     reset,
     trigger,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(FormDataSchema),
   });
 
-  const processForm: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
+  const processForm: any = async (data:any) => {
+    console.log('submitting')
+    console.log({data});
     // reset();
   };
 
-  type FieldName = keyof Inputs;
+type FieldName = keyof Inputs;
 
-  const next = async () => {
-    const fields = steps[currentStep].fields;
-    const output = await trigger(fields as FieldName[], { shouldFocus: true });
+ const next = async () => {
+   const fields = steps[currentStep].fields;
+   const output = await trigger(fields as FieldName[], { shouldFocus: true });
 
-    if (!output) return;
+   if (!output) return;
+// if (currentStep >= 2) return;
+   if (currentStep < steps.length - 1) {
+     if (currentStep === steps.length - 2) {
+       await handleSubmit(processForm)();
+     }
+     if (currentStep < 2) 
+      {
 
-    if (currentStep < steps.length - 1) {
-      if (currentStep === steps.length - 2) {
-        await handleSubmit(processForm)();
+        setPreviousStep(currentStep);
+       setCurrentStep((step) => step + 1);
       }
-      setPreviousStep(currentStep);
-      setCurrentStep((step) => step + 1);
-    }
-  };
+   }
+ };
 
-  const prev = () => {
-    if (currentStep > 0) {
-      setPreviousStep(currentStep);
-      setCurrentStep((step) => step - 1);
-    }
-  };
+ const prev = () => {
+   if (currentStep > 0) {
+     setPreviousStep(currentStep);
+     setCurrentStep((step) => step - 1);
+   }
+ };
 
-  console.log(register)
+  console.log(getValues(), { currentStep, errors });
   return (
     <section className="absolute inset-0 flex flex-col justify-between p-10 ">
       {/* steps */}
@@ -133,8 +135,9 @@ export default function FormData({ updateParentState }: Props) {
               <IoIosArrowForward className="h-4 w-4 text-black " />
             </div>
           </Button>
-          {steps.map((step, index) => (
+          {/* {steps.map((step, index) => (
             <li key={step.name} className="flex items-center relative">
+              
               {currentStep > index ? (
                 <div className="flex justify-start items-center gap-2  transition-colors">
                   <div className="flex w-10 h-10 rounded-full bg-orange-600 justify-center items-center">
@@ -182,18 +185,118 @@ export default function FormData({ updateParentState }: Props) {
                 </div>
               )}
             </li>
-          ))}
+          ))} */}
+          {/* {steps.map((step, index) => {
+            if (index === steps.length - 1) return null; // Skip the last index
+
+            return (
+              <li key={step.name} className="flex items-center relative">
+                {currentStep > index ? (
+                  <div className="flex justify-start items-center gap-2 transition-colors">
+                    <div className="flex w-10 h-10 rounded-full bg-orange-600 justify-center items-center">
+                      <span className="text-sm font-medium text-white">
+                        {step.id}
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium text-black text-nowrap">
+                      {step.name}
+                    </span>
+                    <div className="h-[2px] w-80 bg-gray-300"></div>
+                  </div>
+                ) : currentStep === index ? (
+                  <div
+                    className="flex justify-start items-center gap-2"
+                    aria-current="step"
+                  >
+                    <div className="flex w-10 h-10 rounded-full bg-orange-600 justify-center items-center">
+                      <span className="text-sm font-medium text-white">
+                        {step.id}
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium text-black text-nowrap">
+                      {step.name}
+                    </span>
+                    <div className="h-[2px] w-80 bg-gray-300"></div>
+                  </div>
+                ) : (
+                  <div className="flex justify-start items-center gap-2 transition-colors">
+                    <div className="flex w-10 h-10 rounded-full bg-white border-2 border-gray-200 justify-center items-center">
+                      <span className="text-sm font-medium text-gray-500">
+                        {step.id}
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium text-gray-500 text-nowrap">
+                      {step.name}
+                    </span>
+                    <div className="h-[2px] w-80 bg-gray-300"></div>
+                  </div>
+                )}
+              </li>
+            );
+          })} */}
+          {steps.map((step, index) => {
+            if (index === steps.length - 1) return null; // Skip the last index
+
+            const isLastRenderedStep = index === steps.length - 2;
+
+            return (
+              <li key={step.id} className="flex items-center relative">
+                {currentStep > index ? (
+                  <div className="flex justify-start items-center gap-2 transition-colors">
+                    <div className="flex w-10 h-10 rounded-full bg-orange-600 justify-center items-center">
+                      <span className="text-sm font-medium text-white">
+                        {step.id}
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium text-black text-nowrap">
+                      {step.name}
+                    </span>
+                    {!isLastRenderedStep && (
+                      <div className="h-[2px] w-80 bg-gray-300"></div>
+                    )}
+                  </div>
+                ) : currentStep === index ? (
+                  <div
+                    className="flex justify-start items-center gap-2"
+                    aria-current="step"
+                  >
+                    <div className="flex w-10 h-10 rounded-full bg-orange-600 justify-center items-center">
+                      <span className="text-sm font-medium text-white">
+                        {step.id}
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium text-black text-nowrap">
+                      {step.name}
+                    </span>
+                    {!isLastRenderedStep && (
+                      <div className="h-[2px] w-80 bg-gray-300"></div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex justify-start items-center gap-2 transition-colors">
+                    <div className="flex w-10 h-10 rounded-full bg-white border-2 border-gray-200 justify-center items-center">
+                      <span className="text-sm font-medium text-gray-500">
+                        {step.id}
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium text-gray-500 text-nowrap">
+                      {step.name}
+                    </span>
+                    {!isLastRenderedStep && (
+                      <div className="h-[2px] w-80 bg-gray-300"></div>
+                    )}
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ol>
       </nav>
 
       {/* Form */}
       <form className="h-full" onSubmit={handleSubmit(processForm)}>
         {currentStep === 0 && (
-          <motion.div
-          // initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-          // animate={{ x: 0, opacity: 1 }}
-          // transition={{ duration: 0.3, ease: "easeInOut" }}
-          >
+          <motion.div>
             <div className=" border-2 border-gray-200 max-w-[100%] h-full mt-5 py-4 rounded-xl  px-3">
               <div className="flex justify-center items-center flex-col gap-2 ">
                 <div className="w-full px-5 grid-cols-12">
@@ -481,7 +584,6 @@ export default function FormData({ updateParentState }: Props) {
                         <div>
                           <select
                             {...register("subscription")}
-                            defaultValue={""}
                             className="block border w-full h-10 pl-3 pr-10 text-base border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                           >
                             <option value="">Select an option</option>{" "}
@@ -521,11 +623,7 @@ export default function FormData({ updateParentState }: Props) {
         )}
 
         {currentStep === 1 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-          >
+          <motion.div>
             <div className=" border-2 border-gray-200 max-w-[100%] h-full mt-5 py-4 rounded-xl  px-3">
               <div className="flex justify-between items-center w-full col-span-4 ">
                 <div className="flex flex-col w-64 justify-start">
@@ -594,11 +692,7 @@ export default function FormData({ updateParentState }: Props) {
         )}
 
         {currentStep === 2 && (
-          <motion.div
-            initial={{ x: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-          >
+          <motion.div>
             <div className=" border-2 border-gray-200 max-w-[100%]  mt-5 py-4 rounded-xl  px-3">
               <div className="flex justify-center items-center flex-col gap-2 ">
                 <div className="w-full px-5 mt-1">
@@ -739,6 +833,7 @@ export default function FormData({ updateParentState }: Props) {
                           <input
                             id="bankname"
                             {...register("bankname")}
+                            defaultValue={""}
                             type="text"
                             placeholder="Enter Bank Name"
                             className="w-full text-sm border-none outline-none ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
@@ -782,12 +877,12 @@ export default function FormData({ updateParentState }: Props) {
               </svg>
             </Button>
             <Button
-              type="button"
-              // onClick={next}
+              type={"button"}
+              onClick={next}
               // disabled={currentStep === steps.length - 1}
               className="rounded  px-2 py-1 text-sm font-semibold text-black bg-[#D0FD3E]  w-28 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Next
+              {currentStep === steps.length - 2 ? "Submit" : "Next"}
             </Button>
           </div>
         </div>

@@ -3,6 +3,7 @@ import {
   Bar,
   YAxis,
   Tooltip,
+  XAxis,
 } from "recharts";
 import { Progress } from "@/components/ui/progress";
 
@@ -59,8 +60,8 @@ const SimpleBarChart = () => {
         style={{ backgroundColor: "#200119", padding: "10px" }}
         className="h-[40vh] w-full max-w-2xl rounded-xl"
       >
-        <CardContent className="p-0">
-          <BarChart
+        <CardContent className="p-0 justify-center flex items-center">
+          {/* <BarChart
             width={400}
             height={200}
             data={data}
@@ -78,6 +79,42 @@ const SimpleBarChart = () => {
               domain={[0, "dataMax"]}
               ticks={[0, 100, 200, 300, 400, 500]}
             />
+            <Tooltip
+              shared={false}
+              trigger="hover"
+              content={<CustomTooltip />}
+            />
+            <Bar
+              dataKey="uv"
+              fill="#ffffff"
+              barSize={14}
+              shape={<CustomBar />}
+            />
+          </BarChart> */}
+
+          <BarChart
+            width={400}
+            height={200}
+            data={data}
+            margin={{
+              top: 5,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <YAxis
+              className="font-bold"
+              axisLine={false}
+              min={0}
+              tickLine={false}
+              domain={[0, (dataMax: any) => dataMax + 50]}
+              ticks={[0, 100, 200, 300, 400, 500]}
+              tick={{ fill: "#FFFFFF" }}
+            />
+            {/* <XAxis axisLine={false} tickLine={false}/> */}
+            <XAxis axisLine={false} tickLine={false} tick={false} />
+
             <Tooltip
               shared={false}
               trigger="hover"

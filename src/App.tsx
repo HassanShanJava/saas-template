@@ -5,6 +5,12 @@ import {Route,Routes} from "react-router-dom";
 import Dashboard from "./components/admin/dashboard";
 import Client from "./components/admin/clients";
 import SystemSettings from "./components/admin/system_settings";
+import Component from "./components/pagework/drawer";
+
+// import DrawerFunction from "./components/pagework/drawer";
+// import DrawerExample from './components/pagework/index';
+
+
 function App() {
   return (
     <>
@@ -15,6 +21,8 @@ function App() {
           <Route path="/admin/client" index element={<Client />} />
           <Route path="/admin/system_settings" index element={<SystemSettings />} />
         </Route>
+
+        <Route path="/sidebar" element={<Component />}></Route>
       </Routes>
     </>
   );

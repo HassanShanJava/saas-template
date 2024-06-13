@@ -5,7 +5,6 @@ import { Link, Outlet } from "react-router-dom";
 import { Header } from "./header";
 import { useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { ScrollBar } from "../scroll-area";
 
 interface NavItem {
@@ -160,7 +159,7 @@ const DashboardLayout =()=>{
 	useEffect(() => {
 		let result = {...navData};
 		history.forEach(name => {
-			result = result.children?.filter((e) => e.name == name)?.[0];
+				result = result.children?.filter((e) => e.name == name)?.[0] as typeof result;
 		})
 		setData({...result});
 	}, [history])
@@ -211,7 +210,7 @@ const DashboardLayout =()=>{
 					{data.children?.map(navItem => (
 						<Link
 							to={navItem.link}
-							onClick={() => navItem.children?.length > 1 && navDrillDown(navItem.name)}
+							onClick={() => navItem.children?.length && navItem.children?.length > 1 && navDrillDown(navItem.name)}
 							className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] 
 								${isSidebarOpen?"justify-start text-sm":"justify-center text-lg"}
 								${isLinkPathname(navItem.link)?"bg-[#D0FD3E]":""}

@@ -1,4 +1,4 @@
-"use client";
+
 
 import * as React from "react";
 import { Row } from "@tanstack/react-table";
@@ -30,7 +30,6 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
- 
   const task = taskSchema.parse(row.original);
 
 
@@ -62,12 +61,24 @@ export function DataTableRowActions<TData>({
               View Details
             </DropdownMenuItem>
           </DialogTrigger>
+          <DialogTrigger asChild>
+            <DropdownMenuItem>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit Details
+            </DropdownMenuItem>
+          </DialogTrigger>
+          <DropdownMenuItem
+            className="text-red-600"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete Details
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuRadioGroup value={task.label}>
-                {label_options.map((label:any) => (
+                {label_options.map((label) => (
                   <DropdownMenuRadioItem key={label.value} value={label.value}>
                     <label.icon className="w-4 h-4 mr-2" />
                     {label.label}
@@ -78,6 +89,7 @@ export function DataTableRowActions<TData>({
           </DropdownMenuSub>
         </DropdownMenuContent>
       </DropdownMenu>
+     
     </Dialog>
   );
 }

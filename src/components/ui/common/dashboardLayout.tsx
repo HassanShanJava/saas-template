@@ -5,6 +5,8 @@ import { Link, Outlet } from "react-router-dom";
 import { Header } from "./header";
 import { useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ScrollBar } from "../scroll-area";
 
 const DashboardLayout =()=>{
   function isActiveLink(currentPath:string, targetPath:string) {
@@ -14,7 +16,7 @@ const DashboardLayout =()=>{
   console.log("click",location.pathname)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div className="flex h-screen w-full relative overflow-y-hidden">
       <div
         className={`bg-white  text-black shadow-md transition-all duration-300 ${isSidebarOpen ? "w-64" : "w-16"}`}
       >
@@ -193,9 +195,10 @@ const DashboardLayout =()=>{
           </Link>
         </nav>
       </div>
-      <div className="flex-1 overflow-auto">
+      <div className="relative flex-1 w-full max-h-[100vh]  ">
         <Header />
-        <main className="p-0 bg-bgbackground">
+
+        <main className="p-0 bg-bgbackground overflow-y-auto h-[90vh] relative  ">
           <Outlet />
           <Toaster />
         </main>

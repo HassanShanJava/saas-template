@@ -131,3 +131,4 @@ export const columns: ColumnDef<TaskType>[] = [
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ];
+

@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -6,7 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 
 interface DataTableLoadingProps {
   columnCount: number;
@@ -18,7 +18,7 @@ export function DataTableLoading({
   rowCount = 10,
 }: DataTableLoadingProps) {
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full space-y-3 overflow-auto">
       <div className="flex w-full items-center justify-between space-x-2 overflow-auto p-1">
         <div className="flex flex-1 items-center space-x-2">
           <Skeleton className="h-7 w-[150px] lg:w-[250px]" />

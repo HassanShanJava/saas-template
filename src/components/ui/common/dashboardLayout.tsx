@@ -10,7 +10,7 @@ import { ScrollBar } from "../scroll-area";
 
 const DashboardLayout =()=>{
   function isActiveLink(currentPath:string, targetPath:string) {
-    return currentPath === targetPath;
+    return currentPath.startsWith(targetPath);
   }
   const location=useLocation();
   console.log("click",location.pathname)

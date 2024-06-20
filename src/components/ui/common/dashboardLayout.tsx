@@ -44,12 +44,12 @@ const DashboardLayout =()=>{
         <nav className="flex flex-col gap-1 px-2 py-2">
           <Link
             to="/admin/dashboard"
-            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
             }
              ${
                isActiveLink(location.pathname, "/admin/dashboard")
-                 ? "bg-[#D0FD3E]"
+                 ? "bg-primary"
                  : ""
              }
             `}
@@ -57,7 +57,7 @@ const DashboardLayout =()=>{
             <div
               className={`w-8 h-8   ${
                 isActiveLink(location.pathname, "/admin/dashboard")
-                  ? "bg-[#B5E41C]"
+                  ? "bg-[#3ED13E]"
                   : "bg-gray-100"
               }
               rounded-lg justify-center flex items-center`}
@@ -66,24 +66,27 @@ const DashboardLayout =()=>{
                 src="/dashboardicon.svg"
                 className={`w-4 h-4 ${!isSidebarOpen && "hidden"} items-center `}
               ></img> */}
-              <DashBoardIcon
+              {/* <DashBoardIcon
                 className={`w-4 h-4   ${
                   isActiveLink(location.pathname, "/admin/dashboard")
                     ? ""
-                    : "bg-transparent text-gray-500"
+                    : "bg-transparent text-gray-500 "
                 }`}
+              /> */}
+              <DashBoardIcon
+                className={`w-4 h-4 ${isActiveLink(location.pathname, "/admin/dashboard") ? "" : "text-gray-500 stroke-current"}`}
               />
             </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Dashboard</span>
           </Link>
           <Link
             to="/admin/client"
-            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
             }
              ${
                isActiveLink(location.pathname, "/admin/client")
-                 ? "bg-[#D0FD3E]"
+                 ? "bg-primary"
                  : ""
              }
             `}
@@ -91,7 +94,7 @@ const DashboardLayout =()=>{
             <div
               className={`w-8 h-8   ${
                 isActiveLink(location.pathname, "/admin/client")
-                  ? "bg-[#B5E41C]"
+                  ? "bg-[#3ED13E]"
                   : "bg-gray-100"
               }
               rounded-lg justify-center flex items-center`}
@@ -106,19 +109,40 @@ const DashboardLayout =()=>{
             </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Client</span>
           </Link>
-
           <Link
-            to="#"
-            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
+            to="/admin/leads"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
-            }`}
+            }
+             ${
+               isActiveLink(location.pathname, "/admin/leads")
+                 ? "bg-primary"
+                 : ""
+             }
+            `}
           >
-            <i className="fa-solid fa-rocket h-5 w-5"></i>
+            <div
+              className={`w-8 h-8   ${
+                isActiveLink(location.pathname, "/admin/leads")
+                  ? "bg-[#3ED13E]"
+                  : "bg-gray-100"
+              }
+              rounded-lg justify-center flex items-center`}
+            >
+              <img
+                src="/rocket.svg"
+                className={`w-6 h-6 ${
+                  isActiveLink(location.pathname, "/admin/leads")
+                    ? ""
+                    : "bg-transparent text-gray-500"
+                }`}
+              />
+            </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Leads</span>
           </Link>
           <Link
             to="#"
-            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
             }`}
           >
@@ -127,7 +151,7 @@ const DashboardLayout =()=>{
           </Link>
           <Link
             to="#"
-            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
             }`}
           >
@@ -136,7 +160,7 @@ const DashboardLayout =()=>{
           </Link>
           <Link
             to="#"
-            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
             }`}
           >
@@ -145,7 +169,7 @@ const DashboardLayout =()=>{
           </Link>
           <Link
             to="/admin/client"
-            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
             }`}
           >
@@ -154,7 +178,7 @@ const DashboardLayout =()=>{
           </Link>
           <Link
             to="/admin/client"
-            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
             }`}
           >
@@ -163,7 +187,7 @@ const DashboardLayout =()=>{
           </Link>
           <Link
             to="/admin/client"
-            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] ${
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
             }`}
           >

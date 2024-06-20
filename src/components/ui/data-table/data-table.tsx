@@ -25,8 +25,7 @@ import {
 
 import { DataTableToolbar } from "./data-table-toolbar";
 import { DataTablePagination } from "./data-table-pagination";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { ScrollBar } from "../scroll-area";
+import { ScrollBar,ScrollArea } from "../scroll-area";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -70,7 +69,7 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4 ">
       <DataTableToolbar table={table} />
       <div className="rounded-md border  relative ">
-        <ScrollArea className=" h-[65vh]  overflow-y-scroll relative">
+        <ScrollArea className=" h-[65vh]   relative">
           <ScrollBar orientation="vertical" />
           <Table>
             <TableHeader className="sticky top-0 bg-white z-40">

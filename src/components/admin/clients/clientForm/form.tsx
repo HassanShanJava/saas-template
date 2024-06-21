@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import countries from "./countries.json";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown ,CheckCircle} from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -42,6 +42,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
 
+const IBAN_REGEX =/^([A-Z]{2}[ '+'\\\\'+'-]?[0-9]{2})(?=(?:[ '+'\\\\'+'-]?[A-Z0-9]){9,30}$)((?:[ '+'\\\\'+'-]?[A-Z0-9]{3,5}){2,7})([ '+'\\\\'+'-]?[A-Z0-9]{1,3})?$/;
 const FormSchema = z.object({
   ownermemberid: z
     .string({
@@ -96,6 +97,8 @@ const FormSchema = z.object({
   }),
   bankAccount: z.string({
     required_error: "Acc No Required",
+  }).refine(value=>IBAN_REGEX.test(value),{
+    message: "Invalid IBAN Format"
   }),
   swiftCode: z.string({
     required_error: "Required",
@@ -119,14 +122,6 @@ const FormSchema = z.object({
   country:z.string({
     required_error:"Required"
   }).min(1,"Country is Required.")
-  ,
-  phoneNumber:z.string({
-    required_error:"Required"
-  }).refine((val) => {
-  return /^\+?[1-9]\d{1,14}$/.test(val);
-}, {
-  message: "Invalid phone number format",
-})
 });
 
 const AddClientForm: React.FC = () => {
@@ -198,6 +193,7 @@ const AddClientForm: React.FC = () => {
                   <Button
                     onClick={handleSetAvatarClick}
                     variant={"outline"}
+                    type="button"
                     className="px-4 py-2 bg-transparent gap-2 text-black rounded hover:bg-primary hover:text-white"
                   >
                     <Webcam className="h-4 w-4" />
@@ -237,7 +233,7 @@ const AddClientForm: React.FC = () => {
                         <FloatingLabelInput
                           {...field}
                           id="ownermemberid"
-                          label="Owner Member ID"
+                          label="Own Member ID"
                         />
                         <FormMessage />
                       </FormItem>
@@ -484,7 +480,7 @@ const AddClientForm: React.FC = () => {
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a source" />
+                              <SelectValue placeholder="Source" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -605,7 +601,7 @@ const AddClientForm: React.FC = () => {
                                           country === field.value
                                       )
                                     : "Select country"}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  <CheckCircle className="ml-2 h-4 w-4 shrink-0 opacity-50 text-primary" />
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>

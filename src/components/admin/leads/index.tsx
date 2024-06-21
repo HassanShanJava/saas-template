@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { Shell } from "@/components/ui/shell/shell";
-import { DataTable } from "@/components/ui/data-table/data-table";
+import { DataTable } from "./component/data-table"; 
 import tasksData from "./component/leads.json"; // Adjust the path if your tasks.json file is in a different directory
 import { columns } from "./component/columns"; // Adjust path based on your directory structure
 import { LeadType } from "./component/columns";

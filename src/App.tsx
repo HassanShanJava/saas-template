@@ -7,6 +7,7 @@ import Client from "./components/admin/clients";
 import Component from "./components/pagework/drawer";
 import AddClientForm from "./components/admin/clients/clientForm/form";
 import Leads from "./components/admin/leads";
+import LeadForm from "./components/admin/leads/leadform/form";
 
 // import DrawerFunction from "./components/pagework/drawer";
 // import DrawerExample from './components/pagework/index';
@@ -25,11 +26,8 @@ function App() {
             index
             element={<AddClientForm />}
           />
-          <Route
-            path="/admin/leads"
-            index
-            element={<Leads />}
-          />
+          <Route path="/admin/leads" index element={<Leads />} />
+          <Route path="/admin/leads/addlead" index element={<LeadForm />} />
         </Route>
 
         <Route path="/sidebar" element={<Component />}></Route>

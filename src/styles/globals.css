@@ -41,6 +41,8 @@
     --secondary-foreground1: 0 0% 100%; /*white*/
     --background-color:0, 0%, 97%; /*background-color*/
     --text-main-color: 0, 0%, 0%;/*main text color*/
+    --bg-secondary-red: 1, 100%, 77% /*red color failer*/
+
   }
 }
  

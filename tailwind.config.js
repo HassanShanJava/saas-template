@@ -14,6 +14,7 @@ export default {
     },
     extend: {
       colors: {
+        failure: "hsl((--bg-secondary-red))",
         maintextColor: "hsl((--text-main-color))",
         bgbackground: "hsl((--background-color))",
         border: "hsl(var(--border))",

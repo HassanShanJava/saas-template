@@ -14,159 +14,12 @@ interface NavItem {
 	children: NavItem[] | null
 }
 const DashboardLayout =()=>{
-  const isActiveLink = (currentPath:string, targetPath:string) => currentPath === targetPath;
-	const isLinkPathname = (path: string) => isActiveLink(location.pathname, path);
+  function isActiveLink(currentPath:string, targetPath:string) {
+    return currentPath.startsWith(targetPath);
+  }
   const location=useLocation();
   console.log("click",location.pathname)
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-	const navData: NavItem = {
-		name: 'root',
-		link: '/admin',
-		iconComponent: null,
-		children: [
-			{
-				name: "Dashboard",
-				link: "#",
-				iconComponent: <DashBoardIcon className={`w-4 h-4 ${isLinkPathname("/admin/dashboard")?"":"bg-transparent text-gray-500"}`}/>,
-				children: [
-					{
-						name: "Overview",
-						link: "#",
-						iconComponent: <DashBoardIcon className={`w-4 h-4 ${isLinkPathname("/admin/dashboard")?"":"bg-transparent text-gray-500"}`}/>,
-						children: [
-							{
-								name: "Business Overview",
-								link: "/admin/dashboard",
-								iconComponent: <DashBoardIcon className={`w-4 h-4 ${isLinkPathname("/admin/dashboard")?"":"bg-transparent text-gray-500"}`}/>,
-								children: [
-								]
-							},
-							{
-								name: "Coaching Overview",
-								link: "/admin/client",
-								iconComponent: <MultiUserIcon className={`w-4 h-4 ${isLinkPathname("/admin/client")?"":"bg-transparent text-gray-500"}`}/>,
-								children: []
-							},
-						]
-					},
-					{
-						name: "Client & Membership",
-						link: "/admin/client",
-						iconComponent: <MultiUserIcon className={`w-4 h-4 ${isLinkPathname("/admin/client")?"":"bg-transparent text-gray-500"}`}/>,
-						children: []
-					},
-					{
-						name: "Sales & Membership",
-						link: "#",
-						iconComponent: <i className="fa-solid fa-rocket h-5 w-5"></i>,
-						children: []
-					},
-					{
-						name: "Finance",
-						link: "#",
-						iconComponent: <i className="fa-solid fa-wrench h-5 w-5"></i>,
-						children: []
-					},
-					{
-						name: "Check Ins",
-						link: "#",
-						iconComponent: <i className="fa-solid fa-book-open h-5 w-5"></i>,
-						children: []
-					},
-					{
-						name: "Schedule",
-						link: "#",
-						iconComponent: <i className="fa-solid fa-wrench h-5 w-5"></i>,
-						children: []
-					},
-					{
-						name: "Staff",
-						link: "#",
-						iconComponent: <UsersIcon className="h-5 w-5" />,
-						children: []
-					},
-					{
-						name: "Engagements",
-						link: "#",
-						iconComponent: <UsersIcon className="h-5 w-5" />,
-						children: []
-					},
-				]
-			},
-			{
-				name: "Client",
-				link: "/admin/client",
-				iconComponent: <MultiUserIcon className={`w-4 h-4 ${isLinkPathname("/admin/client")?"":"bg-transparent text-gray-500"}`}/>,
-				children: []
-			},
-			{
-				name: "Leads",
-				link: "#",
-				iconComponent: <i className="fa-solid fa-rocket h-5 w-5"></i>,
-				children: []
-			},
-			{
-				name: "Schedule",
-				link: "#",
-				iconComponent: <i className="fa-solid fa-wrench h-5 w-5"></i>,
-				children: []
-			},
-			{
-				name: "Task",
-				link: "#",
-				iconComponent: <i className="fa-solid fa-book-open h-5 w-5"></i>,
-				children: []
-			},
-			{
-				name: "Manage",
-				link: "#",
-				iconComponent: <i className="fa-solid fa-wrench h-5 w-5"></i>,
-				children: []
-			},
-			{
-				name: "Coach",
-				link: "#",
-				iconComponent: <UsersIcon className="h-5 w-5" />,
-				children: []
-			},
-			{
-				name: "Engagements",
-				link: "#",
-				iconComponent: <UsersIcon className="h-5 w-5" />,
-				children: []
-			},
-			{
-				name: "System Design",
-				link: "/admin/system_settings",
-				iconComponent: <MultiUserIcon className={`w-4 h-4 ${isLinkPathname("/admin/client")?"bg-transparent text-gray-500":""}`}/>,
-				children: []
-			},
-		]
-	}
-
-	const navDrillDown = (name: string) => {
-		history.push(name);
-		setHistory([...history]);
-	}
-	const navDrillUp = () => {
-		history.pop();
-		setHistory([...history]);
-	}
-
-	const [history, setHistory] = useState<string[]>([]);
-
-	useEffect(() => {
-		let result = {...navData};
-		history.forEach(name => {
-				result = result.children?.filter((e) => e.name == name)?.[0] as typeof result;
-		})
-		setData({...result});
-	}, [history])
-
-	const [data, setData] = useState(navData);
-	const [parent, setParent] = useState<NavItem | null>(null);
-
   return (
     <div className="flex h-screen w-full relative overflow-y-hidden">
       <div
@@ -194,33 +47,160 @@ const DashboardLayout =()=>{
           </Button> */}
         </div>
         <nav className="flex flex-col gap-1 px-2 py-2">
-					{history.length > 0 ?
-						(<Button variant="ghost" onClick={() => navDrillUp()}>{"<- Back"}</Button>):''
-					}
-					{data.name !== "root" ? 
-						<Link to="#" className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] 
-								${isSidebarOpen?"justify-start text-sm":"justify-center text-lg"}
-								bg-[#D0FD3E]
-							`}>
-							<div className="w-8 h-8 rounded-lg justify-center flex items-center bg-[#B5E41C]">
-								{data.iconComponent}
-							</div>
-							<span className={`${!isSidebarOpen && "hidden"}`}>{data.name}</span>
-						</Link> : ''}
-					{data.children?.map(navItem => (
-						<Link
-							to={navItem.link}
-							onClick={() => navItem.children?.length && navItem.children?.length > 1 && navDrillDown(navItem.name)}
-							className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-[#D0FD3E] 
-								${isSidebarOpen?"justify-start text-sm":"justify-center text-lg"}
-								${isLinkPathname(navItem.link)?"bg-[#D0FD3E]":""}
-							`}>
-							<div className={`w-8 h-8 rounded-lg justify-center flex items-center ${isLinkPathname(navItem.link)?"bg-[#B5E41C]":"bg-gray-100"}`}>
-								{navItem.iconComponent}
-							</div>
-							<span className={`${!isSidebarOpen && "hidden"}`}>{navItem.name}</span>
-						</Link>
-					))}
+          <Link
+            to="/admin/dashboard"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
+              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+            }
+             ${
+               isActiveLink(location.pathname, "/admin/dashboard")
+                 ? "bg-primary"
+                 : ""
+             }
+            `}
+          >
+            <div
+              className={`w-8 h-8   ${
+                isActiveLink(location.pathname, "/admin/dashboard")
+                  ? "bg-[#3ED13E]"
+                  : "bg-gray-100"
+              }
+              rounded-lg justify-center flex items-center`}
+            >
+              {/* <img
+                src="/dashboardicon.svg"
+                className={`w-4 h-4 ${!isSidebarOpen && "hidden"} items-center `}
+              ></img> */}
+              {/* <DashBoardIcon
+                className={`w-4 h-4   ${
+                  isActiveLink(location.pathname, "/admin/dashboard")
+                    ? ""
+                    : "bg-transparent text-gray-500 "
+                }`}
+              /> */}
+              <DashBoardIcon
+                className={`w-4 h-4 ${isActiveLink(location.pathname, "/admin/dashboard") ? "" : "text-gray-500 stroke-current"}`}
+              />
+            </div>
+            <span className={`${!isSidebarOpen && "hidden"}`}>Dashboard</span>
+          </Link>
+          <Link
+            to="/admin/client"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
+              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+            }
+             ${
+               isActiveLink(location.pathname, "/admin/client")
+                 ? "bg-primary"
+                 : ""
+             }
+            `}
+          >
+            <div
+              className={`w-8 h-8   ${
+                isActiveLink(location.pathname, "/admin/client")
+                  ? "bg-[#3ED13E]"
+                  : "bg-gray-100"
+              }
+              rounded-lg justify-center flex items-center`}
+            >
+              <MultiUserIcon
+                className={`w-4 h-4   ${
+                  isActiveLink(location.pathname, "/admin/client")
+                    ? ""
+                    : "bg-transparent text-gray-500"
+                }`}
+              />
+            </div>
+            <span className={`${!isSidebarOpen && "hidden"}`}>Client</span>
+          </Link>
+          <Link
+            to="/admin/leads"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
+              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+            }
+             ${
+               isActiveLink(location.pathname, "/admin/leads")
+                 ? "bg-primary"
+                 : ""
+             }
+            `}
+          >
+            <div
+              className={`w-8 h-8   ${
+                isActiveLink(location.pathname, "/admin/leads")
+                  ? "bg-[#3ED13E]"
+                  : "bg-gray-100"
+              }
+              rounded-lg justify-center flex items-center`}
+            >
+              <img
+                src="/rocket.svg"
+                className={`w-6 h-6 ${
+                  isActiveLink(location.pathname, "/admin/leads")
+                    ? ""
+                    : "bg-transparent text-gray-500"
+                }`}
+              />
+            </div>
+            <span className={`${!isSidebarOpen && "hidden"}`}>Leads</span>
+          </Link>
+          <Link
+            to="#"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
+              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+            }`}
+          >
+            <i className="fa-solid fa-wrench h-5 w-5"></i>
+            <span className={`${!isSidebarOpen && "hidden"}`}>Schedule</span>
+          </Link>
+          <Link
+            to="#"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
+              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+            }`}
+          >
+            <i className="fa-solid fa-book-open h-5 w-5"></i>
+            <span className={`${!isSidebarOpen && "hidden"}`}>Task</span>
+          </Link>
+          <Link
+            to="#"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
+              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+            }`}
+          >
+            <i className="fa-solid fa-wrench h-5 w-5"></i>
+            <span className={`${!isSidebarOpen && "hidden"}`}>Manage</span>
+          </Link>
+          <Link
+            to="/admin/client"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
+              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+            }`}
+          >
+            <UsersIcon className="h-5 w-5" />
+            <span className={`${!isSidebarOpen && "hidden"}`}>Coach</span>
+          </Link>
+          <Link
+            to="/admin/client"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
+              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+            }`}
+          >
+            <UsersIcon className="h-5 w-5" />
+            <span className={`${!isSidebarOpen && "hidden"}`}>Engagements</span>
+          </Link>
+          <Link
+            to="/admin/client"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
+              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+            }`}
+          >
+            <UsersIcon className="h-5 w-5" />
+            <span className={`${!isSidebarOpen && "hidden"}`}>
+              System Design
+            </span>
+          </Link>
         </nav>
       </div>
       <div className="relative flex-1 w-full max-h-[100vh]  ">

@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import "./style.css"
 import { Link, Outlet } from "react-router-dom";
 import { Header } from "./header";
 import { useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { ScrollBar } from "../scroll-area";
 
+interface NavItem {
+	name: string,
+	link: string,
+	iconComponent: React.ReactNode,
+	children: NavItem[] | null
+}
 const DashboardLayout =()=>{
   function isActiveLink(currentPath:string, targetPath:string) {
     return currentPath.startsWith(targetPath);
@@ -141,13 +146,13 @@ const DashboardLayout =()=>{
             <span className={`${!isSidebarOpen && "hidden"}`}>Leads</span>
           </Link>
           <Link
-            to="#"
+            to="events"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
             }`}
           >
             <i className="fa-solid fa-wrench h-5 w-5"></i>
-            <span className={`${!isSidebarOpen && "hidden"}`}>Schedule</span>
+            <span className={`${!isSidebarOpen && "hidden"}`}>Events</span>
           </Link>
           <Link
             to="#"

@@ -36,7 +36,7 @@ export const columns: ColumnDef<TaskType>[] = [
   {
     accessorKey: "id",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Task" />
+      <DataTableColumnHeader column={column} title="Client Id" />
     ),
     cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
     enableSorting: false,
@@ -45,7 +45,7 @@ export const columns: ColumnDef<TaskType>[] = [
   {
     accessorKey: "title",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
+      <DataTableColumnHeader column={column} title="Name" />
     ),
     cell: ({ row }) => {
       const label = label_options.find(
@@ -54,7 +54,7 @@ export const columns: ColumnDef<TaskType>[] = [
 
       return (
         <div className="flex space-x-2">
-          {label && <Badge variant="outline">{label.label}</Badge>}
+          {/* {label && <Badge variant="outline">{label.label}</Badge>} */}
           <span className="max-w-[500px] truncate font-medium">
             {row.getValue("title")}
           </span>
@@ -65,7 +65,7 @@ export const columns: ColumnDef<TaskType>[] = [
   {
     accessorKey: "status",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
+      <DataTableColumnHeader column={column} title="Business Name" />
     ),
     cell: ({ row }) => {
       const status = status_options.find(
@@ -92,7 +92,34 @@ export const columns: ColumnDef<TaskType>[] = [
   {
     accessorKey: "priority",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Priority" />
+      <DataTableColumnHeader column={column} title="Contact" />
+    ),
+    cell: ({ row }) => {
+      const priority = priority_options.find(
+        (priority) => priority.value === row.getValue("priority")
+      );
+
+      if (!priority) {
+        return null;
+      }
+
+      return (
+        <div className="flex items-center">
+          {priority.icon && (
+            <priority.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+          )}
+          <span>{priority.label}</span>
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
+    },
+  },
+  {
+    accessorKey: "priority",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Coach" />
     ),
     cell: ({ row }) => {
       const priority = priority_options.find(
@@ -119,7 +146,27 @@ export const columns: ColumnDef<TaskType>[] = [
   {
     accessorKey: "due_date",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Due Date" />
+      <DataTableColumnHeader column={column} title="Members Date" />
+    ),
+    cell: ({ row }) => {
+      const field = row.getValue("due_date") as Date;
+      return <div>{field.toDateString()}</div>;
+    },
+  },
+  {
+    accessorKey: "due_date",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Activation Date" />
+    ),
+    cell: ({ row }) => {
+      const field = row.getValue("due_date") as Date;
+      return <div>{field.toDateString()}</div>;
+    },
+  },
+  {
+    accessorKey: "due_date",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Check In" />
     ),
     cell: ({ row }) => {
       const field = row.getValue("due_date") as Date;

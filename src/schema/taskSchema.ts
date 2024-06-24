@@ -8,7 +8,7 @@ export const statuses = [
   "backlog",
 ] as const;
 export const labels = ["bug", "feature", "documentation"] as const;
-export const priorities = ["low", "medium", "high"] as const;
+export const priorities = ["low", "medium", "high",""] as const;
 
 // We're keeping a simple non-relational schema here.
 // IRL, you will have a schema for your data models.

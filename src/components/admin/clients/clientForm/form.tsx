@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import countries from "./countries.json";
-import { Check, ChevronsUpDown ,CheckCircle} from "lucide-react";
+import { Check, ChevronsUpDown ,CheckCircle, ChevronDownIcon} from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -9,6 +9,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Switch } from "@/components/ui/switch";
 import "react-phone-number-input/style.css";
 import PhoneInput from "react-phone-number-input";
 import * as React from "react";
@@ -20,6 +21,7 @@ import {
   FloatingLabelInput,
 } from "@/components/ui/floatinglable/floating";
 import { PlusIcon, CameraIcon, Webcam } from "lucide-react";
+
 import { RxCross2 } from "react-icons/rx";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,22 +44,23 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
 
-const IBAN_REGEX =/^([A-Z]{2}[ '+'\\\\'+'-]?[0-9]{2})(?=(?:[ '+'\\\\'+'-]?[A-Z0-9]){9,30}$)((?:[ '+'\\\\'+'-]?[A-Z0-9]{3,5}){2,7})([ '+'\\\\'+'-]?[A-Z0-9]{1,3})?$/;
 const FormSchema = z.object({
-  ownermemberid: z
-    .string({
-      required_error: "Required",
-    })
-    .min(2, { message: "Owner Member ID is required." }),
+  gymMemberId: z
+    .string()
+    .trim()
+    .min(2, { message: "Gym Member ID is required." })
+    .optional(),
   firstname: z
     .string({
-      required_error: "Required",
+      required_error: "Firstname Required.",
     })
-    .min(2, { message: "First Name Is Required" }),
+    .trim()
+    .min(2, { message: "First Name Is Required." }),
   lastname: z
     .string({
-      required_error: "Required",
+      required_error: "Lastname Required.",
     })
+    .trim()
     .min(2, { message: "Last Name Is Required" }),
   type: z.enum(["male", "female", "other"], {
     required_error: "You need to select a gender type.",
@@ -66,66 +69,50 @@ const FormSchema = z.object({
     required_error: "A date of birth is required.",
   }),
   clientsince: z.date({
-    required_error: "Required.",
+    required_error: "Date Required.",
   }),
   email: z
     .string({
-      required_error: "Email is Required",
+      required_error: "Email is Required.",
     })
-    .email(),
-  landlinenumber: z
-    .string({
-      required_error: "Required",
-    })
-    .min(2, { message: "Owner Member ID is required." }),
-  mobilenumber: z
-    .string({
-      required_error: "Required",
-    })
-    .min(2, { message: "MobileNois required." }),
-  subscription: z.string({
-    required_error: "Subscription is Required",
-  }),
+    .email()
+    .trim(),
+  landlinenumber: z.string().trim().optional(),
+  mobilenumber: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
   source: z.string({
-    required_error: "Required",
-  }),
+    required_error: "Source Required.",
+  }).trim(),
   language: z.string({
-    required_error: "Required",
-  }),
-  business: z.enum(["yes", "no"], {
-    required_error: "Required",
-  }),
-  bankAccount: z.string({
-    required_error: "Acc No Required",
-  }).refine(value=>IBAN_REGEX.test(value),{
-    message: "Invalid IBAN Format"
-  }),
-  swiftCode: z.string({
-    required_error: "Required",
-  }),
-  accholdername: z.string({
-    required_error: "Required",
-  }),
-  bankName: z.string({
-    required_error: "Required",
-  }),
+    required_error: "Language Required.",
+  }).trim(),
+  invoicetemplate: z
+    .string({
+      required_error: "Invoice template Required.",
+    })
+    .trim(),
+  coach: z.string().trim().optional(),
+  membership: z.string({
+    required_error: "Membership is required.",
+  }).trim(),
+  business: z.boolean().default(false).optional(),
+  businessInput:z.string().trim().optional(),
   sendInvitation: z.boolean().default(true).optional(),
   city: z.string({
-    required_error: "Required",
-  }),
-  zipcode: z.string({
-    required_error: "Required",
-  }),
-  streetaddress: z.string({
-    required_error: "Required",
-  }),
-  country:z.string({
-    required_error:"Required"
-  }).min(1,"Country is Required.")
+    required_error: "City Required.",
+  }).trim(),
+  zipcode: z.string().trim().optional(),
+  streetaddress: z.string().trim().optional(),
+  country: z
+    .string({
+      required_error: "Country Required.",
+    })
+    .min(1, "Country is Required.").trim(),
+  extraAddress:z.string().trim().optional(),
 });
 
 const AddClientForm: React.FC = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [countrydata,setCountry]=React.useState(countries);
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
@@ -150,9 +137,11 @@ const AddClientForm: React.FC = () => {
  const form = useForm<z.infer<typeof FormSchema>>({
    resolver: zodResolver(FormSchema),
    defaultValues: {
+    gymMemberId:"A-103",
+    business:false,
    },
  });
-
+ const watcher=form.watch();
  function onSubmit(data: z.infer<typeof FormSchema>) {
    toast({
      title: "You submitted the following values:",
@@ -197,7 +186,7 @@ const AddClientForm: React.FC = () => {
                     className="px-4 py-2 bg-transparent gap-2 text-black rounded hover:bg-primary hover:text-white"
                   >
                     <Webcam className="h-4 w-4" />
-                    WebCam Snapshot
+                    Profile Snapshot
                   </Button>
                 </div>
                 <div className="flex gap-2">
@@ -227,13 +216,14 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="ownermemberid"
+                    name="gymMemberId"
+                    disabled={true}
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="ownermemberid"
-                          label="Own Member ID"
+                          id="gymMemberId"
+                          label="Gym Member ID"
                         />
                         <FormMessage />
                       </FormItem>
@@ -282,12 +272,14 @@ const AddClientForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <div className="flex justify-start items-center mb-4">
-                          <FormLabel className="mr-4">Select :</FormLabel>
+                          <FormLabel className="xl:mr-4 lg:mr-1 xl:text-base lg:text-xs">
+                            Select :
+                          </FormLabel>
                           <FormControl>
                             <ButtonGroup
                               onValueChange={field.onChange}
                               defaultValue="male"
-                              className="flex flex-row gap-2"
+                              className="flex flex-row xl:gap-2 lg:gap-1"
                             >
                               <ButtonGroupItem value="male" label="Male" />
                               <ButtonGroupItem value="female" label="Female" />
@@ -326,11 +318,14 @@ const AddClientForm: React.FC = () => {
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
+                          <PopoverContent className="w-auto p-2" align="center">
                             <Calendar
                               mode="single"
+                              captionLayout="dropdown-buttons"
                               selected={field.value}
                               onSelect={field.onChange}
+                              fromYear={1960}
+                              toYear={2030}
                               disabled={(date: any) =>
                                 date > new Date() ||
                                 date < new Date("1900-01-01")
@@ -424,8 +419,11 @@ const AddClientForm: React.FC = () => {
                           <PopoverContent className="w-auto p-0" align="start">
                             <Calendar
                               mode="single"
+                              captionLayout="dropdown-buttons"
                               selected={field.value}
                               onSelect={field.onChange}
+                              fromYear={1960}
+                              toYear={2030}
                               disabled={(date: any) =>
                                 date > new Date() ||
                                 date < new Date("1900-01-01")
@@ -444,25 +442,14 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="subscription"
+                    name="notes"
                     render={({ field }) => (
                       <FormItem>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Subscription reason" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="unknown">Unknown</SelectItem>
-                            <SelectItem value="mistakenlyinactivated">
-                              Mistakenly Inactivated
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <FloatingLabelInput
+                          {...field}
+                          id="notes"
+                          label="Notes"
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -479,7 +466,9 @@ const AddClientForm: React.FC = () => {
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger
+                              className={`${watcher.source ? "text-black" : ""}`}
+                            >
                               <SelectValue placeholder="Source" />
                             </SelectTrigger>
                           </FormControl>
@@ -514,8 +503,10 @@ const AddClientForm: React.FC = () => {
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select language" />
+                            <SelectTrigger
+                              className={`${watcher.language ? "text-black" : ""}`}
+                            >
+                              <SelectValue placeholder="Language" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -549,35 +540,223 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="business"
-                    defaultValue="no"
+                    name="invoicetemplate"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <div className="flex justify-start items-center mb-4">
-                          <FormLabel className="mr-4">Business :</FormLabel>
+                      <FormItem>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
-                            <ButtonGroup
-                              onValueChange={field.onChange}
-                              defaultValue="no"
-                              className="flex flex-row gap-2"
+                            <SelectTrigger
+                              className={`${watcher.invoicetemplate ? "text-black" : ""}`}
                             >
-                              <ButtonGroupItem value="yes" label="Yes" />
-                              <ButtonGroupItem value="no" label="No" />
-                            </ButtonGroup>
+                              <SelectValue placeholder="Invoice Template" />
+                            </SelectTrigger>
                           </FormControl>
-                        </div>
+                          <SelectContent>
+                            <SelectItem value="default template">
+                              Default Template
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="relative w-[33%]">
+                  <FormField
+                    control={form.control}
+                    name="coach"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              className={`${watcher.coach ? "text-black" : ""}`}
+                            >
+                              <SelectValue
+                                className="text-black"
+                                placeholder="Coach"
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Anonymous">
+                              Random Coach
+                            </SelectItem>
+                            <SelectItem value="Coach two">Coach Two</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative w-[33%]">
+                  <FormField
+                    control={form.control}
+                    name="membership"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              className={`${watcher.membership ? "text-black" : ""}`}
+                            >
+                              <SelectValue
+                                className="text-gray-400"
+                                placeholder="Membership Plan"
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="trail">Trail</SelectItem>
+                            <SelectItem value="month">Monthly</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
               </div>
+              <div className="w-full flex justify-between items-start pt-1.5">
+                <div className="relative w-[33%]">
+                  <div className="justify-start items-center flex">
+                    <FormField
+                      control={form.control}
+                      name="business"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row gap-3 items-center justify-between">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">
+                              Business :
+                            </FormLabel>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                <div
+                  className={`relative w-[33%] ${watcher.business ? "" : "hidden"}`}
+                >
+                  <FormField
+                    control={form.control}
+                    name="businessInput"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              className={`${watcher.businessInput ? "text-black" : ""}`}
+                            >
+                              <SelectValue
+                                className="text-gray-400"
+                                placeholder="Business"
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <Button
+                              variant={"link"}
+                              className="gap-2 text-black"
+                            >
+                              <PlusIcon className="text-black w-5 h-5" /> Add
+                              New business
+                            </Button>
+                            <SelectItem value="Online reselling">
+                              Online Reselling
+                            </SelectItem>
+                            <SelectItem value="Online teaching">
+                              Online Teaching
+                            </SelectItem>
+                            <SelectItem value="Consulting">
+                              Consulting
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative w-[33%]"></div>
+              </div>
 
-              <div className="w-full flex flex-col justify-between items-start pb-5">
+              <div className="w-full flex flex-col justify-between items-start pb-5 pt-3">
                 <div>
                   <h1 className="font-bold text-base"> Address data</h1>
                 </div>
                 <div className="w-full flex justify-between items-center pt-3">
+                  <div className="relative w-[33%]">
+                    <FormField
+                      control={form.control}
+                      name="streetaddress"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FloatingLabelInput
+                            {...field}
+                            id="streetaddress"
+                            label="Street Address"
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="relative w-[33%]">
+                    <FormField
+                      control={form.control}
+                      name="extraAddress"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FloatingLabelInput
+                            {...field}
+                            id="extraAddress"
+                            label="Extra Address"
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="relative w-[33%]">
+                    <FormField
+                      control={form.control}
+                      name="zipcode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FloatingLabelInput
+                            {...field}
+                            id="zipcode"
+                            label="Zip Code"
+                          />
+                          <FormMessage className="" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="w-full flex justify-start gap-2 items-center pt-3">
                   <div className="relative w-[33%]">
                     <FormField
                       control={form.control}
@@ -595,20 +774,21 @@ const AddClientForm: React.FC = () => {
                                     !field.value && "text-muted-foreground"
                                   )}
                                 >
+
                                   {field.value
                                     ? countrydata.countries.find(
                                         (country: any) =>
                                           country === field.value
                                       )
                                     : "Select country"}
-                                  <CheckCircle className="ml-2 h-4 w-4 shrink-0 opacity-50 text-primary" />
+                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
                             <PopoverContent className="p-0">
                               <Command>
                                 <CommandList>
-                                  <CommandInput placeholder="Search country" />
+                                  <CommandInput placeholder="Select Country" />
                                   <CommandEmpty>No country found.</CommandEmpty>
                                   <CommandGroup>
                                     {countrydata.countries.map(
@@ -637,7 +817,7 @@ const AddClientForm: React.FC = () => {
                               </Command>
                             </PopoverContent>
                           </Popover>
-                          <FormMessage />
+                          {watcher.country ? <></>:<FormMessage />}
                         </FormItem>
                       )}
                     />
@@ -661,40 +841,24 @@ const AddClientForm: React.FC = () => {
                   <div className="relative w-[33%]">
                     <FormField
                       control={form.control}
-                      name="zipcode"
+                      name="sendInvitation"
+                      defaultValue={true}
                       render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="zipcode"
-                            label="Zip Code"
-                          />
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="w-full flex justify-start gap-2 items-center pt-3">
-                  <div className="relative w-[33%]">
-                    <FormField
-                      control={form.control}
-                      name="streetaddress"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="streetaddress"
-                            label="Street Address"
-                          />
-                          <FormMessage />
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel>Send invitation</FormLabel>
                         </FormItem>
                       )}
                     />
                   </div>
                 </div>
               </div>
-              <div className="w-full flex flex-col justify-between items-start ">
+              {/* <div className="w-full flex flex-col justify-between items-start ">
                 <div>
                   <h1 className="font-bold text-base"> Bank Details</h1>
                 </div>
@@ -784,7 +948,7 @@ const AddClientForm: React.FC = () => {
                     )}
                   />
                 </div>
-              </div>
+              </div> */}
             </CardContent>
           </Card>
         </form>

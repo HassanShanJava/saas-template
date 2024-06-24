@@ -23,11 +23,14 @@ const DashboardLayout =()=>{
         <div className="flex h-16 items-center justify-between px-4 border-gradient">
           <Link to="#" className="flex items-center gap-2 font-semibold ">
             <img
-              src="/dashboardlogo.svg"
+              src="/dashboard-svg.svg"
               className={`h-8 w-9 ${!isSidebarOpen && "hidden"}`}
             ></img>
             <span
-              className={`${!isSidebarOpen && "hidden"} italic font-Roboto text-2xl text-center font-extrabold `}
+              className={`${!isSidebarOpen && "hidden"}  text-2xl text-center font-extrabold `}
+              style={{
+                fontFamily: "Jockey One",
+              }}
             >
               {" "}
               Let's Move
@@ -62,23 +65,38 @@ const DashboardLayout =()=>{
               }
               rounded-lg justify-center flex items-center`}
             >
-              {/* <img
-                src="/dashboardicon.svg"
-                className={`w-4 h-4 ${!isSidebarOpen && "hidden"} items-center `}
-              ></img> */}
-              {/* <DashBoardIcon
-                className={`w-4 h-4   ${
-                  isActiveLink(location.pathname, "/admin/dashboard")
-                    ? ""
-                    : "bg-transparent text-gray-500 "
-                }`}
-              /> */}
               <DashBoardIcon
                 className={`w-4 h-4 ${isActiveLink(location.pathname, "/admin/dashboard") ? "" : "text-gray-500 stroke-current"}`}
               />
             </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Dashboard</span>
           </Link>
+          {/* <Link
+            to="/admin/dashboard"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
+              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+            }
+             ${
+               isActiveLink(location.pathname, "/admin/dashboard")
+                 ? "bg-primary"
+                 : ""
+             }
+            `}
+          >
+            <div
+              className={`w-8 h-8   ${
+                isActiveLink(location.pathname, "/admin/dashboard")
+                  ? "bg-[#3ED13E]"
+                  : "bg-gray-100"
+              }
+              rounded-lg justify-center flex items-center`}
+            >
+              <DashBoardIcon
+                className={`w-4 h-4 ${isActiveLink(location.pathname, "/admin/dashboard") ? "" : "text-gray-500 stroke-current"}`}
+              />
+            </div>
+            <span className={`${!isSidebarOpen && "hidden"}`}>Dashboard</span>
+          </Link> */}
           <Link
             to="/admin/client"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
@@ -100,15 +118,12 @@ const DashboardLayout =()=>{
               rounded-lg justify-center flex items-center`}
             >
               <MultiUserIcon
-                className={`w-4 h-4   ${
-                  isActiveLink(location.pathname, "/admin/client")
-                    ? ""
-                    : "bg-transparent text-gray-500"
-                }`}
+                className={`w-4 h-4 ${isActiveLink(location.pathname, "/admin/client") ? "" : "text-gray-500 stroke-current"}`}
               />
             </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Client</span>
           </Link>
+         
           <Link
             to="/admin/leads"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${

@@ -116,7 +116,7 @@ const LeadForm: React.FC = () => {
       ),
     });
   }
-  function gotoClient() {
+  function gotoLeads() {
     navigate("/admin/leads");
   }
 
@@ -127,12 +127,14 @@ const LeadForm: React.FC = () => {
           <Card className="py-7 px-4">
             <CardContent>
               <div className="flex justify-between items-center">
-                <div className="flex flex-row gap-4 items-center"></div>
+                <div className="flex flex-row gap-4 items-center">
+                  
+                </div>
                 <div className="flex gap-2">
                   <div>
                     <Button
                       type={"button"}
-                      onClick={gotoClient}
+                      onClick={gotoLeads}
                       className="gap-2 bg-transparent border border-primary text-black hover:bg-red-300 hover:text-white"
                     >
                       <RxCross2 className="w-4 h-4" /> cancel
@@ -309,7 +311,10 @@ const LeadForm: React.FC = () => {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Lead Status" className="text-gray-400" />
+                                <SelectValue
+                                  placeholder="Lead Status"
+                                  className="text-gray-400"
+                                />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>

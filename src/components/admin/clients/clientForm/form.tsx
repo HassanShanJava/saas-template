@@ -79,36 +79,31 @@ const FormSchema = z.object({
     .trim(),
   landlinenumber: z.string().trim().optional(),
   mobilenumber: z.string().trim().optional(),
-  notes: z.string().trim().optional(),
+  notes: z.string().optional(),
   source: z.string({
     required_error: "Source Required.",
-  }).trim(),
+  }),
   language: z.string({
     required_error: "Language Required.",
-  }).trim(),
-  invoicetemplate: z
-    .string({
-      required_error: "Invoice template Required.",
-    })
-    .trim(),
+  }),
   coach: z.string().trim().optional(),
   membership: z.string({
-    required_error: "Membership is required.",
-  }).trim(),
+    required_error: "Membership plan is required.",
+  }),
   business: z.boolean().default(false).optional(),
-  businessInput:z.string().trim().optional(),
+  businessInput:z.string().optional(),
   sendInvitation: z.boolean().default(true).optional(),
   city: z.string({
     required_error: "City Required.",
   }).trim(),
   zipcode: z.string().trim().optional(),
-  streetaddress: z.string().trim().optional(),
+  streetaddress: z.string().optional(),
   country: z
     .string({
       required_error: "Country Required.",
     })
     .min(1, "Country is Required.").trim(),
-  extraAddress:z.string().trim().optional(),
+  extraAddress:z.string().optional(),
 });
 
 const AddClientForm: React.FC = () => {
@@ -537,7 +532,7 @@ const AddClientForm: React.FC = () => {
                 </div>
               </div>
               <div className="w-full flex justify-between items-start pt-3">
-                <div className="relative w-[33%]">
+                {/* <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
                     name="invoicetemplate"
@@ -564,7 +559,7 @@ const AddClientForm: React.FC = () => {
                       </FormItem>
                     )}
                   />
-                </div>
+                </div> */}
 
                 <div className="relative w-[33%]">
                   <FormField
@@ -628,6 +623,7 @@ const AddClientForm: React.FC = () => {
                     )}
                   />
                 </div>
+                <div className="relative w-[33%]"></div>
               </div>
               <div className="w-full flex justify-between items-start pt-1.5">
                 <div className="relative w-[33%]">

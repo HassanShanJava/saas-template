@@ -17,6 +17,7 @@ const Events = () => {
 	]
 	return (
 		<div className="w-full p-12">
+			<div className="flex"><div><h1 className="">All Saturday June</h1></div></div>
 			<FullCalender
 				plugins={[timeGridPlugin]}
 				allDaySlot={false}

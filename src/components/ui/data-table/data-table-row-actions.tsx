@@ -46,21 +46,21 @@ export function DataTableRowActions<TData>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[200px]">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem
+          {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
+          {/* <DropdownMenuItem
             onClick={() => navigator.clipboard.writeText(task.id)}
           >
             <Copy className="mr-2 h-4 w-4" />
             Copy Task ID
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DialogTrigger asChild onClick={() => {}}>
+          </DropdownMenuItem> */}
+          {/* <DropdownMenuSeparator /> */}
+          {/* <DialogTrigger asChild onClick={() => {}}>
             <DropdownMenuItem>
               {" "}
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </DropdownMenuItem>
-          </DialogTrigger>
+          </DialogTrigger> */}
           <DialogTrigger asChild>
             <DropdownMenuItem>
               <Pencil className="mr-2 h-4 w-4" />
@@ -73,8 +73,8 @@ export function DataTableRowActions<TData>({
             <Trash2 className="mr-2 h-4 w-4" />
             Delete Details
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuSub>
+          {/* <DropdownMenuSeparator /> */}
+          {/* <DropdownMenuSub>
             <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuRadioGroup value={task.label}>
@@ -86,7 +86,7 @@ export function DataTableRowActions<TData>({
                 ))}
               </DropdownMenuRadioGroup>
             </DropdownMenuSubContent>
-          </DropdownMenuSub>
+          </DropdownMenuSub> */}
         </DropdownMenuContent>
       </DropdownMenu>
      

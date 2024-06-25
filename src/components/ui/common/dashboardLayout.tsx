@@ -128,7 +128,7 @@ const DashboardLayout =()=>{
             </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Client</span>
           </Link>
-         
+
           <Link
             to="/admin/leads"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
@@ -159,6 +159,38 @@ const DashboardLayout =()=>{
               />
             </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Leads</span>
+          </Link>
+
+          <Link
+            to="/admin/events"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
+              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+            }
+             ${
+               isActiveLink(location.pathname, "/admin/events")
+                 ? "bg-primary"
+                 : ""
+             }
+            `}
+          >
+            <div
+              className={`w-8 h-8   ${
+                isActiveLink(location.pathname, "/admin/events")
+                  ? "bg-[#3ED13E]"
+                  : "bg-gray-100"
+              }
+              rounded-lg justify-center flex items-center`}
+            >
+              <img
+                src="/events.svg"
+                className={`w-4 h-4 ${
+                  isActiveLink(location.pathname, "/admin/events")
+                    ? ""
+                    : "bg-transparent text-gray-500"
+                }`}
+              />
+            </div>
+            <span className={`${!isSidebarOpen && "hidden"}`}>Events</span>
           </Link>
           <Link
             to="events"

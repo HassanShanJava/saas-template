@@ -11,12 +11,14 @@ import { login } from '../../../features/auth/authSlice';
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 const { VITE_APP_SITEKEY } = import.meta.env;
 
 export default function AuthenticationPage() {
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { loading, userInfo, error } = useSelector((state) => state.auth);
 
   const {
@@ -28,10 +30,18 @@ export default function AuthenticationPage() {
     mode: "onChange",
     reValidateMode: "onChange",
   });
+  useEffect(() => {
+	toast({
+		variant: "destructive",
+		title: error,
+		description: "There was a problem with your request.",
+	})
+	console.log(error);
+  }, [error])
 
   useEffect(() => {
-		if (userInfo) 
-			navigate('/admin');
+	if (userInfo) 
+		navigate('/admin/dashboard');
   }, [navigate, userInfo])
 
   const onSubmit = async (data: {email: string, password: string, terms: string}) => {
@@ -46,8 +56,7 @@ export default function AuthenticationPage() {
 
     // Here you can handle form submission, like sending data to a server
     console.log("Form data:", data);
-    console.log("Captcha value:", recaptchaValue);
-	dispatch(login(data))
+	dispatch(login(data));
 
     setCaptchaError(false);
     // Reset form after submission
@@ -65,8 +74,6 @@ export default function AuthenticationPage() {
 
   function onChange(value: any) {
     setCaptchaError(false);
-
-    console.log("Captcha value:", value);
   }
 
   return (
@@ -147,12 +154,12 @@ export default function AuthenticationPage() {
                   <div className="flex justify-between items-center p-0 m-0">
                     <div className="flex items-center space-x-2">
                       <Checkbox
-                        id="terms"
+                        id="rememberme"
                         className="text-black border-checkboxborder"
-                        {...register("terms", { required: true })}
+                        {...register("rememberme", { required: true })}
                       />
                       <label
-                        htmlFor="terms"
+                        htmlFor="rememberme"
                         className="font-poppins text-textgray text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                       >
                         Remember Me

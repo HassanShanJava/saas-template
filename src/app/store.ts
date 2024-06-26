@@ -8,7 +8,8 @@ const store = configureStore({
 	middleware:(getDefaultMiddleware)=>getDefaultMiddleware().concat(thunk),
 })
 
-export type RootState=ReturnType<typeof store.getState>;
-export type AppDispatch=typeof store.dispatch;
+export type AppStore= typeof store;
+export type RootState=ReturnType<AppStore['getState']>;
+export type AppDispatch=AppStore['dispatch'];
 
 export default store;

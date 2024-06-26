@@ -8,9 +8,16 @@ interface User {
 	org_id: number;
 }
 
+interface AuthState {
+	userToken: string | null;
+	userInfo: any;
+	error: string | null;
+	loading: boolean;
+}
+
 const userToken = localStorage.getItem('userToken');
 
-const initialState = {
+const initialState: AuthState = {
 	userToken,
 	userInfo: null,
 	error: null,
@@ -32,17 +39,22 @@ const authSlice = createSlice({
 		})
 		builder.addCase(login.rejected, (state, {payload}) => {
 			state.loading = false
-			state.error = payload
+			state.error = payload as string
 		})
 	}
 })
 
 
+interface loginParams {
+	email: string;
+	password: string;
+	rememberme: string;
+}
 export const login = createAsyncThunk(
 	'auth/login',
-	async ({email, password, rememberme}, {rejectWithValue}) => {
+	async ({email, password, rememberme}: loginParams, {rejectWithValue}) => {
 		try {
-			const {data} = await loginUser(email, password);
+			const {data}: {data: {token: {access_token: string}, user?: any}} = await loginUser(email, password);
 			localStorage.setItem('userToken', data.token?.access_token)
 			if (rememberme == 'on') {
 				localStorage.setItem('email', email)
@@ -54,7 +66,7 @@ export const login = createAsyncThunk(
 					localStorage.removeItem('password')
 			}
 			return data.user;
-		} catch(e) {
+		} catch(e: any) {
 			console.log(e)
 			if(e.response?.data?.detail) {
 				return rejectWithValue(e.response?.data?.detail)

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import ReCAPTCHA from "react-google-recaptcha";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
@@ -12,39 +12,44 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { AppDispatch, RootState } from "@/app/store";
+import { ThunkAction, ThunkDispatch } from "redux-thunk";
+import { AsyncThunkAction, UnknownAction } from "@reduxjs/toolkit";
 const { VITE_APP_SITEKEY } = import.meta.env;
 
 export default function AuthenticationPage() {
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { loading, userInfo, error } = useSelector((state) => state.auth);
+  const { loading, userInfo, error } = useSelector((state: RootState) => state.auth);
 
   const {
     register,
     handleSubmit,
     formState: { isSubmitted, isSubmitting, isValid, errors },
     reset,
-  } = useForm({
+  } = useForm<{email: string, password: string, rememberme: string}>({
     mode: "onChange",
     reValidateMode: "onChange",
   });
-  useEffect(() => {
-	toast({
-		variant: "destructive",
-		title: error,
-		description: "There was a problem with your request.",
-	})
-	console.log(error);
-  }, [error])
+
+	useEffect(() => {
+		if(error != null)
+			toast({
+				variant: "destructive",
+				title: error,
+				description: "There was a problem with your request.",
+			})
+		console.log(error);
+	}, [error])
 
   useEffect(() => {
 	if (userInfo) 
 		navigate('/admin/dashboard');
   }, [navigate, userInfo])
 
-  const onSubmit = async (data: {email: string, password: string, terms: string}) => {
+  const onSubmit: SubmitHandler<{email: string, password: string, rememberme: string}> = async (data) => {
     // Check if the ReCAPTCHA value is present
     const recaptchaValue = await recaptchaRef.current?.getValue();
 
@@ -56,6 +61,7 @@ export default function AuthenticationPage() {
 
     // Here you can handle form submission, like sending data to a server
     console.log("Form data:", data);
+	
 	dispatch(login(data));
 
     setCaptchaError(false);

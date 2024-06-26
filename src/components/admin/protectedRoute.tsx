@@ -1,4 +1,3 @@
-import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { Navigate, Outlet } from "react-router-dom";
 
 const ProtectedRoute = () => {

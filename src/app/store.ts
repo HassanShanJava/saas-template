@@ -1,14 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
-// import authReducer from "../features/auth/authSlice"
+import authReducer from "../features/auth/authSlice"
 import {thunk} from "redux-thunk";
 const store = configureStore({
 	reducer: {
-		// auth: authReducer,
+		auth: authReducer,
 	},
 	middleware:(getDefaultMiddleware)=>getDefaultMiddleware().concat(thunk),
 })
 
-export type RootState=ReturnType<typeof store.getState>;
-export type AppDispatch=typeof store.dispatch;
+export type AppStore= typeof store;
+export type RootState=ReturnType<AppStore['getState']>;
+export type AppDispatch=AppStore['dispatch'];
 
 export default store;

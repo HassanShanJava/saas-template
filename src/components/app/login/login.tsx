@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import ReCAPTCHA from "react-google-recaptcha";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,10 +7,17 @@ import { Button } from "../../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import "./style.css";
+import { login } from '../../../features/auth/authSlice';
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 const { VITE_APP_SITEKEY } = import.meta.env;
 
 export default function AuthenticationPage() {
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, userInfo, error } = useSelector((state) => state.auth);
 
   const {
     register,
@@ -22,7 +29,12 @@ export default function AuthenticationPage() {
     reValidateMode: "onChange",
   });
 
-  const onSubmit = async (data: any) => {
+  useEffect(() => {
+		if (userInfo) 
+			navigate('/admin');
+  }, [navigate, userInfo])
+
+  const onSubmit = async (data: {email: string, password: string, terms: string}) => {
     // Check if the ReCAPTCHA value is present
     const recaptchaValue = await recaptchaRef.current?.getValue();
 
@@ -35,6 +47,7 @@ export default function AuthenticationPage() {
     // Here you can handle form submission, like sending data to a server
     console.log("Form data:", data);
     console.log("Captcha value:", recaptchaValue);
+	dispatch(login(data))
 
     setCaptchaError(false);
     // Reset form after submission

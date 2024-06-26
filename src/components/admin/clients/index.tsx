@@ -5,6 +5,7 @@ import { Shell } from "@/components/ui/shell/shell";
 import { taskSchema } from "@/schema/taskSchema";
 import { z } from "zod";
 import tasksData from "../../../mock/data.json"; // Adjust the path if your tasks.json file is in a different directory
+import ImageUpload from "./clientForm/checkForm";
 
 const parseTasks = (data:any) => {
   return z.array(taskSchema).parse(
@@ -38,8 +39,9 @@ export default function TaskPage() {
   }
 
   return (
-    <Shell>
-      <DataTable columns={columns} data={tasks} />
-    </Shell>
+    <ImageUpload />
+    // <Shell>
+    //   <DataTable columns={columns} data={tasks} />
+    // </Shell>
   );
 }

@@ -313,7 +313,7 @@ const EventForm: React.FC = () => {
                         control={form.control}
                         name="time"
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="w-full">
                             <TooltipTrigger asChild>
                               <Input
                                 placeholder="start time"

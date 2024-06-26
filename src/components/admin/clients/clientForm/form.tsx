@@ -12,6 +12,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import "react-phone-number-input/style.css";
 import PhoneInput from "react-phone-number-input";
+import { getFormData } from "@/services/formdataService";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,112 +46,180 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
 
 const FormSchema = z.object({
-  gymMemberId: z
+  profile_url: z
     .string()
     .trim()
-    .min(2, { message: "Gym Member ID is required." })
+    .default(
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+    ),
+  own_member_id: z
+    .string({
+      required_error: "Id is Required",
+    })
+    .trim().min(2, { message: "Gym Member ID is required." })
     .optional(),
-  firstname: z
+  first_name: z
     .string({
       required_error: "Firstname Required.",
     })
     .trim()
     .min(2, { message: "First Name Is Required." }),
-  lastname: z
+  last_name: z
     .string({
       required_error: "Lastname Required.",
     })
     .trim()
     .min(2, { message: "Last Name Is Required" }),
-  type: z.enum(["male", "female", "other"], {
+  sex: z.enum(["male", "female", "other"], {
     required_error: "You need to select a gender type.",
   }),
-  dob: z.date({
+  date_of_birth: z.date({
     required_error: "A date of birth is required.",
   }),
-  clientsince: z.date({
+  client_since: z.date({
     required_error: "Date Required.",
   }),
-  email: z
+  email_address: z
     .string({
       required_error: "Email is Required.",
     })
     .email()
     .trim(),
-  landlinenumber: z.string().trim().optional(),
-  mobilenumber: z.string().trim().optional(),
+  landline_number: z.string().trim().optional(),
+  mobile_number: z.string().trim().optional(),
   notes: z.string().optional(),
   source: z.string({
     required_error: "Source Required.",
   }),
-  language: z.string({
-    required_error: "Language Required.",
-  }),
+  // language: z.string({
+  //   required_error: "Language Required.",
+  // }),
   coach: z.string().trim().optional(),
   membership: z.string({
     required_error: "Membership plan is required.",
   }),
-  business: z.boolean().default(false).optional(),
-  businessInput:z.string().optional(),
+  is_business: z.boolean().default(false).optional(),
+  businessInput: z.string().optional(),
   sendInvitation: z.boolean().default(true).optional(),
-  city: z.string({
-    required_error: "City Required.",
-  }).trim(),
-  zipcode: z.string().trim().optional(),
+  city: z
+    .string({
+      required_error: "City Required.",
+    })
+    .trim(),
+  zip_code: z.string().trim().optional(),
   streetaddress: z.string().optional(),
   country: z
     .string({
       required_error: "Country Required.",
     })
-    .min(1, "Country is Required.").trim(),
-  extraAddress:z.string().optional(),
+    .min(1, "Country is Required.")
+    .trim(),
+  extraAddress: z.string().optional(),
 });
 
 const AddClientForm: React.FC = () => {
+  const [formData, setFormData] = React.useState<any>({
+    coaches: null,
+    business: null,
+    membershipPlans: null
+  });
+
+  const [loading, setLoading] = React.useState(true); // Optional loading state
+
+  const sources = [
+    "Unknown",
+    "Facebook",
+    "Facebook Ad",
+    "ITS Email",
+    "Instagram",
+    "LinkedIn",
+    "Referral",
+    "Walk In",
+    "Website",
+    "WhatsApp",
+  ];
+
+  const langs = [
+    "English",
+    "Dutch",
+    "German",
+    "Spanish",
+    "French",
+    "Portuguese",
+    "Italian",
+    "Russian",
+    "Turkish",
+    "Polish",
+    "Greek",
+    "Lithuanian",
+    "Latvian",
+    "Norsk",
+  ];
+
   const navigate = useNavigate();
 
-  const [countrydata,setCountry]=React.useState(countries);
+  const [countrydata, setCountry] = React.useState(countries);
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    const reader = new FileReader();
+      const file = event.target.files?.[0];
+      const reader = new FileReader();
 
-    reader.onloadend = () => {
-      setAvatar(reader.result);
-    };
+      reader.onloadend = () => {
+        setAvatar(reader.result);
+      };
 
-    if (file) {
-      reader.readAsDataURL(file);
-    }
+      if (file) {
+        reader.readAsDataURL(file);
+      }
   };
 
   const handleSetAvatarClick = () => {
     document.getElementById("fileInput")?.click();
   };
 
- const form = useForm<z.infer<typeof FormSchema>>({
-   resolver: zodResolver(FormSchema),
-   defaultValues: {
-    gymMemberId:"A-103",
-    business:false,
-   },
- });
- const watcher=form.watch();
- function onSubmit(data: z.infer<typeof FormSchema>) {
-   toast({
-     title: "You submitted the following values:",
-     description: (
-       <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-         <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-       </pre>
-     ),
-   });
- }
-    function gotoClient() {
-      navigate("/admin/client");
-    }
- console.log("countries", countrydata);
+    const form = useForm<z.infer<typeof FormSchema>>({
+      resolver: zodResolver(FormSchema),
+      defaultValues: {
+        own_member_id: "A-103",
+        is_business: false,
+      },
+    });
+  const watcher = form.watch();
+  
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    toast({
+      title: "You submitted the following values:",
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        </pre>
+      ),
+    });
+  }
+
+  function gotoClient() {
+    navigate("/admin/client");
+  }
+
+  console.log("countries", countrydata);
+
+  React.useEffect(() => {
+   const fetchData = async () => {
+     try {
+       const data = await getFormData(1);
+       setFormData(data);
+       setLoading(false); // Set loading to false after data is fetched
+     } catch (error) {
+       console.error("Error fetching data:", error);
+       // Handle error or set appropriate error state
+     }
+   };
+
+   fetchData();
+  }, []);
+
+  console.log("Form Data", formData.membershipPlans);
   return (
     <div className="p-6 bg-bgbackground">
       <Form {...form}>
@@ -211,13 +280,13 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="gymMemberId"
+                    name="own_member_id"
                     disabled={true}
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="gymMemberId"
+                          id="own_member_id"
                           label="Gym Member ID"
                         />
                         <FormMessage />
@@ -228,12 +297,12 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="firstname"
+                    name="first_name"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="firstname"
+                          id="first_name"
                           label="First Name"
                         />
                         <FormMessage />
@@ -244,12 +313,12 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="lastname"
+                    name="last_name"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="lastname"
+                          id="last_name"
                           label="Last Name"
                         />
                         <FormMessage className="" />
@@ -262,7 +331,7 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="type"
+                    name="sex"
                     defaultValue="male"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
@@ -291,7 +360,7 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="dob"
+                    name="date_of_birth"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <Popover>
@@ -338,12 +407,12 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="email_address"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="email"
+                          id="email_address"
                           label="Email Address"
                         />
                         <FormMessage />
@@ -356,12 +425,12 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="landlinenumber"
+                    name="landline_number"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="landlinenumber"
+                          id="landline_number"
                           label="Landline Number"
                         />
                         <FormMessage />
@@ -373,12 +442,12 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="mobilenumber"
+                    name="mobile_number"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="mobilenumber"
+                          id="mobile_number"
                           label="Mobile Number"
                         />
                         <FormMessage />
@@ -389,7 +458,7 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="clientsince"
+                    name="client_since"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <Popover>
@@ -468,18 +537,11 @@ const AddClientForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="unknown">Unknown</SelectItem>
-                            <SelectItem value="facebook">Facebook</SelectItem>
-                            <SelectItem value="facebookAd">
-                              Facebook Ad
-                            </SelectItem>
-                            <SelectItem value="instagram">Instagram</SelectItem>
-                            <SelectItem value="itsemail">ITS Email</SelectItem>
-                            <SelectItem value="linkedin">LinkedIn</SelectItem>
-                            <SelectItem value="referral">Referral</SelectItem>
-                            <SelectItem value="walkin">Walk In</SelectItem>
-                            <SelectItem value="walkin">Website</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                            {sources.map((sourceval: any, i: any) => (
+                              <SelectItem value={sourceval} key={i}>
+                                {sourceval}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -489,6 +551,44 @@ const AddClientForm: React.FC = () => {
                 </div>
                 <div className="relative w-[33%]">
                   <FormField
+                    control={form.control}
+                    name="membership"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              className={`${watcher.membership ? "text-black" : ""}`}
+                            >
+                              <SelectValue
+                                className="text-gray-400"
+                                placeholder="Membership Plan"
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {formData.membershipPlans &&
+                              formData.membershipPlans.map((sourceval: any) => {
+                                console.log(field.value);
+                                return (
+                                  <SelectItem
+                                    key={sourceval.id}
+                                    value={sourceval.id.toString()}
+                                  >
+                                    {sourceval.name}
+                                  </SelectItem>
+                                );
+                              })}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {/* <FormField
                     control={form.control}
                     name="language"
                     render={({ field }) => (
@@ -505,30 +605,17 @@ const AddClientForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="English">English</SelectItem>
-                            <SelectItem value="Dutch">Dutch</SelectItem>
-                            <SelectItem value="German">German</SelectItem>
-                            <SelectItem value="Spanish">Spanish</SelectItem>
-                            <SelectItem value="French">French</SelectItem>
-                            <SelectItem value="Portuguese">
-                              Portuguese
-                            </SelectItem>
-                            <SelectItem value="Italian">Italian</SelectItem>
-                            <SelectItem value="Russian">Russian</SelectItem>
-                            <SelectItem value="Turkish">Turkish</SelectItem>
-                            <SelectItem value="Polish">Polish</SelectItem>
-                            <SelectItem value="Greek">Greek</SelectItem>
-                            <SelectItem value="Lithuanian">
-                              Lithuanian
-                            </SelectItem>
-                            <SelectItem value="Latvian">Latvian</SelectItem>
-                            <SelectItem value="Norsk">Norsk</SelectItem>
+                            {langs.map((sourceval: any, i: any) => (
+                              <SelectItem value={sourceval} key={i}>
+                                {sourceval}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                  /> */}
                 </div>
               </div>
               <div className="w-full flex justify-between items-start pt-3">
@@ -582,40 +669,18 @@ const AddClientForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Anonymous">
-                              Random Coach
-                            </SelectItem>
-                            <SelectItem value="Coach two">Coach Two</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative w-[33%]">
-                  <FormField
-                    control={form.control}
-                    name="membership"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              className={`${watcher.membership ? "text-black" : ""}`}
-                            >
-                              <SelectValue
-                                className="text-gray-400"
-                                placeholder="Membership Plan"
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="trail">Trail</SelectItem>
-                            <SelectItem value="month">Monthly</SelectItem>
+                            {formData.coaches &&
+                              formData.coaches.map((sourceval: any) => {
+                                console.log(field.value);
+                                return (
+                                  <SelectItem
+                                    key={sourceval.id}
+                                    value={sourceval.id.toString()}
+                                  >
+                                    {sourceval.coach_name}
+                                  </SelectItem>
+                                );
+                              })}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -624,13 +689,14 @@ const AddClientForm: React.FC = () => {
                   />
                 </div>
                 <div className="relative w-[33%]"></div>
+                <div className="relative w-[33%]"></div>
               </div>
               <div className="w-full flex justify-between items-start pt-1.5">
                 <div className="relative w-[33%]">
                   <div className="justify-start items-center flex">
                     <FormField
                       control={form.control}
-                      name="business"
+                      name="is_business"
                       render={({ field }) => (
                         <FormItem className="flex flex-row gap-3 items-center justify-between">
                           <div className="space-y-0.5">
@@ -650,7 +716,7 @@ const AddClientForm: React.FC = () => {
                   </div>
                 </div>
                 <div
-                  className={`relative w-[33%] ${watcher.business ? "" : "hidden"}`}
+                  className={`relative w-[33%] ${watcher.is_business ? "hidden" : ""}`}
                 >
                   <FormField
                     control={form.control}
@@ -679,15 +745,31 @@ const AddClientForm: React.FC = () => {
                               <PlusIcon className="text-black w-5 h-5" /> Add
                               New business
                             </Button>
-                            <SelectItem value="Online reselling">
-                              Online Reselling
-                            </SelectItem>
-                            <SelectItem value="Online teaching">
-                              Online Teaching
-                            </SelectItem>
-                            <SelectItem value="Consulting">
-                              Consulting
-                            </SelectItem>
+                            {/* {formData.business &&
+                              formData.business.map((sourceval: any) => {
+                                console.log(sourceval.name);
+                                return (
+                                  <SelectItem
+                                    value={sourceval.id}
+                                    key={sourceval.id.toString()}
+                                  >
+                                    {sourceval.name}
+                                  </SelectItem>
+                                );
+                              })} */}
+
+                            {formData.business &&
+                              formData.business.map((sourceval: any) => {
+                                console.log(field.value);
+                                return (
+                                  <SelectItem
+                                    value={sourceval.id.toString()}
+                                    key={sourceval.id}
+                                  >
+                                    {sourceval.name}
+                                  </SelectItem>
+                                );
+                              })}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -738,12 +820,12 @@ const AddClientForm: React.FC = () => {
                   <div className="relative w-[33%]">
                     <FormField
                       control={form.control}
-                      name="zipcode"
+                      name="zip_code"
                       render={({ field }) => (
                         <FormItem>
                           <FloatingLabelInput
                             {...field}
-                            id="zipcode"
+                            id="zip_code"
                             label="Zip Code"
                           />
                           <FormMessage className="" />
@@ -770,14 +852,13 @@ const AddClientForm: React.FC = () => {
                                     !field.value && "text-muted-foreground"
                                   )}
                                 >
-
                                   {field.value
                                     ? countrydata.countries.find(
                                         (country: any) =>
                                           country === field.value
                                       )
                                     : "Select country"}
-                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
+                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
@@ -813,7 +894,7 @@ const AddClientForm: React.FC = () => {
                               </Command>
                             </PopoverContent>
                           </Popover>
-                          {watcher.country ? <></>:<FormMessage />}
+                          {watcher.country ? <></> : <FormMessage />}
                         </FormItem>
                       )}
                     />

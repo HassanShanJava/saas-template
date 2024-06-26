@@ -22,25 +22,29 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<AuthenticationPage />} />
-		<ProtectedRoute>
-			<Route path="/admin" element={<DashboardLayout />}>
-			  <Route path="/admin/dashboard" index element={<Dashboard />} />
-			  <Route path="/admin/client" index element={<Client />} />
-			  <Route path="/admin/system_settings" index element={<SystemSettings />} />
-			  <Route
-				path="/admin/client/addclient"
-				index
-				element={<AddClientForm />}
-			  />
-			  <Route path="/admin/leads" index element={<Leads />} />
-			  <Route path="/admin/leads/addlead" index element={<LeadForm />} />
-			  <Route path="/admin/events" index element={<Events />} />
-        <Route path="/admin/events/addevents" index element={<EventForm />} />
-			</Route>
-		</ProtectedRoute>
-
+        {/* <Routes element={<ProtectedRoute/>} > */}
+        <Route path="/admin" element={<DashboardLayout />}>
+          <Route path="/admin/dashboard" index element={<Dashboard />} />
+          <Route path="/admin/client" index element={<Client />} />
+          <Route
+            path="/admin/system_settings"
+            index
+            element={<SystemSettings />}
+          />
+          <Route
+            path="/admin/client/addclient"
+            index
+            element={<AddClientForm />}
+          />
+          <Route path="/admin/leads" index element={<Leads />} />
+          <Route path="/admin/leads/addlead" index element={<LeadForm />} />
+          <Route path="/admin/events" index element={<Events />} />
+          <Route path="/admin/events/addevents" index element={<EventForm />} />
+        </Route>
         <Route path="/sidebar" element={<Component />}></Route>
       </Routes>
+
+      {/* </Routes> */}
     </>
   );
 }

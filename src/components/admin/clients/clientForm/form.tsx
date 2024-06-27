@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import countries from "./countries.json";
 import { Check, ChevronsUpDown ,CheckCircle, ChevronDownIcon} from "lucide-react";
 import {
   Command,
@@ -11,8 +10,7 @@ import {
 } from "@/components/ui/command";
 import { Switch } from "@/components/ui/switch";
 import "react-phone-number-input/style.css";
-import PhoneInput from "react-phone-number-input";
-import { getFormData } from "@/services/formdataService";
+import { getFormData } from "@/services/ClientService";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,7 +27,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormField, FormItem, FormMessage,FormLabel,FormControl,FormDescription } from "@/components/ui/form";
 import { toast } from "@/components/ui/use-toast";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ButtonGroup, ButtonGroupItem } from "@/components/ui/buttonGroup/button-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -56,7 +53,8 @@ const FormSchema = z.object({
     .string({
       required_error: "Id is Required",
     })
-    .trim().min(2, { message: "Gym Member ID is required." })
+    .trim()
+    .min(2, { message: "Gym Member ID is required." })
     .optional(),
   first_name: z
     .string({
@@ -76,9 +74,6 @@ const FormSchema = z.object({
   date_of_birth: z.date({
     required_error: "A date of birth is required.",
   }),
-  // client_since: z.date({
-  //   required_error: "Date Required.",
-  // }),
   email_address: z
     .string({
       required_error: "Email is Required.",
@@ -91,9 +86,7 @@ const FormSchema = z.object({
   source: z.string({
     required_error: "Source Required.",
   }),
-  // language: z.string({
-  //   required_error: "Language Required.",
-  // }),
+
   coach: z.string().trim().optional(),
   membership: z.string({
     required_error: "Membership plan is required.",
@@ -121,44 +114,16 @@ const AddClientForm: React.FC = () => {
   const [formData, setFormData] = React.useState<any>({
     coaches: null,
     business: null,
-    membershipPlans: null
+    membershipPlans: null,
+    countries:null,
+    clientCount:null,
+    sources: null
   });
 
   const [loading, setLoading] = React.useState(true); // Optional loading state
 
-  const sources = [
-    "Unknown",
-    "Facebook",
-    "Facebook Ad",
-    "ITS Email",
-    "Instagram",
-    "LinkedIn",
-    "Referral",
-    "Walk In",
-    "Website",
-    "WhatsApp",
-  ];
-
-  const langs = [
-    "English",
-    "Dutch",
-    "German",
-    "Spanish",
-    "French",
-    "Portuguese",
-    "Italian",
-    "Russian",
-    "Turkish",
-    "Polish",
-    "Greek",
-    "Lithuanian",
-    "Latvian",
-    "Norsk",
-  ];
-
   const navigate = useNavigate();
 
-  const [countrydata, setCountry] = React.useState(countries);
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,7 +146,6 @@ const AddClientForm: React.FC = () => {
     const form = useForm<z.infer<typeof FormSchema>>({
       resolver: zodResolver(FormSchema),
       defaultValues: {
-        own_member_id: "A-103",
         is_business: false,
       },
     });
@@ -202,15 +166,36 @@ const AddClientForm: React.FC = () => {
     navigate("/admin/client");
   }
 
-  console.log("countries", countrydata);
+  console.log("countries", formData.clientCount && formData.clientCount.total_clients);
+
+  React.useEffect(() => {
+  if (formData.clientCount) {
+    console.log(formData.clientCount);
+    const totalClients = formData.clientCount.total_clients;
+    const newClientId = `ext-${totalClients + 1}`;
+    form.setValue("own_member_id", newClientId);
+  } else {
+    toast({
+        variant:"destructive",
+        title: `Cannot generate Auto gym member Id`,
+        description: "Error from server could get data.",
+      });
+  }
+}, [formData.clientCount!==null]);
 
   React.useEffect(() => {
    const fetchData = async () => {
      try {
-       const data = await getFormData(1);
+       const data = await getFormData(4);
+      //  console.log(data.sources)
        setFormData(data);
        setLoading(false); // Set loading to false after data is fetched
      } catch (error) {
+      toast({
+        variant:"destructive",
+        title: `${error}`,
+        description: "Need to Reload the form",
+      });
        console.error("Error fetching data:", error);
        // Handle error or set appropriate error state
      }
@@ -219,7 +204,9 @@ const AddClientForm: React.FC = () => {
    fetchData();
   }, []);
 
-  console.log("Form Data", formData.membershipPlans);
+  console.log("Form Data", formData.sources);
+  console.log("All Form Data", formData);
+
   return (
     <div className="p-6 bg-bgbackground">
       <Form {...form}>
@@ -476,7 +463,7 @@ const AddClientForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {formData.coaches &&
+                            {formData.coaches?.length > 0 ? (
                               formData.coaches.map((sourceval: any) => {
                                 console.log(field.value);
                                 return (
@@ -487,7 +474,12 @@ const AddClientForm: React.FC = () => {
                                     {sourceval.coach_name}
                                   </SelectItem>
                                 );
-                              })}
+                              })
+                            ) : (
+                              <>
+                                <p className="p-2"> No Coach Found</p>
+                              </>
+                            )}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -575,11 +567,20 @@ const AddClientForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {sources.map((sourceval: any, i: any) => (
-                              <SelectItem value={sourceval} key={i}>
-                                {sourceval}
-                              </SelectItem>
-                            ))}
+                            {formData.sources?.length ? (
+                              formData.sources.map((sourceval: any, i: any) => (
+                                <SelectItem
+                                  value={sourceval.id.toString()}
+                                  key={i}
+                                >
+                                  {sourceval.source}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <>
+                                <p className="p-2"> No Sources Found</p>
+                              </>
+                            )}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -608,7 +609,7 @@ const AddClientForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {formData.membershipPlans &&
+                            {formData.membershipPlans?.length ? (
                               formData.membershipPlans.map((sourceval: any) => {
                                 console.log(field.value);
                                 return (
@@ -619,7 +620,12 @@ const AddClientForm: React.FC = () => {
                                     {sourceval.name}
                                   </SelectItem>
                                 );
-                              })}
+                              })
+                            ) : (
+                              <>
+                                <p className="2">No Membership plan found</p>
+                              </>
+                            )}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -744,7 +750,7 @@ const AddClientForm: React.FC = () => {
                               <PlusIcon className="text-black w-5 h-5" /> Add
                               New business
                             </Button>
-                            {/* {formData.business &&
+                            {formData.business?.length ? (
                               formData.business.map((sourceval: any) => {
                                 console.log(sourceval.name);
                                 return (
@@ -755,7 +761,12 @@ const AddClientForm: React.FC = () => {
                                     {sourceval.name}
                                   </SelectItem>
                                 );
-                              })} */}
+                              })
+                            ) : (
+                              <>
+                                <p className="p-2"> No details found</p>
+                              </>
+                            )}
 
                             {formData.business &&
                               formData.business.map((sourceval: any) => {
@@ -852,10 +863,10 @@ const AddClientForm: React.FC = () => {
                                   )}
                                 >
                                   {field.value
-                                    ? countrydata.countries.find(
+                                    ? formData.countries.find(
                                         (country: any) =>
-                                          country === field.value
-                                      )
+                                          country.country === field.value
+                                      )?.country // Access the property you want to render
                                     : "Select country"}
                                   <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
@@ -867,27 +878,29 @@ const AddClientForm: React.FC = () => {
                                   <CommandInput placeholder="Select Country" />
                                   <CommandEmpty>No country found.</CommandEmpty>
                                   <CommandGroup>
-                                    {countrydata.countries.map(
-                                      (country: any) => (
+                                    {formData.countries &&
+                                      formData.countries.map((country: any) => (
                                         <CommandItem
-                                          value={country}
-                                          key={country}
+                                          value={country.country}
+                                          key={country.id}
                                           onSelect={() => {
-                                            form.setValue("country", country);
+                                            form.setValue(
+                                              "country",
+                                              country.country
+                                            );
                                           }}
                                         >
                                           <Check
                                             className={cn(
                                               "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                              country === field.value
+                                              country.country === field.value
                                                 ? "opacity-100"
                                                 : "opacity-0"
                                             )}
                                           />
-                                          {country}
+                                          {country.country}
                                         </CommandItem>
-                                      )
-                                    )}
+                                      ))}
                                   </CommandGroup>
                                 </CommandList>
                               </Command>

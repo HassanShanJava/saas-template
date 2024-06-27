@@ -28,6 +28,7 @@ export const columns: ColumnDef<LeadType>[]=[
         </div>
       ),
     },
+    
     {
       accessorKey: "contact",
       header: ({ column }) => (

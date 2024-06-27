@@ -32,7 +32,6 @@ export const columns: ColumnDef<TaskType>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
-    size: 55,
   },
   {
     accessorKey: "id",
@@ -42,7 +41,7 @@ export const columns: ColumnDef<TaskType>[] = [
     cell: ({ row }) => <div className="w-[80px] justify-start items-center flex">{row.getValue("id")}</div>,
     enableSorting: false,
     enableHiding: false,
-    size: 70,
+
   },
   {
     accessorKey: "title",
@@ -63,7 +62,7 @@ export const columns: ColumnDef<TaskType>[] = [
         </div>
       );
     },
-    size: 70,
+    
   },
   {
     accessorKey: "status",
@@ -91,7 +90,6 @@ export const columns: ColumnDef<TaskType>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
-    size: 70,
   },
   {
     accessorKey: "priority",
@@ -119,7 +117,6 @@ export const columns: ColumnDef<TaskType>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
-    size: 100,
   },
   {
     accessorKey: "priority",
@@ -147,7 +144,6 @@ export const columns: ColumnDef<TaskType>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
-    size: 100,
   },
   {
     accessorKey: "due_date",
@@ -158,7 +154,6 @@ export const columns: ColumnDef<TaskType>[] = [
       const field = row.getValue("due_date") as Date;
       return <div>{field.toDateString()}</div>;
     },
-    size: 100,
   },
   {
     accessorKey: "due_date",
@@ -169,7 +164,6 @@ export const columns: ColumnDef<TaskType>[] = [
       const field = row.getValue("due_date") as Date;
       return <div>{field.toDateString()}</div>;
     },
-    size: 100,
   },
   {
     accessorKey: "due_date",
@@ -180,12 +174,10 @@ export const columns: ColumnDef<TaskType>[] = [
       const field = row.getValue("due_date") as Date;
       return <div>{field.toDateString()}</div>;
     },
-    size: 100,
   },
   {
     id: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,
-    size: 100,
   },
 ];
 

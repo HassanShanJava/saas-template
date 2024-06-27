@@ -32,17 +32,17 @@ export const columns: ColumnDef<TaskType>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
-    size: 100,
+    size: 55,
   },
   {
     accessorKey: "id",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Client Id" />
+      <DataTableColumnHeader className="text-sm" column={column} title="Client Id" />
     ),
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
+    cell: ({ row }) => <div className="w-[80px] justify-start items-center flex">{row.getValue("id")}</div>,
     enableSorting: false,
     enableHiding: false,
-    size: 100,
+    size: 70,
   },
   {
     accessorKey: "title",
@@ -63,7 +63,7 @@ export const columns: ColumnDef<TaskType>[] = [
         </div>
       );
     },
-    size: 100,
+    size: 70,
   },
   {
     accessorKey: "status",
@@ -91,7 +91,7 @@ export const columns: ColumnDef<TaskType>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id));
     },
-    size: 100,
+    size: 70,
   },
   {
     accessorKey: "priority",
@@ -152,7 +152,7 @@ export const columns: ColumnDef<TaskType>[] = [
   {
     accessorKey: "due_date",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Members Date" />
+      <DataTableColumnHeader column={column} title="Activation Date" />
     ),
     cell: ({ row }) => {
       const field = row.getValue("due_date") as Date;
@@ -160,28 +160,28 @@ export const columns: ColumnDef<TaskType>[] = [
     },
     size: 100,
   },
-  // {
-  //   accessorKey: "due_date",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Activation Date" />
-  //   ),
-  //   cell: ({ row }) => {
-  //     const field = row.getValue("due_date") as Date;
-  //     return <div>{field.toDateString()}</div>;
-  //   },
-  //   size: 100,
-  // },
-  // {
-  //   accessorKey: "due_date",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Check In" />
-  //   ),
-  //   cell: ({ row }) => {
-  //     const field = row.getValue("due_date") as Date;
-  //     return <div>{field.toDateString()}</div>;
-  //   },
-  //   size: 100,
-  // },
+  {
+    accessorKey: "due_date",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Last Check In" />
+    ),
+    cell: ({ row }) => {
+      const field = row.getValue("due_date") as Date;
+      return <div>{field.toDateString()}</div>;
+    },
+    size: 100,
+  },
+  {
+    accessorKey: "due_date",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Last Login" />
+    ),
+    cell: ({ row }) => {
+      const field = row.getValue("due_date") as Date;
+      return <div>{field.toDateString()}</div>;
+    },
+    size: 100,
+  },
   {
     id: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,

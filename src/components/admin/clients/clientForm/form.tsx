@@ -76,9 +76,9 @@ const FormSchema = z.object({
   date_of_birth: z.date({
     required_error: "A date of birth is required.",
   }),
-  client_since: z.date({
-    required_error: "Date Required.",
-  }),
+  // client_since: z.date({
+  //   required_error: "Date Required.",
+  // }),
   email_address: z
     .string({
       required_error: "Email is Required.",
@@ -458,6 +458,44 @@ const AddClientForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
+                    name="coach"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              className={`${watcher.coach ? "text-black" : ""}`}
+                            >
+                              <SelectValue
+                                className="text-black"
+                                placeholder="Coach"
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {formData.coaches &&
+                              formData.coaches.map((sourceval: any) => {
+                                console.log(field.value);
+                                return (
+                                  <SelectItem
+                                    key={sourceval.id}
+                                    value={sourceval.id.toString()}
+                                  >
+                                    {sourceval.coach_name}
+                                  </SelectItem>
+                                );
+                              })}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {/* <FormField
+                    control={form.control}
                     name="client_since"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
@@ -499,7 +537,7 @@ const AddClientForm: React.FC = () => {
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                  /> */}
                 </div>
               </div>
               <div className="w-full flex justify-between items-start mt-3">
@@ -648,46 +686,7 @@ const AddClientForm: React.FC = () => {
                   />
                 </div> */}
 
-                <div className="relative w-[33%]">
-                  <FormField
-                    control={form.control}
-                    name="coach"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              className={`${watcher.coach ? "text-black" : ""}`}
-                            >
-                              <SelectValue
-                                className="text-black"
-                                placeholder="Coach"
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {formData.coaches &&
-                              formData.coaches.map((sourceval: any) => {
-                                console.log(field.value);
-                                return (
-                                  <SelectItem
-                                    key={sourceval.id}
-                                    value={sourceval.id.toString()}
-                                  >
-                                    {sourceval.coach_name}
-                                  </SelectItem>
-                                );
-                              })}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <div className="relative w-[33%]"></div>
                 <div className="relative w-[33%]"></div>
                 <div className="relative w-[33%]"></div>
               </div>

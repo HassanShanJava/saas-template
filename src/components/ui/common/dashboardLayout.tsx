@@ -49,7 +49,7 @@ const DashboardLayout =()=>{
             <MenuIcon className="h-6 w-6" />
           </Button> */}
         </div>
-        <nav className="flex flex-col gap-1 px-2 py-2">
+        <nav className="flex flex-col gap-1 px-2 py-2 ">
           <Link
             to="/admin/dashboard"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${

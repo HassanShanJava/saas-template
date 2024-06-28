@@ -1,24 +1,11 @@
 import { format } from "date-fns";
-import { Check, ChevronsUpDown, CheckCircle } from "lucide-react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import "react-phone-number-input/style.css";
-import PhoneInput from "react-phone-number-input";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  FloatingInput,
-  FloatingLabel,
   FloatingLabelInput,
 } from "@/components/ui/floatinglable/floating";
-import { PlusIcon, CameraIcon, Webcam } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { RxCross2 } from "react-icons/rx";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,16 +15,9 @@ import {
   FormField,
   FormItem,
   FormMessage,
-  FormLabel,
   FormControl,
-  FormDescription,
 } from "@/components/ui/form";
 import { toast } from "@/components/ui/use-toast";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  ButtonGroup,
-  ButtonGroupItem,
-} from "@/components/ui/buttonGroup/button-group";
 import {
   Popover,
   PopoverContent,
@@ -53,49 +33,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
 
 
 const FormSchema = z.object({
+  // lead information
   firstname: z
     .string({
-      required_error: "Required",
+      required_error: "First Name Is Required",
     })
     .min(2, { message: "First Name Is Required" }),
   lastname: z
     .string({
-      required_error: "Required",
+      required_error: "Last Name isRequired",
     })
     .min(2, { message: "Last Name Is Required" }),
-  leadsince: z.date({
-    required_error: "A date is required.",
-  }),
-  email: z
-    .string({
-      required_error: "Email is Required",
-    })
-    .email(),
-  homenumber: z
-    .string({
-      required_error: "Required",
-    })
-    .min(2, { message: "Owner Member ID is required." }),
-  mobilenumber: z
-    .string({
-      required_error: "Required",
-    })
-    .min(2, { message: "MobileNois required." }),
-  writeanote: z.string().optional(),
+  //contact Details
+  email: z.string().email().optional(),
+
+  homenumber: z.string().optional(),
+
+  mobilenumber: z.string().optional(),
+
+  // lead Settings
+  source: z.string().optional(),
+  
   leadStatus: z.string({
-    required_error: "Required",
+    required_error: "Lead status is Required",
   }),
-  source: z.string({
-    required_error: "Required",
-  }),
-  leadowner: z.string({
-    required_error: "Required",
-  }),
+  
+  leadowner: z.string().optional(),
+  
+  leadsince: z.date().optional(),
+  
+  writeanote: z.string().optional(),
+
+
 });
 
 const LeadForm: React.FC = () => {

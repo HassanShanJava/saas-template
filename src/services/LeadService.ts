@@ -8,7 +8,7 @@ const client = axios.create({
 const clienttwo = axios.create({
   baseURL: VITE_API_URL_two,
 });
-export async function getFormData(org_id: number) {
+export async function getLeadFormData(org_id: number) {
   try {
     const [
       coachesResponse,
@@ -56,8 +56,7 @@ export async function getFormData(org_id: number) {
     const countries = countryResponse.data;
     const clientCount = getClientCount.data;
 
-    const totalClients =
-      clientCount && clientCount.total_clients;
+    const totalClients = clientCount && clientCount.total_clients;
     const newClientId = `ext-${totalClients + 1}`;
     return {
       coaches,
@@ -66,15 +65,13 @@ export async function getFormData(org_id: number) {
       sources,
       countries,
       clientCount,
-      newClientId
+      newClientId,
     };
   } catch (error) {
     console.error("Error fetching data:", error);
     throw error;
   }
 }
-
-
 
 export async function SubmitForm(formData: any): Promise<any> {
   try {
@@ -102,13 +99,13 @@ export async function SubmitForm(formData: any): Promise<any> {
       address_1: null,
       address_2: null,
       client_since: null,
-      created_at:  now.toISOString(),
+      created_at: now.toISOString(),
       created_by: 1,
       org_id: 4,
       coach_id: 0,
       membership_id: 0,
       status: "",
-      send_invitation:null,
+      send_invitation: null,
     };
 
     // Manipulate dob field to ensure only date part is sent
@@ -118,35 +115,34 @@ export async function SubmitForm(formData: any): Promise<any> {
       postData.dob = dobDate.toISOString().split("T")[0]; // Extract date part only
     }
 
-    if (formData.country_id ){
+    if (formData.country_id) {
       const id = Number(formData.country_id);
-      postData.country_id=id;
+      postData.country_id = id;
     }
 
-    if (formData.source_id){
+    if (formData.source_id) {
       const id = Number(formData.source_id);
-      postData.source_id=id;
+      postData.source_id = id;
     }
 
     if (formData.membership_id) {
-        const id = Number(formData.membership_id);
-        postData.membership_id = id;
-      }
+      const id = Number(formData.membership_id);
+      postData.membership_id = id;
+    }
 
-    
     // Assign other values from formData to postData if provided
     Object.keys(formData).forEach((key) => {
-        const typedKey = key as keyof typeof postData;
-        if (
-          typedKey !== "dob" &&
-          typedKey !== "country_id" &&
-          typedKey !== "source_id" &&
-          typedKey !== "membership_id" &&
-          formData[typedKey] !== undefined
-        ) {
-          postData[typedKey] = formData[typedKey];
-        }
-      });
+      const typedKey = key as keyof typeof postData;
+      if (
+        typedKey !== "dob" &&
+        typedKey !== "country_id" &&
+        typedKey !== "source_id" &&
+        typedKey !== "membership_id" &&
+        formData[typedKey] !== undefined
+      ) {
+        postData[typedKey] = formData[typedKey];
+      }
+    });
 
     // Send POST request using clienttwo.post (adjust this part based on your actual HTTP client)
     const response: AxiosResponse<any> = await clienttwo.post(
@@ -160,11 +156,10 @@ export async function SubmitForm(formData: any): Promise<any> {
       }
     );
 
-    console.log(`data ${postData}`)
+    console.log(`data ${postData}`);
     return response.data; // Return the response data if successful
   } catch (error) {
     console.error("API call error:", error);
     throw error; // Re-throw the error to handle it further if needed
   }
 }
-

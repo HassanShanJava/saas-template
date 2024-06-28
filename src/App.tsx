@@ -1,4 +1,3 @@
-
 import DashboardLayout from "./components/ui/common/dashboardLayout";
 import AuthenticationPage from "./components/app/login/login";
 import {Route,Routes} from "react-router-dom";
@@ -11,12 +10,12 @@ import Leads from "./components/admin/leads";
 import LeadForm from "./components/admin/leads/leadform/form";
 import Events from "./components/admin/events";
 import ProtectedRoute from "./components/admin/protectedRoute";
-
-// import DrawerFunction from "./components/pagework/drawer";
-// import DrawerExample from './components/pagework/index';
-
+import { useSelector } from "react-redux";
+import { RootState } from "./app/store";
+import Loader from "@/components/Loader";
 
 function App() {
+  const { loading } = useSelector((state: RootState) => state.auth);
   return (
     <>
       <Routes>
@@ -39,6 +38,7 @@ function App() {
 		</Route>
 
       </Routes>
+      <Loader open={loading} />
     </>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import ReCAPTCHA from "react-google-recaptcha";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
@@ -13,8 +13,6 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { AppDispatch, RootState } from "@/app/store";
-import { ThunkAction, ThunkDispatch } from "redux-thunk";
-import { AsyncThunkAction, UnknownAction } from "@reduxjs/toolkit";
 const { VITE_APP_SITEKEY } = import.meta.env;
 
 export default function AuthenticationPage() {
@@ -22,17 +20,27 @@ export default function AuthenticationPage() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [checked, setChecked] = useState<boolean>(false);
   const { loading, userInfo, error } = useSelector((state: RootState) => state.auth);
+  const email = localStorage.getItem('email')??'';
+  const password = localStorage.getItem('password')??'';
 
   const {
     register,
     handleSubmit,
     formState: { isSubmitted, isSubmitting, isValid, errors },
+	setValue,
     reset,
-  } = useForm<{email: string, password: string, rememberme: string}>({
+  } = useForm<{email: string, password: string, rememberme: boolean}>({
     mode: "onChange",
     reValidateMode: "onChange",
+	defaultValues: {
+		email,
+		password,
+		rememberme: false
+	}
   });
+
 
 	useEffect(() => {
 		if(error != null)
@@ -45,13 +53,17 @@ export default function AuthenticationPage() {
 	}, [error])
 
   useEffect(() => {
-	if (userInfo) 
-		navigate('/admin/dashboard');
+    if (userInfo) 
+    	navigate('/admin/dashboard');
   }, [navigate, userInfo])
 
+  const handleRememberMe = (e: any) => {
+	setValue('rememberme', e)
+	setChecked(e)
+  }
+
   const onSubmit: SubmitHandler<{email: string, password: string, rememberme: string}> = async (data) => {
-    // Check if the ReCAPTCHA value is present
-    const recaptchaValue = await recaptchaRef.current?.getValue();
+    const recaptchaValue = recaptchaRef.current?.getValue();
 
     if (!recaptchaValue) {
       console.log("Please complete the ReCAPTCHA challenge.");
@@ -59,15 +71,11 @@ export default function AuthenticationPage() {
       return;
     }
 
-    // Here you can handle form submission, like sending data to a server
     console.log("Form data:", data);
-	
 	dispatch(login(data));
 
     setCaptchaError(false);
-    // Reset form after submission
     reset();
-    // Reset captcha
     if (recaptchaRef.current) {
       recaptchaRef.current.reset();
     }
@@ -161,8 +169,10 @@ export default function AuthenticationPage() {
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="rememberme"
+												checked={checked}
+												onCheckedChange={handleRememberMe}
                         className="text-black border-checkboxborder"
-                        {...register("rememberme", { required: true })}
+												{...register("rememberme")}
                       />
                       <label
                         htmlFor="rememberme"

@@ -33,7 +33,7 @@ const authSlice = createSlice({
 			state.error = null
 		})
 		builder.addCase(login.fulfilled, (state, {payload}) => {
-			state.loading = true
+			state.loading = false
 			state.userInfo = payload
 			state.error = null
 		})
@@ -56,7 +56,7 @@ export const login = createAsyncThunk(
 		try {
 			const {data}: {data: {token: {access_token: string}, user?: any}} = await loginUser(email, password);
 			localStorage.setItem('userToken', data.token?.access_token)
-			if (rememberme == 'on') {
+			if (rememberme) {
 				localStorage.setItem('email', email)
 				localStorage.setItem('password', password)
 			} else {

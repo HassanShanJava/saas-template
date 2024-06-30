@@ -48,7 +48,7 @@ const authSlice = createSlice({
 interface loginParams {
 	email: string;
 	password: string;
-	rememberme: string;
+	rememberme: boolean;
 }
 export const login = createAsyncThunk(
 	'auth/login',

@@ -62,7 +62,7 @@ export default function AuthenticationPage() {
 	setChecked(e)
   }
 
-  const onSubmit: SubmitHandler<{email: string, password: string, rememberme: string}> = async (data) => {
+  const onSubmit: SubmitHandler<{email: string, password: string, rememberme: boolean}> = async (data) => {
     const recaptchaValue = recaptchaRef.current?.getValue();
 
     if (!recaptchaValue) {

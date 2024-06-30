@@ -53,6 +53,7 @@ export const columns: ColumnDef<LeadType>[]=[
         </div>
       ),
     },
+    
     {
       accessorKey: "contact",
       header: ({ column }) => (
@@ -102,7 +103,7 @@ export const columns: ColumnDef<LeadType>[]=[
         return (
 					<Select
 						value={value}
-						onChange={(e) => updateMyData(row.index, "status", e.target.value)}
+						// onChange={(e) => updateMyData(row.index, "status", e.target.value)}
 					>
 						<SelectTrigger>
 							<SelectValue placeholder="Lead Status" className="text-gray-400" />

@@ -23,7 +23,7 @@ const DashboardLayout =()=>{
   return (
     <div className="flex h-screen w-full relative overflow-y-hidden">
       <div
-        className={`bg-white  text-black shadow-md transition-all duration-300 ${isSidebarOpen ? "w-64" : "w-16"}`}
+        className={`bg-white border-r  text-black shadow-md transition-all duration-300 ${isSidebarOpen ? "w-[20%]" : "w-16"}`}
       >
         <div className="flex h-16 items-center justify-between px-4 border-gradient">
           <Link to="#" className="flex items-center gap-2 font-semibold ">
@@ -49,7 +49,7 @@ const DashboardLayout =()=>{
             <MenuIcon className="h-6 w-6" />
           </Button> */}
         </div>
-        <nav className="flex flex-col gap-1 px-2 py-2">
+        <nav className="flex flex-col gap-1 px-2 py-2 ">
           <Link
             to="/admin/dashboard"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
@@ -76,32 +76,6 @@ const DashboardLayout =()=>{
             </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Dashboard</span>
           </Link>
-          {/* <Link
-            to="/admin/dashboard"
-            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
-              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
-            }
-             ${
-               isActiveLink(location.pathname, "/admin/dashboard")
-                 ? "bg-primary"
-                 : ""
-             }
-            `}
-          >
-            <div
-              className={`w-8 h-8   ${
-                isActiveLink(location.pathname, "/admin/dashboard")
-                  ? "bg-[#3ED13E]"
-                  : "bg-gray-100"
-              }
-              rounded-lg justify-center flex items-center`}
-            >
-              <DashBoardIcon
-                className={`w-4 h-4 ${isActiveLink(location.pathname, "/admin/dashboard") ? "" : "text-gray-500 stroke-current"}`}
-              />
-            </div>
-            <span className={`${!isSidebarOpen && "hidden"}`}>Dashboard</span>
-          </Link> */}
           <Link
             to="/admin/client"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
@@ -250,10 +224,10 @@ const DashboardLayout =()=>{
           </Link>
         </nav>
       </div>
-      <div className="relative flex-1 w-full max-h-[100vh]  ">
+      <div className="relative flex-1  max-h-[100vh] w-[80%]">
         <Header />
 
-        <main className="p-0 bg-bgbackground overflow-y-auto h-[90vh] relative  ">
+        <main className="p-0 bg-white overflow-y-auto h-[90vh] relative ">
           <Outlet />
           <Toaster />
         </main>
@@ -296,8 +270,8 @@ function MultiUserIcon(props:any) {
         d="M1.35693 13V11.6667C1.35693 10.9594 1.63789 10.2811 2.13798 9.78105C2.63808 9.28095 3.31636 9 4.0236 9H6.69027C7.39751 9 8.07579 9.28095 8.57589 9.78105C9.07598 10.2811 9.35693 10.9594 9.35693 11.6667V13M10.0236 1.08667C10.5972 1.23354 11.1056 1.56714 11.4687 2.03488C11.8318 2.50262 12.0288 3.07789 12.0288 3.67C12.0288 4.26212 11.8318 4.83739 11.4687 5.30513C11.1056 5.77287 10.5972 6.10647 10.0236 6.25334M13.3569 13V11.6667C13.3535 11.0781 13.1555 10.5072 12.7938 10.043C12.432 9.57869 11.9268 9.24715 11.3569 9.10002M8.0236 3.66667C8.0236 5.13943 6.82969 6.33333 5.35693 6.33333C3.88417 6.33333 2.69027 5.13943 2.69027 3.66667C2.69027 2.19391 3.88417 1 5.35693 1C6.82969 1 8.0236 2.19391 8.0236 3.66667Z"
         stroke="#2D3748"
         strokeWidth="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

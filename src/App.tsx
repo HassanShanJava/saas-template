@@ -9,10 +9,11 @@ import AddClientForm from "./components/admin/clients/clientForm/form";
 import Leads from "./components/admin/leads";
 import LeadForm from "./components/admin/leads/leadform/form";
 import Events from "./components/admin/events";
+import EventForm from "./components/admin/events/eventForm";
 import ProtectedRoute from "./components/admin/protectedRoute";
 import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
-import Loader from "@/components/Loader";
+// import Loader from "@/components/Loader";
 
 function App() {
   const { loading } = useSelector((state: RootState) => state.auth);
@@ -38,7 +39,9 @@ function App() {
 		</Route>
 
       </Routes>
-      <Loader open={loading} />
+      {/* <Loader open={loading} /> */}
+
+      {/* </Routes> */}
     </>
   );
 }

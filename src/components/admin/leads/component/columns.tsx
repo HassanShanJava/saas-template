@@ -1,6 +1,8 @@
 import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 export interface LeadType {
   name: string;
   contact: string;
@@ -16,7 +18,30 @@ const updateMyData = (rowIndex: number, columnId: string, value: any) => {
 };
 
 export const columns: ColumnDef<LeadType>[]=[
-
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected()}
+        onCheckedChange={(value: any) =>
+          table.toggleAllPageRowsSelected(!!value)
+        }
+        aria-label="Select all"
+        className="translate-y-[2px]"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value: any) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+        className="translate-y-[2px]"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+    size: 100,
+  },
     {
       accessorKey: "name",
       header: ({ column }) => (
@@ -76,14 +101,28 @@ export const columns: ColumnDef<LeadType>[]=[
       cell: ({ row }) => {
         const value = row.original.status;
         return (
-          <select
-            value={value}
-            onChange={(e) => updateMyData(row.index, "status", e.target.value)}
-          >
-            <option value="todo">ToDo</option>
-            <option value="complete">Complete</option>
-            <option value="hold">Hold</option>
-          </select>
+					<Select
+						value={value}
+						onChange={(e) => updateMyData(row.index, "status", e.target.value)}
+					>
+						<SelectTrigger>
+							<SelectValue placeholder="Lead Status" className="text-gray-400" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="new">New</SelectItem>
+							<SelectItem value="contacted"> Contacted</SelectItem>
+							<SelectItem value="in contact"> In Contact</SelectItem>
+							<SelectItem value="appointment made"> Appointement Made</SelectItem>
+							<SelectItem value="appointment hold"> Appointement Hold</SelectItem>
+							<SelectItem value="free trial"> freetrail</SelectItem>
+							<SelectItem value="sign up scheduled"> Sign up Scheduled</SelectItem>
+							<SelectItem value="no show">No Show</SelectItem>
+							<SelectItem value="closed refused"> Closed Refused</SelectItem>
+							<SelectItem value="closed lost contact"> Closed lost contact</SelectItem>
+							<SelectItem value="closed disqualified"> Closed disqualified</SelectItem>
+							<SelectItem value="closed thirdparty aggregator"> Closed ThirdParty Aggregators</SelectItem>
+						</SelectContent>
+					</Select>
         );
       },
     }

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import ReCAPTCHA from "react-google-recaptcha";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
@@ -11,32 +11,59 @@ import { login } from '../../../features/auth/authSlice';
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import { AppDispatch, RootState } from "@/app/store";
 const { VITE_APP_SITEKEY } = import.meta.env;
 
 export default function AuthenticationPage() {
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { loading, userInfo, error } = useSelector((state) => state.auth);
+  const { toast } = useToast();
+  const [checked, setChecked] = useState<boolean>(false);
+  const { loading, userInfo, error } = useSelector((state: RootState) => state.auth);
+  const email = localStorage.getItem('email')??'';
+  const password = localStorage.getItem('password')??'';
 
   const {
     register,
     handleSubmit,
     formState: { isSubmitted, isSubmitting, isValid, errors },
+	setValue,
     reset,
-  } = useForm({
+  } = useForm<{email: string, password: string, rememberme: boolean}>({
     mode: "onChange",
     reValidateMode: "onChange",
+	defaultValues: {
+		email,
+		password,
+		rememberme: false
+	}
   });
 
+
+	useEffect(() => {
+		if(error != null)
+			toast({
+				variant: "destructive",
+				title: error,
+				description: "There was a problem with your request.",
+			})
+		console.log(error);
+	}, [error])
+
   useEffect(() => {
-		if (userInfo) 
-			navigate('/admin');
+    if (userInfo) 
+    	navigate('/admin/dashboard');
   }, [navigate, userInfo])
 
-  const onSubmit = async (data: {email: string, password: string, terms: string}) => {
-    // Check if the ReCAPTCHA value is present
-    const recaptchaValue = await recaptchaRef.current?.getValue();
+  const handleRememberMe = (e: any) => {
+	setValue('rememberme', e)
+	setChecked(e)
+  }
+
+  const onSubmit: SubmitHandler<{email: string, password: string, rememberme: string}> = async (data) => {
+    const recaptchaValue = recaptchaRef.current?.getValue();
 
     if (!recaptchaValue) {
       console.log("Please complete the ReCAPTCHA challenge.");
@@ -44,15 +71,11 @@ export default function AuthenticationPage() {
       return;
     }
 
-    // Here you can handle form submission, like sending data to a server
     console.log("Form data:", data);
-    console.log("Captcha value:", recaptchaValue);
-	dispatch(login(data))
+	dispatch(login(data));
 
     setCaptchaError(false);
-    // Reset form after submission
     reset();
-    // Reset captcha
     if (recaptchaRef.current) {
       recaptchaRef.current.reset();
     }
@@ -65,8 +88,6 @@ export default function AuthenticationPage() {
 
   function onChange(value: any) {
     setCaptchaError(false);
-
-    console.log("Captcha value:", value);
   }
 
   return (
@@ -147,12 +168,14 @@ export default function AuthenticationPage() {
                   <div className="flex justify-between items-center p-0 m-0">
                     <div className="flex items-center space-x-2">
                       <Checkbox
-                        id="terms"
+                        id="rememberme"
+												checked={checked}
+												onCheckedChange={handleRememberMe}
                         className="text-black border-checkboxborder"
-                        {...register("terms", { required: true })}
+												{...register("rememberme")}
                       />
                       <label
-                        htmlFor="terms"
+                        htmlFor="rememberme"
                         className="font-poppins text-textgray text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                       >
                         Remember Me

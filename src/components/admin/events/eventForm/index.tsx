@@ -56,48 +56,38 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
 const FormSchema = z.object({
-  firstname: z
-    .string({
-      required_error: "Required",
-    })
-    .min(2, { message: "First Name Is Required" }),
-  lastname: z
-    .string({
-      required_error: "Required",
-    })
-    .min(2, { message: "Last Name Is Required" }),
-  leadsince: z.date({
-    required_error: "A date is required.",
+  Activity: z.string({
+    required_error: "Required",
   }),
-  email: z
-    .string({
-      required_error: "Email is Required",
-    })
-    .email(),
-  homenumber: z
-    .string({
-      required_error: "Required",
-    })
-    .min(2, { message: "Owner Member ID is required." }),
-  mobilenumber: z
-    .string({
-      required_error: "Required",
-    })
-    .min(2, { message: "MobileNois required." }),
-  writeanote: z.string().optional(),
+  Instructor: z.string({
+    required_error: "Required",
+  }),
+  max_participants: z.string({
+    required_error: "Required.",
+  }),
+  date: z.date(),
+  starttime: z.string(),
+  endtime: z.string(),
+  Location: z.string({
+    required_error: "Required",
+  }),
+  Recurrency: z.string({
+    required_error: "Required",
+  }),
+  days: z.string(),
+  number: z.string(),
+  cancelActivity: z.string().optional(),
+  freecancellation: z.string().optional(),
+  creditType: z.string(),
+  writenotes: z.string(),
+  description: z.string(),
+  link: z.string(),
+  texttodisplay: z.string(),
   leadStatus: z.string({
     required_error: "Required",
   }),
-  source: z.string({
-    required_error: "Required",
-  }),
-  leadowner: z.string({
-    required_error: "Required",
-  }),
-  dob: z.date(),
-  time: z.string(),
-  sendInvitation: z.boolean(),
-  type: z.enum(["male", "female", "other"], {
+  showLink: z.boolean(),
+  type: z.enum(["enable online booking", "enable third party", "ask covid 19"], {
     required_error: "You need to select a gender type.",
   }),
 });
@@ -140,12 +130,7 @@ const EventForm: React.FC = () => {
                       </SelectTrigger>
                       {/* <SelectContent>
                 <SelectGroup> */}
-                      {/* <SelectLabel>Fruits</SelectLabel>
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="blueberry">Blueberry</SelectItem>
-                  <SelectItem value="grapes">Grapes</SelectItem>
-                  <SelectItem value="pineapple">Pineapple</SelectItem> */}
+
                       {/* </SelectGroup>
               </SelectContent> */}
                     </Select>
@@ -175,7 +160,7 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="source"
+                    name="Activity"
                     render={({ field }) => (
                       <FormItem>
                         <Select
@@ -188,18 +173,6 @@ const EventForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           {/* <SelectContent>
-                            <SelectItem value="unknown">Unknown</SelectItem>
-                            <SelectItem value="facebook">Facebook</SelectItem>
-                            <SelectItem value="facebookAd">
-                              Facebook Ad
-                            </SelectItem>
-                            <SelectItem value="instagram">Instagram</SelectItem>
-                            <SelectItem value="itsemail">ITS Email</SelectItem>
-                            <SelectItem value="linkedin">LinkedIn</SelectItem>
-                            <SelectItem value="referral">Referral</SelectItem>
-                            <SelectItem value="walkin">Walk In</SelectItem>
-                            <SelectItem value="walkin">Website</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
                           </SelectContent> */}
                         </Select>
                         <FormMessage />
@@ -210,7 +183,7 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="source"
+                    name="Instructor"
                     render={({ field }) => (
                       <FormItem>
                         <Select
@@ -223,18 +196,6 @@ const EventForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           {/* <SelectContent>
-                            <SelectItem value="unknown">Unknown</SelectItem>
-                            <SelectItem value="facebook">Facebook</SelectItem>
-                            <SelectItem value="facebookAd">
-                              Facebook Ad
-                            </SelectItem>
-                            <SelectItem value="instagram">Instagram</SelectItem>
-                            <SelectItem value="itsemail">ITS Email</SelectItem>
-                            <SelectItem value="linkedin">LinkedIn</SelectItem>
-                            <SelectItem value="referral">Referral</SelectItem>
-                            <SelectItem value="walkin">Walk In</SelectItem>
-                            <SelectItem value="walkin">Website</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
                           </SelectContent> */}
                         </Select>
                         <FormMessage />
@@ -245,12 +206,12 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="max_participants"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="email"
+                          id="max_participants"
                           label="Max Participants"
                         />
                         <FormMessage />
@@ -263,7 +224,7 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="dob"
+                    name="date"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <Popover>
@@ -311,7 +272,7 @@ const EventForm: React.FC = () => {
                     <Tooltip>
                       <FormField
                         control={form.control}
-                        name="time"
+                        name="starttime"
                         render={({ field }) => (
                           <FormItem className="w-full">
                             <TooltipTrigger asChild>
@@ -343,7 +304,7 @@ const EventForm: React.FC = () => {
                     <Tooltip>
                       <FormField
                         control={form.control}
-                        name="time"
+                        name="endtime"
                         render={({ field }) => (
                           <FormItem>
                             <TooltipTrigger asChild>
@@ -373,7 +334,7 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="source"
+                    name="Location"
                     render={({ field }) => (
                       <FormItem>
                         <Select
@@ -386,18 +347,7 @@ const EventForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           {/* <SelectContent>
-                            <SelectItem value="unknown">Unknown</SelectItem>
-                            <SelectItem value="facebook">Facebook</SelectItem>
-                            <SelectItem value="facebookAd">
-                              Facebook Ad
-                            </SelectItem>
-                            <SelectItem value="instagram">Instagram</SelectItem>
-                            <SelectItem value="itsemail">ITS Email</SelectItem>
-                            <SelectItem value="linkedin">LinkedIn</SelectItem>
-                            <SelectItem value="referral">Referral</SelectItem>
-                            <SelectItem value="walkin">Walk In</SelectItem>
-                            <SelectItem value="walkin">Website</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                           
                           </SelectContent> */}
                         </Select>
                         <FormMessage />
@@ -408,7 +358,7 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="source"
+                    name="Recurrency"
                     render={({ field }) => (
                       <FormItem>
                         <Select
@@ -421,18 +371,7 @@ const EventForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           {/* <SelectContent>
-                            <SelectItem value="unknown">Unknown</SelectItem>
-                            <SelectItem value="facebook">Facebook</SelectItem>
-                            <SelectItem value="facebookAd">
-                              Facebook Ad
-                            </SelectItem>
-                            <SelectItem value="instagram">Instagram</SelectItem>
-                            <SelectItem value="itsemail">ITS Email</SelectItem>
-                            <SelectItem value="linkedin">LinkedIn</SelectItem>
-                            <SelectItem value="referral">Referral</SelectItem>
-                            <SelectItem value="walkin">Walk In</SelectItem>
-                            <SelectItem value="walkin">Website</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                           
                           </SelectContent> */}
                         </Select>
                         <FormMessage />
@@ -448,7 +387,7 @@ const EventForm: React.FC = () => {
                     <div className="flex gap-2">
                       <FormField
                         control={form.control}
-                        name="source"
+                        name="days"
                         render={({ field }) => (
                           <FormItem>
                             <Select
@@ -461,18 +400,7 @@ const EventForm: React.FC = () => {
                                 </SelectTrigger>
                               </FormControl>
                               {/* <SelectContent>
-                            <SelectItem value="unknown">Unknown</SelectItem>
-                            <SelectItem value="facebook">Facebook</SelectItem>
-                            <SelectItem value="facebookAd">
-                              Facebook Ad
-                            </SelectItem>
-                            <SelectItem value="instagram">Instagram</SelectItem>
-                            <SelectItem value="itsemail">ITS Email</SelectItem>
-                            <SelectItem value="linkedin">LinkedIn</SelectItem>
-                            <SelectItem value="referral">Referral</SelectItem>
-                            <SelectItem value="walkin">Walk In</SelectItem>
-                            <SelectItem value="walkin">Website</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                            
                           </SelectContent> */}
                             </Select>
                             <FormMessage />
@@ -481,7 +409,7 @@ const EventForm: React.FC = () => {
                       />
                       <FormField
                         control={form.control}
-                        name="source"
+                        name="number"
                         render={({ field }) => (
                           <FormItem>
                             <Select
@@ -494,18 +422,7 @@ const EventForm: React.FC = () => {
                                 </SelectTrigger>
                               </FormControl>
                               {/* <SelectContent>
-                            <SelectItem value="unknown">Unknown</SelectItem>
-                            <SelectItem value="facebook">Facebook</SelectItem>
-                            <SelectItem value="facebookAd">
-                              Facebook Ad
-                            </SelectItem>
-                            <SelectItem value="instagram">Instagram</SelectItem>
-                            <SelectItem value="itsemail">ITS Email</SelectItem>
-                            <SelectItem value="linkedin">LinkedIn</SelectItem>
-                            <SelectItem value="referral">Referral</SelectItem>
-                            <SelectItem value="walkin">Walk In</SelectItem>
-                            <SelectItem value="walkin">Website</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                          
                           </SelectContent> */}
                             </Select>
                             <FormMessage />
@@ -520,7 +437,7 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="source"
+                    name="cancelActivity"
                     render={({ field }) => (
                       <FormItem>
                         <Select
@@ -533,18 +450,7 @@ const EventForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           {/* <SelectContent>
-                            <SelectItem value="unknown">Unknown</SelectItem>
-                            <SelectItem value="facebook">Facebook</SelectItem>
-                            <SelectItem value="facebookAd">
-                              Facebook Ad
-                            </SelectItem>
-                            <SelectItem value="instagram">Instagram</SelectItem>
-                            <SelectItem value="itsemail">ITS Email</SelectItem>
-                            <SelectItem value="linkedin">LinkedIn</SelectItem>
-                            <SelectItem value="referral">Referral</SelectItem>
-                            <SelectItem value="walkin">Walk In</SelectItem>
-                            <SelectItem value="walkin">Website</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                            
                           </SelectContent> */}
                         </Select>
                         <FormMessage />
@@ -555,7 +461,7 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="source"
+                    name="freecancellation"
                     render={({ field }) => (
                       <FormItem>
                         <Select
@@ -568,18 +474,7 @@ const EventForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           {/* <SelectContent>
-                            <SelectItem value="unknown">Unknown</SelectItem>
-                            <SelectItem value="facebook">Facebook</SelectItem>
-                            <SelectItem value="facebookAd">
-                              Facebook Ad
-                            </SelectItem>
-                            <SelectItem value="instagram">Instagram</SelectItem>
-                            <SelectItem value="itsemail">ITS Email</SelectItem>
-                            <SelectItem value="linkedin">LinkedIn</SelectItem>
-                            <SelectItem value="referral">Referral</SelectItem>
-                            <SelectItem value="walkin">Walk In</SelectItem>
-                            <SelectItem value="walkin">Website</SelectItem>
-                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                          
                           </SelectContent> */}
                         </Select>
                         <FormMessage />
@@ -595,7 +490,7 @@ const EventForm: React.FC = () => {
                     <div className="flex gap-2">
                       <FormField
                         control={form.control}
-                        name="source"
+                        name="creditType"
                         render={({ field }) => (
                           <FormItem className="flex">
                             <input
@@ -616,12 +511,12 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="writenotes"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="email"
+                          id="writenotes"
                           label="Note to Employees"
                           className="h-24"
                         />
@@ -633,12 +528,12 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="email"
+                          id="description"
                           label="Description"
                           className="h-24"
                         />
@@ -657,14 +552,10 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="link"
                     render={({ field }) => (
                       <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="email"
-                          label="Link"
-                        />
+                        <FloatingLabelInput {...field} id="link" label="Link" />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -673,12 +564,12 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="texttodisplay"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="email"
+                          id="texttodisplay"
                           label="Text to display"
                         />
                         <FormMessage />
@@ -689,7 +580,7 @@ const EventForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="sendInvitation"
+                    name="showLink"
                     defaultValue={true}
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-start space-x-3 space-y-0">
@@ -712,28 +603,29 @@ const EventForm: React.FC = () => {
                 <FormField
                   control={form.control}
                   name="type"
-                  defaultValue="male"
+                  defaultValue="enable online booking"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <div className="flex justify-start items-center mb-4">
                         <FormControl>
                           <ButtonGroup
                             onValueChange={field.onChange}
-                            defaultValue="male"
+                            defaultValue="enable online booking"
                             className="flex flex-row xl:gap-2 lg:gap-1"
                           >
                             <ButtonGroupItem
-                              value="male"
+                              value="enable online booking"
                               label="Enable online booking"
                               className="xl:w-60"
                             />
                             <ButtonGroupItem
-                              value="female"
+                              value="enable third party"
                               label="Enable booking through third-party"
                               className="xl:w-72"
                             />
                             <ButtonGroupItem
-                              value="other"
+                              value="ask
+                            covid 19"
                               label="Ask covid-19 triage questions"
                               className="xl:w-60"
                             />

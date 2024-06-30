@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { AppDispatch, RootState } from "@/app/store";
+import { cn } from "@/lib/utils";
 const { VITE_APP_SITEKEY } = import.meta.env;
 
 export default function AuthenticationPage() {
@@ -55,6 +56,14 @@ export default function AuthenticationPage() {
   useEffect(() => {
     if (userInfo) 
     	navigate('/admin/dashboard');
+       	toast({
+          variant: "success",
+          title: "LogIn",
+          description: "You are Successfully Logged In",
+          className: cn(
+            "top-0 right-0 flex fixed md:max-w-[420px] md:top-4 md:right-4"
+          ),
+        });
   }, [navigate, userInfo])
 
   const handleRememberMe = (e: any) => {

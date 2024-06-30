@@ -1,11 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/authSlice"
 import {thunk} from "redux-thunk";
+import {api} from "@/services/clientAPi";
 const store = configureStore({
 	reducer: {
 		auth: authReducer,
+		[api.reducerPath]:api.reducer,
 	},
-	middleware:(getDefaultMiddleware)=>getDefaultMiddleware().concat(thunk),
+	middleware:(getDefaultMiddleware)=>getDefaultMiddleware(
+		{serializableCheck:false}
+	).concat(
+		api.middleware
+	),
 })
 
 export type AppStore= typeof store;

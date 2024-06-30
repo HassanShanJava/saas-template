@@ -13,6 +13,7 @@ import EventForm from "./components/admin/events/eventForm";
 import ProtectedRoute from "./components/admin/protectedRoute";
 import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
+import { SelectForm } from "./components/pagework/HookformExample";
 // import Loader from "@/components/Loader";
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
           </Route>
           <Route path="/sidebar" element={<Component />}></Route>
         </Route>
+        <Route path="/test" element={<SelectForm/>} />
       </Routes>
       {/* <Loader open={loading} /> */}
 

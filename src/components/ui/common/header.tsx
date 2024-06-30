@@ -10,7 +10,28 @@ import {
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Separator } from "@/components/ui/separator";
+import { useDispatch } from "react-redux";
+import { logout } from "@/features/auth/authSlice";
+import { AppDispatch, RootState } from "@/app/store";
+import  {useNavigate} from 'react-router-dom';
+import { cn } from "@/lib/utils";
+import { useToast } from "../use-toast";
 export const Header = () => {
+   const { toast } = useToast();
+  const navigate=useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+    const handleLogout = () => {
+      dispatch(logout());
+      navigate("/");
+     	toast({
+        variant:"success",
+        title: "Logout",
+        description: "You are Successfully Logged Out",
+        className: cn(
+          "top-0 right-0 flex fixed md:max-w-[420px] md:top-4 md:right-4"
+        ),
+      });
+    };
   return (
     <>
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm ">
@@ -44,12 +65,12 @@ export const Header = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  {/* <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuItem>Support</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>Logout</DropdownMenuItem>
+                  <DropdownMenuSeparator /> */}
+                  {/* <DropdownMenuItem>Logout</DropdownMenuItem> */}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -89,7 +110,7 @@ export const Header = () => {
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuItem>Support</DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Logout</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

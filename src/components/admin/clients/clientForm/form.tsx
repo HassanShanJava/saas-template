@@ -77,7 +77,7 @@ const FormSchema = z.object({
   phone: z.string().trim().optional(),
   mobile_number: z.string().trim().optional(),
   notes: z.string().optional(),
-  source_id: z.string({
+  source_id: z.number({
     required_error: "Source Required.",
   }),
   language: z.string().nullable().default(null),
@@ -86,9 +86,9 @@ const FormSchema = z.object({
     required_error: "Membership plan is required.",
   }),
   is_business: z.boolean().default(false).optional(),
-  business_id: z.string().optional(),
+  business_id: z.number().optional(),
   send_invitation: z.boolean().default(true).optional(),
-  status:z.string().default("pending"),
+  status: z.string().default("pending"),
   city: z
     .string({
       required_error: "City Required.",
@@ -97,7 +97,7 @@ const FormSchema = z.object({
   zipcode: z.string().trim().optional(),
   created_by: z.number().default(4),
   address_1: z.string().optional(),
-  country_id: z.string({
+  country_id: z.number({
     required_error: "Country Required.",
   }),
   address_2: z.string().optional(),
@@ -153,8 +153,8 @@ const AddClientForm: React.FC = () => {
   
   function onSubmit(data: z.infer<typeof FormSchema>) {
     console.log(data)
-    event?.preventDefault();
-    SubmitForm(data);
+    // event?.preventDefault();
+    // SubmitForm(data);
     // const id = formData.newClientId && formData.newClientId;
     //       console.log(
     //         "Member id",
@@ -625,8 +625,10 @@ const AddClientForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          defaultValue={field.value?.toString()}
                         >
                           <FormControl>
                             <SelectTrigger
@@ -798,8 +800,10 @@ const AddClientForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          defaultValue={field.value?.toString()}
                         >
                           <FormControl>
                             <SelectTrigger
@@ -998,6 +1002,71 @@ const AddClientForm: React.FC = () => {
                                   {field.value
                                     ? formData.countries.find(
                                         (country: any) =>
+                                          country.id === field.value // Compare with numeric value
+                                      )?.country // Display country name if selected
+                                    : "Select country"}
+                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="p-0">
+                              <Command>
+                                <CommandList>
+                                  <CommandInput placeholder="Select Country" />
+                                  <CommandEmpty>No country found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {formData.countries &&
+                                      formData.countries.map((country: any) => (
+                                        <CommandItem
+                                          value={country.id.toString()}
+                                          key={country.id}
+                                          onSelect={() => {
+                                            form.setValue(
+                                              "country_id",
+                                              country.id // Set country_id to country.id as number
+                                            );
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                              country.id === field.value
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                          {country.country}{" "}
+                                          {/* Display the country name */}
+                                        </CommandItem>
+                                      ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          {watcher.country_id ? <></> : <FormMessage />}
+                        </FormItem>
+                      )}
+                    />
+                    {/* <FormField
+                      control={form.control}
+                      name="country_id"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col w-full">
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    "justify-between",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value
+                                    ? formData.countries.find(
+                                        (country: any) =>
                                           country.id === parseInt(field.value)
                                       )?.country // Display country name if selected
                                     : "Select country"}
@@ -1034,7 +1103,7 @@ const AddClientForm: React.FC = () => {
                                           />
                                           {country.country}{" "}
                                           {/* Display the country name */}
-                                        </CommandItem>
+                                        {/* </CommandItem>
                                       ))}
                                   </CommandGroup>
                                 </CommandList>
@@ -1044,7 +1113,7 @@ const AddClientForm: React.FC = () => {
                           {watcher.country_id ? <></> : <FormMessage />}
                         </FormItem>
                       )}
-                    />
+                    /> */} 
                   </div>
                   <div className="relative w-[33%]">
                     <FormField

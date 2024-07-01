@@ -101,7 +101,7 @@ const LeadForm: React.FC = () => {
             <CardContent>
               <div className="flex justify-between items-center">
                 <div className="flex flex-row gap-4 items-center">
-                  
+                  <h1 className="font-bold text-lg"> Lead Data</h1>
                 </div>
                 <div className="flex gap-2">
                   <div>
@@ -124,7 +124,6 @@ const LeadForm: React.FC = () => {
                 </div>
               </div>
               <div>
-                <h1 className="font-bold text-base"> Lead Data</h1>
                 <h1 className="font-medium text-base pt-4">
                   {" "}
                   Lead information

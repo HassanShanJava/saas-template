@@ -38,121 +38,82 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
-
-const FormSchema = z.object({
-  profile_img: z
-    .string()
-    .trim()
-    .default(
-      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-    ),
-  own_member_id: z.string({
-    required_error: "Own Member Id Required.",
-  }),
-  first_name: z
-    .string({
-      required_error: "Firstname Required.",
-    })
-    .trim()
-    .min(2, { message: "First Name Is Required." }),
-  last_name: z
-    .string({
-      required_error: "Lastname Required.",
-    })
-    .trim()
-    .min(2, { message: "Last Name Is Required" }),
-  gender: z.enum(["male", "female", "other"], {
-    required_error: "You need to select a gender type.",
-  }),
-  dob: z.date({
-    required_error: "A date of birth is required.",
-  }),
-  email: z
-    .string({
-      required_error: "Email is Required.",
-    })
-    .email()
-    .trim(),
-  phone: z.string().trim().optional(),
-  mobile_number: z.string().trim().optional(),
-  notes: z.string().optional(),
-  source_id: z.number({
-    required_error: "Source Required.",
-  }),
-  language: z.string().nullable().default(null),
-  coach_id: z.string().optional(),
-  membership_id: z.string({
-    required_error: "Membership plan is required.",
-  }),
-  is_business: z.boolean().default(false).optional(),
-  business_id: z.number().optional(),
-  send_invitation: z.boolean().default(true).optional(),
-  status: z.string().default("pending"),
-  city: z
-    .string({
-      required_error: "City Required.",
-    })
-    .trim(),
-  zipcode: z.string().trim().optional(),
-  created_by: z.number().default(4),
-  address_1: z.string().optional(),
-  country_id: z.number({
-    required_error: "Country Required.",
-  }),
-  address_2: z.string().optional(),
-});
+import {
+  useGetAllBusinessesQuery,
+  useGetAllMembershipsQuery,
+  useGetAllSourceQuery,
+  useGetClientCountQuery,
+  useGetCountriesQuery,
+  useGetCoachesQuery,
+} from "@/services/clientAPi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
+import { BusinessTypes, CoachTypes, CountryTypes, membershipplanTypes, sourceTypes } from "@/app/types";
+import {FormSchema} from "@/schema/formSchema"
 
 const AddClientForm: React.FC = () => {
-  const [formData, setFormData] = React.useState<any>({
-    coaches: null,
-    business: null,
-    membershipPlans: null,
-    countries: null,
-    clientCount: null,
-    sources: null,
-    newClientId:null
-  });
+  // Function to generate client ID string
+  // const generateClientId = (orgName: string, clientId: number | undefined) => {
+  //   // Ensure clientId is defined by defaulting to 0 if it's undefined
+  //   let incrementedClientId = (clientId || 0) + 1;
+  //   let clientIdString = `${orgName.slice(0, 2)}-${incrementedClientId}`;
+  //   return clientIdString;
+  // };
 
-  const [loading, setLoading] = React.useState(true); 
+  // Example of handling async data fetching before form initialization
+  const orgId =useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
+  const orgName =useSelector((state: RootState) => state.auth.userInfo?.org_name);
+  const { data: clientCountData, isLoading } = useGetClientCountQuery(orgId);
+
+
+  const { data: countries } = useGetCountriesQuery();
+
+  const { data: business } = useGetAllBusinessesQuery(orgId);
+
+  const { data: coaches } = useGetCoachesQuery(orgId);
+
+  const { data: sources } = useGetAllSourceQuery();
+  const { data: membershipPlans } = useGetAllMembershipsQuery(orgId);
+
+  const [loading, setLoading] = React.useState(true);
 
   const navigate = useNavigate();
 
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      const reader = new FileReader();
+    const file = event.target.files?.[0];
+    const reader = new FileReader();
 
-      reader.onloadend = () => {
-        setAvatar(reader.result);
-      };
+    reader.onloadend = () => {
+      setAvatar(reader.result);
+    };
 
-      if (file) {
-        reader.readAsDataURL(file);
-      }
+    if (file) {
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSetAvatarClick = () => {
     document.getElementById("fileInput")?.click();
   };
 
-    const form = useForm<z.infer<typeof FormSchema>>({
-      resolver: zodResolver(FormSchema),
-      defaultValues: {
-        is_business: false,
-        own_member_id:""
-      },
-      mode:"onChange",
-      reValidateMode:"onChange"
-     
-    });
-
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      is_business: false,
+      own_member_id:""
+    },
+    mode: "onChange",
+  });
 
   const watcher = form.watch();
   
+
+
+
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data)
+    console.log(data);
     // event?.preventDefault();
     // SubmitForm(data);
     // const id = formData.newClientId && formData.newClientId;
@@ -179,89 +140,20 @@ const AddClientForm: React.FC = () => {
     navigate("/admin/client");
   }
 
-// console.log("countries", formData.clientCount && formData.clientCount.total_clients);
+  React.useEffect(()=>{
+    if(orgName){
+      form.setValue("own_member_id",`${orgName.slice(0,2)}-${clientCountData?.total_clients}`)
+    }
+  },[clientCountData,orgName])
+  // console.log(typeof newClientId?.total_clients); // Check the type of org_name\
+  // console.log("client id",clientCountData && clientCountData?.total_clients);
 
-//   React.useEffect(() => {
-//   if (formData.clientCount) {
-//     // console.log(formData.clientCount);
-// const totalClients =
-//   formData.clientCount && formData.clientCount.total_clients;
-// const newClientId = `ext-${totalClients + 1}`;
-//     console.log("Client ID CREATED",newClientId);
-//     form.setValue("own_member_id", newClientId, { shouldTouch: true });
-//   } 
-//   // else {
-//   //   // toast({
-//   //   //     variant:"destructive",
-//   //   //     title: `Cannot generate Auto gym member Id`,
-//   //   //     description: "Error from server could get data.",
-//   //   //   });
-//   // }
-// }, [formData.clientCount!==null]);
-
-// const newClientId = useMemo(() => {
-//   if (formData.clientCount) {
-//     const totalClients = formData.clientCount.total_clients;
-//     form.setValue("own_member_id", newClientId, { shouldTouch: true });
-//     return `ext-${totalClients + 1}`;
-//   }
-//   // else {
-//   //   toast({
-//   //     variant: "destructive",
-//   //     title: `Cannot generate Auto gym member Id`,
-//   //     description: "Error from server could get data.",
-//   //   });
-//   //   return null;
-//   // }
-// }, [formData.clientCount]);
-
-// React.useEffect(() => {
-//   if (newClientId) {
-//     console.log("Client ID CREATED", newClientId);
-   
-//   }
-// }, [newClientId, form]);
-
-
-  React.useEffect(() => {
-   const fetchData = async () => {
-     setLoading(false); // Set loading to false after data is fetched
-
-     try {
-       const data = await getFormData(4);
-       setFormData(data);
-
-      const id = formData.newClientId && formData.newClientId;
-      console.log("Member id", formData.newClientId && formData.newClientId);
-      form.setValue("own_member_id",id);
-       //  console.log(data.sources)
-      //  form.reset(
-      //   {
-      //     own_member_id:id,
-      //     is_business:false
-      //   }
-      //  )
-    
-     } catch (error) {
-      //  toast({
-      //    variant: "destructive",
-      //    title: `${error}`,
-      //    description: "Need to Reload the form",
-      //  });
-       console.error("Error fetching data:", error);
-       // Handle error or set appropriate error state
-     }finally{
-      setLoading(false);
-     }
-   };
-
-   fetchData();
-  }, []);
-
-  // console.log("Form Data", formData.sources);
-  // console.log("All Form Data", formData);
-  // console.log("form state",form.getFieldState("own_member_id"));
-  console.log("starting return state to check own member id",form.getValues().own_member_id)
+  // console.log("Name of the org", org_name, orgId);
+ 
+  console.log(
+    "starting return state to check own member id",
+    form.getValues().own_member_id
+  );
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -321,23 +213,10 @@ const AddClientForm: React.FC = () => {
               </div>
               <div className="w-full flex justify-between items-center pt-3">
                 <div className="relative w-[33%]">
-                  {/* <FormField
-                    control={form.control}
-                    name="own_member_id"
-                    disabled={true}
-                    render={({ field }) => (
-                      <FormItem>
-                        <Input
-                          {...field}
-                          id="own_member_id"
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> */}{" "}
                   <FormField
                     control={form.control}
                     name="own_member_id"
+                    disabled={true}
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
@@ -532,8 +411,8 @@ const AddClientForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {formData.coaches?.length > 0 ? (
-                              formData.coaches.map((sourceval: any) => {
+                            {coaches && coaches.length > 0 ? (
+                              coaches?.map((sourceval: CoachTypes) => {
                                 // console.log(field.value);
                                 return (
                                   <SelectItem
@@ -555,50 +434,6 @@ const AddClientForm: React.FC = () => {
                       </FormItem>
                     )}
                   />
-                  {/* <FormField
-                    control={form.control}
-                    name="client_since"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Client Since</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              captionLayout="dropdown-buttons"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              fromYear={1960}
-                              toYear={2030}
-                              disabled={(date: any) =>
-                                date > new Date() ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> */}
                 </div>
               </div>
               <div className="w-full flex justify-between items-start mt-3">
@@ -638,8 +473,8 @@ const AddClientForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {formData.sources?.length ? (
-                              formData.sources.map((sourceval: any, i: any) => (
+                            {sources && sources?.length ? (
+                              sources.map((sourceval: sourceTypes, i: any) => (
                                 <SelectItem
                                   value={sourceval.id.toString()}
                                   key={i}
@@ -680,18 +515,20 @@ const AddClientForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {formData.membershipPlans?.length ? (
-                              formData.membershipPlans.map((sourceval: any) => {
-                                // console.log(field.value);
-                                return (
-                                  <SelectItem
-                                    key={sourceval.id}
-                                    value={sourceval.id.toString()}
-                                  >
-                                    {sourceval.name}
-                                  </SelectItem>
-                                );
-                              })
+                            {membershipPlans && membershipPlans?.length ? (
+                              membershipPlans.map(
+                                (sourceval: membershipplanTypes) => {
+                                  // console.log(field.value);
+                                  return (
+                                    <SelectItem
+                                      key={sourceval.id}
+                                      value={sourceval.id.toString()}
+                                    >
+                                      {sourceval.name}
+                                    </SelectItem>
+                                  );
+                                }
+                              )
                             ) : (
                               <>
                                 <p className="2">No Membership plan found</p>
@@ -703,66 +540,9 @@ const AddClientForm: React.FC = () => {
                       </FormItem>
                     )}
                   />
-                  {/* <FormField
-                    control={form.control}
-                    name="language"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              className={`${watcher.language ? "text-black" : ""}`}
-                            >
-                              <SelectValue placeholder="Language" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {langs.map((sourceval: any, i: any) => (
-                              <SelectItem value={sourceval} key={i}>
-                                {sourceval}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> */}
                 </div>
               </div>
               <div className="w-full flex justify-between items-start pt-3">
-                {/* <div className="relative w-[33%]">
-                  <FormField
-                    control={form.control}
-                    name="invoicetemplate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              className={`${watcher.invoicetemplate ? "text-black" : ""}`}
-                            >
-                              <SelectValue placeholder="Invoice Template" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="default template">
-                              Default Template
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div> */}
-
                 <div className="relative w-[33%]"></div>
                 <div className="relative w-[33%]"></div>
                 <div className="relative w-[33%]"></div>
@@ -823,33 +603,33 @@ const AddClientForm: React.FC = () => {
                               <PlusIcon className="text-black w-5 h-5" /> Add
                               New business
                             </Button>
-                            {formData.business?.length ? (
-                              formData.business.map((sourceval: any) => {
+                            {business?.length ? (
+                              business.map((sourceval: BusinessTypes) => {
                                 // console.log(sourceval.name);
                                 return (
                                   <SelectItem
-                                    value={sourceval.id}
+                                    value={sourceval.id.toString()}
                                     key={sourceval.id.toString()}
                                   >
-                                    {sourceval.name}
+                                    {sourceval.first_name}
                                   </SelectItem>
                                 );
                               })
                             ) : (
                               <>
-                                <p className="p-2"> No details found</p>
+                                <p className="p-2"> No Business found</p>
                               </>
                             )}
 
-                            {formData.business &&
-                              formData.business.map((sourceval: any) => {
+                            {business &&
+                              business.map((sourceval: BusinessTypes) => {
                                 // console.log(field.value);
                                 return (
                                   <SelectItem
                                     value={sourceval.id.toString()}
                                     key={sourceval.id}
                                   >
-                                    {sourceval.name}
+                                    {sourceval.first_name}
                                   </SelectItem>
                                 );
                               })}
@@ -919,70 +699,6 @@ const AddClientForm: React.FC = () => {
                 </div>
                 <div className="w-full flex justify-start gap-2 items-center pt-3">
                   <div className="relative w-[33%]">
-                    {/* <FormField
-                      control={form.control}
-                      name="country_id"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col w-full">
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  className={cn(
-                                    " justify-between",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  {field.value
-                                    ? formData.countries.find(
-                                        (country: any) =>
-                                          country.country === field.value
-                                      )?.country // Access the property you want to render
-                                    : "Select country"}
-                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="p-0">
-                              <Command>
-                                <CommandList>
-                                  <CommandInput placeholder="Select Country" />
-                                  <CommandEmpty>No country found.</CommandEmpty>
-                                  <CommandGroup>
-                                    {formData.countries &&
-                                      formData.countries.map((country: any) => (
-                                        <CommandItem
-                                          value={country.country}
-                                          key={country.id}
-                                          onSelect={() => {
-                                            form.setValue(
-                                              "country_id",
-                                              country.country
-                                            );
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                              country.country === field.value
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                            )}
-                                          />
-                                          {country.country}
-                                        </CommandItem>
-                                      ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-                          {watcher.country_id ? <></> : <FormMessage />}
-                        </FormItem>
-                      )}
-                    /> */}
                     <FormField
                       control={form.control}
                       name="country_id"
@@ -1000,8 +716,8 @@ const AddClientForm: React.FC = () => {
                                   )}
                                 >
                                   {field.value
-                                    ? formData.countries.find(
-                                        (country: any) =>
+                                    ? countries?.find(
+                                        (country: CountryTypes) =>
                                           country.id === field.value // Compare with numeric value
                                       )?.country // Display country name if selected
                                     : "Select country"}
@@ -1015,8 +731,8 @@ const AddClientForm: React.FC = () => {
                                   <CommandInput placeholder="Select Country" />
                                   <CommandEmpty>No country found.</CommandEmpty>
                                   <CommandGroup>
-                                    {formData.countries &&
-                                      formData.countries.map((country: any) => (
+                                    {countries &&
+                                      countries.map((country: CountryTypes) => (
                                         <CommandItem
                                           value={country.id.toString()}
                                           key={country.id}
@@ -1048,72 +764,6 @@ const AddClientForm: React.FC = () => {
                         </FormItem>
                       )}
                     />
-                    {/* <FormField
-                      control={form.control}
-                      name="country_id"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col w-full">
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  className={cn(
-                                    "justify-between",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  {field.value
-                                    ? formData.countries.find(
-                                        (country: any) =>
-                                          country.id === parseInt(field.value)
-                                      )?.country // Display country name if selected
-                                    : "Select country"}
-                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="p-0">
-                              <Command>
-                                <CommandList>
-                                  <CommandInput placeholder="Select Country" />
-                                  <CommandEmpty>No country found.</CommandEmpty>
-                                  <CommandGroup>
-                                    {formData.countries &&
-                                      formData.countries.map((country: any) => (
-                                        <CommandItem
-                                          value={country.id.toString()}
-                                          key={country.id}
-                                          onSelect={() => {
-                                            form.setValue(
-                                              "country_id",
-                                              country.id.toString()
-                                            ); // Set country_id to country.id
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                              country.id.toString() ===
-                                                field.value
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                            )}
-                                          />
-                                          {country.country}{" "}
-                                          {/* Display the country name */}
-                                        {/* </CommandItem>
-                                      ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-                          {watcher.country_id ? <></> : <FormMessage />}
-                        </FormItem>
-                      )}
-                    /> */} 
                   </div>
                   <div className="relative w-[33%]">
                     <FormField
@@ -1151,97 +801,6 @@ const AddClientForm: React.FC = () => {
                   </div>
                 </div>
               </div>
-              {/* <div className="w-full flex flex-col justify-between items-start ">
-                <div>
-                  <h1 className="font-bold text-base"> Bank Details</h1>
-                </div>
-
-                <div className="w-full flex justify-between items-center pt-3">
-                  <div className="relative w-[33%]">
-                    <FormField
-                      control={form.control}
-                      name="bankAccount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="bankAccount"
-                            label="Bank Account Number"
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative w-[33%]">
-                    <FormField
-                      control={form.control}
-                      name="swiftCode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="swiftCode"
-                            label="BIC/Swift Code"
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative w-[33%]">
-                    <FormField
-                      control={form.control}
-                      name="accholdername"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="accholdername"
-                            label="Bank Account Holder Name"
-                          />
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="w-full flex justify-start gap-2 items-center pt-3">
-                  <div className="relative w-[33%]">
-                    <FormField
-                      control={form.control}
-                      name="bankName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="bankName"
-                            label="Bank Name"
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="sendInvitation"
-                    defaultValue={true}
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel>Send invitation</FormLabel>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div> */}
             </CardContent>
           </Card>
         </form>

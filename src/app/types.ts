@@ -1,19 +1,30 @@
-export interface LeadInput{
-first_name: string;
-last_name:string;
-staff_id:string;
-mobile:string;
-status:string;
-source_id:string;
-lead_since:string;
-phone:string;
-email:string;
-notes:string;
-created_by:Number;
-updated_by:Number;
-org_id:Number;
+export interface CountryTypes {
+  id: number;
+  country: string;
+  country_code: number;
+  is_deleted: boolean;
 }
 
-export interface LeadState{
+export interface CoachTypes{
+  coach_name:string;
+  id:number;
+  is_deleted:boolean;
+}
 
+export interface sourceTypes{
+  id:number;
+  source:string;
+}
+
+export interface BusinessTypes{
+  id:number;
+  first_name:string;
+}
+
+export interface membershipplanTypes{
+  name:string;
+  price:string;
+  org_id:number;
+  id:number;
+  is_deleted:boolean;
 }

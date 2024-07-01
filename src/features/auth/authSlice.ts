@@ -4,8 +4,9 @@ import axios from "axios";
 
 interface User {
 	id: number;
-	name: string;
+	username: string;
 	org_id: number;
+	org_name:string;
 }
 
 interface AuthState {

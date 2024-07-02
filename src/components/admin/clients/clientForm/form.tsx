@@ -45,11 +45,12 @@ import {
   useGetClientCountQuery,
   useGetCountriesQuery,
   useGetCoachesQuery,
+  useAddClientMutation
 } from "@/services/clientAPi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import { BusinessTypes, CoachTypes, CountryTypes, membershipplanTypes, sourceTypes } from "@/app/types";
-import {FormSchema} from "@/schema/formSchema"
+// import {FormSchema} from "@/schema/formSchema"
 
 const AddClientForm: React.FC = () => {
   // Function to generate client ID string
@@ -59,9 +60,79 @@ const AddClientForm: React.FC = () => {
   //   let clientIdString = `${orgName.slice(0, 2)}-${incrementedClientId}`;
   //   return clientIdString;
   // };
-
+const orgId =
+  useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
+  const FormSchema = z.object({
+    profile_img: z
+      .string()
+      .trim()
+      .default(
+        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+      ),
+    own_member_id: z.string({
+      required_error: "Own Member Id Required.",
+    }),
+    first_name: z
+      .string({
+        required_error: "Firstname Required.",
+      })
+      .trim()
+      .min(4, { message: "First Name Is Required." }),
+    last_name: z
+      .string({
+        required_error: "Lastname Required.",
+      })
+      .trim()
+      .min(4, { message: "Last Name Is Required" }),
+    gender: z.enum(["male", "female", "other"], {
+      required_error: "You need to select a gender type.",
+    }),
+    dob: z.date({
+      required_error: "A date of birth is required.",
+    }),
+    email: z
+      .string({
+        required_error: "Email is Required.",
+      })
+      .email()
+      .trim(),
+    phone: z.string().trim().optional(),
+    mobile_number: z.string().trim().optional(),
+    notes: z.string().optional(),
+    source_id: z.number({
+      required_error: "Source Required.",
+    }),
+    is_business: z.boolean().default(false).optional(),
+    business_id: z.number().optional(),
+    country_id: z.number({
+      required_error: "Country Required.",
+    }),
+    city: z
+      .string({
+        required_error: "City Required.",
+      })
+      .trim(),
+    zipcode: z.string().trim().optional(),
+    address_1: z.string().optional(),
+    address_2: z.string().optional(),
+    org_id: z
+      .number({
+        required_error: "Org id is required",
+      })
+      .default(orgId),
+    coach_id: z.number().optional(),
+    membership_id: z.number({
+      required_error: "Membership plan is required.",
+    }),
+    send_invitation: z.boolean().default(true).optional(),
+    status: z.string().default("pending"),
+    client_since: z
+      .string()
+      .date()
+      .default(new Date().toISOString().split("T")[0]),
+  });
   // Example of handling async data fetching before form initialization
-  const orgId =useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
+  
   const orgName =useSelector((state: RootState) => state.auth.userInfo?.org_name);
   const { data: clientCountData, isLoading } = useGetClientCountQuery(orgId);
 
@@ -77,6 +148,7 @@ const AddClientForm: React.FC = () => {
 
   const [loading, setLoading] = React.useState(true);
 
+  const [addClient]=useAddClientMutation();
   const navigate = useNavigate();
 
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
@@ -112,8 +184,21 @@ const AddClientForm: React.FC = () => {
 
 
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
+ async function onSubmit(data: z.infer<typeof FormSchema>) {
+     const updatedData = {
+       ...data,
+       dob: format(new Date(data.dob), "yyyy-MM-dd"),
+     };
+
+    console.log("Updated data with only date:", updatedData);
+    // console.log("only once",data);
+    try{
+      let resp=await addClient(updatedData).unwrap();
+      console.log(resp);
+      form.reset();
+    }catch(error){
+      console.log("Error",error);
+    }
     // event?.preventDefault();
     // SubmitForm(data);
     // const id = formData.newClientId && formData.newClientId;
@@ -126,14 +211,14 @@ const AddClientForm: React.FC = () => {
     //     own_member_id:id
     //   }
     // );
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+    // toast({
+    //   title: "You submitted the following values:",
+    //   description: (
+    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+    //       <code className="text-white">{JSON.stringify(data, null, 1)}</code>
+    //     </pre>
+    //   ),
+    // });
   }
 
   function gotoClient() {
@@ -142,18 +227,19 @@ const AddClientForm: React.FC = () => {
 
   React.useEffect(()=>{
     if(orgName){
-      form.setValue("own_member_id",`${orgName.slice(0,2)}-${clientCountData?.total_clients}`)
+      const total = clientCountData?.total_clients!;
+      form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total+1}`);
     }
   },[clientCountData,orgName])
-  // console.log(typeof newClientId?.total_clients); // Check the type of org_name\
-  // console.log("client id",clientCountData && clientCountData?.total_clients);
+  //  console.log(typeof newClientId?.total_clients); // Check the type of org_name\
+  // console.log("client id", clientCountData?.total_clients);
 
-  // console.log("Name of the org", org_name, orgId);
+  //  console.log("Name of the org", org_name, orgId);
  
-  console.log(
-    "starting return state to check own member id",
-    form.getValues().own_member_id
-  );
+  // console.log(
+  //   "starting return state to check own member id",
+  //   form.getValues().own_member_id
+  // );
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -216,7 +302,6 @@ const AddClientForm: React.FC = () => {
                   <FormField
                     control={form.control}
                     name="own_member_id"
-                    disabled={true}
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
@@ -397,8 +482,10 @@ const AddClientForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          defaultValue={field.value?.toString()}
                         >
                           <FormControl>
                             <SelectTrigger
@@ -417,7 +504,7 @@ const AddClientForm: React.FC = () => {
                                 return (
                                   <SelectItem
                                     key={sourceval.id}
-                                    value={sourceval.id.toString()}
+                                    value={sourceval.id?.toString()}
                                   >
                                     {sourceval.coach_name}
                                   </SelectItem>
@@ -476,7 +563,7 @@ const AddClientForm: React.FC = () => {
                             {sources && sources?.length ? (
                               sources.map((sourceval: sourceTypes, i: any) => (
                                 <SelectItem
-                                  value={sourceval.id.toString()}
+                                  value={sourceval.id?.toString()}
                                   key={i}
                                 >
                                   {sourceval.source}
@@ -501,8 +588,10 @@ const AddClientForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          defaultValue={field.value?.toString()}
                         >
                           <FormControl>
                             <SelectTrigger
@@ -522,7 +611,7 @@ const AddClientForm: React.FC = () => {
                                   return (
                                     <SelectItem
                                       key={sourceval.id}
-                                      value={sourceval.id.toString()}
+                                      value={sourceval.id?.toString()}
                                     >
                                       {sourceval.name}
                                     </SelectItem>
@@ -608,8 +697,8 @@ const AddClientForm: React.FC = () => {
                                 // console.log(sourceval.name);
                                 return (
                                   <SelectItem
-                                    value={sourceval.id.toString()}
-                                    key={sourceval.id.toString()}
+                                    value={sourceval.id?.toString()}
+                                    key={sourceval.id?.toString()}
                                   >
                                     {sourceval.first_name}
                                   </SelectItem>
@@ -626,7 +715,7 @@ const AddClientForm: React.FC = () => {
                                 // console.log(field.value);
                                 return (
                                   <SelectItem
-                                    value={sourceval.id.toString()}
+                                    value={sourceval.id?.toString()}
                                     key={sourceval.id}
                                   >
                                     {sourceval.first_name}
@@ -734,7 +823,7 @@ const AddClientForm: React.FC = () => {
                                     {countries &&
                                       countries.map((country: CountryTypes) => (
                                         <CommandItem
-                                          value={country.id.toString()}
+                                          value={country.id?.toString()}
                                           key={country.id}
                                           onSelect={() => {
                                             form.setValue(

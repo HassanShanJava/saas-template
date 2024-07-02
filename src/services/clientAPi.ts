@@ -21,7 +21,7 @@ export const ClientAPi = createApi({
           headers: {
             Accept: "application/json",
           },
-        })
+        }),
       }),
       getCountries: builder.query<CountryTypes[], void>({
         query: () => ({
@@ -63,6 +63,17 @@ export const ClientAPi = createApi({
           },
         }),
       }),
+      AddClient: builder.mutation<any, any>({
+        query: (clientdata) => ({
+          url: "/client/register/client",
+          method: "POST",
+          body: clientdata,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }),
+      }),
     };
   },
 });
@@ -74,4 +85,5 @@ export const {
   useGetAllSourceQuery,
   useGetAllBusinessesQuery,
   useGetAllMembershipsQuery,
+  useAddClientMutation
 } = ClientAPi;

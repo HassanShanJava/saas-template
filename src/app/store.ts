@@ -1,15 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/authSlice"
-import {thunk} from "redux-thunk";
 import { ClientAPi } from "@/services/clientAPi";
+import { Leads } from "@/services/leadsApi";
 const store = configureStore({
   reducer: {
     auth: authReducer,
     [ClientAPi.reducerPath]: ClientAPi.reducer,
+    [Leads.reducerPath]: Leads.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(
-      ClientAPi.middleware
+      ClientAPi.middleware,
+      Leads.middleware
     ),
 });
 

@@ -6,8 +6,6 @@ import {
   sourceTypes,
   membershipplanTypes,
 } from "../app/types";
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/store";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const ClientAPi = createApi({
@@ -63,6 +61,8 @@ export const ClientAPi = createApi({
           },
         }),
       }),
+      //need to give type here but after all the hanlding of data state 
+      //and loader state then types will be given
       AddClient: builder.mutation<any, any>({
         query: (clientdata) => ({
           url: "/client/register/client",

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/command";
 import { Switch } from "@/components/ui/switch";
 import "react-phone-number-input/style.css";
-import { getFormData, SubmitForm } from "@/services/ClientService";
+import { getFormData, SubmitForm } from "@/components/pagework/ClientService";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,6 +36,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
 import {
@@ -50,16 +56,11 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import { BusinessTypes, CoachTypes, CountryTypes, membershipplanTypes, sourceTypes } from "@/app/types";
-// import {FormSchema} from "@/schema/formSchema"
+
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 const AddClientForm: React.FC = () => {
-  // Function to generate client ID string
-  // const generateClientId = (orgName: string, clientId: number | undefined) => {
-  //   // Ensure clientId is defined by defaulting to 0 if it's undefined
-  //   let incrementedClientId = (clientId || 0) + 1;
-  //   let clientIdString = `${orgName.slice(0, 2)}-${incrementedClientId}`;
-  //   return clientIdString;
-  // };
+
 const orgId =
   useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
   const FormSchema = z.object({
@@ -134,7 +135,7 @@ const orgId =
   // Example of handling async data fetching before form initialization
   
   const orgName =useSelector((state: RootState) => state.auth.userInfo?.org_name);
-  const { data: clientCountData, isLoading } = useGetClientCountQuery(orgId);
+  const { data: clientCountData, isLoading,refetch } = useGetClientCountQuery(orgId);
 
 
   const { data: countries } = useGetCountriesQuery();
@@ -148,7 +149,7 @@ const orgId =
 
   const [loading, setLoading] = React.useState(true);
 
-  const [addClient]=useAddClientMutation();
+  const [addClient,{isLoading:clientLoading}]=useAddClientMutation();
   const navigate = useNavigate();
 
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
@@ -187,38 +188,55 @@ const orgId =
  async function onSubmit(data: z.infer<typeof FormSchema>) {
      const updatedData = {
        ...data,
-       dob: format(new Date(data.dob), "yyyy-MM-dd"),
+       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
      };
 
     console.log("Updated data with only date:", updatedData);
     // console.log("only once",data);
     try{
       let resp=await addClient(updatedData).unwrap();
+      refetch();
       console.log(resp);
-      form.reset();
+      form.reset({
+        "profile_img":"",
+        "own_member_id":"",
+        "first_name":"",
+        "last_name":"",
+        "gender":"male",
+        "dob":undefined,
+        "email":"",
+        "phone":"",
+        "mobile_number":"",
+        "notes":"",
+        "source_id":undefined,
+        "is_business":false,
+        "business_id":undefined,
+        "country_id":undefined,
+        "city":"",
+        "zipcode":"",
+        "address_1":"",
+        "address_2":"",
+        "org_id":orgId,
+        "coach_id":undefined,
+        "membership_id":undefined,
+        "send_invitation":true,
+        "status":"pending",
+        "client_since":new Date().toISOString().split("T")[0]
+      });
+       toast({
+         variant: "success",
+         title: "Client Added Successfully ",
+       });
     }catch(error){
       console.log("Error",error);
+      if(error){
+        toast({
+          variant:"destructive",
+          title: "Error in form Submission",
+          description: `${error.data?.detail}`
+        });
+      }
     }
-    // event?.preventDefault();
-    // SubmitForm(data);
-    // const id = formData.newClientId && formData.newClientId;
-    //       console.log(
-    //         "Member id",
-    //         formData.newClientId && formData.newClientId
-    //       );
-    // form.reset(
-    //   {
-    //     own_member_id:id
-    //   }
-    // );
-    // toast({
-    //   title: "You submitted the following values:",
-    //   description: (
-    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-    //       <code className="text-white">{JSON.stringify(data, null, 1)}</code>
-    //     </pre>
-    //   ),
-    // });
   }
 
   function gotoClient() {
@@ -231,15 +249,6 @@ const orgId =
       form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total+1}`);
     }
   },[clientCountData,orgName])
-  //  console.log(typeof newClientId?.total_clients); // Check the type of org_name\
-  // console.log("client id", clientCountData?.total_clients);
-
-  //  console.log("Name of the org", org_name, orgId);
- 
-  // console.log(
-  //   "starting return state to check own member id",
-  //   form.getValues().own_member_id
-  // );
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -285,12 +294,22 @@ const orgId =
                     </Button>
                   </div>
                   <div>
-                    <Button
-                      type="submit"
-                      className="gap-2 text-black hover:opacity-90 hover:text-white"
-                    >
-                      <PlusIcon className="h-4 w-4 hover:text-white" /> Add
-                    </Button>
+                    {clientLoading ? (
+                      <LoadingButton
+                        loading
+                        className="gap-2 text-black hover:opacity-90 hover:text-white"
+                      >
+                        {" "}
+                        adding Client
+                      </LoadingButton>
+                    ) : (
+                      <Button
+                        type="submit"
+                        className="gap-2 text-black hover:opacity-90 hover:text-white"
+                      >
+                        <PlusIcon className="h-4 w-4 hover:text-white" /> Add
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -378,52 +397,63 @@ const orgId =
                 </div>
 
                 <div className="relative w-[33%]">
-                  <FormField
-                    control={form.control}
-                    name="dob"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <FormField
+                        control={form.control}
+                        name="dob"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant={"outline"}
+                                      className={cn(
+                                        "w-full pl-3 text-left font-normal",
+                                        !field.value && "text-muted-foreground"
+                                      )}
+                                    >
+                                      {field.value ? (
+                                        format(field.value, "PPP")
+                                      ) : (
+                                        <span>Date of Birth</span>
+                                      )}
+                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-auto p-2"
+                                align="center"
                               >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Date of Birth</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-2" align="center">
-                            <Calendar
-                              mode="single"
-                              captionLayout="dropdown-buttons"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              fromYear={1960}
-                              toYear={2030}
-                              disabled={(date: any) =>
-                                date > new Date() ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        {watcher.dob ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  />
+                                <Calendar
+                                  mode="single"
+                                  captionLayout="dropdown-buttons"
+                                  selected={field.value}
+                                  onSelect={field.onChange}
+                                  fromYear={1960}
+                                  toYear={2030}
+                                  disabled={(date: any) =>
+                                    date > new Date() ||
+                                    date < new Date("1900-01-01")
+                                  }
+                                  initialFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            {watcher.dob ? <></> : <FormMessage />}
+                          </FormItem>
+                        )}
+                      />
+                      <TooltipContent>
+                        <p>Date of Birth</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}

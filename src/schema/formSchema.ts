@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const FormSchema = z.object({
+export const FormDataSchema = z.object({
   profile_img: z
     .string()
     .trim()

@@ -69,7 +69,7 @@ const orgId =
       .trim()
       .default(
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-      ),
+      ).optional(),
     own_member_id: z.string({
       required_error: "Own Member Id Required.",
     }),
@@ -78,13 +78,13 @@ const orgId =
         required_error: "Firstname Required.",
       })
       .trim()
-      .min(4, { message: "First Name Is Required." }),
+      .min(3, { message: "First Name Is Required." }),
     last_name: z
       .string({
         required_error: "Lastname Required.",
       })
       .trim()
-      .min(4, { message: "Last Name Is Required" }),
+      .min(3, { message: "Last Name Is Required" }),
     gender: z.enum(["male", "female", "other"], {
       required_error: "You need to select a gender type.",
     }),
@@ -227,7 +227,7 @@ const orgId =
          variant: "success",
          title: "Client Added Successfully ",
        });
-    }catch(error){
+    }catch(error:any){
       console.log("Error",error);
       if(error){
         toast({

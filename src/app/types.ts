@@ -66,3 +66,34 @@ export interface LeadResponseTypes {
   updated_by?: number | null | undefined;
   org_id: number;
 }
+
+export interface ClientInputTypes{
+profile_img?:string;
+own_member_id:string;
+first_name:string;
+last_name:string;
+gender:string;
+dob:string;
+email:string;
+phone?:string;
+mobile_number?:string;
+notes?:string;
+source_id:number;
+is_business?:boolean;
+business_id?:number;
+country_id:number;
+city:string;
+zipcode?:string;
+address_1?:string;
+address_2?:string;
+org_id:number;
+coach_id?:number;
+membership_id:number;
+send_invitation?:boolean;
+status?:string;
+client_since:string;
+}
+
+export interface ClientResponseTypes{
+
+}

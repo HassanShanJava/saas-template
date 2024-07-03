@@ -1,22 +1,21 @@
 import { loginUser } from "@/services/authService";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
-import axios from "axios";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 interface User {
-	id: number;
-	username: string;
-	org_id: number;
-	org_name:string;
+  id: number;
+  username: string;
+  org_id: number;
+  org_name: string;
 }
 
 interface AuthState {
-	userToken: string | null;
-	userInfo: User | null;
-	error: string | null;
-	loading: boolean;
+  userToken: string | null;
+  userInfo: User | null;
+  error: string | null;
+  loading: boolean;
 }
 
-const userToken = localStorage.getItem('userToken');
+const userToken = localStorage.getItem("userToken");
 const userInfo = localStorage.getItem("userInfo");
 
 const initialState: AuthState = {
@@ -26,68 +25,72 @@ const initialState: AuthState = {
   loading: false,
 };
 const authSlice = createSlice({
-	name: 'auth',
-	initialState,
-	reducers: {},
-	extraReducers: (builder) => {
-		builder.addCase(login.pending, state => {
-			state.loading = true;
-			state.error = null;
-		})
-		builder.addCase(login.fulfilled, (state, {payload}) => {
+  name: "auth",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(login.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(login.fulfilled, (state, { payload }) => {
       state.loading = false;
       state.userInfo = payload;
       state.error = null;
       localStorage.setItem("userInfo", JSON.stringify(payload)); // Set userInfo in local storage
-    })
-		builder.addCase(login.rejected, (state, {payload}) => {
-			state.loading = false;
-			state.error = payload as string;
-		})
-		builder.addCase(logout.fulfilled,(state)=>{
-			state.userToken = null;
+    });
+    builder.addCase(login.rejected, (state, { payload }) => {
+      state.loading = false;
+      state.error = payload as string;
+    });
+    builder.addCase(logout.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(logout.fulfilled, (state) => {
+      state.userToken = null;
       state.userInfo = null;
       state.error = null;
       state.loading = false;
       localStorage.removeItem("userToken");
       localStorage.removeItem("userInfo");
-		})
-	}
-})
-
+    });
+  },
+});
 
 interface loginParams {
-	email: string;
-	password: string;
-	rememberme: boolean;
+  email: string;
+  password: string;
+  rememberme: boolean;
 }
 export const login = createAsyncThunk(
-	'auth/login',
-	async ({email, password, rememberme}: loginParams, {rejectWithValue}) => {
-		try {
-			const {data}: {data: {token: {access_token: string}, user?: any}} = await loginUser(email, password);
-			localStorage.setItem('userToken', data.token?.access_token)
-			if (rememberme) {
-				localStorage.setItem('email', email)
-				localStorage.setItem('password', password)
-			} else {
-				if(localStorage.getItem('email') != null)
-					localStorage.removeItem('email')
-				if(localStorage.getItem('password') != null)
-					localStorage.removeItem('password')
-			}
-			return data.user;
-		} catch(e: any) {
-			console.log(e)
-			if(e.response?.data?.detail) {
-				return rejectWithValue(e.response?.data?.detail)
-			}
-			return rejectWithValue(e.message)
-		}
-	}
-
-)
-
+  "auth/login",
+  async ({ email, password, rememberme }: loginParams, { rejectWithValue }) => {
+    try {
+      const {
+        data,
+      }: { data: { token: { access_token: string }; user?: any } } =
+        await loginUser(email, password);
+      localStorage.setItem("userToken", data.token?.access_token);
+      if (rememberme) {
+        localStorage.setItem("email", email);
+        localStorage.setItem("password", password);
+      } else {
+        if (localStorage.getItem("email") != null)
+          localStorage.removeItem("email");
+        if (localStorage.getItem("password") != null)
+          localStorage.removeItem("password");
+      }
+      return data.user;
+    } catch (e: any) {
+      console.log(e);
+      if (e.response?.data?.detail) {
+        return rejectWithValue(e.response?.data?.detail);
+      }
+      return rejectWithValue(e.message);
+    }
+  }
+);
 
 export const logout = createAsyncThunk("auth/logout", async () => {
   try {
@@ -107,4 +110,4 @@ export const logout = createAsyncThunk("auth/logout", async () => {
     throw error;
   }
 });
-export default authSlice.reducer
+export default authSlice.reducer;

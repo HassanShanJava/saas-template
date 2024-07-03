@@ -1,6 +1,6 @@
 import DashboardLayout from "./components/ui/common/dashboardLayout";
 import AuthenticationPage from "./components/app/login/login";
-import {Route,Routes} from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Dashboard from "./components/admin/dashboard";
 import Client from "./components/admin/clients";
 import SystemSettings from "./components/admin/system_settings";
@@ -47,7 +47,7 @@ function App() {
           </Route>
           <Route path="/sidebar" element={<Component />}></Route>
         </Route>
-        <Route path="/test" element={<SelectForm/>} />
+        <Route path="/test" element={<SelectForm />} />
       </Routes>
       {/* <Loader open={loading} /> */}
 

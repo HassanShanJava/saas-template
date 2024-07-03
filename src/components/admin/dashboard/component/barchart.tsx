@@ -137,7 +137,7 @@ const SimpleBarChart = () => {
       <div className="flex flex-row justify-between items-center w-full">
         <div className="w-24 p-2">
           <div className=" flex justify-between items-center">
-            <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-[#D0FD3E]">
+            <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-primary">
               <img src="/wallet.svg" className={`w-4 h-4 items-center `}></img>
             </div>
             <h2 className="font-bold text-sm text-gray-400"> Users</h2>
@@ -149,14 +149,14 @@ const SimpleBarChart = () => {
             <Progress
               className="h-1 w-full"
               value={67}
-              color={"#D0FD3E"}
+              color={"#3ED13E"}
               max={100}
             />
           </div>
         </div>
         <div className="w-24 p-2">
           <div className=" flex justify-between items-center">
-            <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-[#D0FD3E]">
+            <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-primary">
               <img src="/rocket.svg" className={`w-4 h-4 items-center `}></img>
             </div>
             <h2 className="font-bold text-sm text-gray-400"> Leads</h2>
@@ -168,34 +168,34 @@ const SimpleBarChart = () => {
             <Progress
               className="h-1 w-full"
               value={67}
-              color={"#D0FD3E"}
+              color={"#3ED13E"}
               max={100}
             />
           </div>
         </div>
         <div className="w-24 p-2">
           <div className=" flex justify-between items-center">
-            <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-[#D0FD3E]">
+            <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-primary">
               {/* <img src="/wallet.svg" className={`w-4 h-4 items-center `}></img> */}
               <i className="fa-solid fa-cart-shopping w-4 h-4 flex justify-center items-center"></i>
             </div>
             <h2 className="font-bold text-sm text-gray-400"> Sales</h2>
           </div>
           <div>
-            <p className="text-[#2D3748] text-xl font-bold">25,000 $</p>
+            <p className="text-[#2D3748] text-xl font-bold">$25,000</p>
           </div>
           <div className="pt-4">
             <Progress
               className="h-1 w-full"
               value={67}
-              color={"#D0FD3E"}
+              color={"#3ED13E"}
               max={100}
             />
           </div>
         </div>
         <div className="w-24 p-2">
           <div className=" flex justify-between items-center">
-            <div className=" flex justify-center items-center w-7 h-7 rounded-lg bg-[#D0FD3E]">
+            <div className=" flex justify-center items-center w-7 h-7 rounded-lg bg-primary">
               <img src="/star.svg" className={`w-4 h-4 items-center `}></img>
             </div>
             <h2 className="font-bold text-sm text-gray-400"> Sales</h2>
@@ -207,7 +207,7 @@ const SimpleBarChart = () => {
             <Progress
               className="h-1 w-full"
               value={67}
-              color={"#D0FD3E"}
+              color={"#3ED13E"}
               max={100}
             />
           </div>

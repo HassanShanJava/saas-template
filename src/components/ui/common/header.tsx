@@ -13,35 +13,33 @@ import { Separator } from "@/components/ui/separator";
 import { useDispatch } from "react-redux";
 import { logout } from "@/features/auth/authSlice";
 import { AppDispatch, RootState } from "@/app/store";
-import  {useNavigate} from 'react-router-dom';
-import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "../use-toast";
 import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export const Header = () => {
   const location = useLocation();
   const { toast } = useToast();
-  const navigate=useNavigate();
-  
+  const navigate = useNavigate();
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+
   const dispatch = useDispatch<AppDispatch>();
-  
+
   const handleLogout = () => {
-      dispatch(logout());
-      navigate("/");
-     	toast({
-        variant:"destructive",
-        title: "Logout",
-        description: "You are Successfully Logged Out",
-        className: cn(
-          "top-0 right-0 flex fixed md:max-w-[420px] md:top-4 md:right-4"
-        ),
-      });
+    dispatch(logout());
+    toast({
+      variant: "destructive",
+      title: "Logout",
+      description: "You are Successfully Logged Out",
+    });
+    navigate("/");
   };
-  
+
   function isActiveLink(currentPath: string, targetPath: string) {
-     return currentPath===targetPath;
+    return currentPath === targetPath;
   }
-  
+
   console.log("click", location.pathname);
 
   return (
@@ -160,25 +158,29 @@ export const Header = () => {
             </div>
             <Separator orientation="vertical" className=" h-10" />
 
-            <div className="justify-center items-center flex gap-1">
-              <img
-                src="/userSvg.svg"
-                width="32"
-                height="32"
-                className="rounded-full"
-                alt="Avatar"
-              />
-              <h1 className="text-black text-base"> Akira One</h1>
+            <>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-full w-2"
-                  >
-                    <i className="fa-solid fa-caret-down"></i>
-                  </Button>
+                  <div className="justify-center cursor-pointer items-center flex gap-1">
+                    <img
+                      src="/userSvg.svg"
+                      width="32"
+                      height="32"
+                      className="rounded-full"
+                      alt="Avatar"
+                    />
+                    <h1 className="text-black text-base"> {userInfo.first_name}</h1>
+                    {/* <h1 className="text-black text-base"> Akira One</h1> */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full w-2"
+                    >
+                      <i className="fa-solid fa-caret-down"></i>
+                    </Button>
+                  </div>
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -190,10 +192,10 @@ export const Header = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+            </>
           </div>
         </div>
       </header>
     </>
   );
-}
+};

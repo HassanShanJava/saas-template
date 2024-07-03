@@ -34,61 +34,107 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
-
-
-const FormSchema = z.object({
-  // lead information
-  firstname: z
-    .string({
-      required_error: "First Name Is Required",
-    })
-    .min(2, { message: "First Name Is Required" }),
-  lastname: z
-    .string({
-      required_error: "Last Name isRequired",
-    })
-    .min(2, { message: "Last Name Is Required" }),
-  //contact Details
-  email: z.string().email().optional(),
-
-  homenumber: z.string().optional(),
-
-  mobilenumber: z.string().optional(),
-
-  // lead Settings
-  source: z.string().optional(),
-  
-  leadStatus: z.string({
-    required_error: "Lead status is Required",
-  }),
-  
-  leadowner: z.string().optional(),
-  
-  leadsince: z.date().optional(),
-  
-  writeanote: z.string().optional(),
-
-
-});
-
+import { useGetAllSourceQuery } from "@/services/clientAPi";
+import { sourceTypes, staffType } from "@/app/types";
+import { useGetAllStaffQuery } from "@/services/leadsApi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
+import { useAddLeadMutation } from "@/services/leadsApi";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const LeadForm: React.FC = () => {
-  const navigate = useNavigate();
+ const orgId =useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
+  const [addLead,{isLoading}] = useAddLeadMutation();
 
+  const FormSchema = z.object({
+    // lead information
+    "first_name": z
+      .string({
+        required_error: "First Name Is Required",
+      })
+      .min(4, { message: "First Name Is Required" }),
+    "last_name": z
+      .string({
+        required_error: "Last Name isRequired",
+      })
+      .min(4, { message: "Last Name Is Required" }),
+
+    "staff_id": z.number().optional(),
+    "mobile": z.string().optional(),
+    "status": z.string({
+      required_error: "Lead status is Required",
+    }),
+     // lead Settings
+    "source_id": z.number().optional(),
+
+    "lead_since": z.date({
+      required_error:"Lead Since Data is Required"
+    }),
+    //contact Details
+    
+    "phone": z.string().optional(),
+    "email": z.string().email().optional(),
+    "notes": z.string().optional(),
+    "org_id": z
+      .number({
+        required_error: "Org id is required",
+      })
+      .default(orgId),
+      "created_by":z.number().default(0),
+      "updated_by":z.number().default(0),
+  }).refine(data=> data.email || data.phone || data.mobile,{
+    message:"Either Email or Home Number or Mobile Number must be provided",
+    path:["email"],
+  }
+  );
+
+  const { data: sources } = useGetAllSourceQuery();
+  const {data:staff}=useGetAllStaffQuery(orgId); 
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {},
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const updatedData = {
+      ...data,
+      lead_since: format(new Date(data.lead_since!), "yyyy-MM-dd"),
+    };
+    try{
+    let resp = await addLead(updatedData).unwrap().then(payload=>console.log("Fullfilled",payload));
+      form.reset({
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        mobile: "",
+        source_id: undefined,
+        status: "",
+        staff_id: undefined,
+        lead_since: undefined,
+        notes:""
+      });
     toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+         variant: "success",
+         title: "Lead Added Successfully",
+       });
+    }catch(error){
+       console.log("Error", error);
+       if(error){
+         toast({
+           variant: "destructive",
+           title: "Error in form Submission",
+         });
+       }
+     }
   }
+  
   function gotoLeads() {
     navigate("/admin/leads");
   }
@@ -101,7 +147,7 @@ const LeadForm: React.FC = () => {
             <CardContent>
               <div className="flex justify-between items-center">
                 <div className="flex flex-row gap-4 items-center">
-                  
+                  <h1 className="font-bold text-lg"> Lead Data</h1>
                 </div>
                 <div className="flex gap-2">
                   <div>
@@ -114,17 +160,27 @@ const LeadForm: React.FC = () => {
                     </Button>
                   </div>
                   <div>
-                    <Button
-                      type="submit"
-                      className="gap-2 text-black hover:opacity-90 hover:text-white"
-                    >
-                      <PlusIcon className="h-4 w-4 hover:text-white" /> Add
-                    </Button>
+                    {isLoading ? 
+                      (
+                      <LoadingButton
+                        loading
+                        className="gap-2 text-black hover:opacity-90 hover:text-white"
+                      >
+                        {" "}
+                        Add
+                      </LoadingButton>
+                    ):(
+                      <Button
+                        type="submit"
+                        className="gap-2 text-black hover:opacity-90 hover:text-white"
+                      >
+                        <PlusIcon className="h-4 w-4 hover:text-white" /> Add
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
               <div>
-                <h1 className="font-bold text-base"> Lead Data</h1>
                 <h1 className="font-medium text-base pt-4">
                   {" "}
                   Lead information
@@ -134,12 +190,12 @@ const LeadForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="firstname"
+                    name="first_name"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="firstname"
+                          id="first_name"
                           label="First Name"
                         />
                         <FormMessage />
@@ -150,12 +206,12 @@ const LeadForm: React.FC = () => {
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
-                    name="lastname"
+                    name="last_name"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="lastname"
+                          id="last_name"
                           label="Last Name"
                         />
                         <FormMessage className="" />
@@ -197,12 +253,12 @@ const LeadForm: React.FC = () => {
                   <div className="relative w-[33%]">
                     <FormField
                       control={form.control}
-                      name="homenumber"
+                      name="phone"
                       render={({ field }) => (
                         <FormItem>
                           <FloatingLabelInput
                             {...field}
-                            id="homenumber"
+                            id="phone"
                             label="Home Number"
                           />
                           <FormMessage />
@@ -213,7 +269,7 @@ const LeadForm: React.FC = () => {
                   <div className="relative w-[33%]">
                     <FormField
                       control={form.control}
-                      name="mobilenumber"
+                      name="mobile"
                       render={({ field }) => (
                         <FormItem>
                           <FloatingLabelInput
@@ -236,12 +292,14 @@ const LeadForm: React.FC = () => {
                   <div className="relative w-[33%]">
                     <FormField
                       control={form.control}
-                      name="source"
+                      name="source_id"
                       render={({ field }) => (
                         <FormItem>
                           <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(Number(value))
+                            }
+                            defaultValue={field.value?.toString()}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -249,22 +307,22 @@ const LeadForm: React.FC = () => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="unknown">Unknown</SelectItem>
-                              <SelectItem value="facebook">Facebook</SelectItem>
-                              <SelectItem value="facebookAd">
-                                Facebook Ad
-                              </SelectItem>
-                              <SelectItem value="instagram">
-                                Instagram
-                              </SelectItem>
-                              <SelectItem value="itsemail">
-                                ITS Email
-                              </SelectItem>
-                              <SelectItem value="linkedin">LinkedIn</SelectItem>
-                              <SelectItem value="referral">Referral</SelectItem>
-                              <SelectItem value="walkin">Walk In</SelectItem>
-                              <SelectItem value="walkin">Website</SelectItem>
-                              <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                              {sources && sources?.length ? (
+                                sources.map(
+                                  (sourceval: sourceTypes, i: any) => (
+                                    <SelectItem
+                                      value={sourceval.id?.toString()}
+                                      key={i}
+                                    >
+                                      {sourceval.source}
+                                    </SelectItem>
+                                  )
+                                )
+                              ) : (
+                                <>
+                                  <p className="p-2"> No Sources Found</p>
+                                </>
+                              )}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -275,7 +333,7 @@ const LeadForm: React.FC = () => {
                   <div className="relative w-[33%]">
                     <FormField
                       control={form.control}
-                      name="leadStatus"
+                      name="status"
                       render={({ field }) => (
                         <FormItem>
                           <Select
@@ -334,12 +392,14 @@ const LeadForm: React.FC = () => {
                   <div className="relative w-[33%]">
                     <FormField
                       control={form.control}
-                      name="leadowner"
+                      name="staff_id"
                       render={({ field }) => (
                         <FormItem>
                           <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            onValueChange={(value) =>
+                              field.onChange(Number(value))
+                            }
+                            defaultValue={field.value?.toString()}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -347,11 +407,20 @@ const LeadForm: React.FC = () => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="unassign">Unassign</SelectItem>
-                              <SelectItem value="waqar">Waqar</SelectItem>
-                              <SelectItem value="Waqas">Waqar</SelectItem>
-                              <SelectItem value="Usman">Usman</SelectItem>
-                              <SelectItem value="Fahad">Fahad</SelectItem>
+                              {staff && staff?.length ? (
+                                staff.map((sourceval: staffType, i: any) => (
+                                  <SelectItem
+                                    value={sourceval.id?.toString()}
+                                    key={i}
+                                  >
+                                    {sourceval.first_name}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <>
+                                  <p className="p-2"> No Staff Added</p>
+                                </>
+                              )}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -363,60 +432,70 @@ const LeadForm: React.FC = () => {
                 <div className="w-full flex flex-col justify-between items-start pt-4">
                   <div className="w-full flex justify-between items-center">
                     <div className="relative w-[33%]">
-                      <FormField
-                        control={form.control}
-                        name="leadsince"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                      "w-full pl-3 text-left font-normal",
-                                      !field.value && "text-muted-foreground"
-                                    )}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <FormField
+                            control={form.control}
+                            name="lead_since"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <TooltipTrigger asChild>
+                                        <Button
+                                          variant={"outline"}
+                                          className={cn(
+                                            "w-full pl-3 text-left font-normal",
+                                            !field.value &&
+                                              "text-muted-foreground"
+                                          )}
+                                        >
+                                          {field.value ? (
+                                            format(field.value, "PPP")
+                                          ) : (
+                                            <span>Lead Since</span>
+                                          )}
+                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                      </TooltipTrigger>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent
+                                    className="w-auto p-0"
+                                    align="start"
                                   >
-                                    {field.value ? (
-                                      format(field.value, "PPP")
-                                    ) : (
-                                      <span>Lead Since</span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent
-                                className="w-auto p-0"
-                                align="start"
-                              >
-                                <Calendar
-                                  mode="single"
-                                  selected={field.value}
-                                  onSelect={field.onChange}
-                                  disabled={(date: any) =>
-                                    date > new Date() ||
-                                    date < new Date("1900-01-01")
-                                  }
-                                  initialFocus
-                                />
-                              </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                                    <Calendar
+                                      mode="single"
+                                      selected={field.value}
+                                      onSelect={field.onChange}
+                                      disabled={(date: any) =>
+                                        date > new Date() ||
+                                        date < new Date("1900-01-01")
+                                      }
+                                      initialFocus
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <TooltipContent>
+                            <p>Lead Since</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                     <div className="relative w-[66%]">
                       <FormField
                         control={form.control}
-                        name="writeanote"
+                        name="notes"
                         render={({ field }) => (
                           <FormItem>
                             <FloatingLabelInput
                               {...field}
-                              id="writeanote"
+                              id="notes"
                               label="Write A Note"
                             />
                             <FormMessage className="" />

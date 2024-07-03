@@ -13,6 +13,8 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { AppDispatch, RootState } from "@/app/store";
+import { cn } from "@/lib/utils";
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const { VITE_APP_SITEKEY } = import.meta.env;
 
 export default function AuthenticationPage() {
@@ -53,8 +55,10 @@ export default function AuthenticationPage() {
 	}, [error])
 
   useEffect(() => {
-    if (userInfo) 
+    if (userInfo){
     	navigate('/admin/dashboard');
+    }
+    
   }, [navigate, userInfo])
 
   const handleRememberMe = (e: any) => {
@@ -72,13 +76,24 @@ export default function AuthenticationPage() {
     }
 
     console.log("Form data:", data);
-	dispatch(login(data));
-
+	  
+    dispatch(login(data));
+    // if(!loading){
+      // toast({
+      //     variant: "success",
+      //     title: "LogIn",
+      //     description: "You are Successfully Logged In",
+      //     className: cn(
+      //       "top-0 right-0 flex fixed md:max-w-[420px] md:top-4 md:right-4"
+      //     ),
+      //   });
+    // }
     setCaptchaError(false);
     reset();
     if (recaptchaRef.current) {
       recaptchaRef.current.reset();
     }
+  
   };
   const [isCaptchaError, setCaptchaError] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -90,6 +105,7 @@ export default function AuthenticationPage() {
     setCaptchaError(false);
   }
 
+  console.log("Loading auth", loading);
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">
@@ -169,10 +185,10 @@ export default function AuthenticationPage() {
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="rememberme"
-												checked={checked}
-												onCheckedChange={handleRememberMe}
+                        checked={checked}
+                        onCheckedChange={handleRememberMe}
                         className="text-black border-checkboxborder"
-												{...register("rememberme")}
+                        {...register("rememberme")}
                       />
                       <label
                         htmlFor="rememberme"
@@ -203,12 +219,21 @@ export default function AuthenticationPage() {
                       </>
                     )}
                   </div>
-                  <Button
-                    type="submit"
-                    className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
-                  >
-                    Login
-                  </Button>
+                  {loading ? (
+                    <LoadingButton
+                      loading
+                      className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
+                    >
+                      Logging In
+                    </LoadingButton>
+                  ) : (
+                    <Button
+                      type="submit"
+                      className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
+                    >
+                      Login
+                    </Button>
+                  )}
                 </form>
               </CardContent>
             </Card>

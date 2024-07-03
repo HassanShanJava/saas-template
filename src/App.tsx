@@ -13,6 +13,7 @@ import EventForm from "./components/admin/events/eventForm";
 import ProtectedRoute from "./components/admin/protectedRoute";
 import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
+import { SelectForm } from "./components/pagework/HookformExample";
 // import Loader from "@/components/Loader";
 
 function App() {
@@ -21,23 +22,32 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<AuthenticationPage />} />
-		<Route path="/" element={<ProtectedRoute/>}>
-			<Route path="/admin" element={<DashboardLayout />}>
-				<Route path="/admin/dashboard" index element={<Dashboard />} />
-				<Route path="/admin/client" index element={<Client />} />
-				<Route path="/admin/system_settings" index element={<SystemSettings />} />
-				<Route
-					path="/admin/client/addclient"
-					index
-					element={<AddClientForm />}
-				/>
-				<Route path="/admin/leads" index element={<Leads />} />
-				<Route path="/admin/leads/addlead" index element={<LeadForm />} />
-				<Route path="/admin/events" index element={<Events />} />
-			</Route>
-			<Route path="/sidebar" element={<Component />}></Route>
-		</Route>
-
+        <Route path="/" element={<ProtectedRoute />}>
+          <Route path="/admin" element={<DashboardLayout />}>
+            <Route path="/admin/dashboard" index element={<Dashboard />} />
+            <Route path="/admin/client" index element={<Client />} />
+            <Route
+              path="/admin/system_settings"
+              index
+              element={<SystemSettings />}
+            />
+            <Route
+              path="/admin/client/addclient"
+              index
+              element={<AddClientForm />}
+            />
+            <Route path="/admin/leads" index element={<Leads />} />
+            <Route path="/admin/leads/addlead" index element={<LeadForm />} />
+            <Route path="/admin/events" index element={<Events />} />
+            <Route
+              path="/admin/events/addevents"
+              index
+              element={<EventForm />}
+            />
+          </Route>
+          <Route path="/sidebar" element={<Component />}></Route>
+        </Route>
+        <Route path="/test" element={<SelectForm/>} />
       </Routes>
       {/* <Loader open={loading} /> */}
 

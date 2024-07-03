@@ -6,7 +6,7 @@ import { taskSchema } from "@/schema/taskSchema";
 import { z } from "zod";
 import tasksData from "../../../mock/data.json"; // Adjust the path if your tasks.json file is in a different directory
 // import ImageUpload from "./clientForm/checkForm";
-import UploadForm from "./clientForm/checkForm";
+import UploadForm from "../../pagework/checkForm";
 import { Card } from "@/components/ui/card";
 import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 const parseTasks = (data:any) => {

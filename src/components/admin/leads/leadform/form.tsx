@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { useGetAllSourceQuery } from "@/services/clientAPi";
-import { sourceTypes, staffType } from "@/app/types";
+import { ErrorType, sourceTypes, staffType } from "@/app/types";
 import { useGetAllStaffQuery } from "@/services/leadsApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
@@ -106,8 +106,10 @@ const LeadForm: React.FC = () => {
       ...data,
       lead_since: format(new Date(data.lead_since!), "yyyy-MM-dd"),
     };
-    try{
-    let resp = await addLead(updatedData).unwrap().then(payload=>console.log("Fullfilled",payload));
+    try {
+      let resp = await addLead(updatedData)
+        .unwrap()
+        .then((payload) => console.log("Fullfilled", payload));
       form.reset({
         first_name: "",
         last_name: "",
@@ -118,21 +120,30 @@ const LeadForm: React.FC = () => {
         status: "",
         staff_id: undefined,
         lead_since: undefined,
-        notes:""
+        notes: "",
       });
-    toast({
-         variant: "success",
-         title: "Lead Added Successfully",
-       });
-    }catch(error){
-       console.log("Error", error);
-       if(error){
-         toast({
-           variant: "destructive",
-           title: "Error in form Submission",
-         });
-       }
-     }
+      toast({
+        variant: "success",
+        title: "Lead Added Successfully",
+      });
+      navigate("/admin/leads")
+    } catch (error) {
+      console.log("Error", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
   }
   
   function gotoLeads() {

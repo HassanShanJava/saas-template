@@ -63,6 +63,14 @@ export const ClientAPi = createApi({
           },
         }),
       }),
+      getAllClient: builder.query<any[], number>({
+        query: (org_id) => ({
+          url: `/client/filter/?org_id=${org_id}`,
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+      }),
       AddClient: builder.mutation<ClientResponseTypes, ClientInputTypes>({
         query: (clientdata) => ({
           url: "/client/register",
@@ -85,5 +93,6 @@ export const {
   useGetAllSourceQuery,
   useGetAllBusinessesQuery,
   useGetAllMembershipsQuery,
+  useGetAllClientQuery,
   useAddClientMutation
 } = ClientAPi;

@@ -33,7 +33,7 @@ export function DataTableViewOptions<TData>({
       <DropdownMenuContent align="end" className="w-[150px]">
         <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {table
+        {/* {table
           .getAllColumns()
           .filter(
             (column) =>
@@ -50,7 +50,7 @@ export function DataTableViewOptions<TData>({
                 {column.id}
               </DropdownMenuCheckboxItem>
             );
-          })}
+          })} */}
       </DropdownMenuContent>
     </DropdownMenu>
   );

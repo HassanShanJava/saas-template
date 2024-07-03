@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useEffect, useRef, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
 import ReCAPTCHA from "react-google-recaptcha";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
@@ -7,24 +7,67 @@ import { Button } from "../../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import "./style.css";
+import { login } from '../../../features/auth/authSlice';
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import { AppDispatch, RootState } from "@/app/store";
+import { cn } from "@/lib/utils";
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const { VITE_APP_SITEKEY } = import.meta.env;
 
 export default function AuthenticationPage() {
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [checked, setChecked] = useState<boolean>(false);
+  const { loading, userInfo, error } = useSelector((state: RootState) => state.auth);
+  const email = localStorage.getItem('email')??'';
+  const password = localStorage.getItem('password')??'';
 
   const {
     register,
     handleSubmit,
     formState: { isSubmitted, isSubmitting, isValid, errors },
+	setValue,
     reset,
-  } = useForm({
+  } = useForm<{email: string, password: string, rememberme: boolean}>({
     mode: "onChange",
     reValidateMode: "onChange",
+	defaultValues: {
+		email,
+		password,
+		rememberme: false
+	}
   });
 
-  const onSubmit = async (data: any) => {
-    // Check if the ReCAPTCHA value is present
-    const recaptchaValue = await recaptchaRef.current?.getValue();
+
+	useEffect(() => {
+		if(error != null)
+			toast({
+				variant: "destructive",
+				title: error,
+				description: "There was a problem with your request.",
+			})
+		console.log(error);
+	}, [error])
+
+  useEffect(() => {
+    if (userInfo){
+    	navigate('/admin/dashboard');
+    }
+    
+  }, [navigate, userInfo])
+
+  const handleRememberMe = (e: any) => {
+	setValue('rememberme', e)
+	setChecked(e)
+  }
+
+  const onSubmit: SubmitHandler<{email: string, password: string, rememberme: boolean}> = async (data) => {
+    const recaptchaValue = recaptchaRef.current?.getValue();
 
     if (!recaptchaValue) {
       console.log("Please complete the ReCAPTCHA challenge.");
@@ -32,17 +75,25 @@ export default function AuthenticationPage() {
       return;
     }
 
-    // Here you can handle form submission, like sending data to a server
     console.log("Form data:", data);
-    console.log("Captcha value:", recaptchaValue);
-
+	  
+    dispatch(login(data));
+    // if(!loading){
+      // toast({
+      //     variant: "success",
+      //     title: "LogIn",
+      //     description: "You are Successfully Logged In",
+      //     className: cn(
+      //       "top-0 right-0 flex fixed md:max-w-[420px] md:top-4 md:right-4"
+      //     ),
+      //   });
+    // }
     setCaptchaError(false);
-    // Reset form after submission
     reset();
-    // Reset captcha
     if (recaptchaRef.current) {
       recaptchaRef.current.reset();
     }
+  
   };
   const [isCaptchaError, setCaptchaError] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -52,10 +103,9 @@ export default function AuthenticationPage() {
 
   function onChange(value: any) {
     setCaptchaError(false);
-
-    console.log("Captcha value:", value);
   }
 
+  console.log("Loading auth", loading);
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">
@@ -134,12 +184,14 @@ export default function AuthenticationPage() {
                   <div className="flex justify-between items-center p-0 m-0">
                     <div className="flex items-center space-x-2">
                       <Checkbox
-                        id="terms"
+                        id="rememberme"
+                        checked={checked}
+                        onCheckedChange={handleRememberMe}
                         className="text-black border-checkboxborder"
-                        {...register("terms", { required: true })}
+                        {...register("rememberme")}
                       />
                       <label
-                        htmlFor="terms"
+                        htmlFor="rememberme"
                         className="font-poppins text-textgray text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                       >
                         Remember Me
@@ -167,12 +219,21 @@ export default function AuthenticationPage() {
                       </>
                     )}
                   </div>
-                  <Button
-                    type="submit"
-                    className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
-                  >
-                    Login
-                  </Button>
+                  {loading ? (
+                    <LoadingButton
+                      loading
+                      className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
+                    >
+                      Logging In
+                    </LoadingButton>
+                  ) : (
+                    <Button
+                      type="submit"
+                      className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
+                    >
+                      Login
+                    </Button>
+                  )}
                 </form>
               </CardContent>
             </Card>

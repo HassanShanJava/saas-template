@@ -5,6 +5,8 @@ import {
   CoachTypes,
   sourceTypes,
   membershipplanTypes,
+  ClientInputTypes,
+  ClientResponseTypes
 } from "../app/types";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -15,7 +17,7 @@ export const ClientAPi = createApi({
     return {
       getClientCount: builder.query<{ total_clients: number }, number>({
         query: (org_id) => ({
-          url: `/client/organization/${org_id}/clients/count`,
+          url: `/client/getTotalClient/${org_id}`,
           headers: {
             Accept: "application/json",
           },
@@ -31,7 +33,7 @@ export const ClientAPi = createApi({
       }),
       getCoaches: builder.query<CoachTypes[], number>({
         query: (org_id) => ({
-          url: `/coach/coaches/${org_id}`,
+          url: `/coach/getCoach/${org_id}`,
           headers: {
             Accept: "application/json",
           },
@@ -47,7 +49,7 @@ export const ClientAPi = createApi({
       }),
       getAllBusinesses: builder.query<BusinessTypes[], number>({
         query: (org_id) => ({
-          url: `/client/business/clients/${org_id}`,
+          url: `/client/business/${org_id}`,
           headers: {
             Accept: "application/json",
           },
@@ -55,17 +57,15 @@ export const ClientAPi = createApi({
       }),
       getAllMemberships: builder.query<membershipplanTypes[], number>({
         query: (org_id) => ({
-          url: `/membership/get_all_membership_plan/${org_id}`,
+          url: `/membership_plan/get_all/${org_id}`,
           headers: {
             Accept: "application/json",
           },
         }),
       }),
-      //need to give type here but after all the hanlding of data state 
-      //and loader state then types will be given
-      AddClient: builder.mutation<any, any>({
+      AddClient: builder.mutation<ClientResponseTypes, ClientInputTypes>({
         query: (clientdata) => ({
-          url: "/client/register/client",
+          url: "/client/register",
           method: "POST",
           body: clientdata,
           headers: {

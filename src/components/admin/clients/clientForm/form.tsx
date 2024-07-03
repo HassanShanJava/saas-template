@@ -55,7 +55,7 @@ import {
 } from "@/services/clientAPi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { BusinessTypes, CoachTypes, CountryTypes, membershipplanTypes, sourceTypes } from "@/app/types";
+import { BusinessTypes, CoachTypes, CountryTypes, ErrorType, membershipplanTypes, sourceTypes } from "@/app/types";
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
@@ -192,49 +192,82 @@ const orgId =
      };
 
     console.log("Updated data with only date:", updatedData);
-    // console.log("only once",data);
-    try{
-      let resp=await addClient(updatedData).unwrap();
+    console.log("only once",data);
+      //  form.reset({
+      //    profile_img: "",
+      //    own_member_id: "",
+      //    first_name: "",
+      //    last_name: "",
+      //    gender: "male",
+      //    dob: undefined,
+      //    email: undefined,
+      //    phone: "",
+      //    mobile_number: "",
+      //    notes: "",
+      //    source_id: undefined,
+      //    is_business: false,
+      //    business_id: undefined,
+      //    country_id: undefined,
+      //    city: "",
+      //    zipcode: "",
+      //    address_1: "",
+      //    address_2: "",
+      //    org_id: orgId,
+      //    coach_id: undefined,
+      //    membership_id: undefined,
+      //    send_invitation: true,
+      //    status: "pending",
+      //    client_since: new Date().toISOString().split("T")[0],
+      //  });
+    try {
+      let resp = await addClient(updatedData).unwrap();
       refetch();
       console.log(resp);
       form.reset({
-        "profile_img":"",
-        "own_member_id":"",
-        "first_name":"",
-        "last_name":"",
-        "gender":"male",
-        "dob":undefined,
-        "email":"",
-        "phone":"",
-        "mobile_number":"",
-        "notes":"",
-        "source_id":undefined,
-        "is_business":false,
-        "business_id":undefined,
-        "country_id":undefined,
-        "city":"",
-        "zipcode":"",
-        "address_1":"",
-        "address_2":"",
-        "org_id":orgId,
-        "coach_id":undefined,
-        "membership_id":undefined,
-        "send_invitation":true,
-        "status":"pending",
-        "client_since":new Date().toISOString().split("T")[0]
+        profile_img: "",
+        own_member_id: "",
+        first_name: "",
+        last_name: "",
+        gender: "male",
+        dob: undefined,
+        email: "",
+        phone: "",
+        mobile_number: "",
+        notes: "",
+        source_id: undefined,
+        is_business: false,
+        business_id: undefined,
+        country_id: undefined,
+        city: "",
+        zipcode: "",
+        address_1: "",
+        address_2: "",
+        org_id: orgId,
+        coach_id: undefined,
+        membership_id: undefined,
+        send_invitation: true,
+        status: "pending",
+        client_since: new Date().toISOString().split("T")[0],
       });
-       toast({
-         variant: "success",
-         title: "Client Added Successfully ",
-       });
-    }catch(error:any){
-      console.log("Error",error);
-      if(error){
+      toast({
+        variant: "success",
+        title: "Client Added Successfully ",
+      });
+    } catch (error: unknown) {
+      console.log("Error", error);
+      if (error && typeof error==="object" && "data" in error) {
+        const typedError = error as ErrorType;
         toast({
-          variant:"destructive",
+          variant: "destructive",
           title: "Error in form Submission",
-          description: `${error.data?.detail}`
+          description: `${typedError.data?.detail}`,
         });
+      }else{
+         toast({
+           variant: "destructive",
+           title: "Error in form Submission",
+           description: `Something Went Wrong.`,
+         });
       }
     }
   }
@@ -523,7 +556,7 @@ const orgId =
                             >
                               <SelectValue
                                 className="text-black"
-                                placeholder="Coach_id"
+                                placeholder="Select Coach"
                               />
                             </SelectTrigger>
                           </FormControl>
@@ -853,7 +886,7 @@ const orgId =
                                     {countries &&
                                       countries.map((country: CountryTypes) => (
                                         <CommandItem
-                                          value={country.id?.toString()}
+                                          value={country.country}
                                           key={country.id}
                                           onSelect={() => {
                                             form.setValue(

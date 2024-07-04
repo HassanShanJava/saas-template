@@ -20,7 +20,7 @@ import {
 
 import { Copy, Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { taskSchema } from "@/schema/taskSchema";
-import { label_options } from "../filter";
+import { label_options } from "./filter";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 interface DataTableRowActionsProps<TData> {

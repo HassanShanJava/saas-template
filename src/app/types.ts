@@ -4,55 +4,64 @@ export interface CountryTypes {
   country_code: number;
   is_deleted: boolean;
 }
-export interface ErrorType{
-  data?:{
-    detail?:string;
-  }
+export interface ErrorType {
+  data?: {
+    detail?: string;
+  };
 }
-export interface CoachTypes{
-  coach_name:string;
-  id:number;
-  is_deleted:boolean;
-}
-
-export interface sourceTypes{
-  id:number;
-  source:string;
+export interface CoachTypes {
+  coach_name: string;
+  id: number;
+  is_deleted: boolean;
 }
 
-export interface BusinessTypes{
-  id:number;
-  first_name:string;
+export interface sourceTypes {
+  id: number;
+  source: string;
 }
 
-export interface membershipplanTypes{
-  name:string;
-  price:string;
-  org_id:number;
-  id:number;
-  is_deleted:boolean;
+export interface BusinessTypes {
+  id: number;
+  first_name: string;
 }
 
-export interface staffType{
-  org_id:number;
-  id:number;
-  first_name:string;
+export interface membershipplanTypes {
+  name: string;
+  price: string;
+  org_id: number;
+  id: number;
+  is_deleted: boolean;
 }
 
-export interface LeadInputTypes{
-first_name:string;
-last_name:string;
-staff_id?:number|null|undefined;
-mobile?:string|null|undefined;
-status:string;
-source_id?:number|null|undefined;
-lead_since:string;
-phone?:string|null|undefined;
-email?:string|null|undefined;
-notes?:string|null|undefined;
-created_by?:number|null|undefined;
-updated_by?:number|null|undefined;
-org_id:number;
+export interface staffType {
+  org_id: number;
+  id: number;
+  first_name: string;
+}
+export interface leadType {
+  id: number;
+  name: string;
+  email: string;
+  status: string;
+  source: string;
+  owner: string;
+  lead_since: string;
+}
+
+export interface LeadInputTypes {
+  first_name: string;
+  last_name: string;
+  staff_id?: number | null | undefined;
+  mobile?: string | null | undefined;
+  status: string;
+  source_id?: number | null | undefined;
+  lead_since: string;
+  phone?: string | null | undefined;
+  email?: string | null | undefined;
+  notes?: string | null | undefined;
+  created_by?: number | null | undefined;
+  updated_by?: number | null | undefined;
+  org_id: number;
 }
 
 export interface LeadResponseTypes {
@@ -92,8 +101,8 @@ export interface ClientInputTypes {
   address_1?: string;
   address_2?: string;
   client_since: string;
-  created_at?:string|null;
-  created_by?:number|null;
+  created_at?: string | null;
+  created_by?: number | null;
   org_id: number;
   coach_id?: number;
   membership_id: number;
@@ -102,7 +111,7 @@ export interface ClientInputTypes {
 }
 
 export interface ClientResponseTypes {
-  profile_img?: string |null;
+  profile_img?: string | null;
   own_member_id: string;
   first_name: string;
   last_name: string;
@@ -110,7 +119,7 @@ export interface ClientResponseTypes {
   dob: string;
   email: string;
   phone?: string | null;
-  mobile_number?: string |null;
+  mobile_number?: string | null;
   notes?: string | null;
   source_id: number;
   language?: string | null;
@@ -129,4 +138,13 @@ export interface ClientResponseTypes {
   membership_id: number;
   send_invitation?: boolean | null;
   status?: string | null;
+}
+
+export interface updateStatusInput {
+  status: string;
+  lead_id: number;
+}
+export interface updateStaffInput {
+  staff_id: number;
+  lead_id: number;
 }

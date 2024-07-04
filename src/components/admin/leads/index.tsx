@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { Shell } from "@/components/ui/shell/shell";
-import { DataTable } from "./component/data-table"; 
-import tasksData from "./component/leads.json"; // Adjust the path if your tasks.json file is in a different directory
-import { columns } from "./component/columns"; // Adjust path based on your directory structure
+import { DataTable } from "./component/data-table";
+// import tasksData from "./component/leads.json";
+import { columns } from "./component/columns";
 import { LeadType } from "./component/columns";
-// export interface LeadType {
-//   name: string;
-//   contact: string;
-//   lead_owner: string;
-//   source: string;
-//   lead_since: string; // or Date if you store it as a Date object
-//   status: "todo" | "complete" | "hold"; // or other status options
-// }
+import { useGetAllStaffQuery, useGetLeadsQuery } from "@/services/leadsApi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
+import { useDebounce } from "@/hooks/use-debounce";
 
 // Example function to update the row data, you need to implement this function
 // const updateMyData = (
@@ -26,33 +20,23 @@ import { LeadType } from "./component/columns";
 
 const Lead: React.FC = () => {
   const [data, setData] = useState<LeadType[]>([]);
-  const [error, setError] = useState<any>(null);
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
+
+  const { data: leadsData, isLoading } = useGetLeadsQuery(orgId);
+  const { data: staffData } = useGetAllStaffQuery(orgId);
 
   useEffect(() => {
-    try {
-      const parsedData: LeadType[] = tasksData.map((task: any) => ({
-        name: task.name,
-        contact: task.contact,
-        lead_owner: task.lead_owner,
-        status: task.status as string,
-        source: task.source,
-        lead_since: task.lead_since
-      }));
-      setData(parsedData);
-    } catch (err) {
-      setError(err);
-      console.error("Failed to parse data", err);
-    }
-  }, []);
+    const parseddata = leadsData?.map((item) => {
+      return {
+        ...item,
+        staffData,
+      };
+    });
+    setData(parseddata);
+  }, [staffData, leadsData]);
 
-  if (error) {
-    return (
-      <Shell>
-        <div>Error loading data: {error.message}</div>
-      </Shell>
-    );
-  }
-
+  console.log({data})
   return (
     <Shell>
       <DataTable columns={columns} data={data} />

@@ -72,7 +72,7 @@ export function DataTable<TData, TValue>({
         <ScrollArea className=" h-[65vh]   relative">
           <ScrollBar orientation="vertical" />
           <Table>
-            <TableHeader className="sticky top-0 bg-white z-40">
+            <TableHeader className="sticky top-0 bg-[#f7f7f7] z-40">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
@@ -90,7 +90,7 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
+            <TableBody className="bg-white">
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow

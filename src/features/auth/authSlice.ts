@@ -72,6 +72,7 @@ export const login = createAsyncThunk(
       }: { data: { token: { access_token: string }; user?: any } } =
         await loginUser(email, password);
       localStorage.setItem("userToken", data.token?.access_token);
+      
       if (rememberme) {
         localStorage.setItem("email", email);
         localStorage.setItem("password", password);

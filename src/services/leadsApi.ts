@@ -9,7 +9,7 @@ export const Leads = createApi({
     return {
       AddLead: builder.mutation<LeadResponseTypes, LeadInputTypes>({
         query: (leaddata) => ({
-          url: "/leads/register/lead",
+          url: "/leads/register",
           method: "POST",
           body: leaddata,
         }),

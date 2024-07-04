@@ -4,7 +4,11 @@ export interface CountryTypes {
   country_code: number;
   is_deleted: boolean;
 }
-
+export interface ErrorType{
+  data?:{
+    detail?:string;
+  }
+}
 export interface CoachTypes{
   coach_name:string;
   id:number;
@@ -67,33 +71,62 @@ export interface LeadResponseTypes {
   org_id: number;
 }
 
-export interface ClientInputTypes{
-profile_img?:string;
-own_member_id:string;
-first_name:string;
-last_name:string;
-gender:string;
-dob:string;
-email:string;
-phone?:string;
-mobile_number?:string;
-notes?:string;
-source_id:number;
-is_business?:boolean;
-business_id?:number;
-country_id:number;
-city:string;
-zipcode?:string;
-address_1?:string;
-address_2?:string;
-org_id:number;
-coach_id?:number;
-membership_id:number;
-send_invitation?:boolean;
-status?:string;
-client_since:string;
+export interface ClientInputTypes {
+  profile_img?: string;
+  own_member_id: string;
+  first_name: string;
+  last_name: string;
+  gender: string;
+  dob: string;
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  language?: string | null;
+  is_business?: boolean;
+  business_id?: number;
+  country_id: number;
+  city: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  client_since: string;
+  created_at?:string|null;
+  created_by?:number|null;
+  org_id: number;
+  coach_id?: number;
+  membership_id: number;
+  send_invitation?: boolean;
+  status?: string;
 }
 
-export interface ClientResponseTypes{
-
+export interface ClientResponseTypes {
+  profile_img?: string |null;
+  own_member_id: string;
+  first_name: string;
+  last_name: string;
+  gender: string;
+  dob: string;
+  email: string;
+  phone?: string | null;
+  mobile_number?: string |null;
+  notes?: string | null;
+  source_id: number;
+  language?: string | null;
+  is_business?: boolean | null;
+  business_id?: number | null;
+  country_id: number;
+  city: string;
+  zipcode?: string | null;
+  address_1?: string | null;
+  address_2?: string | null;
+  client_since: string;
+  created_at?: string | null;
+  created_by?: number | null;
+  org_id: number;
+  coach_id?: number | null;
+  membership_id: number;
+  send_invitation?: boolean | null;
+  status?: string | null;
 }

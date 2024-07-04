@@ -86,11 +86,14 @@ export default function AuthenticationPage() {
     console.log("Form data:", data);
     dispatch(login(data));
 
-    setCaptchaError(false);
-    reset();
-    if (recaptchaRef.current) {
-      recaptchaRef.current.reset();
+    if(!loading){
+      setCaptchaError(false);
+      reset();
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+      }
     }
+    
   };
   const [isCaptchaError, setCaptchaError] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);

@@ -16,13 +16,13 @@ import { LeadType } from "./component/columns";
 // }
 
 // Example function to update the row data, you need to implement this function
-const updateMyData = (
-  rowIndex: number,
-  columnId: keyof LeadType,
-  value: any,
-) => {
+// const updateMyData = (
+//   rowIndex: number,
+//   columnId: keyof LeadType,
+//   value: any,
+// ) => {
 
-};
+// };
 
 const Lead: React.FC = () => {
   const [data, setData] = useState<LeadType[]>([]);
@@ -34,9 +34,9 @@ const Lead: React.FC = () => {
         name: task.name,
         contact: task.contact,
         lead_owner: task.lead_owner,
+        status: task.status as string,
         source: task.source,
-        lead_since: task.lead_since, // Adjust if lead_since is stored as a string and needs parsing
-        status: task.status as "todo" | "complete" | "hold", // Ensure status is correctly typed
+        lead_since: task.lead_since
       }));
       setData(parsedData);
     } catch (err) {

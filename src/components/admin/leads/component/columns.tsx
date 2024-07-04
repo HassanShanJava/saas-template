@@ -7,15 +7,15 @@ export interface LeadType {
   name: string;
   contact: string;
   lead_owner: string;
+  status: string; // or other status options
   source: string;
   lead_since: Date; // or Date if you store it as a Date object
-  status: "todo" | "complete" | "hold"; // or other status options
 }
 
 // Example function to update the row data, you need to implement this function
-const updateMyData = (rowIndex: number, columnId: string, value: any) => {
+// const updateMyData = (rowIndex: number, columnId: string, value: any) => {
   // Update logic here
-};
+// };
 
 export const columns: ColumnDef<LeadType>[]=[
   {
@@ -75,25 +75,6 @@ export const columns: ColumnDef<LeadType>[]=[
       ),
     },
     {
-      accessorKey: "source",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Source" />
-      ),
-      cell: ({ row }) => (
-        <div className="max-w-[200px] truncate">{row.getValue("source")}</div>
-      ),
-    },
-    {
-      accessorKey: "lead_since",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Lead Since" />
-      ),
-      cell: ({ row }) => {
-        const field = new Date(row.getValue("lead_since"));
-        return <div>{field.toDateString()}</div>;
-      },
-    },
-    {
       accessorKey: "status",
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Status" />
@@ -124,6 +105,25 @@ export const columns: ColumnDef<LeadType>[]=[
 						</SelectContent>
 					</Select>
         );
+      },
+    },
+    {
+      accessorKey: "source",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Source" />
+      ),
+      cell: ({ row }) => (
+        <div className="max-w-[200px] truncate">{row.getValue("source")}</div>
+      ),
+    },
+    {
+      accessorKey: "lead_since",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Lead Since" />
+      ),
+      cell: ({ row }) => {
+        const field = new Date(row.getValue("lead_since"));
+        return <div>{field.toDateString()}</div>;
       },
     }
   ];

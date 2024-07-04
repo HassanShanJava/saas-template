@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import {
   ColumnDef,
+  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
@@ -17,7 +18,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
-
 import {
   Table,
   TableBody,
@@ -26,12 +26,6 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea,ScrollBar } from '@/components/ui/scroll-area';
 import { MoreHorizontal, PlusIcon, Search } from "lucide-react";
@@ -47,7 +41,6 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { number, z } from "zod";
 import { clientTablestypes,clientFilterSchema } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "../table/data-table-row-actions";
@@ -56,8 +49,20 @@ import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { DataTableViewOptions } from "../table/data-table-view-options";
+import { Spinner } from "@/components/ui/spinner/spinner";
+import Papa from "papaparse";
+import { DataTableFacetedFilter } from "../table/data-table-faceted-filter";
 
-
+const downloadCSV = (data: clientTablestypes[], fileName: string) => {
+  const csv = Papa.unparse(data);
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 export default function ClientTableView(){
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
@@ -80,9 +85,25 @@ export default function ClientTableView(){
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-  
-  const displayValue = (value: any) => (value == null ? "N/A" : value);
-
+   const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10, // Adjust this based on your preference
+  });
+  const displayValue = (value: any) => (value === null ? "N/A" : value);
+    const handleExportSelected = () => {
+      const selectedRows = table
+        .getSelectedRowModel()
+        .rows.map((row) => row.original);
+      if (selectedRows.length === 0) {
+       
+        toast({
+          variant:"destructive",
+          title:"Select atleast one row for CSV download!"
+        })
+        return;
+      }
+      downloadCSV(selectedRows, "selected_data.csv");
+    };
   const columns: ColumnDef<clientTablestypes>[] = [
     {
       id: "select",
@@ -171,7 +192,7 @@ export default function ClientTableView(){
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {row?.original.client_since || "N/A"}
+            {displayValue(row?.original.client_since)}
           </div>
         );
       },
@@ -181,7 +202,7 @@ export default function ClientTableView(){
       header: "Last Check In",
       cell: ({ row }) => {
         <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-          {row?.original.check_in || "N/A"}
+          {displayValue(row?.original.check_in)}
         </div>;
       },
     },
@@ -189,20 +210,20 @@ export default function ClientTableView(){
       accessorKey: "last_online",
       header: "Last Login",
       cell: ({ row }) => {
+        // console.log(row?.original.last_online);
         <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-          {row?.original.last_online || "N/A"}
+          {displayValue(row?.original.last_online)}
         </div>;
       },
     },
-    // {
-    //   id: "actions",
-    //   header: "Actions",
-    //   cell: ({ row }) => <DataTableRowActions row={row} />,
-    // },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => <DataTableRowActions row={row.original.id} />,
+    },
   ];
 console.log("data",{clientData})
   const table = useReactTable({
-    //  data: ticketData as Tickets[],
     data: clienttableData as clientTablestypes[],
     columns,
     onSortingChange: setSorting,
@@ -213,10 +234,17 @@ console.log("data",{clientData})
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
+      pagination,
       sorting,
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: {
+        pageSize: 10, // Set your default page size here
+      },
+    },
+    onPaginationChange:setPagination
   });
 
   function handlePagination(page: number) {
@@ -247,8 +275,7 @@ console.log("data",{clientData})
               />
             </div>
           </div>
-
-          {/* {table.getColumn("status") && (
+          {/* {table.getColumn("") && (
           <DataTableFacetedFilter
             column={table.getColumn("status")}
             title="Status"
@@ -261,8 +288,8 @@ console.log("data",{clientData})
             title="Priority"
             options={priority_options}
           />
-        )}
-        {isFiltered && (
+        )} */}
+          {/* {isFiltered && (
           <Button
             variant="ghost"
             onClick={() => table.resetColumnFilters()}
@@ -280,11 +307,11 @@ console.log("data",{clientData})
           <PlusIcon className="h-4 w-4" />
           Add Client
         </Button>
-        <DataTableViewOptions table={table} />
+        <DataTableViewOptions table={table} action={handleExportSelected} />
       </div>
       <div className="rounded-md border border-border ">
-        <ScrollArea className="w-full">
-          <ScrollBar orientation="horizontal"> </ScrollBar>
+        <ScrollArea className="w-full relative">
+          <ScrollBar orientation="horizontal" />
           <Table className="w-full overflow-x-scroll">
             <TableHeader className="bg-secondary/80">
               {table?.getHeaderGroups().map((headerGroup) => (
@@ -305,8 +332,21 @@ console.log("data",{clientData})
               ))}
             </TableHeader>
             <TableBody>
-              {table?.getRowModel()?.rows?.length ? (
-                table?.getRowModel()?.rows?.map((row) => (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    <Spinner className="text-primary">
+                      <span className="text-primary">
+                        Loading data for clients....
+                      </span>
+                    </Spinner>
+                  </TableCell>
+                </TableRow>
+              ) : table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
@@ -321,13 +361,22 @@ console.log("data",{clientData})
                     ))}
                   </TableRow>
                 ))
+              ) : clienttableData.length > 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No data found.
+                  </TableCell>
+                </TableRow>
               ) : (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Client Added !.
+                    No Clients Added yet!.
                   </TableCell>
                 </TableRow>
               )}
@@ -344,7 +393,7 @@ console.log("data",{clientData})
         <div className="flex items-center justify-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Rows per page</p>
-            <Select
+            {/* <Select
               // value={`${filters.rows}`}
               onValueChange={(value) => {
                 setFilters((prevFilters: any) => ({
@@ -356,11 +405,60 @@ console.log("data",{clientData})
               }}
             >
               <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue />
+                <SelectValue defaultValue={pagination.pageSize} />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                  <SelectItem key={pageSize} value={`${pagination}`} >
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select> */}
+            {/* <Select
+              value="10"
+              onValueChange={(value) => {
+                setFilters((prevFilters: any) => ({
+                  ...prevFilters,
+                  rows: Number(value),
+                  first: 0,
+                }));
+                table.setPageSize(Number(value));
+              }}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue>{10}</SelectValue>
               </SelectTrigger>
               <SelectContent side="top">
                 {[5, 10, 20, 30, 40, 50].map((pageSize) => (
                   <SelectItem key={pageSize} value={`${pageSize}`}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select> */}
+            <Select
+              value={pagination.pageSize.toString()}
+              onValueChange={(value) => {
+                const newSize = Number(value);
+                setPagination((prevPagination) => ({
+                  ...prevPagination,
+                  pageSize: newSize,
+                }));
+                setFilters((prevFilters: any) => ({
+                  ...prevFilters,
+                  rows: newSize,
+                  first: 0,
+                }));
+                table.setPageSize(newSize);
+              }}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue>{pagination.pageSize}</SelectValue>
+              </SelectTrigger>
+              <SelectContent side="top">
+                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                  <SelectItem key={pageSize} value={pageSize.toString()}>
                     {pageSize}
                   </SelectItem>
                 ))}

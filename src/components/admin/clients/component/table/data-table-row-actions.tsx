@@ -13,13 +13,12 @@ import { taskSchema } from "@/schema/taskSchema";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 interface DataTableRowActionsProps<TData> {
-  row: Row<TData>;
+  row: Number;
 }
 
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  const task = taskSchema.parse(row.original);
 
 
   return (
@@ -58,6 +57,9 @@ export function DataTableRowActions<TData>({
           </DialogTrigger>
           <DropdownMenuItem
             className="text-red-600"
+            onClick={
+              ()=>console.log(row)
+            }
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Delete Details

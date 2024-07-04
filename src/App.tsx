@@ -14,6 +14,7 @@ import ProtectedRoute from "./components/admin/protectedRoute";
 import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
 import { SelectForm } from "./components/pagework/HookformExample";
+import { ComboboxForm } from "./components/pagework/testFormID";
 // import Loader from "@/components/Loader";
 
 function App() {
@@ -47,7 +48,7 @@ function App() {
           </Route>
           <Route path="/sidebar" element={<Component />}></Route>
         </Route>
-        <Route path="/test" element={<SelectForm />} />
+        <Route path="/test" element={<ComboboxForm />} />
       </Routes>
       {/* <Loader open={loading} /> */}
 

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { PlusIcon, Search, X } from "lucide-react";
 
-import { priority_options, status_options } from "../../admin/clients/component/table/filter";
+import { priority_options, status_options } from "./filter";
 import { DataTableViewOptions } from './data-table-view-options';
 import { useNavigate } from "react-router-dom";
 interface DataTableToolbarProps<TData> {
@@ -21,18 +21,22 @@ export function DataTableToolbar<TData>({
     navigate("/admin/client/addclient");
   }
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between p-5">
       <div className="flex flex-1 items-center space-x-2">
-        <div className="flex items-center w-[40%] gap-2 px-2 py-2 rounded-md border border-gray-300">
-          <Search className="w-6 h-6 text-gray-500" />
-          <input
-            placeholder="Search"
-            value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("title")?.setFilterValue(event.target.value)
-            }
-            className="h-7 w-[150px] lg:w-[220px] outline-none"
-          />
+        <div className="flex flex-1 items-center space-x-2">
+          <div className="flex items-center w-[40%] gap-2 px-2 py-2 rounded-md border border-gray-300 focus-within:border-primary focus-within:ring-[1] ring-primary">
+            <Search className="w-6 h-6 text-gray-500" />
+            <input
+              placeholder="Search"
+              value={
+                (table.getColumn("title")?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table.getColumn("title")?.setFilterValue(event.target.value)
+              }
+              className="h-7 w-[150px] lg:w-[220px] outline-none"
+            />
+          </div>
         </div>
 
         {/* {table.getColumn("status") && (

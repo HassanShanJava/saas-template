@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { DataTableFacetedFilter } from "@/components/ui/data-table/data-table-faceted-filter"; 
 import { PlusIcon, X } from "lucide-react";
 
-import { priority_options, status_options } from './../../../ui/filter';
+import { priority_options, status_options } from '../../clients/component/table/filter';
 import { DataTableViewOptions } from "@/components/ui/data-table/data-table-view-options"; 
 import { useNavigate } from "react-router-dom";
 interface DataTableToolbarProps<TData> {

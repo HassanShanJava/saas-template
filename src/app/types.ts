@@ -130,3 +130,24 @@ export interface ClientResponseTypes {
   send_invitation?: boolean | null;
   status?: string | null;
 }
+
+export interface clientTablestypes {
+  id: number;
+  own_member_id: string;
+  first_name: string;
+  last_name: string;
+  phone?: string | null;
+  mobile_number?: string | null;
+  check_in?: string | null;
+  last_online?: string | null;
+  client_since?: string | null;
+  business_name?:string | null;
+  coach_name?: string | null;
+}
+export interface clientFilterSchema {
+  search_key: string;
+  client_name: string;
+  membership_plan: number;
+  status: string;
+  coach_signed: number;
+}

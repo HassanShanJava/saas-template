@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useGetAllClientQuery } from "@/services/clientAPi";
+import ClientTableView from "./component/clientTable/table";
 
 
 
@@ -37,7 +38,8 @@ console.log(clientdata)
    
       <div className="w-full p-12">
          <Card className="py-3">
-        <DataTable columns={columns} data={tasks} />
+        {/* <DataTable columns={columns} data={tasks} /> */}
+        <ClientTableView/>
          </Card>
       </div>
    

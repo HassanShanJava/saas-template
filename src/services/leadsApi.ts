@@ -1,10 +1,17 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { staffType,LeadInputTypes,LeadResponseTypes } from "../app/types";
+import { RootState } from "@/app/store";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const Leads = createApi({
   reducerPath: "api/leads",
-  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
+  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL, 
+   prepareHeaders:(headers,{getState})=>{
+      const token=(getState() as RootState).auth.userToken;
+      if(token) headers.set("Authorization",`Bearer ${token}`)
+      return headers;
+      }, 
+  }),
   endpoints(builder) {
     return {
       AddLead: builder.mutation<LeadResponseTypes, LeadInputTypes>({

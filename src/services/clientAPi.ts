@@ -6,13 +6,22 @@ import {
   sourceTypes,
   membershipplanTypes,
   ClientInputTypes,
-  ClientResponseTypes
+  ClientResponseTypes,
+  clientTablestypes
 } from "../app/types";
+import { RootState } from "@/app/store";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const ClientAPi = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
+  baseQuery: fetchBaseQuery({ 
+    baseUrl: API_BASE_URL,
+    prepareHeaders:(headers,{getState})=>{
+      const token=(getState() as RootState).auth.userToken;
+      if(token) headers.set("Authorization",`Bearer ${token}`)
+      return headers;
+      }, 
+  }),
   endpoints(builder) {
     return {
       getClientCount: builder.query<{ total_clients: number }, number>({
@@ -63,7 +72,7 @@ export const ClientAPi = createApi({
           },
         }),
       }),
-      getAllClient: builder.query<any[], number>({
+      getAllClient: builder.query<clientTablestypes[], number>({
         query: (org_id) => ({
           url: `/client/filter/?org_id=${org_id}`,
           headers: {

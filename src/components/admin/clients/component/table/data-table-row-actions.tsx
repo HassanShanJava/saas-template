@@ -1,27 +1,16 @@
 
-
-import * as React from "react";
 import { Row } from "@tanstack/react-table";
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Copy, Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {  MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { taskSchema } from "@/schema/taskSchema";
-import { label_options } from "./filter";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;

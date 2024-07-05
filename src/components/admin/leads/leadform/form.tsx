@@ -183,7 +183,7 @@ const LeadForm: React.FC = () => {
                         className="gap-2 text-black hover:opacity-90 hover:text-white"
                       >
                         {" "}
-                        Add
+                        Save
                       </LoadingButton>
                     ) : (
                       <Button

@@ -113,7 +113,7 @@ const LeadForm: React.FC = () => {
     console.log({updatedData});
 
     try {
-      let resp = await addLead(updatedData)
+      const resp = await addLead(updatedData)
         .unwrap()
         .then((payload) => console.log("Fullfilled", payload));
       form.reset({

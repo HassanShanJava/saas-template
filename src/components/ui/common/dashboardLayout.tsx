@@ -227,7 +227,7 @@ const DashboardLayout =()=>{
       <div className="relative flex-1  max-h-[100vh] w-[80%]">
         <Header />
 
-        <main className="p-0 bg-[#f7f7f7] overflow-y-auto h-[90vh] relative ">
+        <main className="p-0 bg-outletcolor overflow-y-auto h-[90vh] relative ">
           <Outlet />
           <Toaster />
         </main>

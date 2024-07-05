@@ -14,6 +14,8 @@ export default {
     },
     extend: {
       colors: {
+        outletcolor: "hsl((--bg-outlet-background))",
+        tableheader: "hsl((--table-header-color))",
         failure: "hsl((--bg-secondary-red))",
         maintextColor: "hsl((--text-main-color))",
         bgbackground: "hsl((--background-color))",

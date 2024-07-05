@@ -68,7 +68,7 @@ export function DataTableToolbar<TData>({
         <PlusIcon className="h-4 w-4" />
         Add Client
       </Button>
-      <DataTableViewOptions table={table} />
+      <DataTableViewOptions table={table} action={()=>null}/>
     </div>
   );
 }

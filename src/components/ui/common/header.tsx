@@ -18,11 +18,14 @@ import { useToast } from "../use-toast";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
+
 export const Header = () => {
   const location = useLocation();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { userInfo } = useSelector((state: RootState) => state.auth);
+  const { userInfo } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -171,7 +174,7 @@ export const Header = () => {
                     />
                     <h1 className="text-black text-base">
                       {" "}
-                      {userInfo.first_name}
+                      {userInfo?.username}
                     </h1>
                     {/* <h1 className="text-black text-base"> Akira One</h1> */}
                     <Button

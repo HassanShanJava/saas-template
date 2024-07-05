@@ -212,7 +212,7 @@ const Lead: React.FC = () => {
         // </div>
         const staffData = row.original.staffData;
         const id = Number(row.original.id);
-        const defaultValue: string = row.getValue("owner")?.trim();
+        const defaultValue: string = (row.getValue("owner") as string)?.trim();
         return (
           <Select
             defaultValue={defaultValue}

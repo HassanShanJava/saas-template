@@ -144,7 +144,31 @@ export interface updateStatusInput {
   status: string;
   lead_id: number;
 }
+export interface clientTablestypes {
+  id: number;
+  own_member_id: string;
+  first_name: string;
+  last_name: string;
+  phone?: string | null;
+  mobile_number?: string | null;
+  check_in?: string | null;
+  last_online?: string | null;
+  client_since?: string | null;
+  business_name?:string | null;
+  coach_name?: string | null;
+}
+export interface clientFilterSchema {
+  search_key: string;
+  client_name: string;
+  membership_plan: number;
+  status: string;
+  coach_signed: number;
+}
 export interface updateStaffInput {
-  staff_id: number;
   lead_id: number;
+  staff_id: number;
+}
+export interface updateStatusInput {
+  lead_id: number;
+  status: string;
 }

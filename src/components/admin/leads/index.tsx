@@ -11,7 +11,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "@/components/ui/table/data-table-column-header"; 
+import { DataTableColumnHeader } from "@/components/ui/table/data-table-column-header";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -79,7 +79,7 @@ const Lead: React.FC = () => {
   const [data, setData] = useState<LeadType[]>([]);
   const navigate = useNavigate();
   const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.user.org_id) || 0;
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
   const { data: leadsData, isLoading, refetch } = useGetLeadsQuery(orgId);
   const { data: staffData } = useGetAllStaffQuery(orgId);
@@ -295,15 +295,14 @@ const Lead: React.FC = () => {
     },
     {
       id: "actions",
-      header: ({ column }) => (<p>Actions</p>),
+      header: ({ column }) => <p>Actions</p>,
       cell: ({ row }) => {
-        const id=row.original.id;
+        const id = row.original.id;
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild >
+            <DropdownMenuTrigger asChild>
               <div className="w-full flex justify-center">
-              <i className="fas fa-ellipsis-vertical h-4 w-4 text-center"></i>
-
+                <i className="fas fa-ellipsis-vertical h-4 w-4 text-center"></i>
               </div>
             </DropdownMenuTrigger>
 

@@ -1,9 +1,8 @@
-import { format } from "date-fns";import * as React from "react";
+import { format } from "date-fns";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  FloatingLabelInput,
-} from "@/components/ui/floatinglable/floating";
+import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { PlusIcon } from "lucide-react";
 import { RxCross2 } from "react-icons/rx";
 import { useForm } from "react-hook-form";
@@ -50,9 +49,10 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { useParams } from "react-router-dom";
 
 const LeadForm: React.FC = () => {
- const orgId =useSelector((state: RootState) => state.auth.userInfo?.user.org_id) || 0;
-  const [addLead,{isLoading}] = useAddLeadMutation();
- const { id } = useParams();
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const [addLead, { isLoading }] = useAddLeadMutation();
+  const { id } = useParams();
   const FormSchema = z
     .object({
       // lead information
@@ -99,7 +99,7 @@ const LeadForm: React.FC = () => {
     });
 
   const { data: sources } = useGetAllSourceQuery();
-  const {data:staff}=useGetAllStaffQuery(orgId); 
+  const { data: staff } = useGetAllStaffQuery(orgId);
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -123,7 +123,7 @@ const LeadForm: React.FC = () => {
       lead_since: format(new Date(data.lead_since!), "yyyy-MM-dd"),
     };
 
-    console.log({updatedData});
+    console.log({ updatedData });
 
     try {
       const resp = await addLead(updatedData)
@@ -145,7 +145,7 @@ const LeadForm: React.FC = () => {
         variant: "success",
         title: "Lead Added Successfully",
       });
-      navigate("/admin/leads")
+      navigate("/admin/leads");
     } catch (error) {
       console.log("Error", error);
       if (error && typeof error === "object" && "data" in error) {
@@ -164,7 +164,7 @@ const LeadForm: React.FC = () => {
       }
     }
   }
-  
+
   function gotoLeads() {
     navigate("/admin/leads");
   }

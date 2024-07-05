@@ -78,9 +78,9 @@ import {
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 const AddClientForm: React.FC = () => {
-    const [counter, setCounter] = React.useState(0);
-const orgId =
-  useSelector((state: RootState) => state.auth.userInfo?.user.org_id) || 0;
+  const [counter, setCounter] = React.useState(0);
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const FormSchema = z.object({
     profile_img: z
       .string()
@@ -169,10 +169,15 @@ const orgId =
       .default(new Date().toISOString().split("T")[0]),
   });
   // Example of handling async data fetching before form initialization
-  
-  const orgName =useSelector((state: RootState) => state.auth.userInfo?.user.org_name);
-  const { data: clientCountData, isLoading,refetch } = useGetClientCountQuery(orgId);
 
+  const orgName = useSelector(
+    (state: RootState) => state.auth.userInfo?.user?.org_name
+  );
+  const {
+    data: clientCountData,
+    isLoading,
+    refetch,
+  } = useGetClientCountQuery(orgId);
 
   const { data: countries } = useGetCountriesQuery();
 

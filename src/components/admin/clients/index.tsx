@@ -7,7 +7,7 @@ import ClientTableView from "./component/clientTable/table";
 
 export default function TaskPage() {
   const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.user.org_id) || 0;
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
   const { data:clientdata, isLoading, isError } = useGetAllClientQuery(orgId);
   const [tasks, setTasks] = useState<any>([]);

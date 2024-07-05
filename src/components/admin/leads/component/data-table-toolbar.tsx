@@ -21,17 +21,17 @@ export function DataTableToolbar<TData>({
     navigate("/admin/leads/addlead");
   }
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex flex-1 items-center space-x-2">
+    <div className="flex bg-white rounded-t-xl items-center m-0 px-4 justify-between">
+      <div className="flex flex-1 items-center ">
         <Input
           placeholder="Filter tasks..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("title")?.setFilterValue(event.target.value)
-          }
-          className="h-8 w-[150px] lg:w-[250px]"
+          // value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+          // onChange={(event) =>
+          // table.getColumn("title")?.setFilterValue(event.target.value)
+          // }
+          className="h-12 w-[150px] lg:w-[250px] "
         />
-        {table.getColumn("status") && (
+        {/* {table.getColumn("status") && (
           <DataTableFacetedFilter
             column={table.getColumn("status")}
             title="Status"
@@ -54,9 +54,12 @@ export function DataTableToolbar<TData>({
             Reset
             <X className="ml-2 h-4 w-4" />
           </Button>
-        )}
+        )} */}
       </div>
-      <Button className="bg-primary m-4 text-black gap-1" onClick={handleRoute}>
+      <Button
+        className="bg-primary m-4 text-black gap-1 h-8"
+        onClick={handleRoute}
+      >
         <PlusIcon className="h-4 w-4" />
         New Lead
       </Button>

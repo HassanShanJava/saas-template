@@ -14,12 +14,12 @@ import { FaFileCsv } from "react-icons/fa";
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
-  action: () => void;
+action?: () => void; 
 }
 
 export function DataTableViewOptions<TData>({
   table,
-  action,
+  action =()=>null,
 }: DataTableViewOptionsProps<TData>) {
   function handleClick() {
     action();

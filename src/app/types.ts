@@ -1,58 +1,98 @@
+export interface updateLeadInput {
+  id:number;
+  own_member_id: string;
+  first_name: string;
+  last_name: string;
+  gender: string;
+  dob: string;
+  email: string;
+  source_id: number;
+  country_id: number;
+  city: string;
+  client_since: string;
+  org_id: number;
+  membership_id: number;
+  // optional
+  profile_img?: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  language?: string | null;
+  is_business?: boolean;
+  business_id?: number;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  created_at?: string | null;
+  created_by?: number | null;
+  coach_id?: number;
+  send_invitation?: boolean;
+  status?: string;
+}
 export interface CountryTypes {
   id: number;
   country: string;
   country_code: number;
   is_deleted: boolean;
 }
-export interface ErrorType{
-  data?:{
-    detail?:string;
-  }
+export interface ErrorType {
+  data?: {
+    detail?: string;
+  };
 }
-export interface CoachTypes{
-  coach_name:string;
-  id:number;
-  is_deleted:boolean;
-}
-
-export interface sourceTypes{
-  id:number;
-  source:string;
+export interface CoachTypes {
+  coach_name: string;
+  id: number;
+  is_deleted: boolean;
 }
 
-export interface BusinessTypes{
-  id:number;
-  first_name:string;
+export interface sourceTypes {
+  id: number;
+  source: string;
 }
 
-export interface membershipplanTypes{
-  name:string;
-  price:string;
-  org_id:number;
-  id:number;
-  is_deleted:boolean;
+export interface BusinessTypes {
+  id: number;
+  first_name: string;
 }
 
-export interface staffType{
-  org_id:number;
-  id:number;
-  first_name:string;
+export interface membershipplanTypes {
+  name: string;
+  price: string;
+  org_id: number;
+  id: number;
+  is_deleted: boolean;
 }
 
-export interface LeadInputTypes{
-first_name:string;
-last_name:string;
-staff_id?:number|null|undefined;
-mobile?:string|null|undefined;
-status:string;
-source_id?:number|null|undefined;
-lead_since:string;
-phone?:string|null|undefined;
-email?:string|null|undefined;
-notes?:string|null|undefined;
-created_by?:number|null|undefined;
-updated_by?:number|null|undefined;
-org_id:number;
+export interface staffType {
+  org_id: number;
+  id: number;
+  first_name: string;
+}
+export interface leadType {
+  id: number;
+  name: string;
+  email: string;
+  status: string;
+  source: string;
+  owner: string;
+  lead_since: string;
+}
+
+export interface LeadInputTypes {
+  first_name: string;
+  last_name: string;
+  staff_id?: number | null | undefined;
+  mobile?: string | null | undefined;
+  status: string;
+  source_id?: number | null | undefined;
+  lead_since: string;
+  phone?: string | null | undefined;
+  email?: string | null | undefined;
+  notes?: string | null | undefined;
+  created_by?: number | null | undefined;
+  updated_by?: number | null | undefined;
+  org_id: number;
 }
 
 export interface LeadResponseTypes {
@@ -92,8 +132,8 @@ export interface ClientInputTypes {
   address_1?: string;
   address_2?: string;
   client_since: string;
-  created_at?:string|null;
-  created_by?:number|null;
+  created_at?: string | null;
+  created_by?: number | null;
   org_id: number;
   coach_id?: number;
   membership_id: number;
@@ -102,7 +142,7 @@ export interface ClientInputTypes {
 }
 
 export interface ClientResponseTypes {
-  profile_img?: string |null;
+  profile_img?: string | null;
   own_member_id: string;
   first_name: string;
   last_name: string;
@@ -110,7 +150,7 @@ export interface ClientResponseTypes {
   dob: string;
   email: string;
   phone?: string | null;
-  mobile_number?: string |null;
+  mobile_number?: string | null;
   notes?: string | null;
   source_id: number;
   language?: string | null;
@@ -131,6 +171,10 @@ export interface ClientResponseTypes {
   status?: string | null;
 }
 
+export interface updateStatusInput {
+  status: string;
+  lead_id: number;
+}
 export interface clientTablestypes {
   id: number;
   own_member_id: string;
@@ -150,4 +194,12 @@ export interface clientFilterSchema {
   membership_plan: number;
   status: string;
   coach_signed: number;
+}
+export interface updateStaffInput {
+  lead_id: number;
+  staff_id: number;
+}
+export interface updateStatusInput {
+  lead_id: number;
+  status: string;
 }

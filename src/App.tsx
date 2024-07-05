@@ -1,6 +1,6 @@
 import DashboardLayout from "./components/ui/common/dashboardLayout";
 import AuthenticationPage from "./components/app/login/login";
-import {Route,Routes} from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Dashboard from "./components/admin/dashboard";
 import Client from "./components/admin/clients";
 import SystemSettings from "./components/admin/system_settings";
@@ -39,6 +39,7 @@ function App() {
             />
             <Route path="/admin/leads" index element={<Leads />} />
             <Route path="/admin/leads/addlead" index element={<LeadForm />} />
+            <Route path="/admin/leads/editlead/:id" index element={<LeadForm />} />
             <Route path="/admin/events" index element={<Events />} />
             <Route
               path="/admin/events/addevents"

@@ -23,7 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { DataTableToolbar } from "./data-table-toolbar"
+import { DataTableToolbar } from "./data-table-toolbar";
 import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination";
 import { ScrollBar, ScrollArea } from "@/components/ui/scroll-area";
 
@@ -66,13 +66,13 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="space-y-4 ">
+    <div className="">
       <DataTableToolbar table={table} />
       <div className="rounded-md border  relative ">
         <ScrollArea className=" h-[65vh]   relative">
           <ScrollBar orientation="vertical" />
           <Table>
-            <TableHeader className="sticky top-0 bg-white z-40">
+            <TableHeader className="sticky top-0 bg-[#f5f5f5] z-40">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
@@ -90,7 +90,7 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
+            <TableBody className="bg-white">
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
@@ -121,7 +121,9 @@ export function DataTable<TData, TValue>({
           </Table>
         </ScrollArea>
       </div>
-      <DataTablePagination table={table} />
+      <div className="bg-white p-4 rounded-b-xl">
+        <DataTablePagination table={table} />
+      </div>
     </div>
   );
 }

@@ -24,8 +24,6 @@ console.log(clientdata)
     }
   }, []);
 
-
-
   return (
    
       <div className="w-full p-12">

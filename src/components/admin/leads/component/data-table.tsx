@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/table";
 
 import { DataTableToolbar } from "./data-table-toolbar";
-import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination";
+import { DataTablePagination } from "./data-table-pagination";
 import { ScrollBar, ScrollArea } from "@/components/ui/scroll-area";
 
 interface DataTableProps<TData, TValue> {

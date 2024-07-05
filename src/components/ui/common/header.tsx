@@ -174,7 +174,7 @@ export const Header = () => {
                     />
                     <h1 className="text-black text-base">
                       {" "}
-                      {userInfo?.username}
+                      {userInfo?.user.username}
                     </h1>
                     {/* <h1 className="text-black text-base"> Akira One</h1> */}
                     <Button

@@ -13,35 +13,36 @@ import { Separator } from "@/components/ui/separator";
 import { useDispatch } from "react-redux";
 import { logout } from "@/features/auth/authSlice";
 import { AppDispatch, RootState } from "@/app/store";
-import  {useNavigate} from 'react-router-dom';
-import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "../use-toast";
 import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+
 
 export const Header = () => {
   const location = useLocation();
   const { toast } = useToast();
-  const navigate=useNavigate();
-  
+  const navigate = useNavigate();
+  const { userInfo } = useSelector(
+    (state: RootState) => state.auth
+  );
+
   const dispatch = useDispatch<AppDispatch>();
-  
+
   const handleLogout = () => {
-      dispatch(logout());
-      navigate("/");
-     	toast({
-        variant:"destructive",
-        title: "Logout",
-        description: "You are Successfully Logged Out",
-        className: cn(
-          "top-0 right-0 flex fixed md:max-w-[420px] md:top-4 md:right-4"
-        ),
-      });
+    dispatch(logout());
+    toast({
+      variant: "destructive",
+      title: "Logout",
+      description: "You are Successfully Logged Out",
+    });
+    navigate("/");
   };
-  
+
   function isActiveLink(currentPath: string, targetPath: string) {
-     return currentPath===targetPath;
+    return currentPath === targetPath;
   }
-  
+
   console.log("click", location.pathname);
 
   return (
@@ -50,7 +51,7 @@ export const Header = () => {
         <div className="flex w-full justify-between items-center gap-4">
           <div className="flex flex-row h-full justify-between items-center gap-4">
             <div className="w-full">
-              <h1 className="text-3xl font-bold">
+              <h1 className="text-3xl font-bold pl-7">
                 {isActiveLink(location.pathname, "/admin/dashboard")
                   ? "Dashboard"
                   : ""}
@@ -74,7 +75,7 @@ export const Header = () => {
                   : ""}
               </h1>
               {isActiveLink(location.pathname, "/admin/client/addclient") ? (
-                <>
+                <div className="pl-7">
                   <span className="text-gray-400 pr-1 font-bold">
                     Dashboard
                   </span>{" "}
@@ -82,12 +83,12 @@ export const Header = () => {
                   <span className="pl-1 text-primary font-bold text-base">
                     Add Client
                   </span>
-                </>
+                </div>
               ) : (
                 ""
               )}
               {isActiveLink(location.pathname, "/admin/leads/addlead") ? (
-                <>
+                <div className="pl-7">
                   <span className="text-gray-400 pr-1 font-bold">
                     Dashboard
                   </span>{" "}
@@ -95,12 +96,12 @@ export const Header = () => {
                   <span className="pl-1 text-primary font-bold text-base">
                     Lead data
                   </span>
-                </>
+                </div>
               ) : (
                 ""
               )}
               {isActiveLink(location.pathname, "/admin/events/addevents") ? (
-                <>
+                <div className="pl-7">
                   <span className="text-gray-400 pr-1 font-bold">
                     Dashboard
                   </span>{" "}
@@ -108,12 +109,12 @@ export const Header = () => {
                   <span className="pl-1 text-primary font-bold text-base">
                     Add Event
                   </span>
-                </>
+                </div>
               ) : (
                 ""
               )}
             </div>
-            <div className="flex items-center w-full gap-2 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 dark:focus-within:ring-primary-400">
+            {/* <div className="flex items-center w-full gap-2 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 dark:focus-within:ring-primary-400">
               <FontAwesomeIcon icon={faSearch} color="gray" className="pr-2" />
               <input
                 id="text"
@@ -121,7 +122,7 @@ export const Header = () => {
                 placeholder="Search"
                 className="w-full bg-transparent outline-none"
               />
-            </div>
+            </div> */}
           </div>
 
           <div className="flex flex-row justify-center items-center gap-3">
@@ -160,25 +161,32 @@ export const Header = () => {
             </div>
             <Separator orientation="vertical" className=" h-10" />
 
-            <div className="justify-center items-center flex gap-1">
-              <img
-                src="/userSvg.svg"
-                width="32"
-                height="32"
-                className="rounded-full"
-                alt="Avatar"
-              />
-              <h1 className="text-black text-base"> Akira One</h1>
+            <>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-full w-2"
-                  >
-                    <i className="fa-solid fa-caret-down"></i>
-                  </Button>
+                  <div className="justify-center cursor-pointer items-center flex gap-1">
+                    <img
+                      src="/userSvg.svg"
+                      width="32"
+                      height="32"
+                      className="rounded-full"
+                      alt="Avatar"
+                    />
+                    <h1 className="text-black text-base">
+                      {" "}
+                      {userInfo?.user.username}
+                    </h1>
+                    {/* <h1 className="text-black text-base"> Akira One</h1> */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full w-2"
+                    >
+                      <i className="fa-solid fa-caret-down"></i>
+                    </Button>
+                  </div>
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -190,10 +198,10 @@ export const Header = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+            </>
           </div>
         </div>
       </header>
     </>
   );
-}
+};

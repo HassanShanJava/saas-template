@@ -1,22 +1,24 @@
 import { loginUser } from "@/services/authService";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice,PayloadAction } from "@reduxjs/toolkit"
 import axios from "axios";
 
 interface User {
-	id: number;
-	username: string;
-	org_id: number;
-	org_name:string;
+  id: number;
+  username: string;
+  org_id: number;
+  org_name: string;
 }
 
 interface AuthState {
 	userToken: string | null;
-	userInfo: User | null;
+	userInfo:{
+		user:User;
+	} | null;
 	error: string | null;
 	loading: boolean;
 }
 
-const userToken = localStorage.getItem('userToken');
+const userToken = localStorage.getItem("userToken");
 const userInfo = localStorage.getItem("userInfo");
 
 const initialState: AuthState = {
@@ -26,20 +28,22 @@ const initialState: AuthState = {
   loading: false,
 };
 const authSlice = createSlice({
-	name: 'auth',
-	initialState,
-	reducers: {},
-	extraReducers: (builder) => {
-		builder.addCase(login.pending, state => {
-			state.loading = true;
-			state.error = null;
-		})
-		builder.addCase(login.fulfilled, (state, {payload}) => {
-      state.loading = false;
-      state.userInfo = payload;
+  name: "auth",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(login.pending, (state) => {
+      state.loading = true;
       state.error = null;
-      localStorage.setItem("userInfo", JSON.stringify(payload)); // Set userInfo in local storage
-    })
+    });
+    builder.addCase(login.fulfilled, (state, { payload }) => {
+      state.loading = false;
+      state.userInfo = {user:payload.user};
+			state.userToken=payload.token.access_token;
+      state.error = null;
+      localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); // Set userInfo in local storage
+      localStorage.setItem("userToken", payload.token.access_token); // Set userToken in local storage
+		})
 		builder.addCase(login.rejected, (state, {payload}) => {
 			state.loading = false;
 			state.error = payload as string;
@@ -51,15 +55,14 @@ const authSlice = createSlice({
       state.loading = false;
       localStorage.removeItem("userToken");
       localStorage.removeItem("userInfo");
-		})
-	}
-})
-
+    });
+  },
+});
 
 interface loginParams {
-	email: string;
-	password: string;
-	rememberme: boolean;
+  email: string;
+  password: string;
+  rememberme: boolean;
 }
 export const login = createAsyncThunk(
 	'auth/login',
@@ -76,7 +79,7 @@ export const login = createAsyncThunk(
 				if(localStorage.getItem('password') != null)
 					localStorage.removeItem('password')
 			}
-			return data.user;
+			return {user:data.user,token:data.token};
 		} catch(e: any) {
 			console.log(e)
 			if(e.response?.data?.detail) {
@@ -107,4 +110,4 @@ export const logout = createAsyncThunk("auth/logout", async () => {
     throw error;
   }
 });
-export default authSlice.reducer
+export default authSlice.reducer;

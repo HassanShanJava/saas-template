@@ -1,5 +1,5 @@
 import { loginUser } from "@/services/authService";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice,PayloadAction } from "@reduxjs/toolkit"
 import axios from "axios";
 
 interface User {
@@ -11,7 +11,9 @@ interface User {
 
 interface AuthState {
 	userToken: string | null;
-	userInfo: User | null;
+	userInfo:{
+		user:User;
+	} | null;
 	error: string | null;
 	loading: boolean;
 }
@@ -36,10 +38,12 @@ const authSlice = createSlice({
 		})
 		builder.addCase(login.fulfilled, (state, {payload}) => {
       state.loading = false;
-      state.userInfo = payload;
+      state.userInfo = {user:payload.user};
+			state.userToken=payload.token.access_token;
       state.error = null;
-      localStorage.setItem("userInfo", JSON.stringify(payload)); // Set userInfo in local storage
-    })
+      localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); // Set userInfo in local storage
+      localStorage.setItem("userToken", payload.token.access_token); // Set userToken in local storage
+		})
 		builder.addCase(login.rejected, (state, {payload}) => {
 			state.loading = false;
 			state.error = payload as string;
@@ -76,7 +80,7 @@ export const login = createAsyncThunk(
 				if(localStorage.getItem('password') != null)
 					localStorage.removeItem('password')
 			}
-			return data.user;
+			return {user:data.user,token:data.token};
 		} catch(e: any) {
 			console.log(e)
 			if(e.response?.data?.detail) {

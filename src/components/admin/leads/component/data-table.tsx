@@ -23,7 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { DataTableToolbar } from "./data-table-toolbar"
+import { DataTableToolbar } from "./data-table-toolbar";
 import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination";
 import { ScrollBar, ScrollArea } from "@/components/ui/scroll-area";
 
@@ -122,8 +122,7 @@ export function DataTable<TData, TValue>({
         </ScrollArea>
       </div>
       <div className="bg-white p-4 rounded-b-xl">
-
-      <DataTablePagination table={table} />
+        <DataTablePagination table={table} />
       </div>
     </div>
   );

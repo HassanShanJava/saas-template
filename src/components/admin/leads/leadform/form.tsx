@@ -1,5 +1,4 @@
-import { format } from "date-fns";
-import * as React from "react";
+import { format } from "date-fns";import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -47,8 +46,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+
+import { useParams } from "react-router-dom";
+
 const LeadForm: React.FC = () => {
  const orgId =useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
+ const { id } = useParams();
   const [addLead,{isLoading}] = useAddLeadMutation();
 
   const FormSchema = z
@@ -101,7 +104,18 @@ const LeadForm: React.FC = () => {
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {},
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      phone: "",
+      mobile: "",
+      source_id: undefined,
+      status: "",
+      staff_id: undefined,
+      lead_since: undefined,
+      notes: "",
+    },
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {

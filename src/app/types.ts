@@ -1,3 +1,34 @@
+export interface updateLeadInput {
+  id:number;
+  own_member_id: string;
+  first_name: string;
+  last_name: string;
+  gender: string;
+  dob: string;
+  email: string;
+  source_id: number;
+  country_id: number;
+  city: string;
+  client_since: string;
+  org_id: number;
+  membership_id: number;
+  // optional
+  profile_img?: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  language?: string | null;
+  is_business?: boolean;
+  business_id?: number;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  created_at?: string | null;
+  created_by?: number | null;
+  coach_id?: number;
+  send_invitation?: boolean;
+  status?: string;
+}
 export interface CountryTypes {
   id: number;
   country: string;

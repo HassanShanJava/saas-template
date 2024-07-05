@@ -24,6 +24,16 @@ import {
 } from "@/components/ui/select";
 import { ErrorType } from "@/app/types";
 import { toast } from "@/components/ui/use-toast";
+
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
 export interface StaffDataType {
   org_id: number;
   id: number;
@@ -69,6 +79,7 @@ function convertDateToEuropeanFormat(dateString: string) {
 
 const Lead: React.FC = () => {
   const [data, setData] = useState<LeadType[]>([]);
+  const navigate = useNavigate();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
 
@@ -85,6 +96,7 @@ const Lead: React.FC = () => {
       return {
         ...item,
         staffData,
+        actions: "",
       };
     });
     setData(parseddata);
@@ -96,7 +108,7 @@ const Lead: React.FC = () => {
       const resp = await updateStaff(payload).unwrap();
       if (resp) {
         console.log({ resp });
-        refetch()
+        refetch();
         toast({
           variant: "success",
           title: "Updated Successfully",
@@ -191,7 +203,6 @@ const Lead: React.FC = () => {
         );
       },
     },
-
     {
       accessorKey: "mobile",
       header: ({ column }) => (
@@ -282,6 +293,34 @@ const Lead: React.FC = () => {
       cell: ({ row }) => {
         const field = convertDateToEuropeanFormat(row.getValue("lead_since"));
         return <div>{field}</div>;
+      },
+    },
+    {
+      id: "actions",
+      header: ({ column }) => (<p>Actions</p>),
+      cell: ({ row }) => {
+        const id=row.original.id;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild >
+              <div className="w-full flex justify-center">
+              <i className="fas fa-ellipsis-vertical h-4 w-4 text-center"></i>
+
+              </div>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end">
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  navigate(`/admin/leads/editlead/${id}`);
+                }}
+              >
+                Edit
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
       },
     },
   ];

@@ -27,7 +27,7 @@ export function DataTableToolbar<TData>({
           placeholder="Filter tasks..."
           // value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
           // onChange={(event) =>
-            // table.getColumn("title")?.setFilterValue(event.target.value)
+          // table.getColumn("title")?.setFilterValue(event.target.value)
           // }
           className="h-12 w-[150px] lg:w-[250px] "
         />
@@ -56,7 +56,10 @@ export function DataTableToolbar<TData>({
           </Button>
         )} */}
       </div>
-      <Button className="bg-primary m-4 text-black gap-1" onClick={handleRoute}>
+      <Button
+        className="bg-primary m-4 text-black gap-1 h-8"
+        onClick={handleRoute}
+      >
         <PlusIcon className="h-4 w-4" />
         New Lead
       </Button>

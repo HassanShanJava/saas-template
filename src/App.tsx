@@ -39,6 +39,7 @@ function App() {
             />
             <Route path="/admin/leads" index element={<Leads />} />
             <Route path="/admin/leads/addlead" index element={<LeadForm />} />
+            <Route path="/admin/leads/editlead/:id" index element={<LeadForm />} />
             <Route path="/admin/events" index element={<Events />} />
             <Route
               path="/admin/events/addevents"

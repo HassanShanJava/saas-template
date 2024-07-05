@@ -52,7 +52,7 @@ export const Leads = createApi({
       updateStatus: builder.mutation<any, updateStatusInput>({
         query: (clientdata) => ({
           url: "/leads/updateStatus",
-          method: "POST",
+          method: "PUT",
           body: clientdata,
           headers: {
             Accept: "application/json",
@@ -62,8 +62,8 @@ export const Leads = createApi({
       }),
       updateStaff: builder.mutation<any, updateStaffInput>({
         query: (clientdata) => ({
-          url: "/leads/updateStatus",
-          method: "POST",
+          url: "/leads/updateStaff",
+          method: "PUT",
           body: clientdata,
           headers: {
             Accept: "application/json",

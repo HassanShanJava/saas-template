@@ -48,7 +48,7 @@ import {
 } from "@/components/ui/tooltip";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const LeadForm: React.FC = () => {
- const orgId =useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
+ const orgId =useSelector((state: RootState) => state.auth.userInfo?.user.org_id) || 0;
   const [addLead,{isLoading}] = useAddLeadMutation();
 
   const FormSchema = z.object({

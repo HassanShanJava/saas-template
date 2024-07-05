@@ -43,15 +43,15 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import { clientTablestypes,clientFilterSchema } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DataTableRowActions } from "../table/data-table-row-actions";
+import { DataTableRowActions } from "./data-table-row-actions";
 import { useGetAllClientQuery } from "@/services/clientAPi";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { DataTableViewOptions } from "../table/data-table-view-options";
+import { DataTableViewOptions } from "./data-table-view-options";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
-import { DataTableFacetedFilter } from "../table/data-table-faceted-filter";
+import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
 const downloadCSV = (data: clientTablestypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -65,17 +65,18 @@ const downloadCSV = (data: clientTablestypes[], fileName: string) => {
 };
 export default function ClientTableView(){
   const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
-  const { data: clientData, isLoading, refetch } = useGetAllClientQuery(orgId);
-    const navigate = useNavigate();
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const { data: clientData, isLoading, refetch,error } = useGetAllClientQuery(orgId);
+  const navigate = useNavigate();
 
-    function handleRoute() {
-      navigate("/admin/client/addclient");
-    }
-   const clienttableData = React.useMemo(() => {
-     return Array.isArray(clientData) ? clientData : [];
-   }, [clientData]);
+  function handleRoute() {
+    navigate("/admin/client/addclient");
+  }
+  const clienttableData = React.useMemo(() => {
+    return Array.isArray(clientData) ? clientData : [];
+  }, [clientData]);
   const { toast } = useToast();
+  console.log("data",{clientData,error})
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
@@ -85,25 +86,24 @@ export default function ClientTableView(){
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-   const [pagination, setPagination] = useState<PaginationState>({
+  const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10, // Adjust this based on your preference
   });
   const displayValue = (value: any) => (value === null ? "N/A" : value);
-    const handleExportSelected = () => {
-      const selectedRows = table
-        .getSelectedRowModel()
-        .rows.map((row) => row.original);
-      if (selectedRows.length === 0) {
-       
-        toast({
-          variant:"destructive",
-          title:"Select atleast one row for CSV download!"
-        })
-        return;
-      }
-      downloadCSV(selectedRows, "selected_data.csv");
-    };
+  const handleExportSelected = () => {
+    const selectedRows = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original);
+    if (selectedRows.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Select atleast one row for CSV download!",
+      });
+      return;
+    }
+    downloadCSV(selectedRows, "selected_data.csv");
+  };
   const columns: ColumnDef<clientTablestypes>[] = [
     {
       id: "select",
@@ -222,7 +222,7 @@ export default function ClientTableView(){
       cell: ({ row }) => <DataTableRowActions row={row.original.id} />,
     },
   ];
-console.log("data",{clientData})
+  // console.log("data",{clientData})
   const table = useReactTable({
     data: clienttableData as clientTablestypes[],
     columns,
@@ -244,14 +244,13 @@ console.log("data",{clientData})
         pageSize: 10, // Set your default page size here
       },
     },
-    onPaginationChange:setPagination
+    onPaginationChange: setPagination,
   });
 
   function handlePagination(page: number) {
     if (page < 0) return;
     // setFilters
   }
-
 
   return (
     <div className="w-full space-y-4">

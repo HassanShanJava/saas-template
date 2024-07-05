@@ -14,15 +14,14 @@ import { FaFileCsv } from "react-icons/fa";
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
-action: () => void; 
+  action: () => void;
 }
 
 export function DataTableViewOptions<TData>({
   table,
   action,
 }: DataTableViewOptionsProps<TData>) {
-
-  function handleClick(){
+  function handleClick() {
     action();
   }
   return (
@@ -33,9 +32,7 @@ export function DataTableViewOptions<TData>({
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-          >
+          <Button variant="outline">
             <Settings2 className="mr-2 h-4 w-4" />
             View
           </Button>

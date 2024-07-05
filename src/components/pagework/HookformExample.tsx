@@ -32,7 +32,7 @@ const FormSchema = z.object({
 
 export function SelectForm() {
   const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
+    useSelector((state: RootState) => state.auth.userInfo?.user.org_id) || 0;
 
   // Now `orgId` is guaranteed to be a number (0 if `userInfo?.org_id` is undefined)
   console.log("orgId",orgId)

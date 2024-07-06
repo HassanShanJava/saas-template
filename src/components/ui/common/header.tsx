@@ -11,7 +11,7 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Separator } from "@/components/ui/separator";
 import { useDispatch } from "react-redux";
-import { logout } from "@/features/auth/authSlice";
+import authSlice, { logout } from "@/features/auth/authSlice";
 import { AppDispatch, RootState } from "@/app/store";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../use-toast";
@@ -30,7 +30,7 @@ export const Header = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleLogout = () => {
-    dispatch(logout());
+	dispatch(logout());
     toast({
       variant: "destructive",
       title: "Logout",
@@ -174,7 +174,7 @@ export const Header = () => {
                     />
                     <h1 className="text-black text-base">
                       {" "}
-                      {userInfo?.user.username}
+                      {userInfo?.user?.username}
                     </h1>
                     {/* <h1 className="text-black text-base"> Akira One</h1> */}
                     <Button

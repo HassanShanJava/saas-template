@@ -211,7 +211,7 @@ const DashboardLayout =()=>{
             <UsersIcon className="h-5 w-5" />
             <span className={`${!isSidebarOpen && "hidden"}`}>Engagements</span>
           </Link>
-          <Link
+          {/* <Link
             to="/admin/client"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
@@ -221,6 +221,32 @@ const DashboardLayout =()=>{
             <span className={`${!isSidebarOpen && "hidden"}`}>
               System Design
             </span>
+          </Link> */}
+          <Link
+            to="/admin/credits"
+            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
+              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
+            }
+             ${
+               isActiveLink(location.pathname, "/admin/credits")
+                 ? "bg-primary"
+                 : ""
+             }
+            `}
+          >
+            <div
+              className={`w-8 h-8   ${
+                isActiveLink(location.pathname, "/admin/credits")
+                  ? "bg-[#3ED13E]"
+                  : "bg-gray-100"
+              }
+              rounded-lg justify-center flex items-center`}
+            >
+              <MultiUserIcon
+                className={`w-4 h-4 ${isActiveLink(location.pathname, "/admin/credits") ? "" : "text-gray-500 stroke-current"}`}
+              />
+            </div>
+            <span className={`${!isSidebarOpen && "hidden"}`}>Credits</span>
           </Link>
         </nav>
       </div>

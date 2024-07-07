@@ -7,20 +7,20 @@ import {
   membershipplanTypes,
   ClientInputTypes,
   ClientResponseTypes,
-  clientTablestypes
+  clientTablestypes,
 } from "../app/types";
 import { RootState } from "@/app/store";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const ClientAPi = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({ 
+  baseQuery: fetchBaseQuery({
     baseUrl: API_BASE_URL,
-    prepareHeaders:(headers,{getState})=>{
-      const token=(getState() as RootState).auth.userToken;
-      if(token) headers.set("Authorization",`Bearer ${token}`)
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).auth.userToken;
+      if (token) headers.set("Authorization", `Bearer ${token}`);
       return headers;
-      }, 
+    },
   }),
   endpoints(builder) {
     return {
@@ -103,5 +103,5 @@ export const {
   useGetAllBusinessesQuery,
   useGetAllMembershipsQuery,
   useGetAllClientQuery,
-  useAddClientMutation
+  useAddClientMutation,
 } = ClientAPi;

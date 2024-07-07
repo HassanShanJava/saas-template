@@ -4,7 +4,8 @@ import axios from "axios";
 
 interface User {
   id: number;
-  username: string;
+  first_name:string;
+  email: string;
   org_id: number;
   org_name: string;
 }
@@ -12,7 +13,7 @@ interface User {
 interface AuthState {
 	userToken: string | null;
 	userInfo:{
-		user:User;
+		user: User;
 	} | null;
 	error: string | null;
 	loading: boolean;

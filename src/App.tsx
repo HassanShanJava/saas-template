@@ -7,6 +7,7 @@ import SystemSettings from "./components/admin/system_settings";
 import AddClientForm from "./components/admin/clients/clientForm/form";
 import Leads from "./components/admin/leads";
 import LeadForm from "./components/admin/leads/leadform/form";
+import Credits from "./components/admin/credits";
 import Events from "./components/admin/events";
 import EventForm from "./components/admin/events/eventForm";
 import ProtectedRoute from "./components/admin/protectedRoute";
@@ -38,6 +39,7 @@ function App() {
             <Route path="/admin/leads" index element={<Leads />} />
             <Route path="/admin/leads/addlead" index element={<LeadForm />} />
             <Route path="/admin/leads/editlead/:id" index element={<LeadForm />} />
+            <Route path="/admin/credits/" index element={<Credits />} />
             <Route path="/admin/events" index element={<Events />} />
             <Route
               path="/admin/events/addevents"

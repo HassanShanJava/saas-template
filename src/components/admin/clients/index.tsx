@@ -28,7 +28,7 @@ console.log(clientdata)
    
       <div className="w-full p-12">
          <Card className="py-3">
-        <ClientTableView/>
+          <ClientTableView/>
          </Card>
       </div>
    

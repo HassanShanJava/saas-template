@@ -1,5 +1,36 @@
+export interface creditsResponseType {
+  created_at: Date;
+  id: number;
+  is_deleted: boolean;
+  min_limit: number;
+  name: string;
+  org_id: number;
+  updated_at: Date;
+}
+export interface createCreditsType {
+  org_id: number;
+  name: string;
+  min_limit: number;
+  status?: boolean;
+}
+export interface updateCreditsType {
+  id: number;
+  org_id?: number;
+  name?: string;
+  min_limit?: number;
+  status?: boolean;
+}
+export interface deleteCreditsType {
+  credit_id: number;
+}
+export interface creditTablestypes {
+  id: number;
+  name: string;
+  org_id: number;
+  min_limit: number;
+}
 export interface updateLeadInput {
-  id:number;
+  id: number;
   own_member_id: string;
   first_name: string;
   last_name: string;
@@ -185,7 +216,7 @@ export interface clientTablestypes {
   check_in?: string | null;
   last_online?: string | null;
   client_since?: string | null;
-  business_name?:string | null;
+  business_name?: string | null;
   coach_name?: string | null;
 }
 export interface clientFilterSchema {

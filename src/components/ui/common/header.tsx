@@ -61,6 +61,9 @@ export const Header = () => {
                 {isActiveLink(location.pathname, "/admin/client/addclient")
                   ? "Add Client"
                   : ""}
+                {isActiveLink(location.pathname, "/admin/credits")
+                  ? "Credits"
+                  : ""}
                 {isActiveLink(location.pathname, "/admin/leads") ? "Leads" : ""}
 
                 {isActiveLink(location.pathname, "/admin/leads/addlead")
@@ -126,7 +129,7 @@ export const Header = () => {
           </div>
 
           <div className="flex flex-row justify-center items-center gap-3">
-            <div className="flex flex-row gap-3 p-3 justify-center items-center">
+            {/* <div className="flex flex-row gap-3 p-3 justify-center items-center">
               <div className="w-8 h-8  border-[1px] border-gray-400 rounded-full justify-center flex items-center">
                 <i className="fa-solid fa-globe "></i>
               </div>
@@ -141,15 +144,9 @@ export const Header = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  {/* <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
-                  <DropdownMenuItem>Support</DropdownMenuItem>
-                  <DropdownMenuSeparator /> */}
-                  {/* <DropdownMenuItem>Logout</DropdownMenuItem> */}
-                </DropdownMenuContent>
+                                  </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+            </div> */}
             <Separator orientation="vertical" className=" h-10" />
             <div className="flex flex-row  justify-center items-center gap-4">
               <div className="w-8 h-8  border-[1px] border-gray-400 rounded-full justify-center flex items-center">
@@ -164,7 +161,7 @@ export const Header = () => {
             <>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className="justify-center cursor-pointer items-center flex gap-1">
+                  <div className="justify-center cursor-pointer items-center flex gap-3">
                     <img
                       src="/userSvg.svg"
                       width="32"
@@ -172,9 +169,9 @@ export const Header = () => {
                       className="rounded-full"
                       alt="Avatar"
                     />
-                    <h1 className="text-black text-base">
+                    <h1 className="text-base ">
                       {" "}
-                      {userInfo?.user?.username}
+                      {userInfo?.user?.first_name}
                     </h1>
                     {/* <h1 className="text-black text-base"> Akira One</h1> */}
                     <Button

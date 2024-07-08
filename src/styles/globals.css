@@ -60,3 +60,15 @@
 .rdp-vhidden {
   @apply hidden;
 }
+
+
+.number-input::-webkit-outer-spin-button,
+.number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide the spin buttons for number inputs on Firefox */
+.number-input[type=number] {
+  -moz-appearance: textfield;
+}

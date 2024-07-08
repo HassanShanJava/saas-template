@@ -18,18 +18,71 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+import {
+  useUpdateCreditsMutation,
+  useDeleteCreditsMutation,
+} from "@/services/creditsApi";
+
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { ErrorType } from "@/app/types";
 
 interface DataTableRowActionsProps<TData> {
-  row: number;
+  id: number;
+  org_id: number;
+  status: boolean;
+  name: string;
+  min_limit: number;
 }
 
 export function DataTableRowActions<TData>({
-  row,
-}: DataTableRowActionsProps<TData>) {
+  data,
+  refetch,
+}: {
+  data: DataTableRowActionsProps<TData>;
+  refetch?: any;
+}) {
   const [isdelete, setIsDelete] = React.useState(false);
+  const [updateCredits, { isLoading: updateLoading }] = useUpdateCreditsMutation();
+  const [deleteCredits, { isLoading: deleteLoading }] = useDeleteCreditsMutation();
+  const {toast} = useToast();
+  console.log(data);
+  
+  const deleteRow = async () => {
+    const payload = {
+      id: data.id,
+      org_id: data.org_id,
+    };
+    try {
+      const resp = await deleteCredits(payload).unwrap();
+      if (resp) {
+        console.log({ resp });
+        refetch();
+        toast({
+          variant: "success",
+          title: "Deleted Successfully",
+        });
+      }
+    } catch (error) {
+      console.log("Error", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
+  };
 
   return (
     <>
@@ -48,33 +101,32 @@ export function DataTableRowActions<TData>({
             <DialogTrigger asChild>
               <DropdownMenuItem>
                 <Pencil className="mr-2 h-4 w-4" />
-                Edit 
+                Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            <DropdownMenuItem
-              onClick={() => setIsDelete(true)}
-            >
+            <DropdownMenuItem onClick={() => setIsDelete(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         {isdelete && (
-          <AlertDialog>
-            <AlertDialogTrigger>Delete</AlertDialogTrigger>
+          <AlertDialog open={isdelete} onOpenChange={() => setIsDelete(false)}>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will remove your client
-                  data from this organization.
+                  This action cannot be undone. This will remove your credit
+                  information from this organization.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel onClick={() => setIsDelete(false)}>
                   Cancel
                 </AlertDialogCancel>
-                <AlertDialogAction>Continue</AlertDialogAction>
+                <AlertDialogAction onClick={deleteRow}>
+                  Continue
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

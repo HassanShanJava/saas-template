@@ -1,4 +1,4 @@
-import React, {useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
   PaginationState,
@@ -17,31 +17,58 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from "@/components/ui/table";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormMessage,
+  FormLabel,
+  FormControl,
+  FormDescription,
+} from "@/components/ui/form";
+import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
+
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
 import { useToast } from "@/components/ui/use-toast";
-import { ScrollArea,ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { MoreHorizontal, PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import {
   DoubleArrowLeftIcon,
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import {  creditTablestypes, ErrorType } from "@/app/types";
+import { creditTablestypes, ErrorType } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
@@ -50,7 +77,12 @@ import { DataTableViewOptions } from "./data-table-view-options";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
-import { useGetCreditsQuery, useUpdateCreditsMutation } from "@/services/creditsApi";
+import {
+  useGetCreditsQuery,
+  useCreateCreditsMutation,
+  useUpdateCreditsMutation,
+  useDeleteCreditsMutation,
+} from "@/services/creditsApi";
 
 const downloadCSV = (data: creditTablestypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -63,22 +95,42 @@ const downloadCSV = (data: creditTablestypes[], fileName: string) => {
   document.body.removeChild(link);
 };
 
-// 
+//
 const status = [
   { value: true, label: "Active", color: "bg-green-500" },
   { value: false, label: "Inactive", color: "bg-blue-500" },
 ];
 
-export default function CreditsTableView(){
-  const orgId = useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const { data:creditsData, isLoading, refetch, error } = useGetCreditsQuery(orgId);
-  const [updateCredits, { isLoading: creditsLoading }] = useUpdateCreditsMutation();
-  const [isOpen, setOpen] = useState(false);
+export default function CreditsTableView() {
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const {
+    data: creditsData,
+    isLoading,
+    refetch,
+    error,
+  } = useGetCreditsQuery(orgId);
+  const [updateCredits, { isLoading: creditsLoading }] =
+    useUpdateCreditsMutation();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const handleCloseDailog=()=>setIsDialogOpen(false)
 
-  const handleStatusChange = async (payload:{id:number, org_id:number, status:boolean}) =>{
-    try{
-      const resp=await updateCredits(payload).unwrap();
-      if(resp){
+  const [formData, setFormData] = useState<createFormData>({
+    status: true,
+    name: "",
+    min_limit: 1,
+    org_id: orgId,
+  });
+
+  // table dropdown status update
+  const handleStatusChange = async (payload: {
+    id: number;
+    org_id: number;
+    status: boolean;
+  }) => {
+    try {
+      const resp = await updateCredits(payload).unwrap();
+      if (resp) {
         console.log({ resp });
         refetch();
         toast({
@@ -86,7 +138,7 @@ export default function CreditsTableView(){
           title: "Updated Successfully",
         });
       }
-    }catch(error){
+    } catch (error) {
       console.log("Error", error);
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
@@ -103,18 +155,16 @@ export default function CreditsTableView(){
         });
       }
     }
-  }
-  
+  };
+
   const creditstableData = React.useMemo(() => {
     return Array.isArray(creditsData) ? creditsData : [];
   }, [creditsData]);
-  console.log({ creditstableData, creditsData, isLoading, error });
-  
+
   const { toast } = useToast();
-  
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
-
   const [filters, setFilters] = useState<any>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
@@ -125,6 +175,7 @@ export default function CreditsTableView(){
     pageSize: 10, // Adjust this based on your preference
   });
   const displayValue = (value: any) => (value === null ? "N/A" : value);
+
   const handleExportSelected = () => {
     const selectedRows = table
       .getSelectedRowModel()
@@ -162,8 +213,8 @@ export default function CreditsTableView(){
       accessorKey: "status",
       header: ({ table }) => <p>Status</p>,
       cell: ({ row }) => {
-        const value = row.original.status !=null?row.original.status:false;
-        const statusLabel=status.filter(r => r.value===value)[0]
+        const value = row.original.status != null ? row.original.status : false;
+        const statusLabel = status.filter((r) => r.value === value)[0];
         const id = Number(row.original.id);
         const org_id = Number(row.original.org_id);
         return (
@@ -199,11 +250,11 @@ export default function CreditsTableView(){
     {
       id: "actions",
       header: "Actions",
-      maxSize:100,
-      cell: ({ row }) => <DataTableRowActions row={row.original.id} />,
+      maxSize: 100,
+      cell: ({ row }) => <DataTableRowActions data={row.original} refetch={refetch} />,
     },
   ];
-  
+
   const table = useReactTable({
     data: creditstableData as creditTablestypes[],
     columns,
@@ -233,6 +284,16 @@ export default function CreditsTableView(){
     // setFilters
   }
 
+  const handleAddCredit = () => {
+    console.log("Before update:", formData);
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, case: "add" };
+      console.log("After update:", updatedData);
+      return updatedData;
+    });
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
@@ -258,7 +319,7 @@ export default function CreditsTableView(){
         </div>
         <Button
           className="bg-primary m-4 text-black gap-1"
-          // onClick={handleRoute}
+          onClick={handleAddCredit}
         >
           <PlusIcon className="h-4 w-4" />
           Add Credit
@@ -478,6 +539,218 @@ export default function CreditsTableView(){
       </div>
 
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
+      <CreditForm
+        data={formData}
+        isDialogOpen={isDialogOpen}
+        setIsDialogOpen={handleCloseDailog}
+        refetch={refetch}
+      />
     </div>
   );
 }
+
+  interface createFormData {
+    status: boolean;
+    name: string;
+    min_limit: number;
+    org_id: number;
+    case?:string;
+  }
+
+  const CreditForm = ({
+    data,
+    setIsDialogOpen,
+    isDialogOpen,
+    refetch,
+  }: {
+    data: createFormData;
+    setIsDialogOpen: any;
+    isDialogOpen: boolean;
+    refetch?: any;
+  }) => { 
+    const { toast } = useToast();
+    const [formData, setFormData] = useState(data);
+    const [createCredits, { isLoading: creditsLoading }] = useCreateCreditsMutation();
+
+    console.log( formData, isDialogOpen, "dialog");
+
+    // useEffect(() => {
+    //   if (!isDialogOpen) {
+    //     resetFormAndCloseDialog();
+    //   }
+    // }, [isDialogOpen]);
+
+    const creditFormSchema = z.object({
+      org_id: z.number(),
+      status: z.boolean(),
+      name: z.string().min(1, { message: "Name is required" }),
+      min_limit: z.number().min(1, { message: "Minimum limit is required" }),
+    });
+
+    const form = useForm<z.infer<typeof creditFormSchema>>({
+      resolver: zodResolver(creditFormSchema),
+      defaultValues: formData,
+      mode: "onChange",
+    });
+
+    const watcher = form.watch();
+
+    const onSubmit = async (data: z.infer<typeof creditFormSchema>) => {
+      console.log({ data });
+
+      try {
+        const resp = await createCredits(data).unwrap();
+        if (resp) {
+          console.log({ resp });
+          refetch();
+          toast({
+            variant: "success",
+            title: "Credit Created Successfully",
+          });
+        }
+      } catch (error) {
+        console.log("Error", error);
+        if (error && typeof error === "object" && "data" in error) {
+          const typedError = error as ErrorType;
+          toast({
+            variant: "destructive",
+            title: "Error in form Submission",
+            description: `${typedError.data?.detail}`,
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error in form Submission",
+            description: `Something Went Wrong.`,
+          });
+        }
+      }
+    };
+
+    const resetFormAndCloseDialog = () => {
+      form.reset({
+        org_id: formData.org_id,
+        status: true,
+        name: "",
+        min_limit: 1,
+      });
+      setFormData((prev) => ({
+        ...prev,
+        status: true,
+        name: "",
+        min_limit: 1,
+      }));
+    };
+  
+    return (
+      <div>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          {/* <DialogTrigger>Open</DialogTrigger> */}
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {formData.name == "" ? "Add" : "Edit"} Credit
+              </DialogTitle>
+              <DialogDescription>
+                <>
+                  <Form {...form}>
+                    <form
+                      onSubmit={form.handleSubmit(onSubmit)}
+                      className="flex flex-col py-4 gap-4"
+                    >
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FloatingLabelInput
+                              {...field}
+                              id="name"
+                              label="Credit Name"
+                              value={field.value ?? ""}
+                            />
+                            {watcher.name ? <></> : <FormMessage />}
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="min_limit"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FloatingLabelInput
+                              {...field}
+                              id="min_limit"
+                              min={1}
+                              type="number"
+                              className="number-input"
+                              label="Min Requred Limit"
+                              value={field.value ?? 1}
+                            />
+                            {watcher.min_limit ? <></> : <FormMessage />}
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="status"
+                        render={({ field }) => (
+                          <FormItem>
+                            {/* <FormLabel>Status</FormLabel> */}
+                            <FormControl>
+                              <Select
+                                value={field.value ? "true" : "false"}
+                                onValueChange={(value) =>
+                                  field.onChange(value === "true")
+                                }
+                                disabled={formData.name==''}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Status">
+                                    <span className="flex gap-2 items-center">
+                                      <span
+                                        className={`w-2 h-2 rounded-full ${
+                                          field.value
+                                            ? "bg-green-500"
+                                            : "bg-blue-500"
+                                        }`}
+                                      ></span>
+                                      {field.value ? "Active" : "Inactive"}
+                                    </span>
+                                  </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {status.map((st, index) => (
+                                    <SelectItem
+                                      key={index}
+                                      value={String(st.value)}
+                                    >
+                                      {st.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="submit"
+                        className="bg-primary  text-black gap-1"
+
+                      >
+                        Save
+                      </Button>
+                    </form>
+                  </Form>
+                </>
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  };

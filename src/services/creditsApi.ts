@@ -15,6 +15,7 @@ export const Credits = createApi({
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.userToken;
       if (token) headers.set("Authorization", `Bearer ${token}`);
+      headers.set("Access-Control-Allow-Origin", `*`);
       return headers;
     },
   }),

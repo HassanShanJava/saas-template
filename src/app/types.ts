@@ -11,6 +11,12 @@ export interface saleTaxesInputType {
   percentage: number;
   org_id: number;
 }
+export interface saleTaxesTableType {
+  id: number;
+  name: string;
+  org_id: number;
+  percentage: number;
+}
 export interface saleTaxesResponseType {
   name: string;
   percentage: number;
@@ -36,7 +42,7 @@ export interface createCreditsType {
   status?: boolean;
 }
 export interface updateCreditsType {
-  id: number;
+  id?: number;
   org_id?: number;
   name?: string;
   min_limit?: number;
@@ -50,6 +56,7 @@ export interface creditTablestypes {
   name: string;
   org_id: number;
   min_limit: number;
+  status?: boolean;
 }
 export interface updateLeadInput {
   id: number;

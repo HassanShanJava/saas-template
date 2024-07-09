@@ -40,9 +40,11 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   data,
   refetch,
+  handleEdit
 }: {
   data: DataTableRowActionsProps<TData>;
   refetch?: any;
+  handleEdit?:any
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const [updateCredits, { isLoading: updateLoading }] = useUpdateCreditsMutation();
@@ -99,7 +101,7 @@ export function DataTableRowActions<TData>({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-4">
             <DialogTrigger asChild>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={()=>handleEdit(data)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>

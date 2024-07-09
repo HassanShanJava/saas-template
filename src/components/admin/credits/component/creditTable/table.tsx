@@ -113,7 +113,7 @@ export default function CreditsTableView() {
   const [updateCredits, { isLoading: creditsLoading }] =
     useUpdateCreditsMutation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const handleCloseDailog=()=>setIsDialogOpen(false)
+  const handleCloseDailog = () => setIsDialogOpen(false);
 
   const [formData, setFormData] = useState<createFormData>({
     status: true,
@@ -213,7 +213,8 @@ export default function CreditsTableView() {
       accessorKey: "status",
       header: ({ table }) => <p>Status</p>,
       cell: ({ row }) => {
-        const value = row.original.status != null ? row.original.status : false;
+        const value =
+          row.original?.status != null ? row.original?.status : false;
         const statusLabel = status.filter((r) => r.value === value)[0];
         const id = Number(row.original.id);
         const org_id = Number(row.original.org_id);
@@ -251,7 +252,13 @@ export default function CreditsTableView() {
       id: "actions",
       header: "Actions",
       maxSize: 100,
-      cell: ({ row }) => <DataTableRowActions data={row.original} refetch={refetch} />,
+      cell: ({ row }) => (
+        <DataTableRowActions
+          data={row.original}
+          refetch={refetch}
+          handleEdit={handleEditCredit}
+        />
+      ),
     },
   ];
 
@@ -288,6 +295,17 @@ export default function CreditsTableView() {
     console.log("Before update:", formData);
     setFormData((prevData) => {
       const updatedData = { ...prevData, case: "add" };
+      console.log("After update:", updatedData);
+      return updatedData;
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleEditCredit = (data) => {
+    // console.log("Before update:", formData);
+    console.log("update:", data);
+    setFormData(() => {
+      const updatedData = { ...data, case: "edit" };
       console.log("After update:", updatedData);
       return updatedData;
     });
@@ -544,61 +562,69 @@ export default function CreditsTableView() {
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={handleCloseDailog}
         refetch={refetch}
+        setFormData={setFormData}
       />
     </div>
   );
 }
 
-  interface createFormData {
-    status: boolean;
-    name: string;
-    min_limit: number;
-    org_id: number;
-    case?:string;
-  }
+interface createFormData {
+  status: boolean;
+  name: string;
+  min_limit: number;
+  org_id: number;
+  id?: number;
+  case?: string;
+}
 
-  const CreditForm = ({
-    data,
-    setIsDialogOpen,
-    isDialogOpen,
-    refetch,
-  }: {
-    data: createFormData;
-    setIsDialogOpen: any;
-    isDialogOpen: boolean;
-    refetch?: any;
-  }) => { 
-    const { toast } = useToast();
-    const [formData, setFormData] = useState(data);
-    const [createCredits, { isLoading: creditsLoading }] = useCreateCreditsMutation();
+const CreditForm = ({
+  data: formData,
+  setIsDialogOpen,
+  isDialogOpen,
+  refetch,
+  setFormData,
+}: {
+  data: createFormData;
+  isDialogOpen: boolean;
+  setIsDialogOpen: any;
+  refetch?: any;
+  setFormData?: any;
+}) => {
+  const { toast } = useToast();
+  // const [formData, setFormData] = useState(data);
+  const [createCredits, { isLoading: creditsLoading }] =
+    useCreateCreditsMutation();
+  const [updateCredits, { isLoading: updateLoading }] =
+    useUpdateCreditsMutation();
 
-    console.log( formData, isDialogOpen, "dialog");
+  console.log(formData, isDialogOpen, "dialog");
 
-    // useEffect(() => {
-    //   if (!isDialogOpen) {
-    //     resetFormAndCloseDialog();
-    //   }
-    // }, [isDialogOpen]);
+  useEffect(() => {
+    form.reset(formData);
+    setFormData(formData);
+  }, [formData]);
 
-    const creditFormSchema = z.object({
-      org_id: z.number(),
-      status: z.boolean(),
-      name: z.string().min(1, { message: "Name is required" }),
-      min_limit: z.number().min(1, { message: "Minimum limit is required" }),
-    });
+  const creditFormSchema = z.object({
+    id: z.number().optional(),
+    org_id: z.number(),
+    status: z.boolean(),
+    name: z.string().min(1, { message: "Name is required" }),
+    min_limit: z.number().min(1, { message: "Minimum limit is required" }),
+  });
 
-    const form = useForm<z.infer<typeof creditFormSchema>>({
-      resolver: zodResolver(creditFormSchema),
-      defaultValues: formData,
-      mode: "onChange",
-    });
+  const form = useForm<z.infer<typeof creditFormSchema>>({
+    resolver: zodResolver(creditFormSchema),
+    defaultValues: formData,
+    mode: "onChange",
+  });
 
-    const watcher = form.watch();
+  const watcher = form.watch();
 
-    const onSubmit = async (data: z.infer<typeof creditFormSchema>) => {
-      console.log({ data });
+  const onSubmit = async (data: z.infer<typeof creditFormSchema>) => {
+    console.log({ data });
 
-      try {
+    try {
+      if (formData.name == "" || formData.case == "add") {
         const resp = await createCredits(data).unwrap();
         if (resp) {
           console.log({ resp });
@@ -607,150 +633,181 @@ export default function CreditsTableView() {
             variant: "success",
             title: "Credit Created Successfully",
           });
+          resetFormAndCloseDialog();
+          setIsDialogOpen(false);
         }
-      } catch (error) {
-        console.log("Error", error);
-        if (error && typeof error === "object" && "data" in error) {
-          const typedError = error as ErrorType;
+      } else {
+        const resp = await updateCredits(data).unwrap();
+        if (resp) {
+          console.log({ resp });
+          refetch();
           toast({
-            variant: "destructive",
-            title: "Error in form Submission",
-            description: `${typedError.data?.detail}`,
+            variant: "success",
+            title: "Updated Successfully",
           });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Error in form Submission",
-            description: `Something Went Wrong.`,
-          });
+          resetFormAndCloseDialog();
+          setIsDialogOpen(false);
         }
       }
-    };
-
-    const resetFormAndCloseDialog = () => {
-      form.reset({
-        org_id: formData.org_id,
-        status: true,
-        name: "",
-        min_limit: 1,
-      });
-      setFormData((prev) => ({
-        ...prev,
-        status: true,
-        name: "",
-        min_limit: 1,
-      }));
-    };
-  
-    return (
-      <div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          {/* <DialogTrigger>Open</DialogTrigger> */}
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {formData.name == "" ? "Add" : "Edit"} Credit
-              </DialogTitle>
-              <DialogDescription>
-                <>
-                  <Form {...form}>
-                    <form
-                      onSubmit={form.handleSubmit(onSubmit)}
-                      className="flex flex-col py-4 gap-4"
-                    >
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FloatingLabelInput
-                              {...field}
-                              id="name"
-                              label="Credit Name"
-                              value={field.value ?? ""}
-                            />
-                            {watcher.name ? <></> : <FormMessage />}
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="min_limit"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FloatingLabelInput
-                              {...field}
-                              id="min_limit"
-                              min={1}
-                              type="number"
-                              className="number-input"
-                              label="Min Requred Limit"
-                              value={field.value ?? 1}
-                            />
-                            {watcher.min_limit ? <></> : <FormMessage />}
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="status"
-                        render={({ field }) => (
-                          <FormItem>
-                            {/* <FormLabel>Status</FormLabel> */}
-                            <FormControl>
-                              <Select
-                                value={field.value ? "true" : "false"}
-                                onValueChange={(value) =>
-                                  field.onChange(value === "true")
-                                }
-                                disabled={formData.name==''}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Status">
-                                    <span className="flex gap-2 items-center">
-                                      <span
-                                        className={`w-2 h-2 rounded-full ${
-                                          field.value
-                                            ? "bg-green-500"
-                                            : "bg-blue-500"
-                                        }`}
-                                      ></span>
-                                      {field.value ? "Active" : "Inactive"}
-                                    </span>
-                                  </SelectValue>
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {status.map((st, index) => (
-                                    <SelectItem
-                                      key={index}
-                                      value={String(st.value)}
-                                    >
-                                      {st.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button
-                        type="submit"
-                        className="bg-primary  text-black gap-1"
-
-                      >
-                        Save
-                      </Button>
-                    </form>
-                  </Form>
-                </>
-              </DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-      </div>
-    );
+    } catch (error) {
+      console.log("Error", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+      resetFormAndCloseDialog();
+      setIsDialogOpen(false);
+    }
   };
+
+  const resetFormAndCloseDialog = () => {
+    console.log("calling close");
+    setFormData((prev) => ({
+      ...prev,
+      status: true,
+      name: "",
+      min_limit: 1,
+    }));
+  };
+
+  return (
+    <div>
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={() => {
+          setFormData((prev) => ({
+            ...prev,
+            status: true,
+            name: "",
+            min_limit: 1,
+          }));
+          form.reset({
+            org_id: formData.org_id,
+            status: true,
+            name: "",
+            min_limit: 1,
+          });
+          setIsDialogOpen();
+        }}
+      >
+        {/* <DialogTrigger>Open</DialogTrigger> */}
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {formData.name == "" || formData.case == "add" ? "Add" : "Edit"}{" "}
+              Credit
+            </DialogTitle>
+            <DialogDescription>
+              <>
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="flex flex-col py-4 gap-4"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FloatingLabelInput
+                            {...field}
+                            id="name"
+                            label="Credit Name"
+                            value={field.value ?? ""}
+                          />
+                          {watcher.name ? <></> : <FormMessage />}
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="min_limit"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FloatingLabelInput
+                            {...field}
+                            id="min_limit"
+                            min={1}
+                            type="number"
+                            className="number-input"
+                            label="Min Requred Limit"
+                            value={field.value ?? 1}
+                          />
+                          {watcher.min_limit ? <></> : <FormMessage />}
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem>
+                          {/* <FormLabel>Status</FormLabel> */}
+                          <FormControl>
+                            <Select
+                              value={field.value ? "true" : "false"}
+                              onValueChange={(value) =>
+                                field.onChange(value === "true")
+                              }
+                              disabled={
+                                formData.name == "" || formData.case == "add"
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Status">
+                                  <span className="flex gap-2 items-center">
+                                    <span
+                                      className={`w-2 h-2 rounded-full ${
+                                        field.value
+                                          ? "bg-green-500"
+                                          : "bg-blue-500"
+                                      }`}
+                                    ></span>
+                                    {field.value ? "Active" : "Inactive"}
+                                  </span>
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {status.map((st, index) => (
+                                  <SelectItem
+                                    key={index}
+                                    value={String(st.value)}
+                                  >
+                                    {st.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="submit"
+                      className="bg-primary  text-black gap-1"
+                    >
+                      Save
+                    </Button>
+                  </form>
+                </Form>
+              </>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};

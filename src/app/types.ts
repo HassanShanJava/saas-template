@@ -1,3 +1,25 @@
+export interface deleteSaleTaxesType {
+  id: number;
+}
+export interface updateSaleTaxesType {
+  name?: string;
+  percentage?: number;
+  org_id: number;
+}
+export interface saleTaxesInputType {
+  name: string;
+  percentage: number;
+  org_id: number;
+}
+export interface saleTaxesResponseType {
+  name: string;
+  percentage: number;
+  org_id: number;
+  id: number;
+  is_deleted: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
 export interface creditsResponseType {
   created_at: Date;
   id: number;

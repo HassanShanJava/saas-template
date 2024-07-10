@@ -19,6 +19,7 @@ export const Credits = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Credits"],
   endpoints(builder) {
     return {
       getCredits: builder.query<creditsResponseType[], number>({
@@ -29,6 +30,7 @@ export const Credits = createApi({
             Accept: "application/json",
           },
         }),
+        providesTags: ["Credits"],
       }),
       createCredits: builder.mutation<any, createCreditsType>({
         query: (creditsdata) => ({
@@ -39,6 +41,7 @@ export const Credits = createApi({
             Accept: "application/json",
           },
         }),
+        invalidatesTags: ["Credits"],
       }),
       updateCredits: builder.mutation<any, updateCreditsType>({
         query: (creditsdata) => ({
@@ -49,6 +52,7 @@ export const Credits = createApi({
             Accept: "application/json",
           },
         }),
+        invalidatesTags: ["Credits"],
       }),
       deleteCredits: builder.mutation<any, any>({
         query: (creditsdata) => ({
@@ -59,6 +63,7 @@ export const Credits = createApi({
             Accept: "application/json",
           },
         }),
+        invalidatesTags: ["Credits"],
       }),
       getCreditsById: builder.query<any, number>({
         query: (org_id) => ({
@@ -68,15 +73,16 @@ export const Credits = createApi({
             Accept: "application/json",
           },
         }),
+        providesTags: ["Credits"],
       }),
     };
   },
 });
 
 export const {
-useGetCreditsQuery,
-useCreateCreditsMutation,
-useUpdateCreditsMutation,
-useDeleteCreditsMutation,
-useGetCreditsByIdQuery,
+  useGetCreditsQuery,
+  useCreateCreditsMutation,
+  useUpdateCreditsMutation,
+  useDeleteCreditsMutation,
+  useGetCreditsByIdQuery,
 } = Credits;

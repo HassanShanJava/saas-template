@@ -6,12 +6,14 @@ const token = localStorage.getItem("userToken");
 
 export const IncomeCategory = createApi({
   reducerPath: "api/incomeCategory",
-  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL, 
-   prepareHeaders:(headers,{getState})=>{
-      if(token) headers.set("Authorization",`Bearer ${token}`)
+  baseQuery: fetchBaseQuery({
+    baseUrl: API_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+      if (token) headers.set("Authorization", `Bearer ${token}`);
       return headers;
-      }, 
+    },
   }),
+  tagTypes: ["IncomeCategory"],
   endpoints(builder) {
     return {
       getIncomeCategory: builder.query<any, number>({
@@ -22,6 +24,7 @@ export const IncomeCategory = createApi({
             Accept: "application/json",
           },
         }),
+        providesTags: ["IncomeCategory"],
       }),
       createIncomeCategory: builder.mutation<any, any>({
         query: (incomeCategorydata) => ({
@@ -32,8 +35,9 @@ export const IncomeCategory = createApi({
             Accept: "application/json",
           },
         }),
+        invalidatesTags: ["IncomeCategory"],
       }),
-      updateIncomeCategory: builder.mutation<any, any>({  
+      updateIncomeCategory: builder.mutation<any, any>({
         query: (incomeCategorydata) => ({
           url: `/membership_plan/income_category`,
           method: "PUT",
@@ -42,6 +46,7 @@ export const IncomeCategory = createApi({
             Accept: "application/json",
           },
         }),
+        invalidatesTags: ["IncomeCategory"],
       }),
       deleteIncomeCategory: builder.mutation<any, any>({
         query: (incomeCategorydata) => ({
@@ -52,6 +57,7 @@ export const IncomeCategory = createApi({
             Accept: "application/json",
           },
         }),
+        invalidatesTags: ["IncomeCategory"],
       }),
       getIncomeCategoryById: builder.query<any, number>({
         query: (income_category_id) => ({
@@ -61,16 +67,16 @@ export const IncomeCategory = createApi({
             Accept: "application/json",
           },
         }),
+        providesTags: ["IncomeCategory"],
       }),
     };
-  }
-  
+  },
 });
 
 export const {
-    useGetIncomeCategoryQuery,
-    useCreateIncomeCategoryMutation,
-    useUpdateIncomeCategoryMutation,
-    useDeleteIncomeCategoryMutation,
-    useGetIncomeCategoryByIdQuery
+  useGetIncomeCategoryQuery,
+  useCreateIncomeCategoryMutation,
+  useUpdateIncomeCategoryMutation,
+  useDeleteIncomeCategoryMutation,
+  useGetIncomeCategoryByIdQuery,
 } = IncomeCategory;

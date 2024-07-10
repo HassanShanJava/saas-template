@@ -122,6 +122,20 @@ export default function CreditsTableView() {
     org_id: orgId,
   });
 
+  const handleOnChange = (e) => {
+    const { name, value } = e.target;
+    console.log({ name, value }, "name,value");
+    let finalValue = value;
+    if (name == "min_limit") {
+      finalValue = Number(value);
+    }
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, [name]: finalValue };
+      console.log("After update:", updatedData);
+      return updatedData;
+    });
+  };
+
   // table dropdown status update
   const handleStatusChange = async (payload: {
     id: number;
@@ -563,6 +577,7 @@ export default function CreditsTableView() {
         setIsDialogOpen={handleCloseDailog}
         refetch={refetch}
         setFormData={setFormData}
+        handleOnChange={handleOnChange}
       />
     </div>
   );
@@ -583,12 +598,14 @@ const CreditForm = ({
   isDialogOpen,
   refetch,
   setFormData,
+  handleOnChange,
 }: {
   data: createFormData;
   isDialogOpen: boolean;
   setIsDialogOpen: any;
   refetch?: any;
   setFormData?: any;
+  handleOnChange?: any;
 }) => {
   const { toast } = useToast();
   // const [formData, setFormData] = useState(data);
@@ -721,8 +738,10 @@ const CreditForm = ({
                           <FloatingLabelInput
                             {...field}
                             id="name"
+                            name="name"
                             label="Credit Name"
                             value={field.value ?? ""}
+                            onChange={handleOnChange}
                           />
                           {watcher.name ? <></> : <FormMessage />}
                         </FormItem>
@@ -737,11 +756,13 @@ const CreditForm = ({
                           <FloatingLabelInput
                             {...field}
                             id="min_limit"
+                            name="min_limit"
                             min={1}
                             type="number"
                             className="number-input"
                             label="Min Requred Limit"
                             value={field.value ?? 1}
+                            onChange={handleOnChange}
                           />
                           {watcher.min_limit ? <></> : <FormMessage />}
                         </FormItem>

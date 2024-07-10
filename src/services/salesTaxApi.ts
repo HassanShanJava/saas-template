@@ -19,6 +19,7 @@ export const SalesTax = createApi({
       return headers;
     },
   }),
+  tagTypes: ["SalesTax"],
   endpoints(builder) {
     return {
       getSalesTax: builder.query<saleTaxesResponseType[], number>({
@@ -29,6 +30,8 @@ export const SalesTax = createApi({
             Accept: "application/json",
           },
         }),
+        providesTags: ["SalesTax"],
+        // transformResponse:(res:any[])=>res.sort((a,b)=>b.id-a.id)   //to sort in desc
       }),
       createSalesTax: builder.mutation<any, saleTaxesInputType>({
         query: (saleTaxesdata) => ({
@@ -39,8 +42,9 @@ export const SalesTax = createApi({
             Accept: "application/json",
           },
         }),
+        invalidatesTags: ["SalesTax"],
       }),
-      updateSalesTax: builder.mutation<any, updateSaleTaxesType>({  
+      updateSalesTax: builder.mutation<any, updateSaleTaxesType>({
         query: (saleTaxesdata) => ({
           url: `/membership_plan/sale_taxes`,
           method: "PUT",
@@ -49,6 +53,7 @@ export const SalesTax = createApi({
             Accept: "application/json",
           },
         }),
+        invalidatesTags: ["SalesTax"],
       }),
       deleteSalesTax: builder.mutation<any, deleteSaleTaxesType>({
         query: (saleTaxesdata) => ({
@@ -59,6 +64,7 @@ export const SalesTax = createApi({
             Accept: "application/json",
           },
         }),
+        invalidatesTags: ["SalesTax"],
       }),
       getSalesTaxById: builder.query<saleTaxesResponseType, number>({
         query: (sale_tax_id) => ({
@@ -68,6 +74,7 @@ export const SalesTax = createApi({
             Accept: "application/json",
           },
         }),
+        providesTags: ["SalesTax"],
       }),
     };
   },

@@ -173,8 +173,12 @@ export default function SaleTaxesTableView() {
   const handleOnChange = (e) => {
     const { name, value } = e.target;
     console.log({ name, value }, "name,value");
+    let finalValue=value
+    if(name=='percentage'){
+      finalValue=Number(value)
+    }
     setFormData((prevData) => {
-      const updatedData = { ...prevData, [name]: value };
+      const updatedData = { ...prevData, [name]: finalValue };
       console.log("After update:", updatedData);
       return updatedData;
     });
@@ -551,12 +555,14 @@ const SaleTaxesForm = ({
   isDialogOpen,
   refetch,
   setFormData,
+  handleOnChange,
 }: {
   data: saleTaxesFormData;
   isDialogOpen: boolean;
   setIsDialogOpen: any;
   refetch?: any;
   setFormData?: any;
+  handleOnChange?: any;
 }) => {
   const { toast } = useToast();
   // const [formData, setFormData] = useState(data);
@@ -591,7 +597,7 @@ const SaleTaxesForm = ({
 
     try {
       if (formData.case == "add") {
-        const resp = await createSalesTax(data).unwrap();
+        const resp = await createSalesTax(data)
         if (resp) {
           console.log({ resp });
           refetch();
@@ -603,7 +609,7 @@ const SaleTaxesForm = ({
           setIsDialogOpen(false);
         }
       } else {
-        const resp = await updateSalesTax(data).unwrap();
+        const resp = await updateSalesTax(data)
         if (resp) {
           console.log({ resp });
           refetch();
@@ -637,13 +643,13 @@ const SaleTaxesForm = ({
   };
 
   const resetFormAndCloseDialog = () => {
-    console.log("calling close");
     setFormData((prev) => ({
       ...prev,
       percentage: 1,
       name: "",
     }));
   };
+  console.log(form.formState.errors)
 
   return (
     <div>
@@ -686,6 +692,7 @@ const SaleTaxesForm = ({
                           name="name"
                           label="Tax/VAT Name"
                           value={field.value ?? ""}
+                          onChange={handleOnChange}
                         />
                         {watcher.name ? <></> : <FormMessage />}
                       </FormItem>
@@ -708,6 +715,8 @@ const SaleTaxesForm = ({
                           className="number-input"
                           label="Percentage"
                           value={field.value ?? 1}
+                          onChange={handleOnChange}
+
                         />
                         {watcher.percentage ? <></> : <FormMessage />}
                       </FormItem>

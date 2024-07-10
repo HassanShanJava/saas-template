@@ -12,13 +12,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import {
   Table,
   TableBody,
@@ -32,10 +26,8 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 import {
@@ -43,9 +35,7 @@ import {
   FormField,
   FormItem,
   FormMessage,
-  FormLabel,
   FormControl,
-  FormDescription,
 } from "@/components/ui/form";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 
@@ -55,7 +45,7 @@ import { useForm } from "react-hook-form";
 
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MoreHorizontal, PlusIcon, Search } from "lucide-react";
+import {  PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -69,7 +59,6 @@ import {
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import { creditTablestypes, ErrorType } from "@/app/types";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
@@ -81,7 +70,6 @@ import {
   useGetCreditsQuery,
   useCreateCreditsMutation,
   useUpdateCreditsMutation,
-  useDeleteCreditsMutation,
 } from "@/services/creditsApi";
 
 const downloadCSV = (data: creditTablestypes[], fileName: string) => {
@@ -97,8 +85,8 @@ const downloadCSV = (data: creditTablestypes[], fileName: string) => {
 
 //
 const status = [
-  { value: true, label: "Active", color: "bg-green-500" },
-  { value: false, label: "Inactive", color: "bg-blue-500" },
+  { value: "true", label: "Active", color: "bg-green-500" },
+  { value: "false", label: "Inactive", color: "bg-blue-500" },
 ];
 
 export default function CreditsTableView() {
@@ -108,7 +96,6 @@ export default function CreditsTableView() {
     data: creditsData,
     isLoading,
     refetch,
-    error,
   } = useGetCreditsQuery(orgId);
   const [updateCredits, { isLoading: creditsLoading }] =
     useUpdateCreditsMutation();
@@ -122,10 +109,10 @@ export default function CreditsTableView() {
     org_id: orgId,
   });
 
-  const handleOnChange = (e) => {
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     console.log({ name, value }, "name,value");
-    let finalValue = value;
+    let finalValue: number | string = value;
     if (name == "min_limit") {
       finalValue = Number(value);
     }
@@ -140,9 +127,10 @@ export default function CreditsTableView() {
   const handleStatusChange = async (payload: {
     id: number;
     org_id: number;
-    status: boolean;
+    status: string;
   }) => {
     try {
+      // payload.status=Boolean(payload.status)
       const resp = await updateCredits(payload).unwrap();
       if (resp) {
         console.log({ resp });
@@ -228,15 +216,15 @@ export default function CreditsTableView() {
       header: ({ table }) => <p>Status</p>,
       cell: ({ row }) => {
         const value =
-          row.original?.status != null ? row.original?.status : false;
+          row.original?.status != null ? row.original?.status + "" : "false";
         const statusLabel = status.filter((r) => r.value === value)[0];
         const id = Number(row.original.id);
         const org_id = Number(row.original.org_id);
         return (
           <Select
-            defaultValue={value + ""}
+            defaultValue={value}
             onValueChange={(e) =>
-              handleStatusChange({ status: Boolean(e), id: id, org_id: org_id })
+              handleStatusChange({ status: e, id: id, org_id: org_id })
             }
           >
             <SelectTrigger>
@@ -315,7 +303,7 @@ export default function CreditsTableView() {
     setIsDialogOpen(true);
   };
 
-  const handleEditCredit = (data) => {
+  const handleEditCredit = (data: createFormData) => {
     // console.log("Before update:", formData);
     console.log("update:", data);
     setFormData(() => {
@@ -689,7 +677,7 @@ const CreditForm = ({
 
   const resetFormAndCloseDialog = () => {
     console.log("calling close");
-    setFormData((prev) => ({
+    setFormData((prev: createFormData) => ({
       ...prev,
       status: true,
       name: "",
@@ -702,7 +690,7 @@ const CreditForm = ({
       <Dialog
         open={isDialogOpen}
         onOpenChange={() => {
-          setFormData((prev) => ({
+          setFormData((prev: createFormData) => ({
             ...prev,
             status: true,
             name: "",

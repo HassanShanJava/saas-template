@@ -8,19 +8,20 @@ import {
   updateStaffInput,
   updateLeadInput
 } from "../app/types";
-// import { RootState } from "@/app/store";
+import { RootState } from "@/app/store";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-const token = localStorage.getItem("userToken");
-
 export const Leads = createApi({
   reducerPath: "api/leads",
-  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL, 
-   prepareHeaders:(headers,{getState})=>{
-      if(token) headers.set("Authorization",`Bearer ${token}`)
+  baseQuery: fetchBaseQuery({
+    baseUrl: API_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).auth.userToken;
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+      headers.set("Access-Control-Allow-Origin", `*`);
       return headers;
-      }, 
+    },
   }),
   endpoints(builder) {
     return {

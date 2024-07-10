@@ -1,3 +1,29 @@
+export interface incomeCategoryTableType {
+  id: number;
+  name: string;
+  org_id: number;
+  sale_tax_id: number;
+}
+export interface incomeCategoryResponseType {
+  id: number;
+  org_id: number;
+  name: string;
+  sale_tax_id: number;
+}
+export interface updateIncomeCategoryType {
+  id?: number|undefined;
+  org_id?: number;
+  name?: string;
+  sale_tax_id?: number;
+}
+export interface createIncomeCategoryType {
+  org_id: number;
+  name: string;
+  sale_tax_id: number;
+}
+export interface deleteIncomeCategoryType {
+  id: number;
+}
 export interface deleteSaleTaxesType {
   id: number;
 }
@@ -39,14 +65,14 @@ export interface createCreditsType {
   org_id: number;
   name: string;
   min_limit: number;
-  status?: boolean;
+  status: boolean | string;
 }
 export interface updateCreditsType {
   id?: number;
   org_id?: number;
   name?: string;
   min_limit?: number;
-  status?: boolean;
+  status?: boolean | string;
 }
 export interface deleteCreditsType {
   credit_id: number;

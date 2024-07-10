@@ -1,22 +1,24 @@
+import { RootState } from "@/app/store";
+import { createIncomeCategoryType, deleteIncomeCategoryType, incomeCategoryResponseType, updateIncomeCategoryType } from "@/app/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-
-const token = localStorage.getItem("userToken");
 
 export const IncomeCategory = createApi({
   reducerPath: "api/incomeCategory",
   baseQuery: fetchBaseQuery({
     baseUrl: API_BASE_URL,
     prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).auth.userToken;
       if (token) headers.set("Authorization", `Bearer ${token}`);
+      headers.set("Access-Control-Allow-Origin", `*`);
       return headers;
     },
   }),
   tagTypes: ["IncomeCategory"],
   endpoints(builder) {
     return {
-      getIncomeCategory: builder.query<any, number>({
+      getIncomeCategory: builder.query<incomeCategoryResponseType[], number>({
         query: (org_id) => ({
           url: `/membership_plan/income_category/getAll?org_id=${org_id}`,
           method: "GET",
@@ -26,7 +28,7 @@ export const IncomeCategory = createApi({
         }),
         providesTags: ["IncomeCategory"],
       }),
-      createIncomeCategory: builder.mutation<any, any>({
+      createIncomeCategory: builder.mutation<any, createIncomeCategoryType>({
         query: (incomeCategorydata) => ({
           url: `/membership_plan/income_category`,
           method: "POST",
@@ -37,7 +39,7 @@ export const IncomeCategory = createApi({
         }),
         invalidatesTags: ["IncomeCategory"],
       }),
-      updateIncomeCategory: builder.mutation<any, any>({
+      updateIncomeCategory: builder.mutation<any, updateIncomeCategoryType>({
         query: (incomeCategorydata) => ({
           url: `/membership_plan/income_category`,
           method: "PUT",
@@ -48,7 +50,7 @@ export const IncomeCategory = createApi({
         }),
         invalidatesTags: ["IncomeCategory"],
       }),
-      deleteIncomeCategory: builder.mutation<any, any>({
+      deleteIncomeCategory: builder.mutation<any, deleteIncomeCategoryType>({
         query: (incomeCategorydata) => ({
           url: `/membership_plan/income_category`,
           method: "DELETE",
@@ -59,7 +61,7 @@ export const IncomeCategory = createApi({
         }),
         invalidatesTags: ["IncomeCategory"],
       }),
-      getIncomeCategoryById: builder.query<any, number>({
+      getIncomeCategoryById: builder.query<incomeCategoryResponseType, number>({
         query: (income_category_id) => ({
           url: `/membership_plan/income_category?income_category_id=${income_category_id}`,
           method: "GET",

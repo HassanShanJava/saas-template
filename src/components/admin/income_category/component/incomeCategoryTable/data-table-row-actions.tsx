@@ -1,4 +1,3 @@
-import { Row } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,29 +11,22 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-import {
-  useUpdateCreditsMutation,
-  useDeleteCreditsMutation,
-} from "@/services/creditsApi";
 
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ErrorType } from "@/app/types";
+import { useDeleteIncomeCategoryMutation } from "@/services/incomeCategoryApi";
 
 interface DataTableRowActionsProps<TData> {
   id: number;
   org_id: number;
-  status?: boolean;
+  sale_tax_id: number;
   name: string;
-  min_limit: number;
 }
 
 export function DataTableRowActions<TData>({
@@ -47,12 +39,9 @@ export function DataTableRowActions<TData>({
   handleEdit?: any;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
-  const [updateCredits, { isLoading: updateLoading }] =
-    useUpdateCreditsMutation();
-  const [deleteCredits, { isLoading: deleteLoading }] =
-    useDeleteCreditsMutation();
+  const [deleteIncomeCategory, { isLoading: deleteLoading }] =
+    useDeleteIncomeCategoryMutation();
   const { toast } = useToast();
-  console.log(data);
 
   const deleteRow = async () => {
     const payload = {
@@ -60,7 +49,7 @@ export function DataTableRowActions<TData>({
       org_id: data.org_id,
     };
     try {
-      const resp = await deleteCredits(payload).unwrap();
+      const resp = await deleteIncomeCategory(payload).unwrap();
       if (resp) {
         console.log({ resp });
         refetch();
@@ -128,7 +117,7 @@ export function DataTableRowActions<TData>({
                     className="w-18 h-18"
                   />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this Credit
+                    Please confirm if you want to delete this Income Category
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

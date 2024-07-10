@@ -17,10 +17,10 @@ import { PlusIcon } from "lucide-react";
 import { FaFilter } from "react-icons/fa";
 
 const Events = () => {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const today = new Date();
-	const day = today.getDate(); 
-	const Year = today.getFullYear();
+  const day = today.getDate();
+  const Year = today.getFullYear();
   const days = [
     "Sunday",
     "Monday",
@@ -45,12 +45,12 @@ const Events = () => {
     "December",
   ];
 
-  const dayName = days[today.getDay()]; 
-  const monthName = months[today.getMonth()]; 
+  const dayName = days[today.getDay()];
+  const monthName = months[today.getMonth()];
 
-   function handleRoute() {
-     navigate("/admin/events/addevents");
-   }
+  function handleRoute() {
+    navigate("/admin/events/addevents");
+  }
   const events = [
     {
       title: "Meeting",
@@ -182,47 +182,49 @@ const Events = () => {
           </div>
         </div>
       </div>
-      <FullCalender
-        plugins={[timeGridPlugin]}
-        allDaySlot={false}
-        nowIndicator={true}
-        initialView="timeGridWeek"
-        eventColor={"transparent"}
-        slotDuration={"00:60:01"}
-        dayHeaderContent={(arg) => {
-          const dayName = [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-          ];
-          return (
-            <span className="text-xs text-neutral-500 h-20 flex items-center justify-center">
-              {dayName[arg.date.getDay()]} {arg.date.getDate()}
+      <div className="bg-white p-4 rounded-lg">
+        <FullCalender
+          plugins={[timeGridPlugin]}
+          allDaySlot={false}
+          nowIndicator={true}
+          initialView="timeGridWeek"
+          eventColor={"transparent"}
+          slotDuration={"00:60:01"}
+          dayHeaderContent={(arg) => {
+            const dayName = [
+              "Sunday",
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+            ];
+            return (
+              <span className="text-xs text-neutral-500 h-20 flex items-center justify-center">
+                {dayName[arg.date.getDay()]} {arg.date.getDate()}
+              </span>
+            );
+          }}
+          slotLabelContent={(arg) => (
+            <span className="text-xs">
+              {(arg.date.getHours() + "").length == 1
+                ? "0" + arg.date.getHours()
+                : arg.date.getHours()}
             </span>
-          );
-        }}
-        slotLabelContent={(arg) => (
-          <span className="text-xs">
-            {(arg.date.getHours() + "").length == 1
-              ? "0" + arg.date.getHours()
-              : arg.date.getHours()}
-          </span>
-        )}
-        events={events}
-        eventContent={(eventInfo) => (
-          <div className="p-2 w-full h-full  border-2 border-red-500 text-black rounded-lg bg-red-500/5">
-            <span className="p-1 text-white text-[10px] bg-red-500 rounded-2xl">
-              {eventInfo.timeText}
-            </span>
-            <p>{eventInfo.event.title}</p>
-          </div>
-        )}
-      />
+          )}
+          events={events}
+          eventContent={(eventInfo) => (
+            <div className="p-2 w-full h-full  border-2 border-red-500 text-black rounded-lg bg-red-500/5">
+              <span className="p-1 text-white text-[10px] bg-red-500 rounded-2xl">
+                {eventInfo.timeText}
+              </span>
+              <p>{eventInfo.event.title}</p>
+            </div>
+          )}
+        />
+      </div>
     </div>
   );
-}
+};
 export default Events;

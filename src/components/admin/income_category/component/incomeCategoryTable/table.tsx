@@ -640,7 +640,7 @@ const IncomeCategoryForm = ({
   const resetFormAndCloseDialog = () => {
     setFormData((prev: incomeCategoryFromData) => ({
       ...prev,
-      percentage: 1,
+      sale_tax_id: undefined,
       name: "",
     }));
   };
@@ -653,12 +653,12 @@ const IncomeCategoryForm = ({
         onOpenChange={() => {
           setFormData((prev: incomeCategoryFromData) => ({
             ...prev,
-            percentage: 1,
+            sale_tax_id: undefined,
             name: "",
           }));
           form.reset({
             org_id: formData.org_id,
-            sale_tax_id: 1,
+            sale_tax_id: undefined,
             name: "",
           });
           setIsDialogOpen();

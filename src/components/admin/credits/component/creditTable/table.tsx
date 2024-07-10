@@ -340,11 +340,11 @@ export default function CreditsTableView() {
 
         </div>
         <Button
-          className="bg-primary m-4 text-black gap-1"
+          className="bg-primary m-4 text-black font-semibold gap-1"
           onClick={handleAddCredit}
         >
-          <PlusIcon className="h-4 w-4" />
-          Add Credit
+          <PlusIcon className="h-4 w-4 " />
+          Create New
         </Button>
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>

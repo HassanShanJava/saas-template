@@ -64,7 +64,7 @@ import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
-// import { DataTableFacetedFilter } from "./data-table-faced-filter";
+import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
 import {
   useGetSalesTaxQuery,

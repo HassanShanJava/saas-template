@@ -166,16 +166,7 @@ const DashboardLayout =()=>{
             </div>
             <span className={`${!isSidebarOpen && "hidden"}`}>Events</span>
           </Link>
-          <Link
-            to="events"
-            className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
-              isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
-            }`}
-          >
-            <i className="fa-solid fa-wrench h-5 w-5"></i>
-            <span className={`${!isSidebarOpen && "hidden"}`}>Events</span>
-          </Link>
-          <Link
+          {/* <Link
             to="#"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
@@ -183,8 +174,8 @@ const DashboardLayout =()=>{
           >
             <i className="fa-solid fa-book-open h-5 w-5"></i>
             <span className={`${!isSidebarOpen && "hidden"}`}>Task</span>
-          </Link>
-          <Link
+          </Link> */}
+          {/* <Link
             to="#"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
@@ -192,8 +183,8 @@ const DashboardLayout =()=>{
           >
             <i className="fa-solid fa-wrench h-5 w-5"></i>
             <span className={`${!isSidebarOpen && "hidden"}`}>Manage</span>
-          </Link>
-          <Link
+          </Link> */}
+          {/* <Link
             to="/admin/client"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
@@ -201,8 +192,8 @@ const DashboardLayout =()=>{
           >
             <UsersIcon className="h-5 w-5" />
             <span className={`${!isSidebarOpen && "hidden"}`}>Coach</span>
-          </Link>
-          <Link
+          </Link> */}
+          {/* <Link
             to="/admin/client"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
               isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"
@@ -210,7 +201,7 @@ const DashboardLayout =()=>{
           >
             <UsersIcon className="h-5 w-5" />
             <span className={`${!isSidebarOpen && "hidden"}`}>Engagements</span>
-          </Link>
+          </Link> */}
           {/* <Link
             to="/admin/client"
             className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${
@@ -246,7 +237,7 @@ const DashboardLayout =()=>{
                 className={`w-4 h-4 ${isActiveLink(location.pathname, "/admin/credits") ? "" : "text-gray-500 stroke-current"}`}
               />
             </div>
-            <span className={`${!isSidebarOpen && "hidden"}`}>Credits</span>
+            <span className={`${!isSidebarOpen && "hidden"}`}>System Settings</span>
           </Link>
         </nav>
       </div>

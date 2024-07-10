@@ -318,7 +318,7 @@ export default function CreditsTableView() {
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
-          <div className="flex flex-1 items-center  ">
+          {/* <div className="flex flex-1 items-center  ">
             <div className="flex items-center w-[40%] gap-2 py-2 rounded-md border border-gray-300 focus-within:border-primary focus-within:ring-[1] ring-primary">
               <Search className="w-6 h-6 text-gray-500" />
               <input
@@ -335,7 +335,9 @@ export default function CreditsTableView() {
                 className="h-7 w-[150px] lg:w-[220px] outline-none"
               />
             </div>
-          </div>
+          </div> */}
+            <p className="font-semibold text-2xl">Credits</p>
+
         </div>
         <Button
           className="bg-primary m-4 text-black gap-1"
@@ -344,7 +346,7 @@ export default function CreditsTableView() {
           <PlusIcon className="h-4 w-4" />
           Add Credit
         </Button>
-        <DataTableViewOptions table={table} action={handleExportSelected} />
+        {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
       <div className="rounded-none  ">
         <ScrollArea className="w-full relative">

@@ -51,7 +51,7 @@ export const Header = () => {
         <div className="flex w-full justify-between items-center gap-4">
           <div className="flex flex-row h-full justify-between items-center gap-4">
             <div className="w-full">
-              <h1 className="text-3xl font-bold pl-7">
+              <h1 className="text-2xl pt-2 font-bold pl-7">
                 {isActiveLink(location.pathname, "/admin/dashboard")
                   ? "Dashboard"
                   : ""}
@@ -62,7 +62,13 @@ export const Header = () => {
                   ? "Add Client"
                   : ""}
                 {isActiveLink(location.pathname, "/admin/credits")
-                  ? "Credits"
+                  ? "System Settings"
+                  : ""}
+                {isActiveLink(location.pathname, "/admin/saleTaxes")
+                  ? "System Settings"
+                  : ""}
+                {isActiveLink(location.pathname, "/admin/incomeCategory")
+                  ? "System Settings"
                   : ""}
                 {isActiveLink(location.pathname, "/admin/leads") ? "Leads" : ""}
 
@@ -111,6 +117,45 @@ export const Header = () => {
                   <span className="text-gray-400 font-bold">/</span>
                   <span className="pl-1 text-primary font-bold text-base">
                     Add Event
+                  </span>
+                </div>
+              ) : (
+                ""
+              )}
+              {isActiveLink(location.pathname, "/admin/credits") ? (
+                <div className="pl-7 pb-4 text-sm">
+                  <span className="text-primary pr-1 font-semibold">
+                    System Settings
+                  </span>{" "}
+                  <span className="text-gray-400 font-semibold">/</span>
+                  <span className="pl-1 text-gray-400 font-semibold ">
+                    Credits
+                  </span>
+                </div>
+              ) : (
+                ""
+              )}
+              {isActiveLink(location.pathname, "/admin/incomeCategory") ? (
+                <div className="pl-7 pb-4 text-sm">
+                  <span className="text-primary pr-1 font-semibold">
+                    System Settings
+                  </span>{" "}
+                  <span className="text-gray-400 font-semibold">/</span>
+                  <span className="pl-1 text-gray-400 font-semibold ">
+                    Income Categories
+                  </span>
+                </div>
+              ) : (
+                ""
+              )}
+              {isActiveLink(location.pathname, "/admin/saleTaxes") ? (
+                <div className="pl-7 pb-4 text-sm">
+                  <span className="text-primary pr-1 font-semibold">
+                    System Settings
+                  </span>{" "}
+                  <span className="text-gray-400 font-semibold">/</span>
+                  <span className="pl-1 text-gray-400 font-semibold ">
+                    Sales Tax
                   </span>
                 </div>
               ) : (

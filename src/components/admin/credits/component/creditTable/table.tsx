@@ -176,7 +176,7 @@ export default function CreditsTableView() {
     pageIndex: 0,
     pageSize: 10, // Adjust this based on your preference
   });
-  const displayValue = (value: any) => (value === null ? "N/A" : value);
+  // const displayValue = (value: any) => (value === null ? "N/A" : value);
 
   const handleExportSelected = () => {
     const selectedRows = table

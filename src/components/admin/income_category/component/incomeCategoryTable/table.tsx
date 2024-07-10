@@ -58,7 +58,7 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, incomeCategoryTableType, saleTaxesResponseType } from "@/app/types";
+import { ErrorType, incomeCategoryTableType } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";

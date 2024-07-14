@@ -30,7 +30,7 @@ const BasicInfoForm = () => {
 
   const [groups, setGroups] = useState<group[]>([]);
   const [isAddGroup, setAddGroup] = useState<boolean>(false);
-  const [inputValue, setInputValue] = useState<any>({});
+  const [inputValue, setInputValue] = useState<any>('');
 
   const addGroup = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,6 +52,8 @@ const BasicInfoForm = () => {
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
+
+  console.log({groups})
 
   return (
     <div className="text-black h-full">
@@ -75,7 +77,7 @@ const BasicInfoForm = () => {
               <div>
                 <Select
                   onValueChange={(value) => {
-                    onChange(value === "true");
+                    onChange(value);
                     trigger([
                       "membership_name",
                       "membership_group",
@@ -97,10 +99,10 @@ const BasicInfoForm = () => {
                     {groups?.length > 0 &&
                       groups.map((item, i) => (
                         <SelectItem value={item?.value} key={i}>
-                          {item?.name}
+                          {item?.name}  
                         </SelectItem>
                       ))}
-                    <Separator className=" h-[3px] font-thin" />
+                    <Separator className=" h-[1px] font-thin rounded-full" />
                     <div
                       className="flex items-center gap-2 p-2 cursor-pointer"
                       onClick={() => setAddGroup(true)}

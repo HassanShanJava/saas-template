@@ -64,17 +64,10 @@ import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
+import MembershipForm from "../modal/membership-form";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
-import {
-  useGetSalesTaxQuery,
-} from "@/services/salesTaxApi";
 
-import {
-  useCreateIncomeCategoryMutation,
-  useGetIncomeCategoryQuery,
-  useUpdateIncomeCategoryMutation,
-} from "@/services/incomeCategoryApi";
 
 const downloadCSV = (data: incomeCategoryTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -87,27 +80,23 @@ const downloadCSV = (data: incomeCategoryTableType[], fileName: string) => {
   document.body.removeChild(link);
 };
 
-export default function IncomeCategoryTableView() {
+export default function MembershipsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  const {
-    data: incomeCategoryData,
-    isLoading,
-    refetch,
-  } = useGetIncomeCategoryQuery(orgId);
+  // const {
+  //   data: incomeCategoryData,
+  //   isLoading,
+  //   refetch,
+  // } = useGetIncomeCategoryQuery(orgId);
 
-  const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
+  // const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleCloseDailog = () => setIsDialogOpen(false);
 
-  const [formData, setFormData] = useState<incomeCategoryFromData>({
-    sale_tax_id: undefined,
-    name: "",
-    org_id: orgId,
-  });
+  const [formData, setFormData] = useState({});
 
   //   // table dropdown status update
   //   const handleStatusChange = async (payload: {
@@ -144,7 +133,7 @@ export default function IncomeCategoryTableView() {
   //       }
   //     }
   //   };
-
+  const incomeCategoryData:any[]=[]
   const incomeCategorytableData = React.useMemo(() => {
     return Array.isArray(incomeCategoryData) ? incomeCategoryData : [];
   }, [incomeCategoryData]);
@@ -191,7 +180,7 @@ export default function IncomeCategoryTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
-  const columns: ColumnDef<incomeCategoryTableType>[] = [
+  const columns: any[] = [
     {
       accessorKey: "name",
       header: ({ table }) => <span>Category Name</span>,
@@ -205,9 +194,10 @@ export default function IncomeCategoryTableView() {
       accessorKey: "sale_tax_id",
       header: ({ table }) => <span>Default Tax/VAT</span>,
       cell: ({ row }) => {
-        const sales:any=salesTaxData?.filter(item=>item.id==row.original.sale_tax_id)[0]
-        console.log({salesTaxData,sales},row.original.sale_tax_id,"sales")
-        return <span>{sales?.name +" ("+sales?.percentage+"%)" }</span>;
+        // const sales:any=salesTaxData?.filter(item=>item.id==row.original.sale_tax_id)[0]
+        // console.log({salesTaxData,sales},row.original.sale_tax_id,"sales")
+        // return <span>{sales?.name +" ("+sales?.percentage+"%)" }</span>;
+        return <span>active</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -219,8 +209,8 @@ export default function IncomeCategoryTableView() {
       cell: ({ row }) => (
         <DataTableRowActions
           data={row.original}
-          refetch={refetch}
-          handleEdit={handleEditIncomeCategory}
+          // refetch={refetch}
+          // handleEdit={handleEditIncomeCategory}
         />
       ),
     },
@@ -255,26 +245,7 @@ export default function IncomeCategoryTableView() {
     // setFilters
   }
 
-  const handleAddIncomeCategory = () => {
-    console.log("Before update:", formData);
-    setFormData((prevData) => {
-      const updatedData = { ...prevData, case: "add" };
-      console.log("After update:", updatedData);
-      return updatedData;
-    });
-    setIsDialogOpen(true);
-  };
-
-  const handleEditIncomeCategory = (data: incomeCategoryFromData) => {
-    // console.log("Before update:", formData);
-    console.log("update:", data);
-    setFormData(() => {
-      const updatedData = { ...data, case: "edit" };
-      console.log("After update:", updatedData);
-      return updatedData;
-    });
-    setIsDialogOpen(true);
-  };
+  
 
   return (
     <div className="w-full space-y-4">
@@ -297,11 +268,12 @@ export default function IncomeCategoryTableView() {
               /> 
 
             </div> */}
-          <p className="font-semibold text-2xl">Income Categories</p>
+          <p className="font-semibold text-2xl">Memberships</p>
         </div>
         <Button
           className="bg-primary m-4 text-black gap-1 font-semibold"
-          onClick={handleAddIncomeCategory}
+          onClick={()=>setIsDialogOpen(true)}
+
         >
           <PlusIcon className="h-4 w-4" />
           Create New
@@ -331,7 +303,7 @@ export default function IncomeCategoryTableView() {
               ))}
             </TableHeader>
             <TableBody>
-              {isLoading ? (
+              {true ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -521,7 +493,7 @@ export default function IncomeCategoryTableView() {
       </div>
 
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
-      <IncomeCategoryForm
+      {/* <IncomeCategoryForm
         data={formData}
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={handleCloseDailog}
@@ -529,249 +501,250 @@ export default function IncomeCategoryTableView() {
         setFormData={setFormData}
         handleOnChange={handleOnChange}
         salesTaxData={salesTaxData}
-      />
+      /> */}
+      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen}/>
     </div>
   );
 }
 
-interface incomeCategoryFromData {
-  sale_tax_id: number|undefined;
-  name: string;
-  org_id: number;
-  id?: number;
-  case?: string;
-}
+// interface incomeCategoryFromData {
+//   sale_tax_id: number|undefined;
+//   name: string;
+//   org_id: number;
+//   id?: number;
+//   case?: string;
+// }
 
-const IncomeCategoryForm = ({
-  data: formData,
-  setIsDialogOpen,
-  isDialogOpen,
-  refetch,
-  setFormData,
-  handleOnChange,
-  salesTaxData,
-}: {
-  data: incomeCategoryFromData;
-  isDialogOpen: boolean;
-  setIsDialogOpen: any;
-  refetch?: any;
-  setFormData?: any;
-  handleOnChange?: any;
-  salesTaxData?:any
-}) => {
-  const { toast } = useToast();
-  // const [formData, setFormData] = useState(data);
-  const [createIncomeCategory, { isLoading: incomeCategoryLoading }] =
-    useCreateIncomeCategoryMutation();
-  const [updateIncomeCategory, { isLoading: updateLoading }] =
-    useUpdateIncomeCategoryMutation();
+// const IncomeCategoryForm = ({
+//   data: formData,
+//   setIsDialogOpen,
+//   isDialogOpen,
+//   refetch,
+//   setFormData,
+//   handleOnChange,
+//   salesTaxData,
+// }: {
+//   data: incomeCategoryFromData;
+//   isDialogOpen: boolean;
+//   setIsDialogOpen: any;
+//   refetch?: any;
+//   setFormData?: any;
+//   handleOnChange?: any;
+//   salesTaxData?:any
+// }) => {
+//   const { toast } = useToast();
+//   // const [formData, setFormData] = useState(data);
+//   const [createIncomeCategory, { isLoading: incomeCategoryLoading }] =
+//     useCreateIncomeCategoryMutation();
+//   const [updateIncomeCategory, { isLoading: updateLoading }] =
+//     useUpdateIncomeCategoryMutation();
 
-  useEffect(() => {
-    form.reset(formData);
-    setFormData(formData);
-    console.log({ formData, form }, "in useeffect");
-  }, [formData]);
+//   useEffect(() => {
+//     form.reset(formData);
+//     setFormData(formData);
+//     console.log({ formData, form }, "in useeffect");
+//   }, [formData]);
 
-  const incomeCategoryFormSchema = z.object({
-    id: z.number().optional(),
-    org_id: z.number(),
-    sale_tax_id: z.number(),
-    name: z.string().min(1, { message: "Name is required" }),
-  });
+//   const incomeCategoryFormSchema = z.object({
+//     id: z.number().optional(),
+//     org_id: z.number(),
+//     sale_tax_id: z.number(),
+//     name: z.string().min(1, { message: "Name is required" }),
+//   });
 
-  const form = useForm<z.infer<typeof incomeCategoryFormSchema>>({
-    resolver: zodResolver(incomeCategoryFormSchema),
-    defaultValues: formData,
-    mode: "onChange",
-  });
+//   const form = useForm<z.infer<typeof incomeCategoryFormSchema>>({
+//     resolver: zodResolver(incomeCategoryFormSchema),
+//     defaultValues: formData,
+//     mode: "onChange",
+//   });
 
-  const watcher = form.watch();
+//   const watcher = form.watch();
 
-  const onSubmit = async (data: z.infer<typeof incomeCategoryFormSchema>) => {
-    console.log({ data });
+//   const onSubmit = async (data: z.infer<typeof incomeCategoryFormSchema>) => {
+//     console.log({ data });
 
-    try {
-      if (formData.case == "add") {
-        const resp = await createIncomeCategory(data);
-        if (resp) {
-          console.log({ resp });
-          refetch();
-          toast({
-            variant: "success",
-            title: "Income Category Created Successfully",
-          });
-          resetFormAndCloseDialog();
-          setIsDialogOpen(false);
-        }
-      } else {
-        const resp = await updateIncomeCategory(data);
-        if (resp) {
-          console.log({ resp });
-          refetch();
-          toast({
-            variant: "success",
-            title: "Updated Successfully",
-          });
-          resetFormAndCloseDialog();
-          setIsDialogOpen(false);
-        }
-      }
-    } catch (error) {
-      console.log("Error", error);
-      if (error && typeof error === "object" && "data" in error) {
-        const typedError = error as ErrorType;
-        toast({
-          variant: "destructive",
-          title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error in form Submission",
-          description: `Something Went Wrong.`,
-        });
-      }
-      resetFormAndCloseDialog();
-      setIsDialogOpen(false);
-    }
-  };
+//     try {
+//       if (formData.case == "add") {
+//         const resp = await createIncomeCategory(data);
+//         if (resp) {
+//           console.log({ resp });
+//           refetch();
+//           toast({
+//             variant: "success",
+//             title: "Income Category Created Successfully",
+//           });
+//           resetFormAndCloseDialog();
+//           setIsDialogOpen(false);
+//         }
+//       } else {
+//         const resp = await updateIncomeCategory(data);
+//         if (resp) {
+//           console.log({ resp });
+//           refetch();
+//           toast({
+//             variant: "success",
+//             title: "Updated Successfully",
+//           });
+//           resetFormAndCloseDialog();
+//           setIsDialogOpen(false);
+//         }
+//       }
+//     } catch (error) {
+//       console.log("Error", error);
+//       if (error && typeof error === "object" && "data" in error) {
+//         const typedError = error as ErrorType;
+//         toast({
+//           variant: "destructive",
+//           title: "Error in form Submission",
+//           description: `${typedError.data?.detail}`,
+//         });
+//       } else {
+//         toast({
+//           variant: "destructive",
+//           title: "Error in form Submission",
+//           description: `Something Went Wrong.`,
+//         });
+//       }
+//       resetFormAndCloseDialog();
+//       setIsDialogOpen(false);
+//     }
+//   };
 
-  const resetFormAndCloseDialog = () => {
-    setFormData((prev: incomeCategoryFromData) => ({
-      ...prev,
-      sale_tax_id: undefined,
-      name: "",
-    }));
-  };
-  console.log(form.formState.errors);
+//   const resetFormAndCloseDialog = () => {
+//     setFormData((prev: incomeCategoryFromData) => ({
+//       ...prev,
+//       sale_tax_id: undefined,
+//       name: "",
+//     }));
+//   };
+//   console.log(form.formState.errors);
 
-  return (
-    <div>
-      <Dialog
-        open={isDialogOpen}
-        onOpenChange={() => {
-          setFormData((prev: incomeCategoryFromData) => ({
-            ...prev,
-            sale_tax_id: undefined,
-            name: "",
-          }));
-          form.reset({
-            org_id: formData.org_id,
-            sale_tax_id: undefined,
-            name: "",
-          });
-          setIsDialogOpen();
-        }}
-      >
-        {/* <DialogTrigger>Open</DialogTrigger> */}
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {formData.case == "add" ? "Create" : "Edit"} Income Category
-            </DialogTitle>
-            <DialogDescription>
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="flex flex-col py-4 gap-4"
-                >
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="name"
-                          name="name"
-                          label="Category Name"
-                          value={field.value ?? ""}
-                          onChange={handleOnChange}
-                        />
-                        {watcher.name ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  />
+//   return (
+//     <div>
+//       <Dialog
+//         open={isDialogOpen}
+//         onOpenChange={() => {
+//           setFormData((prev: incomeCategoryFromData) => ({
+//             ...prev,
+//             sale_tax_id: undefined,
+//             name: "",
+//           }));
+//           form.reset({
+//             org_id: formData.org_id,
+//             sale_tax_id: undefined,
+//             name: "",
+//           });
+//           setIsDialogOpen();
+//         }}
+//       >
+//         {/* <DialogTrigger>Open</DialogTrigger> */}
+//         <DialogContent>
+//           <DialogHeader>
+//             <DialogTitle>
+//               {formData.case == "add" ? "Create" : "Edit"} Income Category
+//             </DialogTitle>
+//             <DialogDescription>
+//               <Form {...form}>
+//                 <form
+//                   onSubmit={form.handleSubmit(onSubmit)}
+//                   className="flex flex-col py-4 gap-4"
+//                 >
+//                   <FormField
+//                     control={form.control}
+//                     name="name"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FloatingLabelInput
+//                           {...field}
+//                           id="name"
+//                           name="name"
+//                           label="Category Name"
+//                           value={field.value ?? ""}
+//                           onChange={handleOnChange}
+//                         />
+//                         {watcher.name ? <></> : <FormMessage />}
+//                       </FormItem>
+//                     )}
+//                   />
 
-                  {/* <FormField
-                    control={form.control}
-                    name="percentage"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          type="number"
-                          id="percentage"
-                          name="percentage"
-                          min={1}
-                          step={".1"}
-                          max={100}
-                          className="number-input"
-                          label="Percentage"
-                          value={field.value ?? 1}
-                          onChange={handleOnChange}
+//                   {/* <FormField
+//                     control={form.control}
+//                     name="percentage"
+//                     render={({ field }) => (
+//                       <FormItem>
+//                         <FloatingLabelInput
+//                           {...field}
+//                           type="number"
+//                           id="percentage"
+//                           name="percentage"
+//                           min={1}
+//                           step={".1"}
+//                           max={100}
+//                           className="number-input"
+//                           label="Percentage"
+//                           value={field.value ?? 1}
+//                           onChange={handleOnChange}
 
-                        />
-                        {watcher.percentage ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  /> */}
+//                         />
+//                         {watcher.percentage ? <></> : <FormMessage />}
+//                       </FormItem>
+//                     )}
+//                   /> */}
 
-                    <FormField
-                      control={form.control}
-                      name="sale_tax_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select
-                            onValueChange={(value) =>
-                              field.onChange(Number(value))
-                            }
-                            defaultValue={field.value?.toString()}
-                          >
-                            <FormControl>
-                              <SelectTrigger floatingLabel="Default Tax/VAT">
-                                <SelectValue placeholder="Select Tax/VAT" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {salesTaxData && salesTaxData?.length>0 ? (
-                                salesTaxData.map(
-                                  (saleTax:any, i: any) => (
-                                    <SelectItem
-                                      value={saleTax.id?.toString()}
-                                      key={i}
-                                      onClick={handleOnChange}
-                                    >
-                                      {saleTax.name+" ("+saleTax.percentage+"%)"}
-                                    </SelectItem>
-                                  )
-                                )
-                              ) : (
-                                <>
-                                  <p className="p-2"> No Sources Found</p>
-                                </>
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+//                     <FormField
+//                       control={form.control}
+//                       name="sale_tax_id"
+//                       render={({ field }) => (
+//                         <FormItem>
+//                           <Select
+//                             onValueChange={(value) =>
+//                               field.onChange(Number(value))
+//                             }
+//                             defaultValue={field.value?.toString()}
+//                           >
+//                             <FormControl>
+//                               <SelectTrigger>
+//                                 <SelectValue placeholder="Default Tax/VAT" />
+//                               </SelectTrigger>
+//                             </FormControl>
+//                             <SelectContent>
+//                               {salesTaxData && salesTaxData?.length>0 ? (
+//                                 salesTaxData.map(
+//                                   (saleTax:any, i: any) => (
+//                                     <SelectItem
+//                                       value={saleTax.id?.toString()}
+//                                       key={i}
+//                                       onClick={handleOnChange}
+//                                     >
+//                                       {saleTax.name+" ("+saleTax.percentage+"%)"}
+//                                     </SelectItem>
+//                                   )
+//                                 )
+//                               ) : (
+//                                 <>
+//                                   <p className="p-2"> No Sources Found</p>
+//                                 </>
+//                               )}
+//                             </SelectContent>
+//                           </Select>
+//                           <FormMessage />
+//                         </FormItem>
+//                       )}
+//                     />
 
-                  <Button
-                    type="submit"
-                    className="bg-primary font-semibold text-black gap-1"
-                  >
-                    <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                    Save
-                  </Button>
-                </form>
-              </Form>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
+//                   <Button
+//                     type="submit"
+//                     className="bg-primary font-semibold text-black gap-1"
+//                   >
+//                     <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+//                     Save
+//                   </Button>
+//                 </form>
+//               </Form>
+//             </DialogDescription>
+//           </DialogHeader>
+//         </DialogContent>
+//       </Dialog>
+//     </div>
+//   );
+// };

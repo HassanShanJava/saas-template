@@ -70,6 +70,9 @@ export const Header = () => {
                 {isActiveLink(location.pathname, "/admin/incomeCategory")
                   ? "System Settings"
                   : ""}
+                {isActiveLink(location.pathname, "/admin/memberships")
+                  ? "System Settings"
+                  : ""}
                 {isActiveLink(location.pathname, "/admin/leads") ? "Leads" : ""}
 
                 {isActiveLink(location.pathname, "/admin/leads/addlead")
@@ -156,6 +159,19 @@ export const Header = () => {
                   <span className="text-gray-400 font-semibold">/</span>
                   <span className="pl-1 text-gray-400 font-semibold ">
                     Sales Tax
+                  </span>
+                </div>
+              ) : (
+                ""
+              )}
+              {isActiveLink(location.pathname, "/admin/memberships") ? (
+                <div className="pl-7 pb-4 text-sm">
+                  <span className="text-primary pr-1 font-semibold">
+                    System Settings
+                  </span>{" "}
+                  <span className="text-gray-400 font-semibold">/</span>
+                  <span className="pl-1 text-gray-400 font-semibold ">
+                    Memberships
                   </span>
                 </div>
               ) : (

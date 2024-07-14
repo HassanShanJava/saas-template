@@ -71,6 +71,11 @@ const navItems: NavItem[] = [
         link: "/admin/incomeCategory",
         icon:"fa fa-user",
       },
+      {
+        name:"Memberships",
+        link: "/admin/memberships",
+        icon:"fa fa-user",
+      },
     ]  
   }
 

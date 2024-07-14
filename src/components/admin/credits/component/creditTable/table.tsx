@@ -773,8 +773,8 @@ const CreditForm = ({
                               }
                               disabled={formData.case == "add"}
                             >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Status">
+                              <SelectTrigger floatingLabel="Status">
+                                <SelectValue placeholder="">
                                   <span className="flex gap-2 items-center">
                                     <span
                                       className={`w-2 h-2 rounded-full ${

@@ -15,6 +15,7 @@ import ProtectedRoute from "./components/admin/protectedRoute";
 import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
 import IncomeCategory from "./components/admin/income_category";
+import Memberships from "./components/admin/memberships";
 
 // import Loader from "@/components/Loader";
 
@@ -41,9 +42,10 @@ function App() {
             <Route path="/admin/leads" index element={<Leads />} />
             <Route path="/admin/leads/addlead" index element={<LeadForm />} />
             <Route path="/admin/leads/editlead/:id" index element={<LeadForm />} />
-            <Route path="/admin/credits/" index element={<Credits />} />
-            <Route path="/admin/saleTaxes/" index element={<SaleTaxes />} />
-            <Route path="/admin/incomeCategory/" index element={<IncomeCategory />} />
+            <Route path="/admin/credits" index element={<Credits />} />
+            <Route path="/admin/saleTaxes" index element={<SaleTaxes />} />
+            <Route path="/admin/incomeCategory" index element={<IncomeCategory />} />
+            <Route path="/admin/memberships" index element={<Memberships />} />
             <Route path="/admin/events" index element={<Events />} />
             <Route
               path="/admin/events/addevents"

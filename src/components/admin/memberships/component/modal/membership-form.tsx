@@ -29,6 +29,7 @@ interface membershipFromTypes {
 
 const stepContentComponents = [
   BasicInfoForm, // Step 1
+  BasicInfoForm, // Step 2
   // Add other form components for steps 2, 3, 4...
 ];
 

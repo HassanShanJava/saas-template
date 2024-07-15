@@ -5,10 +5,12 @@ export type StepperFormKeysType =
 
   export type StepperFormValues = {
     [FormName in StepperFormKeysType]: FormName extends
-      | "annualIncome"
-      | "loanAmount"
-      | "repaymentTerms" 
-      | "creditScore"
+      | "registration_fee"
+      | "total_amount"
+      | "tax_amount" 
+      | "tax_rate"
+      | "discount_percentage"
+      | "net_price"
       ? number
       : FormName extends "status"
       ? boolean

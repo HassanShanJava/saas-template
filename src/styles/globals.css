@@ -44,16 +44,16 @@
     --bg-secondary-red: 1 100% 77%; /*red color failer*/
     --bg-outlet-background:0 0% 96.9%; /* outlet one bg- f7f7f7 */
     --table-header-color:0 0% 96.1% ;
-
   }
+
 }
  
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border ;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground ;
   }
 }
 
@@ -71,4 +71,8 @@
 /* Hide the spin buttons for number inputs on Firefox */
 .number-input[type=number] {
   -moz-appearance: textfield;
+}
+
+*{
+  font-family: "Poppins" ;
 }

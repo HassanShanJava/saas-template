@@ -88,7 +88,7 @@ const DashboardLayout: React.FC = () => {
   const isActiveLink = (targetPath: string): boolean => location.pathname.startsWith(targetPath) ;
 
   return (
-    <div className="flex h-screen w-full relative overflow-y-hidden">
+    <div className="font-poppins flex h-screen w-full relative overflow-y-hidden">
       <div className={`bg-white border-r text-black shadow-md transition-all duration-300 ${isSidebarOpen ? "w-[20%]" : "w-16"}`}>
         <div className="flex h-16 items-center justify-between px-4 border-gradient">
           <Link to="#" className="flex items-center gap-2 font-semibold">

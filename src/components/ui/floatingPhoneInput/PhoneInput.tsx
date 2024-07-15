@@ -16,7 +16,7 @@ const PhoneInputWithFloatingLabel = React.forwardRef<
   PhoneInputWithFloatingLabelProps
 >(({ id, label, value, onChange }, ref) => {
   return (
-    <div className="phone-input-wrapper">
+    <div className="phone-input-wrapper font-poppins ">
       <PhoneInput
         id={id}
         placeholder=" "

@@ -13,7 +13,7 @@ interface StepperIndicatorProps {
 
 const StepperIndicator = ({ activeStep, labels }: StepperIndicatorProps) => {
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center items-center ">
       {labels.map((label, step) => (
         <Fragment key={label.key}>
           <div className="relative">

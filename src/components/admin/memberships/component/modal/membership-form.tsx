@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import BasicInfoForm from "./basic-info-form";
+import PriceDiscountTaxForm from "./prices-form";
+import AutoRenewalForm from "./renewal-form";
 import { useToast } from "@/components/ui/use-toast";
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -28,9 +30,10 @@ interface membershipFromTypes {
 }
 
 const stepContentComponents = [
+  PriceDiscountTaxForm, // Step 2
   BasicInfoForm, // Step 1
-  BasicInfoForm, // Step 2
-  // Add other form components for steps 2, 3, 4...
+  AutoRenewalForm, // Step 3
+  // PriceDiscountTaxForm, // Step 4
 ];
 
 const getStepContent = (step: number) => {
@@ -48,6 +51,7 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
     trigger,
     handleSubmit,
     setError,
+    clearErrors,
     formState: { isSubmitting, errors },
   } = methods;
 
@@ -64,38 +68,6 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
   const onSubmit = async (formData: StepperFormValues) => {
     console.log({ formData });
 
-    // simulate api call
-    await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        reject({
-          message: "There was an error submitting form",
-        });
-      }, 2000);
-    })
-      .catch(({ message: errorMessage, errorKey }) => {
-        if (
-          errorKey &&
-          Object.values(StepperFormKeys)
-            .flatMap((fieldNames) => fieldNames)
-            .includes(errorKey)
-        ) {
-          let erroredStep: number;
-          for (const [key, value] of Object.entries(StepperFormKeys)) {
-            if (value.includes(errorKey as never)) {
-              erroredStep = Number(key);
-            }
-          }
-          setActiveStep(erroredStep);
-          setError(errorKey as StepperFormKeysType, {
-            message: errorMessage,
-          });
-          setErroredInputName(errorKey);
-        } else {
-          setError("root.formError", {
-            message: errorMessage,
-          });
-        }
-      });
   };
 
   const handleNext = async () => {
@@ -105,6 +77,11 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+  
+  const handleClose = () => {
+    clearErrors()
+    setIsOpen(false)
   };
 
   const infoLabels = [
@@ -116,16 +93,16 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className="w-full max-w-[1050px] h-[500px] flex flex-col" hideCloseButton>
+      <DialogContent className="w-full max-w-[1050px] h-fit flex flex-col" hideCloseButton>
         <FormProvider {...methods}>
-          <div className="flex justify-between gap-5 items-start h-[100px] pl-8 mb-0">
+          <div className="flex justify-between gap-5 items-start h-[82px] pl-8 ">
             <StepperIndicator activeStep={activeStep} labels={infoLabels} />
             <div className="flex justify-center space-x-[20px]">
               <Button
                 type="button"
                 className="w-[100px] text-center flex items-center gap-2"
                 variant={"outline"}
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
               >
                 <i className="fa fa-xmark "></i>
                 Cancel
@@ -146,11 +123,12 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
 
               {activeStep === 4 ? (
                 <Button
-                  className="w-[100px] bg-primary"
+                  className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
                   type="button"
                   onClick={handleSubmit(onSubmit)}
                   disabled={isSubmitting}
                 >
+                  <i className="fa-regular fa-floppy-disk "></i>
                   Save
                 </Button>
               ) : (
@@ -165,18 +143,18 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
               )}
             </div>
           </div>
-          <form noValidate>
-            <AnimatePresence>
+          <form noValidate className="">
+            {/* <AnimatePresence>
               <motion.div
                 key={activeStep}
                 initial={{ opacity: 0, x: 100 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -100 }}
                 transition={{ duration: 0.2 }}
-              >
+              > */}
                 {getStepContent(activeStep)}
-              </motion.div>
-            </AnimatePresence>
+              {/* </motion.div>
+            </AnimatePresence> */}
           </form>
         </FormProvider>
       </DialogContent>

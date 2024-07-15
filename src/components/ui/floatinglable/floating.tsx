@@ -56,7 +56,7 @@ const FloatingLabel = React.forwardRef<
   return (
     <Label
       className={cn(
-        "peer-focus:secondary peer-focus:dark:secondary absolute start-2 z-10 origin-[0] scale-75 transform bg-background px-2 text-sm text-gray-400 duration-300",
+        "peer-focus:secondary font-poppins peer-focus:dark:secondary absolute start-2 z-10 origin-[0] scale-75 transform bg-background px-2 text-sm text-gray-400 duration-300",
         isTextarea
           ? "peer-placeholder-shown:top-[13%] peer-placeholder-shown:-translate-y-[13%] peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2"
           : "top-2 -translate-y-4 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2",
@@ -76,7 +76,7 @@ const FloatingLabelInput = React.forwardRef<
   const isTextarea = type === "textarea";
 
   return (
-    <div>
+    <div className='font-poppins '>
       <div className="relative">
         <FloatingInput ref={ref} id={id} type={type} rows={rows} {...props} />
         <FloatingLabel htmlFor={id} isTextarea={isTextarea}>

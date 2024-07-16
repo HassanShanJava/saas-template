@@ -43,8 +43,6 @@ const BasicInfoForm = () => {
     return () => subscription.unsubscribe();
   }, [watch]);
 
-  console.log(access);
-
   const addGroup = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -66,11 +64,9 @@ const BasicInfoForm = () => {
     setInputValue(e.target.value);
   };
 
-  console.log({ groups });
-
   return (
     <div className="text-black h-full">
-      <h1 className="font-semibold text-[#2D374] text-2xl">
+      <h1 className="font-semibold text-[#2D374] text-xl">
         Basic Information
       </h1>
       <div className="grid grid-cols-3 gap-4 items-start my-3">

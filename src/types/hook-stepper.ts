@@ -11,8 +11,11 @@ export type StepperFormKeysType =
       | "tax_rate"
       | "discount_percentage"
       | "net_price"
+      | "days_before"
+      | "next_invoice"
+      | "prolongation_period"
       ? number
-      : FormName extends "status"
+      : FormName extends "status" | "auto_renewal"
       ? boolean
       : string;
   };

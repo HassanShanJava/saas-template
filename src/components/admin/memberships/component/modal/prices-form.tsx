@@ -58,7 +58,7 @@ const PriceDiscountTaxForm = () => {
 
   return (
     <div className="text-black h-full">
-      <h1 className="font-semibold text-[#2D374] text-2xl">
+      <h1 className="font-semibold text-[#2D374] text-xl">
         Price, Discounts, and Tax Details
       </h1>
       <div className="grid grid-cols-3 gap-4 items-start mt-3">

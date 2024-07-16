@@ -13,7 +13,8 @@ import BasicInfoForm from "./basic-info-form";
 import PriceDiscountTaxForm from "./prices-form";
 import AutoRenewalForm from "./renewal-form";
 import { useToast } from "@/components/ui/use-toast";
-import { motion, AnimatePresence } from 'framer-motion';
+import CreditDetailsForm from "./credit-details-form";
+// import { motion, AnimatePresence } from 'framer-motion';
 
 interface membershipFormTypes {
   isOpen: boolean;
@@ -30,10 +31,10 @@ interface membershipFromTypes {
 }
 
 const stepContentComponents = [
-  PriceDiscountTaxForm, // Step 2
+  CreditDetailsForm,  // Step 4
   BasicInfoForm, // Step 1
+  PriceDiscountTaxForm, // Step 2
   AutoRenewalForm, // Step 3
-  // PriceDiscountTaxForm, // Step 4
 ];
 
 const getStepContent = (step: number) => {

@@ -12,12 +12,10 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import { useGetCreditsQuery } from "@/services/creditsApi";
+import CreditsTableView from "./creditTable/table";
 
 const CreditDetailsForm = () => {
-  const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const { data: creditsData } = useGetCreditsQuery(orgId);
-
+  
   const {
     control,
     formState: { errors },
@@ -56,7 +54,7 @@ const CreditDetailsForm = () => {
 
   return (
     <div className="text-black h-full">
-      <h1 className="font-semibold text-[#2D374] text-xl">Credit details</h1>
+      <CreditsTableView/>
     </div>
   );
 };

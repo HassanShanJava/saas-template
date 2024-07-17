@@ -77,6 +77,11 @@ export interface updateCreditsType {
 export interface deleteCreditsType {
   credit_id: number;
 }
+export interface creditDetailsTablestypes {
+  id: number;
+  name: string;
+  org_id: number;
+}
 export interface creditTablestypes {
   id: number;
   name: string;

@@ -12,6 +12,7 @@ export interface FloatingLabelInputProps
     React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
+  autoComplete?:string;
 }
 
 const FloatingInput = React.forwardRef<

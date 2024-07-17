@@ -278,7 +278,7 @@ const BasicInfoForm = () => {
         </div>
       </div>
       {access == "limited-access" && (
-        <div className="bg-gray-200 p-3 w-fit h-fit text-sm">
+        <div className="bg-gray-200 p-3 w-fit h-fit text-sm rounded-lg">
           <p className="font-semibold text-base">Limited Access</p>
           {[
             "Monday",

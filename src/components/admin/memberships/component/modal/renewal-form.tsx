@@ -23,7 +23,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
 const AutoRenewalForm = () => {
-  const [autoRenewal, setAutoRenewal] = useState<string | undefined>("");
+  const [autoRenewal, setAutoRenewal] = useState<boolean | undefined>(false);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 

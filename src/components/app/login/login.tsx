@@ -23,7 +23,7 @@ export default function AuthenticationPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [checked, setChecked] = useState<boolean>(false);
-  const { loading, userInfo, error } = useSelector(
+  const { loading, userInfo, error, isLoggedIn } = useSelector(
     (state: RootState) => state.auth
   );
   const email = localStorage.getItem("email") ?? "";
@@ -47,24 +47,23 @@ export default function AuthenticationPage() {
 
   useEffect(() => {
     if (error != null)
-      toast({
-        variant: "destructive",
-        title: error,
-        description: "There was a problem with your request.",
-      });
     console.log(error);
   }, [error]);
 
   useEffect(() => {
-    if (userInfo !== null) {
-      toast({
-        variant: "success",
-        title: "LogIn",
-        description: "You are Successfully Logged In",
-      });
-      navigate("/admin/dashboard");
-    }
-  }, [navigate, userInfo]);
+		if (loading || !isLoggedIn) return;
+		setCaptchaError(false);
+		reset();
+		if (recaptchaRef.current) {
+			recaptchaRef.current.reset();
+		}
+		navigate("/admin/dashboard");
+		toast({
+			variant: "success",
+			title: "LogIn",
+			description: "You are Successfully Logged In",
+		});
+  }, [loading])
 
   const handleRememberMe = (e: any) => {
     setValue("rememberme", e);
@@ -86,15 +85,8 @@ export default function AuthenticationPage() {
     console.log("Form data:", data);
     dispatch(login(data));
 
-    if(!loading){
-      setCaptchaError(false);
-      reset();
-      if (recaptchaRef.current) {
-        recaptchaRef.current.reset();
-      }
-    }
-    
   };
+
   const [isCaptchaError, setCaptchaError] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const togglePasswordVisibility = () => {
@@ -105,7 +97,6 @@ export default function AuthenticationPage() {
     setCaptchaError(false);
   }
 
-  console.log("Loading auth", loading);
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">

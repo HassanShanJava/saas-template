@@ -17,6 +17,7 @@ interface AuthState {
 	} | null;
 	error: string | null;
 	loading: boolean;
+	isLoggedIn: boolean;
 }
 
 const userToken = localStorage.getItem("userToken");
@@ -27,11 +28,22 @@ const initialState: AuthState = {
   userInfo: userInfo ? JSON.parse(userInfo) : null,
   error: null,
   loading: false,
+	isLoggedIn: false
 };
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+		logout: state => {
+			localStorage.removeItem("userToken");
+			localStorage.removeItem("userInfo");
+			state.userToken = null
+			state.userInfo = null
+			state.error = null
+			state.loading = false
+			state.isLoggedIn = false
+		}
+	},
   extraReducers: (builder) => {
     builder.addCase(login.pending, (state) => {
       state.loading = true;
@@ -39,8 +51,9 @@ const authSlice = createSlice({
     });
     builder.addCase(login.fulfilled, (state, { payload }) => {
       state.loading = false;
+      state.isLoggedIn = true;
       state.userInfo = {user:payload.user};
-			state.userToken=payload.token.access_token;
+			state.userToken = payload.token.access_token;
       state.error = null;
       localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); // Set userInfo in local storage
       localStorage.setItem("userToken", payload.token.access_token); // Set userToken in local storage
@@ -49,14 +62,6 @@ const authSlice = createSlice({
 			state.loading = false;
 			state.error = payload as string;
 		})
-		builder.addCase(logout.fulfilled,(state)=>{
-			state.userToken = null;
-      state.userInfo = null;
-      state.error = null;
-      state.loading = false;
-      localStorage.removeItem("userToken");
-      localStorage.removeItem("userInfo");
-    });
   },
 });
 
@@ -66,49 +71,31 @@ interface loginParams {
   rememberme: boolean;
 }
 export const login = createAsyncThunk(
-	'auth/login',
-	async ({email, password, rememberme}: loginParams, {rejectWithValue}) => {
-		try {
-			const {data}: {data: {token: {access_token: string}, user?: any}} = await loginUser(email, password);
-			localStorage.setItem('userToken', data.token?.access_token)
-			if (rememberme) {
-				localStorage.setItem('email', email)
-				localStorage.setItem('password', password)
-			} else {
-				if(localStorage.getItem('email') != null)
-					localStorage.removeItem('email')
-				if(localStorage.getItem('password') != null)
-					localStorage.removeItem('password')
-			}
-			return {user:data.user,token:data.token};
-		} catch(e: any) {
-			console.log(e)
-			if(e.response?.data?.detail) {
-				return rejectWithValue(e.response?.data?.detail)
-			}
-			return rejectWithValue(e.message)
-		}
-	}
-
-)
-
-
-export const logout = createAsyncThunk("auth/logout", async () => {
-  try {
-    // Simulate logout API call
-    // await fetch("/api/logout", {
-    //   method: "POST",
-    //   headers: {
-    //     Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-    //   },
-    // });
-
-    // Clear local storage
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userInfo");
-  } catch (error) {
-    console.error("Logout failed:", error);
-    throw error;
+  "auth/login",
+  async ({ email, password, rememberme }: loginParams, { rejectWithValue }) => {
+    try {
+      const { data, }: { data: { token: { access_token: string }; user?: any } } =
+        await loginUser(email, password);
+      localStorage.setItem("userToken", data.token?.access_token);
+      if (rememberme) {
+        localStorage.setItem("email", email);
+        localStorage.setItem("password", password);
+      } else {
+        if (localStorage.getItem("email") != null)
+          localStorage.removeItem("email");
+        if (localStorage.getItem("password") != null)
+          localStorage.removeItem("password");
+      }
+      return data;
+    } catch (e: any) {
+      console.log(e);
+      if (e.response?.data?.detail) {
+        return rejectWithValue(e.response?.data?.detail);
+      }
+      return rejectWithValue(e.message);
+    }
   }
-});
+);
+
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;

@@ -5,30 +5,49 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "../textarea";
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+// export interface InputProps extends  {}
 
-export interface FloatingLabelInputProps
-  extends InputProps,
-    React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
+type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+
+type CommonProps = Omit<InputProps, "onAbort"> &
+  Omit<TextareaProps, "onAbort"> & {
+    onAbort?:
+      | ((event: React.SyntheticEvent<Element, Event>) => void)
+      | undefined;
+  };
+
+export interface FloatingLabelInputProps extends CommonProps {
   label?: string;
   error?: string;
-  autoComplete?:string;
+  autoComplete?: string;
 }
 
 const FloatingInput = React.forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   FloatingLabelInputProps
 >(({ className, type, ...props }, ref) => {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  React.useImperativeHandle(ref, () => {
+    if (type === "textarea") {
+      return textareaRef.current as HTMLTextAreaElement;
+    } else {
+      return inputRef.current as HTMLInputElement;
+    }
+  });
+
   if (type === "textarea") {
     return (
       <Textarea
         placeholder=" "
         className={cn(
           "peer",
-          "flex  w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
-        ref={ref}
+        ref={textareaRef}
         {...props}
       />
     );
@@ -39,14 +58,15 @@ const FloatingInput = React.forwardRef<
       placeholder=" "
       type={type}
       className={cn("peer", className)}
-      ref={ref as React.Ref<HTMLInputElement>}
+      ref={inputRef}
       {...props}
     />
   );
 });
 FloatingInput.displayName = "FloatingInput";
 
-interface FloatingLabelProps extends React.ComponentPropsWithoutRef<typeof Label> {
+interface FloatingLabelProps
+  extends React.ComponentPropsWithoutRef<typeof Label> {
   isTextarea?: boolean;
 }
 
@@ -77,7 +97,7 @@ const FloatingLabelInput = React.forwardRef<
   const isTextarea = type === "textarea";
 
   return (
-    <div className='font-poppins '>
+    <div className="font-poppins ">
       <div className="relative">
         <FloatingInput ref={ref} id={id} type={type} rows={rows} {...props} />
         <FloatingLabel htmlFor={id} isTextarea={isTextarea}>

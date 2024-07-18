@@ -5,6 +5,7 @@ import { Leads } from "@/services/leadsApi";
 import { Credits } from "@/services/creditsApi";
 import { SalesTax } from "@/services/salesTaxApi";
 import { IncomeCategory } from "@/services/incomeCategoryApi";
+import { Memberships } from "@/services/membershipsApi";
 const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -13,6 +14,7 @@ const store = configureStore({
     [Credits.reducerPath]: Credits.reducer,
     [SalesTax.reducerPath]: SalesTax.reducer,
     [IncomeCategory.reducerPath]: IncomeCategory.reducer,
+    [Memberships.reducerPath]: Memberships.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(
@@ -21,6 +23,7 @@ const store = configureStore({
       Credits.middleware,
       SalesTax.middleware,
       IncomeCategory.middleware,
+      Memberships.middleware
     ),
 });
 

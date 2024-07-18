@@ -92,7 +92,7 @@ export default function MembershipsTableView() {
 
   // const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(true);
 
   const handleCloseDailog = () => setIsDialogOpen(false);
 
@@ -183,17 +183,17 @@ export default function MembershipsTableView() {
   const columns: any[] = [
     {
       accessorKey: "name",
-      header: ({ table }) => <span>Category Name</span>,
-      cell: ({ row }) => {
-        return <span>{row.original.name}</span>;
+      header: () => <span>Category Name</span>,
+      cell: () => {
+        return <span>name</span>;
       },
       enableSorting: false,
       enableHiding: false,
     },
     {
       accessorKey: "sale_tax_id",
-      header: ({ table }) => <span>Default Tax/VAT</span>,
-      cell: ({ row }) => {
+      header: () => <span>Default Tax/VAT</span>,
+      cell: () => {
         // const sales:any=salesTaxData?.filter(item=>item.id==row.original.sale_tax_id)[0]
         // console.log({salesTaxData,sales},row.original.sale_tax_id,"sales")
         // return <span>{sales?.name +" ("+sales?.percentage+"%)" }</span>;
@@ -206,12 +206,13 @@ export default function MembershipsTableView() {
       id: "actions",
       header: "Actions",
       maxSize: 100,
-      cell: ({ row }) => (
-        <DataTableRowActions
-          data={row.original}
+      cell: () => (
+        // <DataTableRowActions
+          // data={row.original}
           // refetch={refetch}
           // handleEdit={handleEditIncomeCategory}
-        />
+        // />
+        <span>data</span>
       ),
     },
   ];
@@ -303,7 +304,7 @@ export default function MembershipsTableView() {
               ))}
             </TableHeader>
             <TableBody>
-              {true ? (
+              {isDialogOpen ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}

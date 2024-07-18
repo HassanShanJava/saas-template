@@ -136,7 +136,7 @@ export default function AuthenticationPage() {
                     <input
                       id="username"
                       type="email"
-                      placeholder="Enter you email id"
+                      placeholder="Enter you email"
                       className="w-full bg-transparent border-checkboxborder text-textgray outline-none"
                       {...register("email", {
                         required: "Email is required",

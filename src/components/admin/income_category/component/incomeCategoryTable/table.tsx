@@ -762,6 +762,7 @@ const IncomeCategoryForm = ({
                   <Button
                     type="submit"
                     className="bg-primary font-semibold text-black gap-1"
+										disabled={form.formState.isSubmitting}
                   >
                     <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                     Save

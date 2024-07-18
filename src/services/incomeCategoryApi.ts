@@ -1,21 +1,8 @@
-import { RootState } from "@/app/store";
 import { createIncomeCategoryType, deleteIncomeCategoryType, incomeCategoryResponseType, updateIncomeCategoryType } from "@/app/types";
+import { apiSlice } from "@/features/api/apiSlice";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
-
-export const IncomeCategory = createApi({
-  reducerPath: "api/incomeCategory",
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.userToken;
-      if (token) headers.set("Authorization", `Bearer ${token}`);
-      headers.set("Access-Control-Allow-Origin", `*`);
-      return headers;
-    },
-  }),
-  tagTypes: ["IncomeCategory"],
+export const IncomeCategory = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
       getIncomeCategory: builder.query<incomeCategoryResponseType[], number>({

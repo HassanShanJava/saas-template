@@ -111,13 +111,9 @@ const AddClientForm: React.FC = () => {
       required_error: "A date of birth is required.",
     }),
     email: z
-      .string({
-        required_error: "Email is Required.",
-      })
-      .email({
-        message: "not Valid email or empty",
-      })
-      .trim(),
+    .string()
+    .email({ message: "Invalid email" })
+    .min(4, { message: "Email is Required" }),
     phone: z.string().trim().optional(),
     mobile_number: z.string().trim().optional(),
     notes: z.string().optional(),

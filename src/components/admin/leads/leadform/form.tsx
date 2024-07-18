@@ -136,7 +136,7 @@ const LeadForm: React.FC = () => {
         phone: "",
         mobile: "",
         source_id: undefined,
-        status: "",
+        status: undefined,
         staff_id: undefined,
         lead_since: undefined,
         notes: "",
@@ -145,7 +145,7 @@ const LeadForm: React.FC = () => {
         variant: "success",
         title: "Lead Added Successfully",
       });
-      navigate("/admin/leads");
+      // navigate("/admin/leads");
     } catch (error) {
       console.log("Error", error);
       if (error && typeof error === "object" && "data" in error) {
@@ -374,6 +374,7 @@ const LeadForm: React.FC = () => {
                                 <SelectValue
                                   placeholder="Lead Status"
                                   className="text-gray-400"
+                                  defaultValue={undefined}
                                 />
                               </SelectTrigger>
                             </FormControl>
@@ -425,14 +426,16 @@ const LeadForm: React.FC = () => {
                       render={({ field }) => (
                         <FormItem>
                           <Select
+                                  defaultValue={undefined}
+
                             onValueChange={(value) =>
                               field.onChange(Number(value))
                             }
-                            defaultValue={field.value?.toString()}
                           >
                             <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Lead Owner" />
+                              <SelectTrigger >
+                                <SelectValue placeholder="Lead Owner" 
+                                  />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>

@@ -22,7 +22,7 @@ export function DataTableToolbar<TData>({
     <div className="flex bg-white rounded-t-xl items-center m-0 px-4 justify-between">
       <div className="flex flex-1 items-center ">
         <Input
-          placeholder="Filter tasks..."
+          placeholder="Search by Name"
           // value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
           // onChange={(event) =>
           // table.getColumn("title")?.setFilterValue(event.target.value)
@@ -35,7 +35,7 @@ export function DataTableToolbar<TData>({
         onClick={handleRoute}
       >
         <PlusIcon className="h-4 w-4" />
-        New Lead
+        Create New
       </Button>
       <DataTableViewOptions table={table} />
     </div>

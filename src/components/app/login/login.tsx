@@ -61,7 +61,7 @@ export default function AuthenticationPage() {
 		toast({
 			variant: "success",
 			title: "LogIn",
-			description: "You are Successfully Logged In",
+			description: "You are successfully logged In",
 		});
   }, [loading])
 

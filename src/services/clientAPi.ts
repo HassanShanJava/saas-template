@@ -26,7 +26,7 @@ export const ClientAPi = createApi({
     return {
       getClientCount: builder.query<{ total_clients: number }, number>({
         query: (org_id) => ({
-          url: `/client/getTotalClient/${org_id}`,
+          url: `/client/getTotalClient?org_id=${org_id}`,
           headers: {
             Accept: "application/json",
           },

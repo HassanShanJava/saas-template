@@ -130,7 +130,7 @@ export default function ClientTableView(){
     },
     {
       accessorKey: "own_member_id",
-      header: "Client Id ",
+      header: "Member Id ",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -142,7 +142,7 @@ export default function ClientTableView(){
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
-      header: "Name",
+      header: "Member Name",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -260,7 +260,7 @@ export default function ClientTableView(){
             <div className="flex items-center w-[40%] gap-2 px-2 py-2 rounded-md border border-gray-300 focus-within:border-primary focus-within:ring-[1] ring-primary">
               <Search className="w-6 h-6 text-gray-500" />
               <input
-                placeholder="Search"
+                placeholder="Search by member name"
                 value={
                   (table.getColumn("full_name")?.getFilterValue() as string) ??
                   ""
@@ -270,7 +270,7 @@ export default function ClientTableView(){
                     .getColumn("full_name")
                     ?.setFilterValue(event.target.value)
                 }
-                className="h-7 w-[150px] lg:w-[220px] outline-none"
+                className="h-7 w-[150px] lg:w-[200px] text-xs outline-none"
               />
             </div>
           </div>

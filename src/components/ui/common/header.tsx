@@ -232,7 +232,7 @@ export const Header = () => {
                     />
                     <h1 className="text-base ">
                       {" "}
-                      {userInfo?.user?.username}
+                      {userInfo?.user?.first_name}
                     </h1>
                     {/* <h1 className="text-black text-base"> Akira One</h1> */}
                     <Button
@@ -246,8 +246,7 @@ export const Header = () => {
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuItem>Support</DropdownMenuItem>
                   <DropdownMenuSeparator />

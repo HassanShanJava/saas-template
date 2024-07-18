@@ -2,9 +2,7 @@ import { format } from "date-fns";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  FloatingLabelInput,
-} from "@/components/ui/floatinglable/floating";
+import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { PlusIcon } from "lucide-react";
 import { RxCross2 } from "react-icons/rx";
 import { useForm } from "react-hook-form";
@@ -35,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { useGetAllSourceQuery } from "@/services/clientAPi";
-import { sourceTypes, staffType } from "@/app/types";
+import { ErrorType, sourceTypes, staffType } from "@/app/types";
 import { useGetAllStaffQuery } from "@/services/leadsApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
@@ -47,58 +45,76 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+
+import { useParams } from "react-router-dom";
+
 const LeadForm: React.FC = () => {
- const orgId =useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
-  const [addLead,{isLoading}] = useAddLeadMutation();
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const [addLead, { isLoading }] = useAddLeadMutation();
+  const { id } = useParams();
+  const FormSchema = z
+    .object({
+      // lead information
+      first_name: z
+        .string({
+          required_error: "First Name Is Required",
+        })
+        .min(4, { message: "First Name is Required" }),
+      last_name: z
+        .string({
+          required_error: "Last Name is Required",
+        })
+        .min(4, { message: "Last Name is Required" }),
 
-  const FormSchema = z.object({
-    // lead information
-    "first_name": z
-      .string({
-        required_error: "First Name Is Required",
-      })
-      .min(4, { message: "First Name Is Required" }),
-    "last_name": z
-      .string({
-        required_error: "Last Name isRequired",
-      })
-      .min(4, { message: "Last Name Is Required" }),
+      staff_id: z.number().optional(),
+      mobile: z.string().optional(),
+      status: z.string({
+        required_error: "Lead status is Required",
+      }),
+      // lead Settings
+      source_id: z.number().optional(),
 
-    "staff_id": z.number().optional(),
-    "mobile": z.string().optional(),
-    "status": z.string({
-      required_error: "Lead status is Required",
-    }),
-     // lead Settings
-    "source_id": z.number().optional(),
-
-    "lead_since": z.date({
-      required_error:"Lead Since Data is Required"
-    }),
-    //contact Details
-    
-    "phone": z.string().optional(),
-    "email": z.string().email().optional(),
-    "notes": z.string().optional(),
-    "org_id": z
-      .number({
-        required_error: "Org id is required",
-      })
-      .default(orgId),
-      "created_by":z.number().default(0),
-      "updated_by":z.number().default(0),
-  }).refine(data=> data.email || data.phone || data.mobile,{
-    message:"Either Email or Home Number or Mobile Number must be provided",
-    path:["email"],
-  }
-  );
+      lead_since: z.date({
+        required_error: "Lead Since Data is Required",
+      }),
+      //contact Details
+      phone: z.string().optional(),
+      email: z
+        .string()
+        .email({ message: "Invalid email" })
+        .min(4, { message: "Email is Required" }),
+      notes: z.string().optional(),
+      org_id: z
+        .number({
+          required_error: "Org id is required",
+        })
+        .default(orgId),
+      created_by: z.number().default(0),
+      updated_by: z.number().default(0),
+    })
+    .refine((data) => data.email || data.phone || data.mobile, {
+      message: "Either Email or Home Number or Mobile Number must be provided",
+      path: ["email"],
+    });
 
   const { data: sources } = useGetAllSourceQuery();
-  const {data:staff}=useGetAllStaffQuery(orgId); 
+  const { data: staff } = useGetAllStaffQuery(orgId);
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {},
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      phone: "",
+      mobile: "",
+      source_id: undefined,
+      status: "",
+      staff_id: undefined,
+      lead_since: undefined,
+      notes: "",
+    },
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -106,8 +122,13 @@ const LeadForm: React.FC = () => {
       ...data,
       lead_since: format(new Date(data.lead_since!), "yyyy-MM-dd"),
     };
-    try{
-    let resp = await addLead(updatedData).unwrap().then(payload=>console.log("Fullfilled",payload));
+
+    console.log({ updatedData });
+
+    try {
+      const resp = await addLead(updatedData)
+        .unwrap()
+        .then((payload) => console.log("Fullfilled", payload));
       form.reset({
         first_name: "",
         last_name: "",
@@ -118,23 +139,32 @@ const LeadForm: React.FC = () => {
         status: "",
         staff_id: undefined,
         lead_since: undefined,
-        notes:""
+        notes: "",
       });
-    toast({
-         variant: "success",
-         title: "Lead Added Successfully",
-       });
-    }catch(error){
-       console.log("Error", error);
-       if(error){
-         toast({
-           variant: "destructive",
-           title: "Error in form Submission",
-         });
-       }
-     }
+      toast({
+        variant: "success",
+        title: "Lead Added Successfully",
+      });
+      navigate("/admin/leads");
+    } catch (error) {
+      console.log("Error", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
   }
-  
+
   function gotoLeads() {
     navigate("/admin/leads");
   }
@@ -156,20 +186,19 @@ const LeadForm: React.FC = () => {
                       onClick={gotoLeads}
                       className="gap-2 bg-transparent border border-primary text-black hover:bg-red-300 hover:text-white"
                     >
-                      <RxCross2 className="w-4 h-4" /> cancel
+                      <RxCross2 className="w-4 h-4" /> Cancel
                     </Button>
                   </div>
                   <div>
-                    {isLoading ? 
-                      (
+                    {isLoading ? (
                       <LoadingButton
                         loading
                         className="gap-2 text-black hover:opacity-90 hover:text-white"
                       >
                         {" "}
-                        Add
+                        Save
                       </LoadingButton>
-                    ):(
+                    ) : (
                       <Button
                         type="submit"
                         className="gap-2 text-black hover:opacity-90 hover:text-white"
@@ -186,8 +215,8 @@ const LeadForm: React.FC = () => {
                   Lead information
                 </h1>
               </div>
-              <div className="w-full flex justify-between items-center gap-4 pt-3">
-                <div className="relative w-[33%]">
+              <div className="w-full flex justify-between items-center gap-3 pt-3">
+                <div className="relative w-1/3">
                   <FormField
                     control={form.control}
                     name="first_name"
@@ -203,7 +232,7 @@ const LeadForm: React.FC = () => {
                     )}
                   />
                 </div>
-                <div className="relative w-[33%]">
+                <div className="relative w-1/3">
                   <FormField
                     control={form.control}
                     name="last_name"
@@ -219,7 +248,7 @@ const LeadForm: React.FC = () => {
                     )}
                   />
                 </div>
-                <div className="relative w-[33%]"></div>
+                <div className="relative w-1/3"></div>
               </div>
 
               <div className="w-full flex flex-col justify-between items-start pb-5">
@@ -233,8 +262,8 @@ const LeadForm: React.FC = () => {
                 </div>
               </div>
               <div className="w-full flex flex-col justify-between items-start ">
-                <div className="w-full flex justify-between items-center">
-                  <div className="relative w-[33%]">
+                <div className="w-full flex justify-between items-center gap-3">
+                  <div className="relative w-1/3">
                     <FormField
                       control={form.control}
                       name="email"
@@ -250,7 +279,7 @@ const LeadForm: React.FC = () => {
                       )}
                     />
                   </div>
-                  <div className="relative w-[33%]">
+                  <div className="relative w-1/3">
                     <FormField
                       control={form.control}
                       name="phone"
@@ -266,7 +295,7 @@ const LeadForm: React.FC = () => {
                       )}
                     />
                   </div>
-                  <div className="relative w-[33%]">
+                  <div className="relative w-1/3">
                     <FormField
                       control={form.control}
                       name="mobile"
@@ -288,8 +317,8 @@ const LeadForm: React.FC = () => {
                 <div>
                   <h1 className="font-medium text-base pt-4">Lead Settings</h1>
                 </div>
-                <div className="w-full flex justify-between items-start mt-3">
-                  <div className="relative w-[33%]">
+                <div className="w-full flex justify-between gap-3 items-start mt-3">
+                  <div className="relative w-1/3">
                     <FormField
                       control={form.control}
                       name="source_id"
@@ -330,7 +359,7 @@ const LeadForm: React.FC = () => {
                       )}
                     />
                   </div>
-                  <div className="relative w-[33%]">
+                  <div className="relative w-1/3">
                     <FormField
                       control={form.control}
                       name="status"
@@ -389,7 +418,7 @@ const LeadForm: React.FC = () => {
                       )}
                     />
                   </div>
-                  <div className="relative w-[33%]">
+                  <div className="relative w-1/3">
                     <FormField
                       control={form.control}
                       name="staff_id"
@@ -430,8 +459,8 @@ const LeadForm: React.FC = () => {
                   </div>
                 </div>
                 <div className="w-full flex flex-col justify-between items-start pt-4">
-                  <div className="w-full flex justify-between items-center">
-                    <div className="relative w-[33%]">
+                  <div className="w-full flex justify-between gap-3 items-center">
+                    <div className="relative w-1/3">
                       <TooltipProvider>
                         <Tooltip>
                           <FormField
@@ -487,7 +516,7 @@ const LeadForm: React.FC = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="relative w-[66%]">
+                    <div className="relative w-2/3">
                       <FormField
                         control={form.control}
                         name="notes"

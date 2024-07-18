@@ -82,7 +82,7 @@ function FilledtimeseriesChart(props:any) {
             type: "linearGradient",
             colors: [
               { offset: 30, color: "rgba(208, 253, 62, 1)" },
-              { offset: 100, color: "rgba(208, 253, 62, 0)" },
+              { offset: 100, color: "rgba(226, 248, 226, 0)" },
             ],
           },
           {
@@ -98,7 +98,7 @@ function FilledtimeseriesChart(props:any) {
           { match: { id: "Desktop" }, id: "gradientA" },
           { match: { id: "Mobile" }, id: "gradientB" },
         ]}
-        colors={["#D0FD3E8A", "#35092B5C"]}
+        colors={["#3ED13E", "#35092B5C"]}
         theme={{
           tooltip: {
             chip: {

@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Check, ChevronDownIcon} from "lucide-react";
+import { Check, ChevronDownIcon } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -10,22 +10,33 @@ import {
 } from "@/components/ui/command";
 import { Switch } from "@/components/ui/switch";
 import "react-phone-number-input/style.css";
-import { getFormData, SubmitForm } from "@/components/pagework/ClientService";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  FloatingLabelInput,
-} from "@/components/ui/floatinglable/floating";
+import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { PlusIcon, CameraIcon, Webcam } from "lucide-react";
 import { RxCross2 } from "react-icons/rx";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Form, FormField, FormItem, FormMessage,FormLabel,FormControl } from "@/components/ui/form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormMessage,
+  FormLabel,
+  FormControl,
+} from "@/components/ui/form";
 import { toast } from "@/components/ui/use-toast";
-import { ButtonGroup, ButtonGroupItem } from "@/components/ui/buttonGroup/button-group";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  ButtonGroup,
+  ButtonGroupItem,
+} from "@/components/ui/buttonGroup/button-group";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { Calendar } from "@/components/ui/calendar";
@@ -51,25 +62,33 @@ import {
   useGetClientCountQuery,
   useGetCountriesQuery,
   useGetCoachesQuery,
-  useAddClientMutation
+  useAddClientMutation,
 } from "@/services/clientAPi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { BusinessTypes, CoachTypes, CountryTypes, membershipplanTypes, sourceTypes } from "@/app/types";
+import {
+  BusinessTypes,
+  CoachTypes,
+  CountryTypes,
+  ErrorType,
+  membershipplanTypes,
+  sourceTypes,
+} from "@/app/types";
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 const AddClientForm: React.FC = () => {
-
-const orgId =
-  useSelector((state: RootState) => state.auth.userInfo?.org_id) || 0;
+  const [counter, setCounter] = React.useState(0);
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const FormSchema = z.object({
     profile_img: z
       .string()
       .trim()
       .default(
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-      ).optional(),
+      )
+      .optional(),
     own_member_id: z.string({
       required_error: "Own Member Id Required.",
     }),
@@ -95,24 +114,37 @@ const orgId =
       .string({
         required_error: "Email is Required.",
       })
-      .email()
+      .email({
+        message: "not Valid email or empty",
+      })
       .trim(),
     phone: z.string().trim().optional(),
     mobile_number: z.string().trim().optional(),
     notes: z.string().optional(),
-    source_id: z.number({
-      required_error: "Source Required.",
-    }),
+    source_id: z
+      .number({
+        required_error: "Source Required.",
+      })
+      .refine((val) => val !== 0, {
+        message: "Source is required",
+      }),
     is_business: z.boolean().default(false).optional(),
-    business_id: z.number().optional(),
-    country_id: z.number({
-      required_error: "Country Required.",
-    }),
+    business_id: z.number().optional().default(NaN),
+    country_id: z
+      .number({
+        required_error: "Country Required.",
+      })
+      .refine((val) => val !== 0, {
+        message: "Country is required",
+      }),
     city: z
       .string({
         required_error: "City Required.",
       })
-      .trim(),
+      .trim()
+      .min(3, {
+        message: "City Required.",
+      }),
     zipcode: z.string().trim().optional(),
     address_1: z.string().optional(),
     address_2: z.string().optional(),
@@ -122,9 +154,13 @@ const orgId =
       })
       .default(orgId),
     coach_id: z.number().optional(),
-    membership_id: z.number({
-      required_error: "Membership plan is required.",
-    }),
+    membership_id: z
+      .number({
+        required_error: "Membership plan is required.",
+      })
+      .refine((val) => val !== 0, {
+        message: "membership plan is required",
+      }),
     send_invitation: z.boolean().default(true).optional(),
     status: z.string().default("pending"),
     client_since: z
@@ -133,10 +169,15 @@ const orgId =
       .default(new Date().toISOString().split("T")[0]),
   });
   // Example of handling async data fetching before form initialization
-  
-  const orgName =useSelector((state: RootState) => state.auth.userInfo?.org_name);
-  const { data: clientCountData, isLoading,refetch } = useGetClientCountQuery(orgId);
 
+  const orgName = useSelector(
+    (state: RootState) => state.auth.userInfo?.user?.org_name
+  );
+  const {
+    data: clientCountData,
+    isLoading,
+    refetch,
+  } = useGetClientCountQuery(orgId);
 
   const { data: countries } = useGetCountriesQuery();
 
@@ -149,7 +190,7 @@ const orgId =
 
   const [loading, setLoading] = React.useState(true);
 
-  const [addClient,{isLoading:clientLoading}]=useAddClientMutation();
+  const [addClient, { isLoading: clientLoading }] = useAddClientMutation();
   const navigate = useNavigate();
 
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
@@ -175,65 +216,102 @@ const orgId =
     resolver: zodResolver(FormSchema),
     defaultValues: {
       is_business: false,
-      own_member_id:""
+      own_member_id: "",
     },
     mode: "onChange",
   });
 
   const watcher = form.watch();
-  
 
-
-
- async function onSubmit(data: z.infer<typeof FormSchema>) {
-     const updatedData = {
-       ...data,
-       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-     };
+  const refreshComponent = () => {
+    // Update state to trigger re-render
+    setCounter(counter + 1); // Incrementing state to force a re-render
+  };
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const updatedData = {
+      ...data,
+      dob: format(new Date(data.dob!), "yyyy-MM-dd"),
+    };
 
     console.log("Updated data with only date:", updatedData);
-    // console.log("only once",data);
-    try{
-      let resp=await addClient(updatedData).unwrap();
+    console.log("only once", data);
+    // form.reset();
+    //    form.reset({
+    //      profile_img: "",
+    //      own_member_id:`${orgName?.slice(0, 2)! as string}-${clientCountData?.total_clients! + 1}` as string,
+    //      first_name: "",
+    //      last_name: "",
+    //      gender: "male",
+    //      dob: undefined,
+    //      email: "",
+    //      phone: "",
+    //      mobile_number: "",
+    //      notes: "",
+    //      source_id: 0,
+    //      is_business: false,
+    //      business_id: 0,
+    //      country_id: undefined,
+    //      city: "",
+    //      zipcode: "",
+    //      address_1: "",
+    //      address_2: "",
+    //      org_id: orgId,
+    //      coach_id: NaN,
+    //      membership_id: 0,
+    //      send_invitation: true,
+    //      status: "pending",
+    //      client_since: new Date().toISOString().split("T")[0],
+    //    });
+
+    try {
+      let resp = await addClient(updatedData).unwrap();
       refetch();
-      console.log(resp);
-      form.reset({
-        "profile_img":"",
-        "own_member_id":"",
-        "first_name":"",
-        "last_name":"",
-        "gender":"male",
-        "dob":undefined,
-        "email":"",
-        "phone":"",
-        "mobile_number":"",
-        "notes":"",
-        "source_id":undefined,
-        "is_business":false,
-        "business_id":undefined,
-        "country_id":undefined,
-        "city":"",
-        "zipcode":"",
-        "address_1":"",
-        "address_2":"",
-        "org_id":orgId,
-        "coach_id":undefined,
-        "membership_id":undefined,
-        "send_invitation":true,
-        "status":"pending",
-        "client_since":new Date().toISOString().split("T")[0]
+      //   console.log(resp);
+      //   form.reset({
+      //     profile_img: "",
+      //     own_member_id: "",
+      //     first_name: "",
+      //     last_name: "",
+      //     gender: "male",
+      //     dob: undefined,
+      //     email: "",
+      //     phone: "",
+      //     mobile_number: "",
+      //     notes: "",
+      //     source_id: undefined,
+      //     is_business: false,
+      //     business_id: undefined,
+      //     country_id: undefined,
+      //     city: "",
+      //     zipcode: "",
+      //     address_1: "",
+      //     address_2: "",
+      //     org_id: orgId,
+      //     coach_id: undefined,
+      //     membership_id: undefined,
+      //     send_invitation: true,
+      //     status: "pending",
+      //     client_since: new Date().toISOString().split("T")[0],
+      //   });
+      toast({
+        variant: "success",
+        title: "Client Added Successfully ",
       });
-       toast({
-         variant: "success",
-         title: "Client Added Successfully ",
-       });
-    }catch(error:any){
-      console.log("Error",error);
-      if(error){
+      navigate("/admin/client");
+    } catch (error: unknown) {
+      console.log("Error", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
         toast({
-          variant:"destructive",
+          variant: "destructive",
           title: "Error in form Submission",
-          description: `${error.data?.detail}`
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
         });
       }
     }
@@ -243,12 +321,12 @@ const orgId =
     navigate("/admin/client");
   }
 
-  React.useEffect(()=>{
-    if(orgName){
+  React.useEffect(() => {
+    if (orgName) {
       const total = clientCountData?.total_clients!;
-      form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total+1}`);
+      form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total + 1}`);
     }
-  },[clientCountData,orgName])
+  }, [clientCountData, orgName]);
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -290,7 +368,7 @@ const orgId =
                       onClick={gotoClient}
                       className="gap-2 bg-transparent border border-primary text-black hover:bg-red-300 hover:text-white"
                     >
-                      <RxCross2 className="w-4 h-4" /> cancel
+                      <RxCross2 className="w-4 h-4" /> Cancel
                     </Button>
                   </div>
                   <div>
@@ -320,6 +398,12 @@ const orgId =
                 <div className="relative w-[33%]">
                   <FormField
                     control={form.control}
+                    rules={{
+                      validate: (value) => {
+                        // Ensure value is treated as a number for comparison
+                        return Number(value) !== 0 || "Source is required";
+                      },
+                    }}
                     name="own_member_id"
                     render={({ field }) => (
                       <FormItem>
@@ -509,13 +593,19 @@ const orgId =
                   <FormField
                     control={form.control}
                     name="coach_id"
+                    // rules={{
+                    //   validate: (value) => {
+                    //     // Ensure value is treated as a number for comparison
+                    //     return Number(value) !== 0;
+                    //   },
+                    // }}
                     render={({ field }) => (
                       <FormItem>
                         <Select
                           onValueChange={(value) =>
                             field.onChange(Number(value))
                           }
-                          defaultValue={field.value?.toString()}
+                          defaultValue={field.value?.toString() || "0"}
                         >
                           <FormControl>
                             <SelectTrigger
@@ -523,11 +613,12 @@ const orgId =
                             >
                               <SelectValue
                                 className="text-black"
-                                placeholder="Coach_id"
+                                placeholder="Select Coach"
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
+                            <SelectItem value="0">Coach_id</SelectItem>
                             {coaches && coaches.length > 0 ? (
                               coaches?.map((sourceval: CoachTypes) => {
                                 // console.log(field.value);
@@ -580,17 +671,25 @@ const orgId =
                           onValueChange={(value) =>
                             field.onChange(Number(value))
                           }
-                          defaultValue={field.value?.toString()}
+                          value={field.value?.toString() || "0"} // Set default to "0" for the placeholder
                         >
                           <FormControl>
                             <SelectTrigger
                               className={`${watcher.source_id ? "text-black" : ""}`}
                             >
-                              <SelectValue placeholder="Source" />
+                              <SelectValue>
+                                {field.value === 0
+                                  ? "Select Source"
+                                  : sources?.find(
+                                      (source) => source.id === field.value
+                                    )?.source || "Select Source"}
+                              </SelectValue>
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {sources && sources?.length ? (
+                            <SelectItem value="0">Select Source</SelectItem>{" "}
+                            {/* Placeholder option */}
+                            {sources && sources.length ? (
                               sources.map((sourceval: sourceTypes, i: any) => (
                                 <SelectItem
                                   value={sourceval.id?.toString()}
@@ -600,9 +699,7 @@ const orgId =
                                 </SelectItem>
                               ))
                             ) : (
-                              <>
-                                <p className="p-2"> No Sources Found</p>
-                              </>
+                              <p className="p-2">No Sources Found</p>
                             )}
                           </SelectContent>
                         </Select>
@@ -615,13 +712,21 @@ const orgId =
                   <FormField
                     control={form.control}
                     name="membership_id"
+                    rules={{
+                      validate: (value) => {
+                        // Ensure value is treated as a number for comparison
+                        return (
+                          Number(value) !== 0 || "Memberhip Plan is Required"
+                        );
+                      },
+                    }}
                     render={({ field }) => (
                       <FormItem>
                         <Select
                           onValueChange={(value) =>
                             field.onChange(Number(value))
                           }
-                          defaultValue={field.value?.toString()}
+                          value={field.value?.toString() || "0"}
                         >
                           <FormControl>
                             <SelectTrigger
@@ -629,11 +734,14 @@ const orgId =
                             >
                               <SelectValue
                                 className="text-gray-400"
-                                placeholder="Membership Plan"
+                                placeholder="Select Membership plan"
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
+                            <SelectItem value="0">
+                              Select Membership plan
+                            </SelectItem>{" "}
                             {membershipPlans && membershipPlans?.length ? (
                               membershipPlans.map(
                                 (sourceval: membershipplanTypes) => {
@@ -696,13 +804,19 @@ const orgId =
                   <FormField
                     control={form.control}
                     name="business_id"
+                    // rules={{
+                    //   validate: (value) => {
+                    //     // Ensure value is treated as a number for comparison
+                    //     return Number(value) !== 0;
+                    //   },
+                    // }}
                     render={({ field }) => (
                       <FormItem>
                         <Select
                           onValueChange={(value) =>
                             field.onChange(Number(value))
                           }
-                          defaultValue={field.value?.toString()}
+                          defaultValue={field.value?.toString() || "0"}
                         >
                           <FormControl>
                             <SelectTrigger
@@ -710,11 +824,12 @@ const orgId =
                             >
                               <SelectValue
                                 className="text-gray-400"
-                                placeholder="Business"
+                                placeholder="Select Business"
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
+                            <SelectItem value="0">Select Business</SelectItem>{" "}
                             <Button
                               variant={"link"}
                               className="gap-2 text-black"
@@ -722,9 +837,9 @@ const orgId =
                               <PlusIcon className="text-black w-5 h-5" /> Add
                               New business
                             </Button>
-                            {business?.length ? (
+                            {business && business?.length ? (
                               business.map((sourceval: BusinessTypes) => {
-                                // console.log(sourceval.name);
+                                // console.log(business.length);
                                 return (
                                   <SelectItem
                                     value={sourceval.id?.toString()}
@@ -739,19 +854,6 @@ const orgId =
                                 <p className="p-2"> No Business found</p>
                               </>
                             )}
-
-                            {business &&
-                              business.map((sourceval: BusinessTypes) => {
-                                // console.log(field.value);
-                                return (
-                                  <SelectItem
-                                    value={sourceval.id?.toString()}
-                                    key={sourceval.id}
-                                  >
-                                    {sourceval.first_name}
-                                  </SelectItem>
-                                );
-                              })}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -853,7 +955,7 @@ const orgId =
                                     {countries &&
                                       countries.map((country: CountryTypes) => (
                                         <CommandItem
-                                          value={country.id?.toString()}
+                                          value={country.country}
                                           key={country.id}
                                           onSelect={() => {
                                             form.setValue(

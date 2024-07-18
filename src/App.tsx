@@ -1,19 +1,22 @@
 import DashboardLayout from "./components/ui/common/dashboardLayout";
 import AuthenticationPage from "./components/app/login/login";
-import {Route,Routes} from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Dashboard from "./components/admin/dashboard";
 import Client from "./components/admin/clients";
 import SystemSettings from "./components/admin/system_settings";
-import Component from "./components/pagework/drawer";
 import AddClientForm from "./components/admin/clients/clientForm/form";
 import Leads from "./components/admin/leads";
 import LeadForm from "./components/admin/leads/leadform/form";
+import Credits from "./components/admin/credits";
+import SaleTaxes from "./components/admin/sales_tax";
 import Events from "./components/admin/events";
 import EventForm from "./components/admin/events/eventForm";
 import ProtectedRoute from "./components/admin/protectedRoute";
 import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
-import { SelectForm } from "./components/pagework/HookformExample";
+import IncomeCategory from "./components/admin/income_category";
+import Memberships from "./components/admin/memberships";
+
 // import Loader from "@/components/Loader";
 
 function App() {
@@ -38,6 +41,11 @@ function App() {
             />
             <Route path="/admin/leads" index element={<Leads />} />
             <Route path="/admin/leads/addlead" index element={<LeadForm />} />
+            <Route path="/admin/leads/editlead/:id" index element={<LeadForm />} />
+            <Route path="/admin/credits" index element={<Credits />} />
+            <Route path="/admin/saleTaxes" index element={<SaleTaxes />} />
+            <Route path="/admin/incomeCategory" index element={<IncomeCategory />} />
+            <Route path="/admin/memberships" index element={<Memberships />} />
             <Route path="/admin/events" index element={<Events />} />
             <Route
               path="/admin/events/addevents"
@@ -45,9 +53,7 @@ function App() {
               element={<EventForm />}
             />
           </Route>
-          <Route path="/sidebar" element={<Component />}></Route>
         </Route>
-        <Route path="/test" element={<SelectForm/>} />
       </Routes>
       {/* <Loader open={loading} /> */}
 

@@ -7,7 +7,7 @@ import { Button } from "../../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import "./style.css";
-import { login } from '../../../features/auth/authSlice';
+import { login } from "../../../features/auth/authSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -23,52 +23,59 @@ export default function AuthenticationPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [checked, setChecked] = useState<boolean>(false);
-  const { loading, userInfo, error } = useSelector((state: RootState) => state.auth);
-  const email = localStorage.getItem('email')??'';
-  const password = localStorage.getItem('password')??'';
+  const { loading, userInfo, error, isLoggedIn } = useSelector(
+    (state: RootState) => state.auth
+  );
+  const email = localStorage.getItem("email") ?? "";
+  const password = localStorage.getItem("password") ?? "";
 
   const {
     register,
     handleSubmit,
     formState: { isSubmitted, isSubmitting, isValid, errors },
-	setValue,
+    setValue,
     reset,
-  } = useForm<{email: string, password: string, rememberme: boolean}>({
+  } = useForm<{ email: string; password: string; rememberme: boolean }>({
     mode: "onChange",
     reValidateMode: "onChange",
-	defaultValues: {
-		email,
-		password,
-		rememberme: false
-	}
+    defaultValues: {
+      email,
+      password,
+      rememberme: false,
+    },
   });
 
-
-	useEffect(() => {
-		if(error != null)
-			toast({
-				variant: "destructive",
-				title: error,
-				description: "There was a problem with your request.",
-			})
-		console.log(error);
-	}, [error])
+  useEffect(() => {
+    if (error != null)
+    console.log(error);
+  }, [error]);
 
   useEffect(() => {
-    if (userInfo){
-    	navigate('/admin/dashboard');
-    }
-    
-  }, [navigate, userInfo])
+		if (loading || !isLoggedIn) return;
+		setCaptchaError(false);
+		reset();
+		if (recaptchaRef.current) {
+			recaptchaRef.current.reset();
+		}
+		navigate("/admin/dashboard");
+		toast({
+			variant: "success",
+			title: "LogIn",
+			description: "You are Successfully Logged In",
+		});
+  }, [loading])
 
   const handleRememberMe = (e: any) => {
-	setValue('rememberme', e)
-	setChecked(e)
-  }
+    setValue("rememberme", e);
+    setChecked(e);
+  };
 
-  const onSubmit: SubmitHandler<{email: string, password: string, rememberme: boolean}> = async (data) => {
+  const onSubmit: SubmitHandler<{
+    email: string;
+    password: string;
+    rememberme: boolean;
+  }> = async (data) => {
     const recaptchaValue = recaptchaRef.current?.getValue();
-
     if (!recaptchaValue) {
       console.log("Please complete the ReCAPTCHA challenge.");
       setCaptchaError(true);
@@ -76,25 +83,10 @@ export default function AuthenticationPage() {
     }
 
     console.log("Form data:", data);
-	  
     dispatch(login(data));
-    // if(!loading){
-      // toast({
-      //     variant: "success",
-      //     title: "LogIn",
-      //     description: "You are Successfully Logged In",
-      //     className: cn(
-      //       "top-0 right-0 flex fixed md:max-w-[420px] md:top-4 md:right-4"
-      //     ),
-      //   });
-    // }
-    setCaptchaError(false);
-    reset();
-    if (recaptchaRef.current) {
-      recaptchaRef.current.reset();
-    }
-  
+
   };
+
   const [isCaptchaError, setCaptchaError] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const togglePasswordVisibility = () => {
@@ -105,7 +97,6 @@ export default function AuthenticationPage() {
     setCaptchaError(false);
   }
 
-  console.log("Loading auth", loading);
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">

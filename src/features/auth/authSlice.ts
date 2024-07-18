@@ -34,6 +34,9 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+		tokenReceived: (state, action) => {
+			state.userToken = action.payload
+		},
 		logout: state => {
 			localStorage.removeItem("userToken");
 			localStorage.removeItem("userInfo");
@@ -97,5 +100,5 @@ export const login = createAsyncThunk(
   }
 );
 
-export const { logout } = authSlice.actions;
+export const { logout, tokenReceived } = authSlice.actions;
 export default authSlice.reducer;

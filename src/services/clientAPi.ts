@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { BaseQueryFn, createApi, FetchArgs, fetchBaseQuery, FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import {
   CountryTypes,
   BusinessTypes,
@@ -10,18 +10,46 @@ import {
   clientTablestypes,
 } from "../app/types";
 import { RootState } from "@/app/store";
+import { logout, tokenReceived } from "@/features/auth/authSlice";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+const baseQuery = fetchBaseQuery({
+	baseUrl: API_BASE_URL,
+	prepareHeaders: (headers, { getState }) => {
+		const token = (getState() as RootState).auth.userToken;
+		if (token) headers.set("Authorization", `Bearer ${token}`);
+		return headers;
+	},
+})
+
+const baseQueryWithReauth: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  let result = await baseQuery(args, api, extraOptions);
+
+  if (result.error && result.error.status === 401) {
+		const refresh_token = (api.getState() as RootState).auth.userToken;
+    const refreshResult = await baseQuery({
+			url:`/refresh_token?refresh_token=${refresh_token}`, 
+			method: "POST",
+		}, api, extraOptions);
+
+    if (refreshResult.data) {
+			console.log(refreshResult.data);
+      api.dispatch(tokenReceived((refreshResult.data as {access_token: string;}).access_token));
+      result = await baseQuery(args, api, extraOptions);
+    } else {
+      api.dispatch(logout());
+    }
+  }
+  return result;
+};
 
 export const ClientAPi = createApi({
   reducerPath: "api",
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.userToken;
-      if (token) headers.set("Authorization", `Bearer ${token}`);
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   endpoints(builder) {
     return {
       getClientCount: builder.query<{ total_clients: number }, number>({

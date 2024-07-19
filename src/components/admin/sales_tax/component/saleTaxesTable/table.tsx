@@ -84,6 +84,7 @@ import {
   useUpdateSalesTaxMutation,
 } from "@/services/salesTaxApi";
 import { StringDecoder } from "string_decoder";
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 const downloadCSV = (data: saleTaxesTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -721,15 +722,14 @@ const SaleTaxesForm = ({
                       </FormItem>
                     )}
                   />
-
-                  <Button
+                  <LoadingButton
                     type="submit"
                     className="bg-primary font-semibold text-black gap-1"
+										loading={form.formState.isSubmitting}
                   >
-                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-
+                      {!form.formState.isSubmitting && <i className="fa-regular fa-floppy-disk text-base px-1 "></i>}
                     Save
-                  </Button>
+                  </LoadingButton>
                 </form>
               </Form>
             </DialogDescription>

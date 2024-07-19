@@ -71,6 +71,7 @@ import {
   useCreateCreditsMutation,
   useUpdateCreditsMutation,
 } from "@/services/creditsApi";
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 const downloadCSV = (data: creditTablestypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -803,13 +804,14 @@ const CreditForm = ({
                         </FormItem>
                       )}
                     />
-                    <Button
+                    <LoadingButton
                       type="submit"
                       className="bg-primary  text-black gap-1 font-semibold"
+											loading={form.formState.isSubmitting}
                     >
-                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+											{!form.formState.isSubmitting && <i className="fa-regular fa-floppy-disk text-base px-1 "></i>}
                       Save
-                    </Button>
+                    </LoadingButton>
                   </form>
                 </Form>
               </>

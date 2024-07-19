@@ -1,30 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/authSlice"
-import { ClientAPi } from "@/services/clientAPi";
-import { Leads } from "@/services/leadsApi";
-import { Credits } from "@/services/creditsApi";
-import { SalesTax } from "@/services/salesTaxApi";
-import { IncomeCategory } from "@/services/incomeCategoryApi";
-import { Memberships } from "@/services/membershipsApi";
+import { apiSlice } from "@/features/api/apiSlice";
+
 const store = configureStore({
   reducer: {
     auth: authReducer,
-    [ClientAPi.reducerPath]: ClientAPi.reducer,
-    [Leads.reducerPath]: Leads.reducer,
-    [Credits.reducerPath]: Credits.reducer,
-    [SalesTax.reducerPath]: SalesTax.reducer,
-    [IncomeCategory.reducerPath]: IncomeCategory.reducer,
-    [Memberships.reducerPath]: Memberships.reducer,
+    [apiSlice.reducerPath]: apiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ serializableCheck: false }).concat(
-      ClientAPi.middleware,
-      Leads.middleware,
-      Credits.middleware,
-      SalesTax.middleware,
-      IncomeCategory.middleware,
-      Memberships.middleware
-    ),
+    getDefaultMiddleware({ serializableCheck: false }).concat(apiSlice.middleware),
 });
 
 export type AppStore= typeof store;

@@ -1,25 +1,12 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { RootState } from "@/app/store";
 import {
   deleteSaleTaxesType,
   saleTaxesInputType,
   saleTaxesResponseType,
   updateSaleTaxesType,
 } from "@/app/types";
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+import { apiSlice } from "@/features/api/apiSlice";
 
-export const SalesTax = createApi({
-  reducerPath: "api/salesTax",
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.userToken;
-      if (token) headers.set("Authorization", `Bearer ${token}`);
-      headers.set("Access-Control-Allow-Origin", `*`);
-      return headers;
-    },
-  }),
-  tagTypes: ["SalesTax"],
+export const SalesTax = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
       getSalesTax: builder.query<saleTaxesResponseType[], number>({

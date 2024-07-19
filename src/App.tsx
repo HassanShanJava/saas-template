@@ -17,9 +17,11 @@ import { RootState } from "./app/store";
 import IncomeCategory from "./components/admin/income_category";
 import Memberships from "./components/admin/memberships";
 
-// import Loader from "@/components/Loader";
+import Loader from "@/components/Loader";
 
 function App() {
+	const loading = useSelector((state: RootState) => 
+	Object.values(state.api.queries).some(query => query && query.status === 'pending'))
   return (
     <>
       <Routes>
@@ -54,7 +56,7 @@ function App() {
           </Route>
         </Route>
       </Routes>
-      {/* <Loader open={loading} /> */}
+      <Loader open={loading} />
 
       {/* </Routes> */}
     </>

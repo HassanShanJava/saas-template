@@ -34,7 +34,7 @@ export function DataTableViewOptions<TData>({
         <DropdownMenuTrigger asChild>
           <Button variant="outline">
             <Settings2 className="mr-2 h-4 w-4" />
-            View
+            Columns Settings
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[150px]">
@@ -54,7 +54,7 @@ export function DataTableViewOptions<TData>({
                   checked={column.getIsVisible()}
                   onCheckedChange={(value) => column.toggleVisibility(!!value)}
                 >
-                  {column.id}
+                  {(column.columnDef.header as string)??column.id}
                 </DropdownMenuCheckboxItem>
               );
             })}

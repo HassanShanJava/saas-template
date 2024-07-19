@@ -329,7 +329,7 @@ const AddClientForm: React.FC = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <Card className="py-7 px-4">
-            <CardContent>
+            <CardContent className="space-y-3">
               <div className="flex justify-between items-center">
                 <div className="flex flex-row gap-4 items-center">
                   <div className="relative flex">
@@ -390,8 +390,8 @@ const AddClientForm: React.FC = () => {
               <div>
                 <h1 className="font-bold text-base"> Client Data</h1>
               </div>
-              <div className="w-full flex justify-between items-center pt-3">
-                <div className="relative w-[33%]">
+              <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+                <div className="relative">
                   <FormField
                     control={form.control}
                     rules={{
@@ -406,14 +406,14 @@ const AddClientForm: React.FC = () => {
                         <FloatingLabelInput
                           {...field}
                           id="own_member_id"
-                          label="Own_Member_Id"
+                          label="Member Id"
                         />
                         {watcher.own_member_id ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
                 </div>
-                <div className="relative w-[33%]">
+                <div className="relative ">
                   <FormField
                     control={form.control}
                     name="first_name"
@@ -422,14 +422,14 @@ const AddClientForm: React.FC = () => {
                         <FloatingLabelInput
                           {...field}
                           id="first_name"
-                          label="First Name"
+                          label="First Name*"
                         />
                         {watcher.first_name ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
                 </div>
-                <div className="relative w-[33%]">
+                <div className="relative ">
                   <FormField
                     control={form.control}
                     name="last_name"
@@ -438,45 +438,43 @@ const AddClientForm: React.FC = () => {
                         <FloatingLabelInput
                           {...field}
                           id="last_name"
-                          label="Last Name"
+                          label="Last Name*"
                         />
                         {watcher.last_name ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
                 </div>
-              </div>
-              <div className="w-full flex justify-between items-start pt-3">
-                <div className="relative w-[33%]">
+                <div className="relative ">
                   <FormField
                     control={form.control}
                     name="gender"
-                    defaultValue="male"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <div className="flex justify-start items-center mb-4">
-                          <FormLabel className="xl:mr-4 lg:mr-1 xl:text-base lg:text-xs">
-                            Select :
-                          </FormLabel>
+                      <FormItem>
+                        <Select
+													defaultValue="male"
+                          onValueChange={(value) => field.onChange(Number(value))}
+                        >
                           <FormControl>
-                            <ButtonGroup
-                              onValueChange={field.onChange}
-                              defaultValue="male"
-                              className="flex flex-row xl:gap-2 lg:gap-1"
+                            <SelectTrigger
+															floatingLabel="Gender"
+                              className={`${watcher.gender ? "text-black" : ""}`}
                             >
-                              <ButtonGroupItem value="male" label="Male" />
-                              <ButtonGroupItem value="female" label="Female" />
-                              <ButtonGroupItem value="other" label="Other" />
-                            </ButtonGroup>
+                              <SelectValue placeholder="Select Gender" />
+                            </SelectTrigger>
                           </FormControl>
-                        </div>
-                        {watcher.gender ? <></> : <FormMessage />}
+                          <SelectContent>
+														<SelectItem value="male">Male</SelectItem>
+														<SelectItem value="female">Female</SelectItem>
+														<SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {watcher.source_id ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
                 </div>
-
-                <div className="relative w-[33%]">
+                <div className="relative ">
                   <TooltipProvider>
                     <Tooltip>
                       <FormField
@@ -498,7 +496,7 @@ const AddClientForm: React.FC = () => {
                                       {field.value ? (
                                         format(field.value, "PPP")
                                       ) : (
-                                        <span>Date of Birth</span>
+                                        <span>Date of Birth*</span>
                                       )}
                                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                     </Button>
@@ -529,12 +527,12 @@ const AddClientForm: React.FC = () => {
                         )}
                       />
                       <TooltipContent>
-                        <p>Date of Birth</p>
+                        <p>Date of Birth*</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                <div className="relative w-[33%]">
+                <div className="relative ">
                   <FormField
                     control={form.control}
                     name="email"
@@ -543,16 +541,14 @@ const AddClientForm: React.FC = () => {
                         <FloatingLabelInput
                           {...field}
                           id="email"
-                          label="Email Address"
+                          label="Email Address*"
                         />
                         {watcher.email ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
                 </div>
-              </div>
-              <div className="w-full flex justify-between items-start pt-1">
-                <div className="relative w-[33%]">
+                <div className="relative ">
                   <FormField
                     control={form.control}
                     name="phone"
@@ -568,8 +564,7 @@ const AddClientForm: React.FC = () => {
                     )}
                   />
                 </div>
-
-                <div className="relative w-[33%]">
+                <div className="relative ">
                   <FormField
                     control={form.control}
                     name="mobile_number"
@@ -585,7 +580,7 @@ const AddClientForm: React.FC = () => {
                     )}
                   />
                 </div>
-                <div className="relative w-[33%]">
+                <div className="relative ">
                   <FormField
                     control={form.control}
                     name="coach_id"
@@ -614,7 +609,7 @@ const AddClientForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="0">Coach_id</SelectItem>
+                            <SelectItem value="0">Coach</SelectItem>
                             {coaches && coaches.length > 0 ? (
                               coaches?.map((sourceval: CoachTypes) => {
                                 // console.log(field.value);
@@ -639,9 +634,7 @@ const AddClientForm: React.FC = () => {
                     )}
                   />
                 </div>
-              </div>
-              <div className="w-full flex justify-between items-start mt-3">
-                <div className="relative w-[33%]">
+                <div className="relative ">
                   <FormField
                     control={form.control}
                     name="notes"
@@ -657,7 +650,7 @@ const AddClientForm: React.FC = () => {
                     )}
                   />
                 </div>
-                <div className="relative w-[33%]">
+                <div className="relative ">
                   <FormField
                     control={form.control}
                     name="source_id"
@@ -675,15 +668,15 @@ const AddClientForm: React.FC = () => {
                             >
                               <SelectValue>
                                 {field.value === 0
-                                  ? "Select Source"
+                                  ? "Select Source*"
                                   : sources?.find(
                                       (source) => source.id === field.value
-                                    )?.source || "Select Source"}
+                                    )?.source || "Select Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="0">Select Source</SelectItem>{" "}
+                            <SelectItem value="0">Select Source*</SelectItem>{" "}
                             {/* Placeholder option */}
                             {sources && sources.length ? (
                               sources.map((sourceval: sourceTypes, i: any) => (
@@ -704,7 +697,7 @@ const AddClientForm: React.FC = () => {
                     )}
                   />
                 </div>
-                <div className="relative w-[33%]">
+                <div className="relative ">
                   <FormField
                     control={form.control}
                     name="membership_id"
@@ -730,13 +723,13 @@ const AddClientForm: React.FC = () => {
                             >
                               <SelectValue
                                 className="text-gray-400"
-                                placeholder="Select Membership plan"
+                                placeholder="Select Membership plan*"
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="0">
-                              Select Membership plan
+                              Select Membership plan*
                             </SelectItem>{" "}
                             {membershipPlans && membershipPlans?.length ? (
                               membershipPlans.map(
@@ -764,14 +757,7 @@ const AddClientForm: React.FC = () => {
                     )}
                   />
                 </div>
-              </div>
-              <div className="w-full flex justify-between items-start pt-3">
-                <div className="relative w-[33%]"></div>
-                <div className="relative w-[33%]"></div>
-                <div className="relative w-[33%]"></div>
-              </div>
-              <div className="w-full flex justify-between items-start pt-1.5">
-                <div className="relative w-[33%]">
+                <div className="relative ">
                   <div className="justify-start items-center flex">
                     <FormField
                       control={form.control}
@@ -794,9 +780,7 @@ const AddClientForm: React.FC = () => {
                     />
                   </div>
                 </div>
-                <div
-                  className={`relative w-[33%] ${watcher.is_business ? "hidden" : ""}`}
-                >
+                <div className={`relative  ${watcher.is_business ? "hidden" : ""}`} >
                   <FormField
                     control={form.control}
                     name="business_id"
@@ -820,12 +804,12 @@ const AddClientForm: React.FC = () => {
                             >
                               <SelectValue
                                 className="text-gray-400"
-                                placeholder="Select Business"
+                                placeholder="Select Business*"
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="0">Select Business</SelectItem>{" "}
+                            <SelectItem value="0">Select Business*</SelectItem>{" "}
                             <Button
                               variant={"link"}
                               className="gap-2 text-black"
@@ -857,167 +841,161 @@ const AddClientForm: React.FC = () => {
                     )}
                   />
                 </div>
-                <div className="relative w-[33%]"></div>
               </div>
-
-              <div className="w-full flex flex-col justify-between items-start pb-5 pt-3">
-                <div>
-                  <h1 className="font-bold text-base"> Address data</h1>
-                </div>
-                <div className="w-full flex justify-between items-center pt-3">
-                  <div className="relative w-[33%]">
-                    <FormField
-                      control={form.control}
-                      name="address_1"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="address_1"
-                            label="Street Address"
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative w-[33%]">
-                    <FormField
-                      control={form.control}
-                      name="address_2"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="address_2"
-                            label="Extra Address"
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative w-[33%]">
-                    <FormField
-                      control={form.control}
-                      name="zipcode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="zipcode"
-                            label="Zip Code"
-                          />
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="w-full flex justify-start gap-2 items-center pt-3">
-                  <div className="relative w-[33%]">
-                    <FormField
-                      control={form.control}
-                      name="country_id"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col w-full">
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  className={cn(
-                                    "justify-between",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  {field.value
-                                    ? countries?.find(
-                                        (country: CountryTypes) =>
-                                          country.id === field.value // Compare with numeric value
-                                      )?.country // Display country name if selected
-                                    : "Select country"}
-                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="p-0">
-                              <Command>
-                                <CommandList>
-                                  <CommandInput placeholder="Select Country" />
-                                  <CommandEmpty>No country found.</CommandEmpty>
-                                  <CommandGroup>
-                                    {countries &&
-                                      countries.map((country: CountryTypes) => (
-                                        <CommandItem
-                                          value={country.country}
-                                          key={country.id}
-                                          onSelect={() => {
-                                            form.setValue(
-                                              "country_id",
-                                              country.id // Set country_id to country.id as number
-                                            );
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                              country.id === field.value
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                            )}
-                                          />
-                                          {country.country}{" "}
-                                          {/* Display the country name */}
-                                        </CommandItem>
-                                      ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-                          {watcher.country_id ? <></> : <FormMessage />}
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative w-[33%]">
-                    <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="city"
-                            label="City"
-                          />
-                          {watcher.city ? <></> : <FormMessage />}
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative w-[33%]">
-                    <FormField
-                      control={form.control}
-                      name="send_invitation"
-                      defaultValue={true}
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel>Send invitation</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-              </div>
+							<div>
+								<h1 className="font-bold text-base"> Address data</h1>
+							</div>
+							<div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+								<div className="relative ">
+									<FormField
+										control={form.control}
+										name="address_1"
+										render={({ field }) => (
+											<FormItem>
+												<FloatingLabelInput
+													{...field}
+													id="address_1"
+													label="Street Address"
+												/>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+								<div className="relative ">
+									<FormField
+										control={form.control}
+										name="address_2"
+										render={({ field }) => (
+											<FormItem>
+												<FloatingLabelInput
+													{...field}
+													id="address_2"
+													label="Extra Address"
+												/>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+								<div className="relative ">
+									<FormField
+										control={form.control}
+										name="zipcode"
+										render={({ field }) => (
+											<FormItem>
+												<FloatingLabelInput
+													{...field}
+													id="zipcode"
+													label="Zip Code"
+												/>
+												<FormMessage className="" />
+											</FormItem>
+										)}
+									/>
+								</div>
+								<div className="relative">
+									<FormField
+										control={form.control}
+										name="country_id"
+										render={({ field }) => (
+											<FormItem className="flex flex-col w-full">
+												<Popover>
+													<PopoverTrigger asChild>
+														<FormControl>
+															<Button
+																variant="outline"
+																role="combobox"
+																className={cn(
+																	"justify-between",
+																	!field.value && "text-muted-foreground"
+																)}
+															>
+																{field.value
+																	? countries?.find(
+																			(country: CountryTypes) =>
+																				country.id === field.value // Compare with numeric value
+																		)?.country // Display country name if selected
+																	: "Select country*"}
+																<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+															</Button>
+														</FormControl>
+													</PopoverTrigger>
+													<PopoverContent className="p-0">
+														<Command>
+															<CommandList>
+																<CommandInput placeholder="Select Country" />
+																<CommandEmpty>No country found.</CommandEmpty>
+																<CommandGroup>
+																	{countries &&
+																		countries.map((country: CountryTypes) => (
+																			<CommandItem
+																				value={country.country}
+																				key={country.id}
+																				onSelect={() => {
+																					form.setValue(
+																						"country_id",
+																						country.id // Set country_id to country.id as number
+																					);
+																				}}
+																			>
+																				<Check
+																					className={cn(
+																						"mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+																						country.id === field.value
+																							? "opacity-100"
+																							: "opacity-0"
+																					)}
+																				/>
+																				{country.country}{" "}
+																				{/* Display the country name */}
+																			</CommandItem>
+																		))}
+																</CommandGroup>
+															</CommandList>
+														</Command>
+													</PopoverContent>
+												</Popover>
+												{watcher.country_id ? <></> : <FormMessage />}
+											</FormItem>
+										)}
+									/>
+								</div>
+								<div className="relative ">
+									<FormField
+										control={form.control}
+										name="city"
+										render={({ field }) => (
+											<FormItem>
+												<FloatingLabelInput
+													{...field}
+													id="city"
+													label="City*"
+												/>
+												{watcher.city ? <></> : <FormMessage />}
+											</FormItem>
+										)}
+									/>
+								</div>
+								<div className="h-full relative">
+									<FormField
+										control={form.control}
+										name="send_invitation"
+										defaultValue={true}
+										render={({ field }) => (
+											<FormItem className="h-10 flex items-center gap-3">
+												<FormControl>
+													<Checkbox
+														checked={field.value}
+														onCheckedChange={field.onChange}
+													/>
+												</FormControl>
+												<FormLabel className="!mt-0">Send invitation</FormLabel>
+											</FormItem>
+										)}
+									/>
+								</div>
+							</div>
             </CardContent>
           </Card>
         </form>

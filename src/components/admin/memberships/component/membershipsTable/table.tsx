@@ -180,20 +180,20 @@ export default function MembershipsTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
-  const columns: any[] = [
+  const columns: any = [
     {
       accessorKey: "name",
-      header: () => <span>Category Name</span>,
-      cell: () => {
-        return <span>name</span>;
+      header: ({ table }) => <span>Category Name</span>,
+      cell: ({ row }) => {
+        return <span>{row.original.name}</span>;
       },
       enableSorting: false,
       enableHiding: false,
     },
     {
       accessorKey: "sale_tax_id",
-      header: () => <span>Default Tax/VAT</span>,
-      cell: () => {
+      header: ({ table }) => <span>Default Tax/VAT</span>,
+      cell: ({ row }) => {
         // const sales:any=salesTaxData?.filter(item=>item.id==row.original.sale_tax_id)[0]
         // console.log({salesTaxData,sales},row.original.sale_tax_id,"sales")
         // return <span>{sales?.name +" ("+sales?.percentage+"%)" }</span>;
@@ -206,13 +206,12 @@ export default function MembershipsTableView() {
       id: "actions",
       header: "Actions",
       maxSize: 100,
-      cell: () => (
-        // <DataTableRowActions
-          // data={row.original}
+      cell: ({ row }) => (
+        <DataTableRowActions
+          data={row.original}
           // refetch={refetch}
           // handleEdit={handleEditIncomeCategory}
-        // />
-        <span>data</span>
+        />
       ),
     },
   ];
@@ -304,7 +303,7 @@ export default function MembershipsTableView() {
               ))}
             </TableHeader>
             <TableBody>
-              {isDialogOpen ? (
+              {true ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -493,259 +492,8 @@ export default function MembershipsTableView() {
         </div>
       </div>
 
-      {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
-      {/* <IncomeCategoryForm
-        data={formData}
-        isDialogOpen={isDialogOpen}
-        setIsDialogOpen={handleCloseDailog}
-        refetch={refetch}
-        setFormData={setFormData}
-        handleOnChange={handleOnChange}
-        salesTaxData={salesTaxData}
-      /> */}
+      
       <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen}/>
     </div>
   );
 }
-
-// interface incomeCategoryFromData {
-//   sale_tax_id: number|undefined;
-//   name: string;
-//   org_id: number;
-//   id?: number;
-//   case?: string;
-// }
-
-// const IncomeCategoryForm = ({
-//   data: formData,
-//   setIsDialogOpen,
-//   isDialogOpen,
-//   refetch,
-//   setFormData,
-//   handleOnChange,
-//   salesTaxData,
-// }: {
-//   data: incomeCategoryFromData;
-//   isDialogOpen: boolean;
-//   setIsDialogOpen: any;
-//   refetch?: any;
-//   setFormData?: any;
-//   handleOnChange?: any;
-//   salesTaxData?:any
-// }) => {
-//   const { toast } = useToast();
-//   // const [formData, setFormData] = useState(data);
-//   const [createIncomeCategory, { isLoading: incomeCategoryLoading }] =
-//     useCreateIncomeCategoryMutation();
-//   const [updateIncomeCategory, { isLoading: updateLoading }] =
-//     useUpdateIncomeCategoryMutation();
-
-//   useEffect(() => {
-//     form.reset(formData);
-//     setFormData(formData);
-//     console.log({ formData, form }, "in useeffect");
-//   }, [formData]);
-
-//   const incomeCategoryFormSchema = z.object({
-//     id: z.number().optional(),
-//     org_id: z.number(),
-//     sale_tax_id: z.number(),
-//     name: z.string().min(1, { message: "Name is required" }),
-//   });
-
-//   const form = useForm<z.infer<typeof incomeCategoryFormSchema>>({
-//     resolver: zodResolver(incomeCategoryFormSchema),
-//     defaultValues: formData,
-//     mode: "onChange",
-//   });
-
-//   const watcher = form.watch();
-
-//   const onSubmit = async (data: z.infer<typeof incomeCategoryFormSchema>) => {
-//     console.log({ data });
-
-//     try {
-//       if (formData.case == "add") {
-//         const resp = await createIncomeCategory(data);
-//         if (resp) {
-//           console.log({ resp });
-//           refetch();
-//           toast({
-//             variant: "success",
-//             title: "Income Category Created Successfully",
-//           });
-//           resetFormAndCloseDialog();
-//           setIsDialogOpen(false);
-//         }
-//       } else {
-//         const resp = await updateIncomeCategory(data);
-//         if (resp) {
-//           console.log({ resp });
-//           refetch();
-//           toast({
-//             variant: "success",
-//             title: "Updated Successfully",
-//           });
-//           resetFormAndCloseDialog();
-//           setIsDialogOpen(false);
-//         }
-//       }
-//     } catch (error) {
-//       console.log("Error", error);
-//       if (error && typeof error === "object" && "data" in error) {
-//         const typedError = error as ErrorType;
-//         toast({
-//           variant: "destructive",
-//           title: "Error in form Submission",
-//           description: `${typedError.data?.detail}`,
-//         });
-//       } else {
-//         toast({
-//           variant: "destructive",
-//           title: "Error in form Submission",
-//           description: `Something Went Wrong.`,
-//         });
-//       }
-//       resetFormAndCloseDialog();
-//       setIsDialogOpen(false);
-//     }
-//   };
-
-//   const resetFormAndCloseDialog = () => {
-//     setFormData((prev: incomeCategoryFromData) => ({
-//       ...prev,
-//       sale_tax_id: undefined,
-//       name: "",
-//     }));
-//   };
-//   console.log(form.formState.errors);
-
-//   return (
-//     <div>
-//       <Dialog
-//         open={isDialogOpen}
-//         onOpenChange={() => {
-//           setFormData((prev: incomeCategoryFromData) => ({
-//             ...prev,
-//             sale_tax_id: undefined,
-//             name: "",
-//           }));
-//           form.reset({
-//             org_id: formData.org_id,
-//             sale_tax_id: undefined,
-//             name: "",
-//           });
-//           setIsDialogOpen();
-//         }}
-//       >
-//         {/* <DialogTrigger>Open</DialogTrigger> */}
-//         <DialogContent>
-//           <DialogHeader>
-//             <DialogTitle>
-//               {formData.case == "add" ? "Create" : "Edit"} Income Category
-//             </DialogTitle>
-//             <DialogDescription>
-//               <Form {...form}>
-//                 <form
-//                   onSubmit={form.handleSubmit(onSubmit)}
-//                   className="flex flex-col py-4 gap-4"
-//                 >
-//                   <FormField
-//                     control={form.control}
-//                     name="name"
-//                     render={({ field }) => (
-//                       <FormItem>
-//                         <FloatingLabelInput
-//                           {...field}
-//                           id="name"
-//                           name="name"
-//                           label="Category Name"
-//                           value={field.value ?? ""}
-//                           onChange={handleOnChange}
-//                         />
-//                         {watcher.name ? <></> : <FormMessage />}
-//                       </FormItem>
-//                     )}
-//                   />
-
-//                   {/* <FormField
-//                     control={form.control}
-//                     name="percentage"
-//                     render={({ field }) => (
-//                       <FormItem>
-//                         <FloatingLabelInput
-//                           {...field}
-//                           type="number"
-//                           id="percentage"
-//                           name="percentage"
-//                           min={1}
-//                           step={".1"}
-//                           max={100}
-//                           className="number-input"
-//                           label="Percentage"
-//                           value={field.value ?? 1}
-//                           onChange={handleOnChange}
-
-//                         />
-//                         {watcher.percentage ? <></> : <FormMessage />}
-//                       </FormItem>
-//                     )}
-//                   /> */}
-
-//                     <FormField
-//                       control={form.control}
-//                       name="sale_tax_id"
-//                       render={({ field }) => (
-//                         <FormItem>
-//                           <Select
-//                             onValueChange={(value) =>
-//                               field.onChange(Number(value))
-//                             }
-//                             defaultValue={field.value?.toString()}
-//                           >
-//                             <FormControl>
-//                               <SelectTrigger>
-//                                 <SelectValue placeholder="Default Tax/VAT" />
-//                               </SelectTrigger>
-//                             </FormControl>
-//                             <SelectContent>
-//                               {salesTaxData && salesTaxData?.length>0 ? (
-//                                 salesTaxData.map(
-//                                   (saleTax:any, i: any) => (
-//                                     <SelectItem
-//                                       value={saleTax.id?.toString()}
-//                                       key={i}
-//                                       onClick={handleOnChange}
-//                                     >
-//                                       {saleTax.name+" ("+saleTax.percentage+"%)"}
-//                                     </SelectItem>
-//                                   )
-//                                 )
-//                               ) : (
-//                                 <>
-//                                   <p className="p-2"> No Sources Found</p>
-//                                 </>
-//                               )}
-//                             </SelectContent>
-//                           </Select>
-//                           <FormMessage />
-//                         </FormItem>
-//                       )}
-//                     />
-
-//                   <Button
-//                     type="submit"
-//                     className="bg-primary font-semibold text-black gap-1"
-//                   >
-//                     <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-//                     Save
-//                   </Button>
-//                 </form>
-//               </Form>
-//             </DialogDescription>
-//           </DialogHeader>
-//         </DialogContent>
-//       </Dialog>
-//     </div>
-//   );
-// };

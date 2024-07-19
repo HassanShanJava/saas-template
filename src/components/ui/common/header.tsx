@@ -86,14 +86,14 @@ export const Header = () => {
                   ? "Events"
                   : ""}
               </h1>
-              {isActiveLink(location.pathname, "/admin/client/addclient") ? (
+              {isActiveLink(location.pathname, "/admin/members/addmember") ? (
                 <div className="pl-7">
                   <span className="text-gray-400 pr-1 font-bold">
                     Dashboard
                   </span>{" "}
                   <span className="text-gray-400 font-bold">/</span>
                   <span className="pl-1 text-primary font-bold text-base">
-                    Add Client
+                    Add Member
                   </span>
                 </div>
               ) : (

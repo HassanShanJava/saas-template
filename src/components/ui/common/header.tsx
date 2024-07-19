@@ -55,11 +55,11 @@ export const Header = () => {
                 {isActiveLink(location.pathname, "/admin/dashboard")
                   ? "Dashboard"
                   : ""}
-                {isActiveLink(location.pathname, "/admin/client")
-                  ? "Clients"
+                {isActiveLink(location.pathname, "/admin/members")
+                  ? "Members"
                   : ""}
-                {isActiveLink(location.pathname, "/admin/client/addclient")
-                  ? "Add Client"
+                {isActiveLink(location.pathname, "/admin/members/addmember")
+                  ? "Add Member"
                   : ""}
                 {isActiveLink(location.pathname, "/admin/credits")
                   ? "System Settings"

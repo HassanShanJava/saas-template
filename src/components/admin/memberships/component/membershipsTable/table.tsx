@@ -92,7 +92,7 @@ export default function MembershipsTableView() {
 
   // const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleCloseDailog = () => setIsDialogOpen(false);
 

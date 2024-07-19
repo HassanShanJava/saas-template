@@ -47,7 +47,7 @@ const EventsIcon: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (props) 
 
 const navItems: NavItem[] = [
   { name: "Dashboard", link: "/admin/dashboard", icon: DashBoardIcon, dropdown: false },
-  { name: "Client", link: "/admin/client", icon: MultiUserIcon, dropdown: false },
+  { name: "Members", link: "/admin/members", icon: MultiUserIcon, dropdown: false },
   { name: "Leads", link: "/admin/leads", icon: RocketIcon, dropdown: false },
   { name: "Events", link: "/admin/events", icon: EventsIcon, dropdown: false },
   { 

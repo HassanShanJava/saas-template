@@ -20,7 +20,6 @@ import Memberships from "./components/admin/memberships";
 // import Loader from "@/components/Loader";
 
 function App() {
-  const { loading } = useSelector((state: RootState) => state.auth);
   return (
     <>
       <Routes>
@@ -28,14 +27,14 @@ function App() {
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/admin" element={<DashboardLayout />}>
             <Route path="/admin/dashboard" index element={<Dashboard />} />
-            <Route path="/admin/client" index element={<Client />} />
+            <Route path="/admin/members" index element={<Client />} />
             <Route
               path="/admin/system_settings"
               index
               element={<SystemSettings />}
             />
             <Route
-              path="/admin/client/addclient"
+              path="/admin/members/addmember"
               index
               element={<AddClientForm />}
             />

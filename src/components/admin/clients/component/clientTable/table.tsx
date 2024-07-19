@@ -1,4 +1,4 @@
-import React, {useState } from "react";
+import React, { useState } from "react";
 import {
   ColumnDef,
   PaginationState,
@@ -17,7 +17,8 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -27,7 +28,7 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import { ScrollArea,ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { MoreHorizontal, PlusIcon, Search } from "lucide-react";
 import {
   Select,
@@ -41,7 +42,7 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { clientTablestypes,clientFilterSchema } from "@/app/types";
+import { clientTablestypes, clientFilterSchema } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { useGetAllClientQuery } from "@/services/clientAPi";
@@ -63,20 +64,20 @@ const downloadCSV = (data: clientTablestypes[], fileName: string) => {
   link.click();
   document.body.removeChild(link);
 };
-export default function ClientTableView(){
+export default function ClientTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const { data: clientData, isLoading, refetch,error } = useGetAllClientQuery(orgId);
+  const { data: clientData, isLoading, refetch, error } = useGetAllClientQuery(orgId);
   const navigate = useNavigate();
 
   function handleRoute() {
-    navigate("/admin/client/addclient");
+    navigate("/admin/members/addmember");
   }
   const clienttableData = React.useMemo(() => {
     return Array.isArray(clientData) ? clientData : [];
   }, [clientData]);
   const { toast } = useToast();
-  console.log("data",{clientData,error})
+  console.log("data", { clientData, error })
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
@@ -91,6 +92,15 @@ export default function ClientTableView(){
     pageSize: 10, // Adjust this based on your preference
   });
   const displayValue = (value: any) => (value === null ? "N/A" : value);
+  const displayDate = (value: any) => {
+    const date = new Date(value);
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const year = date.getFullYear();
+
+    return `${day}-${month}-${year}`;
+  }
   const handleExportSelected = () => {
     const selectedRows = table
       .getSelectedRowModel()
@@ -102,7 +112,7 @@ export default function ClientTableView(){
       });
       return;
     }
-    downloadCSV(selectedRows, "selected_data.csv");
+    downloadCSV(selectedRows, "members_list.csv");
   };
   const columns: ColumnDef<clientTablestypes>[] = [
     {
@@ -192,7 +202,7 @@ export default function ClientTableView(){
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.client_since)}
+            {displayDate(row?.original.client_since)}
           </div>
         );
       },
@@ -304,7 +314,7 @@ export default function ClientTableView(){
           onClick={handleRoute}
         >
           <PlusIcon className="h-4 w-4" />
-          Add Client
+          Create New
         </Button>
         <DataTableViewOptions table={table} action={handleExportSelected} />
       </div>
@@ -321,9 +331,9 @@ export default function ClientTableView(){
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -337,11 +347,11 @@ export default function ClientTableView(){
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    <Spinner className="text-primary">
-                      <span className="text-primary">
-                        Loading data for clients....
-                      </span>
-                    </Spinner>
+                    <div className='flex space-x-2 justify-center items-center bg-white '>
+                      <div className='size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
+                      <div className='size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
+                      <div className='size-3 bg-black rounded-full animate-bounce'></div>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows.length ? (
@@ -470,7 +480,7 @@ export default function ClientTableView(){
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
               onClick={() => handlePagination(0)}
-              // disabled={filters.first === 0}
+            // disabled={filters.first === 0}
             >
               <span className="sr-only">Go to first page</span>
               <DoubleArrowLeftIcon className="h-4 w-4" />
@@ -479,8 +489,8 @@ export default function ClientTableView(){
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters?.first - 1)}
-              // disabled={filters?.first === 0}
+            // onClick={() => handlePagination(filters?.first - 1)}
+            // disabled={filters?.first === 0}
             >
               <span className="sr-only">Go to previous page</span>
               <ChevronLeftIcon className="h-4 w-4" />
@@ -488,12 +498,12 @@ export default function ClientTableView(){
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters.first + 1)}
-              // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
-              // }
+            // onClick={() => handlePagination(filters.first + 1)}
+            // disabled={
+            //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
+            //   Math.ceil((data?.count ?? 0) / filters.rows) ==
+            //     filters.first + 1
+            // }
             >
               <span className="sr-only">Go to next page</span>
               <ChevronRightIcon className="h-4 w-4" />
@@ -502,16 +512,16 @@ export default function ClientTableView(){
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              // onClick={() =>
-              //   handlePagination(
-              //     Math.ceil((data?.count ?? 0) / filters.rows) - 1
-              //   )
-              // }
-              // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
-              // }
+            // onClick={() =>
+            //   handlePagination(
+            //     Math.ceil((data?.count ?? 0) / filters.rows) - 1
+            //   )
+            // }
+            // disabled={
+            //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
+            //   Math.ceil((data?.count ?? 0) / filters.rows) ==
+            //     filters.first + 1
+            // }
             >
               <span className="sr-only">Go to last page</span>
               <DoubleArrowRightIcon className="h-4 w-4" />

@@ -210,21 +210,12 @@ export default function AuthenticationPage() {
                       </>
                     )}
                   </div>
-                  {loading ? (
-                    <LoadingButton
-                      loading
-                      className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
-                    >
-                      Logging In
-                    </LoadingButton>
-                  ) : (
-                    <Button
-                      type="submit"
-                      className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
-                    >
-                      Login
-                    </Button>
-                  )}
+								<LoadingButton
+									loading={loading}
+									className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
+								>
+									{loading ? "Logging In" : "Login"}
+								</LoadingButton>
                 </form>
               </CardContent>
             </Card>

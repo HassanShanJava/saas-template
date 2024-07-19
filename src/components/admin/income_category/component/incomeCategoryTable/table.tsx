@@ -75,6 +75,7 @@ import {
   useGetIncomeCategoryQuery,
   useUpdateIncomeCategoryMutation,
 } from "@/services/incomeCategoryApi";
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 const downloadCSV = (data: incomeCategoryTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -758,15 +759,14 @@ const IncomeCategoryForm = ({
                         </FormItem>
                       )}
                     />
-
-                  <Button
+                  <LoadingButton
                     type="submit"
                     className="bg-primary font-semibold text-black gap-1"
-										disabled={form.formState.isSubmitting}
+										loading={form.formState.isSubmitting}
                   >
-                    <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                    {!form.formState.isSubmitting && <i className="fa-regular fa-floppy-disk text-base px-1 "></i>}
                     Save
-                  </Button>
+                  </LoadingButton>
                 </form>
               </Form>
             </DialogDescription>

@@ -116,29 +116,30 @@ export default function CreditsTableView() {
       id: "credits_include",
       header: "Credits Included",
       maxSize: 100,
-      cell: ({ row }) => (
-        row.getIsSelected() ? (
-          <Input type="number" min={1} className="number-input w-14" />
-        ) : null
-      ),
+      cell: ({ row }) => {
+        return row.getIsSelected() ? <CreditIncludes row={row} /> : null
+      },
     },
     {
       id: "validity",
       header: "Validity",
       maxSize: 100,
       cell: ({ row }) => {
-       return row.getIsSelected() ? (
-          <Select>
-            <SelectTrigger name="contract_duration" className="bg-white">
-              <SelectValue placeholder="Select contract duration" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={"1"}>Monthly</SelectItem>
-              <SelectItem value={"3"}>Quarterly</SelectItem>
-              <SelectItem value={"6"}>Bi-Annually</SelectItem>
-              <SelectItem value={"12"}>Yearly</SelectItem>
-            </SelectContent>
-          </Select>
+        return row.getIsSelected() ? (
+          <div className="flex items-center gap-2">
+            <Input type="number" min={1} className="number-input w-10" />
+            <Select>
+              <SelectTrigger name="contract_duration" className="bg-white">
+                <SelectValue placeholder="Select contract duration" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={"1"}>Monthly</SelectItem>
+                <SelectItem value={"3"}>Quarterly</SelectItem>
+                <SelectItem value={"6"}>Bi-Annually</SelectItem>
+                <SelectItem value={"12"}>Yearly</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         ) : null
       },
     },
@@ -220,9 +221,9 @@ export default function CreditsTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -332,4 +333,29 @@ export default function CreditsTableView() {
       </div> */}
     </div>
   );
+}
+
+
+
+const CreditIncludes = ({ row }: any) => {
+  const [count, setCount] = useState(1);
+
+  return (
+    <div className="flex gap-2 items-center">
+      <span>(Minimum credit: {row?.original?.min_limit}) </span>
+
+      <button onClick={()=>setCount(prev=>1-prev)} className="text-black bg-white border border-primary rounded-lg px-3 py-2">
+        <i className="fa fa-minus font-semibold"></i>
+      </button>
+
+      <div className="text-black bg-white border border-primary rounded-lg px-3 py-2">
+        {count *Number(row?.original?.min_limit)}
+      </div>
+
+      
+      <button onClick={()=>setCount(prev=>1+prev)} className="text-white bg-primary rounded-lg px-3 py-2">
+        <i className="fa fa-plus font-semibold"></i>
+      </button>
+    </div>);
+
 }

@@ -10,7 +10,7 @@ export const Credits = apiSlice.injectEndpoints({
     return {
       getCredits: builder.query<creditsResponseType[], number>({
         query: (org_id) => ({
-          url: `/membership_plan/credits/getAll?org_id=${org_id}`,
+          url: `/membership_plan/facilities/getAll?org_id=${org_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -20,7 +20,7 @@ export const Credits = apiSlice.injectEndpoints({
       }),
       createCredits: builder.mutation<any, createCreditsType>({
         query: (creditsdata) => ({
-          url: `/membership_plan/credits`,
+          url: `/membership_plan/facilities`,
           method: "POST",
           body: creditsdata,
           headers: {
@@ -31,7 +31,7 @@ export const Credits = apiSlice.injectEndpoints({
       }),
       updateCredits: builder.mutation<any, updateCreditsType>({
         query: (creditsdata) => ({
-          url: `/membership_plan/credits`,
+          url: `/membership_plan/facilities`,
           method: "PUT",
           body: creditsdata,
           headers: {
@@ -42,7 +42,7 @@ export const Credits = apiSlice.injectEndpoints({
       }),
       deleteCredits: builder.mutation<any, any>({
         query: (creditsdata) => ({
-          url: `/membership_plan/credits`,
+          url: `/membership_plan/facilities`,
           method: "DELETE",
           body: creditsdata,
           headers: {
@@ -53,7 +53,7 @@ export const Credits = apiSlice.injectEndpoints({
       }),
       getCreditsById: builder.query<any, number>({
         query: (org_id) => ({
-          url: `/membership_plan/credits?credit_id=${org_id}`,
+          url: `/membership_plan/facilities?credit_id=${org_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

@@ -38,8 +38,6 @@ export function DataTableViewOptions<TData>({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[150px]">
-          <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
-          <DropdownMenuSeparator />
           {table
             .getAllColumns()
             .filter(
@@ -47,6 +45,7 @@ export function DataTableViewOptions<TData>({
                 typeof column.accessorFn !== "undefined" && column.getCanHide()
             )
             .map((column) => {
+              const {header}:any=column.columnDef
               return (
                 <DropdownMenuCheckboxItem
                   key={column.id}

@@ -44,7 +44,7 @@ const FloatingInput = React.forwardRef<
         placeholder=" "
         className={cn(
           "peer",
-          "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex w-full font-poppins rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         ref={textareaRef}
@@ -57,7 +57,7 @@ const FloatingInput = React.forwardRef<
     <Input
       placeholder=" "
       type={type}
-      className={cn("peer", className)}
+      className={cn("peer", "font-poppins",className)}
       ref={inputRef}
       {...props}
     />
@@ -105,7 +105,7 @@ const FloatingLabelInput = React.forwardRef<
         </FloatingLabel>
       </div>
       {error && (
-        <span className="text-destructive block !mt-[5px] text-[12px]">
+        <span className="text-destructive font-poppins block !mt-[5px] text-[12px]">
           {error}
         </span>
       )}

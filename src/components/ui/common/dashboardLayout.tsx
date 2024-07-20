@@ -85,7 +85,7 @@ const DashboardLayout: React.FC = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
-  const isActiveLink = (targetPath: string): boolean => location.pathname.startsWith(targetPath) ;
+  const isActiveLink = (targetPath: string): boolean => location.pathname==targetPath ;
 
   return (
     <div className="font-poppins flex h-screen w-full relative overflow-y-hidden">

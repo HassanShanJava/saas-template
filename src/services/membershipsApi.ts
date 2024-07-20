@@ -1,25 +1,12 @@
-import { RootState } from "@/app/store";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+import { apiSlice } from "@/features/api/apiSlice";
 
-export const Memberships = createApi({
-  reducerPath: "api/memberships",
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.userToken;
-      if (token) headers.set("Authorization", `Bearer ${token}`);
-      headers.set("Access-Control-Allow-Origin", `*`);
-      return headers;
-    },
-  }),
-  tagTypes: ["Memberships"],
+export const Memberships = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
       getMemberships: builder.query<any[], number>({
         query: (org_id) => ({
-          url: `/membership_plan/income_category/getAll?org_id=${org_id}`,
+          url: `/membership_plan/membership_plans/getAll?org_id=${org_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -29,7 +16,7 @@ export const Memberships = createApi({
       }),
       createMemberships: builder.mutation<any, any[]>({
         query: (membershipsydata) => ({
-          url: `/membership_plan/income_category`,
+          url: `/membership_plan/membership_plans`,
           method: "POST",
           body: membershipsydata,
           headers: {
@@ -40,7 +27,7 @@ export const Memberships = createApi({
       }),
       updateMemberships: builder.mutation<any, any>({
         query: (membershipsydata) => ({
-          url: `/membership_plan/income_category`,
+          url: `/membership_plan/membership_plans`,
           method: "PUT",
           body: membershipsydata,
           headers: {
@@ -51,7 +38,7 @@ export const Memberships = createApi({
       }),
       deleteMemberships: builder.mutation<any, any>({
         query: (membershipsydata) => ({
-          url: `/membership_plan/income_category`,
+          url: `/membership_plan/membership_plans`,
           method: "DELETE",
           body: membershipsydata,
           headers: {
@@ -62,7 +49,7 @@ export const Memberships = createApi({
       }),
       getMembershipsById: builder.query<any, number>({
         query: (membership_id) => ({
-          url: `/membership_plan/income_category?income_category_id=${membership_id}`,
+          url: `/membership_plan/membership_plans?income_category_id=${membership_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

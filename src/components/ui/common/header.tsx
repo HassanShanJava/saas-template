@@ -43,8 +43,7 @@ export const Header = () => {
     return currentPath === targetPath;
   }
 
-  console.log("click", location.pathname);
-
+  
   return (
     <>
       <header className="font-poppins sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm ">

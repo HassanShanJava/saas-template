@@ -76,6 +76,7 @@ import {
 } from "@/app/types";
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+import { Label } from "@/components/ui/label";
 
 const AddClientForm: React.FC = () => {
   const [counter, setCounter] = React.useState(0);
@@ -125,7 +126,7 @@ const AddClientForm: React.FC = () => {
         message: "Source is required",
       }),
     is_business: z.boolean().default(false).optional(),
-    business_id: z.number().optional().default(NaN),
+    business_id: z.number().optional(),
     country_id: z
       .number({
         required_error: "Country Required.",
@@ -163,6 +164,9 @@ const AddClientForm: React.FC = () => {
       .string()
       .date()
       .default(new Date().toISOString().split("T")[0]),
+		prolongation_period: z.coerce.number(),
+		auto_renew_days: z.coerce.number(),
+		inv_days_cycle: z.coerce.number(),
   });
   // Example of handling async data fetching before form initialization
 
@@ -213,6 +217,7 @@ const AddClientForm: React.FC = () => {
     defaultValues: {
       is_business: false,
       own_member_id: "",
+      prolongation_period: 1,
     },
     mode: "onChange",
   });
@@ -453,7 +458,7 @@ const AddClientForm: React.FC = () => {
                       <FormItem>
                         <Select
 													defaultValue="male"
-                          onValueChange={(value) => field.onChange(Number(value))}
+                          onValueChange={(value: "male" | "female" | "other") => form.setValue("gender", value)}
                         >
                           <FormControl>
                             <SelectTrigger
@@ -583,60 +588,6 @@ const AddClientForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="coach_id"
-                    // rules={{
-                    //   validate: (value) => {
-                    //     // Ensure value is treated as a number for comparison
-                    //     return Number(value) !== 0;
-                    //   },
-                    // }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          onValueChange={(value) =>
-                            field.onChange(Number(value))
-                          }
-                          defaultValue={field.value?.toString() || "0"}
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              className={`${watcher.coach_id ? "text-black" : ""}`}
-                            >
-                              <SelectValue
-                                className="text-black"
-                                placeholder="Select Coach"
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="0">Coach</SelectItem>
-                            {coaches && coaches.length > 0 ? (
-                              coaches?.map((sourceval: CoachTypes) => {
-                                // console.log(field.value);
-                                return (
-                                  <SelectItem
-                                    key={sourceval.id}
-                                    value={sourceval.id?.toString()}
-                                  >
-                                    {sourceval.coach_name}
-                                  </SelectItem>
-                                );
-                              })
-                            ) : (
-                              <>
-                                <p className="p-2"> No Coach Found</p>
-                              </>
-                            )}
-                          </SelectContent>
-                        </Select>
-                        {watcher.coach_id ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
                     name="notes"
                     render={({ field }) => (
                       <FormItem>
@@ -700,59 +651,53 @@ const AddClientForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="membership_id"
-                    rules={{
-                      validate: (value) => {
-                        // Ensure value is treated as a number for comparison
-                        return (
-                          Number(value) !== 0 || "Memberhip Plan is Required"
-                        );
-                      },
-                    }}
+                    name="coach_id"
+                    // rules={{
+                    //   validate: (value) => {
+                    //     // Ensure value is treated as a number for comparison
+                    //     return Number(value) !== 0;
+                    //   },
+                    // }}
                     render={({ field }) => (
                       <FormItem>
                         <Select
                           onValueChange={(value) =>
                             field.onChange(Number(value))
                           }
-                          value={field.value?.toString() || "0"}
+                          defaultValue={field.value?.toString() || "0"}
                         >
                           <FormControl>
                             <SelectTrigger
-                              className={`${watcher.membership_id ? "text-black" : ""}`}
+                              className={`${watcher.coach_id ? "text-black" : ""}`}
                             >
                               <SelectValue
-                                className="text-gray-400"
-                                placeholder="Select Membership plan*"
+                                className="text-black"
+                                placeholder="Select Coach"
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="0">
-                              Select Membership plan*
-                            </SelectItem>{" "}
-                            {membershipPlans && membershipPlans?.length ? (
-                              membershipPlans.map(
-                                (sourceval: membershipplanTypes) => {
-                                  // console.log(field.value);
-                                  return (
-                                    <SelectItem
-                                      key={sourceval.id}
-                                      value={sourceval.id?.toString()}
-                                    >
-                                      {sourceval.name}
-                                    </SelectItem>
-                                  );
-                                }
-                              )
+                            <SelectItem value="0">Coach</SelectItem>
+                            {coaches && coaches.length > 0 ? (
+                              coaches?.map((sourceval: CoachTypes) => {
+                                // console.log(field.value);
+                                return (
+                                  <SelectItem
+                                    key={sourceval.id}
+                                    value={sourceval.id?.toString()}
+                                  >
+                                    {sourceval.coach_name}
+                                  </SelectItem>
+                                );
+                              })
                             ) : (
                               <>
-                                <p className="2">No Membership plan found</p>
+                                <p className="p-2"> No Coach Found</p>
                               </>
                             )}
                           </SelectContent>
                         </Select>
-                        {watcher.membership_id ? <></> : <FormMessage />}
+                        {watcher.coach_id ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -793,9 +738,7 @@ const AddClientForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value) =>
-                            field.onChange(Number(value))
-                          }
+                          onValueChange={(value) => form.setValue("country_id", Number(value))}
                           defaultValue={field.value?.toString() || "0"}
                         >
                           <FormControl>
@@ -993,6 +936,178 @@ const AddClientForm: React.FC = () => {
 												<FormLabel className="!mt-0">Send invitation</FormLabel>
 											</FormItem>
 										)}
+									/>
+								</div>
+							</div>
+							<div>
+								<h1 className="font-bold text-base">Membership and Auto Renewal</h1>
+							</div>
+							<div className="grid grid-cols-10 gap-3">
+								<div className="relative col-span-4">
+									<FormField
+									control={form.control}
+									name="membership_id"
+									rules={{
+										validate: (value) => {
+										// Ensure value is treated as a number for comparison
+										return (
+											Number(value) !== 0 || "Memberhip Plan is Required"
+										);
+										},
+									}}
+									render={({ field }) => (
+										<FormItem>
+										<Select
+											onValueChange={(value) =>
+											field.onChange(Number(value))
+											}
+											value={field.value?.toString() || "0"}
+										>
+											<FormControl>
+											<SelectTrigger
+												className={`${watcher.membership_id ? "text-black" : ""}`}
+											>
+												<SelectValue
+												className="text-gray-400"
+												placeholder="Select Membership plan*"
+												/>
+											</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+											<SelectItem value="0">
+												Select Membership plan*
+											</SelectItem>{" "}
+											{membershipPlans && membershipPlans?.length ? (
+												membershipPlans.map(
+												(sourceval: membershipplanTypes) => {
+													// console.log(field.value);
+													return (
+													<SelectItem
+														key={sourceval.id}
+														value={sourceval.id?.toString()}
+													>
+														{sourceval.name}
+													</SelectItem>
+													);
+												}
+												)
+											) : (
+												<>
+												<p className="2">No Membership plan found</p>
+												</>
+											)}
+											</SelectContent>
+										</Select>
+										{watcher.membership_id ? <></> : <FormMessage />}
+										</FormItem>
+									)}
+									/>
+								</div>
+								<div className="h-full relative col-span-2">
+									<FormField
+										control={form.control}
+										name="send_invitation"
+										defaultValue={true}
+										render={({ field }) => (
+											<FormItem className="h-10 flex items-center gap-3">
+												<FormControl>
+													<Checkbox
+														checked={field.value}
+														onCheckedChange={field.onChange}
+													/>
+												</FormControl>
+												<FormLabel className="!mt-0">Auto renewal?</FormLabel>
+											</FormItem>
+										)}
+									/>
+								</div>
+								<div className="relative col-span-4">
+									<FormField
+									control={form.control}
+									name="prolongation_period"
+									rules={{
+										validate: (value) => {
+										// Ensure value is treated as a number for comparison
+										return (
+											Number(value) !== 0 || "Memberhip Plan is Required"
+										);
+										},
+									}}
+									render={({ field }) => {
+										console.log(form.formState.errors)
+										return <FormItem className="flex h-10 items-center gap-3">
+											<FormLabel className="text-base">Prolongation period*</FormLabel>
+											<FloatingLabelInput
+												{...field}
+												id="min_limit"
+												type="number"
+												min={1}
+												name="min_limit"
+												className="number-input w-10"
+											/>
+											{watcher.prolongation_period ? <></> : <FormMessage />}
+										</FormItem>
+										}}
+									/>
+								</div>
+								<div className="relative col-span-5">
+									<FormField
+									control={form.control}
+									name="auto_renew_days"
+									rules={{
+										validate: (value) => {
+										// Ensure value is treated as a number for comparison
+										return (
+											Number(value) !== 0 || "Memberhip Plan is Required"
+										);
+										},
+									}}
+									render={({ field }) => {
+										console.log(form.formState.errors)
+										return <FormItem className="flex h-10 items-center gap-3">
+											<FormLabel className="text-sm">Auto renewal takes place*</FormLabel>
+											<FloatingLabelInput
+												{...field}
+												id="min_limit"
+												type="number"
+												min={1}
+												name="min_limit"
+												className="number-input w-10"
+											/>
+											{watcher.auto_renew_days ? <></> : <FormMessage />}
+										<Label className="text-xs text-black/20">days before contracts runs out.</Label>
+										</FormItem>
+										}}
+									/>
+								</div>
+								<div className="relative col-span-5">
+									<FormField
+									control={form.control}
+									name="inv_days_cycle"
+									rules={{
+										validate: (value) => {
+										// Ensure value is treated as a number for comparison
+										return (
+											Number(value) !== 0 || "Memberhip Plan is Required"
+										);
+										},
+									}}
+									render={({ field }) => {
+										console.log(form.formState.errors)
+										return <FormItem className="flex h-10 items-center gap-3">
+											<FormLabel className="text-sm">Next invoice will be created *</FormLabel>
+											<FloatingLabelInput
+												{...field}
+												id="min_limit"
+												type="number"
+												min={1}
+												name="min_limit"
+												className="number-input w-10"
+											/>
+											{watcher.inv_days_cycle ? <></> : <FormMessage />}
+										<Label className="text-xs text-black/20">days before contracts runs out.</Label>
+										</FormItem>
+										}}
 									/>
 								</div>
 							</div>

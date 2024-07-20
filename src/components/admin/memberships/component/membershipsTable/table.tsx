@@ -67,7 +67,7 @@ import Papa from "papaparse";
 import MembershipForm from "../modal/membership-form";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
-
+const temp_bool=true
 
 const downloadCSV = (data: incomeCategoryTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -180,7 +180,7 @@ export default function MembershipsTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
-  const columns: any = [
+  const columns: ColumnDef<any>[] = [
     {
       accessorKey: "name",
       header: ({ table }) => <span>Category Name</span>,
@@ -245,7 +245,6 @@ export default function MembershipsTableView() {
     // setFilters
   }
 
-  
 
   return (
     <div className="w-full space-y-4">
@@ -303,7 +302,7 @@ export default function MembershipsTableView() {
               ))}
             </TableHeader>
             <TableBody>
-              {true ? (
+              {temp_bool ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}

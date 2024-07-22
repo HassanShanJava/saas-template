@@ -6,7 +6,7 @@ import {
   membershipplanTypes,
   MemberInputTypes,
   MemberResponseTypes,
-  MemberTablestypes,
+  MemberTabletypes,
 } from "../app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
@@ -61,7 +61,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
 				},
 			}),
 		}),
-		getAllMember: builder.query<MemberTablestypes[], number>({
+		getAllMember: builder.query<MemberTabletypes[], number>({
 			query: (org_id) => ({
 				url: `/client/filter/?org_id=${org_id}`,
 				headers: {

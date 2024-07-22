@@ -55,15 +55,6 @@ import {
 } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
-import {
-  useGetAllBusinessesQuery,
-  useGetAllMembershipsQuery,
-  useGetAllSourceQuery,
-  useGetClientCountQuery,
-  useGetCountriesQuery,
-  useGetCoachesQuery,
-  useAddClientMutation,
-} from "@/services/clientAPi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import {
@@ -77,8 +68,17 @@ import {
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Label } from "@/components/ui/label";
+import {
+	useGetAllBusinessesQuery,
+	useGetAllMembershipsQuery,
+	useGetAllSourceQuery,
+	useGetCountriesQuery,
+	useGetCoachesQuery,
+	useGetMemberCountQuery,
+	useAddMemberMutation
+} from "@/services/memberAPi";
 
-const AddClientForm: React.FC = () => {
+const AddMemberForm: React.FC = () => {
   const [counter, setCounter] = React.useState(0);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -174,10 +174,10 @@ const AddClientForm: React.FC = () => {
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
   const {
-    data: clientCountData,
+    data: memberCountData,
     isLoading,
     refetch,
-  } = useGetClientCountQuery(orgId);
+  } = useGetMemberCountQuery(orgId);
 
   const { data: countries } = useGetCountriesQuery();
 
@@ -190,7 +190,7 @@ const AddClientForm: React.FC = () => {
 
   const [loading, setLoading] = React.useState(true);
 
-  const [addClient, { isLoading: clientLoading }] = useAddClientMutation();
+  const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
   const navigate = useNavigate();
 
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
@@ -239,7 +239,7 @@ const AddClientForm: React.FC = () => {
     // form.reset();
     //    form.reset({
     //      profile_img: "",
-    //      own_member_id:`${orgName?.slice(0, 2)! as string}-${clientCountData?.total_clients! + 1}` as string,
+    //      own_member_id:`${orgName?.slice(0, 2)! as string}-${memberCountData?.total_clients! + 1}` as string,
     //      first_name: "",
     //      last_name: "",
     //      gender: "male",
@@ -265,7 +265,7 @@ const AddClientForm: React.FC = () => {
     //    });
 
     try {
-      let resp = await addClient(updatedData).unwrap();
+      let resp = await addMember(updatedData).unwrap();
       refetch();
       //   console.log(resp);
       //   form.reset({
@@ -296,9 +296,9 @@ const AddClientForm: React.FC = () => {
       //   });
       toast({
         variant: "success",
-        title: "Client Added Successfully ",
+        title: "Member Added Successfully ",
       });
-      navigate("/admin/client");
+      navigate("/admin/members");
     } catch (error: unknown) {
       console.log("Error", error);
       if (error && typeof error === "object" && "data" in error) {
@@ -318,16 +318,16 @@ const AddClientForm: React.FC = () => {
     }
   }
 
-  function gotoClient() {
-    navigate("/admin/client");
+  function gotoMember() {
+    navigate("/admin/members");
   }
 
   React.useEffect(() => {
     if (orgName) {
-      const total = clientCountData?.total_clients!;
+      const total = memberCountData?.total_clients!;
       form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total + 1}`);
     }
-  }, [clientCountData, orgName]);
+  }, [memberCountData, orgName]);
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -366,20 +366,20 @@ const AddClientForm: React.FC = () => {
                   <div>
                     <Button
                       type={"button"}
-                      onClick={gotoClient}
+                      onClick={gotoMember}
                       className="gap-2 bg-transparent border border-primary text-black hover:bg-red-300 hover:text-white"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
                     </Button>
                   </div>
                   <div>
-                    {clientLoading ? (
+                    {memberLoading ? (
                       <LoadingButton
                         loading
                         className="gap-2 text-black hover:opacity-90 hover:text-white"
                       >
                         {" "}
-                        adding Client
+                        adding Member
                       </LoadingButton>
                     ) : (
                       <Button
@@ -393,7 +393,7 @@ const AddClientForm: React.FC = () => {
                 </div>
               </div>
               <div>
-                <h1 className="font-bold text-base"> Client Data</h1>
+                <h1 className="font-bold text-base"> Member Data</h1>
               </div>
               <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
                 <div className="relative">
@@ -1119,4 +1119,4 @@ const AddClientForm: React.FC = () => {
   );
 };
 
-export default AddClientForm;
+export default AddMemberForm;

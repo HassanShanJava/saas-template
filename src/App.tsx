@@ -2,9 +2,7 @@ import DashboardLayout from "./components/ui/common/dashboardLayout";
 import AuthenticationPage from "./components/app/login/login";
 import { Route, Routes } from "react-router-dom";
 import Dashboard from "./components/admin/dashboard";
-import Client from "./components/admin/clients";
 import SystemSettings from "./components/admin/system_settings";
-import AddClientForm from "./components/admin/clients/clientForm/form";
 import Leads from "./components/admin/leads";
 import LeadForm from "./components/admin/leads/leadform/form";
 import Credits from "./components/admin/credits";
@@ -18,6 +16,8 @@ import IncomeCategory from "./components/admin/income_category";
 import Memberships from "./components/admin/memberships";
 
 import Loader from "@/components/Loader";
+import MemberPage from "./components/admin/members";
+import AddMemberForm from "./components/admin/members/memberForm/form";
 
 function App() {
 	const loading = useSelector((state: RootState) => 
@@ -29,7 +29,7 @@ function App() {
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/admin" element={<DashboardLayout />}>
             <Route path="/admin/dashboard" index element={<Dashboard />} />
-            <Route path="/admin/members" index element={<Client />} />
+            <Route path="/admin/members" index element={<MemberPage />} />
             <Route
               path="/admin/system_settings"
               index
@@ -38,7 +38,7 @@ function App() {
             <Route
               path="/admin/members/addmember"
               index
-              element={<AddClientForm />}
+              element={<AddMemberForm />}
             />
             <Route path="/admin/leads" index element={<Leads />} />
             <Route path="/admin/leads/addlead" index element={<LeadForm />} />

@@ -202,7 +202,7 @@ export interface LeadResponseTypes {
   org_id: number;
 }
 
-export interface ClientInputTypes {
+export interface MemberInputTypes {
   profile_img?: string;
   own_member_id: string;
   first_name: string;
@@ -232,7 +232,7 @@ export interface ClientInputTypes {
   status?: string;
 }
 
-export interface ClientResponseTypes {
+export interface MemberResponseTypes {
   profile_img?: string | null;
   own_member_id: string;
   first_name: string;
@@ -266,7 +266,7 @@ export interface updateStatusInput {
   status: string;
   lead_id: number;
 }
-export interface clientTablestypes {
+export interface MemberTabletypes {
   id: number;
   own_member_id: string;
   first_name: string;
@@ -279,7 +279,7 @@ export interface clientTablestypes {
   business_name?: string | null;
   coach_name?: string | null;
 }
-export interface clientFilterSchema {
+export interface MemberFilterSchema {
   search_key: string;
   client_name: string;
   membership_plan: number;

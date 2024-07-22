@@ -9,8 +9,8 @@ export interface facilitiesData extends JSONObject {
   id: number;
   total_credits: number;
   validity: {
-    duration_type: string;
-    duration_no: number;
+    duration_type: string | undefined;
+    duration_no: number | undefined;
   };
 }
 export interface createMembershipType {
@@ -122,6 +122,7 @@ export interface deleteCreditsType {
 export interface creditDetailsTablestypes {
   id: number;
   name: string;
+  min_limit: number;
   org_id: number;
 }
 export interface creditTablestypes {

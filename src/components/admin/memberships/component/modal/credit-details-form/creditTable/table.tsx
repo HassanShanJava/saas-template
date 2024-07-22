@@ -40,6 +40,25 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { facilites } from "..";
 
+interface tranformData {
+  id: number;
+  total_credits: number;
+  credits: number;
+  count: number;
+  validity: {
+    duration_type: string | undefined;
+    duration_no: number | undefined;
+  };
+}
+interface payloadData {
+  id: number;
+  total_credits: number;
+  validity: {
+    duration_type: string | undefined;
+    duration_no: number | undefined;
+  };
+}
+
 export default function CreditsTableView({
   facilities,
   setFacilities,
@@ -55,23 +74,145 @@ export default function CreditsTableView({
     const { name, value } = e.target;
   };
 
+  const [count, setCount] = useState(1);
   const creditstableData = React.useMemo(() => {
     return Array.isArray(creditsData) ? creditsData : [];
   }, [creditsData]);
 
   const { toast } = useToast();
 
+  const [transformedCredits, setTransformedCredits] = useState<
+    tranformData[] | undefined
+  >([]);
+  const [payload, setPayload] = useState<payloadData[] | undefined>([]);
+
+  useEffect(() => {
+    const data = creditsData?.map((item) => ({
+      id: item.id,
+      count: 1,
+      credits: item.min_limit,
+      total_credits: item.min_limit,
+      validity: {
+        duration_type: undefined,
+        duration_no: undefined,
+      },
+    }));
+    setTransformedCredits(data);
+  }, [creditsData]);
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
   const [filters, setFilters] = useState<any>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
+  const [rowSelection, setRowSelection] = useState<{ [key: string]: boolean }>(
+    {}
+  );
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10, // Adjust this based on your preference
+    pageSize: 10,
   });
+
+  const handleChangeRowInput = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    id: number,
+    key: string
+  ) => {
+    e.preventDefault();
+    const { value } = e.target;
+    console.log(value, id, key, "input change");
+
+    setTransformedCredits((prevCredits) => {
+      return prevCredits?.map((credit) => {
+        if (credit.id === id) {
+          return {
+            ...credit,
+            validity: {
+              ...credit.validity,
+              [key]: Number(value),
+            },
+          };
+        }
+        return credit;
+      });
+    });
+  };
+
+  useEffect(() => {
+    if (transformedCredits && transformedCredits?.length > 0) {
+      const selectedIndexes = Object.keys(rowSelection).filter(
+        (key) => rowSelection[key]
+      );
+
+      const selectedCredits = transformedCredits
+        ?.filter((_, index) => selectedIndexes.includes(index.toString()))
+        .map(({ id, total_credits, validity }) => ({
+          id,
+          total_credits,
+          validity,
+        }))
+        .filter((item): item is payloadData => item !== null);
+
+      setFacilities(selectedCredits);
+    }
+  }, [rowSelection, transformedCredits]);
+
+  const handleChangeRowSelect = (value: string, id?: number, key?: string) => {
+    console.log(value, id, key, "input change");
+
+    setTransformedCredits((prevCredits) => {
+      return prevCredits?.map((credit) => {
+        if (credit.id === id) {
+          return {
+            ...credit,
+            validity: {
+              ...credit.validity,
+              [key!]: value,
+            },
+          };
+        }
+        return credit;
+      });
+    });
+  };
+  const updateCredit = (id?: number, key?: string) => {
+    if (!id || !key) return;
+
+    setTransformedCredits((prevCredits) => {
+      return prevCredits?.map((credit) => {
+        if (credit.id === id) {
+          if (key === "decrement") {
+            if (credit.count === 1) {
+              toast({
+                variant: "destructive",
+                title: "Minumum credits reached.",
+              });
+              return credit;
+            }
+            const updatedCount = credit.count - 1;
+            const updatedTotalCredits = updatedCount * credit.credits;
+
+            return {
+              ...credit,
+              count: updatedCount,
+              total_credits: updatedTotalCredits,
+            };
+          } else if (key === "increment") {
+            const updatedCount = credit.count + 1;
+            const updatedTotalCredits = updatedCount * credit.credits;
+
+            return {
+              ...credit,
+              count: updatedCount,
+              total_credits: updatedTotalCredits,
+            };
+          }
+        }
+        return credit;
+      });
+    });
+  };
 
   const columns: ColumnDef<creditDetailsTablestypes>[] = [
     {
@@ -114,7 +255,35 @@ export default function CreditsTableView({
       header: "Credits Included",
       maxSize: 100,
       cell: ({ row }) => {
-        return row.getIsSelected() ? <CreditIncludes row={row} /> : null;
+        const id = row.original.id;
+        const totalCredit = transformedCredits
+          ?.filter((data) => data?.id == id)
+          .map((item) => item.total_credits);
+        return row.getIsSelected() ? (
+          <div className="flex gap-2 items-center">
+            <span className="text-xs">
+              (Min. required credit: {row?.original?.min_limit}){" "}
+            </span>
+
+            <div className="flex items-center gap-4 bg-white  border border-primary rounded-lg p-2">
+              <button
+                onClick={() => updateCredit(id, "decrement")}
+                className="text-black bg-white border border-primary rounded-lg px-2 py-1"
+              >
+                <i className="fa fa-minus font-semibold"></i>
+              </button>
+
+              <div className="text-black ">{totalCredit}</div>
+
+              <button
+                onClick={() => updateCredit(id, "increment")}
+                className="text-white bg-primary rounded-lg px-2 py-1"
+              >
+                <i className="fa fa-plus font-semibold"></i>
+              </button>
+            </div>
+          </div>
+        ) : null;
       },
     },
     {
@@ -122,6 +291,11 @@ export default function CreditsTableView({
       header: "Validity",
       maxSize: 100,
       cell: ({ row }) => {
+        const id = row.original.id;
+        const creditData = transformedCredits?.find(
+          (credit) => credit.id === id
+        );
+
         return row.getIsSelected() ? (
           <div className="flex items-center gap-2">
             <Input
@@ -129,9 +303,16 @@ export default function CreditsTableView({
               min={1}
               max={15}
               className="number-input w-10"
+              value={creditData?.validity?.duration_no || ""}
+              onChange={(e) => handleChangeRowInput(e, id, "duration_no")}
             />
-            <Select>
-              <SelectTrigger name="contract_duration" className="bg-white">
+            <Select
+              onValueChange={(value) =>
+                handleChangeRowSelect(value, id, "duration_type")
+              }
+              value={creditData?.validity?.duration_type || ""}
+            >
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select contract duration" />
               </SelectTrigger>
               <SelectContent>
@@ -165,7 +346,8 @@ export default function CreditsTableView({
     },
     initialState: {
       pagination: {
-        pageSize: 10, // Set your default page size here
+        pageSize: 10,
+        pageIndex: 0,
       },
     },
     onPaginationChange: setPagination,
@@ -288,32 +470,3 @@ export default function CreditsTableView({
     </div>
   );
 }
-
-const CreditIncludes = ({ row }: any) => {
-  const [count, setCount] = useState(1);
-
-  return (
-    <div className="flex gap-2 items-center">
-      <span>(Minimum credit: {row?.original?.min_limit}) </span>
-
-      <button
-        onClick={() => setCount((prev) => 1 - prev)}
-        className="text-black bg-white border border-primary rounded-lg px-3 py-2"
-      >
-        <i className="fa fa-minus font-semibold"></i>
-      </button>
-
-      <div className="text-black bg-white border border-primary rounded-lg px-3 py-2">
-        {count * Number(row?.original?.min_limit)}
-      </div>
-
-      <button
-        onClick={() => setCount((prev) => 1 + prev)}
-        className="text-white bg-primary rounded-lg px-3 py-2"
-      >
-        <i className="fa fa-plus font-semibold"></i>
-      </button>
-    </div>
-  );
-};
-

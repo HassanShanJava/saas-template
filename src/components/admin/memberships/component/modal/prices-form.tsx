@@ -31,14 +31,15 @@ const PriceDiscountTaxForm = () => {
   } = useFormContext<StepperFormValues>();
 
   const netPrice = watch("net_price");
-  const discountPercentage = watch("discount")||0;
+  const discountPercentage = watch("discount") || 0;
   const incomeCategory = watch("income_category_id");
-
+  
   useEffect(() => {
     if (incomeCategory && salesTaxData) {
       const salesData = salesTaxData.find(
-        (item) => item.id === incomeCategory
+        (item) => item.id == incomeCategory
       );
+      console.log(incomeCategory,salesData,"incomeCategory")
       if (salesData) {
         const taxRate = salesData.percentage;
         const discountedPrice = netPrice * (1 - discountPercentage / 100);
@@ -46,17 +47,13 @@ const PriceDiscountTaxForm = () => {
         const totalAmount = discountedPrice + taxAmount;
 
         if (watch("tax_rate") !== taxRate) {
-          setValue("tax_rate", taxRate, { shouldValidate: true });
+          setValue("tax_rate", taxRate);
         }
         if (watch("tax_amount") !== taxAmount) {
-          setValue("tax_amount", Math.round(taxAmount * 100) / 100, {
-            shouldValidate: true,
-          });
+          setValue("tax_amount", taxAmount);
         }
         if (watch("total_price") !== totalAmount) {
-          setValue("total_price", Math.round(totalAmount * 100) / 100, {
-            shouldValidate: true,
-          });
+          setValue("total_price", totalAmount);
         }
       }
     }
@@ -69,8 +66,6 @@ const PriceDiscountTaxForm = () => {
     watch,
   ]);
 
-
-  console.log(errors,"prices form")
   return (
     <div className="text-black h-full">
       <h1 className="font-semibold text-[#2D374] text-xl">
@@ -82,10 +77,7 @@ const PriceDiscountTaxForm = () => {
           label="Net Price*"
           type="number"
           min={0}
-          {...register("net_price", {
-            setValueAs: (value) => parseInt(value),
-            required: "Net price is Required",
-          })}
+          {...register("net_price", { required: "Net price is Required" })}
           error={errors.net_price?.message}
         />
         <FloatingLabelInput
@@ -93,9 +85,8 @@ const PriceDiscountTaxForm = () => {
           label="Discount Percentage*"
           type="number"
           min={0}
-          {...register("discount",{
-            setValueAs: (value) => parseInt(value),
-
+          {...register("discount", {
+            required: "Discount percentage is Required",
           })}
           error={errors.discount?.message}
         />
@@ -172,7 +163,7 @@ const PriceDiscountTaxForm = () => {
         />
         <Controller
           name="payment_method"
-          rules={{ required: "Payment method is Required" }}
+          rules={{ required: "Payment cash is Required" }}
           control={control}
           render={({
             field: { onChange, value, onBlur },
@@ -187,7 +178,7 @@ const PriceDiscountTaxForm = () => {
               >
                 <SelectTrigger
                   name="payment_method"
-                  floatingLabel="Payment method*"
+                  floatingLabel="Payment Method*"
                 >
                   <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
@@ -198,7 +189,7 @@ const PriceDiscountTaxForm = () => {
                 )}
                 <SelectContent>
                   <SelectItem value={"cash"}>Cash</SelectItem>
-                  <SelectItem value={"credit_debit"}>Credit/Debit</SelectItem>
+                  <SelectItem value={"credit-debit"}>Credit/Debit</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -211,7 +202,6 @@ const PriceDiscountTaxForm = () => {
           min={0}
           {...register("reg_fee", {
             required: "Registration fee is Required",
-            setValueAs: (value) => parseInt(value),
           })}
           error={errors.reg_fee?.message}
         />
@@ -244,7 +234,7 @@ const PriceDiscountTaxForm = () => {
                 <SelectContent>
                   <SelectItem value={"monthly"}>Monthly</SelectItem>
                   <SelectItem value={"quarterly"}>Quarterly</SelectItem>
-                  <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem>
+                  <SelectItem value={"bi-annually"}>Bi-Annually</SelectItem>
                   <SelectItem value={"yearly"}>Yearly</SelectItem>
                 </SelectContent>
               </Select>

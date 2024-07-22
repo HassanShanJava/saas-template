@@ -1,20 +1,13 @@
 import { Controller, useFormContext } from "react-hook-form";
-import { JSONObject, StepperFormValues } from "@/types/hook-stepper";
+import { StepperFormValues } from "@/types/hook-stepper";
 
 import { useEffect, useState } from "react";
 import CreditsTableView from "./creditTable/table";
+import { facilitiesData } from "@/app/types";
 
-export interface facilites extends JSONObject{
-  "id":number,
-  "total_credits":number,
-  "validity": {
-    "duration_type": string;
-    "duration_no": number;
-  }
-}
 
 const CreditDetailsForm = () => {
-  const [facilites,setFacilities]=useState<facilites[]>([])
+  const [facilites,setFacilities]=useState<facilitiesData[]>([])
   const {
     control,
     formState: { errors },

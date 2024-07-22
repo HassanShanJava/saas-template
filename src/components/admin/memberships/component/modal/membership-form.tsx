@@ -35,10 +35,10 @@ interface membershipFromTypes {
 }
 
 const stepContentComponents = [
-  CreditDetailsForm, // Step 4
   BasicInfoForm, // Step 1
   PriceDiscountTaxForm, // Step 2
   AutoRenewalForm, // Step 3
+  CreditDetailsForm, // Step 4
 ];
 
 const getStepContent = (step: number) => {
@@ -89,37 +89,46 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
       };
     }
 
-    payload.facilities=[]
+    if(payload.facilities.length>0){
+      const check=payload.facilities.some(item=>item.validity.duration_no==undefined||item.validity.duration_type==undefined)
+      if(check){
+        toast({
+          variant: "destructive",
+          title: "Validity is required",
+        });
+      }
+    }
 
     console.log({ payload });
 
-    // try {
-    //   const resp = await createMemberships(payload).unwrap();
-    //   if (resp) {
-    //     console.log({ resp });
-    //     // refetch();
-    //     toast({
-    //       variant: "success",
-    //       title: "Created Successfully",
-    //     });
-    //   }
-    // } catch (error: unknown) {
-    //   console.log("Error", error);
-    //   if (error && typeof error === "object" && "data" in error) {
-    //     const typedError = error as ErrorType;
-    //     toast({
-    //       variant: "destructive",
-    //       title: "Error in form Submission",
-    //       description: `${typedError.data?.detail}`,
-    //     });
-    //   } else {
-    //     toast({
-    //       variant: "destructive",
-    //       title: "Error in form Submission",
-    //       description: `Something Went Wrong.`,
-    //     });
-    //   }
-    // }
+    try {
+      const resp = await createMemberships(payload).unwrap();
+      if (resp) {
+        console.log({ resp });
+        // refetch();
+        toast({
+          variant: "success",
+          title: "Created Successfully",
+        });
+        handleClose()
+      }
+    } catch (error: unknown) {
+      console.log("Error", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
   };
 
   const handleNext = async () => {
@@ -169,7 +178,6 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
                   type="button"
                   variant={"outline"}
                   onClick={handleBack}
-                  disabled={isSubmitting}
                 >
                   <i className="fa fa-arrow-left-long "></i>
                   Previous
@@ -180,8 +188,8 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
                 <LoadingButton
                   type="submit"
                   className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                  loading={isSubmitting}
                   onClick={handleSubmit(onSubmit)}
+                  loading={isSubmitting}
                   disabled={isSubmitting}
                 >
                   {!isSubmitting && (

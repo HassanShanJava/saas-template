@@ -11,7 +11,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
 
 import {
   Table,
@@ -31,28 +30,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import {
-  creditDetailsTablestypes,
-  creditTablestypes,
-  ErrorType,
-} from "@/app/types";
+
+import { creditDetailsTablestypes, creditTablestypes } from "@/app/types";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { Spinner } from "@/components/ui/spinner/spinner";
 import { useGetCreditsQuery } from "@/services/creditsApi";
 import { Search } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { facilites } from "..";
 
-export default function CreditsTableView() {
+export default function CreditsTableView({
+  facilities,
+  setFacilities,
+}: {
+  facilities: facilites[];
+  setFacilities: any;
+}) {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const { data: creditsData, isLoading, refetch } = useGetCreditsQuery(orgId);
+  const { data: creditsData, isLoading } = useGetCreditsQuery(orgId);
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -117,7 +114,7 @@ export default function CreditsTableView() {
       header: "Credits Included",
       maxSize: 100,
       cell: ({ row }) => {
-        return row.getIsSelected() ? <CreditIncludes row={row} /> : null
+        return row.getIsSelected() ? <CreditIncludes row={row} /> : null;
       },
     },
     {
@@ -127,20 +124,25 @@ export default function CreditsTableView() {
       cell: ({ row }) => {
         return row.getIsSelected() ? (
           <div className="flex items-center gap-2">
-            <Input type="number" min={1} className="number-input w-10" />
+            <Input
+              type="number"
+              min={1}
+              max={15}
+              className="number-input w-10"
+            />
             <Select>
               <SelectTrigger name="contract_duration" className="bg-white">
                 <SelectValue placeholder="Select contract duration" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={"1"}>Monthly</SelectItem>
-                <SelectItem value={"3"}>Quarterly</SelectItem>
-                <SelectItem value={"6"}>Bi-Annually</SelectItem>
-                <SelectItem value={"12"}>Yearly</SelectItem>
+                <SelectItem value={"monthly"}>Monthly</SelectItem>
+                <SelectItem value={"quarterly"}>Quarterly</SelectItem>
+                <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem>
+                <SelectItem value={"yearly"}>Yearly</SelectItem>
               </SelectContent>
             </Select>
           </div>
-        ) : null
+        ) : null;
       },
     },
   ];
@@ -221,9 +223,9 @@ export default function CreditsTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -237,10 +239,10 @@ export default function CreditsTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center "
                   >
-                    <div className='flex space-x-2 justify-center items-center bg-white '>
-                      <div className='size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                      <div className='size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                      <div className='size-3 bg-black rounded-full animate-bounce'></div>
+                    <div className="flex space-x-2 justify-center items-center bg-white ">
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce"></div>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -283,59 +285,9 @@ export default function CreditsTableView() {
           </Table>
         </ScrollArea>
       </div>
-      {/* pagination */}
-      {/* <div className="flex items-center justify-end gap-2">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredRowModel().rows.length} of {table.getCoreRowModel().rows.length} row(s)
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 p-0"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <span className="sr-only">Go to first page</span>
-            <DoubleArrowLeftIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 p-0"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <span className="sr-only">Go to previous page</span>
-            <ChevronLeftIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 p-0"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <span className="sr-only">Go to next page</span>
-            <ChevronRightIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 p-0"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            <span className="sr-only">Go to last page</span>
-            <DoubleArrowRightIcon className="h-4 w-4" />
-          </Button>
-        </div>
-      </div> */}
     </div>
   );
 }
-
-
 
 const CreditIncludes = ({ row }: any) => {
   const [count, setCount] = useState(1);
@@ -344,18 +296,24 @@ const CreditIncludes = ({ row }: any) => {
     <div className="flex gap-2 items-center">
       <span>(Minimum credit: {row?.original?.min_limit}) </span>
 
-      <button onClick={()=>setCount(prev=>1-prev)} className="text-black bg-white border border-primary rounded-lg px-3 py-2">
+      <button
+        onClick={() => setCount((prev) => 1 - prev)}
+        className="text-black bg-white border border-primary rounded-lg px-3 py-2"
+      >
         <i className="fa fa-minus font-semibold"></i>
       </button>
 
       <div className="text-black bg-white border border-primary rounded-lg px-3 py-2">
-        {count *Number(row?.original?.min_limit)}
+        {count * Number(row?.original?.min_limit)}
       </div>
 
-      
-      <button onClick={()=>setCount(prev=>1+prev)} className="text-white bg-primary rounded-lg px-3 py-2">
+      <button
+        onClick={() => setCount((prev) => 1 + prev)}
+        className="text-white bg-primary rounded-lg px-3 py-2"
+      >
         <i className="fa fa-plus font-semibold"></i>
       </button>
-    </div>);
+    </div>
+  );
+};
 
-}

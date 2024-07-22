@@ -1,39 +1,18 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { StepperFormValues } from "@/types/hook-stepper";
-
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useEffect, useState } from "react";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
 
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { useGetIncomeCategoryQuery } from "@/services/incomeCategoryApi";
-import { useGetSalesTaxQuery } from "@/services/salesTaxApi";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
 const AutoRenewalForm = () => {
-  const [autoRenewal, setAutoRenewal] = useState<boolean | undefined>(false);
   const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-
-  const {
-    data: incomeCategoryData,
-    isLoading,
-    refetch,
-  } = useGetIncomeCategoryQuery(orgId);
-
-  const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
+  useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;  
+  
+  const [autoRenewal, setAutoRenewal] = useState<boolean | undefined>(false);
 
   const {
     control,
@@ -43,8 +22,6 @@ const AutoRenewalForm = () => {
     watch,
   } = useFormContext<StepperFormValues>();
 
-  const [access, setAccess] = useState<boolean>(false);
-
   useEffect(() => {
     const subscription = watch((value) => {
       setAutoRenewal(value?.auto_renewal);
@@ -52,7 +29,7 @@ const AutoRenewalForm = () => {
     return () => subscription.unsubscribe();
   }, [watch]);
 
-  console.log({ autoRenewal }, "autoRenewal");
+  console.log(errors,"renewal form")
 
   return (
     <div className="text-black h-full">

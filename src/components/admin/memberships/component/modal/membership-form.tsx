@@ -1,7 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 import { StepperFormKeysType, StepperFormValues } from "@/types/hook-stepper";
 import { StepperFormKeys } from "@/lib/constants/hook-stepper-constants";
@@ -14,6 +11,13 @@ import PriceDiscountTaxForm from "./prices-form";
 import AutoRenewalForm from "./renewal-form";
 import { useToast } from "@/components/ui/use-toast";
 import CreditDetailsForm from "./credit-details-form";
+import { useCreateMembershipsMutation } from "@/services/membershipsApi";
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+
+import { RootState } from "@/app/store";
+import { useSelector } from "react-redux";
+import { ErrorType } from "@/app/types";
+
 // import { motion, AnimatePresence } from 'framer-motion';
 
 interface membershipFormTypes {
@@ -31,10 +35,10 @@ interface membershipFromTypes {
 }
 
 const stepContentComponents = [
+  CreditDetailsForm, // Step 4
   BasicInfoForm, // Step 1
   PriceDiscountTaxForm, // Step 2
-  AutoRenewalForm, // Step 3  
-  CreditDetailsForm,  // Step 4
+  AutoRenewalForm, // Step 3
 ];
 
 const getStepContent = (step: number) => {
@@ -43,10 +47,17 @@ const getStepContent = (step: number) => {
 };
 
 const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const userId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.id) || 0;
+
   const { toast } = useToast();
   const [activeStep, setActiveStep] = useState(1);
   const [erroredInputName, setErroredInputName] = useState("");
   const methods = useForm<StepperFormValues>({ mode: "all" });
+
+  const [createMemberships] = useCreateMembershipsMutation();
 
   const {
     trigger,
@@ -56,19 +67,59 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
     formState: { isSubmitting, errors },
   } = methods;
 
-  // focus errored input on submit
-  useEffect(() => {
-    const erroredInputElement =
-      document.getElementsByName(erroredInputName)?.[0];
-    if (erroredInputElement instanceof HTMLInputElement) {
-      erroredInputElement.focus();
-      setErroredInputName("");
-    }
-  }, [erroredInputName]);
+  console.log(errors,"membership form")
 
   const onSubmit = async (formData: StepperFormValues) => {
-    console.log({ formData });
+    const payload = formData;
+    // make renewal data,
+    
+    payload.org_id = orgId;
+    payload.created_by = userId;
+    payload.renewal_data = {};
 
+    payload.access_time={
+      access:payload.access
+    }
+
+    if (payload.auto_renewal) {
+      payload.renewal_data = {
+        days_before: formData.days_before,
+        next_invoice: formData.next_invoice,
+        prolongation_period: formData.prolongation_period,
+      };
+    }
+
+    payload.facilities=[]
+
+    console.log({ payload });
+
+    // try {
+    //   const resp = await createMemberships(payload).unwrap();
+    //   if (resp) {
+    //     console.log({ resp });
+    //     // refetch();
+    //     toast({
+    //       variant: "success",
+    //       title: "Created Successfully",
+    //     });
+    //   }
+    // } catch (error: unknown) {
+    //   console.log("Error", error);
+    //   if (error && typeof error === "object" && "data" in error) {
+    //     const typedError = error as ErrorType;
+    //     toast({
+    //       variant: "destructive",
+    //       title: "Error in form Submission",
+    //       description: `${typedError.data?.detail}`,
+    //     });
+    //   } else {
+    //     toast({
+    //       variant: "destructive",
+    //       title: "Error in form Submission",
+    //       description: `Something Went Wrong.`,
+    //     });
+    //   }
+    // }
   };
 
   const handleNext = async () => {
@@ -79,10 +130,10 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
-  
+
   const handleClose = () => {
-    clearErrors()
-    setIsOpen(false)
+    clearErrors();
+    setIsOpen(false);
   };
 
   const infoLabels = [
@@ -94,7 +145,10 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className="w-full max-w-[1050px] h-fit flex flex-col" hideCloseButton>
+      <DialogContent
+        className="w-full max-w-[1050px] h-fit flex flex-col"
+        hideCloseButton
+      >
         <FormProvider {...methods}>
           <div className="flex justify-between gap-5 items-start h-[82px] pl-8 ">
             <StepperIndicator activeStep={activeStep} labels={infoLabels} />
@@ -123,15 +177,18 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
               )}
 
               {activeStep === 4 ? (
-                <Button
+                <LoadingButton
+                  type="submit"
                   className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                  type="button"
+                  loading={isSubmitting}
                   onClick={handleSubmit(onSubmit)}
                   disabled={isSubmitting}
                 >
-                  <i className="fa-regular fa-floppy-disk "></i>
+                  {!isSubmitting && (
+                    <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                  )}
                   Save
-                </Button>
+                </LoadingButton>
               ) : (
                 <Button
                   type="button"
@@ -153,8 +210,8 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
                 exit={{ opacity: 0, x: -100 }}
                 transition={{ duration: 0.2 }}
               > */}
-                {getStepContent(activeStep)}
-              {/* </motion.div>
+            {getStepContent(activeStep)}
+            {/* </motion.div>
             </AnimatePresence> */}
           </form>
         </FormProvider>

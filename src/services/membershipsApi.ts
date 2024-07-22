@@ -1,10 +1,11 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+import { createMembershipType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
 export const Memberships = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getMemberships: builder.query<any[], number>({
+      getMemberships: builder.query<createMembershipType[], number>({
         query: (org_id) => ({
           url: `/membership_plan/membership_plans/getAll?org_id=${org_id}`,
           method: "GET",
@@ -14,7 +15,7 @@ export const Memberships = apiSlice.injectEndpoints({
         }),
         providesTags: ["Memberships"],
       }),
-      createMemberships: builder.mutation<any, any[]>({
+      createMemberships: builder.mutation<any, createMembershipType>({
         query: (membershipsydata) => ({
           url: `/membership_plan/membership_plans`,
           method: "POST",

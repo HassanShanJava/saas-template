@@ -12,6 +12,7 @@ const baseQueryWithReauth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
 
+  // refresh token 
   if (result.error && result.error.status === 401) {
 		const refresh_token = (api.getState() as RootState).auth.userToken;
     const refreshResult = await baseQuery({
@@ -19,6 +20,7 @@ const baseQueryWithReauth: BaseQueryFn<
 			method: "POST",
 		}, api, extraOptions);
 
+    // save to redux else logout
     if (refreshResult.data) {
       api.dispatch(tokenReceived((refreshResult.data as {access_token: string;}).access_token));
       result = await baseQuery(args, api, extraOptions);
@@ -43,5 +45,5 @@ export const apiSlice = createApi({
 	reducerPath: 'api',
 	baseQuery: baseQueryWithReauth,
 	endpoints: () => ({}),
-  tagTypes: ["Credits", "SalesTax", "IncomeCategory", "Memberships"],
+  tagTypes: ["Credits", "SalesTax", "IncomeCategory", "Memberships",'Groups'],
 })

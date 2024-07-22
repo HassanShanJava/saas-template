@@ -133,10 +133,11 @@ export default function MembershipsTableView() {
   //       }
   //     }
   //   };
-  const incomeCategoryData:any[]=[]
-  const incomeCategorytableData = React.useMemo(() => {
-    return Array.isArray(incomeCategoryData) ? incomeCategoryData : [];
-  }, [incomeCategoryData]);
+
+  const membershipsData:any[]=[]
+  const membershipstableData = React.useMemo(() => {
+    return Array.isArray(membershipsData) ? membershipsData : [];
+  }, [membershipsData]);
 
   const { toast } = useToast();
 
@@ -217,7 +218,7 @@ export default function MembershipsTableView() {
   ];
 
   const table = useReactTable({
-    data: incomeCategorytableData as incomeCategoryTableType[],
+    data: membershipstableData as incomeCategoryTableType[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -331,7 +332,7 @@ export default function MembershipsTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : incomeCategorytableData.length > 0 ? (
+              ) : membershipstableData.length > 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}

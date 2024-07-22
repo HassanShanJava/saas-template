@@ -15,7 +15,8 @@ import { useGetSalesTaxQuery } from "@/services/salesTaxApi";
 import { RootState } from "@/app/store";
 
 const PriceDiscountTaxForm = () => {
-  const orgId = useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { data: incomeCategoryData } = useGetIncomeCategoryQuery(orgId);
   const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
 
@@ -29,33 +30,47 @@ const PriceDiscountTaxForm = () => {
     watch,
   } = useFormContext<StepperFormValues>();
 
-  
-  const netPrice = watch('net_price');
-  const discountPercentage = watch('discount_percentage');
-  const incomeCategory = watch('income_category');
+  const netPrice = watch("net_price");
+  const discountPercentage = watch("discount")||0;
+  const incomeCategory = watch("income_category_id");
 
   useEffect(() => {
     if (incomeCategory && salesTaxData) {
-      const salesData = salesTaxData.find(item => item.id.toString() === incomeCategory);
+      const salesData = salesTaxData.find(
+        (item) => item.id === incomeCategory
+      );
       if (salesData) {
         const taxRate = salesData.percentage;
-        const discountedPrice = netPrice * (1 - (discountPercentage / 100));
+        const discountedPrice = netPrice * (1 - discountPercentage / 100);
         const taxAmount = (taxRate / 100) * discountedPrice;
         const totalAmount = discountedPrice + taxAmount;
 
-        if (watch('tax_rate') !== taxRate) {
-          setValue('tax_rate', taxRate, { shouldValidate: true });
+        if (watch("tax_rate") !== taxRate) {
+          setValue("tax_rate", taxRate, { shouldValidate: true });
         }
-        if (watch('tax_amount') !== taxAmount) {
-          setValue('tax_amount', taxAmount, { shouldValidate: true });
+        if (watch("tax_amount") !== taxAmount) {
+          setValue("tax_amount", Math.round(taxAmount * 100) / 100, {
+            shouldValidate: true,
+          });
         }
-        if (watch('total_amount') !== totalAmount) {
-          setValue('total_amount', totalAmount, { shouldValidate: true });
+        if (watch("total_price") !== totalAmount) {
+          setValue("total_price", Math.round(totalAmount * 100) / 100, {
+            shouldValidate: true,
+          });
         }
       }
     }
-  }, [incomeCategory, netPrice, discountPercentage, salesTaxData, setValue, watch]);
+  }, [
+    incomeCategory,
+    netPrice,
+    discountPercentage,
+    salesTaxData,
+    setValue,
+    watch,
+  ]);
 
+
+  console.log(errors,"prices form")
   return (
     <div className="text-black h-full">
       <h1 className="font-semibold text-[#2D374] text-xl">
@@ -65,23 +80,27 @@ const PriceDiscountTaxForm = () => {
         <FloatingLabelInput
           id="net_price"
           label="Net Price*"
-          type='number'
+          type="number"
           min={0}
-          {...register("net_price", { required: "Net price is Required" })}
+          {...register("net_price", {
+            setValueAs: (value) => parseInt(value),
+            required: "Net price is Required",
+          })}
           error={errors.net_price?.message}
         />
         <FloatingLabelInput
-          id="discount_percentage"
+          id="discount"
           label="Discount Percentage*"
-          type='number'
+          type="number"
           min={0}
-          {...register("discount_percentage", {
-            required: "Discount percentage is Required",
+          {...register("discount",{
+            setValueAs: (value) => parseInt(value),
+
           })}
-          error={errors.discount_percentage?.message}
+          error={errors.discount?.message}
         />
         <Controller
-          name="income_category"
+          name="income_category_id"
           rules={{ required: "Income category is Required" }}
           control={control}
           render={({
@@ -93,9 +112,12 @@ const PriceDiscountTaxForm = () => {
                 onValueChange={(value) => {
                   onChange(value);
                 }}
-                value={value}
+                value={value+""}
               >
-                <SelectTrigger name="income_category" floatingLabel="Income Category*">
+                <SelectTrigger
+                  name="income_category_id"
+                  floatingLabel="Income Category*"
+                >
                   <SelectValue placeholder="Select income category" />
                 </SelectTrigger>
                 {invalid && (
@@ -105,7 +127,10 @@ const PriceDiscountTaxForm = () => {
                 )}
                 <SelectContent>
                   {incomeCategoryData?.map((incomecategory) => (
-                    <SelectItem value={incomecategory.sale_tax_id + ""} key={incomecategory.sale_tax_id}>
+                    <SelectItem
+                      value={incomecategory.sale_tax_id + ""}
+                      key={incomecategory.sale_tax_id}
+                    >
                       {incomecategory.name}
                     </SelectItem>
                   ))}
@@ -127,7 +152,7 @@ const PriceDiscountTaxForm = () => {
           id="tax_amount"
           disabled={true}
           label="Tax/VAT Amount*"
-          type='number'
+          type="number"
           min={0}
           {...register("tax_amount", {
             required: "Tax/VAT amount is Required",
@@ -135,19 +160,19 @@ const PriceDiscountTaxForm = () => {
           error={errors.tax_amount?.message}
         />
         <FloatingLabelInput
-          id="total_amount"
+          id="total_price"
           label="Total Amount*"
           disabled={true}
-          type='number'
+          type="number"
           min={0}
-          {...register("total_amount", {
+          {...register("total_price", {
             required: "Total amount is Required",
           })}
-          error={errors.total_amount?.message}
+          error={errors.total_price?.message}
         />
         <Controller
-          name="payment_cash"
-          rules={{ required: "Payment cash is Required" }}
+          name="payment_method"
+          rules={{ required: "Payment method is Required" }}
           control={control}
           render={({
             field: { onChange, value, onBlur },
@@ -160,8 +185,11 @@ const PriceDiscountTaxForm = () => {
                 }}
                 value={value}
               >
-                <SelectTrigger name="payment_cash" floatingLabel="Payment Cash*">
-                  <SelectValue placeholder="Select payment cash" />
+                <SelectTrigger
+                  name="payment_method"
+                  floatingLabel="Payment method*"
+                >
+                  <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
                 {invalid && (
                   <span className="text-destructive block !mt-[5px] text-[12px]">
@@ -170,21 +198,22 @@ const PriceDiscountTaxForm = () => {
                 )}
                 <SelectContent>
                   <SelectItem value={"cash"}>Cash</SelectItem>
-                  <SelectItem value={"credit-debit"}>Credit/Debit</SelectItem>
+                  <SelectItem value={"credit_debit"}>Credit/Debit</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           )}
         />
         <FloatingLabelInput
-          id="registration_fee"
+          id="reg_fee"
           label="Registration Fee*"
-          type='number'
+          type="number"
           min={0}
-          {...register("registration_fee", {
+          {...register("reg_fee", {
             required: "Registration fee is Required",
+            setValueAs: (value) => parseInt(value),
           })}
-          error={errors.registration_fee?.message}
+          error={errors.reg_fee?.message}
         />
         <Controller
           name="billing_cycle"
@@ -201,7 +230,10 @@ const PriceDiscountTaxForm = () => {
                 }}
                 value={value}
               >
-                <SelectTrigger name="billing_cycle" floatingLabel="Billing Cycle*">
+                <SelectTrigger
+                  name="billing_cycle"
+                  floatingLabel="Billing Cycle*"
+                >
                   <SelectValue placeholder="Select billing cycle" />
                 </SelectTrigger>
                 {invalid && (
@@ -210,10 +242,10 @@ const PriceDiscountTaxForm = () => {
                   </span>
                 )}
                 <SelectContent>
-                  <SelectItem value={"1"}>Monthly</SelectItem>
-                  <SelectItem value={"3"}>Quarterly</SelectItem>
-                  <SelectItem value={"6"}>Bi-Annually</SelectItem>
-                  <SelectItem value={"12"}>Yearly</SelectItem>
+                  <SelectItem value={"monthly"}>Monthly</SelectItem>
+                  <SelectItem value={"quarterly"}>Quarterly</SelectItem>
+                  <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem>
+                  <SelectItem value={"yearly"}>Yearly</SelectItem>
                 </SelectContent>
               </Select>
             </div>

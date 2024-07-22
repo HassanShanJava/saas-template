@@ -125,7 +125,7 @@ const DashboardLayout: React.FC = () => {
                       <div className={`w-8 h-8 bg-gray-100 rounded-lg justify-center flex items-center`}>
                         <Icon className={`w-4 h-4 text-gray-500 stroke-current`} />
                       </div>
-                      <span className={`${!isSidebarOpen && "hidden"}`}>{name}</span>
+                      <span className={`${!isSidebarOpen && "hidden"} font-normal`}>{name}</span>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent >

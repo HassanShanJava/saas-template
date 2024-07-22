@@ -1,3 +1,45 @@
+import { JSONObject } from "@/types/hook-stepper";
+
+export interface renewalData extends JSONObject {
+  days_before: number;
+  next_invoice: number;
+  prolongation_period: number;
+}
+export interface facilitiesData extends JSONObject {
+  id: number;
+  total_credits: number;
+  validity: {
+    duration_type: string;
+    duration_no: number;
+  };
+}
+export interface createMembershipType {
+  org_id: number;
+  name: string;
+  group_id: number;
+  description: string;
+  status: string;
+  access_time: object;
+  net_price: number;
+  discount: number;
+  income_category_id: number;
+  total_price: number;
+  payment_method: string;
+  reg_fee: number;
+  billing_cycle: string;
+  auto_renewal: boolean;
+  renewal_data: renewalData | object;
+  facilities: facilitiesData[] | [];
+  created_by: number;
+}
+export interface groupCreateType {
+  org_id: number;
+  name: string;
+}
+export interface groupRespType {
+  id: number;
+  name: string;
+}
 export interface incomeCategoryTableType {
   id: number;
   name: string;
@@ -11,7 +53,7 @@ export interface incomeCategoryResponseType {
   sale_tax_id: number;
 }
 export interface updateIncomeCategoryType {
-  id?: number|undefined;
+  id?: number | undefined;
   org_id?: number;
   name?: string;
   sale_tax_id?: number;

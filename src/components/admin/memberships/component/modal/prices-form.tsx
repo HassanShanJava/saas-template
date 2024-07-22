@@ -103,7 +103,6 @@ const PriceDiscountTaxForm = () => {
                 onValueChange={(value) => {
                   onChange(value);
                 }}
-                value={value+""}
               >
                 <SelectTrigger
                   name="income_category_id"

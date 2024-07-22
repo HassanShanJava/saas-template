@@ -237,9 +237,9 @@ export const Header = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="rounded-full w-2"
+                      className="rounded-full w-2  px-2.5"
                     >
-                      <i className="fa-solid fa-caret-down"></i>
+                      <i className="fa-solid fa-caret-down "></i>
                     </Button>
                   </div>
                 </DropdownMenuTrigger>

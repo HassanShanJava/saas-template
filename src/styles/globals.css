@@ -89,3 +89,16 @@
   border-radius: 20px;
   outline: 1px solid #77dd77;
 }
+
+
+
+/* Change background color of the input when it is focused (dropdown open) */
+
+/* Change the background color of the selected time */
+
+/* Change the background color when hovering over the dropdown times */
+/* .time-input[type="time"]::-webkit-datetime-edit-hour-field:hover {
+  background-color: #77dd77; /* Example color */
+/* } */ 
+
+

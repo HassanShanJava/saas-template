@@ -72,17 +72,20 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
   const onSubmit = async (formData: StepperFormValues) => {
     const payload = formData;
     // make renewal data,
-    
+    convertStringNumbersToObject(payload)
     payload.org_id = orgId;
     payload.created_by = userId;
-    payload.renewal_data = {};
+    payload.renewal_details = {};
 
     payload.access_time={
-      access:payload.access
+      access_type: payload.access_type,
+      duration_no: payload.duration_no,
+      duration_type: payload.duration_type,
+      limited_access_data: (payload.limited_access_data).length>0?payload.limited_access_data:[]
     }
 
     if (payload.auto_renewal) {
-      payload.renewal_data = {
+      payload.renewal_details = {
         days_before: formData.days_before,
         next_invoice: formData.next_invoice,
         prolongation_period: formData.prolongation_period,
@@ -229,3 +232,15 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
 };
 
 export default MembershipForm;
+
+
+
+function convertStringNumbersToObject(obj: any): void {
+  Object.keys(obj).forEach(key => {
+    if (typeof obj[key!] === 'string' && !isNaN(obj[key!]) && obj[key!].trim() !== '') {
+      obj[key!] = Number(obj[key!]);
+    } else if (typeof obj[key!] === 'object' && obj[key!] !== null) {
+      convertStringNumbersToObject(obj[key!]);
+    }
+  });
+}

@@ -5,16 +5,13 @@ import { StepperFormValues } from "@/types/hook-stepper";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useSelector } from "react-redux";
@@ -23,7 +20,8 @@ import {
   useCreateGroupsMutation,
   useGetGroupsQuery,
 } from "@/services/groupsApis";
-import { Value } from "@radix-ui/react-select";
+import { toast } from "sonner";
+import { useToast } from "@/components/ui/use-toast";
 
 const status = [
   { value: "true", label: "Active", color: "bg-green-500" },
@@ -35,33 +33,120 @@ interface groupList {
   value: number;
 }
 
+const daysOrder = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+];
+
+
 const BasicInfoForm = () => {
   const {
     control,
     formState: { errors },
+    setValue,
     register,
     trigger,
     watch,
   } = useFormContext<StepperFormValues>();
+  const {toast}=useToast()
 
   const [isAddGroup, setAddGroup] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<any>("");
   const [access, setAccess] = useState<string | undefined>("");
   const [groupList, setGroupList] = useState<groupList[]>([]);
 
+  const [limitedAccessDays, setLimitedAccessDays] = useState([
+    { id: 1, day: "monday", from: "", to: "" },
+    { id: 2, day: "tuesday", from: "", to: "" },
+    { id: 3, day: "wednesday", from: "", to: "" },
+    { id: 4, day: "thursday", from: "", to: "" },
+    { id: 5, day: "friday", from: "", to: "" },
+    { id: 6, day: "saturday", from: "", to: "" },
+    { id: 7, day: "sunday", from: "", to: "" },
+  ]);
+
+  
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  const { data: groupData } = useGetGroupsQuery(orgId);
-  const [createGroups, { isLoading: groupCreateLoading, isUninitialized }] =
-    useCreateGroupsMutation();
+  const { data: groupData, isFetching } = useGetGroupsQuery(orgId);
+  const [createGroups, { isLoading: groupCreateLoading, isUninitialized }] = useCreateGroupsMutation();
+
+  const handleAdd = (day) => {
+    setLimitedAccessDays((prev) => [
+      ...prev,
+      { id: Date.now(), day, from: "", to: "" },
+    ]);
+  };
+
+  const handleDelete = (id) => {
+    setLimitedAccessDays((prev) =>
+      prev.map((entry) =>
+        entry.id === id ? { ...entry, from: "", to: "" } : entry
+      )
+    );
+  };
+
+  const isValidTimeRange = (from, to) => {
+    return from < to;
+  };
+
+  const isConflictingTime = (day, from, to, id = null) => {
+    const dayEntries = limitedAccessDays.filter((entry) => entry.day === day && entry.id !== id);
+    return dayEntries.some((entry) => 
+      (from < entry.to && to > entry.from)
+    );
+  };
+
+  const handleTimeChange = (id, type, value) => {
+    setLimitedAccessDays((prev) => {
+      const updatedEntries = prev.map((entry) => {
+        if (entry.id === id) {
+          const updatedEntry = { ...entry, [type]: value };
+          if (!isValidTimeRange(updatedEntry.from, updatedEntry.to) && updatedEntry.to != '' && updatedEntry.from != '') {
+            toast({
+              variant: "destructive",
+              title: "Enter valid time range",
+            })
+            return entry;
+          } else if(isConflictingTime(updatedEntry.day, updatedEntry.from, updatedEntry.to, id)){
+            toast({
+              variant: "destructive",
+              title: "Time slot conflicts on the same day.",
+            })
+            return entry;
+          }else{
+            return updatedEntry
+          }
+        }
+        return entry;
+      });
+      return updatedEntries;
+    });
+  };
+
+  const sortedDays = limitedAccessDays.sort(
+    (a, b) => daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day)
+  );
+
 
   useEffect(() => {
     const subscription = watch((value) => {
-      setAccess(value?.access);
+      setAccess(value?.access_type);
     });
     return () => subscription.unsubscribe();
   }, [watch]);
+  
+  useEffect(() => {
+    if(limitedAccessDays){
+      setValue("limited_access_data",limitedAccessDays)
+    }
+  }, [limitedAccessDays]);
 
   useEffect(() => {
     if (groupData) {
@@ -126,9 +211,9 @@ const BasicInfoForm = () => {
                   onValueChange={(value) => {
                     onChange(value);
                   }}
-                  value={value+""}
+                  disabled={isFetching}
                 >
-                  <SelectTrigger name="group_id" floatingLabel="Group*">
+                  <SelectTrigger name="group_id" floatingLabel="Group*" >
                     <SelectValue placeholder="Select group" />
                   </SelectTrigger>
                   {invalid && (
@@ -139,7 +224,7 @@ const BasicInfoForm = () => {
                   <SelectContent>
                     {groupList &&
                       groupList.length > 0 &&
-                      groupList.map((item, i) => (
+                      groupList.map((item) => (
                         <SelectItem value={item?.value + ""} key={item?.value}>
                           {item?.label}
                         </SelectItem>
@@ -234,7 +319,7 @@ const BasicInfoForm = () => {
         <div className="flex items-center gap-4">
           <Label className="font-semibold ">Access times*</Label>
           <Controller
-            name="access"
+            name="access_type"
             rules={{ required: "Access is Required" }}
             control={control}
             render={({
@@ -312,98 +397,41 @@ const BasicInfoForm = () => {
       {access == "limited-access" && (
         <div className="bg-gray-200 p-3 w-fit h-fit text-sm rounded-lg">
           <p className="font-semibold text-base">Limited Access</p>
-          {[
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thrusday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-          ].map((day, i) => (
-            <div key={i} className="grid grid-cols-3 items-center gap-3 py-0.5">
-              <div className="flex col-span-1 items-center gap-3">
-                <i className="text-base text-primary fa fa-plus cursor-pointer"></i>
-                <p className="my-auto">{day}</p>
-              </div>
-              {/* time */}
-              <div className="flex col-span-2 items-center gap-2">
-                <div>
-                  <Select>
-                    <SelectTrigger className="!bg-white ">
-                      <SelectValue placeholder="00" defaultValue={"0"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[
-                        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                        16, 17, 18, 19, 20, 21, 22, 23,
-                      ].map((hour, i) => (
-                        <SelectItem
-                          value={hour.toString()}
-                          className="w-fit !p-0"
-                        >{`${hour <= 9 ? "0" : ""}${hour} `}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+          {sortedDays.map(({ id, day, from, to }) => (
+        <div key={id} className="grid grid-cols-3 items-center gap-3 py-0.5">
+          <div className="flex col-span-1 items-center gap-3">
+            <i
+              className="text-base text-primary fa fa-plus cursor-pointer"
+              onClick={() => handleAdd(day)}
+            ></i>
+            <p className="my-auto capitalize">{day}</p>
+          </div>
+          <div className="flex col-span-2 items-center gap-2">
+            <Input
+              type="time"
+              value={from}
+              onChange={(e) => handleTimeChange(id, "from", e.target.value)}
+              id="time"
+              aria-label="Choose time"
+              className="w-full h-8 time-input !focus-visible:ring-primary"
+            />
+            <p>till</p>
+            <Input
+              type="time"
+              value={to}
+              onChange={(e) => handleTimeChange(id, "to", e.target.value)}
+              id="time"
+              aria-label="Choose time"
+              className="w-full h-8"
+            />
+            <i
+              className="fa-regular fa-trash-can cursor-pointer"
+              onClick={() => handleDelete(id)}
+            ></i>
+          </div>
+        </div>
+      ))}
 
-                <div>
-                  <Select>
-                    <SelectTrigger className="!bg-white">
-                      <SelectValue placeholder="00" defaultValue={"0"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map(
-                        (minute, i) => (
-                          <SelectItem value={minute.toString()}>
-                            {`${minute < 10 ? "0" : ""}${minute}`}
-                          </SelectItem>
-                        )
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <p>till</p>
-
-                <div>
-                  <Select>
-                    <SelectTrigger className="!bg-white">
-                      <SelectValue placeholder="00" defaultValue={"0"} />
-                    </SelectTrigger>
-                    <SelectContent className="w-fit ">
-                      {[
-                        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                        16, 17, 18, 19, 20, 21, 22, 23,
-                      ].map((hour, i) => (
-                        <SelectItem
-                          value={hour.toString()}
-                          className=""
-                        >{`${hour <= 9 ? "0" : ""}${hour}`}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Select>
-                    <SelectTrigger className="!bg-white">
-                      <SelectValue placeholder="00" defaultValue={"0"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map(
-                        (minute, i) => (
-                          <SelectItem value={minute.toString()}>
-                            {`${minute < 10 ? "0" : ""}${minute}`}
-                          </SelectItem>
-                        )
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <i className="fa-regular fa-trash-can cursor-pointer"></i>
-              </div>
-            </div>
-          ))}
         </div>
       )}
     </div>

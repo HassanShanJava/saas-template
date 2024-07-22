@@ -28,7 +28,7 @@ const CreditDetailsForm = () => {
 
   return (
     <div className="text-black h-full">
-      <CreditsTableView setFacilities={setFacilities} facilities={facilites} />
+      <CreditsTableView setFacilities={setFacilities} />
     </div>
   );
 };

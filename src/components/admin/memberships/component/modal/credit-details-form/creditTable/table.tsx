@@ -38,7 +38,6 @@ import { useGetCreditsQuery } from "@/services/creditsApi";
 import { Search } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { facilites } from "..";
 
 interface tranformData {
   id: number;
@@ -60,10 +59,8 @@ interface payloadData {
 }
 
 export default function CreditsTableView({
-  facilities,
   setFacilities,
 }: {
-  facilities: facilites[];
   setFacilities: any;
 }) {
   const orgId =

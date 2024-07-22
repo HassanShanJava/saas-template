@@ -28,7 +28,7 @@ export interface createMembershipType {
   reg_fee: number;
   billing_cycle: string;
   auto_renewal: boolean;
-  renewal_data: renewalData | object;
+  renewal_details: renewalData | object;
   facilities: facilitiesData[] | [];
   created_by: number;
 }

@@ -19,27 +19,21 @@ import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { ErrorType } from "@/app/types";
+import { createMembershipType, ErrorType } from "@/app/types";
+import { useDeleteMembershipsMutation } from "@/services/membershipsApi";
 
-interface DataTableRowActionsProps<TData> {
-  id: number;
-  org_id: number;
-  sale_tax_id: number;
-  name: string;
-}
-
-export function DataTableRowActions<TData>({
+export function DataTableRowActions({
   data,
   refetch,
   handleEdit,
 }: {
-  data: DataTableRowActionsProps<TData>;
+  data: createMembershipType;
   refetch?: any;
   handleEdit?: any;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
-  // const [deleteIncomeCategory, { isLoading: deleteLoading }] =
-  //   useDeleteIncomeCategoryMutation();
+  const [deleteMembership, { isLoading: deleteLoading }] =
+    useDeleteMembershipsMutation();
   const { toast } = useToast();
 
   const deleteRow = async () => {
@@ -48,15 +42,15 @@ export function DataTableRowActions<TData>({
       org_id: data.org_id,
     };
     try {
-      // const resp = await deleteIncomeCategory(payload).unwrap();
-      // if (resp) {
-      //   console.log({ resp });
-      //   refetch();
-      //   toast({
-      //     variant: "success",
-      //     title: "Deleted Successfully",
-      //   });
-      // }
+      const resp = await deleteMembership(payload).unwrap();
+      if (resp) {
+        console.log({ resp });
+        refetch();
+        toast({
+          variant: "success",
+          title: "Deleted Successfully",
+        });
+      }
       return;
       
     } catch (error) {

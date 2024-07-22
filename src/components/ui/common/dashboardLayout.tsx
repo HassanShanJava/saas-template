@@ -50,6 +50,7 @@ const navItems: NavItem[] = [
   { name: "Members", link: "/admin/members", icon: MultiUserIcon, dropdown: false },
   { name: "Leads", link: "/admin/leads", icon: RocketIcon, dropdown: false },
   { name: "Events", link: "/admin/events", icon: EventsIcon, dropdown: false },
+  
   { 
     name: "System Settings",
     dropdown:true,
@@ -77,7 +78,9 @@ const navItems: NavItem[] = [
         icon:"fa fa-user",
       },
     ]  
-  }
+  },
+  { name: "Roles & Access Management", link: "/admin/roles", icon: EventsIcon, dropdown: false },
+
 
 ];
 

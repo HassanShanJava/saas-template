@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,24 +43,33 @@ const daysOrder = [
   "sunday",
 ];
 
+interface limitedAccessDaysTypes {
+  id: number;
+  day: string;
+  from: string;
+  to: string;
+}
 
 const BasicInfoForm = () => {
   const {
     control,
     formState: { errors },
     setValue,
+    getValues,
     register,
     trigger,
     watch,
   } = useFormContext<StepperFormValues>();
-  const {toast}=useToast()
+  const { toast } = useToast();
 
   const [isAddGroup, setAddGroup] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<any>("");
   const [access, setAccess] = useState<string | undefined>("");
   const [groupList, setGroupList] = useState<groupList[]>([]);
 
-  const [limitedAccessDays, setLimitedAccessDays] = useState([
+  const [limitedAccessDays, setLimitedAccessDays] = useState<
+    limitedAccessDaysTypes[]
+  >([
     { id: 1, day: "monday", from: "", to: "" },
     { id: 2, day: "tuesday", from: "", to: "" },
     { id: 3, day: "wednesday", from: "", to: "" },
@@ -70,21 +79,37 @@ const BasicInfoForm = () => {
     { id: 7, day: "sunday", from: "", to: "" },
   ]);
 
-  
+  // useEffect(() => {
+  //   const initialData = getValues();
+  //   if (initialData) {
+  //     setValue("name", initialData.name);
+  //     setValue("group_id", initialData.group_id);
+  //     setValue("description", initialData.description);
+  //     setValue("status", initialData.status);
+  //     setValue("access_type", initialData.access_type);
+  //     setValue("limited_access_data", initialData.limited_access_data);
+  //     setLimitedAccessDays(
+  //       (initialData.limited_access_data as limitedAccessDaysTypes[]) ||
+  //         limitedAccessDays
+  //     );
+  //   }
+  // }, [getValues, setValue]);
+
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
   const { data: groupData, isFetching } = useGetGroupsQuery(orgId);
-  const [createGroups, { isLoading: groupCreateLoading, isUninitialized }] = useCreateGroupsMutation();
+  const [createGroups, { isLoading: groupCreateLoading, isUninitialized }] =
+    useCreateGroupsMutation();
 
-  const handleAdd = (day) => {
+  const handleAdd = (day: string) => {
     setLimitedAccessDays((prev) => [
       ...prev,
       { id: Date.now(), day, from: "", to: "" },
     ]);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id: number) => {
     setLimitedAccessDays((prev) =>
       prev.map((entry) =>
         entry.id === id ? { ...entry, from: "", to: "" } : entry
@@ -92,36 +117,52 @@ const BasicInfoForm = () => {
     );
   };
 
-  const isValidTimeRange = (from, to) => {
+  const isValidTimeRange = (from: string, to: string) => {
     return from < to;
   };
 
-  const isConflictingTime = (day, from, to, id = null) => {
-    const dayEntries = limitedAccessDays.filter((entry) => entry.day === day && entry.id !== id);
-    return dayEntries.some((entry) => 
-      (from < entry.to && to > entry.from)
+  const isConflictingTime = (
+    day: string,
+    from: string,
+    to: string,
+    id: number | undefined = undefined
+  ) => {
+    const dayEntries = limitedAccessDays.filter(
+      (entry) => entry.day === day && entry.id !== id
     );
+    return dayEntries.some((entry) => from < entry.to && to > entry.from);
   };
 
-  const handleTimeChange = (id, type, value) => {
+  const handleTimeChange = (id: number, type: string, value: string) => {
     setLimitedAccessDays((prev) => {
       const updatedEntries = prev.map((entry) => {
         if (entry.id === id) {
           const updatedEntry = { ...entry, [type]: value };
-          if (!isValidTimeRange(updatedEntry.from, updatedEntry.to) && updatedEntry.to != '' && updatedEntry.from != '') {
+          if (
+            !isValidTimeRange(updatedEntry.from, updatedEntry.to) &&
+            updatedEntry.to != "" &&
+            updatedEntry.from != ""
+          ) {
             toast({
               variant: "destructive",
               title: "Enter valid time range",
-            })
+            });
             return entry;
-          } else if(isConflictingTime(updatedEntry.day, updatedEntry.from, updatedEntry.to, id)){
+          } else if (
+            isConflictingTime(
+              updatedEntry.day,
+              updatedEntry.from,
+              updatedEntry.to,
+              id
+            )
+          ) {
             toast({
               variant: "destructive",
               title: "Time slot conflicts on the same day.",
-            })
+            });
             return entry;
-          }else{
-            return updatedEntry
+          } else {
+            return updatedEntry;
           }
         }
         return entry;
@@ -134,17 +175,16 @@ const BasicInfoForm = () => {
     (a, b) => daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day)
   );
 
-
   useEffect(() => {
     const subscription = watch((value) => {
       setAccess(value?.access_type);
     });
     return () => subscription.unsubscribe();
   }, [watch]);
-  
+
   useEffect(() => {
-    if(limitedAccessDays){
-      setValue("limited_access_data",limitedAccessDays)
+    if (limitedAccessDays) {
+      setValue("limited_access_data", limitedAccessDays);
     }
   }, [limitedAccessDays]);
 
@@ -185,7 +225,7 @@ const BasicInfoForm = () => {
     setInputValue(e.target.value);
   };
 
-  console.log(errors,"basic form")
+  console.log(errors, "basic form");
 
   return (
     <div className="text-black h-full">
@@ -213,7 +253,7 @@ const BasicInfoForm = () => {
                   }}
                   disabled={isFetching}
                 >
-                  <SelectTrigger name="group_id" floatingLabel="Group*" >
+                  <SelectTrigger name="group_id" floatingLabel="Group*">
                     <SelectValue placeholder="Select group" />
                   </SelectTrigger>
                   {invalid && (
@@ -286,13 +326,14 @@ const BasicInfoForm = () => {
             fieldState: { invalid, error },
           }) => {
             console.log({ value, error });
-            const statusLabel = status.filter((r) => r.value == value)[0]
+            const statusLabel = status.filter((r) => r.value == value)[0];
             return (
-              <Select
-                onValueChange={(value)=>onChange(value)}
-              >
+              <Select onValueChange={(value) => onChange(value)}>
                 <SelectTrigger floatingLabel="Status*">
-                  <SelectValue placeholder="Select status" className="text-gray-400">
+                  <SelectValue
+                    placeholder="Select status"
+                    className="text-gray-400"
+                  >
                     <span className="flex gap-2 items-center">
                       <span
                         className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
@@ -369,7 +410,7 @@ const BasicInfoForm = () => {
                   value={value}
                 >
                   <SelectTrigger name="duration_type">
-                    <SelectValue placeholder="Month" defaultValue={undefined} />
+                    <SelectValue placeholder="Select duration" defaultValue={undefined} />
                   </SelectTrigger>
                   {invalid && (
                     <span className="text-destructive block !mt-[5px] text-[12px]">
@@ -398,40 +439,42 @@ const BasicInfoForm = () => {
         <div className="bg-gray-200 p-3 w-fit h-fit text-sm rounded-lg">
           <p className="font-semibold text-base">Limited Access</p>
           {sortedDays.map(({ id, day, from, to }) => (
-        <div key={id} className="grid grid-cols-3 items-center gap-3 py-0.5">
-          <div className="flex col-span-1 items-center gap-3">
-            <i
-              className="text-base text-primary fa fa-plus cursor-pointer"
-              onClick={() => handleAdd(day)}
-            ></i>
-            <p className="my-auto capitalize">{day}</p>
-          </div>
-          <div className="flex col-span-2 items-center gap-2">
-            <Input
-              type="time"
-              value={from}
-              onChange={(e) => handleTimeChange(id, "from", e.target.value)}
-              id="time"
-              aria-label="Choose time"
-              className="w-full h-8 time-input !focus-visible:ring-primary"
-            />
-            <p>till</p>
-            <Input
-              type="time"
-              value={to}
-              onChange={(e) => handleTimeChange(id, "to", e.target.value)}
-              id="time"
-              aria-label="Choose time"
-              className="w-full h-8"
-            />
-            <i
-              className="fa-regular fa-trash-can cursor-pointer"
-              onClick={() => handleDelete(id)}
-            ></i>
-          </div>
-        </div>
-      ))}
-
+            <div
+              key={id}
+              className="grid grid-cols-3 items-center gap-3 py-0.5"
+            >
+              <div className="flex col-span-1 items-center gap-3">
+                <i
+                  className="text-base text-primary fa fa-plus cursor-pointer"
+                  onClick={() => handleAdd(day)}
+                ></i>
+                <p className="my-auto capitalize">{day}</p>
+              </div>
+              <div className="flex col-span-2 items-center gap-2">
+                <Input
+                  type="time"
+                  value={from}
+                  onChange={(e) => handleTimeChange(id, "from", e.target.value)}
+                  id="time"
+                  aria-label="Choose time"
+                  className="w-full h-8 time-input !focus-visible:ring-primary"
+                />
+                <p>till</p>
+                <Input
+                  type="time"
+                  value={to}
+                  onChange={(e) => handleTimeChange(id, "to", e.target.value)}
+                  id="time"
+                  aria-label="Choose time"
+                  className="w-full h-8"
+                />
+                <i
+                  className="fa-regular fa-trash-can cursor-pointer"
+                  onClick={() => handleDelete(id)}
+                ></i>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

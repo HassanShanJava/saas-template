@@ -13,6 +13,8 @@ export interface facilitiesData extends JSONObject {
     duration_no: number | undefined;
   };
 }
+
+
 export interface createMembershipType {
   org_id: number;
   name: string;
@@ -32,6 +34,11 @@ export interface createMembershipType {
   facilities: facilitiesData[] | [];
   created_by: number;
 }
+
+export interface membeshipsTableType extends createMembershipType {
+  id:number;
+}
+
 export interface groupCreateType {
   org_id: number;
   name: string;

@@ -58,18 +58,19 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, incomeCategoryTableType } from "@/app/types";
+import { membeshipsTableType, ErrorType,  } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
 import MembershipForm from "../modal/membership-form";
+import { useGetMembershipsQuery } from "@/services/membershipsApi";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
 const temp_bool=true
 
-const downloadCSV = (data: incomeCategoryTableType[], fileName: string) => {
+const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -84,13 +85,13 @@ export default function MembershipsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  // const {
-  //   data: incomeCategoryData,
-  //   isLoading,
-  //   refetch,
-  // } = useGetIncomeCategoryQuery(orgId);
+  const {
+    data: membershipsData,
+    isLoading,
+    refetch,
+  } = useGetMembershipsQuery(orgId);
 
-  // const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
+
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -134,7 +135,7 @@ export default function MembershipsTableView() {
   //     }
   //   };
 
-  const membershipsData:any[]=[]
+
   const membershipstableData = React.useMemo(() => {
     return Array.isArray(membershipsData) ? membershipsData : [];
   }, [membershipsData]);
@@ -181,7 +182,7 @@ export default function MembershipsTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<membeshipsTableType>[] = [
     {
       accessorKey: "name",
       header: ({ table }) => <span>Category Name</span>,
@@ -218,7 +219,7 @@ export default function MembershipsTableView() {
   ];
 
   const table = useReactTable({
-    data: membershipstableData as incomeCategoryTableType[],
+    data: membershipstableData as membeshipsTableType[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -303,7 +304,7 @@ export default function MembershipsTableView() {
               ))}
             </TableHeader>
             <TableBody>
-              {temp_bool ? (
+              {isLoading ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}

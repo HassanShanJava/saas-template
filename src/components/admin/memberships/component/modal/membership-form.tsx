@@ -63,8 +63,9 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
     trigger,
     handleSubmit,
     setError,
+    getValues,
     clearErrors,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting, errors, },
   } = methods;
 
   console.log(errors,"membership form")
@@ -136,6 +137,39 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
 
   const handleNext = async () => {
     const isStepValid = await trigger(undefined, { shouldFocus: true });
+    // for check on limited_Access_Data after submiting
+    if(activeStep==1){
+      const limited_access_data=getValues("limited_access_data")
+      const check=limited_access_data.some((day:any) => day?.from != "" && day?.to != "")
+      const checkFrom=limited_access_data.some((day:any) => day?.from != "" && day?.to == "")
+      const checkTo=limited_access_data.some((day:any) => day?.from == "" && day?.to != "")
+      console.log({check,limited_access_data})
+      if(checkFrom){
+        toast({
+          variant:"destructive",
+          title:"Missing from time"
+        })
+        return;
+      }
+      
+      if(checkTo){
+        toast({
+          variant:"destructive",
+          title:"Missing till to time"
+        })
+        return;
+      }
+
+      if(!check){
+        toast({
+          variant:"destructive",
+          title:"At least one day needs a time slot"
+        })
+        return;
+      }
+            
+
+    }
     if (isStepValid) setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 

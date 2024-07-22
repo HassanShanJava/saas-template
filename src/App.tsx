@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
 import IncomeCategory from "./components/admin/income_category";
 import Memberships from "./components/admin/memberships";
+import RolesAndAccess from "./components/admin/roles";
 
 import Loader from "@/components/Loader";
 
@@ -48,6 +49,7 @@ function App() {
             <Route path="/admin/incomeCategory" index element={<IncomeCategory />} />
             <Route path="/admin/memberships" index element={<Memberships />} />
             <Route path="/admin/events" index element={<Events />} />
+            <Route path="/admin/roles" index element={<RolesAndAccess />} />
             <Route
               path="/admin/events/addevents"
               index

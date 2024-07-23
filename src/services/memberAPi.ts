@@ -4,16 +4,16 @@ import {
   CoachTypes,
   sourceTypes,
   membershipplanTypes,
-  ClientInputTypes,
-  ClientResponseTypes,
-  clientTablestypes,
+  MemberInputTypes,
+  MemberResponseTypes,
+  MemberTabletypes,
 } from "../app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
 
-export const ClientAPi = apiSlice.injectEndpoints({
+export const MemberAPi = apiSlice.injectEndpoints({
   endpoints: builder => ({
-		getClientCount: builder.query<{ total_clients: number }, number>({
+		getMemberCount: builder.query<{ total_clients: number }, number>({
 			query: (org_id) => ({
 				url: `/client/getTotalClient/${org_id}`,
 				headers: {
@@ -61,7 +61,7 @@ export const ClientAPi = apiSlice.injectEndpoints({
 				},
 			}),
 		}),
-		getAllClient: builder.query<clientTablestypes[], number>({
+		getAllMember: builder.query<MemberTabletypes[], number>({
 			query: (org_id) => ({
 				url: `/client/filter/?org_id=${org_id}`,
 				headers: {
@@ -69,11 +69,11 @@ export const ClientAPi = apiSlice.injectEndpoints({
 				},
 			}),
 		}),
-		AddClient: builder.mutation<ClientResponseTypes, ClientInputTypes>({
-			query: (clientdata) => ({
+		AddMember: builder.mutation<MemberResponseTypes, MemberInputTypes>({
+			query: (memberdata) => ({
 				url: "/client/register",
 				method: "POST",
-				body: clientdata,
+				body: memberdata,
 				headers: {
 					Accept: "application/json",
 					"Content-Type": "application/json",
@@ -84,12 +84,12 @@ export const ClientAPi = apiSlice.injectEndpoints({
 });
 
 export const {
-  useGetClientCountQuery,
+  useGetMemberCountQuery,
   useGetCountriesQuery,
   useGetCoachesQuery,
   useGetAllSourceQuery,
   useGetAllBusinessesQuery,
   useGetAllMembershipsQuery,
-  useGetAllClientQuery,
-  useAddClientMutation,
-} = ClientAPi;
+  useGetAllMemberQuery,
+  useAddMemberMutation,
+} = MemberAPi;

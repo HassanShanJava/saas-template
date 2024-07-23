@@ -42,10 +42,9 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { clientTablestypes, clientFilterSchema } from "@/app/types";
+import { MemberFilterSchema, MemberTabletypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
-import { useGetAllClientQuery } from "@/services/clientAPi";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -54,8 +53,9 @@ import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
 import { DataTableFacetedFilter } from "./data-table-faced-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
+import { useGetAllMemberQuery } from "@/services/memberAPi";
 
-const downloadCSV = (data: clientTablestypes[], fileName: string) => {
+const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -65,30 +65,30 @@ const downloadCSV = (data: clientTablestypes[], fileName: string) => {
   link.click();
   document.body.removeChild(link);
 };
-export default function ClientTableView() {
+export default function MemberTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const {
-    data: clientData,
+    data: memberData,
     isLoading,
     refetch,
     error,
-  } = useGetAllClientQuery(orgId);
+  } = useGetAllMemberQuery(orgId);
   const navigate = useNavigate();
 
   function handleRoute() {
     navigate("/admin/members/addmember");
   }
-  const clienttableData = React.useMemo(() => {
-    return Array.isArray(clientData) ? clientData : [];
-  }, [clientData]);
+  const memberTableData = React.useMemo(() => {
+    return Array.isArray(memberData) ? memberData : [];
+  }, [memberData]);
   const { toast } = useToast();
-  console.log("data", { clientData, error });
+  console.log("data", { memberData, error });
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
 
-  const [filters, setFilters] = useState<clientFilterSchema>();
+  const [filters, setFilters] = useState<MemberFilterSchema>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
@@ -120,7 +120,7 @@ export default function ClientTableView() {
     }
     downloadCSV(selectedRows, "members_list.csv");
   };
-  const columns: ColumnDef<clientTablestypes>[] = [
+  const columns: ColumnDef<MemberTabletypes>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -238,9 +238,9 @@ export default function ClientTableView() {
       cell: ({ row }) => <DataTableRowActions row={row.original.id} />,
     },
   ];
-  // console.log("data",{clientData})
+  // console.log("data",{memberData})
   const table = useReactTable({
-    data: clienttableData as clientTablestypes[],
+    data: memberTableData as MemberTabletypes[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -369,7 +369,7 @@ export default function ClientTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : clienttableData.length > 0 ? (
+              ) : memberTableData.length > 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -384,7 +384,7 @@ export default function ClientTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Clients Added yet!.
+                    No Members Added yet!.
                   </TableCell>
                 </TableRow>
               )}

@@ -14,7 +14,6 @@ export interface facilitiesData extends JSONObject {
   };
 }
 
-
 export interface createMembershipType {
   org_id: number;
   name: string;
@@ -36,7 +35,7 @@ export interface createMembershipType {
 }
 
 export interface membeshipsTableType extends createMembershipType {
-  id:number;
+  id: number;
 }
 
 export interface groupCreateType {
@@ -343,4 +342,17 @@ export interface updateStaffInput {
 export interface updateStatusInput {
   lead_id: number;
   status: string;
+}
+
+export interface getRolesType {
+  name: string;
+  org_id: number;
+  is_deleted: boolean;
+  id: number;
+}
+
+export interface createRole{
+  name:string;
+  org_id:number;
+  
 }

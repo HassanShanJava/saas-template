@@ -27,7 +27,7 @@ export function DataTableRowActions({
   refetch,
   handleEdit,
 }: {
-  data: createMembershipType;
+  data: createMembershipType & {id:number};
   refetch?: any;
   handleEdit?: any;
 }) {

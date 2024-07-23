@@ -83,8 +83,8 @@ export const RoleForm = ({
         required_error: "Please select a status",
       })
       .default(true),
-    module: z.array(z.number()),
-    access: z.array(z.string()),
+    // module: z.array(z.number()),
+    // access: z.array(z.string()),
   });
 
   const form = useForm<z.infer<typeof RoleFormSchema>>({
@@ -151,7 +151,6 @@ export const RoleForm = ({
       ...prev,
       status: true,
       name: "",
-      min_limit: 1,
     }));
   };
 
@@ -215,6 +214,7 @@ export const RoleForm = ({
     },
   ];
 
+  // const moduleData=[]
   const columns: ColumnDef<any>[] = [
     {
       accessorKey: "name",
@@ -365,7 +365,7 @@ export const RoleForm = ({
                         Module Access
                       </h1>
 
-                      <div className="rounded-md border border-border ">
+                      {/* <div className="rounded-md border border-border ">
                         <ScrollArea className="w-full relative h-96">
                           <ScrollBar orientation="vertical" />
                           <Table className="w-full ">
@@ -404,7 +404,7 @@ export const RoleForm = ({
                             </TableBody>
                           </Table>
                         </ScrollArea>
-                      </div>
+                      </div> */}
                     </div>
                     <div className="flex flex-row gap-2 w-full p-4">
                       <Button

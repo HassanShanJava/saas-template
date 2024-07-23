@@ -36,20 +36,22 @@ export default function RoleTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  // const {
-  //   data: rolesData,
-  //   isLoading,
-  //   refetch,
-  //   error,
-  // } = useGetRolesQuery(orgId);
+  const {
+    data: rolesData,
+    isLoading,
+    refetch,
+    error,
+  } = useGetRolesQuery(orgId);
 
-  const rolesData: any = [];
+  // const rolesData: any = [];
 
   const [formData, setFormData] = useState<any>({
     status: "",
     name: "",
     org_id: orgId,
   });
+
+  const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null); // State to track the selected role
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const handleCloseDailog = () => setIsDialogOpen(false);
@@ -204,14 +206,17 @@ export default function RoleTableView() {
   const permissionTableData = React.useMemo(() => {
     return Array.isArray(rolesData) ? rolesData : [];
   }, [rolesData]);
-  // console.log("data", { rolesData, error });
+  console.log("data", { rolesData, error });
 
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-5 ">
         <div className="flex flex-1 items-center space-x-2">
           <div className="flex items-center  relative">
-            <Select>
+            <Select
+              value={selectedRoleId || undefined} // Set the current selected value
+              onValueChange={(value) => setSelectedRoleId(value)}
+            >
               <SelectTrigger className="w-[220px]">
                 <SelectValue placeholder="Select a Role" />
               </SelectTrigger>

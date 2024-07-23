@@ -1,7 +1,6 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
-import { StepperFormKeysType, StepperFormValues } from "@/types/hook-stepper";
-import { StepperFormKeys } from "@/lib/constants/hook-stepper-constants";
+import { StepperFormValues } from "@/types/hook-stepper";
 import StepperIndicator from "@/components/ui/stepper-indicator";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -11,7 +10,7 @@ import PriceDiscountTaxForm from "./prices-form";
 import AutoRenewalForm from "./renewal-form";
 import { useToast } from "@/components/ui/use-toast";
 import CreditDetailsForm from "./credit-details-form";
-import { useCreateMembershipsMutation } from "@/services/membershipsApi";
+import { useCreateMembershipsMutation, useUpdateMembershipsMutation } from "@/services/membershipsApi";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 import { RootState } from "@/app/store";
@@ -58,6 +57,7 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
   const methods = useForm<StepperFormValues>({ mode: "all" });
 
   const [createMemberships] = useCreateMembershipsMutation();
+  const [updateMemberships] = useUpdateMembershipsMutation();
 
   const {
     trigger,
@@ -65,11 +65,11 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
     setError,
     getValues,
     clearErrors,
+    reset,
     formState: { isSubmitting, errors, },
   } = methods;
 
   console.log(errors,"membership form")
-
   const onSubmit = async (formData: StepperFormValues) => {
     const payload = formData;
     // make renewal data,
@@ -114,7 +114,9 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
           variant: "success",
           title: "Created Successfully",
         });
+        reset()
         handleClose()
+        setActiveStep(1)
       }
     } catch (error: unknown) {
       console.log("Error", error);

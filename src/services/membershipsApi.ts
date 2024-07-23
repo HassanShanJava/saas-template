@@ -1,5 +1,5 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-import { createMembershipType, membeshipsTableType } from "@/app/types";
+import { createMembershipType, membeshipsTableType, updateMembershipType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
 export const Memberships = apiSlice.injectEndpoints({
@@ -16,21 +16,21 @@ export const Memberships = apiSlice.injectEndpoints({
         providesTags: ["Memberships"],
       }),
       createMemberships: builder.mutation<any, createMembershipType>({
-        query: (membershipsydata) => ({
+        query: (membershipsdata) => ({
           url: `/membership_plan/membership_plans`,
           method: "POST",
-          body: membershipsydata,
+          body: membershipsdata,
           headers: {
             Accept: "application/json",
           },
         }),
         invalidatesTags: ["Memberships"],
       }),
-      updateMemberships: builder.mutation<any, any>({
-        query: (membershipsydata) => ({
+      updateMemberships: builder.mutation<any, updateMembershipType>({
+        query: (membershipsdata) => ({
           url: `/membership_plan/membership_plans`,
           method: "PUT",
-          body: membershipsydata,
+          body: membershipsdata,
           headers: {
             Accept: "application/json",
           },
@@ -38,10 +38,10 @@ export const Memberships = apiSlice.injectEndpoints({
         invalidatesTags: ["Memberships"],
       }),
       deleteMemberships: builder.mutation<any, any>({
-        query: (membershipsydata) => ({
+        query: (membershipsdata) => ({
           url: `/membership_plan/membership_plans`,
           method: "DELETE",
-          body: membershipsydata,
+          body: membershipsdata,
           headers: {
             Accept: "application/json",
           },
@@ -50,7 +50,7 @@ export const Memberships = apiSlice.injectEndpoints({
       }),
       getMembershipsById: builder.query<any, number>({
         query: (membership_id) => ({
-          url: `/membership_plan/membership_plans?income_category_id=${membership_id}`,
+          url: `/membership_plan/membership_plans?membership_id=${membership_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

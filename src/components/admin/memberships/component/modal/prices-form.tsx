@@ -33,13 +33,18 @@ const PriceDiscountTaxForm = () => {
   const netPrice = watch("net_price");
   const discountPercentage = watch("discount") || 0;
   const incomeCategory = watch("income_category_id");
+  const salesTaxId=incomeCategoryData?.filter((item)=>item.id==incomeCategory)[0]
+
+  const handleIncomeCategory=(value:number)=>{
+    setValue("income_category_id",value)
+  }
   
   useEffect(() => {
-    if (incomeCategory && salesTaxData) {
+    if (salesTaxId && salesTaxData) {
       const salesData = salesTaxData.find(
-        (item) => item.id == incomeCategory
+        (item) => item.id == salesTaxId.sale_tax_id
       );
-      console.log(incomeCategory,salesData,"incomeCategory")
+      console.log(salesTaxId.sale_tax_id,salesData,"incomeCategory")
       if (salesData) {
         const taxRate = salesData.percentage;
         const discountedPrice = netPrice * (1 - discountPercentage / 100);
@@ -101,7 +106,7 @@ const PriceDiscountTaxForm = () => {
             <div>
               <Select
                 onValueChange={(value) => {
-                  onChange(value);
+                  handleIncomeCategory(Number(value))
                 }}
               >
                 <SelectTrigger
@@ -118,8 +123,8 @@ const PriceDiscountTaxForm = () => {
                 <SelectContent>
                   {incomeCategoryData?.map((incomecategory) => (
                     <SelectItem
-                      value={incomecategory.sale_tax_id + ""}
-                      key={incomecategory.sale_tax_id}
+                      value={incomecategory.id + ""}
+                      key={incomecategory.id}
                     >
                       {incomecategory.name}
                     </SelectItem>

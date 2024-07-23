@@ -18,7 +18,6 @@ const CreditDetailsForm = () => {
     watch,
   } = useFormContext<StepperFormValues>();
 
-  console.log(errors,facilites,"credit detail form")
   useEffect(()=>{
     if(facilites){
       setValue("facilities",facilites)

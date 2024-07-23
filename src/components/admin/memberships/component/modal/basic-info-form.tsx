@@ -225,7 +225,6 @@ const BasicInfoForm = () => {
     setInputValue(e.target.value);
   };
 
-  console.log(errors, "basic form");
 
   return (
     <div className="text-black h-full">
@@ -296,7 +295,8 @@ const BasicInfoForm = () => {
                           disabled={!isUninitialized}
                           className="absolute right-3 bg-primary text-black font-semibold rounded-lg  px-1.5 "
                         >
-                          <i className=" fa-regular fa-floppy-disk text-lg "></i>
+                          {groupCreateLoading?<i className=" fa fa-circle-notch animate-spin text-base p-0.5 "></i>:
+                          <i className=" fa-regular fa-floppy-disk text-lg "></i>}
                         </button>
                       </form>
                     )}

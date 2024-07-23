@@ -70,12 +70,12 @@ import {
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Label } from "@/components/ui/label";
 import {
-	useGetAllBusinessesQuery,
-	useGetAllSourceQuery,
-	useGetCountriesQuery,
-	useGetCoachesQuery,
-	useGetMemberCountQuery,
-	useAddMemberMutation
+  useGetAllBusinessesQuery,
+  useGetAllSourceQuery,
+  useGetCountriesQuery,
+  useGetCoachesQuery,
+  useGetMemberCountQuery,
+  useAddMemberMutation,
 } from "@/services/memberAPi";
 
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
@@ -114,9 +114,9 @@ const AddMemberForm: React.FC = () => {
       required_error: "A date of birth is required.",
     }),
     email: z
-    .string()
-    .email({ message: "Invalid email" })
-    .min(4, { message: "Email is Required" }),
+      .string()
+      .email({ message: "Invalid email" })
+      .min(4, { message: "Email is Required" }),
     phone: z.string().trim().optional(),
     mobile_number: z.string().trim().optional(),
     notes: z.string().optional(),
@@ -167,9 +167,9 @@ const AddMemberForm: React.FC = () => {
       .string()
       .date()
       .default(new Date().toISOString().split("T")[0]),
-		prolongation_period: z.coerce.number(),
-		auto_renew_days: z.coerce.number(),
-		inv_days_cycle: z.coerce.number(),
+    prolongation_period: z.coerce.number(),
+    auto_renew_days: z.coerce.number(),
+    inv_days_cycle: z.coerce.number(),
   });
   // Example of handling async data fetching before form initialization
 
@@ -221,8 +221,8 @@ const AddMemberForm: React.FC = () => {
       is_business: false,
       own_member_id: "",
       prolongation_period: 1,
-      auto_renewal:false,
-      send_invitation:false,
+      auto_renewal: false,
+      send_invitation: false,
     },
     mode: "onChange",
   });
@@ -235,11 +235,11 @@ const AddMemberForm: React.FC = () => {
   };
 
   // set auto_renewal
-  const handleMembershipPlanChange=(value:number)=>{
-    form.setValue("membership_id",value)
-    const data=membershipPlans?.filter(item=>item.id==value)[0]
-    form.setValue("auto_renewal",data?.auto_renewal)
-  }
+  const handleMembershipPlanChange = (value: number) => {
+    form.setValue("membership_id", value);
+    const data = membershipPlans?.filter((item) => item.id == value)[0];
+    form.setValue("auto_renewal", data?.auto_renewal);
+  };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const updatedData = {
@@ -338,7 +338,7 @@ const AddMemberForm: React.FC = () => {
   React.useEffect(() => {
     if (orgName) {
       const total = memberCountData?.total_clients;
-      if(total){
+      if (total) {
         form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total + 1}`);
       }
     }
@@ -388,22 +388,17 @@ const AddMemberForm: React.FC = () => {
                     </Button>
                   </div>
                   <div>
-                    {memberLoading ? (
-                      <LoadingButton
-                        loading
-                        className="gap-2 text-black hover:opacity-90 hover:text-white"
-                      >
-                        {" "}
-                        adding Member
-                      </LoadingButton>
-                    ) : (
-                      <Button
-                        type="submit"
-                        className="gap-2 text-black hover:opacity-90 hover:text-white"
-                      >
-                        <PlusIcon className="h-4 w-4 hover:text-white" /> Add
-                      </Button>
-                    )}
+                    <LoadingButton
+                      type="submit"
+                      className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
+                      loading={memberLoading}
+                      disabled={memberLoading}
+                    >
+                      {!memberLoading && (
+                        <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                      )}
+                      Save
+                    </LoadingButton>
                   </div>
                 </div>
               </div>
@@ -472,21 +467,22 @@ const AddMemberForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value: "male" | "female" | "other") => form.setValue("gender", value)}
-
+                          onValueChange={(value: "male" | "female" | "other") =>
+                            form.setValue("gender", value)
+                          }
                         >
                           <FormControl>
                             <SelectTrigger
-															floatingLabel="Gender*"
+                              floatingLabel="Gender*"
                               className={`${watcher.gender ? "text-black" : ""}`}
                             >
                               <SelectValue placeholder="Select Gender" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-														<SelectItem value="male">Male</SelectItem>
-														<SelectItem value="female">Female</SelectItem>
-														<SelectItem value="other">Other</SelectItem>
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
                         {watcher.gender ? <></> : <FormMessage />}
@@ -740,7 +736,9 @@ const AddMemberForm: React.FC = () => {
                     />
                   </div>
                 </div>
-                <div className={`relative  ${watcher.is_business ? "hidden" : ""}`} >
+                <div
+                  className={`relative  ${watcher.is_business ? "hidden" : ""}`}
+                >
                   <FormField
                     control={form.control}
                     name="business_id"
@@ -753,7 +751,9 @@ const AddMemberForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value) => form.setValue("country_id", Number(value))}
+                          onValueChange={(value) =>
+                            form.setValue("country_id", Number(value))
+                          }
                           defaultValue={field.value?.toString() || "0"}
                         >
                           <FormControl>
@@ -800,327 +800,349 @@ const AddMemberForm: React.FC = () => {
                   />
                 </div>
               </div>
-							<div>
-								<h1 className="font-bold text-base"> Address data</h1>
-							</div>
-							<div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
-								<div className="relative ">
-									<FormField
-										control={form.control}
-										name="address_1"
-										render={({ field }) => (
-											<FormItem>
-												<FloatingLabelInput
-													{...field}
-													id="address_1"
-													label="Street Address"
-												/>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-								</div>
-								<div className="relative ">
-									<FormField
-										control={form.control}
-										name="address_2"
-										render={({ field }) => (
-											<FormItem>
-												<FloatingLabelInput
-													{...field}
-													id="address_2"
-													label="Extra Address"
-												/>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-								</div>
-								<div className="relative ">
-									<FormField
-										control={form.control}
-										name="zipcode"
-										render={({ field }) => (
-											<FormItem>
-												<FloatingLabelInput
-													{...field}
-													id="zipcode"
-													label="Zip Code"
-												/>
-												<FormMessage className="" />
-											</FormItem>
-										)}
-									/>
-								</div>
-								<div className="relative">
-									<FormField
-										control={form.control}
-										name="country_id"
-										render={({ field }) => (
-											<FormItem className="flex flex-col w-full">
-												<Popover>
-													<PopoverTrigger asChild>
-														<FormControl>
-															<Button
-																variant="outline"
-																role="combobox"
-																className={cn(
-																	"justify-between !font-normal",
-																	!field.value && "text-muted-foreground focus:border-primary "
-																)}
-															>
-																{field.value
-																	? countries?.find(
-																			(country: CountryTypes) =>
-																				country.id === field.value // Compare with numeric value
-																		)?.country // Display country name if selected
-																	: "Select country*"}
-																<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-															</Button>
-														</FormControl>
-													</PopoverTrigger>
-													<PopoverContent className="p-0">
-														<Command>
-															<CommandList>
-																<CommandInput placeholder="Select Country" />
-																<CommandEmpty>No country found.</CommandEmpty>
-																<CommandGroup>
-																	{countries &&
-																		countries.map((country: CountryTypes) => (
-																			<CommandItem
-																				value={country.country}
-																				key={country.id}
-																				onSelect={() => {
-																					form.setValue(
-																						"country_id",
-																						country.id // Set country_id to country.id as number
-																					);
-																				}}
-																			>
-																				<Check
-																					className={cn(
-																						"mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-																						country.id === field.value
-																							? "opacity-100"
-																							: "opacity-0"
-																					)}
-																				/>
-																				{country.country}{" "}
-																				{/* Display the country name */}
-																			</CommandItem>
-																		))}
-																</CommandGroup>
-															</CommandList>
-														</Command>
-													</PopoverContent>
-												</Popover>
-												{watcher.country_id ? <></> : <FormMessage />}
-											</FormItem>
-										)}
-									/>
-								</div>
-								<div className="relative ">
-									<FormField
-										control={form.control}
-										name="city"
-										render={({ field }) => (
-											<FormItem>
-												<FloatingLabelInput
-													{...field}
-													id="city"
-													label="City*"
-												/>
-												{watcher.city ? <></> : <FormMessage />}
-											</FormItem>
-										)}
-									/>
-								</div>
-								<div className="h-full relative">
-									<FormField
-										control={form.control}
-										name="send_invitation"
-										defaultValue={true}
-										render={({ field }) => (
-											<FormItem className="h-10 flex items-center gap-3">
-												<FormControl>
-													<Checkbox
-														checked={field.value}
-														onCheckedChange={field.onChange}
-													/>
-												</FormControl>
-												<FormLabel className="!mt-0">Send invitation</FormLabel>
-											</FormItem>
-										)}
-									/>
-								</div>
-							</div>
-							<div>
-								<h1 className="font-bold text-base">Membership and Auto Renewal</h1>
-							</div>
-							<div className="grid grid-cols-10 gap-3">
-								<div className="relative col-span-4">
-									<FormField
-									control={form.control}
-									name="membership_id"
-									rules={{
-										validate: (value) => {
-										// Ensure value is treated as a number for comparison
-										return (
-											Number(value) !== 0 || "Memberhip Plan is Required"
-										);
-										},
-									}}
-									render={({ field }) => (
-										<FormItem>
-										<Select
-											onValueChange={(value) =>
-                        handleMembershipPlanChange(Number(value))
-											}
-
-										>
-											<FormControl>
-											<SelectTrigger
-												className={`${watcher.membership_id ? "text-black" : ""}`}
-											>
-												<SelectValue
-												className="text-gray-400"
-												placeholder="Select membership plan*"
-												/>
-											</SelectTrigger>
-											</FormControl>
-											<SelectContent>
-											{membershipPlans && membershipPlans?.length ? (
-												membershipPlans.map(
-												(sourceval: membeshipsTableType) => {
-													return (
-													<SelectItem
-														key={sourceval.id}
-														value={sourceval.id?.toString()}
-													>
-														{sourceval.name}
-													</SelectItem>
-													);
-												}
-												)
-											) : (
-												<>
-												<p className="2">No Membership plan found</p>
-												</>
-											)}
-											</SelectContent>
-										</Select>
-										{watcher.membership_id ? <></> : <FormMessage />}
-										</FormItem>
-									)}
-									/>
-								</div>
-								<div className="h-full relative col-span-2">
-									<FormField
-										control={form.control}
-										name="auto_renewal"
-										render={({ field }) => (
-											<FormItem className="h-10 flex items-center gap-3">
-												<FormControl>
-													<Checkbox
-														checked={field.value}
-														onCheckedChange={field.onChange}
-													/>
-												</FormControl>
-												<FormLabel className="!mt-0">Auto renewal?</FormLabel>
-											</FormItem>
-										)}
-									/>
-								</div>
-								<div className="relative col-span-4">
-									<FormField
-									control={form.control}
-									name="prolongation_period"
-									rules={{
-										validate: (value) => {
-										// Ensure value is treated as a number for comparison
-										return (
-											Number(value) !== 0 || "Memberhip Plan is Required"
-										);
-										},
-									}}
-									render={({ field }) => {
-										console.log(form.formState.errors)
-										return <FormItem className="flex h-10 items-center gap-3">
-											<FormLabel className="text-base">Prolongation period*</FormLabel>
-											<FloatingLabelInput
-												{...field}
-												id="min_limit"
-												type="number"
-												min={1}
-												name="min_limit"
-												className="number-input w-10"
-											/>
-											{watcher.prolongation_period ? <></> : <FormMessage />}
-										</FormItem>
-										}}
-									/>
-								</div>
-								<div className="relative col-span-5">
-									<FormField
-									control={form.control}
-									name="auto_renew_days"
-									rules={{
-										validate: (value) => {
-										// Ensure value is treated as a number for comparison
-										return (
-											Number(value) !== 0 || "Memberhip Plan is Required"
-										);
-										},
-									}}
-									render={({ field }) => {
-										console.log(form.formState.errors)
-										return <FormItem className="flex h-10 items-center gap-3">
-											<FormLabel className="text-sm">Auto renewal takes place*</FormLabel>
-											<FloatingLabelInput
-												{...field}
-												id="min_limit"
-												type="number"
-												min={1}
-												name="min_limit"
-												className="number-input w-10"
-											/>
-											{watcher.auto_renew_days ? <></> : <FormMessage />}
-										<Label className="text-xs text-black/20">days before contracts runs out.</Label>
-										</FormItem>
-										}}
-									/>
-								</div>
-								<div className="relative col-span-5">
-									<FormField
-									control={form.control}
-									name="inv_days_cycle"
-									rules={{
-										validate: (value) => {
-										// Ensure value is treated as a number for comparison
-										return (
-											Number(value) !== 0 || "Memberhip Plan is Required"
-										);
-										},
-									}}
-									render={({ field }) => {
-										console.log(form.formState.errors)
-										return <FormItem className="flex h-10 items-center gap-3">
-											<FormLabel className="text-sm">Next invoice will be created *</FormLabel>
-											<FloatingLabelInput
-												{...field}
-												id="min_limit"
-												type="number"
-												min={1}
-												name="min_limit"
-												className="number-input w-10"
-											/>
-											{watcher.inv_days_cycle ? <></> : <FormMessage />}
-										<Label className="text-xs text-black/20">days before contracts runs out.</Label>
-										</FormItem>
-										}}
-									/>
-								</div>
-							</div>
+              <div>
+                <h1 className="font-bold text-base"> Address data</h1>
+              </div>
+              <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="address_1"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="address_1"
+                          label="Street Address"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="address_2"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="address_2"
+                          label="Extra Address"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="zipcode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="zipcode"
+                          label="Zip Code"
+                        />
+                        <FormMessage className="" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative">
+                  <FormField
+                    control={form.control}
+                    name="country_id"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col w-full">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "justify-between !font-normal",
+                                  !field.value &&
+                                    "text-muted-foreground focus:border-primary "
+                                )}
+                              >
+                                {field.value
+                                  ? countries?.find(
+                                      (country: CountryTypes) =>
+                                        country.id === field.value // Compare with numeric value
+                                    )?.country // Display country name if selected
+                                  : "Select country*"}
+                                <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="p-0">
+                            <Command>
+                              <CommandList>
+                                <CommandInput placeholder="Select Country" />
+                                <CommandEmpty>No country found.</CommandEmpty>
+                                <CommandGroup>
+                                  {countries &&
+                                    countries.map((country: CountryTypes) => (
+                                      <CommandItem
+                                        value={country.country}
+                                        key={country.id}
+                                        onSelect={() => {
+                                          form.setValue(
+                                            "country_id",
+                                            country.id // Set country_id to country.id as number
+                                          );
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                            country.id === field.value
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                        {country.country}{" "}
+                                        {/* Display the country name */}
+                                      </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        {watcher.country_id ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="city"
+                          label="City*"
+                        />
+                        {watcher.city ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="h-full relative">
+                  <FormField
+                    control={form.control}
+                    name="send_invitation"
+                    defaultValue={true}
+                    render={({ field }) => (
+                      <FormItem className="h-10 flex items-center gap-3">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="!mt-0">Send invitation</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <div>
+                <h1 className="font-bold text-base">
+                  Membership and Auto Renewal
+                </h1>
+              </div>
+              <div className="grid grid-cols-10 gap-3">
+                <div className="relative col-span-4">
+                  <FormField
+                    control={form.control}
+                    name="membership_id"
+                    rules={{
+                      validate: (value) => {
+                        // Ensure value is treated as a number for comparison
+                        return (
+                          Number(value) !== 0 || "Memberhip Plan is Required"
+                        );
+                      },
+                    }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={(value) =>
+                            handleMembershipPlanChange(Number(value))
+                          }
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              className={`${watcher.membership_id ? "text-black" : ""}`}
+                            >
+                              <SelectValue
+                                className="text-gray-400"
+                                placeholder="Select membership plan*"
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {membershipPlans && membershipPlans?.length ? (
+                              membershipPlans.map(
+                                (sourceval: membeshipsTableType) => {
+                                  return (
+                                    <SelectItem
+                                      key={sourceval.id}
+                                      value={sourceval.id?.toString()}
+                                    >
+                                      {sourceval.name}
+                                    </SelectItem>
+                                  );
+                                }
+                              )
+                            ) : (
+                              <>
+                                <p className="2">No Membership plan found</p>
+                              </>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        {watcher.membership_id ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="h-full relative col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="auto_renewal"
+                    render={({ field }) => (
+                      <FormItem className="h-10 flex items-center gap-3">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="!mt-0">Auto renewal?</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative col-span-4">
+                  <FormField
+                    control={form.control}
+                    name="prolongation_period"
+                    rules={{
+                      validate: (value) => {
+                        // Ensure value is treated as a number for comparison
+                        return (
+                          Number(value) !== 0 || "Memberhip Plan is Required"
+                        );
+                      },
+                    }}
+                    render={({ field }) => {
+                      console.log(form.formState.errors);
+                      return (
+                        <FormItem className="flex h-10 items-center gap-3">
+                          <FormLabel className="text-base">
+                            Prolongation period*
+                          </FormLabel>
+                          <FloatingLabelInput
+                            {...field}
+                            id="min_limit"
+                            type="number"
+                            min={1}
+                            name="min_limit"
+                            className="number-input w-10"
+                          />
+                          {watcher.prolongation_period ? (
+                            <></>
+                          ) : (
+                            <FormMessage />
+                          )}
+                        </FormItem>
+                      );
+                    }}
+                  />
+                </div>
+                <div className="relative col-span-5">
+                  <FormField
+                    control={form.control}
+                    name="auto_renew_days"
+                    rules={{
+                      validate: (value) => {
+                        // Ensure value is treated as a number for comparison
+                        return (
+                          Number(value) !== 0 || "Memberhip Plan is Required"
+                        );
+                      },
+                    }}
+                    render={({ field }) => {
+                      console.log(form.formState.errors);
+                      return (
+                        <FormItem className="flex h-10 items-center gap-3">
+                          <FormLabel className="text-sm">
+                            Auto renewal takes place*
+                          </FormLabel>
+                          <FloatingLabelInput
+                            {...field}
+                            id="min_limit"
+                            type="number"
+                            min={1}
+                            name="min_limit"
+                            className="number-input w-10"
+                          />
+                          {watcher.auto_renew_days ? <></> : <FormMessage />}
+                          <Label className="text-xs text-black/20">
+                            days before contracts runs out.
+                          </Label>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                </div>
+                <div className="relative col-span-5">
+                  <FormField
+                    control={form.control}
+                    name="inv_days_cycle"
+                    rules={{
+                      validate: (value) => {
+                        // Ensure value is treated as a number for comparison
+                        return (
+                          Number(value) !== 0 || "Memberhip Plan is Required"
+                        );
+                      },
+                    }}
+                    render={({ field }) => {
+                      console.log(form.formState.errors);
+                      return (
+                        <FormItem className="flex h-10 items-center gap-3">
+                          <FormLabel className="text-sm">
+                            Next invoice will be created *
+                          </FormLabel>
+                          <FloatingLabelInput
+                            {...field}
+                            id="min_limit"
+                            type="number"
+                            min={1}
+                            name="min_limit"
+                            className="number-input w-10"
+                          />
+                          {watcher.inv_days_cycle ? <></> : <FormMessage />}
+                          <Label className="text-xs text-black/20">
+                            days before contracts runs out.
+                          </Label>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </form>

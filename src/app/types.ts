@@ -15,6 +15,26 @@ export interface facilitiesData extends JSONObject {
 }
 
 
+export interface updateMembershipType {
+  id:number;
+  org_id: number;
+  name?: string;
+  group_id?: number;
+  description?: string;
+  status?: string;
+  access_time?: object;
+  net_price?: number;
+  discount?: number;
+  income_category_id?: number;
+  total_price?: number;
+  payment_method?: string;
+  reg_fee?: number;
+  billing_cycle?: string;
+  auto_renewal?: boolean;
+  renewal_details?: renewalData | object;
+  facilities?: facilitiesData[] | [];
+  created_by?: number;
+}
 export interface createMembershipType {
   org_id: number;
   name: string;

@@ -1,10 +1,8 @@
-import {  useRef, useState } from "react";
+import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { Header } from "./header";
 import { Toaster } from "@/components/ui/toaster";
 import "./style.css";
-import { Button } from "@/components/ui/button";
-import { MenuIcon } from "lucide-react";
 
 import {
   Accordion,

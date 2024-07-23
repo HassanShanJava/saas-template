@@ -29,7 +29,6 @@ const AutoRenewalForm = () => {
     return () => subscription.unsubscribe();
   }, [watch]);
 
-  console.log(errors,"renewal form")
 
   return (
     <div className="text-black h-full">

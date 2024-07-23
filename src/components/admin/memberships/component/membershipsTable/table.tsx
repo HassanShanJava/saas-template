@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ColumnDef,
   PaginationState,
@@ -22,30 +22,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormMessage,
-  FormControl,
-} from "@/components/ui/form";
-import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import {PlusIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -58,11 +37,10 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { membeshipsTableType, ErrorType,  } from "@/app/types";
+import { membeshipsTableType } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
 import MembershipForm from "../modal/membership-form";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
@@ -71,7 +49,21 @@ import { useGetIncomeCategoryQuery } from "@/services/incomeCategoryApi";
 import { useGetSalesTaxQuery } from "@/services/salesTaxApi";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
-const temp_bool=true
+const status = [
+  { value: "true", label: "Active", color: "bg-green-500" },
+  { value: "false", label: "Inactive", color: "bg-blue-500" },
+];
+
+const durationLabels = {
+  weekly: "Weeks",
+  monthly: "Months",
+  yearly: "Years",
+} as const;
+
+interface AccessTime {
+  duration_no: number;
+  duration_type: keyof typeof durationLabels; // ensures duration_type is one of the keys in durationLabels
+}
 
 const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -93,19 +85,12 @@ export default function MembershipsTableView() {
     isLoading,
     refetch,
   } = useGetMembershipsQuery(orgId);
-  
-  const {
-    data: groupData,
-  } = useGetGroupsQuery(orgId);
 
-  const {
-    data: incomeCatData,
-  } = useGetIncomeCategoryQuery(orgId);
+  const { data: groupData } = useGetGroupsQuery(orgId);
 
-  const {
-    data: salesTaxData,
-  } = useGetSalesTaxQuery(orgId);
+  const { data: incomeCatData } = useGetIncomeCategoryQuery(orgId);
 
+  const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -148,12 +133,6 @@ export default function MembershipsTableView() {
   //       }
   //     }
   //   };
-
-  const durationLabels={
-    "weekly":"Weeks",
-    "monthly":"Months",
-    "yearly":"Years"
-  }
 
   const membershipstableData = React.useMemo(() => {
     return Array.isArray(membershipsData) ? membershipsData : [];
@@ -201,10 +180,15 @@ export default function MembershipsTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
+  const handleStatusChange=(payload:{status:string, id:number, org_id:number})=>{
+    console.log({payload})
+
+  }
+
   const columns: ColumnDef<membeshipsTableType>[] = [
     {
       accessorKey: "name",
-      header: ({ table }) => <span>Membershiip Name</span>,
+      header: ({ table }) => <span>Membership Name</span>,
       cell: ({ row }) => {
         return <span>{row.original.name}</span>;
       },
@@ -215,7 +199,9 @@ export default function MembershipsTableView() {
       accessorKey: "group_id",
       header: ({ table }) => <span>Group</span>,
       cell: ({ row }) => {
-        const group=groupData?.filter(item=>item.value==row.original.group_id)[0]
+        const group = groupData?.filter(
+          (item) => item.value == row.original.group_id
+        )[0];
         return <span>{group?.label}</span>;
       },
       enableSorting: false,
@@ -223,11 +209,109 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "duration",
-      header: ({ table }) => <span>Group</span>,
+      header: ({ table }) => <span>Duration</span>,
       cell: ({ row }) => {
-        const {duration_no, duration_type}:any=row.original.access_time 
-        console.log({duration_no, duration_type})
+        const { duration_no, duration_type } = row.original
+          .access_time as AccessTime;
+        console.log({ duration_no, duration_type });
         return <span>{`${duration_no} ${durationLabels[duration_type]}`}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "income_category_id",
+      header: ({ table }) => <span>Income Category</span>,
+      cell: ({ row }) => {
+        const incomeCat = incomeCatData?.filter(
+          (item) => item.id == row.original.income_category_id
+        )[0];
+        return <span>{`${incomeCat?.name}`}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "net_price",
+      header: ({ table }) => <span>Net Price</span>,
+      cell: ({ row }) => {
+        const { net_price } = row.original;
+        return <span>{`Rs. ${net_price}`}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "discount",
+      header: ({ table }) => <span>Discount</span>,
+      cell: ({ row }) => {
+        const { discount } = row.original;
+
+        return <span>{`${discount.toFixed(2)}%`}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "tax_rate",
+      header: ({ table }) => <span>Tax/VAT Rate</span>,
+      cell: ({ row }) => {
+        const incomeCat = incomeCatData?.filter(
+          (item) => item.id == row.original.income_category_id
+        )[0];
+        const saleTax = salesTaxData?.filter(
+          (item) => item.id == incomeCat?.sale_tax_id
+        )[0];
+        return <span>{`SRB (${saleTax?.percentage.toFixed(2)}%) `}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "total_price",
+      header: ({ table }) => <span>Total Amount</span>,
+      cell: ({ row }) => {
+        const { total_price } = row.original;
+        return <span>{`Rs. ${total_price}`}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "status",
+      header: ({ table }) => <span>Status</span>,
+      cell: ({ row }) => {
+        const value = row.original?.status != null ? row.original?.status + "" : "false";
+        const statusLabel = status.filter((r) => r.value === value)[0];
+        const id = Number(row.original.id);
+        const org_id = Number(row.original.org_id);
+
+        return (
+          <Select
+            defaultValue={value}
+            onValueChange={(e) =>
+              handleStatusChange({ status: e, id: id, org_id: org_id })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Status" className="text-gray-400">
+                <span className="flex gap-2 items-center">
+                  <span
+                    className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
+                  ></span>
+                  <span>{statusLabel?.label}</span>
+                </span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {status.map((item) => (
+                <SelectItem key={item.value + ""} value={item.value + ""}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
       },
       enableSorting: false,
       enableHiding: false,
@@ -275,7 +359,6 @@ export default function MembershipsTableView() {
     // setFilters
   }
 
-
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
@@ -301,8 +384,7 @@ export default function MembershipsTableView() {
         </div>
         <Button
           className="bg-primary m-4 text-black gap-1 font-semibold"
-          onClick={()=>setIsDialogOpen(true)}
-
+          onClick={() => setIsDialogOpen(true)}
         >
           <PlusIcon className="h-4 w-4" />
           Create New
@@ -338,10 +420,10 @@ export default function MembershipsTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    <div className='flex space-x-2 justify-center items-center bg-white '>
-                      <div className='size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                      <div className='size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                      <div className='size-3 bg-black rounded-full animate-bounce'></div>
+                    <div className="flex space-x-2 justify-center items-center bg-white ">
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce"></div>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -376,7 +458,7 @@ export default function MembershipsTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Clients Added yet!.
+                    No records found.
                   </TableCell>
                 </TableRow>
               )}
@@ -521,8 +603,7 @@ export default function MembershipsTableView() {
         </div>
       </div>
 
-      
-      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen}/>
+      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} />
     </div>
   );
 }

@@ -416,7 +416,7 @@ export default function CreditsTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Clients Added yet!.
+                    No records found.
                   </TableCell>
                 </TableRow>
               )}

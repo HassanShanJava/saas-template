@@ -66,6 +66,9 @@ import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
 import MembershipForm from "../modal/membership-form";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
+import { useGetGroupsQuery } from "@/services/groupsApis";
+import { useGetIncomeCategoryQuery } from "@/services/incomeCategoryApi";
+import { useGetSalesTaxQuery } from "@/services/salesTaxApi";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
 const temp_bool=true
@@ -90,7 +93,18 @@ export default function MembershipsTableView() {
     isLoading,
     refetch,
   } = useGetMembershipsQuery(orgId);
+  
+  const {
+    data: groupData,
+  } = useGetGroupsQuery(orgId);
 
+  const {
+    data: incomeCatData,
+  } = useGetIncomeCategoryQuery(orgId);
+
+  const {
+    data: salesTaxData,
+  } = useGetSalesTaxQuery(orgId);
 
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -135,6 +149,11 @@ export default function MembershipsTableView() {
   //     }
   //   };
 
+  const durationLabels={
+    "weekly":"Weeks",
+    "monthly":"Months",
+    "yearly":"Years"
+  }
 
   const membershipstableData = React.useMemo(() => {
     return Array.isArray(membershipsData) ? membershipsData : [];
@@ -185,7 +204,7 @@ export default function MembershipsTableView() {
   const columns: ColumnDef<membeshipsTableType>[] = [
     {
       accessorKey: "name",
-      header: ({ table }) => <span>Category Name</span>,
+      header: ({ table }) => <span>Membershiip Name</span>,
       cell: ({ row }) => {
         return <span>{row.original.name}</span>;
       },
@@ -193,13 +212,22 @@ export default function MembershipsTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "sale_tax_id",
-      header: ({ table }) => <span>Default Tax/VAT</span>,
+      accessorKey: "group_id",
+      header: ({ table }) => <span>Group</span>,
       cell: ({ row }) => {
-        // const sales:any=salesTaxData?.filter(item=>item.id==row.original.sale_tax_id)[0]
-        // console.log({salesTaxData,sales},row.original.sale_tax_id,"sales")
-        // return <span>{sales?.name +" ("+sales?.percentage+"%)" }</span>;
-        return <span>active</span>;
+        const group=groupData?.filter(item=>item.value==row.original.group_id)[0]
+        return <span>{group?.label}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "duration",
+      header: ({ table }) => <span>Group</span>,
+      cell: ({ row }) => {
+        const {duration_no, duration_type}:any=row.original.access_time 
+        console.log({duration_no, duration_type})
+        return <span>{`${duration_no} ${durationLabels[duration_type]}`}</span>;
       },
       enableSorting: false,
       enableHiding: false,

@@ -63,6 +63,7 @@ import {
   CountryTypes,
   ErrorType,
   membershipplanTypes,
+  membeshipsTableType,
   sourceTypes,
 } from "@/app/types";
 
@@ -70,13 +71,14 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Label } from "@/components/ui/label";
 import {
 	useGetAllBusinessesQuery,
-	useGetAllMembershipsQuery,
 	useGetAllSourceQuery,
 	useGetCountriesQuery,
 	useGetCoachesQuery,
 	useGetMemberCountQuery,
 	useAddMemberMutation
 } from "@/services/memberAPi";
+
+import { useGetMembershipsQuery } from "@/services/membershipsApi";
 
 const AddMemberForm: React.FC = () => {
   const [counter, setCounter] = React.useState(0);
@@ -186,7 +188,7 @@ const AddMemberForm: React.FC = () => {
   const { data: coaches } = useGetCoachesQuery(orgId);
 
   const { data: sources } = useGetAllSourceQuery();
-  const { data: membershipPlans } = useGetAllMembershipsQuery(orgId);
+  const { data: membershipPlans } = useGetMembershipsQuery(orgId);
 
   const [loading, setLoading] = React.useState(true);
 
@@ -850,8 +852,8 @@ const AddMemberForm: React.FC = () => {
 																variant="outline"
 																role="combobox"
 																className={cn(
-																	"justify-between",
-																	!field.value && "text-muted-foreground"
+																	"justify-between !font-normal",
+																	!field.value && "text-muted-foreground focus:border-primary "
 																)}
 															>
 																{field.value
@@ -961,7 +963,7 @@ const AddMemberForm: React.FC = () => {
 											onValueChange={(value) =>
 											field.onChange(Number(value))
 											}
-											value={field.value?.toString() || "0"}
+
 										>
 											<FormControl>
 											<SelectTrigger
@@ -969,18 +971,14 @@ const AddMemberForm: React.FC = () => {
 											>
 												<SelectValue
 												className="text-gray-400"
-												placeholder="Select Membership plan*"
+												placeholder="Select membership plan*"
 												/>
 											</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-											<SelectItem value="0">
-												Select Membership plan*
-											</SelectItem>{" "}
 											{membershipPlans && membershipPlans?.length ? (
 												membershipPlans.map(
-												(sourceval: membershipplanTypes) => {
-													// console.log(field.value);
+												(sourceval: membeshipsTableType) => {
 													return (
 													<SelectItem
 														key={sourceval.id}

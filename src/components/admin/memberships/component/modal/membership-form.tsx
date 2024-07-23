@@ -138,8 +138,9 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
   const handleNext = async () => {
     const isStepValid = await trigger(undefined, { shouldFocus: true });
     // for check on limited_Access_Data after submiting
-    if(activeStep==1){
-      const limited_access_data=getValues("limited_access_data")
+    const access_type=getValues("access_type")
+    const limited_access_data=getValues("limited_access_data")
+    if(activeStep==1 && access_type=='limited-access'){
       const check=limited_access_data.some((day:any) => day?.from != "" && day?.to != "")
       const checkFrom=limited_access_data.some((day:any) => day?.from != "" && day?.to == "")
       const checkTo=limited_access_data.some((day:any) => day?.from == "" && day?.to != "")

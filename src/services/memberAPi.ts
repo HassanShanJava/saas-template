@@ -53,14 +53,6 @@ export const MemberAPi = apiSlice.injectEndpoints({
 				},
 			}),
 		}),
-		getAllMemberships: builder.query<membershipplanTypes[], number>({
-			query: (org_id) => ({
-				url: `/membership_plan/get_all/${org_id}`,
-				headers: {
-					Accept: "application/json",
-				},
-			}),
-		}),
 		getAllMember: builder.query<MemberTabletypes[], number>({
 			query: (org_id) => ({
 				url: `/client/filter/?org_id=${org_id}`,

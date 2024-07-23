@@ -161,6 +161,7 @@ const AddMemberForm: React.FC = () => {
         message: "membership plan is required",
       }),
     send_invitation: z.boolean().default(true).optional(),
+    auto_renewal: z.boolean().default(false).optional(),
     status: z.string().default("pending"),
     client_since: z
       .string()
@@ -267,7 +268,7 @@ const AddMemberForm: React.FC = () => {
     //    });
 
     try {
-      let resp = await addMember(updatedData).unwrap();
+      const resp = await addMember(updatedData).unwrap();
       refetch();
       //   console.log(resp);
       //   form.reset({
@@ -326,8 +327,10 @@ const AddMemberForm: React.FC = () => {
 
   React.useEffect(() => {
     if (orgName) {
-      const total = memberCountData?.total_clients!;
-      form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total + 1}`);
+      const total = memberCountData?.total_clients;
+      if(total){
+        form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total + 1}`);
+      }
     }
   }, [memberCountData, orgName]);
 
@@ -1004,7 +1007,7 @@ const AddMemberForm: React.FC = () => {
 								<div className="h-full relative col-span-2">
 									<FormField
 										control={form.control}
-										name="send_invitation"
+										name="auto_renewal"
 										defaultValue={true}
 										render={({ field }) => (
 											<FormItem className="h-10 flex items-center gap-3">

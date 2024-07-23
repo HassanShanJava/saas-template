@@ -202,7 +202,7 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
             <div className="flex justify-center space-x-[20px]">
               <Button
                 type="button"
-                className="w-[100px] text-center flex items-center gap-2"
+                className="w-[100px] text-center flex items-center gap-2 border-primary"
                 variant={"outline"}
                 onClick={handleClose}
               >
@@ -212,7 +212,7 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
 
               {activeStep > 1 && (
                 <Button
-                  className="w-[100px] px-2 text-center flex items-center gap-2"
+                  className="w-[100px] px-2 text-center flex items-center gap-2 border-primary"
                   type="button"
                   variant={"outline"}
                   onClick={handleBack}

@@ -26,8 +26,8 @@ import {
 } from "@/components/ui/select";
 import { getRolesType, MemberTabletypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RootState } from "@/app/store";
-import { useSelector } from "react-redux";
+import { RootState, AppDispatch } from "@/app/store";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useGetRolesQuery } from "@/services/rolesApi";
 import { RoleForm } from "./../../roleform/form";
@@ -42,43 +42,6 @@ export default function RoleTableView() {
     refetch,
     error,
   } = useGetRolesQuery(orgId);
-
-  // const rolesData: any = [];
-
-  const [formData, setFormData] = useState<any>({
-    status: "",
-    name: "",
-    org_id: orgId,
-  });
-
-  const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null); // State to track the selected role
-
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const handleCloseDailog = () => setIsDialogOpen(false);
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    console.log({ name, value }, "name,value");
-    let finalValue: number | string = value;
-    if (name == "min_limit") {
-      finalValue = Number(value);
-    }
-    setFormData((prevData: any) => {
-      const updatedData = { ...prevData, [name]: finalValue };
-      console.log("After update:", updatedData);
-      return updatedData;
-    });
-  };
-
-  const handleAddRole = () => {
-    console.log("Before update:", formData);
-    setFormData((prevData: any) => {
-      const updatedData = { ...prevData, case: "add" };
-      console.log("After update:", updatedData);
-      return updatedData;
-    });
-    setIsDialogOpen(true);
-  };
 
   const moduleData = [
     {
@@ -208,46 +171,82 @@ export default function RoleTableView() {
   }, [rolesData]);
   console.log("data", { rolesData, error });
 
+  const [selectedRoleId, setSelectedRoleId] = useState<string | undefined>(""); // 0 can be the default for "Select a role"
+
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedId = event.target.value;
+    console.log("Selected Role ID:", selectedId);
+    // const role = rolesData?.find((r) => r.name === selectedId);
+    // console.log(role);
+    setSelectedRoleId(selectedId);
+    //  dispatch(selectedRoleId(selectedId));
+  };
+  const [formData, setFormData] = useState<any>({
+    status: "",
+    name: "",
+    org_id: orgId,
+  });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const handleCloseDailog = () => setIsDialogOpen(false);
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    console.log({ name, value }, "name,value");
+    let finalValue: number | string = value;
+    if (name == "min_limit") {
+      finalValue = Number(value);
+    }
+    setFormData((prevData: any) => {
+      const updatedData = { ...prevData, [name]: finalValue };
+      console.log("After update:", updatedData);
+      return updatedData;
+    });
+  };
+
+  const handleAddRole = () => {
+    console.log("Before update:", formData);
+    setFormData((prevData: any) => {
+      const updatedData = { ...prevData, case: "add" };
+      console.log("After update:", updatedData);
+      return updatedData;
+    });
+    setIsDialogOpen(true);
+  };
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-5 ">
         <div className="flex flex-1 items-center space-x-2">
           <div className="flex items-center  relative">
-            <Select
-              value={selectedRoleId || undefined} // Set the current selected value
-              onValueChange={(value) => setSelectedRoleId(value)}
+            <select
+              id="role-select"
+              value={selectedRoleId !== null ? selectedRoleId : 0} // Ensure a controlled component by using 0 for no selection
+              onChange={handleChange}
+              className="w-48 h-10 border border-gray-300 rounded-md px-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <SelectTrigger className="w-[220px]">
-                <SelectValue placeholder="Select a Role" />
-              </SelectTrigger>
-              <SelectContent>
-                {/* <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="system">System</SelectItem> */}
-                {rolesData && rolesData.length > 0 ? (
-                  rolesData?.map((sourceval: getRolesType) => {
-                    // console.log(field.value);
-                    return (
-                      <SelectItem
-                        key={sourceval.id}
-                        value={sourceval.id?.toString()}
-                      >
-                        {sourceval.name}
-                      </SelectItem>
-                    );
-                  })
-                ) : (
-                  <>
-                    <p className="p-2"> No Roles Found.</p>
-                  </>
-                )}
-              </SelectContent>
-            </Select>
+              {rolesData && rolesData.length ? (
+                <>
+                  <option value={0} disabled>
+                    Select a role
+                  </option>
+                  {rolesData &&
+                    rolesData.map((role: getRolesType) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name}
+                      </option>
+                    ))}
+                </>
+              ) : (
+                <option value={0} disabled>
+                  No roles available
+                </option>
+              )}
+            </select>
           </div>
           <div className="">
             <Button
               variant={"outline"}
               className="gap-2 text-lg justify-center items-center flex"
+              // disabled={!selectedRoleId}
             >
               <FaEdit className="text-gray-500 h-5 w-5" />
               Edit

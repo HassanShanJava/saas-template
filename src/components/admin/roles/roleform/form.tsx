@@ -364,7 +364,63 @@ export const RoleForm = ({
                         {" "}
                         Module Access
                       </h1>
-
+                      <div className="rounded-md border border-border ">
+                        <ScrollArea className="w-full relative h-96">
+                          <ScrollBar orientation="vertical" />
+                          <Table className="w-full ">
+                            <TableHeader className="bg-outletcolor sticky top-0 z-40">
+                              {table?.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                  {headerGroup.headers.map((header) => (
+                                    <TableHead key={header.id}>
+                                      {header.isPlaceholder
+                                        ? null
+                                        : flexRender(
+                                            header.column.columnDef.header,
+                                            header.getContext()
+                                          )}
+                                    </TableHead>
+                                  ))}
+                                </TableRow>
+                              ))}
+                            </TableHeader>
+                            {/* <TableBody>
+                              {table.getRowModel().rows.map((row) => (
+                                <TableRow
+                                  key={row.id}
+                                  data-state={row.getIsSelected() && "selected"}
+                                >
+                                  {row.getVisibleCells().map((cell) => (
+                                    <TableCell key={cell.id}>
+                                      {flexRender(
+                                        cell.column.columnDef.cell,
+                                        cell.getContext()
+                                      )}
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                              ))}
+                            </TableBody> */}
+                            {/* <TableBody>
+                              {table.getRowModel().rows.map((row) => (
+                                <TableRow
+                                  key={row.id}
+                                  data-state={row.getIsSelected() && "selected"}
+                                >
+                                  {row.getVisibleCells().map((cell) => (
+                                    <TableCell key={cell.id}>
+                                      {flexRender(
+                                        cell.column.columnDef.cell,
+                                        cell.getContext()
+                                      )}
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                              ))}
+                            </TableBody> */}
+                          </Table>
+                        </ScrollArea>
+                      </div>
                       {/* <div className="rounded-md border border-border ">
                         <ScrollArea className="w-full relative h-96">
                           <ScrollBar orientation="vertical" />

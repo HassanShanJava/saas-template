@@ -221,6 +221,8 @@ const AddMemberForm: React.FC = () => {
       is_business: false,
       own_member_id: "",
       prolongation_period: 1,
+      auto_renewal:false,
+      send_invitation:false,
     },
     mode: "onChange",
   });
@@ -231,6 +233,14 @@ const AddMemberForm: React.FC = () => {
     // Update state to trigger re-render
     setCounter(counter + 1); // Incrementing state to force a re-render
   };
+
+  // set auto_renewal
+  const handleMembershipPlanChange=(value:number)=>{
+    form.setValue("membership_id",value)
+    const data=membershipPlans?.filter(item=>item.id==value)[0]
+    form.setValue("auto_renewal",data?.auto_renewal)
+  }
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     const updatedData = {
       ...data,
@@ -462,12 +472,12 @@ const AddMemberForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-													defaultValue="male"
                           onValueChange={(value: "male" | "female" | "other") => form.setValue("gender", value)}
+
                         >
                           <FormControl>
                             <SelectTrigger
-															floatingLabel="Gender"
+															floatingLabel="Gender*"
                               className={`${watcher.gender ? "text-black" : ""}`}
                             >
                               <SelectValue placeholder="Select Gender" />
@@ -479,7 +489,7 @@ const AddMemberForm: React.FC = () => {
 														<SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
-                        {watcher.source_id ? <></> : <FormMessage />}
+                        {watcher.gender ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -964,7 +974,7 @@ const AddMemberForm: React.FC = () => {
 										<FormItem>
 										<Select
 											onValueChange={(value) =>
-											field.onChange(Number(value))
+                        handleMembershipPlanChange(Number(value))
 											}
 
 										>
@@ -1008,7 +1018,6 @@ const AddMemberForm: React.FC = () => {
 									<FormField
 										control={form.control}
 										name="auto_renewal"
-										defaultValue={true}
 										render={({ field }) => (
 											<FormItem className="h-10 flex items-center gap-3">
 												<FormControl>

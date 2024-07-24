@@ -43,60 +43,9 @@ export default function RoleTableView() {
     error,
   } = useGetRolesQuery(orgId);
 
-  const moduleData = [
-    {
-      name: "Client",
-      access: "read",
-    },
-    {
-      name: "Leads",
-      access: "write",
-    },
-    {
-      name: "Staff",
-      access: "full_access",
-    },
-    {
-      name: "Coaches",
-      access: "no_access",
-    },
-    {
-      name: "Check In",
-      access: "read",
-    },
-    {
-      name: "Workout Plan",
-      access: "write",
-    },
-    {
-      name: "Events and Scheduling",
-      access: "full_access",
-    },
-    {
-      name: "Meal Plan",
-      access: "no_access",
-    },
-    {
-      name: "Challenge",
-      access: "read",
-    },
-    {
-      name: "Groups",
-      access: "write",
-    },
-    {
-      name: "Credits",
-      access: "full_access",
-    },
-    {
-      name: "Sales",
-      access: "no_access",
-    },
-    {
-      name: "Income Category",
-      access: "read",
-    },
-  ];
+  const [selectedRole, setSelectedRole]=useState({})
+
+  
 
   const columns: ColumnDef<any>[] = [
     {
@@ -161,7 +110,7 @@ export default function RoleTableView() {
   ];
 
   const table = useReactTable({
-    data: moduleData,
+    data: rolesData as getRolesType[],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -213,14 +162,16 @@ export default function RoleTableView() {
     setIsDialogOpen(true);
   };
 
+
+ 
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-5 ">
         <div className="flex flex-1 items-center space-x-2">
           <div className="flex items-center  relative">
             <Select
-              onValueChange={(value) => handleSelctedRow(value)}
-              defaultValue={undefined}
+              // onValueChange={(value) => handleSelctedRow(value)}
+              // defaultValue={undefined}
             >
               <SelectTrigger className="w-[220px]">
                 <SelectValue placeholder="Select a Role" />
@@ -231,11 +182,11 @@ export default function RoleTableView() {
                 <SelectItem value="system">System</SelectItem> */}
                 {rolesData && rolesData.length > 0 ? (
                   rolesData?.map((sourceval: getRolesType) => {
-                    // console.log(field.value);
+                    console.log({sourceval});
                     return (
                       <SelectItem
-                        key={sourceval.id}
-                        value={sourceval.id?.toString()}
+                        key={sourceval.role_id}
+                        value={sourceval.role_id?.toString()}
                       >
                         {sourceval.name}
                       </SelectItem>
@@ -248,36 +199,12 @@ export default function RoleTableView() {
                 )}
               </SelectContent>
             </Select>
-            {/* <select
-              id="role-select"
-              value={selectedRoleId !== null ? selectedRoleId : 0} // Ensure a controlled component by using 0 for no selection
-              onChange={handleChange}
-              className="w-48 h-10 border border-gray-300 rounded-md px-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {rolesData && rolesData.length ? (
-                <>
-                  <option value={0} disabled>
-                    Select a role
-                  </option>
-                  {rolesData &&
-                    rolesData.map((role: getRolesType) => (
-                      <option key={role.id} value={role.id}>
-                        {role.name}
-                      </option>
-                    ))}
-                </>
-              ) : (
-                <option value={0} disabled>
-                  No roles available
-                </option>
-              )}
-            </select> */}
           </div>
           <div className="">
             <Button
               variant={"outline"}
               className="gap-2 text-lg justify-center items-center flex"
-              // disabled={!selectedRoleId}
+              disabled={!selectedRoleId}
             >
               <FaEdit className="text-gray-500 h-5 w-5" />
               Edit
@@ -313,7 +240,7 @@ export default function RoleTableView() {
               ))}
             </TableHeader>
             <TableBody>
-              {true ? (
+              {isLoading ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -370,7 +297,7 @@ export default function RoleTableView() {
         data={formData}
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={handleCloseDailog}
-        refetch={() => {}}
+        refetch={refetch}
         setFormData={setFormData}
         handleOnChange={handleOnChange}
       />

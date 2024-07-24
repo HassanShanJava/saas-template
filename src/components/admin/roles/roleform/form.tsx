@@ -214,7 +214,6 @@ export const RoleForm = ({
     },
   ];
 
-  // const moduleData=[]
   const columns: ColumnDef<any>[] = [
     {
       accessorKey: "name",
@@ -364,103 +363,94 @@ export const RoleForm = ({
                         {" "}
                         Module Access
                       </h1>
-                      <div className="rounded-md border border-border ">
-                        <ScrollArea className="w-full relative h-96">
-                          <ScrollBar orientation="vertical" />
-                          <Table className="w-full ">
-                            <TableHeader className="bg-outletcolor sticky top-0 z-40">
+                      <div className="rounded-none  ">
+                        <ScrollArea className="w-full relative">
+                          <ScrollBar orientation="horizontal" />
+                          <Table
+                            className=""
+                            containerClassname="h-fit max-h-80 overflow-y-auto relative custom-scrollbar "
+                          >
+                            <TableHeader className="bg-gray-100 sticky top-0 z-50">
                               {table?.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
-                                  {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id}>
-                                      {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext()
-                                          )}
-                                    </TableHead>
-                                  ))}
+                                  {headerGroup.headers.map((header) => {
+                                    return (
+                                      <TableHead
+                                        key={header.id}
+                                        style={{
+                                          minWidth:
+                                            header.column.columnDef.size,
+                                          maxWidth:
+                                            header.column.columnDef.size,
+                                        }}
+                                      >
+                                        {header.isPlaceholder
+                                          ? null
+                                          : flexRender(
+                                              header.column.columnDef.header,
+                                              header.getContext()
+                                            )}
+                                      </TableHead>
+                                    );
+                                  })}
                                 </TableRow>
                               ))}
                             </TableHeader>
-                            {/* <TableBody>
-                              {table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                  key={row.id}
-                                  data-state={row.getIsSelected() && "selected"}
-                                >
-                                  {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
-                                      {flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext()
-                                      )}
-                                    </TableCell>
-                                  ))}
+                            <TableBody className="">
+                              {isLoading ? (
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={columns.length}
+                                    className="h-24 text-center "
+                                  >
+                                    <div className="flex space-x-2 justify-center items-center bg-white ">
+                                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                                      <div className="size-3 bg-black rounded-full animate-bounce"></div>
+                                    </div>
+                                  </TableCell>
                                 </TableRow>
-                              ))}
-                            </TableBody> */}
-                            {/* <TableBody>
-                              {table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                  key={row.id}
-                                  data-state={row.getIsSelected() && "selected"}
-                                >
-                                  {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
-                                      {flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext()
-                                      )}
-                                    </TableCell>
-                                  ))}
+                              ) : table.getRowModel().rows.length ? (
+                                table.getRowModel().rows.map((row) => (
+                                  <TableRow
+                                    key={row.id}
+                                    data-state={
+                                      row.getIsSelected() && "selected"
+                                    }
+                                  >
+                                    {row.getVisibleCells().map((cell) => (
+                                      <TableCell key={cell.id}>
+                                        {flexRender(
+                                          cell.column.columnDef.cell,
+                                          cell.getContext()
+                                        )}
+                                      </TableCell>
+                                    ))}
+                                  </TableRow>
+                                ))
+                              ) : creditstableData.length > 0 ? (
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={columns.length}
+                                    className="h-24 text-center"
+                                  >
+                                    No data found.
+                                  </TableCell>
                                 </TableRow>
-                              ))}
-                            </TableBody> */}
-                          </Table>
-                        </ScrollArea>
-                      </div>
-                      {/* <div className="rounded-md border border-border ">
-                        <ScrollArea className="w-full relative h-96">
-                          <ScrollBar orientation="vertical" />
-                          <Table className="w-full ">
-                            <TableHeader className="bg-outletcolor sticky top-0 z-40">
-                              {table?.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                  {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id}>
-                                      {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext()
-                                          )}
-                                    </TableHead>
-                                  ))}
+                              ) : (
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={columns.length}
+                                    className="h-24 text-center"
+                                  >
+                                    No data available
+                                  </TableCell>
                                 </TableRow>
-                              ))}
-                            </TableHeader>
-                            <TableBody>
-                              {table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                  key={row.id}
-                                  data-state={row.getIsSelected() && "selected"}
-                                >
-                                  {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
-                                      {flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext()
-                                      )}
-                                    </TableCell>
-                                  ))}
-                                </TableRow>
-                              ))}
+                              )}
                             </TableBody>
                           </Table>
                         </ScrollArea>
-                      </div> */}
+                      </div>
                     </div>
                     <div className="flex flex-row gap-2 w-full p-4">
                       <Button

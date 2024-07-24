@@ -348,7 +348,7 @@ export interface getRolesType {
   name: string;
   org_id: number;
   is_deleted: boolean;
-  id: number;
+  role_id: number;
 }
 
 export interface createRole{

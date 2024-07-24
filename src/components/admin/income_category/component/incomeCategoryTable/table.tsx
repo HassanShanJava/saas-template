@@ -166,7 +166,6 @@ export default function IncomeCategoryTableView() {
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log({ name, value }, "name,value");
     let finalValue: number | string = value;
     if (name == "sale_tax_id") {
       finalValue = Number(value);
@@ -376,7 +375,7 @@ export default function IncomeCategoryTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Clients Added yet!.
+                    No records found.
                   </TableCell>
                 </TableRow>
               )}

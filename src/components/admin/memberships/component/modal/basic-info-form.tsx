@@ -20,7 +20,6 @@ import {
   useCreateGroupsMutation,
   useGetGroupsQuery,
 } from "@/services/groupsApis";
-import { toast } from "sonner";
 import { useToast } from "@/components/ui/use-toast";
 
 const status = [
@@ -69,15 +68,17 @@ const BasicInfoForm = () => {
 
   const [limitedAccessDays, setLimitedAccessDays] = useState<
     limitedAccessDaysTypes[]
-  >([
-    { id: 1, day: "monday", from: "", to: "" },
-    { id: 2, day: "tuesday", from: "", to: "" },
-    { id: 3, day: "wednesday", from: "", to: "" },
-    { id: 4, day: "thursday", from: "", to: "" },
-    { id: 5, day: "friday", from: "", to: "" },
-    { id: 6, day: "saturday", from: "", to: "" },
-    { id: 7, day: "sunday", from: "", to: "" },
-  ]);
+  >(
+    (getValues("limited_access_data") as limitedAccessDaysTypes[]) || [
+      { id: 1, day: "monday", from: "", to: "" },
+      { id: 2, day: "tuesday", from: "", to: "" },
+      { id: 3, day: "wednesday", from: "", to: "" },
+      { id: 4, day: "thursday", from: "", to: "" },
+      { id: 5, day: "friday", from: "", to: "" },
+      { id: 6, day: "saturday", from: "", to: "" },
+      { id: 7, day: "sunday", from: "", to: "" },
+    ]
+  );
 
   // useEffect(() => {
   //   const initialData = getValues();
@@ -225,8 +226,6 @@ const BasicInfoForm = () => {
     setInputValue(e.target.value);
   };
 
-  console.log(errors, "basic form");
-
   return (
     <div className="text-black h-full">
       <h1 className="font-semibold text-[#2D374] text-xl">Basic Information</h1>
@@ -251,6 +250,7 @@ const BasicInfoForm = () => {
                   onValueChange={(value) => {
                     onChange(value);
                   }}
+                  defaultValue={value ? value + "" : undefined}
                   disabled={isFetching}
                 >
                   <SelectTrigger name="group_id" floatingLabel="Group*">
@@ -296,7 +296,11 @@ const BasicInfoForm = () => {
                           disabled={!isUninitialized}
                           className="absolute right-3 bg-primary text-black font-semibold rounded-lg  px-1.5 "
                         >
-                          <i className=" fa-regular fa-floppy-disk text-lg "></i>
+                          {groupCreateLoading ? (
+                            <i className=" fa fa-circle-notch animate-spin text-base p-0.5 "></i>
+                          ) : (
+                            <i className=" fa-regular fa-floppy-disk text-lg "></i>
+                          )}
                         </button>
                       </form>
                     )}
@@ -328,7 +332,10 @@ const BasicInfoForm = () => {
             console.log({ value, error });
             const statusLabel = status.filter((r) => r.value == value)[0];
             return (
-              <Select onValueChange={(value) => onChange(value)}>
+              <Select
+                onValueChange={(value) => onChange(value)}
+                defaultValue={value}
+              >
                 <SelectTrigger floatingLabel="Status*">
                   <SelectValue
                     placeholder="Select status"
@@ -369,7 +376,7 @@ const BasicInfoForm = () => {
             }) => (
               <div>
                 <RadioGroup
-                  defaultValue=""
+                  defaultValue={value}
                   className="flex items-center gap-4"
                   onValueChange={onChange}
                 >
@@ -410,7 +417,10 @@ const BasicInfoForm = () => {
                   value={value}
                 >
                   <SelectTrigger name="duration_type">
-                    <SelectValue placeholder="Select duration" defaultValue={undefined} />
+                    <SelectValue
+                      placeholder="Select duration"
+                      defaultValue={undefined}
+                    />
                   </SelectTrigger>
                   {invalid && (
                     <span className="text-destructive block !mt-[5px] text-[12px]">

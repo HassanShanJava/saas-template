@@ -42,7 +42,7 @@ export function DataTableRowActions({
       org_id: data.org_id,
     };
     try {
-      const resp = await deleteMembership(payload).unwrap();
+      const resp = await deleteMembership(data).unwrap();
       if (resp) {
         console.log({ resp });
         refetch();
@@ -72,6 +72,7 @@ export function DataTableRowActions({
     }
   };
 
+  console.log(data,"edit row")
   return (
     <>
       <Dialog>

@@ -72,6 +72,7 @@ export function DataTableRowActions({
     }
   };
 
+  console.log(data,"edit row")
   return (
     <>
       <Dialog>

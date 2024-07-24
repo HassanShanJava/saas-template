@@ -45,7 +45,7 @@ const PriceDiscountTaxForm = () => {
         (item) => item.id == salesTaxId.sale_tax_id
       );
       console.log(salesTaxId.sale_tax_id,salesData,"incomeCategory")
-      if (salesData) {
+      if (salesData && netPrice) {
         const taxRate = salesData.percentage;
         const discountedPrice = netPrice * (1 - discountPercentage / 100);
         const taxAmount = (taxRate / 100) * discountedPrice;
@@ -108,6 +108,7 @@ const PriceDiscountTaxForm = () => {
                 onValueChange={(value) => {
                   handleIncomeCategory(Number(value))
                 }}
+                defaultValue={value}
               >
                 <SelectTrigger
                   name="income_category_id"

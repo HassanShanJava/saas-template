@@ -10,18 +10,27 @@ import PriceDiscountTaxForm from "./prices-form";
 import AutoRenewalForm from "./renewal-form";
 import { useToast } from "@/components/ui/use-toast";
 import CreditDetailsForm from "./credit-details-form";
-import { useCreateMembershipsMutation, useUpdateMembershipsMutation } from "@/services/membershipsApi";
+import {
+  useCreateMembershipsMutation,
+  useUpdateMembershipsMutation,
+} from "@/services/membershipsApi";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { ErrorType } from "@/app/types";
+import { ErrorType, membeshipsTableType } from "@/app/types";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 // import { motion, AnimatePresence } from 'framer-motion';
 
 interface membershipFormTypes {
   isOpen: boolean;
   setIsOpen: any;
+  setAction: any;
+  setData: any;
+  data?: membeshipsTableType;
+  refetch: any;
+  action: "add" | "edit";
 }
 
 interface membershipFromTypes {
@@ -45,7 +54,51 @@ const getStepContent = (step: number) => {
   return Component ? <Component /> : null;
 };
 
-const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
+const infoLabels = [
+  { label: "Basic Information and Scope", key: 1 },
+  { label: "Price, Discounts, and Tax Details", key: 2 },
+  { label: "Renewal and Billing Cycle", key: 3 },
+  { label: "Credit details", key: 4 },
+];
+
+const defaultValue = {
+  name: "",
+  group_id: null,
+  description: "",
+  status: "false",
+  access_type: "no-restriction",
+  limited_access_data: [],
+  duration_type: "",
+  duration_no: null,
+  org_id: null,
+  created_by: null,
+  net_price: null,
+  discount: null,
+  income_category_id: undefined,
+  tax_rate: null,
+  tax_amount: null,
+  total_price: null,
+  payment_method: "",
+  reg_fee: null,
+  billing_cycle: "",
+  auto_renewal: false,
+  prolongation_period: null,
+  days_before: null,
+  next_invoice: null,
+  renewal_details: {},
+  facilities: [],
+  id: null,
+};
+
+const MembershipForm = ({
+  isOpen,
+  setIsOpen,
+  data,
+  action,
+  setAction,
+  setData,
+  refetch,
+}: membershipFormTypes) => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const userId =
@@ -54,7 +107,10 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
   const { toast } = useToast();
   const [activeStep, setActiveStep] = useState(1);
   const [erroredInputName, setErroredInputName] = useState("");
-  const methods = useForm<StepperFormValues>({ mode: "all" });
+  const methods = useForm<StepperFormValues>({
+    mode: "all",
+    defaultValues: defaultValue,
+  });
 
   const [createMemberships] = useCreateMembershipsMutation();
   const [updateMemberships] = useUpdateMembershipsMutation();
@@ -66,24 +122,42 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
     getValues,
     clearErrors,
     reset,
-    formState: { isSubmitting, errors, },
+    formState: { isSubmitting, errors },
   } = methods;
 
-  console.log(errors,"membership form")
+  console.log(errors, "membership form");
+
+  useEffect(() => {
+    if (action == "edit" && data != undefined) {
+      const updatedObject = {
+        ...data,
+        ...data?.access_time,
+        ...data?.renewal_details,
+      };
+      reset(updatedObject);
+    } else {
+      reset(defaultValue, { keepIsSubmitted: false, keepSubmitCount: false });
+    }
+  }, [data, action]);
+
   const onSubmit = async (formData: StepperFormValues) => {
     const payload = formData;
+
     // make renewal data,
-    convertStringNumbersToObject(payload)
+    convertStringNumbersToObject(payload);
     payload.org_id = orgId;
     payload.created_by = userId;
     payload.renewal_details = {};
 
-    payload.access_time={
+    payload.access_time = {
       access_type: payload.access_type,
       duration_no: payload.duration_no,
       duration_type: payload.duration_type,
-      limited_access_data: (payload.limited_access_data).length>0?payload.limited_access_data:[]
-    }
+      limited_access_data:
+        payload.limited_access_data.length > 0
+          ? payload.limited_access_data
+          : [],
+    };
 
     if (payload.auto_renewal) {
       payload.renewal_details = {
@@ -91,11 +165,17 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
         next_invoice: formData.next_invoice,
         prolongation_period: formData.prolongation_period,
       };
+    }else{
+      payload.renewal_details={}
     }
 
-    if(payload.facilities.length>0){
-      const check=payload.facilities.some(item=>item.validity.duration_no==undefined||item.validity.duration_type==undefined)
-      if(check){
+    if (payload.facilities.length > 0) {
+      const check = payload.facilities.some(
+        (item) =>
+          item.validity.duration_no == undefined ||
+          item.validity.duration_type == undefined
+      );
+      if (check) {
         toast({
           variant: "destructive",
           title: "Validity is required",
@@ -106,17 +186,42 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
     console.log({ payload });
 
     try {
-      const resp = await createMemberships(payload).unwrap();
-      if (resp) {
-        console.log({ resp });
-        // refetch();
-        toast({
-          variant: "success",
-          title: "Created Successfully",
-        });
-        reset()
-        handleClose()
-        setActiveStep(1)
+      if (action == "add") {
+        const resp = await createMemberships(payload).unwrap();
+        if (resp) {
+          console.log({ resp });
+          refetch();
+          toast({
+            variant: "success",
+            title: "Created Successfully",
+          });
+          reset(defaultValue, {
+            keepIsSubmitted: false,
+            keepSubmitCount: false,
+          });
+
+          setData(undefined);
+          handleClose();
+          setActiveStep(1);
+        }
+      } else {
+        const resp = await updateMemberships(payload).unwrap();
+        if (resp) {
+          console.log({ resp });
+          refetch();
+          toast({
+            variant: "success",
+            title: "Updated Successfully",
+          });
+          reset(defaultValue, {
+            keepIsSubmitted: false,
+            keepSubmitCount: false,
+          });
+
+          setData(undefined);
+          handleClose();
+          setActiveStep(1);
+        }
       }
     } catch (error: unknown) {
       console.log("Error", error);
@@ -134,44 +239,51 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
           description: `Something Went Wrong.`,
         });
       }
+      handleClose();
+      setData(undefined);
+      setActiveStep(1);
     }
   };
 
   const handleNext = async () => {
     const isStepValid = await trigger(undefined, { shouldFocus: true });
     // for check on limited_Access_Data after submiting
-    const access_type=getValues("access_type")
-    const limited_access_data=getValues("limited_access_data")
-    if(activeStep==1 && access_type=='limited-access'){
-      const check=limited_access_data.some((day:any) => day?.from != "" && day?.to != "")
-      const checkFrom=limited_access_data.some((day:any) => day?.from != "" && day?.to == "")
-      const checkTo=limited_access_data.some((day:any) => day?.from == "" && day?.to != "")
-      console.log({check,limited_access_data})
-      if(checkFrom){
+    const access_type = getValues("access_type");
+    const limited_access_data = getValues("limited_access_data");
+    if (activeStep == 1 && access_type == "limited-access") {
+      const check = limited_access_data.some(
+        (day: any) => day?.from != "" && day?.to != ""
+      );
+      const checkFrom = limited_access_data.some(
+        (day: any) => day?.from != "" && day?.to == ""
+      );
+      const checkTo = limited_access_data.some(
+        (day: any) => day?.from == "" && day?.to != ""
+      );
+      console.log({ check, limited_access_data });
+      if (checkFrom) {
         toast({
-          variant:"destructive",
-          title:"Missing from time"
-        })
-        return;
-      }
-      
-      if(checkTo){
-        toast({
-          variant:"destructive",
-          title:"Missing till to time"
-        })
+          variant: "destructive",
+          title: "Missing from time",
+        });
         return;
       }
 
-      if(!check){
+      if (checkTo) {
         toast({
-          variant:"destructive",
-          title:"At least one day needs a time slot"
-        })
+          variant: "destructive",
+          title: "Missing till to time",
+        });
         return;
       }
-            
 
+      if (!check) {
+        toast({
+          variant: "destructive",
+          title: "At least one day needs a time slot",
+        });
+        return;
+      }
     }
     if (isStepValid) setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -181,16 +293,13 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
   };
 
   const handleClose = () => {
+    reset(defaultValue, { keepIsSubmitted: false, keepSubmitCount: false });
     clearErrors();
+    setAction("add");
+    setActiveStep(1);
+    setData(undefined);
     setIsOpen(false);
   };
-
-  const infoLabels = [
-    { label: "Basic Information and Scope", key: 1 },
-    { label: "Price, Discounts, and Tax Details", key: 2 },
-    { label: "Renewal and Billing Cycle", key: 3 },
-    { label: "Credit details", key: 4 },
-  ];
 
   return (
     <Dialog open={isOpen}>
@@ -198,6 +307,7 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
         className="w-full max-w-[1050px] h-fit flex flex-col"
         hideCloseButton
       >
+        <DialogTitle className="absolute  !display-none"></DialogTitle>
         <FormProvider {...methods}>
           <div className="flex justify-between gap-5 items-start h-[82px] pl-8 ">
             <StepperIndicator activeStep={activeStep} labels={infoLabels} />
@@ -270,13 +380,15 @@ const MembershipForm = ({ isOpen, setIsOpen }: membershipFormTypes) => {
 
 export default MembershipForm;
 
-
-
 function convertStringNumbersToObject(obj: any): void {
-  Object.keys(obj).forEach(key => {
-    if (typeof obj[key!] === 'string' && !isNaN(obj[key!]) && obj[key!].trim() !== '') {
+  Object.keys(obj).forEach((key) => {
+    if (
+      typeof obj[key!] === "string" &&
+      !isNaN(obj[key!]) &&
+      obj[key!].trim() !== ""
+    ) {
       obj[key!] = Number(obj[key!]);
-    } else if (typeof obj[key!] === 'object' && obj[key!] !== null) {
+    } else if (typeof obj[key!] === "object" && obj[key!] !== null) {
       convertStringNumbersToObject(obj[key!]);
     }
   });

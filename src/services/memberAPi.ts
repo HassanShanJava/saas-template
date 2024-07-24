@@ -3,7 +3,6 @@ import {
   BusinessTypes,
   CoachTypes,
   sourceTypes,
-  membershipplanTypes,
   MemberInputTypes,
   MemberResponseTypes,
   MemberTabletypes,

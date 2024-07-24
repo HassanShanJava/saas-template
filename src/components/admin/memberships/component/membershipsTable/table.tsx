@@ -93,6 +93,7 @@ export default function MembershipsTableView() {
   const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [action, setAction]=useState<'add'|'edit'>('add')
 
   const handleCloseDailog = () => setIsDialogOpen(false);
 
@@ -140,6 +141,7 @@ export default function MembershipsTableView() {
 
   const { toast } = useToast();
 
+  const [data, setData] = useState<membeshipsTableType|undefined>(undefined);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
   const [filters, setFilters] = useState<any>();
@@ -182,7 +184,17 @@ export default function MembershipsTableView() {
 
   const handleStatusChange=(payload:{status:string, id:number, org_id:number})=>{
     console.log({payload})
+  }
 
+  const handleEditMembership=(data:membeshipsTableType)=>{
+    const updatedObject = {
+      ...data,
+      ...data.access_time,
+      ...data.renewal_details
+    };
+    setData(updatedObject)
+    setAction('edit')
+    setIsDialogOpen(true)
   }
 
   const columns: ColumnDef<membeshipsTableType>[] = [
@@ -323,8 +335,8 @@ export default function MembershipsTableView() {
       cell: ({ row }) => (
         <DataTableRowActions
           data={row.original}
-          // refetch={refetch}
-          // handleEdit={handleEditIncomeCategory}
+          refetch={refetch}
+          handleEdit={handleEditMembership}
         />
       ),
     },
@@ -359,6 +371,12 @@ export default function MembershipsTableView() {
     // setFilters
   }
 
+  const handleOpen=()=>{
+    setAction('add')
+    setIsDialogOpen(true)
+    setData(undefined)
+  }
+
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
@@ -384,7 +402,7 @@ export default function MembershipsTableView() {
         </div>
         <Button
           className="bg-primary m-4 text-black gap-1 font-semibold"
-          onClick={() => setIsDialogOpen(true)}
+          onClick={handleOpen}
         >
           <PlusIcon className="h-4 w-4" />
           Create New
@@ -603,7 +621,7 @@ export default function MembershipsTableView() {
         </div>
       </div>
 
-      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} />
+      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} data={data} setData={setData} refetch={refetch} action={action} setAction={setAction}/>
     </div>
   );
 }

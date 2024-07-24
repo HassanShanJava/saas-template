@@ -38,6 +38,8 @@ import { useGetCreditsQuery } from "@/services/creditsApi";
 import { Search } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { useFormContext } from "react-hook-form";
+import { StepperFormValues } from "@/types/hook-stepper";
 
 interface tranformData {
   id: number;
@@ -65,6 +67,7 @@ export default function CreditsTableView({
 }) {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const { getValues } = useFormContext<StepperFormValues>();
   const { data: creditsData, isLoading } = useGetCreditsQuery(orgId);
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,17 +87,19 @@ export default function CreditsTableView({
   const [payload, setPayload] = useState<payloadData[] | undefined>([]);
 
   useEffect(() => {
-    const data = creditsData?.map((item) => ({
-      id: item.id,
-      count: 1,
-      credits: item.min_limit,
-      total_credits: item.min_limit,
-      validity: {
-        duration_type: undefined,
-        duration_no: undefined,
-      },
-    }));
-    setTransformedCredits(data);
+    
+      const data = creditsData?.map((item) => ({
+        id: item.id,
+        count: 1,
+        credits: item.min_limit,
+        total_credits: item.min_limit,
+        validity: {
+          duration_type: undefined,
+          duration_no: undefined,
+        },
+      }));
+      setTransformedCredits(data);
+    
   }, [creditsData]);
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -152,8 +157,10 @@ export default function CreditsTableView({
         .filter((item): item is payloadData => item !== null);
 
       setFacilities(selectedCredits);
+      console.log({ rowSelection, transformedCredits });
     }
   }, [rowSelection, transformedCredits]);
+
 
   const handleChangeRowSelect = (value: string, id?: number, key?: string) => {
     console.log(value, id, key, "input change");
@@ -466,4 +473,14 @@ export default function CreditsTableView({
       </div>
     </div>
   );
+}
+
+function findMatchingIndicesObject(arr1:any, arr2:any) {
+  const indicesObject:any = {};
+  arr2.forEach((item2:any, index:number) => {
+      if (arr1.some((item1:any) => item1.id === item2.id)) {
+          indicesObject[index] = true;
+      }
+  });
+  return indicesObject;
 }

@@ -1,7 +1,7 @@
 import { StepperFormKeys } from "@/lib/constants/hook-stepper-constants";
 import {renewalData,facilitiesData}from "@/app/types"
 
-type JSONValue = string | number | boolean | Date | undefined | JSONObject;
+type JSONValue = string | number | boolean | Date | undefined | null | JSONObject;
 
 export interface JSONObject {
   [x: string]: JSONValue;
@@ -28,10 +28,11 @@ export type StepperFormValues = {
     | "days_before"
     | "next_invoice"
     | "org_id"
+    | "id"
     | "group_id"
     | "income_category_id"
     | "created_by"
-    ? number
+    ? (number | null)
   : FormName extends "auto_renewal" 
       ? boolean
   : FormName extends "limited_access_data" 

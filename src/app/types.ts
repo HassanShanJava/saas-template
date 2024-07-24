@@ -1,58 +1,58 @@
 import { JSONObject } from "@/types/hook-stepper";
 
 export interface renewalData extends JSONObject {
-  days_before: number;
-  next_invoice: number;
-  prolongation_period: number;
+  days_before: number |null;
+  next_invoice: number |null;
+  prolongation_period: number |null;
 }
 export interface facilitiesData extends JSONObject {
   id: number;
-  total_credits: number;
+  total_credits: number |null;
   validity: {
-    duration_type: string | undefined;
-    duration_no: number | undefined;
+    duration_type: string | undefined | null;
+    duration_no: number | undefined |null;
   };
 }
 
 
 export interface updateMembershipType {
-  id:number;
-  org_id: number;
+  id:number | null;
+  org_id: number | null;
   name?: string;
-  group_id?: number;
+  group_id?: number | null;
   description?: string;
   status?: string;
   access_time?: object;
-  net_price?: number;
-  discount?: number;
-  income_category_id?: number;
-  total_price?: number;
+  net_price?: number | null;
+  discount?: number | null;
+  income_category_id?: number | undefined;
+  total_price?: number | null;
   payment_method?: string;
-  reg_fee?: number;
+  reg_fee?: number | null;
   billing_cycle?: string;
   auto_renewal?: boolean;
   renewal_details?: renewalData | object;
   facilities?: facilitiesData[] | [];
-  created_by?: number;
+  created_by?: number | null;
 }
 export interface createMembershipType {
-  org_id: number;
+  org_id: number | null;
   name: string;
-  group_id: number;
+  group_id: number | null;
   description: string;
   status: string;
   access_time: object;
-  net_price: number;
-  discount: number;
-  income_category_id: number;
-  total_price: number;
+  net_price: number | null;
+  discount: number | null;
+  income_category_id: number | null;
+  total_price: number | null;
   payment_method: string;
-  reg_fee: number;
+  reg_fee: number | null;
   billing_cycle: string;
   auto_renewal: boolean;
   renewal_details: renewalData | object;
   facilities: facilitiesData[] | [];
-  created_by: number;
+  created_by: number | null;
 }
 
 export interface membeshipsTableType extends createMembershipType {

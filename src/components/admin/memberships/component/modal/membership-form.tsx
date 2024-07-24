@@ -180,6 +180,7 @@ const MembershipForm = ({
           variant: "destructive",
           title: "Validity is required",
         });
+        return;
       }
     }
 

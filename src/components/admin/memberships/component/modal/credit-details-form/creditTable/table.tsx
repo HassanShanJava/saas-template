@@ -55,8 +55,8 @@ interface payloadData {
   id: number;
   total_credits: number;
   validity: {
-    duration_type: string | undefined;
-    duration_no: number | undefined;
+    duration_type: string ;
+    duration_no: number ;
   };
 }
 

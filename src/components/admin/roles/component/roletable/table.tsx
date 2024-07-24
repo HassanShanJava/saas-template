@@ -212,12 +212,43 @@ export default function RoleTableView() {
     });
     setIsDialogOpen(true);
   };
+
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-5 ">
         <div className="flex flex-1 items-center space-x-2">
           <div className="flex items-center  relative">
-            <select
+            <Select
+              onValueChange={(value) => handleSelctedRow(value)}
+              defaultValue={undefined}
+            >
+              <SelectTrigger className="w-[220px]">
+                <SelectValue placeholder="Select a Role" />
+              </SelectTrigger>
+              <SelectContent>
+                {/* <SelectItem value="light">Light</SelectItem>
+                <SelectItem value="dark">Dark</SelectItem>
+                <SelectItem value="system">System</SelectItem> */}
+                {rolesData && rolesData.length > 0 ? (
+                  rolesData?.map((sourceval: getRolesType) => {
+                    // console.log(field.value);
+                    return (
+                      <SelectItem
+                        key={sourceval.id}
+                        value={sourceval.id?.toString()}
+                      >
+                        {sourceval.name}
+                      </SelectItem>
+                    );
+                  })
+                ) : (
+                  <>
+                    <p className="p-2"> No Roles Found.</p>
+                  </>
+                )}
+              </SelectContent>
+            </Select>
+            {/* <select
               id="role-select"
               value={selectedRoleId !== null ? selectedRoleId : 0} // Ensure a controlled component by using 0 for no selection
               onChange={handleChange}
@@ -240,7 +271,7 @@ export default function RoleTableView() {
                   No roles available
                 </option>
               )}
-            </select>
+            </select> */}
           </div>
           <div className="">
             <Button

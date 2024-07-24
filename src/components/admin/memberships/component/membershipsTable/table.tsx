@@ -37,13 +37,13 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { membeshipsTableType } from "@/app/types";
+import { ErrorType, membeshipsTableType } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import MembershipForm from "../modal/membership-form";
-import { useGetMembershipsQuery } from "@/services/membershipsApi";
+import { useGetMembershipsQuery, useUpdateMembershipsMutation } from "@/services/membershipsApi";
 import { useGetGroupsQuery } from "@/services/groupsApis";
 import { useGetIncomeCategoryQuery } from "@/services/incomeCategoryApi";
 import { useGetSalesTaxQuery } from "@/services/salesTaxApi";
@@ -85,6 +85,7 @@ export default function MembershipsTableView() {
     isLoading,
     refetch,
   } = useGetMembershipsQuery(orgId);
+  const [updateMemberships]=useUpdateMembershipsMutation()
 
   const { data: groupData } = useGetGroupsQuery(orgId);
 
@@ -182,8 +183,37 @@ export default function MembershipsTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
-  const handleStatusChange=(payload:{status:string, id:number, org_id:number})=>{
+  const handleStatusChange=async(payload:{status:string, id:number, org_id:number})=>{
     console.log({payload})
+    try {
+      // payload.status=Boolean(payload.status)
+      const resp = await updateMemberships(payload).unwrap();
+      if (resp) {
+        console.log({ resp });
+        refetch();
+        toast({
+          variant: "success",
+          title: "Updated Successfully",
+        });
+      }
+    } catch (error) {
+      console.log("Error", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
+
   }
 
   const handleEditMembership=(data:membeshipsTableType)=>{
@@ -259,7 +289,7 @@ export default function MembershipsTableView() {
       cell: ({ row }) => {
         const { discount } = row.original;
 
-        return <span>{`${discount.toFixed(2)}%`}</span>;
+        return <span>{`${discount?.toFixed(2)}%`}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -381,23 +411,6 @@ export default function MembershipsTableView() {
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
-          {/* <div className="flex items-center w-[40%] gap-2 py-2 rounded-md border border-gray-300 focus-within:border-primary focus-within:ring-[1] ring-primary"> 
-              <Search className="w-6 h-6 text-gray-500" />
-              <input
-                placeholder="Search"
-                value={
-                  (table.getColumn("full_name")?.getFilterValue() as string) ??
-                  ""
-                }
-                onChange={(event) =>
-                  table
-                    .getColumn("full_name")
-                    ?.setFilterValue(event.target.value)
-                }
-                className="h-7 w-[150px] lg:w-[220px] outline-none"
-              /> 
-
-            </div> */}
           <p className="font-semibold text-2xl">Memberships</p>
         </div>
         <Button

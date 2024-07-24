@@ -3,4 +3,4 @@ export const StepperFormKeys = {
     2: ['net_price', 'discount', 'income_category_id', 'tax_rate','tax_amount','total_price','payment_method','reg_fee','billing_cycle'],
     3: ['auto_renewal','prolongation_period','days_before','next_invoice','renewal_details'], 
     4: ['facilities',"id"],
-  } as const;   
+} as const;   

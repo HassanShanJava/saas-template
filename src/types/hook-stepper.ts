@@ -30,11 +30,12 @@ export type StepperFormValues = {
     | "org_id"
     | "id"
     | "group_id"
-    | "income_category_id"
     | "created_by"
     ? (number | null)
   : FormName extends "auto_renewal" 
       ? boolean
+  : FormName extends "income_category_id"
+      ? (number | undefined)
   : FormName extends "limited_access_data" 
       ? Array<object>
       : FormName extends "renewal_data"  

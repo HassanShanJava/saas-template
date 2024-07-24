@@ -44,7 +44,7 @@ export interface createMembershipType {
   access_time: object;
   net_price: number | null;
   discount: number | null;
-  income_category_id: number | null;
+  income_category_id: number | undefined;
   total_price: number | null;
   payment_method: string;
   reg_fee: number | null;

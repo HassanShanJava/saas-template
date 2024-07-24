@@ -108,7 +108,7 @@ const PriceDiscountTaxForm = () => {
                 onValueChange={(value) => {
                   handleIncomeCategory(Number(value))
                 }}
-                defaultValue={value}
+                defaultValue={value?.toString()}
               >
                 <SelectTrigger
                   name="income_category_id"

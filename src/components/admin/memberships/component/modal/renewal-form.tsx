@@ -12,15 +12,18 @@ const AutoRenewalForm = () => {
   const orgId =
   useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;  
   
-  const [autoRenewal, setAutoRenewal] = useState<boolean | undefined>(false);
 
   const {
     control,
     formState: { errors },
     register,
+    getValues,
     trigger,
     watch,
   } = useFormContext<StepperFormValues>();
+
+  const [autoRenewal, setAutoRenewal] = useState<boolean | undefined>(getValues("auto_renewal") as boolean||false);
+
 
   useEffect(() => {
     const subscription = watch((value) => {
@@ -29,7 +32,6 @@ const AutoRenewalForm = () => {
     return () => subscription.unsubscribe();
   }, [watch]);
 
-  console.log(errors,"renewal form")
 
   return (
     <div className="text-black h-full">

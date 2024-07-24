@@ -3,7 +3,6 @@ import {
   BusinessTypes,
   CoachTypes,
   sourceTypes,
-  membershipplanTypes,
   MemberInputTypes,
   MemberResponseTypes,
   MemberTabletypes,
@@ -15,7 +14,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
   endpoints: builder => ({
 		getMemberCount: builder.query<{ total_clients: number }, number>({
 			query: (org_id) => ({
-				url: `/client/getTotalClient/${org_id}`,
+				url: `/client/getTotalClient?org_id=${org_id}`,
 				headers: {
 					Accept: "application/json",
 				},
@@ -47,7 +46,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
 		}),
 		getAllBusinesses: builder.query<BusinessTypes[], number>({
 			query: (org_id) => ({
-				url: `/client/business/${org_id}`,
+				url: `/client/business?org_id=${org_id}`,
 				headers: {
 					Accept: "application/json",
 				},
@@ -81,7 +80,6 @@ export const {
   useGetCoachesQuery,
   useGetAllSourceQuery,
   useGetAllBusinessesQuery,
-  useGetAllMembershipsQuery,
   useGetAllMemberQuery,
   useAddMemberMutation,
 } = MemberAPi;

@@ -19,10 +19,15 @@ import RolesAndAccess from "./components/admin/roles";
 import Loader from "@/components/Loader";
 import MemberPage from "./components/admin/members";
 import AddMemberForm from "./components/admin/members/memberForm/form";
+import Coach from "./components/admin/coach";
+import AddCoachForm from "./components/admin/coach/coachForm";
 
 function App() {
-	const loading = useSelector((state: RootState) => 
-	Object.values(state.api.queries).some(query => query && query.status === 'pending'))
+  const loading = useSelector((state: RootState) =>
+    Object.values(state.api.queries).some(
+      (query) => query && query.status === "pending"
+    )
+  );
   return (
     <>
       <Routes>
@@ -43,12 +48,26 @@ function App() {
             />
             <Route path="/admin/leads" index element={<Leads />} />
             <Route path="/admin/leads/addlead" index element={<LeadForm />} />
-            <Route path="/admin/leads/editlead/:id" index element={<LeadForm />} />
+            <Route
+              path="/admin/leads/editlead/:id"
+              index
+              element={<LeadForm />}
+            />
             <Route path="/admin/credits" index element={<Credits />} />
             <Route path="/admin/saleTaxes" index element={<SaleTaxes />} />
-            <Route path="/admin/incomeCategory" index element={<IncomeCategory />} />
+            <Route
+              path="/admin/incomeCategory"
+              index
+              element={<IncomeCategory />}
+            />
             <Route path="/admin/memberships" index element={<Memberships />} />
             <Route path="/admin/events" index element={<Events />} />
+            <Route path="/admin/coach" index element={<Coach />} />
+            <Route
+              path="/admin/coach/addcoach"
+              index
+              element={<AddCoachForm />}
+            />
             <Route path="/admin/roles" index element={<RolesAndAccess />} />
             <Route
               path="/admin/events/addevents"

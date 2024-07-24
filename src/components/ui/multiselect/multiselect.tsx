@@ -18,7 +18,7 @@ import React, {
 } from "react";
 
 type MultiSelectorProps = {
-  values: string[];
+  values: string[] | Array<any>;
   onValuesChange: (value: string[]) => void;
   loop?: boolean;
 } & React.ComponentPropsWithoutRef<typeof CommandPrimitive>;
@@ -86,56 +86,56 @@ const MultiSelector = ({
 
   // TODO : change from else if use to switch case statement
 
-  // const handleKeyDown = useCallback(
-  //   (e: KeyboardEvent<HTMLDivElement>) => {
-  //     const moveNext = () => {
-  //       const nextIndex = activeIndex + 1;
-  //       setActiveIndex(
-  //         nextIndex > value.length - 1 ? (loop ? 0 : -1) : nextIndex
-  //       );
-  //     };
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      const moveNext = () => {
+        const nextIndex = activeIndex + 1;
+        setActiveIndex(
+          nextIndex > value.length - 1 ? (loop ? 0 : -1) : nextIndex
+        );
+      };
 
-  //     const movePrev = () => {
-  //       const prevIndex = activeIndex - 1;
-  //       setActiveIndex(prevIndex < 0 ? value.length - 1 : prevIndex);
-  //     };
+      const movePrev = () => {
+        const prevIndex = activeIndex - 1;
+        setActiveIndex(prevIndex < 0 ? value.length - 1 : prevIndex);
+      };
 
-  //     if ((e.key === "Backspace" || e.key === "Delete") && value.length > 0) {
-  //       if (inputValue.length === 0) {
-  //         if (activeIndex !== -1 && activeIndex < value.length) {
-  //           onValueChange(value.filter((item) => item !== value[activeIndex]));
-  //           const newIndex = activeIndex - 1 < 0 ? 0 : activeIndex - 1;
-  //           setActiveIndex(newIndex);
-  //         } else {
-  //           onValueChange(
-  //             value.filter((item) => item !== value[value.length - 1])
-  //           );
-  //         }
-  //       }
-  //     } else if (e.key === "Enter") {
-  //       setOpen(true);
-  //     } else if (e.key === "Escape") {
-  //       if (activeIndex !== -1) {
-  //         setActiveIndex(-1);
-  //       } else {
-  //         setOpen(false);
-  //       }
-  //     } else if (dir === "rtl") {
-  //       if (e.key === "ArrowRight") {
-  //         movePrev();
-  //       } else if (e.key === "ArrowLeft" && (activeIndex !== -1 || loop)) {
-  //         moveNext();
-  //       }
-  //     } else {
-  //       if (e.key === "ArrowLeft") {
-  //         movePrev();
-  //       } else if (e.key === "ArrowRight" && (activeIndex !== -1 || loop)) {
-  //         moveNext();
-  //       }
-  //     }
-  //   },
-  //   [value, inputValue, activeIndex, loop]
-  // );
+      if ((e.key === "Backspace" || e.key === "Delete") && value.length > 0) {
+        if (inputValue.length === 0) {
+          if (activeIndex !== -1 && activeIndex < value.length) {
+            onValueChange(value.filter((item) => item !== value[activeIndex]));
+            const newIndex = activeIndex - 1 < 0 ? 0 : activeIndex - 1;
+            setActiveIndex(newIndex);
+          } else {
+            onValueChange(
+              value.filter((item) => item !== value[value.length - 1])
+            );
+          }
+        }
+      } else if (e.key === "Enter") {
+        setOpen(true);
+      } else if (e.key === "Escape") {
+        if (activeIndex !== -1) {
+          setActiveIndex(-1);
+        } else {
+          setOpen(false);
+        }
+      } else if (dir === "rtl") {
+        if (e.key === "ArrowRight") {
+          movePrev();
+        } else if (e.key === "ArrowLeft" && (activeIndex !== -1 || loop)) {
+          moveNext();
+        }
+      } else {
+        if (e.key === "ArrowLeft") {
+          movePrev();
+        } else if (e.key === "ArrowRight" && (activeIndex !== -1 || loop)) {
+          moveNext();
+        }
+      }
+    },
+    [value, inputValue, activeIndex, loop]
+  );
 
   return (
     <MultiSelectContext.Provider
@@ -151,7 +151,7 @@ const MultiSelector = ({
       }}
     >
       <Command
-        // onKeyDown={handleKeyDown}
+        onKeyDown={handleKeyDown}
         className={cn(
           "overflow-visible bg-transparent flex flex-col space-y-2",
           className
@@ -228,7 +228,7 @@ const MultiSelectorInput = forwardRef<
       {...props}
       ref={ref}
       value={inputValue}
-      onValueChange={activeIndex === -1 ? setInputValue : undefined}
+      onValueChange={activeIndex === -1 ? setInputValue : () => {}}
       onBlur={() => setOpen(false)}
       onFocus={() => setOpen(true)}
       onClick={() => setActiveIndex(-1)}
@@ -281,7 +281,7 @@ MultiSelectorList.displayName = "MultiSelectorList";
 
 const MultiSelectorItem = forwardRef<
   React.ElementRef<typeof CommandPrimitive.Item>,
-  { value: string } & React.ComponentPropsWithoutRef<
+  { value: { id: number; name: string } } & React.ComponentPropsWithoutRef<
     typeof CommandPrimitive.Item
   >
 >(({ className, value, children, ...props }, ref) => {

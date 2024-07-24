@@ -86,6 +86,7 @@ import {
 } from "@/services/memberAPi";
 
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
+// import { statuses } from './../../../../schema/taskSchema';
 
 const AddCoachForm: React.FC = () => {
   const [counter, setCounter] = React.useState(0);
@@ -94,7 +95,10 @@ const AddCoachForm: React.FC = () => {
 
   const creator_id =
     useSelector((state: RootState) => state.auth.userInfo?.user?.id) || 0;
-
+  const membersSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+  });
   const FormSchema = z.object({
     profile_img: z
       .string()
@@ -132,7 +136,7 @@ const AddCoachForm: React.FC = () => {
       .email("This is not a valid email."),
     phone: z.string().trim().optional(),
     mobile_number: z.string().trim().optional(),
-    members_id: z.array(z.string()).nonempty({
+    members_id: z.array(membersSchema).nonempty({
       message: "Minimum one member must be assigned", // Custom error message
     }),
     coach_status: z
@@ -250,44 +254,54 @@ const AddCoachForm: React.FC = () => {
   const watcher = form.watch();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const updatedData = {
-      ...data,
-      dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-    };
+    toast({
+      title: "You submitted the following values:",
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        </pre>
+      ),
+    });
 
-    console.log("Updated data with only date:", updatedData);
-    console.log("only once", data);
+    console.log(JSON.stringify(data, null, 2));
+    // const updatedData = {
+    //   ...data,
+    //   dob: format(new Date(data.dob!), "yyyy-MM-dd"),
+    // };
 
-    try {
-      // const resp = await addMember(updatedData).unwrap();
-      // refetch();
+    // console.log("Updated data with only date:", updatedData);
+    // console.log("only once", data);
 
-      toast({
-        variant: "success",
-        title: "Member Added Successfully ",
-      });
-      navigate("/admin/members");
-    } catch (error: unknown) {
-      console.log("Error", error);
-      if (error && typeof error === "object" && "data" in error) {
-        const typedError = error as ErrorType;
-        toast({
-          variant: "destructive",
-          title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error in form Submission",
-          description: `Something Went Wrong.`,
-        });
-      }
-    }
+    // try {
+    //   // const resp = await addMember(updatedData).unwrap();
+    //   // refetch();
+
+    //   toast({
+    //     variant: "success",
+    //     title: "Member Added Successfully ",
+    //   });
+    //   navigate("/admin/members");
+    // } catch (error: unknown) {
+    //   console.log("Error", error);
+    //   if (error && typeof error === "object" && "data" in error) {
+    //     const typedError = error as ErrorType;
+    //     toast({
+    //       variant: "destructive",
+    //       title: "Error in form Submission",
+    //       description: `${typedError.data?.detail}`,
+    //     });
+    //   } else {
+    //     toast({
+    //       variant: "destructive",
+    //       title: "Error in form Submission",
+    //       description: `Something Went Wrong.`,
+    //     });
+    //   }
+    // }
   }
 
-  function gotoMember() {
-    navigate("/admin/members");
+  function gotoCaoch() {
+    navigate("/admin/coach/");
   }
 
   React.useEffect(() => {
@@ -336,7 +350,7 @@ const AddCoachForm: React.FC = () => {
                   <div>
                     <Button
                       type={"button"}
-                      onClick={gotoMember}
+                      onClick={gotoCaoch}
                       className="gap-2 bg-transparent border border-primary text-black hover:bg-red-300 hover:text-white"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
@@ -588,47 +602,48 @@ const AddCoachForm: React.FC = () => {
                 <div className="relative">
                   <FormField
                     control={form.control}
-                    name="source_id"
+                    name="coach_status"
+                    defaultValue="pending"
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value) =>
-                            field.onChange(Number(value))
-                          }
-                          value={field.value?.toString() || "0"} // Set default to "0" for the placeholder
+                          disabled
+                          onValueChange={(
+                            value: "pending" | "active" | "inactive"
+                          ) => form.setValue("coach_status", value)}
+                          defaultValue="pending"
                         >
                           <FormControl>
                             <SelectTrigger
                               floatingLabel="Status*"
-                              className={`${watcher.source_id ? "text-black" : ""}`}
+                              className={`${watcher.coach_status ? "text-black" : ""}`}
                             >
-                              <SelectValue>
-                                {field.value === 0
-                                  ? "Select Source*"
-                                  : sources?.find(
-                                      (source) => source.id === field.value
-                                    )?.source || "Select Source*"}
-                              </SelectValue>
+                              <SelectValue placeholder="Select Coach status" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="0">Select Source*</SelectItem>{" "}
-                            {/* Placeholder option */}
-                            {sources && sources.length ? (
-                              sources.map((sourceval: sourceTypes, i: any) => (
-                                <SelectItem
-                                  value={sourceval.id?.toString()}
-                                  key={i}
-                                >
-                                  {sourceval.source}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <p className="p-2">No Sources Found</p>
-                            )}
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="active">active</SelectItem>
+                            <SelectItem value="inactive">inactive</SelectItem>
                           </SelectContent>
                         </Select>
-                        {watcher.source_id ? <></> : <FormMessage />}
+                        {watcher.coach_status ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="notes"
+                          label="Notes"
+                        />
+                        {watcher.notes ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -651,10 +666,10 @@ const AddCoachForm: React.FC = () => {
                             >
                               <SelectValue>
                                 {field.value === 0
-                                  ? "Select Source*"
+                                  ? "Source*"
                                   : sources?.find(
                                       (source) => source.id === field.value
-                                    )?.source || "Select Source*"}
+                                    )?.source || "Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -680,13 +695,14 @@ const AddCoachForm: React.FC = () => {
                     )}
                   />
                 </div>
+
                 <div className="relative "></div>
                 <div className="relative ">
                   <div className="justify-start items-center flex"></div>
                 </div>
               </div>
               <div>
-                <h1 className="font-bold text-base"> Address data</h1>
+                <h1 className="font-bold text-base"> Address</h1>
               </div>
               <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
                 <div className="relative ">
@@ -823,11 +839,74 @@ const AddCoachForm: React.FC = () => {
                 </div>
               </div>
               <div>
-                <h1 className="font-bold text-base">
-                  Membership and Auto Renewal
-                </h1>
+                <h1 className="font-bold text-base">Bank Details</h1>
               </div>
-              <div className="grid grid-cols-10 gap-3"></div>
+              <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="bank_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="bank_name"
+                          label="Bank Name"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="iban_no"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="iban_no"
+                          label="IBAN Number"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="swift_code"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="swift_code"
+                          label="BIC/Swift Code"
+                        />
+                        <FormMessage className="" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="acc_holder_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="acc_holder_name"
+                          label="Account Holder Name"
+                        />
+                        <FormMessage className="" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </form>

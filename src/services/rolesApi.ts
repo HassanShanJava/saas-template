@@ -14,7 +14,7 @@ export const Roles = apiSlice.injectEndpoints({
           providesTags: ["Roles"],
         }),
       }),
-      getResources: builder.query<getRolesType[], number>({
+      getResources: builder.query<any, number | undefined>({
         query: (role_id) => ({
           url: `/role?role_id=${role_id}`,
           method: "GET",
@@ -23,6 +23,16 @@ export const Roles = apiSlice.injectEndpoints({
           },
           providesTags: ["Roles"],
         }),
+      }),
+      getAllResources: builder.query<any[], void>({
+        query: () => ({
+          url: `/role/resource`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+          providesTags: ["Roles"],
+        })
       }),
       createRole: builder.mutation<any[], any>({
         query: (roledata) => ({
@@ -53,6 +63,7 @@ export const Roles = apiSlice.injectEndpoints({
 export const {
   useGetRolesQuery,
   useGetResourcesQuery,
+  useGetAllResourcesQuery,
   useCreateRoleMutation,
   useUpdateRoleMutation,
 } = Roles;

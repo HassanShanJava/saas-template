@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
   flexRender,
@@ -29,23 +29,30 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RootState, AppDispatch } from "@/app/store";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useGetRolesQuery } from "@/services/rolesApi";
+import { useGetResourcesQuery, useGetRolesQuery } from "@/services/rolesApi";
 import { RoleForm } from "./../../roleform/form";
 
 export default function RoleTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
+  const [isRoleFound, setRoleFound] = useState<boolean>(false);
+
   const {
     data: rolesData,
+    isLoading: rolesLoading,
+    refetch: rolesRefetch,
+    error: rolesError,
+  } = useGetRolesQuery(orgId);
+
+  const [selectedRoleId, setSelectedRoleId] = useState<number>(); // 0 can be the default for "Select a role"
+
+  const {
+    data: resourceData,
     isLoading,
     refetch,
     error,
-  } = useGetRolesQuery(orgId);
-
-  const [selectedRole, setSelectedRole]=useState({})
-
-  
+  } = useGetResourcesQuery(selectedRoleId);
 
   const columns: ColumnDef<any>[] = [
     {
@@ -65,7 +72,6 @@ export default function RoleTableView() {
       cell: ({ row }) => (
         <Checkbox
           checked={row.original.access === "no_access"}
-          disabled
           aria-label="No Access"
           className="translate-y-[2px]"
         />
@@ -108,27 +114,30 @@ export default function RoleTableView() {
       ),
     },
   ];
+  console.log({ resourceData });
+  const permissionTableData = React.useMemo(() => {
+    return Array.isArray(resourceData) && resourceData ? resourceData : [];
+  }, [resourceData]);
+  console.log("data", { resourceData, error });
+
+  useEffect(() => {
+    if (resourceData) {
+      setRoleFound(true);
+    }
+  }, [resourceData]);
 
   const table = useReactTable({
-    data: rolesData as getRolesType[],
+    data: permissionTableData as getRolesType[],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const permissionTableData = React.useMemo(() => {
-    return Array.isArray(rolesData) ? rolesData : [];
-  }, [rolesData]);
-  console.log("data", { rolesData, error });
-
-  const [selectedRoleId, setSelectedRoleId] = useState<string | undefined>(""); // 0 can be the default for "Select a role"
-
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = event.target.value;
     console.log("Selected Role ID:", selectedId);
-    // const role = rolesData?.find((r) => r.name === selectedId);
+    // const role = resourceData?.find((r) => r.name === selectedId);
     // console.log(role);
-    setSelectedRoleId(selectedId);
-    //  dispatch(selectedRoleId(selectedId));
+    setSelectedRoleId(Number(selectedId));
   };
   const [formData, setFormData] = useState<any>({
     status: "",
@@ -140,11 +149,8 @@ export default function RoleTableView() {
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log({ name, value }, "name,value");
-    let finalValue: number | string = value;
-    if (name == "min_limit") {
-      finalValue = Number(value);
-    }
+    const finalValue: number | string = value;
+
     setFormData((prevData: any) => {
       const updatedData = { ...prevData, [name]: finalValue };
       console.log("After update:", updatedData);
@@ -162,27 +168,32 @@ export default function RoleTableView() {
     setIsDialogOpen(true);
   };
 
+  const handleEditRole = () => {
+    console.log("Before update:", formData);
+    setFormData((prevData: any) => {
+      const updatedData = { ...prevData, case: "edit" };
+      console.log("After update:", updatedData);
+      return updatedData;
+    });
+    setIsDialogOpen(true);
+  };
 
- 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full ">
       <div className="flex items-center justify-between px-5 ">
         <div className="flex flex-1 items-center space-x-2">
           <div className="flex items-center  relative">
             <Select
-              // onValueChange={(value) => handleSelctedRow(value)}
-              // defaultValue={undefined}
+              onValueChange={(value) => setSelectedRoleId(Number(value))}
+              defaultValue={undefined}
             >
               <SelectTrigger className="w-[220px]">
                 <SelectValue placeholder="Select a Role" />
               </SelectTrigger>
               <SelectContent>
-                {/* <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="system">System</SelectItem> */}
                 {rolesData && rolesData.length > 0 ? (
                   rolesData?.map((sourceval: getRolesType) => {
-                    console.log({sourceval});
+                    console.log({ sourceval });
                     return (
                       <SelectItem
                         key={sourceval.role_id}
@@ -203,101 +214,107 @@ export default function RoleTableView() {
           <div className="">
             <Button
               variant={"outline"}
-              className="gap-2 text-lg justify-center items-center flex"
+              className="gap-1 justify-center text-gray-500 font-normal border-primary items-center flex px-3"
               disabled={!selectedRoleId}
+              onClick={handleEditRole}
             >
-              <FaEdit className="text-gray-500 h-5 w-5" />
+              <i className="fa-regular fa-edit h-4 w-4"></i>
               Edit
             </Button>
           </div>
         </div>
         <Button
-          className="bg-primary m-4 text-black gap-1"
+          className="bg-primary m-4 text-black gap-1 "
           onClick={handleAddRole}
         >
           <PlusIcon className="h-4 w-4" />
-          Create Role
+          Create New
         </Button>
       </div>
-      <div className="rounded-md border border-border ">
-        <ScrollArea className="w-full relative h-96">
-          <ScrollBar orientation="vertical" />
-          <Table className="w-full ">
-            <TableHeader className="bg-outletcolor sticky top-0 z-40">
-              {table?.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    <div className="flex space-x-2 justify-center items-center bg-white ">
-                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="size-3 bg-black rounded-full animate-bounce"></div>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : table.getRowModel().rows.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
+      {isRoleFound ? (
+        <div className="rounded-none border border-border ">
+          <ScrollArea className="w-full relative  space-y-0">
+            <ScrollBar orientation="vertical" />
+            <Table className="w-full h-full max-h-96 overflow-y-auto relative custom-scrollbar">
+              <TableHeader className="bg-outletcolor sticky top-0 z-40">
+                {table?.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
                     ))}
                   </TableRow>
-                ))
-              ) : permissionTableData.length > 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No Module Found!.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No Module Found!.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </ScrollArea>
-      </div>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      <div className="flex space-x-2 justify-center items-center bg-white ">
+                        <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                        <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                        <div className="size-3 bg-black rounded-full animate-bounce"></div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : table.getRowModel().rows.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : permissionTableData.length > 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No Module Found!.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No Module Found!.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        </div>
+      ):(
+        <div className="h-[30rem] flex justify-center items-center">
+            <p className="text-lg font-bold">Please select a role from above to view his access</p>
+        </div>
+      )}
       {/* form data for create RoleForm */}
       <RoleForm
         data={formData}
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={handleCloseDailog}
-        refetch={refetch}
         setFormData={setFormData}
         handleOnChange={handleOnChange}
       />

@@ -1,4 +1,5 @@
-import { ErrorType } from "@/app/types";
+import React from "react";
+import { ErrorType, getRolesType } from "@/app/types";
 import {
   Dialog,
   DialogContent,
@@ -45,22 +46,44 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useGetAllResourcesQuery, useGetRolesQuery } from "@/services/rolesApi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
+
+const status = [
+  { value: "true", label: "Active", color: "bg-green-500" },
+  { value: "false", label: "Inactive", color: "bg-blue-500" },
+];
+
 export const RoleForm = ({
   data: formData,
   setIsDialogOpen,
   isDialogOpen,
-  refetch,
   setFormData,
   handleOnChange,
 }: {
   data: any;
   isDialogOpen: boolean;
   setIsDialogOpen: any;
-  refetch?: any;
   setFormData?: any;
   handleOnChange?: any;
 }) => {
   const { toast } = useToast();
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+
+  const {
+    data: allResourceData,
+    isLoading,
+    refetch,
+    error,
+  } = useGetAllResourcesQuery();
+
+  const allResourceTableData = React.useMemo(() => {
+    return Array.isArray(allResourceData) ? allResourceData : [];
+  }, [allResourceData]);
+
+  console.log({ allResourceTableData });
 
   // const [formData, setFormData] = useState(data);
   // const [createCredits, { isLoading: creditsLoading }] =
@@ -68,12 +91,10 @@ export const RoleForm = ({
   // const [updateCredits, { isLoading: updateLoading }] =
   //   useUpdateCreditsMutation();
 
-  console.log(formData, isDialogOpen, "dialog");
-
-  useEffect(() => {
-    form.reset(formData);
-    setFormData(formData);
-  }, [formData]);
+  // useEffect(() => {
+  //   form.reset(formData);
+  //   setFormData(formData);
+  // }, [formData]);
 
   const RoleFormSchema = z.object({
     org_id: z.number(),
@@ -83,8 +104,8 @@ export const RoleForm = ({
         required_error: "Please select a status",
       })
       .default(true),
-    // module: z.array(z.number()),
-    // access: z.array(z.string()),
+    module: z.array(z.number()),
+    access: z.array(z.string()),
   });
 
   const form = useForm<z.infer<typeof RoleFormSchema>>({
@@ -96,7 +117,7 @@ export const RoleForm = ({
   const watcher = form.watch();
 
   const onSubmit = async (data: z.infer<typeof RoleFormSchema>) => {
-    console.log({ data });
+    console.log({ data },"payload");
 
     try {
       if (formData.case == "add") {
@@ -146,11 +167,8 @@ export const RoleForm = ({
   };
 
   const resetFormAndCloseDialog = () => {
-    console.log("calling close");
     setFormData((prev: any) => ({
       ...prev,
-      status: true,
-      name: "",
     }));
   };
 
@@ -158,61 +176,6 @@ export const RoleForm = ({
     // clearErrors();
     setIsDialogOpen(false);
   };
-
-  const moduleData = [
-    {
-      name: "Client",
-      access: "read",
-    },
-    {
-      name: "Leads",
-      access: "write",
-    },
-    {
-      name: "Staff",
-      access: "full_access",
-    },
-    {
-      name: "Coaches",
-      access: "no_access",
-    },
-    {
-      name: "Check In",
-      access: "read",
-    },
-    {
-      name: "Workout Plan",
-      access: "write",
-    },
-    {
-      name: "Events and Scheduling",
-      access: "full_access",
-    },
-    {
-      name: "Meal Plan",
-      access: "no_access",
-    },
-    {
-      name: "Challenge",
-      access: "read",
-    },
-    {
-      name: "Groups",
-      access: "write",
-    },
-    {
-      name: "Credits",
-      access: "full_access",
-    },
-    {
-      name: "Sales",
-      access: "no_access",
-    },
-    {
-      name: "Income Category",
-      access: "read",
-    },
-  ];
 
   const columns: ColumnDef<any>[] = [
     {
@@ -231,7 +194,7 @@ export const RoleForm = ({
       header: "No Access",
       cell: ({ row }) => (
         <Checkbox
-          checked={row.original.access === "no_access"}
+          defaultChecked={row.original.access === "no_access"}
           aria-label="No Access"
           className="translate-y-[2px]"
         />
@@ -242,7 +205,7 @@ export const RoleForm = ({
       header: "Read",
       cell: ({ row }) => (
         <Checkbox
-          checked={row.original.access === "read"}
+          defaultChecked={row.original.access === "read"}
           aria-label="Read Access"
           className="translate-y-[2px]"
         />
@@ -253,7 +216,7 @@ export const RoleForm = ({
       header: "Write",
       cell: ({ row }) => (
         <Checkbox
-          checked={row.original.access === "write"}
+          defaultChecked={row.original.access === "write"}
           aria-label="Write Access"
           className="translate-y-[2px]"
         />
@@ -264,7 +227,7 @@ export const RoleForm = ({
       header: "Full Access",
       cell: ({ row }) => (
         <Checkbox
-          checked={row.original.access === "full_access"}
+          defaultChecked={row.original.access === "full_access"}
           aria-label="Full Access"
           className="translate-y-[2px]"
         />
@@ -273,7 +236,7 @@ export const RoleForm = ({
   ];
 
   const table = useReactTable({
-    data: moduleData,
+    data: allResourceTableData as getRolesType[],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -296,185 +259,188 @@ export const RoleForm = ({
           setIsDialogOpen();
         }}
       >
-        {/* <DialogTrigger>Open</DialogTrigger> */}
         <DialogContent
-          className="w-full max-w-[1050px] h-fit flex flex-col"
+          className="w-full max-w-[930px] h-fit flex flex-col"
           hideCloseButton
         >
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">
+            <DialogTitle className="text-2xl font-bold px-1">
               {formData.case == "add" ? "Create" : "Edit"} Role
             </DialogTitle>
             <DialogDescription>
-              <>
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col py-4 gap-4 "
-                  >
-                    <div className="flex gap-2 flex-row min-w-full">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem className="w-[50%]">
-                            <FloatingLabelInput
-                              {...field}
-                              id="name"
-                              name="name"
-                              label="Role Name *"
-                              value={field.value ?? ""}
-                              onChange={handleOnChange}
-                            />
-                            {watcher.name ? <></> : <FormMessage />}
-                          </FormItem>
-                        )}
-                      />
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="flex flex-col  gap-4 "
+                >
+                  <div className="flex gap-4 flex-row min-w-full">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem className="w-1/2">
+                          <FloatingLabelInput
+                            {...field}
+                            id="name"
+                            name="name"
+                            label="Role Name*"
+                            value={field.value ?? ""}
+                          />
+                          {watcher.name ? <></> : <FormMessage />}
+                        </FormItem>
+                      )}
+                    />
 
-                      <FormField
-                        control={form.control}
-                        name="status"
-                        defaultValue={true}
-                        render={({ field }) => (
-                          <FormItem className="w-[50%]">
-                            <Select
-                              onValueChange={(value) =>
-                                field.onChange(value === "true")
-                              }
-                              value={field.value ? "true" : "false"} // Ensure value is a string
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a status" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="true">Active</SelectItem>
-                                <SelectItem value="false">Inactive</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div>
-                      <h1 className="text-2xl font-semibold text-black">
-                        {" "}
-                        Module Access
-                      </h1>
-                      <div className="rounded-none  ">
-                        <ScrollArea className="w-full relative">
-                          <ScrollBar orientation="horizontal" />
-                          <Table
-                            className=""
-                            containerClassname="h-fit max-h-80 overflow-y-auto relative custom-scrollbar "
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      defaultValue={true}
+                      render={({ field }) => (
+                        <FormItem className="w-1/2">
+                          <Select
+                            onValueChange={(value) =>
+                              field.onChange(value === "true")
+                            }
+                            value={field.value ? "true" : "false"} // Ensure value is a string
                           >
-                            <TableHeader className="bg-gray-100 sticky top-0 z-50">
-                              {table?.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                  {headerGroup.headers.map((header) => {
-                                    return (
-                                      <TableHead
-                                        key={header.id}
-                                        style={{
-                                          minWidth:
-                                            header.column.columnDef.size,
-                                          maxWidth:
-                                            header.column.columnDef.size,
-                                        }}
-                                      >
-                                        {header.isPlaceholder
-                                          ? null
-                                          : flexRender(
-                                              header.column.columnDef.header,
-                                              header.getContext()
-                                            )}
-                                      </TableHead>
-                                    );
-                                  })}
+                            <FormControl>
+                              <SelectTrigger floatingLabel="Status">
+                                <SelectValue placeholder="Select status">
+                                  <span className="flex gap-2 items-center">
+                                    <span
+                                      className={`w-2 h-2 rounded-full ${
+                                        field.value
+                                          ? "bg-green-500"
+                                          : "bg-blue-500"
+                                      }`}
+                                    ></span>
+                                    {field.value ? "Active" : "Inactive"}
+                                  </span>
+                                </SelectValue>
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="true">Active</SelectItem>
+                              <SelectItem value="false">Inactive</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {watcher.status ? <></> : <FormMessage />}
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl px-1 font-semibold text-black">
+                      Module Access
+                    </h1>
+                    <div className="rounded-none  mt-4">
+                      <ScrollArea className="w-full relative">
+                        <ScrollBar orientation="horizontal" />
+                        <Table
+                          className=""
+                          containerClassname="h-fit max-h-80 overflow-y-auto relative custom-scrollbar "
+                        >
+                          <TableHeader className="bg-gray-100 sticky top-0 z-50">
+                            {table?.getHeaderGroups().map((headerGroup) => (
+                              <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => {
+                                  return (
+                                    <TableHead
+                                      key={header.id}
+                                      style={{
+                                        minWidth: header.column.columnDef.size,
+                                        maxWidth: header.column.columnDef.size,
+                                      }}
+                                    >
+                                      {header.isPlaceholder
+                                        ? null
+                                        : flexRender(
+                                            header.column.columnDef.header,
+                                            header.getContext()
+                                          )}
+                                    </TableHead>
+                                  );
+                                })}
+                              </TableRow>
+                            ))}
+                          </TableHeader>
+                          <TableBody className="">
+                            {isLoading ? (
+                              <TableRow>
+                                <TableCell
+                                  colSpan={columns.length}
+                                  className="h-24 text-center "
+                                >
+                                  <div className="flex space-x-2 justify-center items-center bg-white ">
+                                    <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                                    <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                                    <div className="size-3 bg-black rounded-full animate-bounce"></div>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ) : table.getRowModel().rows.length ? (
+                              table.getRowModel().rows.map((row) => (
+                                <TableRow
+                                  key={row.id}
+                                  data-state={row.getIsSelected() && "selected"}
+                                >
+                                  {row.getVisibleCells().map((cell) => (
+                                    <TableCell key={cell.id}>
+                                      {flexRender(
+                                        cell.column.columnDef.cell,
+                                        cell.getContext()
+                                      )}
+                                    </TableCell>
+                                  ))}
                                 </TableRow>
-                              ))}
-                            </TableHeader>
-                            <TableBody className="">
-                              {isLoading ? (
-                                <TableRow>
-                                  <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center "
-                                  >
-                                    <div className="flex space-x-2 justify-center items-center bg-white ">
-                                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                                      <div className="size-3 bg-black rounded-full animate-bounce"></div>
-                                    </div>
-                                  </TableCell>
-                                </TableRow>
-                              ) : table.getRowModel().rows.length ? (
-                                table.getRowModel().rows.map((row) => (
-                                  <TableRow
-                                    key={row.id}
-                                    data-state={
-                                      row.getIsSelected() && "selected"
-                                    }
-                                  >
-                                    {row.getVisibleCells().map((cell) => (
-                                      <TableCell key={cell.id}>
-                                        {flexRender(
-                                          cell.column.columnDef.cell,
-                                          cell.getContext()
-                                        )}
-                                      </TableCell>
-                                    ))}
-                                  </TableRow>
-                                ))
-                              ) : creditstableData.length > 0 ? (
-                                <TableRow>
-                                  <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center"
-                                  >
-                                    No data found.
-                                  </TableCell>
-                                </TableRow>
-                              ) : (
-                                <TableRow>
-                                  <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center"
-                                  >
-                                    No data available
-                                  </TableCell>
-                                </TableRow>
-                              )}
-                            </TableBody>
-                          </Table>
-                        </ScrollArea>
-                      </div>
+                              ))
+                            ) : allResourceData &&
+                              allResourceData.length > 0 ? (
+                              <TableRow>
+                                <TableCell
+                                  colSpan={columns.length}
+                                  className="h-24 text-center"
+                                >
+                                  No data found.
+                                </TableCell>
+                              </TableRow>
+                            ) : (
+                              <TableRow>
+                                <TableCell
+                                  colSpan={columns.length}
+                                  className="h-24 text-center"
+                                >
+                                  No data available
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </TableBody>
+                        </Table>
+                      </ScrollArea>
                     </div>
-                    <div className="flex flex-row gap-2 w-full p-4">
-                      <Button
-                        type="button"
-                        className="w-full text-center flex items-center gap-2"
-                        variant={"outline"}
-                        onClick={handleClose}
-                      >
-                        Cancel
-                      </Button>
-                      <LoadingButton
-                        type="submit"
-                        className="w-full  bg-primary  text-black gap-1 font-semibold"
-                        loading={form.formState.isSubmitting}
-                      >
-                        {!form.formState.isSubmitting && (
-                          <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                        )}
-                        Save
-                      </LoadingButton>
-                    </div>
-                  </form>
-                </Form>
-              </>
+                  </div>
+                  <div className="flex flex-row gap-4 justify-between w-full ">
+                    <Button
+                      type="button"
+                      className="w-full text-center flex items-center gap-2"
+                      variant={"outline"}
+                      onClick={handleClose}
+                    >
+                      Cancel
+                    </Button>
+                    <LoadingButton
+                      type="submit"
+                      className="w-full  bg-primary  text-black gap-1 font-semibold"
+                      loading={form.formState.isSubmitting}
+                    >
+                      {!form.formState.isSubmitting && (
+                        <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                      )}
+                      Save
+                    </LoadingButton>
+                  </div>
+                </form>
+              </Form>
             </DialogDescription>
           </DialogHeader>
         </DialogContent>

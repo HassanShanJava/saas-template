@@ -84,7 +84,6 @@ const downloadCSV = (data: creditTablestypes[], fileName: string) => {
   document.body.removeChild(link);
 };
 
-//
 const status = [
   { value: "true", label: "Active", color: "bg-green-500" },
   { value: "false", label: "Inactive", color: "bg-blue-500" },

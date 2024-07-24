@@ -392,7 +392,7 @@ export default function CreditsTableView({
           <ScrollBar orientation="horizontal" />
           <Table
             className=""
-            containerClassname="h-fit max-h-80 overflow-y-auto relative custom-scrollbar "
+            containerClassname="h-fit max-h-80  "
           >
             <TableHeader className="bg-gray-100 sticky top-0 z-50">
               {table?.getHeaderGroups().map((headerGroup) => (

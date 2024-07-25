@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import CoachTableView from "./components/coachTable/component/memberTable/table";
+import CoachTableView from "./components/coachTable/table";
 export default function Coach() {
   return (
     <div className="w-full p-12">

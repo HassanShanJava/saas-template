@@ -1,22 +1,21 @@
 import { JSONObject } from "@/types/hook-stepper";
 
 export interface renewalData extends JSONObject {
-  days_before: number |null;
-  next_invoice: number |null;
-  prolongation_period: number |null;
+  days_before: number | null;
+  next_invoice: number | null;
+  prolongation_period: number | null;
 }
 export interface facilitiesData extends JSONObject {
   id: number;
-  total_credits: number |null;
+  total_credits: number | null;
   validity: {
     duration_type: string | undefined | null;
-    duration_no: number | undefined |null;
+    duration_no: number | undefined | null;
   };
 }
 
-
 export interface updateMembershipType {
-  id:number | null;
+  id: number | null;
   org_id: number | null;
   name?: string;
   group_id?: number | null;
@@ -372,8 +371,34 @@ export interface getRolesType {
   id: number;
 }
 
-export interface createRole{
-  name:string;
-  org_id:number;
-  
+export interface createRole {
+  name: string;
+  org_id: number;
+}
+
+export interface CoachInputTypes {
+  profile_img?: string;
+  own_coach_id: string;
+  first_name: string;
+  last_name: string;
+  gender: string;
+  dob: string;
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  country_id: number;
+  city: string;
+  coach_status: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  bank_name?: string;
+  iban_no?: string;
+  acc_holder_name?: string;
+  swift_code?: string;
+  created_by: number;
+  members_id: Array<number>;
+  org_id: number;
 }

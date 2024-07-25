@@ -31,14 +31,9 @@ import {
   FormField,
   FormItem,
   FormMessage,
-  FormLabel,
   FormControl,
 } from "@/components/ui/form";
 import { toast } from "@/components/ui/use-toast";
-import {
-  ButtonGroup,
-  ButtonGroupItem,
-} from "@/components/ui/buttonGroup/button-group";
 import {
   Popover,
   PopoverContent,
@@ -60,45 +55,38 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import {
-  BusinessTypes,
-  CoachTypes,
-  CountryTypes,
-  ErrorType,
-  membershipplanTypes,
-  membeshipsTableType,
-  sourceTypes,
-} from "@/app/types";
+import { CountryTypes, ErrorType, sourceTypes } from "@/app/types";
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
-import { Label } from "@/components/ui/label";
 import {
-  useGetAllBusinessesQuery,
   useGetAllSourceQuery,
   useGetCountriesQuery,
-  useGetCoachesQuery,
-  useGetMemberCountQuery,
-  useAddMemberMutation,
 } from "@/services/memberAPi";
 
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
+import {
+  useAddCoachMutation,
+  useGetCoachCountQuery,
+  useGetMemberListQuery,
+} from "@/services/coachApi";
 // import { statuses } from './../../../../schema/taskSchema';
 
 const AddCoachForm: React.FC = () => {
-  const [counter, setCounter] = React.useState(0);
+  // const [counter, setCounter] = React.useState(0);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
   const creator_id =
     useSelector((state: RootState) => state.auth.userInfo?.user?.id) || 0;
+
   const membersSchema = z.object({
     id: z.number(),
     name: z.string(),
   });
+
   const FormSchema = z.object({
     profile_img: z
       .string()
@@ -107,7 +95,7 @@ const AddCoachForm: React.FC = () => {
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
       )
       .optional(),
-    own_caoch_id: z.string({
+    own_coach_id: z.string({
       required_error: "Gym Coach Id Required.",
     }),
     first_name: z
@@ -134,8 +122,20 @@ const AddCoachForm: React.FC = () => {
       .string()
       .min(1, { message: "Required." })
       .email("This is not a valid email."),
-    phone: z.string().trim().optional(),
-    mobile_number: z.string().trim().optional(),
+    phone: z
+      .string()
+      .max(11, {
+        message: "Cannot be greater than 11 digits.",
+      })
+      .trim()
+      .optional(),
+    mobile_number: z
+      .string()
+      .max(11, {
+        message: "Cannot be greater than 11 digits.",
+      })
+      .trim()
+      .optional(),
     members_id: z.array(membersSchema).nonempty({
       message: "Minimum one member must be assigned", // Custom error message
     }),
@@ -205,23 +205,16 @@ const AddCoachForm: React.FC = () => {
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
   const {
-    data: memberCountData,
+    data: coachCountData,
     isLoading,
     refetch,
-  } = useGetMemberCountQuery(orgId);
+  } = useGetCoachCountQuery(orgId);
 
   const { data: countries } = useGetCountriesQuery();
-
-  const { data: business } = useGetAllBusinessesQuery(orgId);
-
-  const { data: coaches } = useGetCoachesQuery(orgId);
-
   const { data: sources } = useGetAllSourceQuery();
-  const { data: membershipPlans } = useGetMembershipsQuery(orgId);
 
-  const [loading, setLoading] = React.useState(true);
-
-  const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
+  const [addCoach, { isLoading: memberLoading }] = useAddCoachMutation();
+  const { data: transformedData } = useGetMemberListQuery(orgId);
   const navigate = useNavigate();
 
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
@@ -246,7 +239,7 @@ const AddCoachForm: React.FC = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      own_caoch_id: "",
+      own_coach_id: "",
     },
     mode: "onChange",
   });
@@ -254,50 +247,41 @@ const AddCoachForm: React.FC = () => {
   const watcher = form.watch();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+    // console.log(JSON.stringify(data, null, 2));
+    const updatedData = {
+      ...data,
+      dob: format(new Date(data.dob!), "yyyy-MM-dd"),
+      members_id: data.members_id.map((member) => member.id),
+    };
 
-    console.log(JSON.stringify(data, null, 2));
-    // const updatedData = {
-    //   ...data,
-    //   dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-    // };
+    console.log("Updated data with only date:", updatedData);
+    console.log("only once", data);
 
-    // console.log("Updated data with only date:", updatedData);
-    // console.log("only once", data);
-
-    // try {
-    //   // const resp = await addMember(updatedData).unwrap();
-    //   // refetch();
-
-    //   toast({
-    //     variant: "success",
-    //     title: "Member Added Successfully ",
-    //   });
-    //   navigate("/admin/members");
-    // } catch (error: unknown) {
-    //   console.log("Error", error);
-    //   if (error && typeof error === "object" && "data" in error) {
-    //     const typedError = error as ErrorType;
-    //     toast({
-    //       variant: "destructive",
-    //       title: "Error in form Submission",
-    //       description: `${typedError.data?.detail}`,
-    //     });
-    //   } else {
-    //     toast({
-    //       variant: "destructive",
-    //       title: "Error in form Submission",
-    //       description: `Something Went Wrong.`,
-    //     });
-    //   }
-    // }
+    try {
+      const resp = await addCoach(updatedData).unwrap();
+      refetch();
+      toast({
+        variant: "success",
+        title: "Coach Added Successfully ",
+      });
+      navigate("/admin/coach/");
+    } catch (error: unknown) {
+      console.log("Error", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
   }
 
   function gotoCaoch() {
@@ -306,12 +290,14 @@ const AddCoachForm: React.FC = () => {
 
   React.useEffect(() => {
     if (orgName) {
-      const total = memberCountData?.total_clients;
+      const total = coachCountData?.total_coaches;
       if (total) {
-        form.setValue("own_caoch_id", `${orgName.slice(0, 2)}-${total + 1}`);
+        form.setValue("own_coach_id", `${orgName.slice(0, 2)}-C${total + 1}`);
       }
     }
-  }, [memberCountData, orgName]);
+  }, [coachCountData, orgName]);
+
+  console.log("user list create", transformedData);
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -384,16 +370,16 @@ const AddCoachForm: React.FC = () => {
                         return Number(value) !== 0 || "Source is required";
                       },
                     }}
-                    name="own_caoch_id"
+                    name="own_coach_id"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="own_caoch_id"
-                          label="Gym Coach Id *"
+                          id="own_coach_id"
+                          label="Gym Coach Id*"
                           disabled
                         />
-                        {watcher.own_caoch_id ? <></> : <FormMessage />}
+                        {watcher.own_coach_id ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -547,7 +533,7 @@ const AddCoachForm: React.FC = () => {
                           id="phone"
                           label="Landline Number"
                         />
-                        {watcher.phone ? <></> : <FormMessage />}
+                        {<FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -564,6 +550,7 @@ const AddCoachForm: React.FC = () => {
                           label="Mobile Number"
                         />
                         {watcher.mobile_number ? <></> : <FormMessage />}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -573,7 +560,7 @@ const AddCoachForm: React.FC = () => {
                     control={form.control}
                     name="members_id"
                     render={({ field }) => (
-                      <FormItem className="w-full">
+                      <FormItem className="w-full ">
                         <MultiSelector
                           onValuesChange={(values) => field.onChange(values)}
                           values={field.value}
@@ -581,11 +568,15 @@ const AddCoachForm: React.FC = () => {
                           <MultiSelectorTrigger>
                             <MultiSelectorInput placeholder="Assignee Members*" />
                           </MultiSelectorTrigger>
-                          <MultiSelectorContent>
+                          <MultiSelectorContent className="">
                             <MultiSelectorList>
-                              {values &&
-                                values.map((user: any) => (
-                                  <MultiSelectorItem key={user.id} value={user}>
+                              {transformedData &&
+                                transformedData.map((user: any) => (
+                                  <MultiSelectorItem
+                                    key={user.id}
+                                    value={user}
+                                    // disabled={field.value?.length >= 5}
+                                  >
                                     <div className="flex items-center space-x-2">
                                       <span>{user.name}</span>
                                     </div>

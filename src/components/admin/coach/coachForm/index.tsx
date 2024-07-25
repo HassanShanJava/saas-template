@@ -337,6 +337,7 @@ const AddCoachForm: React.FC = () => {
                     <Button
                       type={"button"}
                       onClick={gotoCaoch}
+                      disabled={memberLoading}
                       className="gap-2 bg-transparent border border-primary text-black hover:bg-red-300 hover:text-white"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel

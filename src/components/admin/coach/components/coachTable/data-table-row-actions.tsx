@@ -1,4 +1,3 @@
-import { Row } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,29 +11,68 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import { MoreHorizontal,MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { createMembershipType, ErrorType } from "@/app/types";
+import { useDeleteMembershipsMutation } from "@/services/membershipsApi";
 
-interface DataTableRowActionsProps<TData> {
-  row: number;
-}
-
-export function DataTableRowActions<TData>({
-  row,
-}: DataTableRowActionsProps<TData>) {
+export function DataTableRowActions({
+  data,
+  refetch,
+  handleEdit,
+}: {
+  // data: createMembershipType & { id: number };
+  data: any;
+  refetch?: any;
+  handleEdit?: any;
+}) {
   const [isdelete, setIsDelete] = React.useState(false);
+  const [deleteMembership, { isLoading: deleteLoading }] =
+    useDeleteMembershipsMutation();
+  const { toast } = useToast();
 
   const deleteRow = async () => {
-    console.log("data")
+    const payload = {
+      id: data.id,
+      org_id: data.org_id,
+    };
+    try {
+      const resp = await deleteMembership(data).unwrap();
+      if (resp) {
+        console.log({ resp });
+        refetch();
+        toast({
+          variant: "success",
+          title: "Deleted Successfully",
+        });
+      }
+      return;
+    } catch (error) {
+      console.log("Error", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
   };
 
+  console.log(data, "edit row");
   return (
     <>
       <Dialog>
@@ -48,9 +86,9 @@ export function DataTableRowActions<TData>({
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-4 ">
+          <DropdownMenuContent align="end" className="w-4">
             <DialogTrigger asChild>
-              <DropdownMenuItem >
+              <DropdownMenuItem onClick={() => handleEdit(data)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
@@ -61,7 +99,8 @@ export function DataTableRowActions<TData>({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        {isdelete && (
+      </Dialog>
+      {isdelete && (
         <AlertDialog open={isdelete} onOpenChange={() => setIsDelete(false)}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -74,7 +113,7 @@ export function DataTableRowActions<TData>({
                     className="w-18 h-18"
                   />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this member
+                    Please confirm if you want to delete this membership
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">
@@ -98,7 +137,6 @@ export function DataTableRowActions<TData>({
           </AlertDialogContent>
         </AlertDialog>
       )}
-      </Dialog>
     </>
   );
 }

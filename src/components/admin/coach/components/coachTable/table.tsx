@@ -57,12 +57,10 @@ import { useGetAllMemberQuery } from "@/services/memberAPi";
 import { useGetListOfCoachQuery } from "@/services/coachApi";
 import { ErrorType } from "@/app/types";
 
-
 const status = [
   { value: "actuve", label: "Active", color: "bg-green-500" },
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
   { value: "pending", label: "pending", color: "bg-orange-500" },
-
 ];
 
 const downloadCSV = (data: any[], fileName: string) => {
@@ -132,7 +130,16 @@ export default function CoachTableView() {
     }
     downloadCSV(selectedRows, "members_list.csv");
   };
-
+  const handleEditCoach = (data: any) => {
+    // const updatedObject = {
+    //   ...data,
+    //   ...data.access_time,
+    //   ...data.renewal_details,
+    // };
+    // setData(updatedObject);
+    // setAction("edit");
+    // setIsDialogOpen(true);
+  };
   const handleStatusChange = async (payload: {
     status: string;
     id: number;
@@ -245,7 +252,7 @@ export default function CoachTableView() {
             onValueChange={(e) =>
               handleStatusChange({ status: e, id: id, org_id: org_id })
             }
-            disabled={value=="pending"}
+            disabled={value == "pending"}
           >
             <SelectTrigger>
               <SelectValue placeholder="Status" className="text-gray-400">
@@ -292,7 +299,13 @@ export default function CoachTableView() {
     {
       id: "actions",
       header: "Actions",
-      cell: ({ row }) => <DataTableRowActions row={row.original.id} />,
+      cell: ({ row }) => (
+        <DataTableRowActions
+          data={row.original}
+          refetch={refetch}
+          handleEdit={handleEditCoach}
+        />
+      ),
     },
   ];
   // console.log("data",{memberData})

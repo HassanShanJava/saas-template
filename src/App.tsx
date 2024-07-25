@@ -68,6 +68,11 @@ function App() {
               index
               element={<AddCoachForm />}
             />
+            <Route
+              path="/admin/coach/editcoach/:id"
+              index
+              element={<AddCoachForm />}
+            />
             <Route path="/admin/roles" index element={<RolesAndAccess />} />
             <Route
               path="/admin/events/addevents"

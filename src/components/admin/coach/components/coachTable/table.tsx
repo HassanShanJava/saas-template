@@ -54,7 +54,10 @@ import Papa from "papaparse";
 import { DataTableFacetedFilter } from "./data-table-faced-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetAllMemberQuery } from "@/services/memberAPi";
-import { useGetListOfCoachQuery } from "@/services/coachApi";
+import {
+  useGetListOfCoachQuery,
+  useUpdateCoachMutation,
+} from "@/services/coachApi";
 import { ErrorType } from "@/app/types";
 
 const status = [
@@ -85,6 +88,7 @@ export default function CoachTableView() {
   } = useGetListOfCoachQuery(orgId);
 
   const navigate = useNavigate();
+  const [updateCoach] = useUpdateCoachMutation();
 
   function handleRoute() {
     navigate("/admin/coach/addcoach");
@@ -148,15 +152,15 @@ export default function CoachTableView() {
     console.log({ payload });
     try {
       // payload.status=Boolean(payload.status)
-      // const resp = await updateMemberships(payload).unwrap();
-      // if (resp) {
-      //   console.log({ resp });
-      //   refetch();
-      //   toast({
-      //     variant: "success",
-      //     title: "Updated Successfully",
-      //   });
-      // }
+      const resp = await updateCoach(payload).unwrap();
+      if (resp) {
+        console.log({ resp });
+        refetch();
+        toast({
+          variant: "success",
+          title: "Updated Successfully",
+        });
+      }
     } catch (error) {
       console.log("Error", error);
       if (error && typeof error === "object" && "data" in error) {

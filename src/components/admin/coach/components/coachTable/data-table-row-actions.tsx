@@ -20,7 +20,8 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { createMembershipType, ErrorType } from "@/app/types";
-import { useDeleteMembershipsMutation } from "@/services/membershipsApi";
+import { useDeleteCoachMutation } from "@/services/coachApi";
+import { useNavigate } from "react-router-dom";
 
 export function DataTableRowActions({
   data,
@@ -33,9 +34,9 @@ export function DataTableRowActions({
   handleEdit?: any;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
-  const [deleteMembership, { isLoading: deleteLoading }] =
-    useDeleteMembershipsMutation();
+  const [deleteCoach, { isLoading: deleteLoading }] = useDeleteCoachMutation();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const deleteRow = async () => {
     const payload = {
@@ -43,7 +44,7 @@ export function DataTableRowActions({
       org_id: data.org_id,
     };
     try {
-      const resp = await deleteMembership(data).unwrap();
+      const resp = await deleteCoach(data).unwrap();
       if (resp) {
         console.log({ resp });
         refetch();
@@ -88,7 +89,12 @@ export function DataTableRowActions({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-4">
             <DialogTrigger asChild>
-              <DropdownMenuItem onClick={() => handleEdit(data)}>
+              <DropdownMenuItem
+                // onClick={() => handleEdit(data)}
+                onClick={() => {
+                  navigate(`/admin/coach/editcoach/${data.id}`);
+                }}
+              >
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
@@ -113,7 +119,7 @@ export function DataTableRowActions({
                     className="w-18 h-18"
                   />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this membership
+                    Please confirm if you want to delete this Coach
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

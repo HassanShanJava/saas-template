@@ -55,7 +55,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import { CountryTypes, ErrorType, sourceTypes } from "@/app/types";
@@ -69,12 +69,20 @@ import {
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import {
   useAddCoachMutation,
+  useGetCoachByIdQuery,
   useGetCoachCountQuery,
   useGetMemberListQuery,
 } from "@/services/coachApi";
 // import { statuses } from './../../../../schema/taskSchema';
 
 const AddCoachForm: React.FC = () => {
+  const { id } = useParams();
+  const {
+    data: EditCoachData,
+    isLoading: editisLoading,
+    refetch: editRefetch,
+  } = useGetCoachByIdQuery(id);
+  console.log("update the damn data", EditCoachData);
   // const [counter, setCounter] = React.useState(0);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;

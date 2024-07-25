@@ -14,6 +14,7 @@ export const Roles = apiSlice.injectEndpoints({
             "Content-Type": "application/json",
           },
         }),
+        invalidatesTags: ["Coaches"], // Invalidate the cache for coaches
       }),
       getCoachCount: builder.query<{ total_coaches: number }, number>({
         query: (org_id) => ({
@@ -22,6 +23,7 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
+        providesTags: ["Coaches"], // Provide cache for coaches
       }),
       getMemberList: builder.query<{ id: number; name: string }[], number>({
         query: (org_id) => ({
@@ -45,6 +47,41 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
+        providesTags: ["Coaches"], // Provide cache for coaches
+      }),
+      deleteCoach: builder.mutation<any, any>({
+        query: (coachId) => ({
+          url: "/coach/coaches",
+          method: "DELETE",
+          body: coachId,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }),
+        invalidatesTags: ["Coaches"], // Invalidate the cache for coaches
+      }),
+      updateCoach: builder.mutation<any, any>({
+        query: (coachdata) => ({
+          url: "/coach/coaches",
+          method: "PUT",
+          body: coachdata,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }),
+        invalidatesTags: ["Coaches"], // Invalidate the cache for coaches
+      }),
+      getCoachById: builder.query<any, any>({
+        query: (coach_id) => ({
+          url: `/coach/coaches?coach_id=${coach_id}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        providesTags: ["Coaches"],
       }),
     };
   },
@@ -55,4 +92,7 @@ export const {
   useGetCoachCountQuery,
   useGetMemberListQuery,
   useGetListOfCoachQuery,
+  useDeleteCoachMutation,
+  useUpdateCoachMutation,
+  useGetCoachByIdQuery,
 } = Roles;

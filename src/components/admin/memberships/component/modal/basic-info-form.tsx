@@ -69,7 +69,7 @@ const BasicInfoForm = () => {
   const [limitedAccessDays, setLimitedAccessDays] = useState<
     limitedAccessDaysTypes[]
   >(
-    (getValues("limited_access_data") as limitedAccessDaysTypes[]) || [
+    ((getValues("limited_access_data") as limitedAccessDaysTypes[]).length>0)?(getValues("limited_access_data") as limitedAccessDaysTypes[])  : [
       { id: 1, day: "monday", from: "", to: "" },
       { id: 2, day: "tuesday", from: "", to: "" },
       { id: 3, day: "wednesday", from: "", to: "" },
@@ -95,6 +95,8 @@ const BasicInfoForm = () => {
   //     );
   //   }
   // }, [getValues, setValue]);
+
+  console.log({limitedAccessDays})
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -133,6 +135,8 @@ const BasicInfoForm = () => {
     );
     return dayEntries.some((entry) => from < entry.to && to > entry.from);
   };
+
+  console.log({access})
 
   const handleTimeChange = (id: number, type: string, value: string) => {
     setLimitedAccessDays((prev) => {

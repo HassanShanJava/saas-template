@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { HTMLProps, useEffect, useState } from "react";
 import {
   ColumnDef,
   flexRender,
@@ -54,6 +54,12 @@ export default function RoleTableView() {
     error,
   } = useGetResourcesQuery(selectedRoleId);
 
+
+  const permissionTableData = React.useMemo(() => {
+    return Array.isArray(resourceData) && convertToTableData(resourceData) ? resourceData : [];
+  }, [resourceData]);
+  console.log("data", { resourceData, error });
+
   const columns: ColumnDef<any>[] = [
     {
       accessorKey: "name",
@@ -71,9 +77,10 @@ export default function RoleTableView() {
       header: "No Access",
       cell: ({ row }) => (
         <Checkbox
-          checked={row.original.access === "no_access"}
+          checked={row.original.access_type === "no_access"}
           aria-label="No Access"
-          className="translate-y-[2px]"
+          disabled
+          className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
         />
       ),
     },
@@ -82,10 +89,10 @@ export default function RoleTableView() {
       header: "Read",
       cell: ({ row }) => (
         <Checkbox
-          checked={row.original.access === "read"}
+          checked={row.original.access_type === "read"}
           disabled
           aria-label="Read Access"
-          className="translate-y-[2px]"
+          className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
         />
       ),
     },
@@ -94,10 +101,10 @@ export default function RoleTableView() {
       header: "Write",
       cell: ({ row }) => (
         <Checkbox
-          checked={row.original.access === "write"}
+          checked={row.original.access_type === "write"}
           disabled
           aria-label="Write Access"
-          className="translate-y-[2px]"
+          className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
         />
       ),
     },
@@ -106,19 +113,16 @@ export default function RoleTableView() {
       header: "Full Access",
       cell: ({ row }) => (
         <Checkbox
-          checked={row.original.access === "full_access"}
+          checked={row.original.access_type === "full_access"}
           disabled
           aria-label="Full Access"
-          className="translate-y-[2px]"
+          className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
         />
       ),
     },
   ];
-  console.log({ resourceData });
-  const permissionTableData = React.useMemo(() => {
-    return Array.isArray(resourceData) && resourceData ? resourceData : [];
-  }, [resourceData]);
-  console.log("data", { resourceData, error });
+  console.log({ permissionTableData });
+  
 
   useEffect(() => {
     if (resourceData) {
@@ -135,8 +139,6 @@ export default function RoleTableView() {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = event.target.value;
     console.log("Selected Role ID:", selectedId);
-    // const role = resourceData?.find((r) => r.name === selectedId);
-    // console.log(role);
     setSelectedRoleId(Number(selectedId));
   };
   const [formData, setFormData] = useState<any>({
@@ -305,9 +307,11 @@ export default function RoleTableView() {
             </Table>
           </ScrollArea>
         </div>
-      ):(
+      ) : (
         <div className="h-[30rem] flex justify-center items-center">
-            <p className="text-lg font-bold">Please select a role from above to view his access</p>
+          <p className="text-lg font-bold">
+            Please select a role from above to view his access
+          </p>
         </div>
       )}
       {/* form data for create RoleForm */}
@@ -321,3 +325,53 @@ export default function RoleTableView() {
     </div>
   );
 }
+
+function IndeterminateCheckbox({
+  indeterminate,
+  className = "",
+  ...rest
+}: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
+  const ref = React.useRef<HTMLInputElement>(null!);
+
+  React.useEffect(() => {
+    if (typeof indeterminate === "boolean") {
+      ref.current.indeterminate = !rest.checked && indeterminate;
+    }
+  }, [ref, indeterminate]);
+
+  return (
+    <input
+      type="checkbox"
+      ref={ref}
+      className={className + " cursor-pointer"}
+      {...rest}
+    />
+  );
+}
+
+
+const convertToTableData = (data: getRolesType[]) => {
+  return data.map((member) => {
+    if (!member.children?.length) return;
+
+    const newMember: getRolesType = {
+      ...member,
+      subRows: member.children!.map((child) => {
+        if (!child.children?.length) return child;
+
+        const newChild: getRolesType = {
+          ...child,
+          subRows: child.children
+        };
+
+        delete newChild.children;
+        return newChild;
+      })
+    };
+
+    delete newMember.children;
+    return newMember;
+  });
+};
+
+

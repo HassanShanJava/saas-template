@@ -1,5 +1,5 @@
-import React from "react";
-import { ErrorType, getRolesType } from "@/app/types";
+import React, { useState } from "react";
+import { ErrorType, getRolesType, resourceTypes } from "@/app/types";
 import {
   Dialog,
   DialogContent,
@@ -31,10 +31,12 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import {
+  ExpandedState,
+  useReactTable,
+  getCoreRowModel,
+  getExpandedRowModel,
   ColumnDef,
   flexRender,
-  getCoreRowModel,
-  useReactTable,
 } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -68,6 +70,7 @@ export const RoleForm = ({
   setFormData?: any;
   handleOnChange?: any;
 }) => {
+  const [expanded, setExpanded] = useState<ExpandedState>({});
   const { toast } = useToast();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -80,11 +83,12 @@ export const RoleForm = ({
   } = useGetAllResourcesQuery();
 
   const allResourceTableData = React.useMemo(() => {
-    return Array.isArray(allResourceData) ? allResourceData : [];
+    return Array.isArray(allResourceData)
+      ? convertToTableData(allResourceData)
+      : [];
   }, [allResourceData]);
 
-  console.log({ allResourceTableData });
-
+  console.log({ allResourceTableData, allResourceData });
   // const [formData, setFormData] = useState(data);
   // const [createCredits, { isLoading: creditsLoading }] =
   //   useCreateCreditsMutation();
@@ -117,7 +121,7 @@ export const RoleForm = ({
   const watcher = form.watch();
 
   const onSubmit = async (data: z.infer<typeof RoleFormSchema>) => {
-    console.log({ data },"payload");
+    console.log({ data }, "payload");
 
     try {
       if (formData.case == "add") {
@@ -177,14 +181,33 @@ export const RoleForm = ({
     setIsDialogOpen(false);
   };
 
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<resourceTypes>[] = [
     {
       accessorKey: "name",
       header: "Module",
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {row?.original?.name}
+          <div className={`flex items-center gap-2 text-ellipsis whitespace-nowrap overflow-hidden ${row.original.is_parent && " font-bold"}`} style={{
+            paddingLeft: `${row.depth * 2}rem`
+          }}>
+            {row.getCanExpand() && (
+              <button
+                {...{
+                  onClick: row.getToggleExpandedHandler()
+                }}
+                className="flex gap-1 items-center"
+              >
+                {row.getIsExpanded() ? (
+                  <i className='fa fa-angle-down w-3 h-3'></i>
+                ) : (
+                  <i className='fa fa-angle-right w-3 h-3'></i>
+                )}
+
+                {row?.original?.name}
+
+              </button>
+            )}
+            {!row.original.is_parent&&row?.original?.name}
           </div>
         );
       },
@@ -192,53 +215,63 @@ export const RoleForm = ({
     {
       id: "no_access",
       header: "No Access",
-      cell: ({ row }) => (
-        <Checkbox
-          defaultChecked={row.original.access === "no_access"}
-          aria-label="No Access"
-          className="translate-y-[2px]"
-        />
-      ),
+      cell: ({ row }) =>
+        !row.original.is_parent && (
+          <Checkbox
+            // defaultChecked={row.original.access === "no_access"}
+            aria-label="No Access"
+            className="translate-y-[2px]"
+          />
+        ),
     },
     {
       id: "read",
       header: "Read",
-      cell: ({ row }) => (
-        <Checkbox
-          defaultChecked={row.original.access === "read"}
-          aria-label="Read Access"
-          className="translate-y-[2px]"
-        />
-      ),
+      cell: ({ row }) =>
+        !row.original.is_parent && (
+          <Checkbox
+            // defaultChecked={row.original.access === "read"}
+            aria-label="Read Access"
+            className="translate-y-[2px]"
+          />
+        ),
     },
     {
       id: "write",
       header: "Write",
-      cell: ({ row }) => (
-        <Checkbox
-          defaultChecked={row.original.access === "write"}
-          aria-label="Write Access"
-          className="translate-y-[2px]"
-        />
-      ),
+      cell: ({ row }) =>
+        !row.original.is_parent && (
+          <Checkbox
+            // defaultChecked={row.original.access === "write"}
+            aria-label="Write Access"
+            className="translate-y-[2px]"
+          />
+        ),
     },
     {
       id: "full_access",
       header: "Full Access",
-      cell: ({ row }) => (
-        <Checkbox
-          defaultChecked={row.original.access === "full_access"}
-          aria-label="Full Access"
-          className="translate-y-[2px]"
-        />
-      ),
+      cell: ({ row }) =>
+        !row.original.is_parent && (
+          <Checkbox
+            // defaultChecked={row.original.access === "full_access"}
+            aria-label="Full Access"
+            className="translate-y-[2px]"
+          />
+        ),
     },
   ];
 
   const table = useReactTable({
-    data: allResourceTableData as getRolesType[],
+    data: allResourceTableData as resourceTypes[],
     columns,
     getCoreRowModel: getCoreRowModel(),
+    state: {
+      expanded,
+    },
+    onExpandedChange: setExpanded,
+    getSubRows: (row) => row?.subRows,
+    getExpandedRowModel: getExpandedRowModel(),
   });
 
   return (
@@ -422,10 +455,11 @@ export const RoleForm = ({
                   <div className="flex flex-row gap-4 justify-between w-full ">
                     <Button
                       type="button"
-                      className="w-full text-center flex items-center gap-2"
+                      className="w-full text-center flex items-center gap-2 border-primary"
                       variant={"outline"}
                       onClick={handleClose}
                     >
+                      <i className="fa fa-xmark"></i>
                       Cancel
                     </Button>
                     <LoadingButton
@@ -447,4 +481,21 @@ export const RoleForm = ({
       </Dialog>
     </div>
   );
+};
+
+const convertToTableData = (data: resourceTypes[]) => {
+  console.log({ data }, "datadatadatadata");
+  return data.map((parent) => {
+    if (parent.children) {
+      const newParent: resourceTypes = {
+        ...parent,
+        subRows: parent?.children,
+      };
+
+      delete newParent.children;
+      return newParent;
+    } else {
+      return parent;
+    }
+  });
 };

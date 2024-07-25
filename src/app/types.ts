@@ -1,5 +1,17 @@
 import { JSONObject } from "@/types/hook-stepper";
 
+export interface resourceTypes {
+  id: number;
+  name: string;
+  code: string | undefined;
+  parent: string | undefined;
+  subRows?:resourceTypes[];
+  children?:resourceTypes[];
+  is_parent: boolean;
+  link: string;
+  icon: string;
+}
+
 export interface renewalData extends JSONObject {
   days_before: number | null;
   next_invoice: number | null;
@@ -346,7 +358,12 @@ export interface updateStatusInput {
 export interface getRolesType {
   name: string;
   org_id: number;
+  children?:getRolesType[];
+  subRows?:getRolesType[];
+  code:string|undefined;
+  parent:string|undefined;
   is_deleted: boolean;
+  is_parent: boolean;
   role_id: number;
 }
 

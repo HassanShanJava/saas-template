@@ -1,5 +1,5 @@
 import { apiSlice } from "@/features/api/apiSlice";
-import { getRolesType } from "../app/types";
+import { getRolesType, resourceTypes } from "../app/types";
 
 export const Roles = apiSlice.injectEndpoints({
   endpoints(builder) {
@@ -24,7 +24,7 @@ export const Roles = apiSlice.injectEndpoints({
           providesTags: ["Roles"],
         }),
       }),
-      getAllResources: builder.query<any[], void>({
+      getAllResources: builder.query<resourceTypes[], void>({
         query: () => ({
           url: `/role/resource`,
           method: "GET",
@@ -32,7 +32,31 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
           providesTags: ["Roles"],
-        })
+        }),
+        transformResponse: (resp: resourceTypes[]) => {
+          const transformedArray:resourceTypes[] = [];
+          const childrenMap:Record<string,Array<resourceTypes>>={};
+          resp.forEach((item) => {
+            if (item.is_parent) {
+              item.children = [];
+              transformedArray.push(item);
+            } else if (item.parent) {
+              childrenMap[item.parent!] = childrenMap[item.parent!] || [];
+              childrenMap[item.parent!].push(item);
+            } else {
+              transformedArray.push(item);
+            }
+          });
+
+          // Associate children with their respective parents
+          transformedArray.forEach((parent) => {
+            if (childrenMap[parent.code!]) {
+              parent.children = childrenMap[parent.code!];
+            }
+          });
+
+          return transformedArray;
+        },
       }),
       createRole: builder.mutation<any[], any>({
         query: (roledata) => ({

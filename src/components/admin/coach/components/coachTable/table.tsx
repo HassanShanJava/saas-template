@@ -42,7 +42,7 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { MemberFilterSchema, MemberTabletypes } from "@/app/types";
+// import { MemberFilterSchema, MemberTabletypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
@@ -54,8 +54,18 @@ import Papa from "papaparse";
 import { DataTableFacetedFilter } from "./data-table-faced-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetAllMemberQuery } from "@/services/memberAPi";
+import { useGetListOfCoachQuery } from "@/services/coachApi";
+import { ErrorType } from "@/app/types";
 
-const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
+
+const status = [
+  { value: "actuve", label: "Active", color: "bg-green-500" },
+  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
+  { value: "pending", label: "pending", color: "bg-orange-500" },
+
+];
+
+const downloadCSV = (data: any[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -65,31 +75,32 @@ const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
   link.click();
   document.body.removeChild(link);
 };
-
-export default function MemberTableView() {
+export default function CoachTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+
   const {
-    data: memberData,
+    data: coachData,
     isLoading,
     refetch,
     error,
-  } = useGetAllMemberQuery(orgId);
+  } = useGetListOfCoachQuery(orgId);
+
   const navigate = useNavigate();
 
   function handleRoute() {
-    navigate("/admin/members/addmember");
+    navigate("/admin/coach/addcoach");
   }
-  const memberTableData = React.useMemo(() => {
-    return Array.isArray(memberData) ? memberData : [];
-  }, [memberData]);
+  const coachTableData = React.useMemo(() => {
+    return Array.isArray(coachData) ? coachData : [];
+  }, [coachData]);
   const { toast } = useToast();
-  console.log("data", { memberData, error });
+  console.log("data", { coachData, error });
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
 
-  const [filters, setFilters] = useState<MemberFilterSchema>();
+  const [filters, setFilters] = useState<"">();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
@@ -121,7 +132,44 @@ export default function MemberTableView() {
     }
     downloadCSV(selectedRows, "members_list.csv");
   };
-  const columns: ColumnDef<MemberTabletypes>[] = [
+
+  const handleStatusChange = async (payload: {
+    status: string;
+    id: number;
+    org_id: number;
+  }) => {
+    console.log({ payload });
+    try {
+      // payload.status=Boolean(payload.status)
+      // const resp = await updateMemberships(payload).unwrap();
+      // if (resp) {
+      //   console.log({ resp });
+      //   refetch();
+      //   toast({
+      //     variant: "success",
+      //     title: "Updated Successfully",
+      //   });
+      // }
+    } catch (error) {
+      console.log("Error", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
+  };
+
+  const columns: ColumnDef<any>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -146,12 +194,12 @@ export default function MemberTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "own_member_id",
-      header: "Member Id ",
+      accessorKey: "own_coach_id",
+      header: "Gym Coach ID",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original?.own_member_id)}
+            {displayValue(row?.original?.own_coach_id)}
           </div>
         );
       },
@@ -159,7 +207,7 @@ export default function MemberTableView() {
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
-      header: "Member Name",
+      header: "Coach Name",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -169,50 +217,58 @@ export default function MemberTableView() {
       },
     },
     {
-      accessorKey: "business_name",
-      header: "Business Name",
+      accessorKey: "coach_since",
+      header: "Coach Since",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original?.business_name)}
+            {displayDate(row?.original.coach_since)}
           </div>
         );
       },
     },
     {
-      accessorFn: (row) => row.phone ?? row.mobile_number,
-      id: "contact_number",
-      header: "Contact",
+      accessorKey: "coach_status",
+      header: ({ table }) => <span>Status</span>,
       cell: ({ row }) => {
-        const contactNumber = row.original.phone ?? row.original.mobile_number;
+        const value =
+          row.original?.coach_status != null
+            ? row.original?.coach_status + ""
+            : "false";
+        const statusLabel = status.filter((r) => r.value === value)[0];
+        const id = Number(row.original.id);
+        const org_id = Number(row.original.org_id);
+
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(contactNumber)}
-          </div>
+          <Select
+            defaultValue={value}
+            onValueChange={(e) =>
+              handleStatusChange({ status: e, id: id, org_id: org_id })
+            }
+            disabled={value=="pending"}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Status" className="text-gray-400">
+                <span className="flex gap-2 items-center">
+                  <span
+                    className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
+                  ></span>
+                  <span>{statusLabel?.label}</span>
+                </span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {status.map((item: any) => (
+                <SelectItem key={item.value + ""} value={item.value + ""}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         );
       },
-    },
-    {
-      accessorKey: "coach_name",
-      header: "Coach",
-      cell: ({ row }) => {
-        return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.coach_name)}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "client_since",
-      header: "Activation Date",
-      cell: ({ row }) => {
-        return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayDate(row?.original.client_since)}
-          </div>
-        );
-      },
+      enableSorting: false,
+      enableHiding: false,
     },
     {
       accessorKey: "check_in",
@@ -241,7 +297,7 @@ export default function MemberTableView() {
   ];
   // console.log("data",{memberData})
   const table = useReactTable({
-    data: memberTableData as MemberTabletypes[],
+    data: coachTableData as any[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -277,7 +333,7 @@ export default function MemberTableView() {
             <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
             <FloatingLabelInput
               id="search"
-              placeholder="Search by member name"
+              placeholder="Search by Name"
               onChange={(event) =>
                 table.getColumn("full_name")?.setFilterValue(event.target.value)
               }
@@ -370,7 +426,7 @@ export default function MemberTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : memberTableData.length > 0 ? (
+              ) : coachTableData.length > 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}

@@ -24,6 +24,27 @@ export interface facilitiesData extends JSONObject {
     duration_type: string | undefined | null;
     duration_no: number | undefined | null;
   };
+
+}
+export interface updateMembershipType {
+  id: number | null;
+  org_id: number | null;
+  name?: string;
+  group_id?: number | null;
+  description?: string;
+  status?: string;
+  access_time?: object;
+  net_price?: number | null;
+  discount?: number | null;
+  income_category_id?: number | undefined;
+  total_price?: number | null;
+  payment_method?: string;
+  reg_fee?: number | null;
+  billing_cycle?: string;
+  auto_renewal?: boolean;
+  renewal_details?: renewalData | object;
+  facilities?: facilitiesData[] | [];
+  created_by?: number | null;
 }
 export interface createMembershipType {
   org_id: number | null;
@@ -369,5 +390,32 @@ export interface getRolesType {
 
 export interface createRole {
   name: string;
+  org_id: number;
+}
+
+export interface CoachInputTypes {
+  profile_img?: string;
+  own_coach_id: string;
+  first_name: string;
+  last_name: string;
+  gender: string;
+  dob: string;
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  country_id: number;
+  city: string;
+  coach_status: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  bank_name?: string;
+  iban_no?: string;
+  acc_holder_name?: string;
+  swift_code?: string;
+  created_by: number;
+  members_id: Array<number>;
   org_id: number;
 }

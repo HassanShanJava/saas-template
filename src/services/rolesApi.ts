@@ -1,12 +1,17 @@
 import { apiSlice } from "@/features/api/apiSlice";
-import { getRolesType, resourceTypes } from "../app/types";
+import { createRoleTypes, getRolesType, resourceTypes, updateRoleTypes } from "../app/types";
+
+interface TranformedResourceRsp{
+  allResourceData:resourceTypes[];
+  count:number;
+}
 
 export const Roles = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
       getRoles: builder.query<getRolesType[], number>({
-        query: (orgId) => ({
-          url: `/role?org_id=${orgId}`,
+        query: (org_id) => ({
+          url: `/role?org_id=${org_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -24,7 +29,7 @@ export const Roles = apiSlice.injectEndpoints({
           providesTags: ["Roles"],
         }),
       }),
-      getAllResources: builder.query<resourceTypes[], void>({
+      getAllResources: builder.query<TranformedResourceRsp, void>({
         query: () => ({
           url: `/role/resource`,
           method: "GET",
@@ -34,34 +39,35 @@ export const Roles = apiSlice.injectEndpoints({
           providesTags: ["Roles"],
         }),
         transformResponse: (resp: resourceTypes[]) => {
-          const transformedArray:resourceTypes[] = [];
+          const count:number=resp.filter(item=>!item.is_parent).length
+          const allResourceData:resourceTypes[] = [];
           const childrenMap:Record<string,Array<resourceTypes>>={};
           resp.forEach((item) => {
             if (item.is_parent) {
               item.children = [];
-              transformedArray.push(item);
+              allResourceData.push(item);
             } else if (item.parent) {
               childrenMap[item.parent!] = childrenMap[item.parent!] || [];
               childrenMap[item.parent!].push(item);
             } else {
-              transformedArray.push(item);
+              allResourceData.push(item);
             }
           });
 
           // Associate children with their respective parents
-          transformedArray.forEach((parent) => {
+          allResourceData.forEach((parent) => {
             if (childrenMap[parent.code!]) {
               parent.children = childrenMap[parent.code!];
             }
           });
 
-          return transformedArray;
+          return {allResourceData, count};
         },
       }),
-      createRole: builder.mutation<any[], any>({
+      createRole: builder.mutation<any[], createRoleTypes>({
         query: (roledata) => ({
           url: `/role`,
-          method: "GET",
+          method: "POST",
           headers: {
             Accept: "application/json",
           },
@@ -69,10 +75,10 @@ export const Roles = apiSlice.injectEndpoints({
           providesTags: ["Roles"],
         }),
       }),
-      updateRole: builder.mutation<any, any>({
+      updateRole: builder.mutation<any, updateRoleTypes>({
         query: (roledata) => ({
           url: `/role`,
-          method: "GET",
+          method: "PUT",
           headers: {
             Accept: "application/json",
           },

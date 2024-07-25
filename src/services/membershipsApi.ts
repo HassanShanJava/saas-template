@@ -1,4 +1,3 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL;
 import { createMembershipType, membeshipsTableType, updateMembershipType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 

@@ -771,7 +771,6 @@ const CreditForm = ({
                               onValueChange={(value) =>
                                 field.onChange(value === "true")
                               }
-                              disabled={formData.case == "add"}
                             >
                               <SelectTrigger floatingLabel="Status">
                                 <SelectValue placeholder="">

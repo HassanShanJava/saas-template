@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getRolesType, MemberTabletypes } from "@/app/types";
+import { getRolesType, MemberTabletypes, resourceTypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RootState, AppDispatch } from "@/app/store";
 import { useSelector, useDispatch } from "react-redux";
@@ -54,9 +54,10 @@ export default function RoleTableView() {
     error,
   } = useGetResourcesQuery(selectedRoleId);
 
-
   const permissionTableData = React.useMemo(() => {
-    return Array.isArray(resourceData) && convertToTableData(resourceData) ? resourceData : [];
+    return Array.isArray(resourceData) && convertToTableData(resourceData)
+      ? resourceData
+      : [];
   }, [resourceData]);
   console.log("data", { resourceData, error });
 
@@ -122,11 +123,12 @@ export default function RoleTableView() {
     },
   ];
   console.log({ permissionTableData });
-  
 
   useEffect(() => {
     if (resourceData) {
       setRoleFound(true);
+    }else{
+      setRoleFound(false);
     }
   }, [resourceData]);
 
@@ -141,8 +143,9 @@ export default function RoleTableView() {
     console.log("Selected Role ID:", selectedId);
     setSelectedRoleId(Number(selectedId));
   };
+  // default values in form
   const [formData, setFormData] = useState<any>({
-    status: "",
+    status: true, 
     name: "",
     org_id: orgId,
   });
@@ -173,7 +176,7 @@ export default function RoleTableView() {
   const handleEditRole = () => {
     console.log("Before update:", formData);
     setFormData((prevData: any) => {
-      const updatedData = { ...prevData, case: "edit" };
+      const updatedData = { ...prevData, case: "edit", id:selectedRoleId };
       console.log("After update:", updatedData);
       return updatedData;
     });
@@ -321,57 +324,25 @@ export default function RoleTableView() {
         setIsDialogOpen={handleCloseDailog}
         setFormData={setFormData}
         handleOnChange={handleOnChange}
+        refetch={rolesRefetch}
       />
     </div>
   );
 }
 
-function IndeterminateCheckbox({
-  indeterminate,
-  className = "",
-  ...rest
-}: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
-  const ref = React.useRef<HTMLInputElement>(null!);
+const convertToTableData = (data: resourceTypes[]) => {
+  console.log({ data }, "datadatadatadata");
+  return data.map((parent) => {
+    if (parent.children) {
+      const newParent: resourceTypes = {
+        ...parent,
+        subRows: parent?.children,
+      };
 
-  React.useEffect(() => {
-    if (typeof indeterminate === "boolean") {
-      ref.current.indeterminate = !rest.checked && indeterminate;
+      delete newParent.children;
+      return newParent;
+    } else {
+      return parent;
     }
-  }, [ref, indeterminate]);
-
-  return (
-    <input
-      type="checkbox"
-      ref={ref}
-      className={className + " cursor-pointer"}
-      {...rest}
-    />
-  );
-}
-
-
-const convertToTableData = (data: getRolesType[]) => {
-  return data.map((member) => {
-    if (!member.children?.length) return;
-
-    const newMember: getRolesType = {
-      ...member,
-      subRows: member.children!.map((child) => {
-        if (!child.children?.length) return child;
-
-        const newChild: getRolesType = {
-          ...child,
-          subRows: child.children
-        };
-
-        delete newChild.children;
-        return newChild;
-      })
-    };
-
-    delete newMember.children;
-    return newMember;
   });
 };
-
-

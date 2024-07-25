@@ -48,7 +48,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { useGetAllResourcesQuery, useGetRolesQuery } from "@/services/rolesApi";
+import {
+  useCreateRoleMutation,
+  useGetAllResourcesQuery,
+  useGetRolesQuery,
+  useUpdateRoleMutation,
+} from "@/services/rolesApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 
@@ -63,43 +68,55 @@ export const RoleForm = ({
   isDialogOpen,
   setFormData,
   handleOnChange,
+  refetch,
 }: {
   data: any;
   isDialogOpen: boolean;
   setIsDialogOpen: any;
   setFormData?: any;
   handleOnChange?: any;
+  refetch?: any;
 }) => {
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const { toast } = useToast();
-  const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const [tableAccess, setAccess] = useState<Record<number, string>>({});
 
-  const {
-    data: allResourceData,
-    isLoading,
-    refetch,
-    error,
-  } = useGetAllResourcesQuery();
+  const { data, isLoading, error } = useGetAllResourcesQuery();
+
+  const [createRole] = useCreateRoleMutation();
+  const [updateRole] = useUpdateRoleMutation();
 
   const allResourceTableData = React.useMemo(() => {
-    return Array.isArray(allResourceData)
-      ? convertToTableData(allResourceData)
+    return Array.isArray(data?.allResourceData)
+      ? convertToTableData(data?.allResourceData)
       : [];
-  }, [allResourceData]);
+  }, [data]);
+  console.log({ formData });
 
-  console.log({ allResourceTableData, allResourceData });
-  // const [formData, setFormData] = useState(data);
-  // const [createCredits, { isLoading: creditsLoading }] =
-  //   useCreateCreditsMutation();
-  // const [updateCredits, { isLoading: updateLoading }] =
-  //   useUpdateCreditsMutation();
+  const createAccess = (array: resourceTypes[]) => {
+    const noAccessMap: Record<number, string> = {};
+    array.forEach((item: resourceTypes) => {
+      if (!item.is_parent) {
+        noAccessMap[item.id] = "no_access";
+      }
+      if (item.children && item.children.length > 0) {
+        item.children.forEach((child) => {
+          noAccessMap[child.id] = "no_access";
+        });
+      }
+    });
+    setAccess(noAccessMap);
+  };
 
-  // useEffect(() => {
-  //   form.reset(formData);
-  //   setFormData(formData);
-  // }, [formData]);
+  useEffect(() => {
+    if (data?.allResourceData && formData.case == "add") {
+      createAccess(data?.allResourceData);
+    } else if (formData.case == "edit") {
+      createAccess(formData.tableAccess as resourceTypes[]);
+    }
+  }, [data, formData]);
 
+  console.log({ tableAccess });
   const RoleFormSchema = z.object({
     org_id: z.number(),
     name: z.string().min(1, { message: "Name is required" }),
@@ -108,46 +125,68 @@ export const RoleForm = ({
         required_error: "Please select a status",
       })
       .default(true),
-    module: z.array(z.number()),
-    access: z.array(z.string()),
   });
 
   const form = useForm<z.infer<typeof RoleFormSchema>>({
     resolver: zodResolver(RoleFormSchema),
     defaultValues: formData,
-    mode: "onChange",
+    mode: "all",
   });
 
   const watcher = form.watch();
 
+  const resetFormAndCloseDialog = () => {
+    setFormData((prev: any) => ({
+      ...prev,
+    }));
+  };
+
+  const handleClose = () => {
+    // clearErrors();
+    // createAccess(data?.allResourceData as resourceTypes[])
+    setIsDialogOpen(false);
+  };
+
+  const handleAccessChange = (id: number, access: string) => {
+    setAccess((prev) => ({
+      ...prev,
+      [id]: access,
+    }));
+  };
+
   const onSubmit = async (data: z.infer<typeof RoleFormSchema>) => {
-    console.log({ data }, "payload");
+    const payload = {
+      ...data,
+      resource_id: Object.keys(tableAccess).map((item) => Number(item)),
+      access_type: Object.values(tableAccess),
+    };
+
+    console.log({ payload }, "payload");
 
     try {
       if (formData.case == "add") {
-        // const resp = await createCredits(data).unwrap();
-        // if (resp) {
-        //   console.log({ resp });
-        //   refetch();
-        //   toast({
-        //     variant: "success",
-        //     title: "Credit Created Successfully",
-        //   });
-        //   resetFormAndCloseDialog();
-        //   setIsDialogOpen(false);
-        // }
+        const resp = await createRole(payload).unwrap();
+        if (resp) {
+          refetch();
+          toast({
+            variant: "success",
+            title: "Created Successfully",
+          });
+          resetFormAndCloseDialog();
+          setIsDialogOpen(false);
+        }
       } else {
-        // const resp = await updateCredits(data).unwrap();
-        // if (resp) {
-        //   console.log({ resp });
-        //   refetch();
-        //   toast({
-        //     variant: "success",
-        //     title: "Updated Successfully",
-        //   });
-        //   resetFormAndCloseDialog();
-        //   setIsDialogOpen(false);
-        // }
+        const resp = await updateRole({ ...payload, id: formData.id }).unwrap();
+        if (resp) {
+          console.log({ resp });
+          refetch();
+          toast({
+            variant: "success",
+            title: "Updated Successfully",
+          });
+          resetFormAndCloseDialog();
+          setIsDialogOpen(false);
+        }
       }
     } catch (error) {
       console.log("Error", error);
@@ -170,69 +209,68 @@ export const RoleForm = ({
     }
   };
 
-  const resetFormAndCloseDialog = () => {
-    setFormData((prev: any) => ({
-      ...prev,
-    }));
-  };
-
-  const handleClose = () => {
-    // clearErrors();
-    setIsDialogOpen(false);
-  };
-
   const columns: ColumnDef<resourceTypes>[] = [
     {
       accessorKey: "name",
       header: "Module",
       cell: ({ row }) => {
         return (
-          <div className={`flex items-center gap-2 text-ellipsis whitespace-nowrap overflow-hidden ${row.original.is_parent && " font-bold"}`} style={{
-            paddingLeft: `${row.depth * 2}rem`
-          }}>
+          <div
+            className={`flex items-center gap-2 text-ellipsis whitespace-nowrap overflow-hidden ${row.original.is_parent && " font-bold"}`}
+            style={{
+              paddingLeft: `${row.depth * 2}rem`,
+            }}
+          >
             {row.getCanExpand() && (
               <button
                 {...{
-                  onClick: row.getToggleExpandedHandler()
+                  onClick: row.getToggleExpandedHandler(),
                 }}
                 className="flex gap-1 items-center"
               >
                 {row.getIsExpanded() ? (
-                  <i className='fa fa-angle-down w-3 h-3'></i>
+                  <i className="fa fa-angle-down w-3 h-3"></i>
                 ) : (
-                  <i className='fa fa-angle-right w-3 h-3'></i>
+                  <i className="fa fa-angle-right w-3 h-3"></i>
                 )}
 
                 {row?.original?.name}
-
               </button>
             )}
-            {!row.original.is_parent&&row?.original?.name}
+            {!row.original.is_parent && row?.original?.name}
           </div>
         );
       },
     },
-    {
-      id: "no_access",
-      header: "No Access",
-      cell: ({ row }) =>
-        !row.original.is_parent && (
-          <Checkbox
-            // defaultChecked={row.original.access === "no_access"}
-            aria-label="No Access"
-            className="translate-y-[2px]"
-          />
-        ),
-    },
+    // {
+    //   id: "no_access",
+    //   header: "No Access",
+    //   cell: ({ row }) =>
+    //     !row.original.is_parent && (
+    //       <Checkbox
+    //         defaultChecked={tableAccess[row.original.id] == "no_access"}
+    //         aria-label="No Access"
+    //         className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
+    //         value={"no_access"}
+    //         disabled={tableAccess[row.original.id] == "no_access"}
+    //         onCheckedChange={() =>
+    //           handleAccessChange(row.original.id, "no_access")
+    //         }
+    //       />
+    //     ),
+    // },
     {
       id: "read",
       header: "Read",
       cell: ({ row }) =>
         !row.original.is_parent && (
           <Checkbox
-            // defaultChecked={row.original.access === "read"}
+            defaultChecked={tableAccess[row.original.id] == "read"}
             aria-label="Read Access"
-            className="translate-y-[2px]"
+            className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
+            value={"read"}
+            disabled={tableAccess[row.original.id] == "read"}
+            onCheckedChange={() => handleAccessChange(row.original.id, "read")}
           />
         ),
     },
@@ -242,9 +280,12 @@ export const RoleForm = ({
       cell: ({ row }) =>
         !row.original.is_parent && (
           <Checkbox
-            // defaultChecked={row.original.access === "write"}
+            defaultChecked={tableAccess[row.original.id] == "write"}
             aria-label="Write Access"
-            className="translate-y-[2px]"
+            className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
+            value={"write"}
+            disabled={tableAccess[row.original.id] == "write"}
+            onCheckedChange={() => handleAccessChange(row.original.id, "write")}
           />
         ),
     },
@@ -254,9 +295,14 @@ export const RoleForm = ({
       cell: ({ row }) =>
         !row.original.is_parent && (
           <Checkbox
-            // defaultChecked={row.original.access === "full_access"}
+            defaultChecked={tableAccess[row.original.id] == "full_access"}
             aria-label="Full Access"
-            className="translate-y-[2px]"
+            className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
+            value={"full_access"}
+            disabled={tableAccess[row.original.id] == "full_access"}
+            onCheckedChange={() =>
+              handleAccessChange(row.original.id, "full_access")
+            }
           />
         ),
     },
@@ -268,6 +314,10 @@ export const RoleForm = ({
     getCoreRowModel: getCoreRowModel(),
     state: {
       expanded,
+    },
+    autoResetExpanded: false,
+    initialState: {
+      expanded: true,
     },
     onExpandedChange: setExpanded,
     getSubRows: (row) => row?.subRows,
@@ -327,7 +377,6 @@ export const RoleForm = ({
                     <FormField
                       control={form.control}
                       name="status"
-                      defaultValue={true}
                       render={({ field }) => (
                         <FormItem className="w-1/2">
                           <Select
@@ -427,8 +476,8 @@ export const RoleForm = ({
                                   ))}
                                 </TableRow>
                               ))
-                            ) : allResourceData &&
-                              allResourceData.length > 0 ? (
+                            ) : data?.allResourceData &&
+                              data?.allResourceData.length > 0 ? (
                               <TableRow>
                                 <TableCell
                                   colSpan={columns.length}

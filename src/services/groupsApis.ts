@@ -1,4 +1,3 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL;
 import { groupCreateType, groupRespType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
@@ -6,7 +5,6 @@ interface TransformedGroup {
   value: number;
   label: string;
 }
-
 
 export const Groups = apiSlice.injectEndpoints({
   endpoints(builder) {

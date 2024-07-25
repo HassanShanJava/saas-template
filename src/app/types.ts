@@ -1,5 +1,17 @@
 import { JSONObject } from "@/types/hook-stepper";
 
+
+export interface createRoleTypes {
+  org_id:number,
+  status:boolean,
+  name:string,
+  resource_id:Array<number>,
+  access_type:Array<string>
+}
+
+export interface updateRoleTypes extends createRoleTypes{
+  id:number
+}
 export interface resourceTypes {
   id: number;
   name: string;
@@ -24,6 +36,27 @@ export interface facilitiesData extends JSONObject {
     duration_type: string | undefined | null;
     duration_no: number | undefined | null;
   };
+}
+
+export interface updateMembershipType {
+  id:number | null;
+  org_id: number | null;
+  name?: string;
+  group_id?: number | null;
+  description?: string;
+  status?: string;
+  access_time?: object;
+  net_price?: number | null;
+  discount?: number | null;
+  income_category_id?: number | undefined;
+  total_price?: number | null;
+  payment_method?: string;
+  reg_fee?: number | null;
+  billing_cycle?: string;
+  auto_renewal?: boolean;
+  renewal_details?: renewalData | object;
+  facilities?: facilitiesData[] | [];
+  created_by?: number | null;
 }
 export interface createMembershipType {
   org_id: number | null;

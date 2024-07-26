@@ -26,11 +26,11 @@ import { CoachInputTypes } from "@/app/types";
 export function DataTableRowActions({
   data,
   refetch,
-  handleEdit,
+  // handleEdit,
 }: {
   data: CoachInputTypes & { id: number };
   refetch: () => void;
-  handleEdit?: any;
+  // handleEdit?: any;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const [deleteCoach, { isLoading: deleteLoading }] = useDeleteCoachMutation();

@@ -73,7 +73,6 @@ import {
   useGetCoachCountQuery,
   useGetMemberListQuery,
 } from "@/services/coachApi";
-// import { statuses } from './../../../../schema/taskSchema';
 
 const AddCoachForm: React.FC = () => {
   const { id } = useParams();
@@ -144,7 +143,7 @@ const AddCoachForm: React.FC = () => {
       })
       .trim()
       .optional(),
-    members_id: z.array(membersSchema).nonempty({
+    member_ids: z.array(membersSchema).nonempty({
       message: "Minimum one member must be assigned", // Custom error message
     }),
     coach_status: z
@@ -245,7 +244,7 @@ const AddCoachForm: React.FC = () => {
     const updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-      members_id: data.members_id.map((member) => member.id),
+      member_ids: data.member_ids.map((member) => member.id),
     };
 
     console.log("Updated data with only date:", updatedData);
@@ -284,8 +283,8 @@ const AddCoachForm: React.FC = () => {
 
   React.useEffect(() => {
     if (orgName) {
-      const total = coachCountData?.total_coaches;
-      if (total) {
+      const total = coachCountData?.total_coaches as number;
+      if (total >= 0 && id === undefined) {
         form.setValue("own_coach_id", `${orgName.slice(0, 2)}-C${total + 1}`);
       }
     }
@@ -553,7 +552,7 @@ const AddCoachForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="members_id"
+                    name="member_ids"
                     render={({ field }) => (
                       <FormItem className="w-full ">
                         <MultiSelector
@@ -660,7 +659,7 @@ const AddCoachForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="0">Select Source*</SelectItem>{" "}
+                            {/* <SelectItem value="0">Select Source*</SelectItem>{" "} */}
                             {/* Placeholder option */}
                             {sources && sources.length ? (
                               sources.map((sourceval: sourceTypes, i: any) => (

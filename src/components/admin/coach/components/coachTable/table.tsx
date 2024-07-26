@@ -61,7 +61,7 @@ import {
 import { ErrorType } from "@/app/types";
 
 const status = [
-  { value: "actuve", label: "Active", color: "bg-green-500" },
+  { value: "active", label: "Active", color: "bg-green-500" },
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
   { value: "pending", label: "Pending", color: "bg-orange-500" },
 ];
@@ -134,23 +134,24 @@ export default function CoachTableView() {
     }
     downloadCSV(selectedRows, "members_list.csv");
   };
-  const handleEditCoach = (data: any) => {
-    // const updatedObject = {
-    //   ...data,
-    //   ...data.access_time,
-    //   ...data.renewal_details,
-    // };
-    // setData(updatedObject);
-    // setAction("edit");
-    // setIsDialogOpen(true);
-  };
+
+ 
+
   const handleStatusChange = async (payload: {
     coach_status: string;
     id: number;
     org_id: number;
   }) => {
     console.log("handle change status", { payload });
+
     try {
+      if (payload.coach_status == "pending") {
+        toast({
+          variant: "destructive",
+          title: "Only Active/Inactive",
+        });
+        return;
+      }
       const resp = await updateCoach(payload).unwrap();
       if (resp) {
         console.log({ resp });
@@ -307,7 +308,7 @@ export default function CoachTableView() {
         <DataTableRowActions
           data={row.original}
           refetch={refetch}
-          handleEdit={handleEditCoach}
+          // handleEdit={handleEditCoach}
         />
       ),
     },
@@ -548,7 +549,7 @@ export default function CoachTableView() {
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 p-2">
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
@@ -584,7 +585,7 @@ export default function CoachTableView() {
 
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
+              className="hidden h-8 w-8 p-0 lg:flex "
               // onClick={() =>
               //   handlePagination(
               //     Math.ceil((data?.count ?? 0) / filters.rows) - 1

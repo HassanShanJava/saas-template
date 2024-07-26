@@ -14,7 +14,6 @@ export const Roles = apiSlice.injectEndpoints({
             "Content-Type": "application/json",
           },
         }),
-        invalidatesTags: ["Coaches"], // Invalidate the cache for coaches
       }),
       getCoachCount: builder.query<{ total_coaches: number }, number>({
         query: (org_id) => ({
@@ -23,7 +22,6 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
-        providesTags: ["Coaches"], // Provide cache for coaches
       }),
       getMemberList: builder.query<{ id: number; name: string }[], number>({
         query: (org_id) => ({
@@ -47,7 +45,6 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
-        providesTags: ["Coaches"], // Provide cache for coaches
       }),
       deleteCoach: builder.mutation<any, any>({
         query: (coachId) => ({
@@ -59,7 +56,6 @@ export const Roles = apiSlice.injectEndpoints({
             "Content-Type": "application/json",
           },
         }),
-        invalidatesTags: ["Coaches"], // Invalidate the cache for coaches
       }),
       updateCoach: builder.mutation<any, any>({
         query: (coachdata) => ({
@@ -71,7 +67,6 @@ export const Roles = apiSlice.injectEndpoints({
             "Content-Type": "application/json",
           },
         }),
-        invalidatesTags: ["Coaches"], // Invalidate the cache for coaches
       }),
       getCoachById: builder.query<any, any>({
         query: (coach_id) => ({
@@ -81,7 +76,6 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
-        providesTags: ["Coaches"],
       }),
     };
   },

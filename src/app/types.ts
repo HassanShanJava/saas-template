@@ -415,7 +415,7 @@ export interface CoachInputTypes {
   acc_holder_name?: string;
   swift_code?: string;
   created_by: number;
-  members_id: Array<number>;
+  member_ids: Array<number>;
   org_id: number;
 }
 

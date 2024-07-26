@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { creditDetailsTablestypes, creditTablestypes } from "@/app/types";
+import { creditDetailsTablestypes, creditTablestypes, facilitiesData } from "@/app/types";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useGetCreditsQuery } from "@/services/creditsApi";
@@ -55,10 +55,15 @@ interface payloadData {
   id: number;
   total_credits: number;
   validity: {
-    duration_type: string ;
-    duration_no: number ;
+    duration_type: string;
+    duration_no: number;
   };
 }
+
+const findIndex = (id: number, array:creditTablestypes[]) => {
+    return array?.findIndex((item) => item.id === id);
+  };
+
 
 export default function CreditsTableView({
   setFacilities,
@@ -69,6 +74,8 @@ export default function CreditsTableView({
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { getValues } = useFormContext<StepperFormValues>();
   const { data: creditsData, isLoading } = useGetCreditsQuery(orgId);
+  const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
+
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -84,31 +91,60 @@ export default function CreditsTableView({
   const [transformedCredits, setTransformedCredits] = useState<
     tranformData[] | undefined
   >([]);
-  const [payload, setPayload] = useState<payloadData[] | undefined>([]);
+  const [payload, setPayload] = useState<facilitiesData[]>(getValues("facilities")?getValues("facilities"):[]);
 
   useEffect(() => {
+    const data = creditsData?.map((item) => ({
+      id: item.id,
+      count: 1,
+      credits: item.min_limit,
+      total_credits: item.min_limit,
+      validity: {
+        duration_type: undefined,
+        duration_no: undefined,
+      },
+    }));
+    console.log({data})
     
-      const data = creditsData?.map((item) => ({
-        id: item.id,
-        count: 1,
-        credits: item.min_limit,
-        total_credits: item.min_limit,
-        validity: {
-          duration_type: undefined,
-          duration_no: undefined,
-        },
-      }));
+
+    if(payload.length>0 ){
+
+      const newRowSelection: Record<number,boolean> = {};
+      payload.forEach(item => {
+        const index = findIndex(item.id,creditsData as creditTablestypes[]);
+        if (index !== -1) {
+          newRowSelection[index] = true;
+        }
+      });
+      
+      const result = payload.map((item1) => {
+        const item2 = data?.find(item2 => item2.id === item1.id);
+
+        if (item2) {
+          const count = item1.total_credits as number / item2.credits;
+          return {
+            ...item1,
+            count: count,
+            credits: item2.credits,
+            total_credits: item1.total_credits,
+          };
+        }
+
+        return item1;
+      });
+
+      setRowSelection(newRowSelection)
+      setTransformedCredits(result as tranformData[]);
+    }else{
       setTransformedCredits(data);
-    
-  }, [creditsData]);
+    }
+
+  }, [creditsData,payload]);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
   const [filters, setFilters] = useState<any>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState<{ [key: string]: boolean }>(
-    {}
-  );
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
   const [pagination, setPagination] = useState<PaginationState>({
@@ -141,10 +177,13 @@ export default function CreditsTableView({
     });
   };
 
+  
+
   useEffect(() => {
+    // when ever transformCredits changes it is updated in payload
     if (transformedCredits && transformedCredits?.length > 0) {
       const selectedIndexes = Object.keys(rowSelection).filter(
-        (key) => rowSelection[key]
+        (key) => rowSelection[Number(key)]
       );
 
       const selectedCredits = transformedCredits
@@ -160,7 +199,6 @@ export default function CreditsTableView({
       console.log({ rowSelection, transformedCredits });
     }
   }, [rowSelection, transformedCredits]);
-
 
   const handleChangeRowSelect = (value: string, id?: number, key?: string) => {
     console.log(value, id, key, "input change");
@@ -257,19 +295,18 @@ export default function CreditsTableView({
     {
       id: "credits_include",
       header: "Credits Included",
-      maxSize: 100,
       cell: ({ row }) => {
         const id = row.original.id;
         const totalCredit = transformedCredits
           ?.filter((data) => data?.id == id)
           .map((item) => item.total_credits);
         return row.getIsSelected() ? (
-          <div className="flex gap-2 items-center">
-            <span className="text-xs">
-              (Min. required credit: {row?.original?.min_limit}){" "}
+          <div className="flex  items-center gap-2 justify-between !max-w-4xl">
+            <span className="text-xs w-full max-w-40">
+              (Min. required credit: {row?.original?.min_limit})
             </span>
 
-            <div className="flex items-center gap-4 bg-white  border border-primary rounded-lg p-2">
+            <div className="flex items-center justify-between gap-2 w-full max-w-36 bg-white  border border-primary rounded-lg p-2">
               <button
                 onClick={() => updateCredit(id, "decrement")}
                 className="text-black bg-white border border-primary rounded-lg px-2 py-1"
@@ -390,10 +427,7 @@ export default function CreditsTableView({
       <div className="rounded-none  ">
         <ScrollArea className="w-full relative">
           <ScrollBar orientation="horizontal" />
-          <Table
-            className=""
-            containerClassname="h-fit max-h-80  "
-          >
+          <Table className="" containerClassname="h-fit max-h-80  ">
             <TableHeader className="bg-gray-100 sticky top-0 z-50">
               {table?.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -475,12 +509,12 @@ export default function CreditsTableView({
   );
 }
 
-function findMatchingIndicesObject(arr1:any, arr2:any) {
-  const indicesObject:any = {};
-  arr2.forEach((item2:any, index:number) => {
-      if (arr1.some((item1:any) => item1.id === item2.id)) {
-          indicesObject[index] = true;
-      }
+function findMatchingIndicesObject(arr1: any, arr2: any) {
+  const indicesObject: any = {};
+  arr2.forEach((item2: any, index: number) => {
+    if (arr1.some((item1: any) => item1.id === item2.id)) {
+      indicesObject[index] = true;
+    }
   });
   return indicesObject;
 }

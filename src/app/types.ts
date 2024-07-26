@@ -9,6 +9,10 @@ export interface createRoleTypes {
   access_type:Array<string>
 }
 
+export interface deleteMemberTypes{
+  id:number
+}
+
 export interface updateRoleTypes extends createRoleTypes{
   id:number
 }
@@ -300,17 +304,17 @@ export interface MemberInputTypes {
   own_member_id: string;
   first_name: string;
   last_name: string;
-  gender: string;
+  gender: "male"|"female"|"other";
   dob: string;
   email: string;
   phone?: string;
   mobile_number?: string;
-  notes?: string;
+  notes?: string;  
   source_id: number;
   language?: string | null;
   is_business?: boolean;
   business_id?: number;
-  country_id: number;
+  country_id?: number;
   city: string;
   zipcode?: string;
   address_1?: string;
@@ -353,6 +357,7 @@ export interface MemberResponseTypes {
   membership_id: number;
   send_invitation?: boolean | null;
   status?: string | null;
+  is_deleted:boolean;
 }
 
 export interface updateStatusInput {

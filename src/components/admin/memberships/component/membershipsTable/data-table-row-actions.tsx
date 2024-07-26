@@ -39,12 +39,10 @@ export function DataTableRowActions({
   const deleteRow = async () => {
     const payload = {
       id: data.id,
-      org_id: data.org_id,
     };
     try {
-      const resp = await deleteMembership(data).unwrap();
+      const resp = await deleteMembership(payload).unwrap();
       if (resp) {
-        console.log({ resp });
         refetch();
         toast({
           variant: "success",
@@ -60,7 +58,7 @@ export function DataTableRowActions({
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: `${JSON.stringify(typedError.data?.detail)}`,
         });
       } else {
         toast({

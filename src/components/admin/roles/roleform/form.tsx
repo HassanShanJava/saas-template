@@ -195,7 +195,7 @@ export const RoleForm = ({
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: `${JSON.stringify(typedError.data?.detail)}`,
         });
       } else {
         toast({
@@ -242,23 +242,23 @@ export const RoleForm = ({
         );
       },
     },
-    // {
-    //   id: "no_access",
-    //   header: "No Access",
-    //   cell: ({ row }) =>
-    //     !row.original.is_parent && (
-    //       <Checkbox
-    //         defaultChecked={tableAccess[row.original.id] == "no_access"}
-    //         aria-label="No Access"
-    //         className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
-    //         value={"no_access"}
-    //         disabled={tableAccess[row.original.id] == "no_access"}
-    //         onCheckedChange={() =>
-    //           handleAccessChange(row.original.id, "no_access")
-    //         }
-    //       />
-    //     ),
-    // },
+    {
+      id: "no_access",
+      header: "No Access",
+      cell: ({ row }) =>
+        !row.original.is_parent && (
+          <Checkbox
+            defaultChecked={tableAccess[row.original.id] == "no_access"}
+            aria-label="No Access"
+            className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
+            value={"no_access"}
+            disabled={tableAccess[row.original.id] == "no_access"}
+            onCheckedChange={() =>
+              handleAccessChange(row.original.id, "no_access")
+            }
+          />
+        ),
+    },
     {
       id: "read",
       header: "Read",
@@ -323,6 +323,8 @@ export const RoleForm = ({
     getSubRows: (row) => row?.subRows,
     getExpandedRowModel: getExpandedRowModel(),
   });
+
+  console.log({allResourceTableData})
 
   return (
     <div>

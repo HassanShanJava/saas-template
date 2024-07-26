@@ -165,8 +165,8 @@ const MembershipForm = ({
         next_invoice: formData.next_invoice,
         prolongation_period: formData.prolongation_period,
       };
-    }else{
-      payload.renewal_details={}
+    } else {
+      payload.renewal_details = {};
     }
 
     if (payload.facilities.length > 0) {
@@ -184,7 +184,7 @@ const MembershipForm = ({
       }
     }
 
-    console.log({ payload });
+    console.log({ payload }, action);
 
     try {
       if (action == "add") {
@@ -231,7 +231,7 @@ const MembershipForm = ({
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: `${JSON.stringify(typedError.data?.detail)}`,
         });
       } else {
         toast({

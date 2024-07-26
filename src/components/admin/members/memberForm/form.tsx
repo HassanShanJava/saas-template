@@ -62,6 +62,7 @@ import {
   CoachTypes,
   CountryTypes,
   ErrorType,
+  MemberInputTypes,
   membershipplanTypes,
   membeshipsTableType,
   sourceTypes,
@@ -76,127 +77,164 @@ import {
   useGetCoachesQuery,
   useGetMemberCountQuery,
   useAddMemberMutation,
+  useUpdateMemberMutation,
+  useGetMemberByIdQuery,
 } from "@/services/memberAPi";
 
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
+import { useParams } from "react-router-dom";
 
-const AddMemberForm: React.FC = () => {
-  const [counter, setCounter] = React.useState(0);
+const MemberForm: React.FC = () => {
+  const { id } = useParams();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const FormSchema = z.object({
-    profile_img: z
-      .string()
-      .trim()
-      .default(
-        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-      )
-      .optional(),
-    own_member_id: z.string({
-      required_error: "Own Member Id Required.",
-    }),
-    first_name: z
-      .string({
-        required_error: "Firstname Required.",
-      })
-      .trim()
-      .min(3, { message: "First Name Is Required." }),
-    last_name: z
-      .string({
-        required_error: "Lastname Required.",
-      })
-      .trim()
-      .min(3, { message: "Last Name Is Required" }),
-    gender: z.enum(["male", "female", "other"], {
-      required_error: "You need to select a gender type.",
-    }),
-    dob: z.date({
-      required_error: "A date of birth is required.",
-    }),
-    email: z
-      .string()
-      .email({ message: "Invalid email" })
-      .min(4, { message: "Email is Required" }),
-    phone: z.string().trim().optional(),
-    mobile_number: z.string().trim().optional(),
-    notes: z.string().optional(),
-    source_id: z
-      .number({
-        required_error: "Source Required.",
-      })
-      .refine((val) => val !== 0, {
-        message: "Source is required",
-      }),
-    is_business: z.boolean().default(false).optional(),
-    business_id: z.number().optional(),
-    country_id: z
-      .number({
-        required_error: "Country Required.",
-      })
-      .refine((val) => val !== 0, {
-        message: "Country is required",
-      }),
-    city: z
-      .string({
-        required_error: "City Required.",
-      })
-      .trim()
-      .min(3, {
-        message: "City Required.",
-      }),
-    zipcode: z.string().trim().optional(),
-    address_1: z.string().optional(),
-    address_2: z.string().optional(),
-    org_id: z
-      .number({
-        required_error: "Org id is required",
-      })
-      .default(orgId),
-    coach_id: z.number().optional(),
-    membership_id: z
-      .number({
-        required_error: "Membership plan is required.",
-      })
-      .refine((val) => val !== 0, {
-        message: "membership plan is required",
-      }),
-    send_invitation: z.boolean().default(true).optional(),
-    auto_renewal: z.boolean().default(false).optional(),
-    status: z.string().default("pending"),
-    client_since: z
-      .string()
-      .date()
-      .default(new Date().toISOString().split("T")[0]),
-    prolongation_period: z.coerce.number(),
-    auto_renew_days: z.coerce.number(),
-    inv_days_cycle: z.coerce.number(),
-  });
-  // Example of handling async data fetching before form initialization
-
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
-  const {
-    data: memberCountData,
-    isLoading,
-    refetch,
-  } = useGetMemberCountQuery(orgId);
 
+  const initialState: MemberInputTypes = {
+    profile_img: "",
+    own_member_id: "",
+    first_name: "",
+    last_name: "",
+    gender: "male",
+    dob: "",
+    email: "",
+    phone: "",
+    mobile_number: "",
+    notes: "",
+    source_id: 0,
+    is_business: false,
+    business_id: 0,
+    country_id: undefined,
+    city: "",
+    zipcode: "",
+    address_1: "",
+    address_2: "",
+    org_id: orgId,
+    coach_id: undefined,
+    membership_id: 0,
+    send_invitation: true,
+    status: "pending",
+    client_since: new Date().toISOString().split("T")[0],
+  };
+
+  const navigate = useNavigate();
+  const [counter, setCounter] = React.useState(0);
+  const [initialValues, setInitialValues] =
+    React.useState<MemberInputTypes>(initialState);
+  const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
+
+  const FormSchema = z
+    .object({
+      profile_img: z
+        .string()
+        .trim()
+        .default(
+          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        )
+        .optional(),
+      own_member_id: z.string({
+        required_error: "Own Member Id Required.",
+      }),
+      first_name: z
+        .string({
+          required_error: "Firstname Required.",
+        })
+        .trim()
+        .min(3, { message: "First Name Is Required." }),
+      last_name: z
+        .string({
+          required_error: "Lastname Required.",
+        })
+        .trim()
+        .min(3, { message: "Last Name Is Required" }),
+      gender: z.enum(["male", "female", "other"], {
+        required_error: "You need to select a gender type.",
+      }),
+      dob: z.coerce.date({
+        required_error: "A date of birth is required.",
+      }),
+      email: z
+        .string()
+        .email({ message: "Invalid email" })
+        .min(4, { message: "Email is Required" }),
+      phone: z.string().trim().optional(),
+      mobile_number: z.string().trim().optional(),
+      notes: z.string().optional(),
+      source_id: z
+        .number({
+          required_error: "Source Required.",
+        })
+        .refine((val) => val !== 0, {
+          message: "Source is required",
+        }),
+      is_business: z.boolean().default(false).optional(),
+      business_id: z.number().optional(),
+      country_id: z
+        .number({
+          required_error: "Country Required.",
+        })
+        .refine((val) => val !== 0, {
+          message: "Country is required",
+        }),
+      city: z
+        .string({
+          required_error: "City Required.",
+        })
+        .trim()
+        .min(3, {
+          message: "City Required.",
+        }),
+      zipcode: z.string().trim().optional(),
+      address_1: z.string().optional(),
+      address_2: z.string().optional(),
+      org_id: z
+        .number({
+          required_error: "Org id is required",
+        })
+        .default(orgId),
+      coach_id: z.number().optional(),
+      membership_id: z
+        .number({
+          required_error: "Membership plan is required.",
+        })
+        .refine((val) => val !== 0, {
+          message: "membership plan is required",
+        }),
+      send_invitation: z.boolean().default(true).optional(),
+      auto_renewal: z.boolean().default(false).optional(),
+      status: z.string().default("pending"),
+      client_since: z
+        .string()
+        .date()
+        .default(new Date().toISOString().split("T")[0]),
+      prolongation_period: z.coerce.number().optional(),
+      auto_renew_days: z.coerce.number().optional(),
+      inv_days_cycle: z.coerce.number().optional(),
+    })
+    .refine((input) => {
+      if (
+        input.auto_renewal == true &&
+        (input.prolongation_period == undefined ||
+          input.auto_renew_days == undefined ||
+          input.inv_days_cycle == undefined)
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+  const { data: memberCountData, refetch } = useGetMemberCountQuery(orgId);
+  const { data: memberData } = useGetMemberByIdQuery(Number(id));
   const { data: countries } = useGetCountriesQuery();
-
   const { data: business } = useGetAllBusinessesQuery(orgId);
-
   const { data: coaches } = useGetCoachesQuery(orgId);
-
   const { data: sources } = useGetAllSourceQuery();
   const { data: membershipPlans } = useGetMembershipsQuery(orgId);
-
-  const [loading, setLoading] = React.useState(true);
-
   const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
-  const navigate = useNavigate();
-
-  const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
+  const [editMember, { isLoading: editLoading }] = useUpdateMemberMutation();
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -217,22 +255,26 @@ const AddMemberForm: React.FC = () => {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      is_business: false,
-      own_member_id: "",
-      prolongation_period: 1,
-      auto_renewal: false,
-      send_invitation: false,
-    },
+    defaultValues: { ...initialValues, dob: new Date() },
     mode: "onChange",
   });
 
   const watcher = form.watch();
 
-  const refreshComponent = () => {
-    // Update state to trigger re-render
-    setCounter(counter + 1); // Incrementing state to force a re-render
-  };
+  React.useEffect(() => {
+    console.log({ memberData }, "jh");
+    if (!memberData) {
+      if (orgName) {
+        const total = memberCountData?.total_clients as number;
+        if (total >= 0) {
+          form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total + 1}`);
+        }
+      }
+    } else {
+      setInitialValues(memberData as MemberInputTypes);
+      form.reset(memberData as any);
+    }
+  }, [memberData, memberCountData, orgName]);
 
   // set auto_renewal
   const handleMembershipPlanChange = (value: number) => {
@@ -246,80 +288,39 @@ const AddMemberForm: React.FC = () => {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
     };
-
-    console.log("Updated data with only date:", updatedData);
-    console.log("only once", data);
-    // form.reset();
-    //    form.reset({
-    //      profile_img: "",
-    //      own_member_id:`${orgName?.slice(0, 2)! as string}-${memberCountData?.total_clients! + 1}` as string,
-    //      first_name: "",
-    //      last_name: "",
-    //      gender: "male",
-    //      dob: undefined,
-    //      email: "",
-    //      phone: "",
-    //      mobile_number: "",
-    //      notes: "",
-    //      source_id: 0,
-    //      is_business: false,
-    //      business_id: 0,
-    //      country_id: undefined,
-    //      city: "",
-    //      zipcode: "",
-    //      address_1: "",
-    //      address_2: "",
-    //      org_id: orgId,
-    //      coach_id: NaN,
-    //      membership_id: 0,
-    //      send_invitation: true,
-    //      status: "pending",
-    //      client_since: new Date().toISOString().split("T")[0],
-    //    });
-
     try {
-      const resp = await addMember(updatedData).unwrap();
-      refetch();
-      //   console.log(resp);
-      //   form.reset({
-      //     profile_img: "",
-      //     own_member_id: "",
-      //     first_name: "",
-      //     last_name: "",
-      //     gender: "male",
-      //     dob: undefined,
-      //     email: "",
-      //     phone: "",
-      //     mobile_number: "",
-      //     notes: "",
-      //     source_id: undefined,
-      //     is_business: false,
-      //     business_id: undefined,
-      //     country_id: undefined,
-      //     city: "",
-      //     zipcode: "",
-      //     address_1: "",
-      //     address_2: "",
-      //     org_id: orgId,
-      //     coach_id: undefined,
-      //     membership_id: undefined,
-      //     send_invitation: true,
-      //     status: "pending",
-      //     client_since: new Date().toISOString().split("T")[0],
-      //   });
-      toast({
-        variant: "success",
-        title: "Member Added Successfully ",
-      });
-      navigate("/admin/members");
+      if (!id) {
+        const resp = await addMember(updatedData).unwrap();
+        if (resp) {
+          refetch();
+          toast({
+            variant: "success",
+            title: "Member Added Successfully ",
+          });
+          navigate("/admin/members");
+        }
+      } else {
+        const resp = await editMember({
+          ...updatedData,
+          id: Number(id),
+        }).unwrap();
+        if (resp) {
+          refetch();
+          toast({
+            variant: "success",
+            title: "Member Added Successfully ",
+          });
+          navigate("/admin/members");
+        }
+      }
     } catch (error: unknown) {
-      console.log("Error", error);
+      console.log("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: `${JSON.stringify(typedError.data?.detail)}`,
         });
       } else {
         toast({
@@ -334,15 +335,6 @@ const AddMemberForm: React.FC = () => {
   function gotoMember() {
     navigate("/admin/members");
   }
-
-  React.useEffect(() => {
-    if (orgName) {
-      const total = memberCountData?.total_clients;
-      if (total) {
-        form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total + 1}`);
-      }
-    }
-  }, [memberCountData, orgName]);
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -391,10 +383,10 @@ const AddMemberForm: React.FC = () => {
                     <LoadingButton
                       type="submit"
                       className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                      loading={memberLoading}
-                      disabled={memberLoading}
+                      loading={memberLoading || editLoading}
+                      disabled={memberLoading || editLoading}
                     >
-                      {!memberLoading && (
+                      {(!memberLoading || !editLoading) && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
                       Save
@@ -638,7 +630,7 @@ const AddMemberForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="0">Select Source*</SelectItem>{" "}
+                            {/* <SelectItem value="0">Select Source*</SelectItem>{" "} */}
                             {/* Placeholder option */}
                             {sources && sources.length ? (
                               sources.map((sourceval: sourceTypes, i: any) => (
@@ -1151,4 +1143,4 @@ const AddMemberForm: React.FC = () => {
   );
 };
 
-export default AddMemberForm;
+export default MemberForm;

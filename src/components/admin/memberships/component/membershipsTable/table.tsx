@@ -124,7 +124,7 @@ export default function MembershipsTableView() {
   //         toast({
   //           variant: "destructive",
   //           title: "Error in form Submission",
-  //           description: `${typedError.data?.detail}`,
+  //           description: `${JSON.stringify(typedError.data?.detail)}`,
   //         });
   //       } else {
   //         toast({
@@ -203,7 +203,7 @@ export default function MembershipsTableView() {
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: `${JSON.stringify(typedError.data?.detail)}`,
         });
       } else {
         toast({

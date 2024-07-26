@@ -97,7 +97,8 @@ export default function MemberTableView() {
     pageIndex: 0,
     pageSize: 10, // Adjust this based on your preference
   });
-  const displayValue = (value: any) => (value === null ? "N/A" : value);
+  const displayValue = (value: string | undefined | null) => value == null ? "N/A" : value;
+  
   const displayDate = (value: any) => {
     const date = new Date(value);
 
@@ -217,25 +218,35 @@ export default function MemberTableView() {
       accessorKey: "check_in",
       header: "Last Check In",
       cell: ({ row }) => {
-        <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-          {displayValue(row?.original.check_in)}
-        </div>;
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden text-black">
+            {displayValue(row?.original?.check_in)}
+          </div>
+        );
       },
     },
     {
       accessorKey: "last_online",
       header: "Last Login",
       cell: ({ row }) => {
-        // console.log(row?.original.last_online);
-        <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-          {displayValue(row?.original.last_online)}
-        </div>;
+        console.log(row?.original.last_online, "last_online");
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden text-black">
+            {displayValue(row?.original?.last_online)}
+          </div>
+        );
       },
     },
     {
       id: "actions",
       header: "Actions",
-      cell: ({ row }) => <DataTableRowActions row={row.original.id} />,
+      cell: ({ row }) => (
+        <DataTableRowActions
+          row={row.original.id}
+          data={row?.original}
+          refetch={refetch}
+        />
+      ),
     },
   ];
   // console.log("data",{memberData})

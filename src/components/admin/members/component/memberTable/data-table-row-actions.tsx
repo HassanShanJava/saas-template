@@ -12,28 +12,69 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import { MoreHorizontal,MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
+import { ErrorType, MemberTabletypes } from "@/app/types";
+import { toast } from "@/components/ui/use-toast";
+import { useDeleteMemberMutation } from "@/services/memberAPi";
+import { useNavigate } from "react-router-dom";
 
 interface DataTableRowActionsProps<TData> {
   row: number;
+  data:MemberTabletypes,
+  refetch:any
 }
 
 export function DataTableRowActions<TData>({
   row,
+  data,
+  refetch
 }: DataTableRowActionsProps<TData>) {
   const [isdelete, setIsDelete] = React.useState(false);
+  const [deleteMembers]=useDeleteMemberMutation()
+  const navigate=useNavigate()
 
   const deleteRow = async () => {
-    console.log("data")
+    try {
+      const payload={
+        id:data.id
+      }
+      const resp = await deleteMembers(payload).unwrap();
+      if (resp) {
+        console.log({ resp });
+        refetch();
+        toast({
+          variant: "success",
+          title: "Deleted Successfully",
+        });
+      }
+    } catch (error) {
+      console.log("Error", {error});
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${JSON.stringify(typedError.data?.detail)}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
   };
+
+  const handleEdit =()=>{
+    navigate(`/admin/members/editmember/${data.id}`)
+  }
 
   return (
     <>
@@ -50,7 +91,7 @@ export function DataTableRowActions<TData>({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-4 ">
             <DialogTrigger asChild>
-              <DropdownMenuItem >
+              <DropdownMenuItem onClick={handleEdit}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>

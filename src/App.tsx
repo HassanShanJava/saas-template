@@ -18,7 +18,7 @@ import RolesAndAccess from "./components/admin/roles";
 
 import Loader from "@/components/Loader";
 import MemberPage from "./components/admin/members";
-import AddMemberForm from "./components/admin/members/memberForm/form";
+import MemberForm from "./components/admin/members/memberForm/form";
 
 function App() {
 	const loading = useSelector((state: RootState) => 
@@ -39,7 +39,12 @@ function App() {
             <Route
               path="/admin/members/addmember"
               index
-              element={<AddMemberForm />}
+              element={<MemberForm />}
+            />
+            <Route
+              path="/admin/members/editmember/:id"
+              index
+              element={<MemberForm />}
             />
             <Route path="/admin/leads" index element={<Leads />} />
             <Route path="/admin/leads/addlead" index element={<LeadForm />} />

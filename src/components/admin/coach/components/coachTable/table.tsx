@@ -63,7 +63,7 @@ import { ErrorType } from "@/app/types";
 const status = [
   { value: "actuve", label: "Active", color: "bg-green-500" },
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-  { value: "pending", label: "pending", color: "bg-orange-500" },
+  { value: "pending", label: "Pending", color: "bg-orange-500" },
 ];
 
 const downloadCSV = (data: any[], fileName: string) => {
@@ -145,13 +145,12 @@ export default function CoachTableView() {
     // setIsDialogOpen(true);
   };
   const handleStatusChange = async (payload: {
-    status: string;
+    coach_status: string;
     id: number;
     org_id: number;
   }) => {
-    console.log({ payload });
+    console.log("handle change status", { payload });
     try {
-      // payload.status=Boolean(payload.status)
       const resp = await updateCoach(payload).unwrap();
       if (resp) {
         console.log({ resp });
@@ -245,7 +244,8 @@ export default function CoachTableView() {
         const value =
           row.original?.coach_status != null
             ? row.original?.coach_status + ""
-            : "false";
+            : "pending";
+        console.log("value of status", value);
         const statusLabel = status.filter((r) => r.value === value)[0];
         const id = Number(row.original.id);
         const org_id = Number(row.original.org_id);
@@ -254,9 +254,9 @@ export default function CoachTableView() {
           <Select
             defaultValue={value}
             onValueChange={(e) =>
-              handleStatusChange({ status: e, id: id, org_id: org_id })
+              handleStatusChange({ coach_status: e, id: id, org_id: org_id })
             }
-            disabled={value == "pending"}
+            // disabled={value == "pending"}
           >
             <SelectTrigger>
               <SelectValue placeholder="Status" className="text-gray-400">
@@ -458,7 +458,7 @@ export default function CoachTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Members Added yet!.
+                    No Coach Added yet!.
                   </TableCell>
                 </TableRow>
               )}

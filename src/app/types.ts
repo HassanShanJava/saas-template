@@ -5,8 +5,8 @@ export interface resourceTypes {
   name: string;
   code: string | undefined;
   parent: string | undefined;
-  subRows?:resourceTypes[];
-  children?:resourceTypes[];
+  subRows?: resourceTypes[];
+  children?: resourceTypes[];
   is_parent: boolean;
   link: string;
   icon: string;
@@ -24,7 +24,6 @@ export interface facilitiesData extends JSONObject {
     duration_type: string | undefined | null;
     duration_no: number | undefined | null;
   };
-
 }
 export interface updateMembershipType {
   id: number | null;
@@ -379,10 +378,10 @@ export interface updateStatusInput {
 export interface getRolesType {
   name: string;
   org_id: number;
-  children?:getRolesType[];
-  subRows?:getRolesType[];
-  code:string|undefined;
-  parent:string|undefined;
+  children?: getRolesType[];
+  subRows?: getRolesType[];
+  code: string | undefined;
+  parent: string | undefined;
   is_deleted: boolean;
   is_parent: boolean;
   role_id: number;
@@ -418,4 +417,40 @@ export interface CoachInputTypes {
   created_by: number;
   members_id: Array<number>;
   org_id: number;
+}
+
+export interface CoachResponseType {
+  wallet_address?: string | null;
+  org_id: number;
+  coach_status: string;
+  own_coach_id: string;
+  profile_img?: string | null;
+  first_name: string;
+  last_name: string;
+  dob: string;
+  gender: string;
+  email: string;
+  password?: string | null;
+  phone?: string | null;
+  mobile_number?: string | null;
+  notes?: string | null;
+  source_id: number;
+  country_id: number;
+  city: string;
+  zipcode?: string | null;
+  address_1?: string | null;
+  address_2?: string | null;
+  check_in?: string | null;
+  last_online?: string | null;
+  coach_since?: string | null;
+  bank_name?: string | null;
+  iban_no?: string | null;
+  acc_holder_name?: string | null;
+  swift_code?: string | null;
+  created_by: number;
+  member_ids: number[];
+}
+
+export interface coachdeleteType {
+  id: number;
 }

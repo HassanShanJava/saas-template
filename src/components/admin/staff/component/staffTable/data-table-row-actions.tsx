@@ -1,3 +1,4 @@
+import { Row } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,68 +12,29 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal,MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { createMembershipType, ErrorType } from "@/app/types";
-import { useDeleteCoachMutation } from "@/services/coachApi";
-import { useNavigate } from "react-router-dom";
-import { CoachInputTypes } from "@/app/types";
-export function DataTableRowActions({
-  data,
-  refetch,
-  handleEdit,
-}: {
-  data: CoachInputTypes & { id: number };
-  refetch: () => void;
-  handleEdit?: any;
-}) {
+
+interface DataTableRowActionsProps<TData> {
+  row: number;
+}
+
+export function DataTableRowActions<TData>({
+  row,
+}: DataTableRowActionsProps<TData>) {
   const [isdelete, setIsDelete] = React.useState(false);
-  const [deleteCoach, { isLoading: deleteLoading }] = useDeleteCoachMutation();
-  const { toast } = useToast();
-  const navigate = useNavigate();
 
   const deleteRow = async () => {
-    const payload = {
-      id: data.id,
-      org_id: data.org_id,
-    };
-    try {
-      const resp = await deleteCoach(data).unwrap();
-      if (resp) {
-        console.log({ resp });
-        refetch();
-        toast({
-          variant: "success",
-          title: "Deleted Successfully",
-        });
-      }
-      return;
-    } catch (error) {
-      console.log("Error", error);
-      if (error && typeof error === "object" && "data" in error) {
-        const typedError = error as ErrorType;
-        toast({
-          variant: "destructive",
-          title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error in form Submission",
-          description: `Something Went Wrong.`,
-        });
-      }
-    }
+    console.log("data")
   };
 
-  console.log(data, "edit row");
   return (
     <>
       <Dialog>
@@ -86,14 +48,9 @@ export function DataTableRowActions({
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-4">
+          <DropdownMenuContent align="end" className="w-4 ">
             <DialogTrigger asChild>
-              <DropdownMenuItem
-                // onClick={() => handleEdit(data)}
-                onClick={() => {
-                  navigate(`/admin/coach/editcoach/${data.id}`);
-                }}
-              >
+              <DropdownMenuItem >
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
@@ -104,8 +61,7 @@ export function DataTableRowActions({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </Dialog>
-      {isdelete && (
+        {isdelete && (
         <AlertDialog open={isdelete} onOpenChange={() => setIsDelete(false)}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -118,7 +74,7 @@ export function DataTableRowActions({
                     className="w-18 h-18"
                   />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this Coach
+                    Please confirm if you want to delete this member
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">
@@ -142,6 +98,7 @@ export function DataTableRowActions({
           </AlertDialogContent>
         </AlertDialog>
       )}
+      </Dialog>
     </>
   );
 }

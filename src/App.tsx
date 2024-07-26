@@ -21,6 +21,8 @@ import MemberPage from "./components/admin/members";
 import AddMemberForm from "./components/admin/members/memberForm/form";
 import Coach from "./components/admin/coach";
 import AddCoachForm from "./components/admin/coach/coachForm";
+import Staff from "./components/admin/staff";
+import AddStaffForm from "./components/admin/staff/staffForm/form";
 
 function App() {
   const loading = useSelector((state: RootState) =>
@@ -78,6 +80,12 @@ function App() {
               path="/admin/events/addevents"
               index
               element={<EventForm />}
+            />
+            <Route path="/admin/staff" index element={<Staff />} />
+            <Route
+              path="/admin/staff/addStaff"
+              index
+              element={<AddStaffForm />}
             />
           </Route>
         </Route>

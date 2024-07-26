@@ -76,6 +76,10 @@ const EventsIcon: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (
   props
 ) => <img {...props} src="/events.svg" alt="Events" />;
 
+const ManageIcon: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (
+  props
+) => <img {...props} src="/manage.svg" alt="manage" />;
+
 const navItems: NavItem[] = [
   {
     name: "Dashboard",
@@ -96,6 +100,34 @@ const navItems: NavItem[] = [
     link: "/admin/coach/",
     icon: MultiUserIcon,
     dropdown: false,
+  },
+  {
+    name: "Manage",
+    dropdown: true,
+    icon: ManageIcon,
+    link: "",
+    children: [
+      {
+        name: "Staff",
+        link: "/admin/staff",
+        icon: "fa fa-user",
+      },
+      // {
+      //   name: "Sale Taxes",
+      //   link: "/admin/saleTaxes",
+      //   icon: "fa fa-user",
+      // },
+      // {
+      //   name: "Income Category",
+      //   link: "/admin/incomeCategory",
+      //   icon: "fa fa-user",
+      // },
+      // {
+      //   name: "Memberships",
+      //   link: "/admin/memberships",
+      //   icon: "fa fa-user",
+      // },
+    ],
   },
   {
     name: "System Settings",

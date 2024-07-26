@@ -8,14 +8,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  MultiSelector,
-  MultiSelectorContent,
-  MultiSelectorInput,
-  MultiSelectorItem,
-  MultiSelectorList,
-  MultiSelectorTrigger,
-} from "@/components/ui/multiselect/multiselect";
+import { Switch } from "@/components/ui/switch";
 import "react-phone-number-input/style.css";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
@@ -31,9 +24,14 @@ import {
   FormField,
   FormItem,
   FormMessage,
+  FormLabel,
   FormControl,
 } from "@/components/ui/form";
 import { toast } from "@/components/ui/use-toast";
+import {
+  ButtonGroup,
+  ButtonGroupItem,
+} from "@/components/ui/buttonGroup/button-group";
 import {
   Popover,
   PopoverContent,
@@ -55,46 +53,33 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useNavigate, useParams } from "react-router-dom";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { CountryTypes, ErrorType, sourceTypes } from "@/app/types";
+import {
+  CoachTypes,
+  CountryTypes,
+  ErrorType,
+  getRolesType,
+  sourceTypes,
+} from "@/app/types";
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+import { Label } from "@/components/ui/label";
 import {
+  useGetAllBusinessesQuery,
   useGetAllSourceQuery,
   useGetCountriesQuery,
+  useGetCoachesQuery,
+  useGetMemberCountQuery,
+  useAddMemberMutation,
 } from "@/services/memberAPi";
+import { useGetRolesQuery } from "@/services/rolesApi";
 
-import { useGetMembershipsQuery } from "@/services/membershipsApi";
-import {
-  useAddCoachMutation,
-  useGetCoachByIdQuery,
-  useGetCoachCountQuery,
-  useGetMemberListQuery,
-} from "@/services/coachApi";
-// import { statuses } from './../../../../schema/taskSchema';
-
-const AddCoachForm: React.FC = () => {
-  const { id } = useParams();
-  const {
-    data: EditCoachData,
-    isLoading: editisLoading,
-    refetch: editRefetch,
-  } = useGetCoachByIdQuery(id);
-  console.log("update the damn data", EditCoachData);
-  // const [counter, setCounter] = React.useState(0);
+const AddStaffForm: React.FC = () => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-
-  const creator_id =
-    useSelector((state: RootState) => state.auth.userInfo?.user?.id) || 0;
-
-  const membersSchema = z.object({
-    id: z.number(),
-    name: z.string(),
-  });
-
   const FormSchema = z.object({
     profile_img: z
       .string()
@@ -103,8 +88,8 @@ const AddCoachForm: React.FC = () => {
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
       )
       .optional(),
-    own_coach_id: z.string({
-      required_error: "Gym Coach Id Required.",
+    own_member_id: z.string({
+      required_error: "Own Member Id Required.",
     }),
     first_name: z
       .string({
@@ -118,40 +103,18 @@ const AddCoachForm: React.FC = () => {
       })
       .trim()
       .min(3, { message: "Last Name Is Required" }),
-    gender: z
-      .enum(["male", "female", "other"], {
-        required_error: "You need to select a gender type.",
-      })
-      .default("male"),
+    gender: z.enum(["male", "female", "other"], {
+      required_error: "You need to select a gender type.",
+    }),
     dob: z.date({
       required_error: "A date of birth is required.",
     }),
     email: z
       .string()
-      .min(1, { message: "Required." })
-      .email("This is not a valid email."),
-    phone: z
-      .string()
-      .max(11, {
-        message: "Cannot be greater than 11 digits.",
-      })
-      .trim()
-      .optional(),
-    mobile_number: z
-      .string()
-      .max(11, {
-        message: "Cannot be greater than 11 digits.",
-      })
-      .trim()
-      .optional(),
-    members_id: z.array(membersSchema).nonempty({
-      message: "Minimum one member must be assigned", // Custom error message
-    }),
-    coach_status: z
-      .enum(["pending", "active", "inactive"], {
-        required_error: "You need to select status.",
-      })
-      .default("pending"),
+      .email({ message: "Invalid email" })
+      .min(4, { message: "Email is Required" }),
+    phone: z.string().trim().optional(),
+    mobile_number: z.string().trim().optional(),
     notes: z.string().optional(),
     source_id: z
       .number({
@@ -160,13 +123,6 @@ const AddCoachForm: React.FC = () => {
       .refine((val) => val !== 0, {
         message: "Source is required",
       }),
-    address_1: z.string().optional(),
-    address_2: z.string().optional(),
-    zipcode: z.string().trim().optional(),
-    bank_name: z.string().trim().optional(),
-    iban_no: z.string().trim().optional(),
-    swift_code: z.string().trim().optional(),
-    acc_holder_name: z.string().trim().optional(),
     country_id: z
       .number({
         required_error: "Country Required.",
@@ -182,33 +138,36 @@ const AddCoachForm: React.FC = () => {
       .min(3, {
         message: "City Required.",
       }),
-
+    zipcode: z.string().trim().optional(),
+    address_1: z.string().optional(),
+    address_2: z.string().optional(),
     org_id: z
       .number({
         required_error: "Org id is required",
       })
       .default(orgId),
-    created_by: z
-      .number({
-        required_error: "must send creater",
-      })
-      .default(creator_id),
+    role_id: z.number({
+      required_error: "Role is Required",
+    }),
+    send_invitation: z.boolean().default(true).optional(),
   });
 
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
-  const {
-    data: coachCountData,
-    isLoading,
-    refetch,
-  } = useGetCoachCountQuery(orgId);
+  // const {
+  //   data: memberCountData,
+  //   isLoading,
+  //   refetch,
+  // } = useGetMemberCountQuery(orgId);
 
+  const { data: roleData } = useGetRolesQuery(orgId);
   const { data: countries } = useGetCountriesQuery();
+  const { data: coaches } = useGetCoachesQuery(orgId);
+
   const { data: sources } = useGetAllSourceQuery();
 
-  const [addCoach, { isLoading: memberLoading }] = useAddCoachMutation();
-  const { data: transformedData } = useGetMemberListQuery(orgId);
+  const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
   const navigate = useNavigate();
 
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
@@ -233,7 +192,7 @@ const AddCoachForm: React.FC = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      own_coach_id: "",
+      own_member_id: "",
     },
     mode: "onChange",
   });
@@ -241,24 +200,27 @@ const AddCoachForm: React.FC = () => {
   const watcher = form.watch();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    // console.log(JSON.stringify(data, null, 2));
+    toast({
+      title: "You submitted the following values:",
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        </pre>
+      ),
+    });
     const updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-      members_id: data.members_id.map((member) => member.id),
     };
 
     console.log("Updated data with only date:", updatedData);
     console.log("only once", data);
-
     try {
-      const resp = await addCoach(updatedData).unwrap();
-      refetch();
-      toast({
-        variant: "success",
-        title: "Coach Added Successfully ",
-      });
-      navigate("/admin/coach/");
+      // toast({
+      //   variant: "success",
+      //   title: "Staff Created Successfully ",
+      // });
+      // navigate("/admin/staff");
     } catch (error: unknown) {
       console.log("Error", error);
       if (error && typeof error === "object" && "data" in error) {
@@ -278,20 +240,18 @@ const AddCoachForm: React.FC = () => {
     }
   }
 
-  function gotoCaoch() {
-    navigate("/admin/coach/");
+  function gotoMember() {
+    navigate("/admin/staff");
   }
 
-  React.useEffect(() => {
-    if (orgName) {
-      const total = coachCountData?.total_coaches;
-      if (total) {
-        form.setValue("own_coach_id", `${orgName.slice(0, 2)}-C${total + 1}`);
-      }
-    }
-  }, [coachCountData, orgName]);
-
-  console.log("user list create", form.getValues);
+  // React.useEffect(() => {
+  //   if (orgName) {
+  //     const total = memberCountData?.total_clients;
+  //     if (total) {
+  //       form.setValue("own_member_id", `${orgName.slice(0, 2)}-S${total + 1}`);
+  //     }
+  //   }
+  // }, [memberCountData, orgName]);
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -330,8 +290,7 @@ const AddCoachForm: React.FC = () => {
                   <div>
                     <Button
                       type={"button"}
-                      onClick={gotoCaoch}
-                      disabled={memberLoading}
+                      onClick={gotoMember}
                       className="gap-2 bg-transparent border border-primary text-black hover:bg-red-300 hover:text-white"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
@@ -353,7 +312,7 @@ const AddCoachForm: React.FC = () => {
                 </div>
               </div>
               <div>
-                <h1 className="font-bold text-base"> Basic Information</h1>
+                <h1 className="font-bold text-base"> Staff Data</h1>
               </div>
               <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
                 <div className="relative">
@@ -365,16 +324,15 @@ const AddCoachForm: React.FC = () => {
                         return Number(value) !== 0 || "Source is required";
                       },
                     }}
-                    name="own_coach_id"
+                    name="own_member_id"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="own_coach_id"
-                          label="Gym Coach Id*"
-                          disabled
+                          id="own_member_id"
+                          label="Gym Staff Id"
                         />
-                        {watcher.own_coach_id ? <></> : <FormMessage />}
+                        {watcher.own_member_id ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -415,14 +373,12 @@ const AddCoachForm: React.FC = () => {
                   <FormField
                     control={form.control}
                     name="gender"
-                    defaultValue="male"
                     render={({ field }) => (
                       <FormItem>
                         <Select
                           onValueChange={(value: "male" | "female" | "other") =>
                             form.setValue("gender", value)
                           }
-                          defaultValue="male"
                         >
                           <FormControl>
                             <SelectTrigger
@@ -512,7 +468,7 @@ const AddCoachForm: React.FC = () => {
                           id="email"
                           label="Email Address*"
                         />
-                        {<FormMessage />}
+                        {watcher.email ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -528,7 +484,7 @@ const AddCoachForm: React.FC = () => {
                           id="phone"
                           label="Landline Number"
                         />
-                        {<FormMessage />}
+                        {watcher.phone ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -545,75 +501,6 @@ const AddCoachForm: React.FC = () => {
                           label="Mobile Number"
                         />
                         {watcher.mobile_number ? <></> : <FormMessage />}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="members_id"
-                    render={({ field }) => (
-                      <FormItem className="w-full ">
-                        <MultiSelector
-                          onValuesChange={(values) => field.onChange(values)}
-                          values={field.value}
-                        >
-                          <MultiSelectorTrigger>
-                            <MultiSelectorInput placeholder="Assignee Members*" />
-                          </MultiSelectorTrigger>
-                          <MultiSelectorContent className="">
-                            <MultiSelectorList>
-                              {transformedData &&
-                                transformedData.map((user: any) => (
-                                  <MultiSelectorItem
-                                    key={user.id}
-                                    value={user}
-                                    // disabled={field.value?.length >= 5}
-                                  >
-                                    <div className="flex items-center space-x-2">
-                                      <span>{user.name}</span>
-                                    </div>
-                                  </MultiSelectorItem>
-                                ))}
-                            </MultiSelectorList>
-                          </MultiSelectorContent>
-                        </MultiSelector>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative">
-                  <FormField
-                    control={form.control}
-                    name="coach_status"
-                    defaultValue="pending"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          disabled
-                          onValueChange={(
-                            value: "pending" | "active" | "inactive"
-                          ) => form.setValue("coach_status", value)}
-                          defaultValue="pending"
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              floatingLabel="Status*"
-                              className={`${watcher.coach_status ? "text-black" : ""}`}
-                            >
-                              <SelectValue placeholder="Select Coach status" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="active">active</SelectItem>
-                            <SelectItem value="inactive">inactive</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {watcher.coach_status ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -629,7 +516,7 @@ const AddCoachForm: React.FC = () => {
                           id="notes"
                           label="Notes"
                         />
-                        {watcher.notes ? <></> : <FormMessage />}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -652,10 +539,10 @@ const AddCoachForm: React.FC = () => {
                             >
                               <SelectValue>
                                 {field.value === 0
-                                  ? "Source*"
+                                  ? "Select Source*"
                                   : sources?.find(
                                       (source) => source.id === field.value
-                                    )?.source || "Source*"}
+                                    )?.source || "Select Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -681,14 +568,63 @@ const AddCoachForm: React.FC = () => {
                     )}
                   />
                 </div>
-
-                <div className="relative "></div>
                 <div className="relative ">
-                  <div className="justify-start items-center flex"></div>
+                  <FormField
+                    control={form.control}
+                    name="role_id"
+                    // rules={{
+                    //   validate: (value) => {
+                    //     // Ensure value is treated as a number for comparison
+                    //     return Number(value) !== 0;
+                    //   },
+                    // }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          defaultValue={field.value?.toString() || "0"}
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              className={`${watcher.role_id ? "text-black" : ""}`}
+                            >
+                              <SelectValue
+                                className="text-black"
+                                placeholder="Select Role"
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="0">Role*</SelectItem>
+                            {roleData && roleData.length > 0 ? (
+                              roleData?.map((sourceval: getRolesType) => {
+                                // console.log(field.value);
+                                return (
+                                  <SelectItem
+                                    key={sourceval.role_id}
+                                    value={sourceval.role_id?.toString()}
+                                  >
+                                    {sourceval.name}
+                                  </SelectItem>
+                                );
+                              })
+                            ) : (
+                              <>
+                                <p className="p-2"> No Role Found</p>
+                              </>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        {watcher.role_id ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
               <div>
-                <h1 className="font-bold text-base"> Address</h1>
+                <h1 className="font-bold text-base"> Address data</h1>
               </div>
               <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
                 <div className="relative ">
@@ -823,71 +759,20 @@ const AddCoachForm: React.FC = () => {
                     )}
                   />
                 </div>
-              </div>
-              <div>
-                <h1 className="font-bold text-base">Bank Details</h1>
-              </div>
-              <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
-                <div className="relative ">
+                <div className="h-full relative">
                   <FormField
                     control={form.control}
-                    name="bank_name"
+                    name="send_invitation"
+                    defaultValue={true}
                     render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="bank_name"
-                          label="Bank Name"
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="iban_no"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="iban_no"
-                          label="IBAN Number"
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="swift_code"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="swift_code"
-                          label="BIC/Swift Code"
-                        />
-                        <FormMessage className="" />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="acc_holder_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="acc_holder_name"
-                          label="Account Holder Name"
-                        />
-                        <FormMessage className="" />
+                      <FormItem className="h-10 flex items-center gap-3">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="!mt-0">Send invitation</FormLabel>
                       </FormItem>
                     )}
                   />
@@ -901,4 +786,4 @@ const AddCoachForm: React.FC = () => {
   );
 };
 
-export default AddCoachForm;
+export default AddStaffForm;

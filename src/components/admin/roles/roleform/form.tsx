@@ -139,7 +139,10 @@ export const RoleForm = ({
     setFormData((prev: any) => ({
       ...prev,
     }));
+    createAccess(data?.allResourceData);
+    form.reset()
   };
+
 
   const handleClose = () => {
     // clearErrors();
@@ -195,7 +198,7 @@ export const RoleForm = ({
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${JSON.stringify(typedError.data?.detail)}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({

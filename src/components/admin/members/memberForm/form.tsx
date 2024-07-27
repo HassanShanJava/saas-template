@@ -84,6 +84,12 @@ import {
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { useParams } from "react-router-dom";
 
+enum genderEnum {
+  male = "male",
+  female = "female",
+  other = "other",
+}
+
 const MemberForm: React.FC = () => {
   const { id } = useParams();
   const orgId =
@@ -97,7 +103,7 @@ const MemberForm: React.FC = () => {
     own_member_id: "",
     first_name: "",
     last_name: "",
-    gender: "male",
+    gender: genderEnum.male,
     dob: "",
     email: "",
     phone: "",
@@ -149,10 +155,10 @@ const MemberForm: React.FC = () => {
         })
         .trim()
         .min(3, { message: "Last Name Is Required" }),
-      gender: z.enum(["male", "female", "other"], {
+      gender: z.nativeEnum(genderEnum, {
         required_error: "You need to select a gender type.",
       }),
-      dob: z.coerce.date({
+      dob: z.coerce.string({
         required_error: "A date of birth is required.",
       }),
       email: z
@@ -196,11 +202,8 @@ const MemberForm: React.FC = () => {
         .default(orgId),
       coach_id: z.number().optional(),
       membership_id: z
-        .number({
+        .coerce.number({
           required_error: "Membership plan is required.",
-        })
-        .refine((val) => val !== 0, {
-          message: "membership plan is required",
         }),
       send_invitation: z.boolean().default(true).optional(),
       auto_renewal: z.boolean().default(false).optional(),
@@ -219,6 +222,13 @@ const MemberForm: React.FC = () => {
         (input.prolongation_period == undefined ||
           input.auto_renew_days == undefined ||
           input.inv_days_cycle == undefined)
+      ) {
+        return false;
+      }
+
+      if (
+        !input.is_business &&
+        (input.business_id == null || input.business_id == undefined)
       ) {
         return false;
       }
@@ -255,12 +265,12 @@ const MemberForm: React.FC = () => {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { ...initialValues, dob: new Date() },
+    defaultValues: { ...initialValues },
     mode: "onChange",
   });
 
   const watcher = form.watch();
-
+  const memberError=form.formState.errors
   React.useEffect(() => {
     console.log({ memberData }, "jh");
     if (!memberData) {
@@ -272,14 +282,16 @@ const MemberForm: React.FC = () => {
       }
     } else {
       setInitialValues(memberData as MemberInputTypes);
-      form.reset(memberData as any);
+      form.reset(memberData);
     }
   }, [memberData, memberCountData, orgName]);
 
   // set auto_renewal
-  const handleMembershipPlanChange = (value: number) => {
+  const handleMembershipPlanChange = (value:number) => {
     form.setValue("membership_id", value);
-    const data = membershipPlans?.filter((item) => item.id == value)[0];
+    const data = membershipPlans?.filter(
+      (item) => item.id == value
+    )[0];
     form.setValue("auto_renewal", data?.auto_renewal);
   };
 
@@ -320,7 +332,7 @@ const MemberForm: React.FC = () => {
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${JSON.stringify(typedError.data?.detail)}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({
@@ -335,6 +347,9 @@ const MemberForm: React.FC = () => {
   function gotoMember() {
     navigate("/admin/members");
   }
+
+
+  console.log({watcher, memberError})
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -459,7 +474,7 @@ const MemberForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value: "male" | "female" | "other") =>
+                          onValueChange={(value: genderEnum) =>
                             form.setValue("gender", value)
                           }
                         >
@@ -952,7 +967,7 @@ const MemberForm: React.FC = () => {
                   Membership and Auto Renewal
                 </h1>
               </div>
-              <div className="grid grid-cols-10 gap-3">
+              <div className="grid grid-cols-12 gap-3">
                 <div className="relative col-span-4">
                   <FormField
                     control={form.control}
@@ -1025,115 +1040,125 @@ const MemberForm: React.FC = () => {
                     )}
                   />
                 </div>
-                <div className="relative col-span-4">
-                  <FormField
-                    control={form.control}
-                    name="prolongation_period"
-                    rules={{
-                      validate: (value) => {
-                        // Ensure value is treated as a number for comparison
-                        return (
-                          Number(value) !== 0 || "Memberhip Plan is Required"
-                        );
-                      },
-                    }}
-                    render={({ field }) => {
-                      console.log(form.formState.errors);
-                      return (
-                        <FormItem className="flex h-10 items-center gap-3">
-                          <FormLabel className="text-base">
-                            Prolongation period*
-                          </FormLabel>
-                          <FloatingLabelInput
-                            {...field}
-                            id="min_limit"
-                            type="number"
-                            min={1}
-                            name="min_limit"
-                            className="number-input w-10"
-                          />
-                          {watcher.prolongation_period ? (
-                            <></>
-                          ) : (
-                            <FormMessage />
-                          )}
-                        </FormItem>
-                      );
-                    }}
-                  />
-                </div>
-                <div className="relative col-span-5">
-                  <FormField
-                    control={form.control}
-                    name="auto_renew_days"
-                    rules={{
-                      validate: (value) => {
-                        // Ensure value is treated as a number for comparison
-                        return (
-                          Number(value) !== 0 || "Memberhip Plan is Required"
-                        );
-                      },
-                    }}
-                    render={({ field }) => {
-                      console.log(form.formState.errors);
-                      return (
-                        <FormItem className="flex h-10 items-center gap-3">
-                          <FormLabel className="text-sm">
-                            Auto renewal takes place*
-                          </FormLabel>
-                          <FloatingLabelInput
-                            {...field}
-                            id="min_limit"
-                            type="number"
-                            min={1}
-                            name="min_limit"
-                            className="number-input w-10"
-                          />
-                          {watcher.auto_renew_days ? <></> : <FormMessage />}
-                          <Label className="text-xs text-black/20">
-                            days before contracts runs out.
-                          </Label>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                </div>
-                <div className="relative col-span-5">
-                  <FormField
-                    control={form.control}
-                    name="inv_days_cycle"
-                    rules={{
-                      validate: (value) => {
-                        // Ensure value is treated as a number for comparison
-                        return (
-                          Number(value) !== 0 || "Memberhip Plan is Required"
-                        );
-                      },
-                    }}
-                    render={({ field }) => {
-                      console.log(form.formState.errors);
-                      return (
-                        <FormItem className="flex h-10 items-center gap-3">
-                          <FormLabel className="text-sm">
-                            Next invoice will be created *
-                          </FormLabel>
-                          <FloatingLabelInput
-                            {...field}
-                            id="min_limit"
-                            type="number"
-                            min={1}
-                            name="min_limit"
-                            className="number-input w-10"
-                          />
-                          {watcher.inv_days_cycle ? <></> : <FormMessage />}
-                          <Label className="text-xs text-black/20">
-                            days before contracts runs out.
-                          </Label>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                </div>
+
+                {watcher.auto_renewal && (
+                  <>
+                    <div className="relative col-span-6">
+                      <FormField
+                        control={form.control}
+                        name="prolongation_period"
+                        rules={{
+                          validate: (value) => {
+                            // Ensure value is treated as a number for comparison
+                            return (
+                              Number(value) !== 0 ||
+                              "Memberhip Plan is Required"
+                            );
+                          },
+                        }}
+                        render={({ field }) => {
+                          console.log(form.formState.errors);
+                          return (
+                            <FormItem className="flex h-10 items-center gap-3">
+                              <FormLabel className="text-base">
+                                Prolongation period*
+                              </FormLabel>
+                              <FloatingLabelInput
+                                {...field}
+                                id="min_limit"
+                                type="number"
+                                min={1}
+                                name="min_limit"
+                                className="number-input w-10"
+                              />
+                              {watcher.prolongation_period ? (
+                                <></>
+                              ) : (
+                                <FormMessage />
+                              )}
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    </div>
+                    <div className="relative col-span-5">
+                      <FormField
+                        control={form.control}
+                        name="auto_renew_days"
+                        rules={{
+                          validate: (value) => {
+                            // Ensure value is treated as a number for comparison
+                            return (
+                              Number(value) !== 0 ||
+                              "Memberhip Plan is Required"
+                            );
+                          },
+                        }}
+                        render={({ field }) => {
+                          return (
+                            <FormItem className="flex h-10 items-center gap-3">
+                              <FormLabel className="text-sm">
+                                Auto renewal takes place*
+                              </FormLabel>
+                              <FloatingLabelInput
+                                {...field}
+                                id="min_limit"
+                                type="number"
+                                min={1}
+                                name="min_limit"
+                                className="number-input w-10"
+                              />
+                              {watcher.auto_renew_days ? (
+                                <></>
+                              ) : (
+                                <FormMessage />
+                              )}
+                              <Label className="text-xs text-black/60">
+                                days before contracts runs out.
+                              </Label>
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    </div>
+                    <div className="relative col-span-7">
+                      <FormField
+                        control={form.control}
+                        name="inv_days_cycle"
+                        rules={{
+                          validate: (value) => {
+                            // Ensure value is treated as a number for comparison
+                            return (
+                              Number(value) !== 0 ||
+                              "Memberhip Plan is Required"
+                            );
+                          },
+                        }}
+                        render={({ field }) => {
+                          return (
+                            <FormItem className="flex h-10 items-center gap-3">
+                              <FormLabel className="text-sm">
+                                Next invoice will be created *
+                              </FormLabel>
+                              <FloatingLabelInput
+                                {...field}
+                                id="min_limit"
+                                type="number"
+                                min={1}
+                                name="min_limit"
+                                className="number-input w-10"
+                              />
+                              {watcher.inv_days_cycle ? <></> : <FormMessage />}
+                              <Label className="text-xs text-black/60">
+                                days before contracts runs out.
+                              </Label>
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>

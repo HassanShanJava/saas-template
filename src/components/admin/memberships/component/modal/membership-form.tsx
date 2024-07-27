@@ -65,7 +65,7 @@ const defaultValue = {
   name: "",
   group_id: null,
   description: "",
-  status: "false",
+  status: "true",
   access_type: "no-restriction",
   limited_access_data: [],
   duration_type: "",
@@ -127,6 +127,9 @@ const MembershipForm = ({
 
   console.log(errors, "membership form");
 
+  const access_type = getValues("access_type");
+  const limited_access_data = getValues("limited_access_data");
+
   useEffect(() => {
     if (action == "edit" && data != undefined) {
       const updatedObject = {
@@ -170,11 +173,21 @@ const MembershipForm = ({
     }
 
     if (payload.facilities.length > 0) {
-      const check = payload.facilities.some(
-        (item) =>
+      let check = false;
+
+      payload.facilities.forEach((item) => {
+        if (item.validity.duration_type === "contract_duration") {
+          item.validity.duration_no = 0;
+        }
+
+        if (
           item.validity.duration_no == undefined ||
           item.validity.duration_type == undefined
-      );
+        ) {
+          check = true;
+        }
+      });
+
       if (check) {
         toast({
           variant: "destructive",
@@ -182,6 +195,12 @@ const MembershipForm = ({
         });
         return;
       }
+    }else{
+      toast({
+        variant: "destructive",
+        title: "Select at least one credit detail",
+      });
+      return;
     }
 
     console.log({ payload }, action);
@@ -231,7 +250,7 @@ const MembershipForm = ({
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${JSON.stringify(typedError.data?.detail)}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({
@@ -249,8 +268,7 @@ const MembershipForm = ({
   const handleNext = async () => {
     const isStepValid = await trigger(undefined, { shouldFocus: true });
     // for check on limited_Access_Data after submiting
-    const access_type = getValues("access_type");
-    const limited_access_data = getValues("limited_access_data");
+
     if (activeStep == 1 && access_type == "limited-access") {
       const check = limited_access_data.some(
         (day: any) => day?.from != "" && day?.to != ""
@@ -305,13 +323,17 @@ const MembershipForm = ({
   return (
     <Dialog open={isOpen}>
       <DialogContent
-        className="w-full max-w-[1050px] h-fit flex flex-col"
+        className={`w-full max-w-[1050px] flex flex-col !py-3`}
         hideCloseButton
       >
         <DialogTitle className="absolute  !display-none"></DialogTitle>
         <FormProvider {...methods}>
-          <div className="flex justify-between gap-5 items-start h-[82px] pl-8 ">
-            <StepperIndicator activeStep={activeStep} labels={infoLabels} />
+          <div className="flex justify-between gap-5 items-start h-[82px] pl-8  ">
+            <StepperIndicator
+              activeStep={activeStep}
+              labels={infoLabels}
+              lastKey={4}
+            />
             <div className="flex justify-center space-x-[20px]">
               <Button
                 type="button"

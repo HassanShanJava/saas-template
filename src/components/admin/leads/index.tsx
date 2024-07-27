@@ -119,7 +119,7 @@ const Lead: React.FC = () => {
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${JSON.stringify(typedError.data?.detail)}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({
@@ -151,7 +151,7 @@ const Lead: React.FC = () => {
         toast({
           variant: "destructive",
           title: "Error",
-          description: `${JSON.stringify(typedError.data?.detail)}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({

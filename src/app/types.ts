@@ -299,12 +299,17 @@ export interface LeadResponseTypes {
   org_id: number;
 }
 
+enum genderEnum{
+  male='male',
+  female="female",
+  other="other"
+}
 export interface MemberInputTypes {
   profile_img?: string;
   own_member_id: string;
   first_name: string;
   last_name: string;
-  gender: "male"|"female"|"other";
+  gender: genderEnum;
   dob: string;
   email: string;
   phone?: string;

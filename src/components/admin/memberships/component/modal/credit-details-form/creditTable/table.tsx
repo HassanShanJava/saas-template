@@ -339,14 +339,14 @@ export default function CreditsTableView({
 
         return row.getIsSelected() ? (
           <div className="flex items-center gap-2">
-            <Input
+            {creditData?.validity.duration_type !=="contract_duration" &&<Input
               type="number"
               min={1}
               max={15}
               className="number-input w-10"
               value={creditData?.validity?.duration_no || ""}
               onChange={(e) => handleChangeRowInput(e, id, "duration_no")}
-            />
+            />}
             <Select
               onValueChange={(value) =>
                 handleChangeRowSelect(value, id, "duration_type")
@@ -354,9 +354,10 @@ export default function CreditsTableView({
               value={creditData?.validity?.duration_type || ""}
             >
               <SelectTrigger className="bg-white">
-                <SelectValue placeholder="Select contract duration" />
+                <SelectValue placeholder="Select validity" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value={"contract_duration"}>Contract Duration</SelectItem>
                 <SelectItem value={"monthly"}>Monthly</SelectItem>
                 <SelectItem value={"quarterly"}>Quarterly</SelectItem>
                 <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem>

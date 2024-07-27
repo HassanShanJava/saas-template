@@ -33,32 +33,41 @@ const PriceDiscountTaxForm = () => {
   const netPrice = watch("net_price");
   const discountPercentage = watch("discount") || 0;
   const incomeCategory = watch("income_category_id");
-  const salesTaxId=incomeCategoryData?.filter((item)=>item.id==incomeCategory)[0]
+  const salesTaxId = incomeCategoryData?.filter(
+    (item) => item.id == incomeCategory
+  )[0];
 
-  const handleIncomeCategory=(value:number)=>{
-    setValue("income_category_id",value)
-  }
-  
+  const handleIncomeCategory = (value: number) => {
+    setValue("income_category_id", value);
+  };
+
+  const handleDiscountInput = (e:React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    if (value > 99) {
+      setValue("discount", 99);
+    }
+  };
+
   useEffect(() => {
     if (salesTaxId && salesTaxData) {
       const salesData = salesTaxData.find(
         (item) => item.id == salesTaxId.sale_tax_id
       );
-      console.log(salesTaxId.sale_tax_id,salesData,"incomeCategory")
+      console.log(salesTaxId.sale_tax_id, salesData, "incomeCategory");
       if (salesData && netPrice) {
         const taxRate = salesData.percentage;
         const discountedPrice = netPrice * (1 - discountPercentage / 100);
-        const taxAmount = (taxRate / 100) * discountedPrice;
-        const totalAmount = discountedPrice + taxAmount;
+        const taxAmount: number = (taxRate / 100) * discountedPrice;
+        const totalAmount: number = discountedPrice + Number(taxAmount);
 
         if (watch("tax_rate") !== taxRate) {
           setValue("tax_rate", taxRate);
         }
         if (watch("tax_amount") !== taxAmount) {
-          setValue("tax_amount", taxAmount);
+          setValue("tax_amount", Math.floor(taxAmount * 100) / 100);
         }
         if (watch("total_price") !== totalAmount) {
-          setValue("total_price", totalAmount);
+          setValue("total_price", Math.floor(totalAmount * 100) / 100);
         }
       }
     }
@@ -90,8 +99,12 @@ const PriceDiscountTaxForm = () => {
           label="Discount Percentage*"
           type="number"
           min={0}
+          max={99}
           {...register("discount", {
             required: "Discount percentage is Required",
+            valueAsNumber: true,
+            validate: (value) => value&&value <= 99 || "Value must be 99 or less",
+            onChange: handleDiscountInput,
           })}
           error={errors.discount?.message}
         />
@@ -106,7 +119,7 @@ const PriceDiscountTaxForm = () => {
             <div>
               <Select
                 onValueChange={(value) => {
-                  handleIncomeCategory(Number(value))
+                  handleIncomeCategory(Number(value));
                 }}
                 defaultValue={value?.toString()}
               >

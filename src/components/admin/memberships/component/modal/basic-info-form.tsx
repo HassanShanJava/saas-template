@@ -69,15 +69,17 @@ const BasicInfoForm = () => {
   const [limitedAccessDays, setLimitedAccessDays] = useState<
     limitedAccessDaysTypes[]
   >(
-    ((getValues("limited_access_data") as limitedAccessDaysTypes[]).length>0)?(getValues("limited_access_data") as limitedAccessDaysTypes[])  : [
-      { id: 1, day: "monday", from: "", to: "" },
-      { id: 2, day: "tuesday", from: "", to: "" },
-      { id: 3, day: "wednesday", from: "", to: "" },
-      { id: 4, day: "thursday", from: "", to: "" },
-      { id: 5, day: "friday", from: "", to: "" },
-      { id: 6, day: "saturday", from: "", to: "" },
-      { id: 7, day: "sunday", from: "", to: "" },
-    ]
+    (getValues("limited_access_data") as limitedAccessDaysTypes[]).length > 0
+      ? (getValues("limited_access_data") as limitedAccessDaysTypes[])
+      : [
+          { id: 1, day: "monday", from: "", to: "" },
+          { id: 2, day: "tuesday", from: "", to: "" },
+          { id: 3, day: "wednesday", from: "", to: "" },
+          { id: 4, day: "thursday", from: "", to: "" },
+          { id: 5, day: "friday", from: "", to: "" },
+          { id: 6, day: "saturday", from: "", to: "" },
+          { id: 7, day: "sunday", from: "", to: "" },
+        ]
   );
 
   // useEffect(() => {
@@ -96,7 +98,7 @@ const BasicInfoForm = () => {
   //   }
   // }, [getValues, setValue]);
 
-  console.log({limitedAccessDays})
+  console.log({ limitedAccessDays });
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -113,11 +115,20 @@ const BasicInfoForm = () => {
   };
 
   const handleDelete = (id: number) => {
-    setLimitedAccessDays((prev) =>
-      prev.map((entry) =>
-        entry.id === id ? { ...entry, from: "", to: "" } : entry
-      )
-    );
+    setLimitedAccessDays((prev) => {
+      const entryToDelete = prev.find((entry) => entry.id === id);
+      const sameDayEntries = prev.filter(
+        (entry) => entry.day === entryToDelete?.day
+      );
+
+      if (sameDayEntries.length > 1) {
+        return prev.filter((entry) => entry.id !== id);
+      } else {
+        return prev.map((entry) =>
+          entry.id === id ? { ...entry, from: "", to: "" } : entry
+        );
+      }
+    });
   };
 
   const isValidTimeRange = (from: string, to: string) => {
@@ -136,7 +147,7 @@ const BasicInfoForm = () => {
     return dayEntries.some((entry) => from < entry.to && to > entry.from);
   };
 
-  console.log({access})
+  console.log({ access });
 
   const handleTimeChange = (id: number, type: string, value: string) => {
     setLimitedAccessDays((prev) => {
@@ -366,8 +377,8 @@ const BasicInfoForm = () => {
         />
       </div>
 
-      <h1 className="font-semibold text-[#2D374] text-2xl">Membership Scope</h1>
-      <div className="flex items-center gap-6  my-3">
+      <h1 className="font-semibold text-[#2D374] text-xl">Membership Scope</h1>
+      <div className="flex items-center gap-6  ">
         <div className="flex items-center gap-4">
           <Label className="font-semibold ">Access times*</Label>
           <Controller
@@ -450,28 +461,28 @@ const BasicInfoForm = () => {
         </div>
       </div>
       {access == "limited-access" && (
-        <div className="bg-gray-200 p-3 w-fit h-fit text-sm rounded-lg">
+        <div className="bg-gray-200 px-3 py-2 w-fit h-full text-sm rounded-lg max-h-[264px]  custom-scrollbar ">
           <p className="font-semibold text-base">Limited Access</p>
           {sortedDays.map(({ id, day, from, to }) => (
             <div
               key={id}
-              className="grid grid-cols-3 items-center gap-3 py-0.5"
+              className="grid grid-cols-3 items-center gap-3 space-y-1"
             >
-              <div className="flex col-span-1 items-center gap-3">
+              <div className="flex col-span-1  gap-3">
                 <i
                   className="text-base text-primary fa fa-plus cursor-pointer"
                   onClick={() => handleAdd(day)}
                 ></i>
                 <p className="my-auto capitalize">{day}</p>
               </div>
-              <div className="flex col-span-2 items-center gap-2">
+              <div className="flex col-span-2 items-center gap-2 ">
                 <Input
                   type="time"
                   value={from}
                   onChange={(e) => handleTimeChange(id, "from", e.target.value)}
                   id="time"
                   aria-label="Choose time"
-                  className="w-full h-8 time-input !focus-visible:ring-primary"
+                  className="w-full h-7 "
                 />
                 <p>till</p>
                 <Input
@@ -480,7 +491,7 @@ const BasicInfoForm = () => {
                   onChange={(e) => handleTimeChange(id, "to", e.target.value)}
                   id="time"
                   aria-label="Choose time"
-                  className="w-full h-8"
+                  className="w-full h-7 "
                 />
                 <i
                   className="fa-regular fa-trash-can cursor-pointer"

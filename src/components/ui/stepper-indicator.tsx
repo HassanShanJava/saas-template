@@ -5,15 +5,16 @@ import React, { Fragment } from "react";
 
 interface StepperIndicatorProps {
   activeStep: number;
+  lastKey?:number
   labels: {
     label:string;
     key:number;
   }[]
 }
 
-const StepperIndicator = ({ activeStep, labels }: StepperIndicatorProps) => {
+const StepperIndicator = ({ activeStep, labels, lastKey }: StepperIndicatorProps) => {
   return (
-    <div className="flex justify-center items-center ">
+    <div className=" flex justify-center items-center ">
       {labels.map((label, step) => (
         <Fragment key={label.key}>
           <div className="relative">
@@ -29,7 +30,7 @@ const StepperIndicator = ({ activeStep, labels }: StepperIndicatorProps) => {
             <span className="absolute text-center text-xs font-semibold  w-28 -right-8">{label.label}</span>
           </div>
 
-          {label.key !== 4 && (
+          {label.key !== lastKey && (
             <Separator
               orientation="horizontal"
               className={clsx(

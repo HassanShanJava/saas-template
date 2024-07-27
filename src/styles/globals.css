@@ -76,7 +76,7 @@
 }
 
 .custom-scrollbar {
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;

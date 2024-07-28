@@ -1,28 +1,27 @@
 import { JSONObject } from "@/types/hook-stepper";
 
-
 export interface createRoleTypes {
-  org_id:number,
-  status:boolean,
-  name:string,
-  resource_id:Array<number>,
-  access_type:Array<string>
+  org_id: number;
+  status: boolean;
+  name: string;
+  resource_id: Array<number>;
+  access_type: Array<string>;
 }
 
-export interface deleteMemberTypes{
-  id:number
+export interface deleteMemberTypes {
+  id: number;
 }
 
-export interface updateRoleTypes extends createRoleTypes{
-  id:number
+export interface updateRoleTypes extends createRoleTypes {
+  id: number;
 }
 export interface resourceTypes {
   id: number;
   name: string;
   code: string | undefined;
   parent: string | undefined;
-  subRows?:resourceTypes[];
-  children?:resourceTypes[];
+  subRows?: resourceTypes[];
+  children?: resourceTypes[];
   is_parent: boolean;
   link: string;
   icon: string;
@@ -43,7 +42,7 @@ export interface facilitiesData extends JSONObject {
 }
 
 export interface updateMembershipType {
-  id:number | null;
+  id: number | null;
   org_id: number | null;
   name?: string;
   group_id?: number | null;
@@ -299,10 +298,10 @@ export interface LeadResponseTypes {
   org_id: number;
 }
 
-enum genderEnum{
-  male='male',
-  female="female",
-  other="other"
+enum genderEnum {
+  male = "male",
+  female = "female",
+  other = "other",
 }
 export interface MemberInputTypes {
   profile_img?: string;
@@ -314,7 +313,7 @@ export interface MemberInputTypes {
   email: string;
   phone?: string;
   mobile_number?: string;
-  notes?: string;  
+  notes?: string;
   source_id: number;
   language?: string | null;
   is_business?: boolean;
@@ -362,7 +361,7 @@ export interface MemberResponseTypes {
   membership_id: number;
   send_invitation?: boolean | null;
   status?: string | null;
-  is_deleted:boolean;
+  is_deleted: boolean;
 }
 
 export interface updateStatusInput {
@@ -401,10 +400,10 @@ export interface updateStatusInput {
 export interface getRolesType {
   name: string;
   org_id: number;
-  children?:getRolesType[];
-  subRows?:getRolesType[];
-  code:string|undefined;
-  parent:string|undefined;
+  children?: getRolesType[];
+  subRows?: getRolesType[];
+  code: string | undefined;
+  parent: string | undefined;
   is_deleted: boolean;
   is_parent: boolean;
   role_id: number;
@@ -413,4 +412,133 @@ export interface getRolesType {
 export interface createRole {
   name: string;
   org_id: number;
+}
+
+export interface CoachInputTypes {
+  profile_img?: string;
+  own_coach_id: string;
+  first_name: string;
+  last_name: string;
+  gender?: "male" | "female" | "other";
+  dob: string;
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number | undefined;
+  country_id: number | undefined;
+  city: string;
+  coach_status: "pending" | "active" | "inactive" | undefined;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  bank_name?: string;
+  iban_no?: string;
+  acc_holder_name?: string;
+  swift_code?: string;
+  created_by?: number;
+  member_ids: any;
+  org_id: number;
+}
+
+export interface CoachResponseType {
+  wallet_address?: string | null;
+  org_id: number;
+  coach_status: string;
+  own_coach_id: string;
+  profile_img?: string;
+  first_name: string;
+  last_name: string;
+  dob: string;
+  gender?: "male" | "female" | "other";
+  email: string;
+  password?: string;
+  phone?: string;
+  mobile_number?: string | null;
+  notes?: string | null;
+  source_id: number;
+  country_id: number;
+  city: string;
+  zipcode?: string | null;
+  address_1?: string | null;
+  address_2?: string | null;
+  check_in?: string | null;
+  last_online?: string | null;
+  coach_since?: string | null;
+  bank_name?: string | null;
+  iban_no?: string | null;
+  acc_holder_name?: string | null;
+  swift_code?: string | null;
+  created_by: number;
+  member_ids: number[];
+}
+
+export interface coachdeleteType {
+  id: number;
+}
+interface Member {
+  id: number;
+  name: string;
+}
+
+export interface CoachResponseTypeById {
+  id: number;
+  own_coach_id: string;
+  profile_img?: string;
+  first_name: string;
+  last_name: string;
+  dob: string; // ISO date string
+  gender: "male" | "female" | "other";
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  country_id: number;
+  city: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  check_in?: string | null;
+  last_online?: string | null;
+  coach_since?: string | null; // ISO date string
+  coach_status: "pending" | "active" | "inactive" | undefined;
+  org_id: number;
+  bank_name?: string;
+  iban_no?: string;
+  acc_holder_name?: string;
+  swift_code?: string;
+  created_at?: string;
+  member_ids: Member[];
+}
+
+export interface ServerResponseById {
+  id: number;
+  own_coach_id: string;
+  profile_img?: string;
+  first_name: string;
+  last_name: string;
+  dob: string; // ISO date string
+  gender: "male" | "female" | "other";
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  country_id: number;
+  city: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  check_in?: string | null;
+  last_online: string | null;
+  coach_since: string | null; // ISO date string
+  coach_status: "pending" | "active" | "inactive" | undefined;
+  org_id: number;
+  bank_name?: string;
+  iban_no?: string;
+  acc_holder_name?: string;
+  swift_code?: string;
+  created_at: string;
+  members: Member[]; // Original members array
 }

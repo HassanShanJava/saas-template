@@ -10,7 +10,7 @@ import "./style.css";
 import { login } from "../../../features/auth/authSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { AppDispatch, RootState } from "@/app/store";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,11 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const { VITE_APP_SITEKEY } = import.meta.env;
 
 export default function AuthenticationPage() {
+  const token = localStorage.getItem("userToken");
+
+  if (token) {
+    return <Navigate to="/admin/dashboard" />;
+  }
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -46,24 +51,23 @@ export default function AuthenticationPage() {
   });
 
   useEffect(() => {
-    if (error != null)
-    console.log(error);
+    if (error != null) console.log(error);
   }, [error]);
 
   useEffect(() => {
-		if (loading || !isLoggedIn) return;
-		setCaptchaError(false);
-		reset();
-		if (recaptchaRef.current) {
-			recaptchaRef.current.reset();
-		}
-		navigate("/admin/dashboard");
-		toast({
-			variant: "success",
-			title: "LogIn",
-			description: "You are successfully logged In",
-		});
-  }, [loading])
+    if (loading || !isLoggedIn) return;
+    setCaptchaError(false);
+    reset();
+    if (recaptchaRef.current) {
+      recaptchaRef.current.reset();
+    }
+    navigate("/admin/dashboard");
+    toast({
+      variant: "success",
+      title: "LogIn",
+      description: "You are successfully logged In",
+    });
+  }, [loading]);
 
   const handleRememberMe = (e: any) => {
     setValue("rememberme", e);
@@ -84,7 +88,6 @@ export default function AuthenticationPage() {
 
     console.log("Form data:", data);
     dispatch(login(data));
-
   };
 
   const [isCaptchaError, setCaptchaError] = useState(false);
@@ -210,12 +213,12 @@ export default function AuthenticationPage() {
                       </>
                     )}
                   </div>
-								<LoadingButton
-									loading={loading}
-									className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
-								>
-									{loading ? "Logging In" : "Login"}
-								</LoadingButton>
+                  <LoadingButton
+                    loading={loading}
+                    className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
+                  >
+                    {loading ? "Logging In" : "Login"}
+                  </LoadingButton>
                 </form>
               </CardContent>
             </Card>

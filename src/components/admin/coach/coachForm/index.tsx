@@ -58,7 +58,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { CountryTypes, ErrorType, sourceTypes } from "@/app/types";
+import { CoachInputTypes, CountryTypes, ErrorType, sourceTypes } from "@/app/types";
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import {
@@ -72,15 +72,20 @@ import {
   useGetCoachByIdQuery,
   useGetCoachCountQuery,
   useGetMemberListQuery,
+  useUpdateCoachMutation,
 } from "@/services/coachApi";
-
+enum genderEnum{
+  male="male",
+  female="female",
+  other="other"
+}
 const AddCoachForm: React.FC = () => {
   const { id } = useParams();
   const {
     data: EditCoachData,
     isLoading: editisLoading,
     refetch: editRefetch,
-  } = useGetCoachByIdQuery(id);
+  } = useGetCoachByIdQuery(Number(id));
   console.log("update the damn data", EditCoachData);
   // const [counter, setCounter] = React.useState(0);
   const orgId =
@@ -94,6 +99,31 @@ const AddCoachForm: React.FC = () => {
     name: z.string(),
   });
 
+  const initialState:CoachInputTypes={
+    profile_img: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+    own_coach_id: "",
+    first_name: "",
+    last_name: "",
+    gender: "male",
+    dob: "",
+    email: "",
+    phone: "",
+    mobile_number: "",
+    notes: "",
+    source_id: 0,
+    country_id: undefined,
+    city: "",
+    coach_status: "pending",
+    zipcode: "",
+    address_1: "",
+    address_2: "",
+    bank_name: "",
+    iban_no: "",
+    acc_holder_name: "",
+    swift_code: "",
+    org_id: orgId,
+    member_ids: [] as z.infer<typeof membersSchema>[], // Correct placement of brackets
+  }
   const FormSchema = z.object({
     profile_img: z
       .string()
@@ -122,7 +152,7 @@ const AddCoachForm: React.FC = () => {
         required_error: "You need to select a gender type.",
       })
       .default("male"),
-    dob: z.date({
+    dob: z.coerce.string({
       required_error: "A date of birth is required.",
     }),
     email: z
@@ -207,9 +237,12 @@ const AddCoachForm: React.FC = () => {
   const { data: sources } = useGetAllSourceQuery();
 
   const [addCoach, { isLoading: memberLoading }] = useAddCoachMutation();
+  const [editCoach,{isLoading:editcoachLoading}] = useUpdateCoachMutation();
+
   const { data: transformedData } = useGetMemberListQuery(orgId);
   const navigate = useNavigate();
-
+  const [initialValues, setInitialValues] =
+    React.useState<CoachInputTypes>(initialState);
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -231,8 +264,11 @@ const AddCoachForm: React.FC = () => {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      own_coach_id: "",
+    // defaultValues: {
+    //   own_coach_id: "",
+    // },
+    defaultValues:{
+      ...initialState
     },
     mode: "onChange",
   });
@@ -251,13 +287,29 @@ const AddCoachForm: React.FC = () => {
     console.log("only once", data);
 
     try {
-      const resp = await addCoach(updatedData).unwrap();
-      refetch();
-      toast({
-        variant: "success",
-        title: "Coach Added Successfully ",
-      });
-      navigate("/admin/coach/");
+      if(id){
+        const resp = await editCoach({
+          ...updatedData,
+          id: Number(id),
+        }).unwrap();
+        editRefetch();
+        if (resp) {
+          toast({
+            variant: "success",
+            title: "Coach Updated Successfully ",
+          });
+          navigate("/admin/coach/");
+        }
+      }else{
+        const resp = await addCoach(updatedData).unwrap();
+        refetch();
+        toast({
+          variant: "success",
+          title: "Coach Added Successfully ",
+        });
+        navigate("/admin/coach/");
+      }
+    
     } catch (error: unknown) {
       console.log("Error", error);
       if (error && typeof error === "object" && "data" in error) {
@@ -282,13 +334,18 @@ const AddCoachForm: React.FC = () => {
   }
 
   React.useEffect(() => {
-    if (orgName) {
-      const total = coachCountData?.total_coaches as number;
-      if (total >= 0 && id === undefined) {
-        form.setValue("own_coach_id", `${orgName.slice(0, 2)}-C${total + 1}`);
+    if (!EditCoachData) {
+      if (orgName) {
+        const total = coachCountData?.total_coaches as number;
+        if (total >= 0) {
+          form.setValue("own_coach_id", `${orgName.slice(0, 2)}-C${total + 1}`);
+        }
       }
+    } else {
+      setInitialValues(EditCoachData as CoachInputTypes);
+      form.reset(EditCoachData);
     }
-  }, [coachCountData, orgName]);
+  }, [EditCoachData,coachCountData, orgName]);
 
   console.log("user list create", form.getValues);
 
@@ -478,7 +535,7 @@ const AddCoachForm: React.FC = () => {
                                 <Calendar
                                   mode="single"
                                   captionLayout="dropdown-buttons"
-                                  selected={field.value}
+                                  selected={new Date(field.value)}
                                   onSelect={field.onChange}
                                   fromYear={1960}
                                   toYear={2030}
@@ -592,7 +649,7 @@ const AddCoachForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          disabled
+                          disabled={field.value=="pending"}
                           onValueChange={(
                             value: "pending" | "active" | "inactive"
                           ) => form.setValue("coach_status", value)}

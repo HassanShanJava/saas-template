@@ -392,21 +392,22 @@ export interface createRole {
   org_id: number;
 }
 
+
 export interface CoachInputTypes {
-  profile_img?: string;
+  profile_img?: string ;
   own_coach_id: string;
   first_name: string;
   last_name: string;
-  gender: string;
+  gender?: "male" | "female" | "other";
   dob: string;
   email: string;
   phone?: string;
   mobile_number?: string;
   notes?: string;
-  source_id: number;
-  country_id: number;
+  source_id: number |undefined;
+  country_id: number |undefined;
   city: string;
-  coach_status: string;
+  coach_status: "pending" | "active" | "inactive" | undefined;
   zipcode?: string;
   address_1?: string;
   address_2?: string;
@@ -414,8 +415,8 @@ export interface CoachInputTypes {
   iban_no?: string;
   acc_holder_name?: string;
   swift_code?: string;
-  created_by: number;
-  member_ids: Array<number>;
+  created_by?: number;
+  member_ids: any;
   org_id: number;
 }
 
@@ -424,14 +425,14 @@ export interface CoachResponseType {
   org_id: number;
   coach_status: string;
   own_coach_id: string;
-  profile_img?: string | null;
+  profile_img?: string ;
   first_name: string;
   last_name: string;
   dob: string;
-  gender: string;
+  gender?: "male" | "female" | "other";
   email: string;
-  password?: string | null;
-  phone?: string | null;
+  password?: string ;
+  phone?: string ;
   mobile_number?: string | null;
   notes?: string | null;
   source_id: number;
@@ -453,4 +454,71 @@ export interface CoachResponseType {
 
 export interface coachdeleteType {
   id: number;
+}
+interface Member {
+  id: number;
+  name: string;
+}
+
+export interface CoachResponseTypeById {
+  id: number;
+  own_coach_id: string;
+  profile_img?: string ;
+  first_name: string;
+  last_name: string;
+  dob: string; // ISO date string
+  gender: "male" | "female" | "other" ;
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  country_id: number;
+  city: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  check_in?: string |null;
+  last_online?: string | null;
+  coach_since?: string |null; // ISO date string
+  coach_status: "pending" | "active" | "inactive" | undefined ;
+  org_id: number;
+  bank_name?: string ;
+  iban_no?: string ;
+  acc_holder_name?: string ;
+  swift_code?: string ;
+  created_at?: string ;
+  member_ids: Member[];
+}
+
+
+export interface ServerResponseById {
+  id: number;
+  own_coach_id: string;
+  profile_img?: string;
+  first_name: string;
+  last_name: string;
+  dob: string; // ISO date string
+  gender: "male" | "female" | "other" ;
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  country_id: number;
+  city: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  check_in?: string | null;
+  last_online: string | null;
+  coach_since: string |null; // ISO date string
+  coach_status: "pending" | "active" | "inactive" | undefined ;
+  org_id: number;
+  bank_name?: string ;
+  iban_no?: string ;
+  acc_holder_name?: string;
+  swift_code?: string ;
+  created_at: string ;
+  members: Member[]; // Original members array
 }

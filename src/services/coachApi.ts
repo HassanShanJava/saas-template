@@ -1,4 +1,4 @@
-import { CoachInputTypes } from "@/app/types";
+import { CoachInputTypes,CoachResponseTypeById, ServerResponseById } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
 export const Roles = apiSlice.injectEndpoints({
@@ -14,6 +14,7 @@ export const Roles = apiSlice.injectEndpoints({
             "Content-Type": "application/json",
           },
         }),
+        invalidatesTags:["Coaches"],
       }),
       getCoachCount: builder.query<{ total_coaches: number }, number>({
         query: (org_id) => ({
@@ -25,7 +26,7 @@ export const Roles = apiSlice.injectEndpoints({
       }),
       getMemberList: builder.query<{ id: number; name: string }[], number>({
         query: (org_id) => ({
-          url: `/client/list?org_id=${org_id}`,
+          url: `/member/list?org_id=${org_id}`,
           headers: {
             Accept: "application/json",
           },
@@ -45,6 +46,7 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
+        providesTags: ["Coaches"],
       }),
       deleteCoach: builder.mutation<any, any>({
         query: (coachId) => ({
@@ -56,6 +58,7 @@ export const Roles = apiSlice.injectEndpoints({
             "Content-Type": "application/json",
           },
         }),
+        invalidatesTags:["Coaches"]
       }),
       updateCoach: builder.mutation<any, any>({
         query: (coachdata) => ({
@@ -67,8 +70,9 @@ export const Roles = apiSlice.injectEndpoints({
             "Content-Type": "application/json",
           },
         }),
+        invalidatesTags:["Coaches"]
       }),
-      getCoachById: builder.query<any, any>({
+      getCoachById: builder.query<CoachResponseTypeById, number>({
         query: (coach_id) => ({
           url: `/coach/coaches?coach_id=${coach_id}`,
           method: "GET",
@@ -76,6 +80,13 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
+        transformResponse: (response: ServerResponseById) => {
+          const { members, ...rest } = response;
+          return {
+            ...rest,
+            member_ids: members,
+          };
+        },
       }),
     };
   },

@@ -111,7 +111,6 @@ export default function CoachTableView() {
     pageIndex: 0,
     pageSize: 10, // Adjust this based on your preference
   });
-  const displayValue = (value: any) => (value === null ? "N/A" : value);
   const displayDate = (value: any) => {
     const date = new Date(value);
 
@@ -179,6 +178,7 @@ export default function CoachTableView() {
       }
     }
   };
+  const displayValue = (value: string | undefined | null) => value == null ? "N/A" : value;
 
   const columns: ColumnDef<any>[] = [
     {
@@ -257,7 +257,7 @@ export default function CoachTableView() {
             onValueChange={(e) =>
               handleStatusChange({ coach_status: e, id: id, org_id: org_id })
             }
-            // disabled={value == "pending"}
+            disabled={value == "pending"}
           >
             <SelectTrigger>
               <SelectValue placeholder="Status" className="text-gray-400">

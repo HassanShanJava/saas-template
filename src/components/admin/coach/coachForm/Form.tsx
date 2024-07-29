@@ -424,12 +424,6 @@ const CoachForm: React.FC = () => {
                 <div className="relative">
                   <FormField
                     control={form.control}
-                    rules={{
-                      validate: (value) => {
-                        // Ensure value is treated as a number for comparison
-                        return Number(value) !== 0 || "Source is required";
-                      },
-                    }}
                     name="own_coach_id"
                     render={({ field }) => (
                       <FormItem>

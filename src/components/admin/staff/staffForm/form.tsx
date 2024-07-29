@@ -29,10 +29,6 @@ import {
 } from "@/components/ui/form";
 import { toast } from "@/components/ui/use-toast";
 import {
-  ButtonGroup,
-  ButtonGroupItem,
-} from "@/components/ui/buttonGroup/button-group";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -54,32 +50,63 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import {
-  CoachTypes,
   CountryTypes,
   ErrorType,
   getRolesType,
   sourceTypes,
+  StaffInputType,
 } from "@/app/types";
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Label } from "@/components/ui/label";
 import {
-  useGetAllBusinessesQuery,
   useGetAllSourceQuery,
   useGetCountriesQuery,
-  useGetCoachesQuery,
-  useGetMemberCountQuery,
-  useAddMemberMutation,
 } from "@/services/memberAPi";
 import { useGetRolesQuery } from "@/services/rolesApi";
+import {
+  useAddStaffMutation,
+  useGetStaffByIdQuery,
+  useGetStaffCountQuery,
+} from "@/services/staffsApi";
+
+enum genderEnum {
+  male = "male",
+  female = "female",
+  other = "other",
+}
 
 const StaffForm: React.FC = () => {
+  const { id } = useParams();
+  const orgName = useSelector(
+    (state: RootState) => state.auth.userInfo?.user?.org_name
+  );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+
+  const initialState: StaffInputType = {
+    profile_img:
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+    gender: genderEnum.male,
+    org_id: orgId,
+    own_staff_id: "",
+    first_name: "",
+    last_name: "",
+    dob: "",
+    email: "",
+    role_id: 0,
+    source_id: 0,
+    country_id: 0,
+    city: "",
+  };
+
+  const [initialValues, setInitialValues] =
+    React.useState<StaffInputType>(initialState);
+
   const FormSchema = z.object({
     profile_img: z
       .string()
@@ -88,8 +115,8 @@ const StaffForm: React.FC = () => {
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
       )
       .optional(),
-    own_member_id: z.string({
-      required_error: "Own Member Id Required.",
+    own_staff_id: z.string({
+      required_error: "Own Staff Id Required.",
     }),
     first_name: z
       .string({
@@ -103,10 +130,10 @@ const StaffForm: React.FC = () => {
       })
       .trim()
       .min(3, { message: "Last Name Is Required" }),
-    gender: z.enum(["male", "female", "other"], {
+    gender: z.nativeEnum(genderEnum, {
       required_error: "You need to select a gender type.",
     }),
-    dob: z.date({
+    dob: z.coerce.string({
       required_error: "A date of birth is required.",
     }),
     email: z
@@ -114,22 +141,14 @@ const StaffForm: React.FC = () => {
       .email({ message: "Invalid email" })
       .min(4, { message: "Email is Required" }),
     phone: z.string().trim().optional(),
-    mobile_number: z.string().trim().optional(),
+    mobile: z.string().trim().optional(),
     notes: z.string().optional(),
-    source_id: z
-      .number({
-        required_error: "Source Required.",
-      })
-      .refine((val) => val !== 0, {
-        message: "Source is required",
-      }),
-    country_id: z
-      .number({
-        required_error: "Country Required.",
-      })
-      .refine((val) => val !== 0, {
-        message: "Country is required",
-      }),
+    source_id: z.coerce.number({
+      required_error: "Source Required.",
+    }),
+    country_id: z.coerce.number({
+      required_error: "Country Required.",
+    }),
     city: z
       .string({
         required_error: "City Required.",
@@ -152,22 +171,17 @@ const StaffForm: React.FC = () => {
     send_invitation: z.boolean().default(true).optional(),
   });
 
-  const orgName = useSelector(
-    (state: RootState) => state.auth.userInfo?.user?.org_name
-  );
-  // const {
-  //   data: memberCountData,
-  //   isLoading,
-  //   refetch,
-  // } = useGetMemberCountQuery(orgId);
-
   const { data: roleData } = useGetRolesQuery(orgId);
   const { data: countries } = useGetCountriesQuery();
-  const { data: coaches } = useGetCoachesQuery(orgId);
-
   const { data: sources } = useGetAllSourceQuery();
+  const { data: staffCount, refetch } = useGetStaffCountQuery(orgId, {
+    skip: id !== undefined,
+  });
+  const { data: staffData } = useGetStaffByIdQuery(Number(id), {
+    skip: isNaN(Number(id)),
+  });
+  const [addStaff, { isLoading: staffLoading }] = useAddStaffMutation();
 
-  const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
   const navigate = useNavigate();
 
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
@@ -191,9 +205,7 @@ const StaffForm: React.FC = () => {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      own_member_id: "",
-    },
+    defaultValues: initialState,
     mode: "onChange",
   });
 
@@ -240,18 +252,23 @@ const StaffForm: React.FC = () => {
     }
   }
 
-  function gotoMember() {
+  function gotoStaff() {
     navigate("/admin/staff");
   }
 
-  // React.useEffect(() => {
-  //   if (orgName) {
-  //     const total = memberCountData?.total_clients;
-  //     if (total) {
-  //       form.setValue("own_member_id", `${orgName.slice(0, 2)}-S${total + 1}`);
-  //     }
-  //   }
-  // }, [memberCountData, orgName]);
+  React.useEffect(() => {
+    if (!staffData) {
+      if (orgName) {
+        const total = staffCount?.total_staffs as number;
+        if (total >= 0) {
+          form.setValue("own_staff_id", `${orgName.slice(0, 2)}-S${total + 1}`);
+        }
+      }
+    } else {
+      setInitialValues(staffData as StaffInputType);
+      form.reset(staffData);
+    }
+  }, [staffData, orgName, staffCount]);
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -290,7 +307,7 @@ const StaffForm: React.FC = () => {
                   <div>
                     <Button
                       type={"button"}
-                      onClick={gotoMember}
+                      onClick={gotoStaff}
                       className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
@@ -300,10 +317,10 @@ const StaffForm: React.FC = () => {
                     <LoadingButton
                       type="submit"
                       className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                      loading={memberLoading}
-                      disabled={memberLoading}
+                      loading={staffLoading}
+                      disabled={staffLoading}
                     >
-                      {!memberLoading && (
+                      {!staffLoading && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
                       Save
@@ -318,21 +335,16 @@ const StaffForm: React.FC = () => {
                 <div className="relative">
                   <FormField
                     control={form.control}
-                    rules={{
-                      validate: (value) => {
-                        // Ensure value is treated as a number for comparison
-                        return Number(value) !== 0 || "Source is required";
-                      },
-                    }}
-                    name="own_member_id"
+                    name="own_staff_id"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="own_member_id"
+                          id="own_staff_id"
                           label="Gym Staff Id"
+                          disabled
                         />
-                        {watcher.own_member_id ? <></> : <FormMessage />}
+                        {watcher.own_staff_id ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -376,14 +388,15 @@ const StaffForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value: "male" | "female" | "other") =>
+                          onValueChange={(value: genderEnum) =>
                             form.setValue("gender", value)
                           }
+                          value={field.value as genderEnum}
                         >
                           <FormControl>
                             <SelectTrigger
                               floatingLabel="Gender*"
-                              className={`${watcher.gender ? "text-black" : ""}`}
+                              className={`text-black`}
                             >
                               <SelectValue placeholder="Select Gender" />
                             </SelectTrigger>
@@ -394,7 +407,7 @@ const StaffForm: React.FC = () => {
                             <SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
-                        {watcher.gender ? <></> : <FormMessage />}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -435,7 +448,7 @@ const StaffForm: React.FC = () => {
                                 <Calendar
                                   mode="single"
                                   captionLayout="dropdown-buttons"
-                                  selected={field.value}
+                                  selected={new Date(field.value)}
                                   onSelect={field.onChange}
                                   fromYear={1960}
                                   toYear={2030}
@@ -492,15 +505,15 @@ const StaffForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="mobile_number"
+                    name="mobile"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="mobile_number"
+                          id="mobile"
                           label="Mobile Number"
                         />
-                        {watcher.mobile_number ? <></> : <FormMessage />}
+                        {watcher.mobile ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -547,7 +560,6 @@ const StaffForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="0">Select Source*</SelectItem>{" "}
                             {/* Placeholder option */}
                             {sources && sources.length ? (
                               sources.map((sourceval: sourceTypes, i: any) => (
@@ -572,12 +584,6 @@ const StaffForm: React.FC = () => {
                   <FormField
                     control={form.control}
                     name="role_id"
-                    // rules={{
-                    //   validate: (value) => {
-                    //     // Ensure value is treated as a number for comparison
-                    //     return Number(value) !== 0;
-                    //   },
-                    // }}
                     render={({ field }) => (
                       <FormItem>
                         <Select
@@ -590,17 +596,18 @@ const StaffForm: React.FC = () => {
                             <SelectTrigger
                               className={`${watcher.role_id ? "text-black" : ""}`}
                             >
-                              <SelectValue
-                                className="text-black"
-                                placeholder="Select Role"
-                              />
+                              <SelectValue>
+                                {field.value === 0
+                                  ? "Select Role*"
+                                  : roleData?.find(
+                                      (role) => role.role_id === field.value
+                                    )?.name || "Select Role*"}
+                              </SelectValue>
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="0">Role*</SelectItem>
                             {roleData && roleData.length > 0 ? (
                               roleData?.map((sourceval: getRolesType) => {
-                                // console.log(field.value);
                                 return (
                                   <SelectItem
                                     key={sourceval.role_id}

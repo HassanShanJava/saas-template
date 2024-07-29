@@ -66,5 +66,6 @@ export const apiSlice = createApi({
     "Groups",
     "Roles",
     "Coaches",
+    "Staffs",
   ],
 });

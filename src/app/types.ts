@@ -579,3 +579,46 @@ export interface ServerResponseById {
   created_at: string;
   members: Member[]; // Original members array
 }
+
+export interface StaffInputType {
+  profile_img?: string;
+  own_staff_id: string;
+  first_name: string;
+  last_name: string;
+  gender: genderEnum;
+  dob: string;
+  email: string;
+  phone?: string;
+  mobile?: string;
+  notes?: string;
+  source_id: number;
+  org_id: number;
+  role_id: number;
+  country_id: number;
+  city: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  // send_invitation?: boolean;
+}
+
+export interface StaffResponseType {
+  own_staff_id: string;
+  profile_img?: string;
+  first_name: string;
+  last_name: string;
+  gender: genderEnum;
+  dob: string;
+  email: string;
+  phone?: string;
+  mobile?: string;
+  notes?: string;
+  source_id: number;
+  org_id: number;
+  role_id: number;
+  country_id: number;
+  city: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+}

@@ -98,8 +98,9 @@ export default function MemberTableView() {
     pageIndex: 0,
     pageSize: 10, // Adjust this based on your preference
   });
-  const displayValue = (value: string | undefined | null) => value == null ? "N/A" : value;
-  
+  const displayValue = (value: string | undefined | null) =>
+    value == null || value == undefined || value == "" ? "N/A" : value;
+
   const displayDate = (value: any) => {
     const date = new Date(value);
 

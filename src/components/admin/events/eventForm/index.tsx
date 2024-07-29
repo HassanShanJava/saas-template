@@ -138,7 +138,7 @@ const EventForm: React.FC = () => {
                     <Button
                       type={"button"}
                       onClick={gotoEvents}
-                      className="gap-2 bg-transparent border border-primary text-black hover:bg-red-300 hover:text-white"
+                      className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
                     </Button>

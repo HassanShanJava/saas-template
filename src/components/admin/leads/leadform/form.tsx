@@ -147,7 +147,7 @@ const LeadForm: React.FC = () => {
       });
       // navigate("/admin/leads");
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
@@ -184,7 +184,7 @@ const LeadForm: React.FC = () => {
                     <Button
                       type={"button"}
                       onClick={gotoLeads}
-                      className="gap-2 bg-transparent border border-primary text-black hover:bg-red-300 hover:text-white"
+                      className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
                     </Button>

@@ -139,7 +139,7 @@ export const RoleForm = ({
     setFormData((prev: any) => ({
       ...prev,
     }));
-    createAccess(data?.allResourceData);
+    createAccess(data?.allResourceData as resourceTypes[]);
     form.reset()
   };
 
@@ -192,7 +192,7 @@ export const RoleForm = ({
         }
       }
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({

@@ -45,14 +45,16 @@ export default function RoleTableView() {
     error: rolesError,
   } = useGetRolesQuery(orgId);
 
-  const [selectedRoleId, setSelectedRoleId] = useState<number>(); // 0 can be the default for "Select a role"
+  const [selectedRoleId, setSelectedRoleId] = useState<number|undefined>(undefined); // 0 can be the default for "Select a role"
 
   const {
     data: resourceData,
     isLoading,
     refetch,
     error,
-  } = useGetResourcesQuery(selectedRoleId);
+  } = useGetResourcesQuery(selectedRoleId, {
+    skip: selectedRoleId !== undefined ? false : true,
+  });
 
   const permissionTableData = React.useMemo(() => {
     return Array.isArray(resourceData) && convertToTableData(resourceData)
@@ -127,7 +129,7 @@ export default function RoleTableView() {
   useEffect(() => {
     if (resourceData) {
       setRoleFound(true);
-    }else{
+    } else {
       setRoleFound(false);
     }
   }, [resourceData]);
@@ -145,7 +147,7 @@ export default function RoleTableView() {
   };
   // default values in form
   const [formData, setFormData] = useState<any>({
-    status: true, 
+    status: true,
     name: "",
     org_id: orgId,
   });
@@ -176,7 +178,7 @@ export default function RoleTableView() {
   const handleEditRole = () => {
     console.log("Before update:", formData);
     setFormData((prevData: any) => {
-      const updatedData = { ...prevData, case: "edit", id:selectedRoleId };
+      const updatedData = { ...prevData, case: "edit", id: selectedRoleId };
       console.log("After update:", updatedData);
       return updatedData;
     });

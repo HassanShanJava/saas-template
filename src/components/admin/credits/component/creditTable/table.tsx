@@ -141,7 +141,7 @@ export default function CreditsTableView() {
         });
       }
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
@@ -657,7 +657,7 @@ const CreditForm = ({
         }
       }
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({

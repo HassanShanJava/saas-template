@@ -198,7 +198,7 @@ export interface updateLeadInput {
   city: string;
   client_since: string;
   org_id: number;
-  membership_id: number;
+  membership_plan_id: number;
   // optional
   profile_img?: string;
   phone?: string;
@@ -314,7 +314,7 @@ export interface MemberInputTypes {
   phone?: string;
   mobile_number?: string;
   notes?: string;
-  source_id: number;
+  source_id?: number;
   language?: string | null;
   is_business?: boolean;
   business_id?: number;
@@ -328,10 +328,15 @@ export interface MemberInputTypes {
   created_by?: number | null;
   org_id: number;
   coach_id?: number;
-  membership_id: number;
+  membership_plan_id: number | undefined;
   send_invitation?: boolean;
   status?: string;
+  auto_renewal?: boolean;
+  prolongation_period?: number;
+  auto_renew_days?: number;
+  inv_days_cycle?: number;
 }
+
 
 export interface MemberResponseTypes {
   profile_img?: string | null;
@@ -358,7 +363,7 @@ export interface MemberResponseTypes {
   created_by?: number | null;
   org_id: number;
   coach_id?: number | null;
-  membership_id: number;
+  membership_plan_id: number | undefined;
   send_invitation?: boolean | null;
   status?: string | null;
   is_deleted: boolean;
@@ -442,6 +447,7 @@ export interface CoachInputTypes {
 }
 
 export interface CoachResponseType {
+  id: number;
   wallet_address?: string | null;
   org_id: number;
   coach_status: string;

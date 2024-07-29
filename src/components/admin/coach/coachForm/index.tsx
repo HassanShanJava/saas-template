@@ -311,7 +311,7 @@ const CoachForm: React.FC = () => {
       }
     
     } catch (error: unknown) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
@@ -388,7 +388,7 @@ const CoachForm: React.FC = () => {
                       type={"button"}
                       onClick={gotoCaoch}
                       disabled={memberLoading}
-                      className="gap-2 bg-transparent border border-primary text-black hover:bg-red-300 hover:text-white"
+                      className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
                     </Button>

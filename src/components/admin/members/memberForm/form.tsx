@@ -59,6 +59,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import {
   BusinessTypes,
+  CoachResponseType,
   CoachTypes,
   CountryTypes,
   ErrorType,
@@ -83,6 +84,7 @@ import {
 
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { useParams } from "react-router-dom";
+import { useGetListOfCoachQuery } from "@/services/coachApi";
 
 enum genderEnum {
   male = "male",
@@ -92,6 +94,7 @@ enum genderEnum {
 
 const MemberForm: React.FC = () => {
   const { id } = useParams();
+  console.log({id})
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const orgName = useSelector(
@@ -109,9 +112,9 @@ const MemberForm: React.FC = () => {
     phone: "",
     mobile_number: "",
     notes: "",
-    source_id: 0,
+    source_id: undefined,
     is_business: false,
-    business_id: 0,
+    business_id: undefined,
     country_id: undefined,
     city: "",
     zipcode: "",
@@ -119,11 +122,16 @@ const MemberForm: React.FC = () => {
     address_2: "",
     org_id: orgId,
     coach_id: undefined,
-    membership_id: 0,
+    membership_plan_id: undefined,
     send_invitation: true,
     status: "pending",
     client_since: new Date().toISOString().split("T")[0],
+    auto_renewal: false,
+    prolongation_period: undefined,
+    auto_renew_days: undefined,
+    inv_days_cycle: undefined,
   };
+  
 
   const navigate = useNavigate();
   const [counter, setCounter] = React.useState(0);
@@ -132,119 +140,122 @@ const MemberForm: React.FC = () => {
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   const FormSchema = z
-    .object({
-      profile_img: z
-        .string()
-        .trim()
-        .default(
-          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        )
-        .optional(),
-      own_member_id: z.string({
-        required_error: "Own Member Id Required.",
+  .object({
+    profile_img: z
+      .string()
+      .trim()
+      .default(
+        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+      )
+      .optional(),
+    own_member_id: z.string({
+      required_error: "Own Member Id Required.",
+    }),
+    first_name: z
+      .string({
+        required_error: "Firstname Required.",
+      })
+      .trim()
+      .min(3, { message: "First Name Is Required." }),
+    last_name: z
+      .string({
+        required_error: "Lastname Required.",
+      })
+      .trim()
+      .min(3, { message: "Last Name Is Required" }),
+    gender: z.nativeEnum(genderEnum, {
+      required_error: "You need to select a gender type.",
+    }),
+    dob: z.coerce.string({
+      required_error: "Date of birth is required.",
+    }),
+    email: z
+      .string()
+      .email({ message: "Invalid email" })
+      .min(4, { message: "Email is Required" }),
+    phone: z.string().trim().optional(),
+    mobile_number: z.string().trim().optional(),
+    notes: z.string().optional(),
+    source_id: z.number({
+      required_error: "Source Required.",
+    }),
+    is_business: z.boolean().default(false),
+    business_id: z.coerce.number().optional(),
+    country_id: z
+      .number({
+        required_error: "Country Required.",
+      })
+      .refine((val) => val !== 0, {
+        message: "Country is required",
       }),
-      first_name: z
-        .string({
-          required_error: "Firstname Required.",
-        })
-        .trim()
-        .min(3, { message: "First Name Is Required." }),
-      last_name: z
-        .string({
-          required_error: "Lastname Required.",
-        })
-        .trim()
-        .min(3, { message: "Last Name Is Required" }),
-      gender: z.nativeEnum(genderEnum, {
-        required_error: "You need to select a gender type.",
+    city: z
+      .string({
+        required_error: "City Required.",
+      })
+      .trim()
+      .min(3, {
+        message: "City Required.",
       }),
-      dob: z.coerce.string({
-        required_error: "A date of birth is required.",
-      }),
-      email: z
-        .string()
-        .email({ message: "Invalid email" })
-        .min(4, { message: "Email is Required" }),
-      phone: z.string().trim().optional(),
-      mobile_number: z.string().trim().optional(),
-      notes: z.string().optional(),
-      source_id: z
-        .number({
-          required_error: "Source Required.",
-        })
-        .refine((val) => val !== 0, {
-          message: "Source is required",
-        }),
-      is_business: z.boolean().default(false).optional(),
-      business_id: z.number().optional(),
-      country_id: z
-        .number({
-          required_error: "Country Required.",
-        })
-        .refine((val) => val !== 0, {
-          message: "Country is required",
-        }),
-      city: z
-        .string({
-          required_error: "City Required.",
-        })
-        .trim()
-        .min(3, {
-          message: "City Required.",
-        }),
-      zipcode: z.string().trim().optional(),
-      address_1: z.string().optional(),
-      address_2: z.string().optional(),
-      org_id: z
-        .number({
-          required_error: "Org id is required",
-        })
-        .default(orgId),
-      coach_id: z.number().optional(),
-      membership_id: z
-        .coerce.number({
-          required_error: "Membership plan is required.",
-        }),
-      send_invitation: z.boolean().default(true).optional(),
-      auto_renewal: z.boolean().default(false).optional(),
-      status: z.string().default("pending"),
-      client_since: z
-        .string()
-        .date()
-        .default(new Date().toISOString().split("T")[0]),
-      prolongation_period: z.coerce.number().optional(),
-      auto_renew_days: z.coerce.number().optional(),
-      inv_days_cycle: z.coerce.number().optional(),
-    })
-    .refine((input) => {
-      if (
-        input.auto_renewal == true &&
-        (input.prolongation_period == undefined ||
-          input.auto_renew_days == undefined ||
-          input.inv_days_cycle == undefined)
-      ) {
-        return false;
-      }
+    zipcode: z.string().trim().optional(),
+    address_1: z.string().optional(),
+    address_2: z.string().optional(),
+    org_id: z
+      .number({
+        required_error: "Org id is required",
+      })
+      .default(orgId),
+    coach_id: z.number({
+      required_error: "Coach is required",
+    }),
+    membership_plan_id: z.coerce.number({
+      required_error: "Membership plan is required.",
+    }),
+    send_invitation: z.boolean().default(true).optional(),
+    auto_renewal: z.boolean().default(false).optional(),
+    status: z.string().default("pending"),
+    client_since: z
+      .string()
+      .date()
+      .default(new Date().toISOString().split("T")[0]),
+    prolongation_period: z.coerce.number().optional(),
+    auto_renew_days: z.coerce.number().optional(),
+    inv_days_cycle: z.coerce.number().optional(),
+  })
+  .refine((input) => {
+    if (
+      input.auto_renewal == true &&
+      (input.prolongation_period == undefined ||
+        input.auto_renew_days == undefined ||
+        input.inv_days_cycle == undefined)
+    ) {
+      return false;
+    }
 
-      if (
-        !input.is_business &&
-        (input.business_id == null || input.business_id == undefined)
-      ) {
-        return false;
-      }
+    if (
+      input.is_business == false && input.business_id == undefined
+    ) {
+      return false;
+    }
 
-      return true;
-    });
+    return true;
+  }, {
+    message: "All required fields must be filled correctly.",
+    path: ["auto_renewal", "is_business"],
+  });
 
-  const { data: memberCountData, refetch } = useGetMemberCountQuery(orgId);
+
+  // conditional fetching
+  const { data: memberCountData, refetch } = useGetMemberCountQuery(orgId, {
+    skip: id ==undefined ? false : true,
+  });
   const { data: memberData } = useGetMemberByIdQuery(Number(id));
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
-  const { data: coaches } = useGetCoachesQuery(orgId);
+  const { data: coaches } = useGetListOfCoachQuery(orgId);
   const { data: sources } = useGetAllSourceQuery();
   const { data: membershipPlans } = useGetMembershipsQuery(orgId);
   const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
-  const [editMember, { isLoading: editLoading }] = useUpdateMemberMutation();
+  const [editMember, { isLoading: editLoading, isError }] = useUpdateMemberMutation();
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -270,7 +281,7 @@ const MemberForm: React.FC = () => {
   });
 
   const watcher = form.watch();
-  const memberError=form.formState.errors
+  const memberError = form.formState.errors;
   React.useEffect(() => {
     console.log({ memberData }, "jh");
     if (!memberData) {
@@ -287,11 +298,9 @@ const MemberForm: React.FC = () => {
   }, [memberData, memberCountData, orgName]);
 
   // set auto_renewal
-  const handleMembershipPlanChange = (value:number) => {
-    form.setValue("membership_id", value);
-    const data = membershipPlans?.filter(
-      (item) => item.id == value
-    )[0];
+  const handleMembershipPlanChange = (value: number) => {
+    form.setValue("membership_plan_id", value);
+    const data = membershipPlans?.filter((item) => item.id == value)[0];
     form.setValue("auto_renewal", data?.auto_renewal);
   };
 
@@ -301,13 +310,13 @@ const MemberForm: React.FC = () => {
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
     };
     try {
-      if (!id) {
+      if (id !==undefined ) {
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
-          refetch();
+          // refetch();
           toast({
             variant: "success",
-            title: "Member Added Successfully ",
+            title: "Added Successfully ",
           });
           navigate("/admin/members");
         }
@@ -317,16 +326,16 @@ const MemberForm: React.FC = () => {
           id: Number(id),
         }).unwrap();
         if (resp) {
-          refetch();
+          // refetch();
           toast({
             variant: "success",
-            title: "Member Added Successfully ",
+            title: "Updated Successfully ",
           });
           navigate("/admin/members");
         }
       }
     } catch (error: unknown) {
-      console.log("Error", { error });
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
@@ -348,8 +357,7 @@ const MemberForm: React.FC = () => {
     navigate("/admin/members");
   }
 
-
-  console.log({watcher, memberError})
+  console.log({ watcher, memberError, isError });
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -389,7 +397,7 @@ const MemberForm: React.FC = () => {
                     <Button
                       type={"button"}
                       onClick={gotoMember}
-                      className="gap-2 bg-transparent border border-primary text-black hover:bg-red-300 hover:text-white"
+                      className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
                     </Button>
@@ -398,10 +406,10 @@ const MemberForm: React.FC = () => {
                     <LoadingButton
                       type="submit"
                       className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                      loading={memberLoading || editLoading}
-                      disabled={memberLoading || editLoading}
+                      loading={form.formState.isSubmitting}
+                      disabled={form.formState.isSubmitting}
                     >
-                      {(!memberLoading || !editLoading) && (
+                      {!form.formState.isSubmitting && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
                       Save
@@ -416,12 +424,6 @@ const MemberForm: React.FC = () => {
                 <div className="relative">
                   <FormField
                     control={form.control}
-                    rules={{
-                      validate: (value) => {
-                        // Ensure value is treated as a number for comparison
-                        return Number(value) !== 0 || "Source is required";
-                      },
-                    }}
                     name="own_member_id"
                     render={({ field }) => (
                       <FormItem>
@@ -440,7 +442,7 @@ const MemberForm: React.FC = () => {
                     control={form.control}
                     name="first_name"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem> 
                         <FloatingLabelInput
                           {...field}
                           id="first_name"
@@ -474,14 +476,13 @@ const MemberForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value: genderEnum) =>
-                            form.setValue("gender", value)
-                          }
+                          onValueChange={(value: genderEnum) => form.setValue("gender", value)}
+                          value={field.value as  genderEnum}
                         >
                           <FormControl>
                             <SelectTrigger
                               floatingLabel="Gender*"
-                              className={`${watcher.gender ? "text-black" : ""}`}
+                              className={`text-black`}
                             >
                               <SelectValue placeholder="Select Gender" />
                             </SelectTrigger>
@@ -492,7 +493,7 @@ const MemberForm: React.FC = () => {
                             <SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
-                        {watcher.gender ? <></> : <FormMessage />}
+                        <FormMessage/>
                       </FormItem>
                     )}
                   />
@@ -533,7 +534,7 @@ const MemberForm: React.FC = () => {
                                 <Calendar
                                   mode="single"
                                   captionLayout="dropdown-buttons"
-                                  selected={field.value}
+                                  selected={new Date(field.value)}
                                   onSelect={field.onChange}
                                   fromYear={1960}
                                   toYear={2030}
@@ -629,25 +630,20 @@ const MemberForm: React.FC = () => {
                           onValueChange={(value) =>
                             field.onChange(Number(value))
                           }
-                          value={field.value?.toString() || "0"} // Set default to "0" for the placeholder
+                          value={field.value?.toString()} // Set default to "0" for the placeholder
                         >
                           <FormControl>
                             <SelectTrigger
                               className={`${watcher.source_id ? "text-black" : ""}`}
                             >
-                              <SelectValue>
-                                {field.value === 0
-                                  ? "Select Source*"
-                                  : sources?.find(
-                                      (source) => source.id === field.value
-                                    )?.source || "Select Source*"}
-                              </SelectValue>
+                              <SelectValue
+                                className="text-black"
+                                placeholder="Select Source*"
+                              />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {/* <SelectItem value="0">Select Source*</SelectItem>{" "} */}
-                            {/* Placeholder option */}
-                            {sources && sources.length ? (
+                            {sources && sources.length>0 ? (
                               sources.map((sourceval: sourceTypes, i: any) => (
                                 <SelectItem
                                   value={sourceval.id?.toString()}
@@ -682,29 +678,27 @@ const MemberForm: React.FC = () => {
                           onValueChange={(value) =>
                             field.onChange(Number(value))
                           }
-                          defaultValue={field.value?.toString() || "0"}
+                          value={field.value?.toString()}
                         >
                           <FormControl>
                             <SelectTrigger
-                              className={`${watcher.coach_id ? "text-black" : ""}`}
+                              className={`text-black`}
                             >
                               <SelectValue
                                 className="text-black"
-                                placeholder="Select Coach"
+                                placeholder="Select Coach*"
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="0">Coach</SelectItem>
                             {coaches && coaches.length > 0 ? (
-                              coaches?.map((sourceval: CoachTypes) => {
-                                // console.log(field.value);
+                              coaches?.map((sourceval: CoachResponseType) => {
                                 return (
                                   <SelectItem
                                     key={sourceval.id}
                                     value={sourceval.id?.toString()}
                                   >
-                                    {sourceval.coach_name}
+                                    {sourceval.first_name+" "+sourceval.last_name}
                                   </SelectItem>
                                 );
                               })
@@ -759,13 +753,13 @@ const MemberForm: React.FC = () => {
                       <FormItem>
                         <Select
                           onValueChange={(value) =>
-                            form.setValue("country_id", Number(value))
+                            form.setValue("business_id", Number(value))
                           }
-                          defaultValue={field.value?.toString() || "0"}
+                          value={field.value?.toString()}
                         >
                           <FormControl>
                             <SelectTrigger
-                              className={`${watcher.business_id ? "text-black" : ""}`}
+                              className={`text-black`}
                             >
                               <SelectValue
                                 className="text-gray-400"
@@ -774,7 +768,6 @@ const MemberForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="0">Select Business*</SelectItem>{" "}
                             <Button
                               variant={"link"}
                               className="gap-2 text-black"
@@ -971,25 +964,18 @@ const MemberForm: React.FC = () => {
                 <div className="relative col-span-4">
                   <FormField
                     control={form.control}
-                    name="membership_id"
-                    rules={{
-                      validate: (value) => {
-                        // Ensure value is treated as a number for comparison
-                        return (
-                          Number(value) !== 0 || "Memberhip Plan is Required"
-                        );
-                      },
-                    }}
+                    name="membership_plan_id"
                     render={({ field }) => (
                       <FormItem>
                         <Select
                           onValueChange={(value) =>
                             handleMembershipPlanChange(Number(value))
                           }
+                          value={field.value?.toString()}
                         >
                           <FormControl>
                             <SelectTrigger
-                              className={`${watcher.membership_id ? "text-black" : ""}`}
+                              className={`text-black`}
                             >
                               <SelectValue
                                 className="text-gray-400"
@@ -1001,6 +987,7 @@ const MemberForm: React.FC = () => {
                             {membershipPlans && membershipPlans?.length ? (
                               membershipPlans.map(
                                 (sourceval: membeshipsTableType) => {
+                                  console.log({sourceval})
                                   return (
                                     <SelectItem
                                       key={sourceval.id}
@@ -1018,7 +1005,7 @@ const MemberForm: React.FC = () => {
                             )}
                           </SelectContent>
                         </Select>
-                        {watcher.membership_id ? <></> : <FormMessage />}
+                        {watcher.membership_plan_id ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />

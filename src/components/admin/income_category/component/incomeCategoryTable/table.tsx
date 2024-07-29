@@ -128,7 +128,7 @@ export default function IncomeCategoryTableView() {
   //         });
   //       }
   //     } catch (error) {
-  //       console.log("Error", error);
+  //       console.error("Error", { error });
   //       if (error && typeof error === "object" && "data" in error) {
   //         const typedError = error as ErrorType;
   //         toast({
@@ -617,7 +617,7 @@ const IncomeCategoryForm = ({
         }
       }
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({

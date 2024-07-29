@@ -20,7 +20,7 @@ import Loader from "@/components/Loader";
 import MemberPage from "./components/admin/members";
 import MemberForm from "./components/admin/members/memberForm/form";
 import Coach from "./components/admin/coach";
-import CoachForm from "./components/admin/coach/coachForm";
+import CoachForm from "./components/admin/coach/coachForm/Form";
 import Staff from "./components/admin/staff";
 import StaffForm from "./components/admin/staff/staffForm/form";
 

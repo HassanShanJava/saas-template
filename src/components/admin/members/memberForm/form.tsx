@@ -276,7 +276,7 @@ const MemberForm: React.FC = () => {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { ...initialValues },
+    defaultValues: initialValues,
     mode: "onChange",
   });
 

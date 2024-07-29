@@ -23,6 +23,7 @@ import Coach from "./components/admin/coach";
 import CoachForm from "./components/admin/coach/coachForm";
 import Staff from "./components/admin/staff";
 import StaffForm from "./components/admin/staff/staffForm/form";
+import ExerciseForm from "./components/admin/exercises/form";
 
 function App() {
   const loading = useSelector((state: RootState) =>
@@ -92,6 +93,8 @@ function App() {
               index
               element={<StaffForm />}
             />
+            <Route path="/admin/exercise/addexercise" index element={<ExerciseForm />} />
+            <Route path="/admin/exercise/editexercise/:id" index element={<ExerciseForm />} />
           </Route>
         </Route>
       </Routes>

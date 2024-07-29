@@ -71,6 +71,7 @@ export const Header = () => {
               <PageTitle currentPath={location.pathname} targetPath="/admin/leads/addlead" title="Leads" />
               <PageTitle currentPath={location.pathname} targetPath="/admin/events" title="Events" />
               <PageTitle currentPath={location.pathname} targetPath="/admin/events/addevents" title="Events" />
+              <PageTitle currentPath={location.pathname} targetPath="/admin/exercise/addexercise" title="Exercise" />
             </h1>
 
             <Breadcrumb currentPath={location.pathname} targetPath="/admin/members/addmember" title="Add Member" />

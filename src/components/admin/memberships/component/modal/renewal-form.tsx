@@ -48,7 +48,7 @@ const AutoRenewalForm = () => {
       <h1 className="font-semibold text-[#2D374] text-xl">
         Renewal and Billing Cycle
       </h1>
-      <div className="mt-3 flex gap-6 items-center">
+      <div className="mt-6 flex gap-6 items-center">
         <Controller
           name="auto_renewal"
           control={control}

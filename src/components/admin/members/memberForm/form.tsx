@@ -313,7 +313,6 @@ const MemberForm: React.FC = () => {
     };
     try {
       if (id == undefined || id==null) {
-        delete updatedData?.id
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
           refetch();

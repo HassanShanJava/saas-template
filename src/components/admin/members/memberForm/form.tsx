@@ -246,9 +246,11 @@ const MemberForm: React.FC = () => {
 
   // conditional fetching
   const { data: memberCountData, refetch } = useGetMemberCountQuery(orgId, {
-    skip: id ==undefined ? false : true,
+    skip: id !==undefined,
   });
-  const { data: memberData } = useGetMemberByIdQuery(Number(id));
+  const { data: memberData } = useGetMemberByIdQuery(Number(id),{
+    skip: isNaN(Number(id))
+  });
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
   const { data: coaches } = useGetListOfCoachQuery(orgId);
@@ -276,7 +278,7 @@ const MemberForm: React.FC = () => {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { ...initialValues },
+    defaultValues: initialValues,
     mode: "onChange",
   });
 
@@ -313,7 +315,7 @@ const MemberForm: React.FC = () => {
       if (id !==undefined ) {
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
-          // refetch();
+          refetch();
           toast({
             variant: "success",
             title: "Added Successfully ",
@@ -326,7 +328,7 @@ const MemberForm: React.FC = () => {
           id: Number(id),
         }).unwrap();
         if (resp) {
-          // refetch();
+          refetch();
           toast({
             variant: "success",
             title: "Updated Successfully ",
@@ -357,7 +359,7 @@ const MemberForm: React.FC = () => {
     navigate("/admin/members");
   }
 
-  console.log({ watcher, memberError, isError });
+  console.log({ watcher, memberError }, isNaN(Number(id)));
 
   return (
     <div className="p-6 bg-bgbackground">

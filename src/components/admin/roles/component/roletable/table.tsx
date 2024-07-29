@@ -53,7 +53,7 @@ export default function RoleTableView() {
     refetch,
     error,
   } = useGetResourcesQuery(selectedRoleId, {
-    skip: selectedRoleId !== undefined ? false : true,
+    skip: selectedRoleId == undefined,
   });
 
   const permissionTableData = React.useMemo(() => {

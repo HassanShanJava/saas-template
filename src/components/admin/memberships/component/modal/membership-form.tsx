@@ -21,6 +21,16 @@ import { useSelector } from "react-redux";
 import { ErrorType, membeshipsTableType } from "@/app/types";
 import { DialogTitle } from "@radix-ui/react-dialog";
 
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+
+
 // import { motion, AnimatePresence } from 'framer-motion';
 
 interface membershipFormTypes {
@@ -321,12 +331,11 @@ const MembershipForm = ({
   };
 
   return (
-    <Dialog open={isOpen}>
-      <DialogContent
+    <Sheet open={isOpen}>
+      <SheetContent
         className={`w-full max-w-[1050px] flex flex-col !py-3`}
-        hideCloseButton
       >
-        <DialogTitle className="absolute  !display-none"></DialogTitle>
+        <SheetTitle className="absolute  !display-none"></SheetTitle>
         <FormProvider {...methods}>
           <div className="flex justify-between gap-5 items-start h-[82px] pl-8  ">
             <StepperIndicator
@@ -396,8 +405,8 @@ const MembershipForm = ({
             </AnimatePresence> */}
           </form>
         </FormProvider>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
 

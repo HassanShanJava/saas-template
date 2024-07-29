@@ -58,7 +58,12 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { CoachInputTypes, CountryTypes, ErrorType, sourceTypes } from "@/app/types";
+import {
+  CoachInputTypes,
+  CountryTypes,
+  ErrorType,
+  sourceTypes,
+} from "@/app/types";
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import {
@@ -74,10 +79,10 @@ import {
   useGetMemberListQuery,
   useUpdateCoachMutation,
 } from "@/services/coachApi";
-enum genderEnum{
-  male="male",
-  female="female",
-  other="other"
+enum genderEnum {
+  male = "male",
+  female = "female",
+  other = "other",
 }
 const CoachForm: React.FC = () => {
   const { id } = useParams();
@@ -99,8 +104,9 @@ const CoachForm: React.FC = () => {
     name: z.string(),
   });
 
-  const initialState:CoachInputTypes={
-    profile_img: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+  const initialState: CoachInputTypes = {
+    profile_img:
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
     own_coach_id: "",
     first_name: "",
     last_name: "",
@@ -123,7 +129,7 @@ const CoachForm: React.FC = () => {
     swift_code: "",
     org_id: orgId,
     member_ids: [] as z.infer<typeof membersSchema>[], // Correct placement of brackets
-  }
+  };
   const FormSchema = z.object({
     profile_img: z
       .string()
@@ -231,13 +237,15 @@ const CoachForm: React.FC = () => {
     data: coachCountData,
     isLoading,
     refetch,
-  } = useGetCoachCountQuery(orgId);
+  } = useGetCoachCountQuery(orgId, {
+    skip: id == undefined ? false : true,
+  });
 
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
 
   const [addCoach, { isLoading: memberLoading }] = useAddCoachMutation();
-  const [editCoach,{isLoading:editcoachLoading}] = useUpdateCoachMutation();
+  const [editCoach, { isLoading: editcoachLoading }] = useUpdateCoachMutation();
 
   const { data: transformedData } = useGetMemberListQuery(orgId);
   const navigate = useNavigate();
@@ -267,8 +275,8 @@ const CoachForm: React.FC = () => {
     // defaultValues: {
     //   own_coach_id: "",
     // },
-    defaultValues:{
-      ...initialState
+    defaultValues: {
+      ...initialState,
     },
     mode: "onChange",
   });
@@ -287,7 +295,7 @@ const CoachForm: React.FC = () => {
     console.log("only once", data);
 
     try {
-      if(id){
+      if (id) {
         const resp = await editCoach({
           ...updatedData,
           id: Number(id),
@@ -300,7 +308,7 @@ const CoachForm: React.FC = () => {
           });
           navigate("/admin/coach/");
         }
-      }else{
+      } else {
         const resp = await addCoach(updatedData).unwrap();
         refetch();
         toast({
@@ -309,7 +317,6 @@ const CoachForm: React.FC = () => {
         });
         navigate("/admin/coach/");
       }
-    
     } catch (error: unknown) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -345,7 +352,7 @@ const CoachForm: React.FC = () => {
       setInitialValues(EditCoachData as CoachInputTypes);
       form.reset(EditCoachData);
     }
-  }, [EditCoachData,coachCountData, orgName]);
+  }, [EditCoachData, coachCountData, orgName]);
 
   console.log("user list create", form.getValues);
 
@@ -649,7 +656,7 @@ const CoachForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          disabled={field.value=="pending"}
+                          disabled={field.value == "pending"}
                           onValueChange={(
                             value: "pending" | "active" | "inactive"
                           ) => form.setValue("coach_status", value)}

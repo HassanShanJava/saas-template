@@ -337,7 +337,6 @@ export interface MemberInputTypes {
   inv_days_cycle?: number;
 }
 
-
 export interface MemberResponseTypes {
   profile_img?: string | null;
   own_member_id: string;
@@ -385,6 +384,37 @@ export interface MemberTabletypes {
   client_since?: string | null;
   business_name?: string | null;
   coach_name?: string | null;
+}
+
+export interface CoachTableTypes {
+  id: number;
+  profile_img?: string;
+  own_coach_id: string;
+  first_name: string;
+  last_name: string;
+  gender?: "male" | "female" | "other";
+  dob: string;
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number | undefined;
+  country_id: number | undefined;
+  city: string;
+  coach_status: "pending" | "active" | "inactive" | undefined;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  bank_name?: string;
+  iban_no?: string;
+  acc_holder_name?: string;
+  swift_code?: string;
+  created_by?: number;
+  member_ids: any;
+  org_id: number;
+  check_in?: string | null;
+  last_online?: string | null;
+  coach_since?: string | null;
 }
 export interface MemberFilterSchema {
   search_key: string;

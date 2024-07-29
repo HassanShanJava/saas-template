@@ -58,7 +58,7 @@ import {
   useGetListOfCoachQuery,
   useUpdateCoachMutation,
 } from "@/services/coachApi";
-import { ErrorType } from "@/app/types";
+import { CoachTableTypes, ErrorType } from "@/app/types";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -111,6 +111,7 @@ export default function CoachTableView() {
     pageIndex: 0,
     pageSize: 10, // Adjust this based on your preference
   });
+
   const displayDate = (value: any) => {
     const date = new Date(value);
 
@@ -120,6 +121,7 @@ export default function CoachTableView() {
 
     return `${day}-${month}-${year}`;
   };
+
   const handleExportSelected = () => {
     const selectedRows = table
       .getSelectedRowModel()
@@ -133,8 +135,6 @@ export default function CoachTableView() {
     }
     downloadCSV(selectedRows, "members_list.csv");
   };
-
- 
 
   const handleStatusChange = async (payload: {
     coach_status: string;
@@ -178,9 +178,10 @@ export default function CoachTableView() {
       }
     }
   };
-  const displayValue = (value: string | undefined | null) => value == null ? "N/A" : value;
+  const displayValue = (value: string | undefined | null) =>
+    value == null ? "N/A" : value;
 
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<CoachTableTypes>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -286,6 +287,7 @@ export default function CoachTableView() {
       accessorKey: "check_in",
       header: "Last Check In",
       cell: ({ row }) => {
+        console.log("ChecKIn", displayValue(row?.original.check_in));
         <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
           {displayValue(row?.original.check_in)}
         </div>;
@@ -295,7 +297,7 @@ export default function CoachTableView() {
       accessorKey: "last_online",
       header: "Last Login",
       cell: ({ row }) => {
-        // console.log(row?.original.last_online);
+        // console.log("last online", row?.original.last_online);
         <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
           {displayValue(row?.original.last_online)}
         </div>;

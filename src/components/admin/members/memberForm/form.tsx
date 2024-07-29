@@ -94,7 +94,7 @@ enum genderEnum {
 
 const MemberForm: React.FC = () => {
   const { id } = useParams();
-  console.log({id})
+  console.log({ id });
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const orgName = useSelector(
@@ -131,7 +131,6 @@ const MemberForm: React.FC = () => {
     auto_renew_days: undefined,
     inv_days_cycle: undefined,
   };
-  
 
   const navigate = useNavigate();
   const [counter, setCounter] = React.useState(0);
@@ -140,116 +139,116 @@ const MemberForm: React.FC = () => {
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   const FormSchema = z
-  .object({
-    profile_img: z
-      .string()
-      .trim()
-      .default(
-        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-      )
-      .optional(),
-    own_member_id: z.string({
-      required_error: "Own Member Id Required.",
-    }),
-    first_name: z
-      .string({
-        required_error: "Firstname Required.",
-      })
-      .trim()
-      .min(3, { message: "First Name Is Required." }),
-    last_name: z
-      .string({
-        required_error: "Lastname Required.",
-      })
-      .trim()
-      .min(3, { message: "Last Name Is Required" }),
-    gender: z.nativeEnum(genderEnum, {
-      required_error: "You need to select a gender type.",
-    }),
-    dob: z.coerce.string({
-      required_error: "Date of birth is required.",
-    }),
-    email: z
-      .string()
-      .email({ message: "Invalid email" })
-      .min(4, { message: "Email is Required" }),
-    phone: z.string().trim().optional(),
-    mobile_number: z.string().trim().optional(),
-    notes: z.string().optional(),
-    source_id: z.number({
-      required_error: "Source Required.",
-    }),
-    is_business: z.boolean().default(false),
-    business_id: z.coerce.number().optional(),
-    country_id: z
-      .number({
-        required_error: "Country Required.",
-      })
-      .refine((val) => val !== 0, {
-        message: "Country is required",
+    .object({
+      profile_img: z
+        .string()
+        .trim()
+        .default(
+          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        )
+        .optional(),
+      own_member_id: z.string({
+        required_error: "Own Member Id Required.",
       }),
-    city: z
-      .string({
-        required_error: "City Required.",
-      })
-      .trim()
-      .min(3, {
-        message: "City Required.",
+      first_name: z
+        .string({
+          required_error: "Firstname Required.",
+        })
+        .trim()
+        .min(3, { message: "First Name Is Required." }),
+      last_name: z
+        .string({
+          required_error: "Lastname Required.",
+        })
+        .trim()
+        .min(3, { message: "Last Name Is Required" }),
+      gender: z.nativeEnum(genderEnum, {
+        required_error: "You need to select a gender type.",
       }),
-    zipcode: z.string().trim().optional(),
-    address_1: z.string().optional(),
-    address_2: z.string().optional(),
-    org_id: z
-      .number({
-        required_error: "Org id is required",
-      })
-      .default(orgId),
-    coach_id: z.number({
-      required_error: "Coach is required",
-    }),
-    membership_plan_id: z.coerce.number({
-      required_error: "Membership plan is required.",
-    }),
-    send_invitation: z.boolean().default(true).optional(),
-    auto_renewal: z.boolean().default(false).optional(),
-    status: z.string().default("pending"),
-    client_since: z
-      .string()
-      .date()
-      .default(new Date().toISOString().split("T")[0]),
-    prolongation_period: z.coerce.number().optional(),
-    auto_renew_days: z.coerce.number().optional(),
-    inv_days_cycle: z.coerce.number().optional(),
-  })
-  .refine((input) => {
-    if (
-      input.auto_renewal == true &&
-      (input.prolongation_period == undefined ||
-        input.auto_renew_days == undefined ||
-        input.inv_days_cycle == undefined)
-    ) {
-      return false;
-    }
+      dob: z.coerce.string({
+        required_error: "Date of birth is required.",
+      }),
+      email: z
+        .string()
+        .email({ message: "Invalid email" })
+        .min(4, { message: "Email is Required" }),
+      phone: z.string().trim().optional(),
+      mobile_number: z.string().trim().optional(),
+      notes: z.string().optional(),
+      source_id: z.number({
+        required_error: "Source Required.",
+      }),
+      is_business: z.boolean().default(false),
+      business_id: z.coerce.number().optional(),
+      country_id: z
+        .number({
+          required_error: "Country Required.",
+        })
+        .refine((val) => val !== 0, {
+          message: "Country is required",
+        }),
+      city: z
+        .string({
+          required_error: "City Required.",
+        })
+        .trim()
+        .min(3, {
+          message: "City Required.",
+        }),
+      zipcode: z.string().trim().optional(),
+      address_1: z.string().optional(),
+      address_2: z.string().optional(),
+      org_id: z
+        .number({
+          required_error: "Org id is required",
+        })
+        .default(orgId),
+      coach_id: z.number({
+        required_error: "Coach is required",
+      }),
+      membership_plan_id: z.coerce.number({
+        required_error: "Membership plan is required.",
+      }),
+      send_invitation: z.boolean().default(true).optional(),
+      auto_renewal: z.boolean().default(false).optional(),
+      status: z.string().default("pending"),
+      client_since: z
+        .string()
+        .date()
+        .default(new Date().toISOString().split("T")[0]),
+      prolongation_period: z.coerce.number().optional(),
+      auto_renew_days: z.coerce.number().optional(),
+      inv_days_cycle: z.coerce.number().optional(),
+    })
+    .refine(
+      (input) => {
+        if (
+          input.auto_renewal == true &&
+          (input.prolongation_period == undefined ||
+            input.auto_renew_days == undefined ||
+            input.inv_days_cycle == undefined)
+        ) {
+          return false;
+        }
 
-    if (
-      input.is_business == false && input.business_id == undefined
-    ) {
-      return false;
-    }
+        if (input.is_business == false && input.business_id == undefined) {
+          return false;
+        }
 
-    return true;
-  }, {
-    message: "All required fields must be filled correctly.",
-    path: ["auto_renewal", "is_business"],
-  });
-
+        return true;
+      },
+      {
+        message: "All required fields must be filled correctly.",
+        path: ["auto_renewal", "is_business"],
+      }
+    );
 
   // conditional fetching
   const { data: memberCountData, refetch } = useGetMemberCountQuery(orgId, {
-    skip: id !==undefined,
+    skip: id !== undefined,
   });
-  const { data: memberData } = useGetMemberByIdQuery(Number(id),{
-    skip: isNaN(Number(id))
+  const { data: memberData } = useGetMemberByIdQuery(Number(id), {
+    skip: isNaN(Number(id)),
   });
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
@@ -257,7 +256,8 @@ const MemberForm: React.FC = () => {
   const { data: sources } = useGetAllSourceQuery();
   const { data: membershipPlans } = useGetMembershipsQuery(orgId);
   const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
-  const [editMember, { isLoading: editLoading, isError }] = useUpdateMemberMutation();
+  const [editMember, { isLoading: editLoading, isError }] =
+    useUpdateMemberMutation();
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -312,7 +312,7 @@ const MemberForm: React.FC = () => {
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
     };
     try {
-      if (id == undefined || id==null) {
+      if (id == undefined || id == null) {
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
           refetch();
@@ -320,7 +320,7 @@ const MemberForm: React.FC = () => {
             variant: "success",
             title: "Added Successfully ",
           });
-          navigate("/admin/members");
+          navigate("/admin/members/");
         }
       } else {
         const resp = await editMember({
@@ -333,7 +333,7 @@ const MemberForm: React.FC = () => {
             variant: "success",
             title: "Updated Successfully ",
           });
-          navigate("/admin/members");
+          navigate("/admin/members/");
         }
       }
     } catch (error: unknown) {
@@ -356,7 +356,7 @@ const MemberForm: React.FC = () => {
   }
 
   function gotoMember() {
-    navigate("/admin/members");
+    navigate("/admin/members/");
   }
 
   console.log({ watcher, memberError }, isNaN(Number(id)));
@@ -444,7 +444,7 @@ const MemberForm: React.FC = () => {
                     control={form.control}
                     name="first_name"
                     render={({ field }) => (
-                      <FormItem> 
+                      <FormItem>
                         <FloatingLabelInput
                           {...field}
                           id="first_name"
@@ -478,8 +478,10 @@ const MemberForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value: genderEnum) => form.setValue("gender", value)}
-                          value={field.value as  genderEnum}
+                          onValueChange={(value: genderEnum) =>
+                            form.setValue("gender", value)
+                          }
+                          value={field.value as genderEnum}
                         >
                           <FormControl>
                             <SelectTrigger
@@ -495,7 +497,7 @@ const MemberForm: React.FC = () => {
                             <SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
-                        <FormMessage/>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -645,7 +647,7 @@ const MemberForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {sources && sources.length>0 ? (
+                            {sources && sources.length > 0 ? (
                               sources.map((sourceval: sourceTypes, i: any) => (
                                 <SelectItem
                                   value={sourceval.id?.toString()}
@@ -683,9 +685,7 @@ const MemberForm: React.FC = () => {
                           value={field.value?.toString()}
                         >
                           <FormControl>
-                            <SelectTrigger
-                              className={`text-black`}
-                            >
+                            <SelectTrigger className={`text-black`}>
                               <SelectValue
                                 className="text-black"
                                 placeholder="Select Coach*"
@@ -700,7 +700,9 @@ const MemberForm: React.FC = () => {
                                     key={sourceval.id}
                                     value={sourceval.id?.toString()}
                                   >
-                                    {sourceval.first_name+" "+sourceval.last_name}
+                                    {sourceval.first_name +
+                                      " " +
+                                      sourceval.last_name}
                                   </SelectItem>
                                 );
                               })
@@ -760,9 +762,7 @@ const MemberForm: React.FC = () => {
                           value={field.value?.toString()}
                         >
                           <FormControl>
-                            <SelectTrigger
-                              className={`text-black`}
-                            >
+                            <SelectTrigger className={`text-black`}>
                               <SelectValue
                                 className="text-gray-400"
                                 placeholder="Select Business*"
@@ -976,9 +976,7 @@ const MemberForm: React.FC = () => {
                           value={field.value?.toString()}
                         >
                           <FormControl>
-                            <SelectTrigger
-                              className={`text-black`}
-                            >
+                            <SelectTrigger className={`text-black`}>
                               <SelectValue
                                 className="text-gray-400"
                                 placeholder="Select membership plan*"
@@ -989,7 +987,7 @@ const MemberForm: React.FC = () => {
                             {membershipPlans && membershipPlans?.length ? (
                               membershipPlans.map(
                                 (sourceval: membeshipsTableType) => {
-                                  console.log({sourceval})
+                                  console.log({ sourceval });
                                   return (
                                     <SelectItem
                                       key={sourceval.id}

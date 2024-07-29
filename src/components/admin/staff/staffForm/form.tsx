@@ -174,7 +174,7 @@ const StaffForm: React.FC = () => {
   const { data: roleData } = useGetRolesQuery(orgId);
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
-  const { data: staffCount, refetch } = useGetStaffCountQuery(orgId, {
+  const { data: staffCount } = useGetStaffCountQuery(orgId, {
     skip: id !== undefined,
   });
   const { data: staffData } = useGetStaffByIdQuery(Number(id), {

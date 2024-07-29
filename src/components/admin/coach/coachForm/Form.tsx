@@ -141,27 +141,27 @@ const CoachForm: React.FC = () => {
       )
       .optional(),
     own_coach_id: z.string({
-      required_error: "Gym Coach Id Required.",
+      required_error: "Required.",
     }),
     first_name: z
       .string({
-        required_error: "Firstname Required.",
+        required_error: "Required.",
       })
       .trim()
-      .min(3, { message: "First Name Is Required." }),
+      .min(3, { message: "Minimum 3 character Required." }),
     last_name: z
       .string({
-        required_error: "Lastname Required.",
+        required_error: "Required.",
       })
       .trim()
-      .min(3, { message: "Last Name Is Required" }),
+      .min(3, { message: "Minimum 3 character Required." }),
     gender: z
       .enum(["male", "female", "other"], {
         required_error: "You need to select a gender type.",
       })
       .default("male"),
     dob: z.coerce.string({
-      required_error: "A date of birth is required.",
+      required_error: "Required.",
     }),
     email: z
       .string()
@@ -190,13 +190,9 @@ const CoachForm: React.FC = () => {
       })
       .default("pending"),
     notes: z.string().optional(),
-    source_id: z
-      .number({
-        required_error: "Source Required.",
-      })
-      .refine((val) => val !== 0, {
-        message: "Source is required",
-      }),
+    source_id: z.coerce.number({
+      required_error: "Required.",
+    }),
     address_1: z.string().optional(),
     address_2: z.string().optional(),
     zipcode: z.string().trim().optional(),
@@ -204,22 +200,12 @@ const CoachForm: React.FC = () => {
     iban_no: z.string().trim().optional(),
     swift_code: z.string().trim().optional(),
     acc_holder_name: z.string().trim().optional(),
-    country_id: z
-      .number({
-        required_error: "Country Required.",
-      })
-      .refine((val) => val !== 0, {
-        message: "Country is required",
-      }),
-    city: z
-      .string({
-        required_error: "City Required.",
-      })
-      .trim()
-      .min(3, {
-        message: "City Required.",
-      }),
-
+    country_id: z.coerce.number({
+      required_error: "Required.",
+    }),
+    city: z.string({
+      required_error: "Required.",
+    }),
     org_id: z
       .number({
         required_error: "Org id is required",
@@ -274,9 +260,6 @@ const CoachForm: React.FC = () => {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    // defaultValues: {
-    //   own_coach_id: "",
-    // },
     defaultValues: {
       ...initialState,
     },
@@ -286,7 +269,6 @@ const CoachForm: React.FC = () => {
   const watcher = form.watch();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    // console.log(JSON.stringify(data, null, 2));
     const updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
@@ -297,12 +279,20 @@ const CoachForm: React.FC = () => {
     console.log("only once", data);
 
     try {
-      if (id) {
+      if (id == undefined || id == null) {
+        const resp = await addCoach(updatedData).unwrap();
+        if (resp) {
+          toast({
+            variant: "success",
+            title: "Coach Added Successfully ",
+          });
+          navigate("/admin/coach/");
+        }
+      } else {
         const resp = await editCoach({
           ...updatedData,
           id: Number(id),
         }).unwrap();
-        editRefetch();
         if (resp) {
           toast({
             variant: "success",
@@ -310,14 +300,6 @@ const CoachForm: React.FC = () => {
           });
           navigate("/admin/coach/");
         }
-      } else {
-        const resp = await addCoach(updatedData).unwrap();
-        refetch();
-        toast({
-          variant: "success",
-          title: "Coach Added Successfully ",
-        });
-        navigate("/admin/coach/");
       }
     } catch (error: unknown) {
       console.error("Error", { error });
@@ -396,7 +378,7 @@ const CoachForm: React.FC = () => {
                     <Button
                       type={"button"}
                       onClick={gotoCaoch}
-                      disabled={memberLoading}
+                      disabled={memberLoading || editcoachLoading}
                       className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
@@ -406,10 +388,10 @@ const CoachForm: React.FC = () => {
                     <LoadingButton
                       type="submit"
                       className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                      loading={memberLoading}
-                      disabled={memberLoading}
+                      loading={memberLoading || editcoachLoading}
+                      disabled={memberLoading || editcoachLoading}
                     >
-                      {!memberLoading && (
+                      {(!memberLoading || !editcoachLoading) && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
                       Save

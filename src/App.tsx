@@ -23,7 +23,6 @@ import Coach from "./components/admin/coach";
 import Staff from "./components/admin/staff";
 import StaffForm from "./components/admin/staff/staffForm/form";
 import CoachForm from "./components/admin/coach/coachForm/Form";
-
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(

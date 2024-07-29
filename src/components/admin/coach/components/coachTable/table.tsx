@@ -152,9 +152,9 @@ export default function CoachTableView() {
         return;
       }
       const resp = await updateCoach(payload).unwrap();
+      refetch();
       if (resp) {
         console.log({ resp });
-        refetch();
         toast({
           variant: "success",
           title: "Updated Successfully",
@@ -318,7 +318,7 @@ export default function CoachTableView() {
   ];
   // console.log("data",{memberData})
   const table = useReactTable({
-    data: coachTableData as any[],
+    data: coachTableData as CoachTableTypes[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),

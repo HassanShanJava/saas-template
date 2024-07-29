@@ -90,7 +90,9 @@ const CoachForm: React.FC = () => {
     data: EditCoachData,
     isLoading: editisLoading,
     refetch: editRefetch,
-  } = useGetCoachByIdQuery(Number(id));
+  } = useGetCoachByIdQuery(Number(id), {
+    skip: isNaN(Number(id)),
+  });
   console.log("update the damn data", EditCoachData);
   // const [counter, setCounter] = React.useState(0);
   const orgId =

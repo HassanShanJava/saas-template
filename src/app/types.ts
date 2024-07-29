@@ -412,10 +412,11 @@ export interface CoachTableTypes {
   created_by?: number;
   member_ids: any;
   org_id: number;
-  check_in?: string | null;
-  last_online?: string | null;
+  check_in: string | null;
+  last_online: string | null;
   coach_since?: string | null;
 }
+
 export interface MemberFilterSchema {
   search_key: string;
   client_name: string;

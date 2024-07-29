@@ -178,9 +178,11 @@ export default function CoachTableView() {
       }
     }
   };
+  // const displayValue = (value: ) =>
+  //   value == null || value === "" || value == undefined ? "N/A" : value;
+
   const displayValue = (value: string | undefined | null) =>
     value == null ? "N/A" : value;
-
   const columns: ColumnDef<CoachTableTypes>[] = [
     {
       id: "select",
@@ -287,31 +289,29 @@ export default function CoachTableView() {
       accessorKey: "check_in",
       header: "Last Check In",
       cell: ({ row }) => {
-        console.log("ChecKIn", displayValue(row?.original.check_in));
-        <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-          {displayValue(row?.original.check_in)}
-        </div>;
+        return (
+          <div className="flex items-center gap-4 text-ellipsis  text-black whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.check_in)}
+          </div>
+        );
       },
     },
     {
       accessorKey: "last_online",
       header: "Last Login",
       cell: ({ row }) => {
-        // console.log("last online", row?.original.last_online);
-        <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-          {displayValue(row?.original.last_online)}
-        </div>;
+        return (
+          <div className="flex items-center gap-4 text-ellipsis  text-black whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.last_online)}
+          </div>
+        );
       },
     },
     {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <DataTableRowActions
-          data={row.original}
-          refetch={refetch}
-          // handleEdit={handleEditCoach}
-        />
+        <DataTableRowActions data={row.original} refetch={refetch} />
       ),
     },
   ];

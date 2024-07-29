@@ -180,9 +180,9 @@ export default function CoachTableView() {
   };
   // const displayValue = (value: ) =>
   //   value == null || value === "" || value == undefined ? "N/A" : value;
-
   const displayValue = (value: string | undefined | null) =>
-    value == null ? "N/A" : value;
+    value == null || value == "" ? "N/A" : value;
+
   const columns: ColumnDef<CoachTableTypes>[] = [
     {
       id: "select",
@@ -289,8 +289,9 @@ export default function CoachTableView() {
       accessorKey: "check_in",
       header: "Last Check In",
       cell: ({ row }) => {
+        console.log(row?.original.check_in);
         return (
-          <div className="flex items-center gap-4 text-ellipsis  text-black whitespace-nowrap overflow-hidden">
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original.check_in)}
           </div>
         );
@@ -301,7 +302,7 @@ export default function CoachTableView() {
       header: "Last Login",
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis  text-black whitespace-nowrap overflow-hidden">
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original.last_online)}
           </div>
         );

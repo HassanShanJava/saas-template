@@ -312,7 +312,7 @@ const MemberForm: React.FC = () => {
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
     };
     try {
-      if (id !==undefined ) {
+      if (id == undefined || id==null) {
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
           refetch();

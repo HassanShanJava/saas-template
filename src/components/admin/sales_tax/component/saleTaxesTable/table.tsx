@@ -29,14 +29,13 @@ import {
 } from "@/components/ui/table";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 import {
   Form,
@@ -653,7 +652,7 @@ const SaleTaxesForm = ({
 
   return (
     <div>
-      <Dialog
+      <Sheet
         open={isDialogOpen}
         onOpenChange={() => {
           setFormData((prev:saleTaxesFormData) => ({
@@ -670,12 +669,12 @@ const SaleTaxesForm = ({
         }}
       >
         {/* <DialogTrigger>Open</DialogTrigger> */}
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
               {formData.case == "add" ? "Create" : "Edit"} Tax/VAT
-            </DialogTitle>
-            <DialogDescription>
+            </SheetTitle>
+            <SheetDescription>
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
@@ -712,7 +711,7 @@ const SaleTaxesForm = ({
                           min={1}
                           step={".1"}
                           max={100}
-                          className="number-input"
+                          className=""
                           label="Percentage"
                           value={field.value ?? 1}
                           onChange={handleOnChange}
@@ -732,10 +731,10 @@ const SaleTaxesForm = ({
                   </LoadingButton>
                 </form>
               </Form>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

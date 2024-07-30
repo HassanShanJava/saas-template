@@ -79,6 +79,9 @@ export interface createMembershipType {
   renewal_details: renewalData | object;
   facilities: facilitiesData[] | [];
   created_by: number | null;
+  inv_days_cycle?:number;
+  auto_renew_days?:number;
+  prolongation_period?:number;
 }
 
 export interface membeshipsTableType extends createMembershipType {
@@ -319,7 +322,7 @@ export interface MemberInputTypes {
   is_business?: boolean;
   business_id?: number;
   country_id?: number;
-  city: string;
+  city?: string;
   zipcode?: string;
   address_1?: string;
   address_2?: string;

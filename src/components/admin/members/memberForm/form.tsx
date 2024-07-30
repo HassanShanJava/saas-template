@@ -149,66 +149,61 @@ const MemberForm: React.FC = () => {
       )
       .optional(),
     own_member_id: z.string({
-      required_error: "Own Member Id Required.",
+      required_error: "Required",
     }),
     first_name: z
       .string({
-        required_error: "Firstname Required.",
+        required_error: "Required",
       })
       .trim()
-      .min(3, { message: "First Name Is Required." }),
+      .min(3, { message: "Required" }),
     last_name: z
       .string({
-        required_error: "Lastname Required.",
+        required_error: "Required",
       })
       .trim()
-      .min(3, { message: "Last Name Is Required" }),
+      .min(3, { message: "Required" }),
     gender: z.nativeEnum(genderEnum, {
-      required_error: "You need to select a gender type.",
+      required_error: "Required",
     }),
     dob: z.coerce.string({
-      required_error: "Date of birth is required.",
+      required_error: "Required",
     }),
     email: z
       .string()
       .email({ message: "Invalid email" })
-      .min(4, { message: "Email is Required" }),
+      .min(4, { message: "Required" }),
     phone: z.string().trim().optional(),
     mobile_number: z.string().trim().optional(),
     notes: z.string().optional(),
     source_id: z.number({
-      required_error: "Source Required.",
+      required_error: "Required",
     }),
     is_business: z.boolean().default(false),
     business_id: z.coerce.number().optional(),
     country_id: z
       .number({
-        required_error: "Country Required.",
+        required_error: "Required",
       })
       .refine((val) => val !== 0, {
-        message: "Country is required",
+        message: "Required",
       }),
     city: z
-      .string({
-        required_error: "City Required.",
-      })
-      .trim()
-      .min(3, {
-        message: "City Required.",
-      }),
+      .string()
+      .trim().optional(),
     zipcode: z.string().trim().optional(),
     address_1: z.string().optional(),
     address_2: z.string().optional(),
     org_id: z
       .number({
-        required_error: "Org id is required",
+        required_error: "Required",
       })
       .default(orgId),
     coach_id: z.number({
-      required_error: "Coach is required",
+      required_error: "Required",
     }),
     membership_plan_id: z.coerce.number({
-      required_error: "Membership plan is required.",
+      required_error: "Required",
     }),
     send_invitation: z.boolean().default(true).optional(),
     auto_renewal: z.boolean().default(false).optional(),
@@ -245,7 +240,7 @@ const MemberForm: React.FC = () => {
 
 
   // conditional fetching
-  const { data: memberCountData, refetch } = useGetMemberCountQuery(orgId, {
+  const { data: memberCountData } = useGetMemberCountQuery(orgId, {
     skip: id !==undefined,
   });
   const { data: memberData } = useGetMemberByIdQuery(Number(id),{
@@ -304,6 +299,9 @@ const MemberForm: React.FC = () => {
     form.setValue("membership_plan_id", value);
     const data = membershipPlans?.filter((item) => item.id == value)[0];
     form.setValue("auto_renewal", data?.auto_renewal);
+    form.setValue("prolongation_period", data?.prolongation_period);
+    form.setValue("auto_renew_days", data?.auto_renew_days);
+    form.setValue("inv_days_cycle", data?.inv_days_cycle);
   };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -315,12 +313,11 @@ const MemberForm: React.FC = () => {
       if (id == undefined || id==null) {
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
-          refetch();
           toast({
             variant: "success",
             title: "Added Successfully ",
           });
-          navigate("/admin/members");
+          navigate("/admin/members/");
         }
       } else {
         const resp = await editMember({
@@ -328,7 +325,6 @@ const MemberForm: React.FC = () => {
           id: Number(id),
         }).unwrap();
         if (resp) {
-          refetch();
           toast({
             variant: "success",
             title: "Updated Successfully ",
@@ -931,7 +927,7 @@ const MemberForm: React.FC = () => {
                         <FloatingLabelInput
                           {...field}
                           id="city"
-                          label="City*"
+                          label="City"
                         />
                         {watcher.city ? <></> : <FormMessage />}
                       </FormItem>
@@ -1036,15 +1032,6 @@ const MemberForm: React.FC = () => {
                       <FormField
                         control={form.control}
                         name="prolongation_period"
-                        rules={{
-                          validate: (value) => {
-                            // Ensure value is treated as a number for comparison
-                            return (
-                              Number(value) !== 0 ||
-                              "Memberhip Plan is Required"
-                            );
-                          },
-                        }}
                         render={({ field }) => {
                           console.log(form.formState.errors);
                           return (
@@ -1058,7 +1045,7 @@ const MemberForm: React.FC = () => {
                                 type="number"
                                 min={1}
                                 name="min_limit"
-                                className="number-input w-10"
+                                className=" w-10"
                               />
                               {watcher.prolongation_period ? (
                                 <></>
@@ -1095,7 +1082,7 @@ const MemberForm: React.FC = () => {
                                 type="number"
                                 min={1}
                                 name="min_limit"
-                                className="number-input w-10"
+                                className="w-10"
                               />
                               {watcher.auto_renew_days ? (
                                 <></>
@@ -1135,7 +1122,7 @@ const MemberForm: React.FC = () => {
                                 type="number"
                                 min={1}
                                 name="min_limit"
-                                className="number-input w-10"
+                                className="w-10"
                               />
                               {watcher.inv_days_cycle ? <></> : <FormMessage />}
                               <Label className="text-xs text-black/60">

@@ -28,8 +28,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
-
+} from "@/components/ui/sheet";
 
 // import { motion, AnimatePresence } from 'framer-motion';
 
@@ -92,9 +91,9 @@ const defaultValue = {
   reg_fee: null,
   billing_cycle: "",
   auto_renewal: false,
-  prolongation_period: null,
-  days_before: null,
-  next_invoice: null,
+  prolongation_period: undefined,
+  days_before: undefined,
+  next_invoice: undefined,
   renewal_details: {},
   facilities: [],
   id: null,
@@ -190,10 +189,11 @@ const MembershipForm = ({
           item.validity.duration_no = 0;
         }
 
-        if (
-          item.validity.duration_no == undefined ||
-          item.validity.duration_type == undefined
-        ) {
+        if (item.validity.duration_no == undefined || item.validity.duration_no==null) {
+          check = true;
+        }
+
+        if (item.validity.duration_type == undefined ) {
           check = true;
         }
       });
@@ -205,15 +205,17 @@ const MembershipForm = ({
         });
         return;
       }
-    }else{
+    } else {
+    console.log({ payload }, "check credits");
+
       toast({
         variant: "destructive",
         title: "Select at least one credit detail",
       });
       return;
     }
-
     console.log({ payload }, action);
+
 
     try {
       if (action == "add") {
@@ -331,10 +333,8 @@ const MembershipForm = ({
   };
 
   return (
-    <Sheet open={isOpen}>
-      <SheetContent
-        className={`w-full max-w-[1050px] flex flex-col !py-3`}
-      >
+    <Sheet open={isOpen} >
+      <SheetContent className={`w-full !max-w-[1050px] flex flex-col !py-3`} hideCloseButton>
         <SheetTitle className="absolute  !display-none"></SheetTitle>
         <FormProvider {...methods}>
           <div className="flex justify-between gap-5 items-start h-[82px] pl-8  ">

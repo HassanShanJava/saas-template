@@ -108,7 +108,6 @@ export default function CreditsTableView({
     
 
     if(payload.length>0 ){
-
       const newRowSelection: Record<number,boolean> = {};
       payload.forEach(item => {
         const index = findIndex(item.id,creditsData as creditTablestypes[]);
@@ -256,6 +255,7 @@ export default function CreditsTableView({
     });
   };
 
+  console.log({transformedCredits})
   const columns: ColumnDef<creditDetailsTablestypes>[] = [
     {
       id: "select",
@@ -343,7 +343,7 @@ export default function CreditsTableView({
               type="number"
               min={1}
               max={15}
-              className="number-input w-10"
+              className=" w-10"
               value={creditData?.validity?.duration_no || ""}
               onChange={(e) => handleChangeRowInput(e, id, "duration_no")}
             />}

@@ -454,7 +454,7 @@ const BasicInfoForm = () => {
           <FloatingLabelInput
             id="duration_no"
             type="number"
-            className="w-20 number-input"
+            className="w-20 "
             {...register("duration_no", { required: "Required" })}
             error={errors.duration_no?.message}
           />

@@ -23,12 +23,13 @@ import {
 } from "@/components/ui/table";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 import {
   Form,
@@ -689,7 +690,7 @@ const CreditForm = ({
 
   return (
     <div>
-      <Dialog
+      <Sheet
         open={isDialogOpen}
         onOpenChange={() => {
           setFormData((prev: createFormData) => ({
@@ -708,12 +709,12 @@ const CreditForm = ({
         }}
       >
         {/* <DialogTrigger>Open</DialogTrigger> */}
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
               {formData.case == "add" ? "Add" : "Edit"} Credit
-            </DialogTitle>
-            <DialogDescription>
+            </SheetTitle>
+            <SheetDescription>
               <>
                 <Form {...form}>
                   <form
@@ -749,7 +750,7 @@ const CreditForm = ({
                             name="min_limit"
                             min={1}
                             type="number"
-                            className="number-input"
+                            className=""
                             label="Min Requred Limit"
                             value={field.value ?? 1}
                             onChange={handleOnChange}
@@ -813,10 +814,10 @@ const CreditForm = ({
                   </form>
                 </Form>
               </>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

@@ -712,7 +712,7 @@ const CreditForm = ({
         <SheetContent>
           <SheetHeader>
             <SheetTitle>
-              {formData.case == "add" ? "Add" : "Edit"} Credit
+              {formData.case == "add" ? "Create" : "Edit"} Credit
             </SheetTitle>
             <SheetDescription>
               <>
@@ -730,7 +730,7 @@ const CreditForm = ({
                             {...field}
                             id="name"
                             name="name"
-                            label="Credit Name"
+                            label="Credit Name*"
                             value={field.value ?? ""}
                             onChange={handleOnChange}
                           />
@@ -751,7 +751,7 @@ const CreditForm = ({
                             min={1}
                             type="number"
                             className=""
-                            label="Min Requred Limit"
+                            label="Min Requred Limit*"
                             value={field.value ?? 1}
                             onChange={handleOnChange}
                           />
@@ -773,7 +773,7 @@ const CreditForm = ({
                                 field.onChange(value === "true")
                               }
                             >
-                              <SelectTrigger floatingLabel="Status">
+                              <SelectTrigger floatingLabel="Status*">
                                 <SelectValue placeholder="">
                                   <span className="flex gap-2 items-center">
                                     <span

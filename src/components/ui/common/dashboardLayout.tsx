@@ -102,6 +102,12 @@ const navItems: NavItem[] = [
     dropdown: false,
   },
   {
+    name: "Roles & Access Management",
+    link: "/admin/roles",
+    icon: EventsIcon,
+    dropdown: false,
+  },
+  {
     name: "Manage",
     dropdown: true,
     icon: ManageIcon,
@@ -111,22 +117,7 @@ const navItems: NavItem[] = [
         name: "Staff",
         link: "/admin/staff",
         icon: "fa fa-user",
-      },
-      // {
-      //   name: "Sale Taxes",
-      //   link: "/admin/saleTaxes",
-      //   icon: "fa fa-user",
-      // },
-      // {
-      //   name: "Income Category",
-      //   link: "/admin/incomeCategory",
-      //   icon: "fa fa-user",
-      // },
-      // {
-      //   name: "Memberships",
-      //   link: "/admin/memberships",
-      //   icon: "fa fa-user",
-      // },
+      }
     ],
   },
   {
@@ -157,12 +148,7 @@ const navItems: NavItem[] = [
       },
     ],
   },
-  {
-    name: "Roles & Access Management",
-    link: "/admin/roles",
-    icon: EventsIcon,
-    dropdown: false,
-  },
+  
 ];
 
 const DashboardLayout: React.FC = () => {

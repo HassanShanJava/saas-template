@@ -689,7 +689,7 @@ const SaleTaxesForm = ({
                           {...field}
                           id="name"
                           name="name"
-                          label="Tax/VAT Name"
+                          label="Tax/VAT Name*"
                           value={field.value ?? ""}
                           onChange={handleOnChange}
                         />
@@ -712,7 +712,7 @@ const SaleTaxesForm = ({
                           step={".1"}
                           max={100}
                           className=""
-                          label="Percentage"
+                          label="Percentage*"
                           value={field.value ?? 1}
                           onChange={handleOnChange}
 

@@ -686,7 +686,7 @@ const IncomeCategoryForm = ({
                           {...field}
                           id="name"
                           name="name"
-                          label="Category Name"
+                          label="Category Name*"
                           value={field.value ?? ""}
                           onChange={handleOnChange}
                         />
@@ -731,7 +731,7 @@ const IncomeCategoryForm = ({
                             defaultValue={field.value?.toString()}
                           >
                             <FormControl>
-                              <SelectTrigger floatingLabel="Default Tax/VAT">
+                              <SelectTrigger floatingLabel="Default Tax/VAT*">
                                 <SelectValue placeholder="Select Tax/VAT" />
                               </SelectTrigger>
                             </FormControl>

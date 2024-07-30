@@ -25,7 +25,6 @@ const CreditDetailsForm = () => {
   },[facilites])
 
 
-  console.log({facilites})
   return (
     <div className="text-black h-full">
       <CreditsTableView setFacilities={setFacilities} />

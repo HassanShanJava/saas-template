@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { ErrorType, getRolesType, resourceTypes } from "@/app/types";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
   Form,
@@ -331,7 +332,7 @@ export const RoleForm = ({
 
   return (
     <div>
-      <Dialog
+      <Sheet
         open={isDialogOpen}
         onOpenChange={() => {
           setFormData((prev: any) => ({
@@ -347,15 +348,15 @@ export const RoleForm = ({
           setIsDialogOpen();
         }}
       >
-        <DialogContent
-          className="w-full max-w-[930px] h-fit flex flex-col"
+        <SheetContent
+          className="w-full !max-w-[930px]  flex flex-col"
           hideCloseButton
         >
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold px-1">
+          <SheetHeader>
+            <SheetTitle className="text-xl font-semibold px-1">
               {formData.case == "add" ? "Create" : "Edit"} Role
-            </DialogTitle>
-            <DialogDescription>
+            </SheetTitle>
+            <SheetDescription>
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
@@ -417,7 +418,7 @@ export const RoleForm = ({
                     />
                   </div>
                   <div>
-                    <h1 className="text-2xl px-1 font-semibold text-black">
+                    <h1 className="text-xl px-1 font-semibold text-black">
                       Module Access
                     </h1>
                     <div className="rounded-none  mt-4">
@@ -425,7 +426,7 @@ export const RoleForm = ({
                         <ScrollBar orientation="horizontal" />
                         <Table
                           className=""
-                          containerClassname="h-fit max-h-80 overflow-y-auto relative custom-scrollbar "
+                          containerClassname="h-fit max-h-[440px] overflow-y-auto relative custom-scrollbar "
                         >
                           <TableHeader className="bg-gray-100 sticky top-0 z-50">
                             {table?.getHeaderGroups().map((headerGroup) => (
@@ -506,7 +507,7 @@ export const RoleForm = ({
                       </ScrollArea>
                     </div>
                   </div>
-                  <div className="flex flex-row gap-4 justify-between w-full ">
+                  <div className="flex flex-row gap-4 justify-between items-end w-full ">
                     <Button
                       type="button"
                       className="w-full text-center flex items-center gap-2 border-primary"
@@ -529,10 +530,10 @@ export const RoleForm = ({
                   </div>
                 </form>
               </Form>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

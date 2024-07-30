@@ -221,7 +221,7 @@ export default function RoleTableView() {
           <div className="">
             <Button
               variant={"outline"}
-              className="gap-1 justify-center text-gray-500 font-normal border-primary items-center flex px-3"
+              className={`gap-1 justify-center text-gray-500 font-normal border-primary items-center flex px-3 disabled:cursor-not-allowed`}
               disabled={!selectedRoleId}
               onClick={handleEditRole}
             >
@@ -313,8 +313,8 @@ export default function RoleTableView() {
           </ScrollArea>
         </div>
       ) : (
-        <div className="h-[30rem] flex justify-center items-center">
-          <p className="text-lg font-bold">
+        <div className="h-[31rem] flex justify-center items-center">
+          <p className="text-lg font-semibold text-gray-400">
             Please select a role from above to view his access
           </p>
         </div>

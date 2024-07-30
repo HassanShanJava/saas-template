@@ -44,8 +44,6 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import {
   ErrorType,
-  MemberFilterSchema,
-  MemberTabletypes,
   StaffResponseType,
   staffTypesResponseList,
 } from "@/app/types";
@@ -59,7 +57,7 @@ import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetStaffListQuery } from "@/services/staffsApi";
 
-const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
+const downloadCSV = (data: staffTypesResponseList[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -104,16 +102,6 @@ export default function StaffTableView() {
     pageSize: 10, // Adjust this based on your preference
   });
 
-  const displayDate = (value: any) => {
-    const date = new Date(value);
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    const year = date.getFullYear();
-
-    return `${day}-${month}-${year}`;
-  };
-
   const handleExportSelected = () => {
     const selectedRows = table
       .getSelectedRowModel()
@@ -125,51 +113,9 @@ export default function StaffTableView() {
       });
       return;
     }
-    // downloadCSV(selectedRows, "members_list.csv");
+    downloadCSV(selectedRows, "staff_list.csv");
   };
 
-  const handleStatusChange = async (payload: {
-    coach_status: string;
-    id: number;
-    org_id: number;
-  }) => {
-    console.log("handle change status", { payload });
-
-    try {
-      if (payload.coach_status == "pending") {
-        toast({
-          variant: "destructive",
-          title: "Only Active/Inactive",
-        });
-        return;
-      }
-      //  const resp = await updateCoach(payload).unwrap();
-      //  refetch();
-      //  if (resp) {
-      //    console.log({ resp });
-      //    toast({
-      //      variant: "success",
-      //      title: "Updated Successfully",
-      //    });
-      //  }
-    } catch (error) {
-      console.error("Error", { error });
-      if (error && typeof error === "object" && "data" in error) {
-        const typedError = error as ErrorType;
-        toast({
-          variant: "destructive",
-          title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error in form Submission",
-          description: `Something Went Wrong.`,
-        });
-      }
-    }
-  };
   const displayValue = (value: string | undefined | null) =>
     value == null || value == "" ? "N/A" : value;
 
@@ -299,13 +245,13 @@ export default function StaffTableView() {
         );
       },
     },
-    // {
-    //   id: "actions",
-    //   header: "Actions",
-    //   cell: ({ row }) => (
-    //     // <DataTableRowActions data={row.original} refetch={refetch} />
-    //   ),
-    // },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <DataTableRowActions data={row.original} refetch={refetch} />
+      ),
+    },
   ];
 
   const table = useReactTable({
@@ -346,9 +292,9 @@ export default function StaffTableView() {
             <FloatingLabelInput
               id="search"
               placeholder="Search by Name"
-              // onChange={(event) =>
-              //   table.getColumn("full_name")?.setFilterValue(event.target.value)
-              // }
+              onChange={(event) =>
+                table.getColumn("full_name")?.setFilterValue(event.target.value)
+              }
               className="w-64 pl-8 text-gray-400"
             />
           </div>
@@ -384,7 +330,7 @@ export default function StaffTableView() {
           <PlusIcon className="h-4 w-4" />
           Create New
         </Button>
-        {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
+        <DataTableViewOptions table={table} action={handleExportSelected} />
       </div>
       <div className="rounded-md border border-border ">
         <ScrollArea className="w-full relative">

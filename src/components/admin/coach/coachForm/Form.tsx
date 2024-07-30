@@ -291,7 +291,7 @@ const CoachForm: React.FC = () => {
         if (resp) {
           toast({
             variant: "success",
-            title: "Coach Added Successfully ",
+            title: "Coach Created Successfully ",
           });
           navigate("/admin/coach");
         }
@@ -701,7 +701,8 @@ const CoachForm: React.FC = () => {
                         >
                           <FormControl>
                             <SelectTrigger
-                              className={`${watcher.source_id ? "text-black" : ""}`}
+                              floatingLabel="Source*"
+                              className={`${watcher.source_id ? "text-black" : "text-gray-500"}`}
                             >
                               <SelectValue>
                                 {field.value === 0

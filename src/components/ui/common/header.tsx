@@ -120,11 +120,11 @@ export const Header = () => {
                 title="Edit Coach"
               />
 
-              <PageTitle
+              {/* <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/leads"
                 title="Leads"
-              />
+              /> */}
               <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/credits"

@@ -141,8 +141,20 @@ const StaffForm: React.FC = () => {
         message: "Required",
       }),
     email: z.string().min(1, { message: "Required" }).email("invalid email"),
-    phone: z.string().trim().optional(),
-    mobile: z.string().trim().optional(),
+    phone: z
+      .string()
+      .max(11, {
+        message: "Cannot be greater than 11 digits",
+      })
+      .trim()
+      .optional(),
+    mobile: z
+      .string()
+      .max(11, {
+        message: "Cannot be greater than 11 digits",
+      })
+      .trim()
+      .optional(),
     notes: z.string().optional(),
     source_id: z.coerce
       .number({
@@ -181,7 +193,7 @@ const StaffForm: React.FC = () => {
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
   const { data: staffCount } = useGetStaffCountQuery(orgId, {
-    skip: id == undefined ? false :true,
+    skip: id == undefined ? false : true,
   });
   const { data: staffData } = useGetStaffByIdQuery(Number(id), {
     skip: isNaN(Number(id)),
@@ -218,49 +230,30 @@ const StaffForm: React.FC = () => {
   const watcher = form.watch();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
     const updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
     };
-
     console.log("Updated data with only date:", updatedData);
     console.log("only once", data);
+
     try {
-      //  if (id == undefined || id == null) {
-      //   //  const resp = await addCoach(updatedData).unwrap();
-      //    if (resp) {
-      //      toast({
-      //        variant: "success",
-      //        title: "Coach Added Successfully ",
-      //      });
-      //      navigate("/admin/coach");
-      //    }
-      //  } else {
-      //    const resp = await editCoach({
-      //      ...updatedData,
-      //      id: Number(id),
-      //    }).unwrap();
-      //    if (resp) {
-      //      toast({
-      //        variant: "success",
-      //        title: "Coach Updated Successfully ",
-      //      });
-      //      navigate("/admin/coach");
-      //    }
-      //  }
-      // toast({
-      //   variant: "success",
-      //   title: "Staff Created Successfully ",
-      // });
-      // navigate("/admin/staff");
+      if (id == undefined || id == null) {
+        const resp = await addStaff(updatedData).unwrap();
+        if (resp) {
+          toast({
+            variant: "success",
+            title: "Staff Created Successfully",
+          });
+          navigate("/admin/staff");
+        }
+      } else {
+        toast({
+          variant: "success",
+          title: "Staff Updated Successfully",
+        });
+        navigate("/admin/staff");
+      }
     } catch (error: unknown) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -525,7 +518,7 @@ const StaffForm: React.FC = () => {
                           id="phone"
                           label="Landline Number"
                         />
-                        {watcher.phone ? <></> : <FormMessage />}
+                        {<FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -541,7 +534,7 @@ const StaffForm: React.FC = () => {
                           id="mobile"
                           label="Mobile Number"
                         />
-                        {watcher.mobile ? <></> : <FormMessage />}
+                        {<FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -576,7 +569,8 @@ const StaffForm: React.FC = () => {
                         >
                           <FormControl>
                             <SelectTrigger
-                              className={`${watcher.source_id ? "text-black" : ""}`}
+                              floatingLabel="Source*"
+                              className={`${watcher.source_id ? "text-black" : "text-gray-500"}`}
                             >
                               <SelectValue>
                                 {field.value === 0
@@ -622,7 +616,8 @@ const StaffForm: React.FC = () => {
                         >
                           <FormControl>
                             <SelectTrigger
-                              className={`${watcher.role_id ? "text-black" : ""}`}
+                              floatingLabel="Role*"
+                              className={`${watcher.role_id ? "text-black" : "text-gray-500"}`}
                             >
                               <SelectValue>
                                 {field.value === 0

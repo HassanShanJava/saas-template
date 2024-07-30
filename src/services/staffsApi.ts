@@ -15,6 +15,7 @@ export const StaffApi = apiSlice.injectEndpoints({
           Accept: "application/json",
         },
       }),
+      providesTags: ["Staffs"],
     }),
     //get the satff by Id
     getStaffById: builder.query<StaffResponseType, number>({
@@ -25,6 +26,7 @@ export const StaffApi = apiSlice.injectEndpoints({
           Accept: "application/json",
         },
       }),
+      providesTags: (result, error, arg) => [{ type: "Staffs", id: arg }],
     }),
     // Adding the Staff
     AddStaff: builder.mutation<StaffResponseType, StaffInputType>({
@@ -37,6 +39,7 @@ export const StaffApi = apiSlice.injectEndpoints({
           "Content-Type": "application/json",
         },
       }),
+      invalidatesTags: ["Staffs"],
     }),
     GetStaffList: builder.query<staffTypesResponseList[], number>({
       query: (org_id) => ({
@@ -46,6 +49,19 @@ export const StaffApi = apiSlice.injectEndpoints({
           Accept: "application/json",
         },
       }),
+      providesTags: ["Staffs"],
+    }),
+    deleteStaff: builder.mutation<any, { id: number }>({
+      query: (staffId) => ({
+        url: "/staff/staffs",
+        method: "DELETE",
+        body: staffId,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }),
+      invalidatesTags: ["Staffs"],
     }),
   }),
 });
@@ -55,4 +71,5 @@ export const {
   useGetStaffByIdQuery,
   useAddStaffMutation,
   useGetStaffListQuery,
+  useDeleteStaffMutation,
 } = StaffApi;

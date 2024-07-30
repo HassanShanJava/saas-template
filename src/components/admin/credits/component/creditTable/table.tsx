@@ -46,7 +46,7 @@ import { useForm } from "react-hook-form";
 
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import {  PlusIcon, Search } from "lucide-react";
+import { PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -93,11 +93,7 @@ const status = [
 export default function CreditsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const {
-    data: creditsData,
-    isLoading,
-    refetch,
-  } = useGetCreditsQuery(orgId);
+  const { data: creditsData, isLoading, refetch } = useGetCreditsQuery(orgId);
   const [updateCredits, { isLoading: creditsLoading }] =
     useUpdateCreditsMutation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -119,6 +115,14 @@ export default function CreditsTableView() {
     }
     setFormData((prevData) => {
       const updatedData = { ...prevData, [name]: finalValue };
+      console.log("After update:", updatedData);
+      return updatedData;
+    });
+  };
+
+  const handleStatusOnChange = (value: string) => {
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, status: value === "true" };
       console.log("After update:", updatedData);
       return updatedData;
     });
@@ -337,8 +341,7 @@ export default function CreditsTableView() {
               />
             </div>
           </div> */}
-            <p className="font-semibold text-2xl">Credits</p>
-
+          <p className="font-semibold text-2xl">Credits</p>
         </div>
         <Button
           className="bg-primary m-4 text-black font-semibold gap-1"
@@ -378,10 +381,10 @@ export default function CreditsTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    <div className='flex space-x-2 justify-center items-center bg-white '>
-                      <div className='size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                      <div className='size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                      <div className='size-3 bg-black rounded-full animate-bounce'></div>
+                    <div className="flex space-x-2 justify-center items-center bg-white ">
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce"></div>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -569,6 +572,7 @@ export default function CreditsTableView() {
         refetch={refetch}
         setFormData={setFormData}
         handleOnChange={handleOnChange}
+        handleStatusOnChange={handleStatusOnChange}
       />
     </div>
   );
@@ -590,6 +594,7 @@ const CreditForm = ({
   refetch,
   setFormData,
   handleOnChange,
+  handleStatusOnChange,
 }: {
   data: createFormData;
   isDialogOpen: boolean;
@@ -597,6 +602,7 @@ const CreditForm = ({
   refetch?: any;
   setFormData?: any;
   handleOnChange?: any;
+  handleStatusOnChange?: any;
 }) => {
   const { toast } = useToast();
   // const [formData, setFormData] = useState(data);
@@ -769,9 +775,10 @@ const CreditForm = ({
                           <FormControl>
                             <Select
                               value={field.value ? "true" : "false"}
-                              onValueChange={(value) =>
-                                field.onChange(value === "true")
-                              }
+                              onValueChange={(value) => {
+                                field.onChange(value === "true");
+                                handleStatusOnChange(value);
+                              }}
                             >
                               <SelectTrigger floatingLabel="Status*">
                                 <SelectValue placeholder="">
@@ -806,9 +813,11 @@ const CreditForm = ({
                     <LoadingButton
                       type="submit"
                       className="bg-primary  text-black gap-1 font-semibold"
-											loading={form.formState.isSubmitting}
+                      loading={form.formState.isSubmitting}
                     >
-											{!form.formState.isSubmitting && <i className="fa-regular fa-floppy-disk text-base px-1 "></i>}
+                      {!form.formState.isSubmitting && (
+                        <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                      )}
                       Save
                     </LoadingButton>
                   </form>

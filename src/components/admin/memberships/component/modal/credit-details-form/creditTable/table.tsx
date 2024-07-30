@@ -355,6 +355,7 @@ export default function CreditsTableView({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={"contract_duration"}>Contract Duration</SelectItem>
+                <SelectItem value={"weekly"}>Weekly</SelectItem>
                 <SelectItem value={"monthly"}>Monthly</SelectItem>
                 <SelectItem value={"quarterly"}>Quarterly</SelectItem>
                 <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem>

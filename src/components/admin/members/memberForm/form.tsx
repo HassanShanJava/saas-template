@@ -202,7 +202,7 @@ const MemberForm: React.FC = () => {
     coach_id: z.number({
       required_error: "Required",
     }),
-    membership_plan_id: z.coerce.number({
+    membership_plan_id: z.number({
       required_error: "Required",
     }),
     send_invitation: z.boolean().default(true).optional(),
@@ -299,9 +299,9 @@ const MemberForm: React.FC = () => {
     form.setValue("membership_plan_id", value);
     const data = membershipPlans?.filter((item) => item.id == value)[0];
     form.setValue("auto_renewal", data?.auto_renewal);
-    form.setValue("prolongation_period", data?.prolongation_period);
-    form.setValue("auto_renew_days", data?.auto_renew_days);
-    form.setValue("inv_days_cycle", data?.inv_days_cycle);
+    form.setValue("prolongation_period", data?.prolongation_period as number);
+    form.setValue("auto_renew_days", data?.auto_renew_days as number);
+    form.setValue("inv_days_cycle", data?.inv_days_cycle as number);
   };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -355,7 +355,7 @@ const MemberForm: React.FC = () => {
     navigate("/admin/members");
   }
 
-  console.log({ watcher, memberError }, isNaN(Number(id)));
+  console.log({ watcher, memberError });
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -516,7 +516,7 @@ const MemberForm: React.FC = () => {
                                       )}
                                     >
                                       {field.value ? (
-                                        format(field.value, "PPP")
+                                        format(field.value, "dd-MM-yyyy")
                                       ) : (
                                         <span>Date of Birth*</span>
                                       )}

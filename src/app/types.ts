@@ -398,8 +398,8 @@ export interface CoachTableTypes {
   phone?: string;
   mobile_number?: string;
   notes?: string;
-  source_id: number | undefined;
-  country_id: number | undefined;
+  source_id: number;
+  country_id: number;
   city: string;
   coach_status: "pending" | "active" | "inactive" | undefined;
   zipcode?: string;
@@ -595,7 +595,7 @@ export interface StaffInputType {
   org_id: number;
   role_id: number;
   country_id: number;
-  city: string;
+  city?: string;
   zipcode?: string;
   address_1?: string;
   address_2?: string;
@@ -617,8 +617,20 @@ export interface StaffResponseType {
   org_id: number;
   role_id: number;
   country_id: number;
-  city: string;
+  city?: string;
   zipcode?: string;
   address_1?: string;
   address_2?: string;
+}
+
+export interface staffTypesResponseList {
+  id: number;
+  own_staff_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  mobile?: string;
+  role_id: number;
+  role_name: string;
+  profile_img: string;
 }

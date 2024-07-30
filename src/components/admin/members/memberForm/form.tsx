@@ -320,7 +320,7 @@ const MemberForm: React.FC = () => {
             variant: "success",
             title: "Added Successfully ",
           });
-          navigate("/admin/members/");
+          navigate("/admin/members");
         }
       } else {
         const resp = await editMember({
@@ -333,7 +333,7 @@ const MemberForm: React.FC = () => {
             variant: "success",
             title: "Updated Successfully ",
           });
-          navigate("/admin/members/");
+          navigate("/admin/members");
         }
       }
     } catch (error: unknown) {
@@ -356,7 +356,7 @@ const MemberForm: React.FC = () => {
   }
 
   function gotoMember() {
-    navigate("/admin/members/");
+    navigate("/admin/members");
   }
 
   console.log({ watcher, memberError }, isNaN(Number(id)));

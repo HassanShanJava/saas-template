@@ -1,4 +1,8 @@
-import { StaffInputType, StaffResponseType } from "@/app/types";
+import {
+  StaffInputType,
+  StaffResponseType,
+  staffTypesResponseList,
+} from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
 export const StaffApi = apiSlice.injectEndpoints({
@@ -34,6 +38,15 @@ export const StaffApi = apiSlice.injectEndpoints({
         },
       }),
     }),
+    GetStaffList: builder.query<staffTypesResponseList[], number>({
+      query: (org_id) => ({
+        url: `/staff/staffs/getAll?org_id=${org_id}`,
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      }),
+    }),
   }),
 });
 
@@ -41,4 +54,5 @@ export const {
   useGetStaffCountQuery,
   useGetStaffByIdQuery,
   useAddStaffMutation,
+  useGetStaffListQuery,
 } = StaffApi;

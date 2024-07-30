@@ -116,58 +116,64 @@ const StaffForm: React.FC = () => {
       )
       .optional(),
     own_staff_id: z.string({
-      required_error: "Own Staff Id Required.",
+      required_error: "Required",
     }),
     first_name: z
       .string({
-        required_error: "Firstname Required.",
+        required_error: "Required",
       })
       .trim()
-      .min(3, { message: "First Name Is Required." }),
+      .min(3, { message: "Required" }),
     last_name: z
       .string({
-        required_error: "Lastname Required.",
+        required_error: "Required",
       })
       .trim()
-      .min(3, { message: "Last Name Is Required" }),
+      .min(3, { message: "Required" }),
     gender: z.nativeEnum(genderEnum, {
       required_error: "You need to select a gender type.",
     }),
-    dob: z.coerce.string({
-      required_error: "A date of birth is required.",
-    }),
-    email: z
-      .string()
-      .email({ message: "Invalid email" })
-      .min(4, { message: "Email is Required" }),
+    dob: z.coerce
+      .string({
+        required_error: "Required",
+      })
+      .refine((value) => value.trim() !== "", {
+        message: "Required",
+      }),
+    email: z.string().min(1, { message: "Required" }).email("invalid email"),
     phone: z.string().trim().optional(),
     mobile: z.string().trim().optional(),
     notes: z.string().optional(),
-    source_id: z.coerce.number({
-      required_error: "Source Required.",
-    }),
-    country_id: z.coerce.number({
-      required_error: "Country Required.",
-    }),
-    city: z
-      .string({
-        required_error: "City Required.",
+    source_id: z.coerce
+      .number({
+        required_error: "Source Required.",
       })
-      .trim()
-      .min(3, {
-        message: "City Required.",
+      .refine((value) => value !== 0, {
+        message: "Required",
       }),
+    country_id: z.coerce
+      .number({
+        required_error: "Country Required.",
+      })
+      .refine((value) => value !== 0, {
+        message: "Required",
+      }),
+    city: z.string().optional(),
     zipcode: z.string().trim().optional(),
     address_1: z.string().optional(),
     address_2: z.string().optional(),
     org_id: z
       .number({
-        required_error: "Org id is required",
+        required_error: "Required",
       })
       .default(orgId),
-    role_id: z.number({
-      required_error: "Role is Required",
-    }),
+    role_id: z
+      .number({
+        required_error: "Required",
+      })
+      .refine((value) => value !== 0, {
+        message: "Required",
+      }),
     send_invitation: z.boolean().default(true).optional(),
   });
 
@@ -175,7 +181,7 @@ const StaffForm: React.FC = () => {
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
   const { data: staffCount } = useGetStaffCountQuery(orgId, {
-    skip: id !== undefined,
+    skip: id == undefined ? false :true,
   });
   const { data: staffData } = useGetStaffByIdQuery(Number(id), {
     skip: isNaN(Number(id)),
@@ -228,6 +234,28 @@ const StaffForm: React.FC = () => {
     console.log("Updated data with only date:", updatedData);
     console.log("only once", data);
     try {
+      //  if (id == undefined || id == null) {
+      //   //  const resp = await addCoach(updatedData).unwrap();
+      //    if (resp) {
+      //      toast({
+      //        variant: "success",
+      //        title: "Coach Added Successfully ",
+      //      });
+      //      navigate("/admin/coach");
+      //    }
+      //  } else {
+      //    const resp = await editCoach({
+      //      ...updatedData,
+      //      id: Number(id),
+      //    }).unwrap();
+      //    if (resp) {
+      //      toast({
+      //        variant: "success",
+      //        title: "Coach Updated Successfully ",
+      //      });
+      //      navigate("/admin/coach");
+      //    }
+      //  }
       // toast({
       //   variant: "success",
       //   title: "Staff Created Successfully ",
@@ -756,11 +784,7 @@ const StaffForm: React.FC = () => {
                     name="city"
                     render={({ field }) => (
                       <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="city"
-                          label="City*"
-                        />
+                        <FloatingLabelInput {...field} id="city" label="City" />
                         {watcher.city ? <></> : <FormMessage />}
                       </FormItem>
                     )}

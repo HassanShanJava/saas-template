@@ -15,7 +15,7 @@ import { logout } from "@/features/auth/authSlice";
 import { AppDispatch, RootState } from "@/app/store";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../use-toast";
-import { useLocation, matchPath } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const Breadcrumb = ({
@@ -32,9 +32,9 @@ const Breadcrumb = ({
   if (!isActiveLink(currentPath, targetPath)) return null;
   return (
     <div className="pl-7 pb-4 text-sm">
-      <span className="text-primary pr-1 font-semibold">{pageSetting}</span>{" "}
+      <span className="text-gray-400 pr-1 font-semibold">{pageSetting}</span>{" "}
       <span className="text-gray-400 font-semibold">/</span>
-      <span className="pl-1 text-gray-400 font-semibold ">{title}</span>
+      <span className="pl-1 text-primary font-semibold ">{title}</span>
     </div>
   );
 };
@@ -94,14 +94,36 @@ export const Header = () => {
                 title="Add Member"
               />
               <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/leads/"
-                title="Leads"
+                currentPath={location.pathname.replace(
+                  /(\/[^\/]+\/editmember)\/\d+$/,
+                  "$1"
+                )}
+                targetPath="/admin/members/editmember"
+                title="Edit Member"
               />
               <PageTitle
                 currentPath={location.pathname}
-                targetPath="/admin/members/addmember"
-                title="Add Member"
+                targetPath="/admin/coach"
+                title="Coach"
+              />
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/coach/addcoach"
+                title="Add Coach"
+              />
+              <PageTitle
+                currentPath={location.pathname.replace(
+                  /(\/[^\/]+\/editcoach)\/\d+$/,
+                  "$1"
+                )}
+                targetPath="/admin/coach/editcoach"
+                title="Edit Coach"
+              />
+
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/leads"
+                title="Leads"
               />
               <PageTitle
                 currentPath={location.pathname}
@@ -148,12 +170,69 @@ export const Header = () => {
                 targetPath="/admin/events/addevents"
                 title="Events"
               />
+
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/staff"
+                title="Staff"
+              />
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/staff/addstaff"
+                title="Add Staff"
+              />
             </h1>
 
             <Breadcrumb
               currentPath={location.pathname}
               targetPath="/admin/members/addmember"
               title="Add Member"
+              pageSetting="Dashboard"
+            />
+
+            <Breadcrumb
+              currentPath={location.pathname.replace(
+                /(\/[^\/]+\/editmember)\/\d+$/,
+                "$1"
+              )}
+              targetPath="/admin/members/editmember"
+              title="Edit Member"
+              pageSetting="Dashboard"
+            />
+
+            <Breadcrumb
+              currentPath={location.pathname.replace(
+                /(\/[^\/]+\/editstaff)\/\d+$/,
+                "$1"
+              )}
+              targetPath="/admin/staff/editstaff"
+              title="Edit Staff"
+              pageSetting="Dashboard"
+            />
+
+            <Breadcrumb
+              currentPath={location.pathname.replace(
+                /(\/[^\/]+\/editcoach)\/\d+$/,
+                "$1"
+              )}
+              targetPath="/admin/coach/editcoach"
+              title="Edit Coach"
+              pageSetting="Dashboard"
+            />
+            <Breadcrumb
+              currentPath={location.pathname.replace(
+                /(\/[^\/]+\/addcoach)\/\d+$/,
+                "$1"
+              )}
+              targetPath="/admin/coach/addcoach"
+              title="Add Coach"
+              pageSetting="Dashboard"
+            />
+
+            <Breadcrumb
+              currentPath={location.pathname}
+              targetPath="/admin/staff/addstaff"
+              title="Add Staff"
               pageSetting="Dashboard"
             />
             <Breadcrumb
@@ -170,21 +249,25 @@ export const Header = () => {
               currentPath={location.pathname}
               targetPath="/admin/credits"
               title="Credits"
+              pageSetting="System Setting"
             />
             <Breadcrumb
               currentPath={location.pathname}
               targetPath="/admin/incomeCategory"
               title="Income Categories"
+              pageSetting="System Setting"
             />
             <Breadcrumb
               currentPath={location.pathname}
               targetPath="/admin/saleTaxes"
               title="Sales Tax"
+              pageSetting="System Setting"
             />
             <Breadcrumb
               currentPath={location.pathname}
               targetPath="/admin/memberships"
               title="Memberships"
+              pageSetting="System Setting"
             />
           </div>
         </div>

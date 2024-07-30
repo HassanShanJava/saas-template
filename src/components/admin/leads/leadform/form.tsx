@@ -145,7 +145,7 @@ const LeadForm: React.FC = () => {
         variant: "success",
         title: "Lead Added Successfully",
       });
-      navigate("/admin/leads/");
+      navigate("/admin/leads");
     } catch (error) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -166,7 +166,7 @@ const LeadForm: React.FC = () => {
   }
 
   function gotoLeads() {
-    navigate("/admin/leads/");
+    navigate("/admin/leads");
   }
 
   return (

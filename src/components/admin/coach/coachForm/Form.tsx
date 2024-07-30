@@ -293,7 +293,7 @@ const CoachForm: React.FC = () => {
             variant: "success",
             title: "Coach Added Successfully ",
           });
-          navigate("/admin/coach/");
+          navigate("/admin/coach");
         }
       } else {
         const resp = await editCoach({
@@ -305,7 +305,7 @@ const CoachForm: React.FC = () => {
             variant: "success",
             title: "Coach Updated Successfully ",
           });
-          navigate("/admin/coach/");
+          navigate("/admin/coach");
         }
       }
     } catch (error: unknown) {
@@ -328,7 +328,7 @@ const CoachForm: React.FC = () => {
   }
 
   function gotoCaoch() {
-    navigate("/admin/coach/");
+    navigate("/admin/coach");
   }
 
   React.useEffect(() => {

@@ -340,6 +340,7 @@ export default function CreditsTableView({
               min={1}
               max={15}
               className=" w-20"
+              autoFocus
               value={creditData?.validity?.duration_no || ""}
               onChange={(e) => handleChangeRowInput(e, id, "duration_no")}
             />}

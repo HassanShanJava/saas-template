@@ -58,7 +58,7 @@ import {
   useGetListOfCoachQuery,
   useUpdateCoachMutation,
 } from "@/services/coachApi";
-import { ErrorType } from "@/app/types";
+import { CoachTableTypes, ErrorType } from "@/app/types";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -111,6 +111,7 @@ export default function CoachTableView() {
     pageIndex: 0,
     pageSize: 10, // Adjust this based on your preference
   });
+
   const displayDate = (value: any) => {
     const date = new Date(value);
 
@@ -120,6 +121,7 @@ export default function CoachTableView() {
 
     return `${day}-${month}-${year}`;
   };
+
   const handleExportSelected = () => {
     const selectedRows = table
       .getSelectedRowModel()
@@ -150,9 +152,9 @@ export default function CoachTableView() {
         return;
       }
       const resp = await updateCoach(payload).unwrap();
+      refetch();
       if (resp) {
         console.log({ resp });
-        refetch();
         toast({
           variant: "success",
           title: "Updated Successfully",
@@ -176,10 +178,12 @@ export default function CoachTableView() {
       }
     }
   };
+  // const displayValue = (value: ) =>
+  //   value == null || value === "" || value == undefined ? "N/A" : value;
   const displayValue = (value: string | undefined | null) =>
     value == null || value == "" ? "N/A" : value;
 
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<CoachTableTypes>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -308,17 +312,13 @@ export default function CoachTableView() {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <DataTableRowActions
-          data={row.original}
-          refetch={refetch}
-          // handleEdit={handleEditCoach}
-        />
+        <DataTableRowActions data={row.original} refetch={refetch} />
       ),
     },
   ];
   // console.log("data",{memberData})
   const table = useReactTable({
-    data: coachTableData as any[],
+    data: coachTableData as CoachTableTypes[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),

@@ -58,7 +58,12 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { CoachInputTypes, CountryTypes, ErrorType, sourceTypes } from "@/app/types";
+import {
+  CoachInputTypes,
+  CountryTypes,
+  ErrorType,
+  sourceTypes,
+} from "@/app/types";
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import {
@@ -74,10 +79,10 @@ import {
   useGetMemberListQuery,
   useUpdateCoachMutation,
 } from "@/services/coachApi";
-enum genderEnum{
-  male="male",
-  female="female",
-  other="other"
+enum genderEnum {
+  male = "male",
+  female = "female",
+  other = "other",
 }
 const CoachForm: React.FC = () => {
   const { id } = useParams();
@@ -85,7 +90,9 @@ const CoachForm: React.FC = () => {
     data: EditCoachData,
     isLoading: editisLoading,
     refetch: editRefetch,
-  } = useGetCoachByIdQuery(Number(id));
+  } = useGetCoachByIdQuery(Number(id), {
+    skip: isNaN(Number(id)),
+  });
   console.log("update the damn data", EditCoachData);
   // const [counter, setCounter] = React.useState(0);
   const orgId =
@@ -99,8 +106,9 @@ const CoachForm: React.FC = () => {
     name: z.string(),
   });
 
-  const initialState:CoachInputTypes={
-    profile_img: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+  const initialState: CoachInputTypes = {
+    profile_img:
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
     own_coach_id: "",
     first_name: "",
     last_name: "",
@@ -111,7 +119,7 @@ const CoachForm: React.FC = () => {
     mobile_number: "",
     notes: "",
     source_id: 0,
-    country_id: undefined,
+    country_id: 0,
     city: "",
     coach_status: "pending",
     zipcode: "",
@@ -123,7 +131,7 @@ const CoachForm: React.FC = () => {
     swift_code: "",
     org_id: orgId,
     member_ids: [] as z.infer<typeof membersSchema>[], // Correct placement of brackets
-  }
+  };
   const FormSchema = z.object({
     profile_img: z
       .string()
@@ -133,43 +141,44 @@ const CoachForm: React.FC = () => {
       )
       .optional(),
     own_coach_id: z.string({
-      required_error: "Gym Coach Id Required.",
+      required_error: "Required",
     }),
     first_name: z
       .string({
-        required_error: "Firstname Required.",
+        required_error: "Required",
       })
       .trim()
-      .min(3, { message: "First Name Is Required." }),
+      .min(3, { message: "Required" }),
     last_name: z
       .string({
-        required_error: "Lastname Required.",
+        required_error: "Required",
       })
       .trim()
-      .min(3, { message: "Last Name Is Required" }),
+      .min(3, { message: "Required" }),
     gender: z
       .enum(["male", "female", "other"], {
         required_error: "You need to select a gender type.",
       })
       .default("male"),
-    dob: z.coerce.string({
-      required_error: "A date of birth is required.",
-    }),
-    email: z
-      .string()
-      .min(1, { message: "Required." })
-      .email("This is not a valid email."),
+    dob: z.coerce
+      .string({
+        required_error: "Required",
+      })
+      .refine((value) => value.trim() !== "", {
+        message: "Required",
+      }),
+    email: z.string().min(1, { message: "Required" }).email("invalid email"),
     phone: z
       .string()
       .max(11, {
-        message: "Cannot be greater than 11 digits.",
+        message: "Cannot be greater than 11 digits",
       })
       .trim()
       .optional(),
     mobile_number: z
       .string()
       .max(11, {
-        message: "Cannot be greater than 11 digits.",
+        message: "Cannot be greater than 11 digits",
       })
       .trim()
       .optional(),
@@ -182,12 +191,12 @@ const CoachForm: React.FC = () => {
       })
       .default("pending"),
     notes: z.string().optional(),
-    source_id: z
+    source_id: z.coerce
       .number({
-        required_error: "Source Required.",
+        required_error: "Required",
       })
-      .refine((val) => val !== 0, {
-        message: "Source is required",
+      .refine((value) => value !== 0, {
+        message: "Required",
       }),
     address_1: z.string().optional(),
     address_2: z.string().optional(),
@@ -196,30 +205,22 @@ const CoachForm: React.FC = () => {
     iban_no: z.string().trim().optional(),
     swift_code: z.string().trim().optional(),
     acc_holder_name: z.string().trim().optional(),
-    country_id: z
+    country_id: z.coerce
       .number({
-        required_error: "Country Required.",
+        required_error: "Required",
       })
-      .refine((val) => val !== 0, {
-        message: "Country is required",
+      .refine((value) => value !== 0, {
+        message: "Required",
       }),
-    city: z
-      .string({
-        required_error: "City Required.",
-      })
-      .trim()
-      .min(3, {
-        message: "City Required.",
-      }),
-
+    city: z.string().optional(),
     org_id: z
       .number({
-        required_error: "Org id is required",
+        required_error: "Required",
       })
       .default(orgId),
     created_by: z
       .number({
-        required_error: "must send creater",
+        required_error: "Required",
       })
       .default(creator_id),
   });
@@ -231,13 +232,15 @@ const CoachForm: React.FC = () => {
     data: coachCountData,
     isLoading,
     refetch,
-  } = useGetCoachCountQuery(orgId);
+  } = useGetCoachCountQuery(orgId, {
+    skip: id == undefined ? false : true,
+  });
 
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
 
   const [addCoach, { isLoading: memberLoading }] = useAddCoachMutation();
-  const [editCoach,{isLoading:editcoachLoading}] = useUpdateCoachMutation();
+  const [editCoach, { isLoading: editcoachLoading }] = useUpdateCoachMutation();
 
   const { data: transformedData } = useGetMemberListQuery(orgId);
   const navigate = useNavigate();
@@ -264,11 +267,8 @@ const CoachForm: React.FC = () => {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    // defaultValues: {
-    //   own_coach_id: "",
-    // },
-    defaultValues:{
-      ...initialState
+    defaultValues: {
+      ...initialState,
     },
     mode: "onChange",
   });
@@ -276,7 +276,6 @@ const CoachForm: React.FC = () => {
   const watcher = form.watch();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    // console.log(JSON.stringify(data, null, 2));
     const updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
@@ -287,29 +286,28 @@ const CoachForm: React.FC = () => {
     console.log("only once", data);
 
     try {
-      if(id){
+      if (id == undefined || id == null) {
+        const resp = await addCoach(updatedData).unwrap();
+        if (resp) {
+          toast({
+            variant: "success",
+            title: "Coach Created Successfully ",
+          });
+          navigate("/admin/coach");
+        }
+      } else {
         const resp = await editCoach({
           ...updatedData,
           id: Number(id),
         }).unwrap();
-        editRefetch();
         if (resp) {
           toast({
             variant: "success",
             title: "Coach Updated Successfully ",
           });
-          navigate("/admin/coach/");
+          navigate("/admin/coach");
         }
-      }else{
-        const resp = await addCoach(updatedData).unwrap();
-        refetch();
-        toast({
-          variant: "success",
-          title: "Coach Added Successfully ",
-        });
-        navigate("/admin/coach/");
       }
-    
     } catch (error: unknown) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -330,7 +328,7 @@ const CoachForm: React.FC = () => {
   }
 
   function gotoCaoch() {
-    navigate("/admin/coach/");
+    navigate("/admin/coach");
   }
 
   React.useEffect(() => {
@@ -345,10 +343,10 @@ const CoachForm: React.FC = () => {
       setInitialValues(EditCoachData as CoachInputTypes);
       form.reset(EditCoachData);
     }
-  }, [EditCoachData,coachCountData, orgName]);
+  }, [EditCoachData, coachCountData, orgName]);
 
   console.log("user list create", form.getValues);
-
+  console.log("Source from the get APIs", EditCoachData);
   return (
     <div className="p-6 bg-bgbackground">
       <Form {...form}>
@@ -387,7 +385,7 @@ const CoachForm: React.FC = () => {
                     <Button
                       type={"button"}
                       onClick={gotoCaoch}
-                      disabled={memberLoading}
+                      disabled={memberLoading || editcoachLoading}
                       className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
@@ -397,10 +395,10 @@ const CoachForm: React.FC = () => {
                     <LoadingButton
                       type="submit"
                       className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                      loading={memberLoading}
-                      disabled={memberLoading}
+                      loading={memberLoading || editcoachLoading}
+                      disabled={memberLoading || editcoachLoading}
                     >
-                      {!memberLoading && (
+                      {!(memberLoading || editcoachLoading) && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
                       Save
@@ -415,12 +413,6 @@ const CoachForm: React.FC = () => {
                 <div className="relative">
                   <FormField
                     control={form.control}
-                    rules={{
-                      validate: (value) => {
-                        // Ensure value is treated as a number for comparison
-                        return Number(value) !== 0 || "Source is required";
-                      },
-                    }}
                     name="own_coach_id"
                     render={({ field }) => (
                       <FormItem>
@@ -617,7 +609,12 @@ const CoachForm: React.FC = () => {
                           values={field.value}
                         >
                           <MultiSelectorTrigger>
-                            <MultiSelectorInput placeholder="Assignee Members*" />
+                            <MultiSelectorInput
+                              placeholder={
+                                field.value.length == 0 ? `Assign Members*` : ""
+                              }
+                            />
+                            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
                           </MultiSelectorTrigger>
                           <MultiSelectorContent className="">
                             <MultiSelectorList>
@@ -649,7 +646,7 @@ const CoachForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          disabled={field.value=="pending"}
+                          disabled={field.value == "pending"}
                           onValueChange={(
                             value: "pending" | "active" | "inactive"
                           ) => form.setValue("coach_status", value)}
@@ -704,7 +701,8 @@ const CoachForm: React.FC = () => {
                         >
                           <FormControl>
                             <SelectTrigger
-                              className={`${watcher.source_id ? "text-black" : ""}`}
+                              floatingLabel="Source*"
+                              className={`${watcher.source_id ? "text-black" : "text-gray-500"}`}
                             >
                               <SelectValue>
                                 {field.value === 0
@@ -869,11 +867,7 @@ const CoachForm: React.FC = () => {
                     name="city"
                     render={({ field }) => (
                       <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="city"
-                          label="City*"
-                        />
+                        <FloatingLabelInput {...field} id="city" label="City" />
                         {watcher.city ? <></> : <FormMessage />}
                       </FormItem>
                     )}

@@ -1,4 +1,3 @@
-import { Row } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,29 +11,66 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import { MoreHorizontal,MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
-
-interface DataTableRowActionsProps<TData> {
-  row: number;
-}
-
-export function DataTableRowActions<TData>({
-  row,
-}: DataTableRowActionsProps<TData>) {
+import { useToast } from "@/components/ui/use-toast";
+import { ErrorType, staffTypesResponseList } from "@/app/types";
+import { useNavigate } from "react-router-dom";
+import { useDeleteStaffMutation } from "@/services/staffsApi";
+export function DataTableRowActions({
+  data,
+  refetch,
+  // handleEdit,
+}: {
+  data: staffTypesResponseList & { id: number };
+  refetch: () => void;
+  // handleEdit?: any;
+}) {
   const [isdelete, setIsDelete] = React.useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
+  const [deleteCoach, { isLoading: deletingcoach }] = useDeleteStaffMutation();
   const deleteRow = async () => {
-    console.log("data")
+    const payload = {
+      id: data.id,
+    };
+    try {
+      const resp = await deleteCoach(data).unwrap();
+      refetch();
+      if (resp) {
+        console.log({ resp });
+        toast({
+          variant: "success",
+          title: "Deleted Staff Successfully",
+        });
+      }
+      return;
+    } catch (error) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
   };
 
+  console.log(data, "edit row");
   return (
     <>
       <Dialog>
@@ -48,9 +84,14 @@ export function DataTableRowActions<TData>({
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-4 ">
+          <DropdownMenuContent align="end" className="w-4">
             <DialogTrigger asChild>
-              <DropdownMenuItem >
+              <DropdownMenuItem
+              // onClick={() => handleEdit(data)}
+              // onClick={() => {
+              //   navigate(`/admin/staff/editsatff/${data.id}`);
+              // }}
+              >
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
@@ -61,7 +102,8 @@ export function DataTableRowActions<TData>({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        {isdelete && (
+      </Dialog>
+      {isdelete && (
         <AlertDialog open={isdelete} onOpenChange={() => setIsDelete(false)}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -74,7 +116,7 @@ export function DataTableRowActions<TData>({
                     className="w-18 h-18"
                   />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this member
+                    Please confirm if you want to delete this Staff
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">
@@ -98,7 +140,6 @@ export function DataTableRowActions<TData>({
           </AlertDialogContent>
         </AlertDialog>
       )}
-      </Dialog>
     </>
   );
 }

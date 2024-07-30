@@ -19,6 +19,7 @@ interface NavItem {
     | React.FC<React.SVGProps<SVGSVGElement>>
     | React.FC<React.ImgHTMLAttributes<HTMLImageElement>>;
   children?: any;
+  hiddenRoutes?: string[];
 }
 
 const DashBoardIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -89,17 +90,31 @@ const navItems: NavItem[] = [
   },
   {
     name: "Members",
-    link: "/admin/members/",
+    link: "/admin/members",
+    hiddenRoutes: ["/admin/members/addmember", "/admin/members/editmember"],
     icon: MultiUserIcon,
     dropdown: false,
   },
-  { name: "Leads", link: "/admin/leads/", icon: RocketIcon, dropdown: false },
-  { name: "Events", link: "/admin/events/", icon: EventsIcon, dropdown: false },
+  {
+    name: "Leads",
+    link: "/admin/leads",
+    icon: RocketIcon,
+    dropdown: false,
+    hiddenRoutes: ["/admin/leads/addlead", "/admin/leads/editleads"],
+  },
+  {
+    name: "Events",
+    link: "/admin/events",
+    icon: EventsIcon,
+    dropdown: false,
+    hiddenRoutes: ["/admin/events/addevents", "/admin/events/editevents"],
+  },
   {
     name: "Coach",
-    link: "/admin/coach/",
+    link: "/admin/coach",
     icon: MultiUserIcon,
     dropdown: false,
+    hiddenRoutes: ["/admin/coach/addcoach", "/admin/coach/editcoach"],
   },
   {
     name: "Manage",
@@ -112,22 +127,8 @@ const navItems: NavItem[] = [
         link: "/admin/staff",
         icon: "fa fa-user",
       },
-      // {
-      //   name: "Sale Taxes",
-      //   link: "/admin/saleTaxes",
-      //   icon: "fa fa-user",
-      // },
-      // {
-      //   name: "Income Category",
-      //   link: "/admin/incomeCategory",
-      //   icon: "fa fa-user",
-      // },
-      // {
-      //   name: "Memberships",
-      //   link: "/admin/memberships",
-      //   icon: "fa fa-user",
-      // },
     ],
+    hiddenRoutes: ["/admin/staff/addstaff"],
   },
   {
     name: "System Settings",
@@ -167,10 +168,19 @@ const navItems: NavItem[] = [
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
+
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
-  const isActiveLink = (targetPath: string): boolean =>
-    location.pathname.startsWith(targetPath);
+  const isActiveLink = (
+    targetPath: string,
+    hiddenRoutes: string[] = []
+  ): boolean => {
+    const currentPath = location.pathname;
+    return (
+      currentPath === targetPath ||
+      hiddenRoutes.some((route) => currentPath.startsWith(route))
+    );
+  };
 
   return (
     <div className="font-poppins flex h-screen w-full relative overflow-y-hidden">
@@ -197,66 +207,68 @@ const DashboardLayout: React.FC = () => {
           </Button> */}
         </div>
         <nav className="flex flex-col gap-1 px-2 py-2">
-          {navItems.map(({ name, link, icon: Icon, dropdown, children }) => (
-            <>
-              {!dropdown && (
-                <Link
-                  key={name}
-                  to={link}
-                  className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(link) ? "bg-primary" : ""}`}
-                >
-                  <div
-                    className={`w-8 h-8 ${isActiveLink(link) ? "bg-[#3ED13E]" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
+          {navItems.map(
+            ({ name, link, icon: Icon, dropdown, children, hiddenRoutes }) => (
+              <>
+                {!dropdown && (
+                  <Link
+                    key={name}
+                    to={link}
+                    className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(link, hiddenRoutes) ? "bg-primary" : ""}`}
                   >
-                    <Icon
-                      className={`w-4 h-4 ${isActiveLink(link) ? "" : "text-gray-500 stroke-current"}`}
-                    />
-                  </div>
-                  <span className={`${!isSidebarOpen && "hidden"}`}>
-                    {name}
-                  </span>
-                </Link>
-              )}
-
-              {dropdown && children && (
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="item-1 !border-none" id="accordion">
-                    <AccordionTrigger
-                      className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors !no-underline ${isSidebarOpen ? "justify-between text-sm" : "justify-center text-lg "} `}
+                    <div
+                      className={`w-8 h-8 ${isActiveLink(link, hiddenRoutes) ? "bg-[#3ED13E]" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
                     >
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-8 h-8 bg-gray-100 rounded-lg justify-center flex items-center`}
-                        >
-                          <Icon
-                            className={`w-4 h-4 text-gray-500 stroke-current`}
-                          />
-                        </div>
-                        <span
-                          className={`${!isSidebarOpen && "hidden"} font-normal`}
-                        >
-                          {name}
-                        </span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="ml-7 flex flex-col mt-2 [data-state=closed]:animate-accordion-up [data-state=open]:animate-accordion-down">
-                        {children.map((child: any, index: number) => (
-                          <Link
-                            key={index}
-                            to={child.link}
-                            className={`justify-start py-2 ${isActiveLink(child.link) ? "text-primary" : ""} ${!isSidebarOpen && "hidden"}`}
+                      <Icon
+                        className={`w-4 h-4 ${isActiveLink(link, hiddenRoutes) ? "" : "text-gray-500 stroke-current"}`}
+                      />
+                    </div>
+                    <span className={`${!isSidebarOpen && "hidden"}`}>
+                      {name}
+                    </span>
+                  </Link>
+                )}
+
+                {dropdown && children && (
+                  <Accordion type="single" collapsible>
+                    <AccordionItem value="item-1 !border-none" id="accordion">
+                      <AccordionTrigger
+                        className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors !no-underline ${isSidebarOpen ? "justify-between text-sm" : "justify-center text-lg "} `}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`w-8 h-8 bg-gray-100 rounded-lg justify-center flex items-center`}
                           >
-                            {child.name}
-                          </Link>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              )}
-            </>
-          ))}
+                            <Icon
+                              className={`w-4 h-4 text-gray-500 stroke-current`}
+                            />
+                          </div>
+                          <span
+                            className={`${!isSidebarOpen && "hidden"} font-normal`}
+                          >
+                            {name}
+                          </span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="ml-7 flex flex-col mt-2 [data-state=closed]:animate-accordion-up [data-state=open]:animate-accordion-down">
+                          {children.map((child: any, index: number) => (
+                            <Link
+                              key={index}
+                              to={child.link}
+                              className={`justify-start py-2 ${isActiveLink(child.link, hiddenRoutes) ? "text-primary" : ""} ${!isSidebarOpen && "hidden"}`}
+                            >
+                              {child.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                )}
+              </>
+            )
+          )}
         </nav>
       </div>
       <div className="relative flex-1 max-h-[100vh] w-[80%]">

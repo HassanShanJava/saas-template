@@ -1,4 +1,8 @@
-import { CoachInputTypes,CoachResponseTypeById, ServerResponseById } from "@/app/types";
+import {
+  CoachInputTypes,
+  CoachResponseTypeById,
+  ServerResponseById,
+} from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
 export const Roles = apiSlice.injectEndpoints({
@@ -14,7 +18,7 @@ export const Roles = apiSlice.injectEndpoints({
             "Content-Type": "application/json",
           },
         }),
-        invalidatesTags:["Coaches"],
+        invalidatesTags: ["Coaches"],
       }),
       getCoachCount: builder.query<{ total_coaches: number }, number>({
         query: (org_id) => ({
@@ -58,7 +62,7 @@ export const Roles = apiSlice.injectEndpoints({
             "Content-Type": "application/json",
           },
         }),
-        invalidatesTags:["Coaches"]
+        invalidatesTags: ["Coaches"],
       }),
       updateCoach: builder.mutation<any, any>({
         query: (coachdata) => ({
@@ -70,7 +74,7 @@ export const Roles = apiSlice.injectEndpoints({
             "Content-Type": "application/json",
           },
         }),
-        invalidatesTags:["Coaches"]
+        invalidatesTags: ["Coaches"],
       }),
       getCoachById: builder.query<CoachResponseTypeById, number>({
         query: (coach_id) => ({
@@ -87,6 +91,8 @@ export const Roles = apiSlice.injectEndpoints({
             member_ids: members,
           };
         },
+        providesTags: (result, error, arg) => [{ type: "Coaches", id: arg }],
+        // providesTags: ["Coaches"],
       }),
     };
   },

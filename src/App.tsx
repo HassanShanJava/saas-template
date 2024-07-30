@@ -20,10 +20,9 @@ import Loader from "@/components/Loader";
 import MemberPage from "./components/admin/members";
 import MemberForm from "./components/admin/members/memberForm/form";
 import Coach from "./components/admin/coach";
-import CoachForm from "./components/admin/coach/coachForm";
 import Staff from "./components/admin/staff";
 import StaffForm from "./components/admin/staff/staffForm/form";
-
+import CoachForm from "./components/admin/coach/coachForm/Form";
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -70,11 +69,7 @@ function App() {
             <Route path="/admin/memberships" index element={<Memberships />} />
             <Route path="/admin/events" index element={<Events />} />
             <Route path="/admin/coach" index element={<Coach />} />
-            <Route
-              path="/admin/coach/addcoach"
-              index
-              element={<CoachForm />}
-            />
+            <Route path="/admin/coach/addcoach" index element={<CoachForm />} />
             <Route
               path="/admin/coach/editcoach/:id"
               index
@@ -87,11 +82,7 @@ function App() {
               element={<EventForm />}
             />
             <Route path="/admin/staff" index element={<Staff />} />
-            <Route
-              path="/admin/staff/addStaff"
-              index
-              element={<StaffForm />}
-            />
+            <Route path="/admin/staff/addStaff" index element={<StaffForm />} />
           </Route>
         </Route>
       </Routes>

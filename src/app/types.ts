@@ -337,7 +337,6 @@ export interface MemberInputTypes {
   inv_days_cycle?: number;
 }
 
-
 export interface MemberResponseTypes {
   profile_img?: string | null;
   own_member_id: string;
@@ -386,6 +385,38 @@ export interface MemberTabletypes {
   business_name?: string | null;
   coach_name?: string | null;
 }
+
+export interface CoachTableTypes {
+  id: number;
+  profile_img?: string;
+  own_coach_id: string;
+  first_name: string;
+  last_name: string;
+  gender?: "male" | "female" | "other";
+  dob: string;
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  country_id: number;
+  city: string;
+  coach_status: "pending" | "active" | "inactive" | undefined;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  bank_name?: string;
+  iban_no?: string;
+  acc_holder_name?: string;
+  swift_code?: string;
+  created_by?: number;
+  member_ids: any;
+  org_id: number;
+  check_in: string | null;
+  last_online: string | null;
+  coach_since?: string | null;
+}
+
 export interface MemberFilterSchema {
   search_key: string;
   client_name: string;
@@ -430,9 +461,9 @@ export interface CoachInputTypes {
   phone?: string;
   mobile_number?: string;
   notes?: string;
-  source_id: number | undefined;
-  country_id: number | undefined;
-  city: string;
+  source_id: number;
+  country_id: number;
+  city?: string;
   coach_status: "pending" | "active" | "inactive" | undefined;
   zipcode?: string;
   address_1?: string;
@@ -464,7 +495,7 @@ export interface CoachResponseType {
   notes?: string | null;
   source_id: number;
   country_id: number;
-  city: string;
+  city?: string;
   zipcode?: string | null;
   address_1?: string | null;
   address_2?: string | null;
@@ -501,7 +532,7 @@ export interface CoachResponseTypeById {
   notes?: string;
   source_id: number;
   country_id: number;
-  city: string;
+  city?: string;
   zipcode?: string;
   address_1?: string;
   address_2?: string;
@@ -532,7 +563,7 @@ export interface ServerResponseById {
   notes?: string;
   source_id: number;
   country_id: number;
-  city: string;
+  city?: string;
   zipcode?: string;
   address_1?: string;
   address_2?: string;
@@ -547,4 +578,59 @@ export interface ServerResponseById {
   swift_code?: string;
   created_at: string;
   members: Member[]; // Original members array
+}
+
+export interface StaffInputType {
+  profile_img?: string;
+  own_staff_id: string;
+  first_name: string;
+  last_name: string;
+  gender: genderEnum;
+  dob: string;
+  email: string;
+  phone?: string;
+  mobile?: string;
+  notes?: string;
+  source_id: number;
+  org_id: number;
+  role_id: number;
+  country_id: number;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  // send_invitation?: boolean;
+}
+
+export interface StaffResponseType {
+  own_staff_id: string;
+  profile_img?: string;
+  first_name: string;
+  last_name: string;
+  gender: genderEnum;
+  dob: string;
+  email: string;
+  phone?: string;
+  mobile?: string;
+  notes?: string;
+  source_id: number;
+  org_id: number;
+  role_id: number;
+  country_id: number;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+}
+
+export interface staffTypesResponseList {
+  id: number;
+  own_staff_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  mobile?: string;
+  role_id: number;
+  role_name: string;
+  profile_img: string;
 }

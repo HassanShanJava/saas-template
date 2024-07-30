@@ -44,9 +44,9 @@ export function DataTableRowActions({
     };
     try {
       const resp = await deleteCoach(data).unwrap();
+      refetch();
       if (resp) {
         console.log({ resp });
-        refetch();
         toast({
           variant: "success",
           title: "Deleted Successfully",

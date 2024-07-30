@@ -91,6 +91,8 @@ export const Roles = apiSlice.injectEndpoints({
             member_ids: members,
           };
         },
+        providesTags: (result, error, arg) => [{ type: "Coaches", id: arg }],
+        // providesTags: ["Coaches"],
       }),
     };
   },

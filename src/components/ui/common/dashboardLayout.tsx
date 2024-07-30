@@ -89,15 +89,15 @@ const navItems: NavItem[] = [
   },
   {
     name: "Members",
-    link: "/admin/members/",
+    link: "/admin/members",
     icon: MultiUserIcon,
     dropdown: false,
   },
-  { name: "Leads", link: "/admin/leads/", icon: RocketIcon, dropdown: false },
-  { name: "Events", link: "/admin/events/", icon: EventsIcon, dropdown: false },
+  { name: "Leads", link: "/admin/leads", icon: RocketIcon, dropdown: false },
+  { name: "Events", link: "/admin/events", icon: EventsIcon, dropdown: false },
   {
     name: "Coach",
-    link: "/admin/coach/",
+    link: "/admin/coach",
     icon: MultiUserIcon,
     dropdown: false,
   },
@@ -112,21 +112,6 @@ const navItems: NavItem[] = [
         link: "/admin/staff",
         icon: "fa fa-user",
       },
-      // {
-      //   name: "Sale Taxes",
-      //   link: "/admin/saleTaxes",
-      //   icon: "fa fa-user",
-      // },
-      // {
-      //   name: "Income Category",
-      //   link: "/admin/incomeCategory",
-      //   icon: "fa fa-user",
-      // },
-      // {
-      //   name: "Memberships",
-      //   link: "/admin/memberships",
-      //   icon: "fa fa-user",
-      // },
     ],
   },
   {

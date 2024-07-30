@@ -461,9 +461,9 @@ export interface CoachInputTypes {
   phone?: string;
   mobile_number?: string;
   notes?: string;
-  source_id: number | undefined;
-  country_id: number | undefined;
-  city: string;
+  source_id: number;
+  country_id: number;
+  city?: string;
   coach_status: "pending" | "active" | "inactive" | undefined;
   zipcode?: string;
   address_1?: string;
@@ -495,7 +495,7 @@ export interface CoachResponseType {
   notes?: string | null;
   source_id: number;
   country_id: number;
-  city: string;
+  city?: string;
   zipcode?: string | null;
   address_1?: string | null;
   address_2?: string | null;
@@ -532,7 +532,7 @@ export interface CoachResponseTypeById {
   notes?: string;
   source_id: number;
   country_id: number;
-  city: string;
+  city?: string;
   zipcode?: string;
   address_1?: string;
   address_2?: string;
@@ -563,7 +563,7 @@ export interface ServerResponseById {
   notes?: string;
   source_id: number;
   country_id: number;
-  city: string;
+  city?: string;
   zipcode?: string;
   address_1?: string;
   address_2?: string;

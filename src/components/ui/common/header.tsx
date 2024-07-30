@@ -15,7 +15,7 @@ import { logout } from "@/features/auth/authSlice";
 import { AppDispatch, RootState } from "@/app/store";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../use-toast";
-import { useLocation } from "react-router-dom";
+import { useLocation, matchPath } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const Breadcrumb = ({
@@ -85,7 +85,7 @@ export const Header = () => {
               />
               <PageTitle
                 currentPath={location.pathname}
-                targetPath="/admin/members/"
+                targetPath="/admin/members"
                 title="Members"
               />
               <PageTitle

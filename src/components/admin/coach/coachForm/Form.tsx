@@ -119,7 +119,7 @@ const CoachForm: React.FC = () => {
     mobile_number: "",
     notes: "",
     source_id: 0,
-    country_id: undefined,
+    country_id: 0,
     city: "",
     coach_status: "pending",
     zipcode: "",
@@ -141,43 +141,44 @@ const CoachForm: React.FC = () => {
       )
       .optional(),
     own_coach_id: z.string({
-      required_error: "Required.",
+      required_error: "Required",
     }),
     first_name: z
       .string({
-        required_error: "Required.",
+        required_error: "Required",
       })
       .trim()
-      .min(3, { message: "Minimum 3 character Required." }),
+      .min(3, { message: "Required" }),
     last_name: z
       .string({
-        required_error: "Required.",
+        required_error: "Required",
       })
       .trim()
-      .min(3, { message: "Minimum 3 character Required." }),
+      .min(3, { message: "Required" }),
     gender: z
       .enum(["male", "female", "other"], {
         required_error: "You need to select a gender type.",
       })
       .default("male"),
-    dob: z.coerce.string({
-      required_error: "Required.",
-    }),
-    email: z
-      .string()
-      .min(1, { message: "Required." })
-      .email("This is not a valid email."),
+    dob: z.coerce
+      .string({
+        required_error: "Required",
+      })
+      .refine((value) => value.trim() !== "", {
+        message: "Required",
+      }),
+    email: z.string().min(1, { message: "Required" }).email("invalid email"),
     phone: z
       .string()
       .max(11, {
-        message: "Cannot be greater than 11 digits.",
+        message: "Cannot be greater than 11 digits",
       })
       .trim()
       .optional(),
     mobile_number: z
       .string()
       .max(11, {
-        message: "Cannot be greater than 11 digits.",
+        message: "Cannot be greater than 11 digits",
       })
       .trim()
       .optional(),
@@ -190,9 +191,13 @@ const CoachForm: React.FC = () => {
       })
       .default("pending"),
     notes: z.string().optional(),
-    source_id: z.coerce.number({
-      required_error: "Required.",
-    }),
+    source_id: z.coerce
+      .number({
+        required_error: "Required",
+      })
+      .refine((value) => value !== 0, {
+        message: "Required",
+      }),
     address_1: z.string().optional(),
     address_2: z.string().optional(),
     zipcode: z.string().trim().optional(),
@@ -200,20 +205,22 @@ const CoachForm: React.FC = () => {
     iban_no: z.string().trim().optional(),
     swift_code: z.string().trim().optional(),
     acc_holder_name: z.string().trim().optional(),
-    country_id: z.coerce.number({
-      required_error: "Required.",
-    }),
-    city: z.string({
-      required_error: "Required.",
-    }),
+    country_id: z.coerce
+      .number({
+        required_error: "Required",
+      })
+      .refine((value) => value !== 0, {
+        message: "Required",
+      }),
+    city: z.string().optional(),
     org_id: z
       .number({
-        required_error: "Org id is required",
+        required_error: "Required",
       })
       .default(orgId),
     created_by: z
       .number({
-        required_error: "must send creater",
+        required_error: "Required",
       })
       .default(creator_id),
   });
@@ -339,7 +346,7 @@ const CoachForm: React.FC = () => {
   }, [EditCoachData, coachCountData, orgName]);
 
   console.log("user list create", form.getValues);
-
+  console.log("Source from the get APIs", EditCoachData);
   return (
     <div className="p-6 bg-bgbackground">
       <Form {...form}>
@@ -391,7 +398,7 @@ const CoachForm: React.FC = () => {
                       loading={memberLoading || editcoachLoading}
                       disabled={memberLoading || editcoachLoading}
                     >
-                      {(!memberLoading || !editcoachLoading) && (
+                      {!(memberLoading || editcoachLoading) && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
                       Save
@@ -602,7 +609,12 @@ const CoachForm: React.FC = () => {
                           values={field.value}
                         >
                           <MultiSelectorTrigger>
-                            <MultiSelectorInput placeholder="Assignee Members*" />
+                            <MultiSelectorInput
+                              placeholder={
+                                field.value.length == 0 ? `Assign Members*` : ""
+                              }
+                            />
+                            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
                           </MultiSelectorTrigger>
                           <MultiSelectorContent className="">
                             <MultiSelectorList>
@@ -854,11 +866,7 @@ const CoachForm: React.FC = () => {
                     name="city"
                     render={({ field }) => (
                       <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="city"
-                          label="City*"
-                        />
+                        <FloatingLabelInput {...field} id="city" label="City" />
                         {watcher.city ? <></> : <FormMessage />}
                       </FormItem>
                     )}

@@ -152,10 +152,8 @@ const PriceDiscountTaxForm = () => {
         <FloatingLabelInput
           id="tax_rate"
           disabled={true}
-          label="Tax/VAT Rate (%)*"
-          {...register("tax_rate", {
-            required: "Tax/VAT rate is Required",
-          })}
+          label="Tax/VAT Rate*"
+          value={getValues("tax_rate")?("Sales Tax "+getValues("tax_rate")+"%"):undefined}
           error={errors.tax_rate?.message}
         />
         <FloatingLabelInput
@@ -249,11 +247,11 @@ const PriceDiscountTaxForm = () => {
                   </span>
                 )}
                 <SelectContent>
-                  <SelectItem value={"weekly"}>week</SelectItem>
-                  <SelectItem value={"monthly"}>Month</SelectItem>
-                  <SelectItem value={"quarterly"}>Quarter</SelectItem>
-                  <SelectItem value={"bi_annually"}>Bi-Annual</SelectItem>
-                  <SelectItem value={"yearly"}>Year</SelectItem>
+                  <SelectItem value={"weekly"}>Weekly</SelectItem>
+                  <SelectItem value={"monthly"}>Monthly</SelectItem>
+                  <SelectItem value={"quarterly"}>Quarterly</SelectItem>
+                  <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem>
+                  <SelectItem value={"yearly"}>Yearly</SelectItem>
                 </SelectContent>
               </Select>
             </div>

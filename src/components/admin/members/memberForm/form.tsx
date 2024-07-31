@@ -94,7 +94,7 @@ enum genderEnum {
 
 const MemberForm: React.FC = () => {
   const { id } = useParams();
-  console.log({id})
+  console.log({ id });
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const orgName = useSelector(
@@ -131,7 +131,6 @@ const MemberForm: React.FC = () => {
     auto_renew_days: undefined,
     inv_days_cycle: undefined,
   };
-  
 
   const navigate = useNavigate();
   const [counter, setCounter] = React.useState(0);
@@ -226,25 +225,24 @@ const MemberForm: React.FC = () => {
       return false;
     }
 
-    if (
-      input.is_business == false && input.business_id == undefined
-    ) {
-      return false;
-    }
+        if (input.is_business == false && input.business_id == undefined) {
+          return false;
+        }
 
-    return true;
-  }, {
-    message: "All required fields must be filled correctly.",
-    path: ["auto_renewal", "is_business"],
-  });
-
+        return true;
+      },
+      {
+        message: "All required fields must be filled correctly.",
+        path: ["auto_renewal", "is_business"],
+      }
+    );
 
   // conditional fetching
   const { data: memberCountData } = useGetMemberCountQuery(orgId, {
     skip: id !==undefined,
   });
-  const { data: memberData } = useGetMemberByIdQuery(Number(id),{
-    skip: isNaN(Number(id))
+  const { data: memberData } = useGetMemberByIdQuery(Number(id), {
+    skip: isNaN(Number(id)),
   });
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
@@ -252,7 +250,8 @@ const MemberForm: React.FC = () => {
   const { data: sources } = useGetAllSourceQuery();
   const { data: membershipPlans } = useGetMembershipsQuery(orgId);
   const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
-  const [editMember, { isLoading: editLoading, isError }] = useUpdateMemberMutation();
+  const [editMember, { isLoading: editLoading, isError }] =
+    useUpdateMemberMutation();
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -299,9 +298,9 @@ const MemberForm: React.FC = () => {
     form.setValue("membership_plan_id", value);
     const data = membershipPlans?.filter((item) => item.id == value)[0];
     form.setValue("auto_renewal", data?.auto_renewal);
-    form.setValue("prolongation_period", data?.prolongation_period as number);
-    form.setValue("auto_renew_days", data?.auto_renew_days as number);
-    form.setValue("inv_days_cycle", data?.inv_days_cycle as number);
+    form.setValue("prolongation_period", data?.renewal_details?.prolongation_period as number);
+    form.setValue("auto_renew_days", data?.renewal_details?.days_before as number);
+    form.setValue("inv_days_cycle", data?.renewal_details?.next_invoice as number);
   };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -310,7 +309,7 @@ const MemberForm: React.FC = () => {
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
     };
     try {
-      if (id == undefined || id==null) {
+      if (id == undefined || id == null) {
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
           toast({
@@ -440,7 +439,7 @@ const MemberForm: React.FC = () => {
                     control={form.control}
                     name="first_name"
                     render={({ field }) => (
-                      <FormItem> 
+                      <FormItem>
                         <FloatingLabelInput
                           {...field}
                           id="first_name"
@@ -474,8 +473,10 @@ const MemberForm: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value: genderEnum) => form.setValue("gender", value)}
-                          value={field.value as  genderEnum}
+                          onValueChange={(value: genderEnum) =>
+                            form.setValue("gender", value)
+                          }
+                          value={field.value as genderEnum}
                         >
                           <FormControl>
                             <SelectTrigger
@@ -491,7 +492,7 @@ const MemberForm: React.FC = () => {
                             <SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
-                        <FormMessage/>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -641,7 +642,7 @@ const MemberForm: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {sources && sources.length>0 ? (
+                            {sources && sources.length > 0 ? (
                               sources.map((sourceval: sourceTypes, i: any) => (
                                 <SelectItem
                                   value={sourceval.id?.toString()}
@@ -679,9 +680,7 @@ const MemberForm: React.FC = () => {
                           value={field.value?.toString()}
                         >
                           <FormControl>
-                            <SelectTrigger
-                              className={`text-black`}
-                            >
+                            <SelectTrigger className={`text-black`}>
                               <SelectValue
                                 className="text-black"
                                 placeholder="Select Coach*"
@@ -696,7 +695,9 @@ const MemberForm: React.FC = () => {
                                     key={sourceval.id}
                                     value={sourceval.id?.toString()}
                                   >
-                                    {sourceval.first_name+" "+sourceval.last_name}
+                                    {sourceval.first_name +
+                                      " " +
+                                      sourceval.last_name}
                                   </SelectItem>
                                 );
                               })
@@ -756,9 +757,7 @@ const MemberForm: React.FC = () => {
                           value={field.value?.toString()}
                         >
                           <FormControl>
-                            <SelectTrigger
-                              className={`text-black`}
-                            >
+                            <SelectTrigger className={`text-black`}>
                               <SelectValue
                                 className="text-gray-400"
                                 placeholder="Select Business*"
@@ -972,9 +971,7 @@ const MemberForm: React.FC = () => {
                           value={field.value?.toString()}
                         >
                           <FormControl>
-                            <SelectTrigger
-                              className={`text-black`}
-                            >
+                            <SelectTrigger className={`text-black`}>
                               <SelectValue
                                 className="text-gray-400"
                                 placeholder="Select membership plan*"
@@ -985,7 +982,7 @@ const MemberForm: React.FC = () => {
                             {membershipPlans && membershipPlans?.length ? (
                               membershipPlans.map(
                                 (sourceval: membeshipsTableType) => {
-                                  console.log({sourceval})
+                                  console.log({ sourceval });
                                   return (
                                     <SelectItem
                                       key={sourceval.id}
@@ -1041,11 +1038,11 @@ const MemberForm: React.FC = () => {
                               </FormLabel>
                               <FloatingLabelInput
                                 {...field}
-                                id="min_limit"
+                                id="prolongation_period"
                                 type="number"
                                 min={1}
                                 name="min_limit"
-                                className=" w-10"
+                                className=" w-16"
                               />
                               {watcher.prolongation_period ? (
                                 <></>
@@ -1061,15 +1058,6 @@ const MemberForm: React.FC = () => {
                       <FormField
                         control={form.control}
                         name="auto_renew_days"
-                        rules={{
-                          validate: (value) => {
-                            // Ensure value is treated as a number for comparison
-                            return (
-                              Number(value) !== 0 ||
-                              "Memberhip Plan is Required"
-                            );
-                          },
-                        }}
                         render={({ field }) => {
                           return (
                             <FormItem className="flex h-10 items-center gap-3">
@@ -1078,11 +1066,11 @@ const MemberForm: React.FC = () => {
                               </FormLabel>
                               <FloatingLabelInput
                                 {...field}
-                                id="min_limit"
+                                id="auto_renew_days"
                                 type="number"
                                 min={1}
                                 name="min_limit"
-                                className="w-10"
+                                className="w-16"
                               />
                               {watcher.auto_renew_days ? (
                                 <></>
@@ -1101,15 +1089,6 @@ const MemberForm: React.FC = () => {
                       <FormField
                         control={form.control}
                         name="inv_days_cycle"
-                        rules={{
-                          validate: (value) => {
-                            // Ensure value is treated as a number for comparison
-                            return (
-                              Number(value) !== 0 ||
-                              "Memberhip Plan is Required"
-                            );
-                          },
-                        }}
                         render={({ field }) => {
                           return (
                             <FormItem className="flex h-10 items-center gap-3">
@@ -1118,11 +1097,11 @@ const MemberForm: React.FC = () => {
                               </FormLabel>
                               <FloatingLabelInput
                                 {...field}
-                                id="min_limit"
+                                id="inv_days_cycle"
                                 type="number"
                                 min={1}
                                 name="min_limit"
-                                className="w-10"
+                                className="w-16"
                               />
                               {watcher.inv_days_cycle ? <></> : <FormMessage />}
                               <Label className="text-xs text-black/60">

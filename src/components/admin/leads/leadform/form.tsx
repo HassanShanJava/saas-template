@@ -145,7 +145,7 @@ const LeadForm: React.FC = () => {
         variant: "success",
         title: "Lead Added Successfully",
       });
-      // navigate("/admin/leads");
+      navigate("/admin/leads");
     } catch (error) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -426,16 +426,14 @@ const LeadForm: React.FC = () => {
                       render={({ field }) => (
                         <FormItem>
                           <Select
-                                  defaultValue={undefined}
-
+                            defaultValue={undefined}
                             onValueChange={(value) =>
                               field.onChange(Number(value))
                             }
                           >
                             <FormControl>
-                              <SelectTrigger >
-                                <SelectValue placeholder="Lead Owner" 
-                                  />
+                              <SelectTrigger>
+                                <SelectValue placeholder="Lead Owner" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>

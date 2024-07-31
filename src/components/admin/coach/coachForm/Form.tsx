@@ -513,7 +513,9 @@ const CoachForm: React.FC = () => {
                                       {field.value ? (
                                         format(field.value, "dd-MM-yyyy")
                                       ) : (
-                                        <span>Date of Birth*</span>
+                                        <span className="font-medium text-gray-400">
+                                          Date of Birth*
+                                        </span>
                                       )}
                                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                     </Button>
@@ -608,8 +610,9 @@ const CoachForm: React.FC = () => {
                           onValuesChange={(values) => field.onChange(values)}
                           values={field.value}
                         >
-                          <MultiSelectorTrigger>
+                          <MultiSelectorTrigger className="border-[1px] border-gray-300">
                             <MultiSelectorInput
+                              className="font-medium  "
                               placeholder={
                                 field.value.length == 0 ? `Assign Members*` : ""
                               }
@@ -655,15 +658,15 @@ const CoachForm: React.FC = () => {
                           <FormControl>
                             <SelectTrigger
                               floatingLabel="Status*"
-                              className={`${watcher.coach_status ? "text-black" : ""}`}
+                              className={"font-medium text-gray-400"}
                             >
                               <SelectValue placeholder="Select Coach status" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="active">active</SelectItem>
-                            <SelectItem value="inactive">inactive</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
                           </SelectContent>
                         </Select>
                         {watcher.coach_status ? <></> : <FormMessage />}
@@ -702,7 +705,7 @@ const CoachForm: React.FC = () => {
                           <FormControl>
                             <SelectTrigger
                               floatingLabel="Source*"
-                              className={`${watcher.source_id ? "text-black" : "text-gray-500"}`}
+                              className={"font-medium text-gray-400"}
                             >
                               <SelectValue>
                                 {field.value === 0
@@ -806,9 +809,9 @@ const CoachForm: React.FC = () => {
                                 variant="outline"
                                 role="combobox"
                                 className={cn(
-                                  "justify-between !font-normal",
+                                  "justify-between font-normal",
                                   !field.value &&
-                                    "text-muted-foreground focus:border-primary "
+                                    "font-medium text-gray-400 focus:border-primary "
                                 )}
                               >
                                 {field.value

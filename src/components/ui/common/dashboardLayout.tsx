@@ -186,7 +186,7 @@ const DashboardLayout: React.FC = () => {
   return (
     <div className="font-poppins flex h-screen w-full relative overflow-y-hidden">
       <div
-        className={`bg-white border-r text-black shadow-md transition-all duration-300 ${isSidebarOpen ? "w-[17.80rem]" : "w-16"}`}
+        className={`bg-white border-r text-black shadow-md transition-all duration-300 ${isSidebarOpen ? "w-72" : "w-16"}`}
       >
         <div className="flex h-16 items-center justify-between px-4 border-gradient">
           <Link to="#" className="flex items-center gap-2 font-semibold">

@@ -78,7 +78,6 @@ export const RoleForm = ({
   handleOnChange?: any;
   refetch?: any;
 }) => {
-  const [expanded, setExpanded] = useState<ExpandedState>({});
   const { toast } = useToast();
   const [tableAccess, setAccess] = useState<Record<number, string>>({});
 
@@ -92,6 +91,9 @@ export const RoleForm = ({
       ? convertToTableData(data?.allResourceData)
       : [];
   }, [data]);
+
+  const [expanded, setExpanded] = useState<ExpandedState>(true);
+
   console.log({ formData });
 
   const createAccess = (array: resourceTypes[]) => {

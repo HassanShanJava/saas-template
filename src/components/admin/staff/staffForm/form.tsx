@@ -80,6 +80,12 @@ enum genderEnum {
   other = "other",
 }
 
+export enum statusEnum {
+  pending = "pending",
+  active = "active",
+  inactive = "inactive",
+}
+
 const StaffForm: React.FC = () => {
   const { id } = useParams();
   const orgName = useSelector(
@@ -102,6 +108,7 @@ const StaffForm: React.FC = () => {
     source_id: 0,
     country_id: 0,
     city: "",
+    status: statusEnum.pending,
   };
 
   const [initialValues, setInitialValues] =
@@ -170,6 +177,9 @@ const StaffForm: React.FC = () => {
       .refine((value) => value !== 0, {
         message: "Required",
       }),
+    status: z.nativeEnum(statusEnum, {
+      required_error: "You need to select a status.",
+    }),
     city: z.string().optional(),
     zipcode: z.string().trim().optional(),
     address_1: z.string().optional(),
@@ -624,7 +634,7 @@ const StaffForm: React.FC = () => {
                                   ? "Select Role*"
                                   : roleData?.find(
                                       (role) => role.role_id === field.value
-                                    )?.name || "Select Role*"}
+                                    )?.role_name || "Select Role*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -636,7 +646,7 @@ const StaffForm: React.FC = () => {
                                     key={sourceval.role_id}
                                     value={sourceval.role_id?.toString()}
                                   >
-                                    {sourceval.name}
+                                    {sourceval.role_name}
                                   </SelectItem>
                                 );
                               })
@@ -648,6 +658,38 @@ const StaffForm: React.FC = () => {
                           </SelectContent>
                         </Select>
                         {watcher.role_id ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={(value: statusEnum) =>
+                            form.setValue("status", value)
+                          }
+                          value={field.value as statusEnum}
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              disabled={field.value == "pending"}
+                              floatingLabel="Status*"
+                              className={`text-black`}
+                            >
+                              <SelectValue placeholder="Select Status*" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="pending">pending</SelectItem>
+                            <SelectItem value="active">active</SelectItem>
+                            <SelectItem value="inactive">inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />

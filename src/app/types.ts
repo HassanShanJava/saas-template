@@ -1,3 +1,4 @@
+import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
 export interface createRoleTypes {
@@ -434,7 +435,7 @@ export interface updateStatusInput {
 }
 
 export interface getRolesType {
-  name: string;
+  role_name: string;
   org_id: number;
   children?: getRolesType[];
   subRows?: getRolesType[];
@@ -570,7 +571,7 @@ export interface ServerResponseById {
   check_in?: string | null;
   last_online: string | null;
   coach_since: string | null; // ISO date string
-  coach_status: "pending" | "active" | "inactive" | undefined;
+  coach_status: "pending" | "active" | "inactive";
   org_id: number;
   bank_name?: string;
   iban_no?: string;
@@ -593,13 +594,14 @@ export interface StaffInputType {
   notes?: string;
   source_id: number;
   org_id: number;
+  status: statusEnum;
   role_id: number;
   country_id: number;
   city?: string;
   zipcode?: string;
   address_1?: string;
   address_2?: string;
-  // send_invitation?: boolean;
+  send_invitation?: boolean;
 }
 
 export interface StaffResponseType {

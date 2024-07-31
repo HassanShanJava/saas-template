@@ -157,7 +157,7 @@ export default function StaffTableView() {
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
-      header: "Coach Name",
+      header: "Staff Name",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -168,7 +168,7 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "coach_since",
-      header: "Coach Since",
+      header: "Staff Since",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">

@@ -24,6 +24,7 @@ import StaffForm from "./components/admin/staff/staffForm/form";
 import Coach from "./components/admin/coach"; 
 import CoachForm from "./components/admin/coach/coachForm/Form";
 import ExerciseForm from "./components/admin/exercises/form";
+import MealPlans from "./components/admin/meal_plans";
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -91,6 +92,7 @@ function App() {
             <Route path="/admin/staff/addStaff" index element={<StaffForm />} />
             <Route path="/admin/exercise/addexercise" index element={<ExerciseForm />} />
             <Route path="/admin/exercise/editexercise/:id" index element={<ExerciseForm />} />
+            <Route path="/admin/mealplans" index element={<MealPlans />} />
           </Route>
         </Route>
       </Routes>

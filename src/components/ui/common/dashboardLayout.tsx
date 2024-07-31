@@ -123,6 +123,12 @@ const navItems: NavItem[] = [
     dropdown: false,
   },
   {
+    name: "Meal Plans",
+    link: "/admin/mealplans",
+    icon: EventsIcon,
+    dropdown: false,
+  },
+  {
     name: "Manage",
     dropdown: true,
     icon: ManageIcon,

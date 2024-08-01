@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { Header } from "./header";
 import { Toaster } from "@/components/ui/toaster";
 import "./style.css";
+import { IoIosFitness } from "react-icons/io";
 
 import {
   Accordion,
@@ -117,6 +118,13 @@ const navItems: NavItem[] = [
     hiddenRoutes: ["/admin/coach/addcoach", "/admin/coach/editcoach"],
   },
   {
+    name: "Exercise",
+    link: "/admin/exercise",
+    icon: IoIosFitness,
+    dropdown: false,
+    // hiddenRoutes: ["/admin/coach/addcoach", "/admin/coach/editcoach"],
+  },
+  {
     name: "Roles & Access Management",
     link: "/admin/roles",
     icon: EventsIcon,
@@ -164,7 +172,6 @@ const navItems: NavItem[] = [
       },
     ],
   },
-  
 ];
 
 const DashboardLayout: React.FC = () => {

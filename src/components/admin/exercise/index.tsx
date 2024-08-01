@@ -1,10 +1,10 @@
 import { Card } from "@/components/ui/card";
-import CoachTableView from "./component/coachTable/table";
-export default function Coach() {
+import ExerciseTableView from "./component/table";
+export default function Exercise() {
   return (
     <div className="w-full p-12">
       <Card className="py-3">
-        <CoachTableView />
+        <ExerciseTableView />
       </Card>
     </div>
   );

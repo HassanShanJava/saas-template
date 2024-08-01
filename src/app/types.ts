@@ -80,9 +80,9 @@ export interface createMembershipType {
   renewal_details: renewalData | object;
   facilities: facilitiesData[] | [];
   created_by: number | null;
-  inv_days_cycle?:number|null;
-  auto_renew_days?:number|null;
-  prolongation_period?:number|null;
+  inv_days_cycle?: number | null;
+  auto_renew_days?: number | null;
+  prolongation_period?: number | null;
 }
 
 export interface membeshipsTableType extends createMembershipType {

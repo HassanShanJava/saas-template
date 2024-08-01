@@ -25,11 +25,9 @@ import { useDeleteStaffMutation } from "@/services/staffsApi";
 export function DataTableRowActions({
   data,
   refetch,
-  // handleEdit,
 }: {
   data: staffTypesResponseList & { id: number };
   refetch: () => void;
-  // handleEdit?: any;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const { toast } = useToast();
@@ -57,13 +55,13 @@ export function DataTableRowActions({
         const typedError = error as ErrorType;
         toast({
           variant: "destructive",
-          title: "Error in form Submission",
+          title: "Error in Submission",
           description: `${typedError.data?.detail}`,
         });
       } else {
         toast({
           variant: "destructive",
-          title: "Error in form Submission",
+          title: "Error in Submission",
           description: `Something Went Wrong.`,
         });
       }
@@ -87,10 +85,9 @@ export function DataTableRowActions({
           <DropdownMenuContent align="end" className="w-4">
             <DialogTrigger asChild>
               <DropdownMenuItem
-              // onClick={() => handleEdit(data)}
-              // onClick={() => {
-              //   navigate(`/admin/staff/editsatff/${data.id}`);
-              // }}
+                onClick={() => {
+                  navigate(`/admin/staff/editstaff/${data.id}`);
+                }}
               >
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit

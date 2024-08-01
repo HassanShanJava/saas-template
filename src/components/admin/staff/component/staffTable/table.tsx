@@ -55,7 +55,11 @@ import { useNavigate } from "react-router-dom";
 import { DataTableViewOptions } from "./data-table-view-options";
 import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { useGetStaffListQuery } from "@/services/staffsApi";
+import {
+  useGetStaffListQuery,
+  useUpdateStaffMutation,
+} from "@/services/staffsApi";
+import { statusEnum } from "../../staffForm/form";
 
 const downloadCSV = (data: staffTypesResponseList[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -68,6 +72,16 @@ const downloadCSV = (data: staffTypesResponseList[], fileName: string) => {
   document.body.removeChild(link);
 };
 
+const status = [
+  { value: "active", label: "Active", color: "bg-green-500" },
+  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
+  { value: "pending", label: "Pending", color: "bg-orange-500" },
+];
+enum genderEnum {
+  male = "male",
+  female = "female",
+  other = "other",
+}
 export default function StaffTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -81,6 +95,7 @@ export default function StaffTableView() {
     error,
   } = useGetStaffListQuery(orgId);
 
+  const [updateStaff] = useUpdateStaffMutation();
   function handleRoute() {
     navigate("/admin/staff/addstaff");
   }
@@ -119,6 +134,69 @@ export default function StaffTableView() {
   const displayValue = (value: string | undefined | null) =>
     value == null || value == "" ? "N/A" : value;
 
+  const displayDate = (value: any) => {
+    if (!value) {
+      return "N/A";
+    }
+    const date = new Date(value);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const year = date.getFullYear();
+    console.log(day, month, year);
+    return `${day}-${month}-${year}`;
+  };
+
+  const handleStatusChange = async (payload: {
+    own_staff_id: string;
+    status: statusEnum;
+    id: number;
+    org_id: number;
+    first_name: string;
+    last_name: string;
+    gender: genderEnum;
+    dob: string;
+    email: string;
+    source_id: number;
+    role_id: number;
+    country_id: number;
+  }) => {
+    console.log("handle change status", { payload });
+
+    try {
+      if (payload.status == "pending") {
+        toast({
+          variant: "destructive",
+          title: "Only Active/Inactive",
+        });
+        return;
+      }
+      const resp = await updateStaff(payload).unwrap();
+      refetch();
+      if (resp) {
+        console.log({ resp });
+        toast({
+          variant: "success",
+          title: "Updated Successfully",
+        });
+      }
+    } catch (error) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
+  };
   const columns: ColumnDef<staffTypesResponseList>[] = [
     {
       id: "select",
@@ -167,68 +245,98 @@ export default function StaffTableView() {
       },
     },
     {
-      accessorKey: "coach_since",
+      accessorKey: "activated_on",
       header: "Staff Since",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {/* {displayDate(row?.original.coach_since)} */}
+            {displayDate(row?.original.activated_on)}
           </div>
         );
       },
     },
-    // {
-    //   accessorKey: "coach_status",
-    //   header: ({ table }) => <span>Status</span>,
-    //   cell: ({ row }) => {
-    //     const value =
-    //       row.original?.coach_status != null
-    //         ? row.original?.coach_status + ""
-    //         : "pending";
-    //     console.log("value of status", value);
-    //     const statusLabel = status.filter((r) => r.value === value)[0];
-    //     const id = Number(row.original.id);
-    //     const org_id = Number(row.original.org_id);
-
-    //     return (
-    //       <Select
-    //         defaultValue={value}
-    //         onValueChange={(e) =>
-    //           handleStatusChange({ coach_status: e, id: id, org_id: org_id })
-    //         }
-    //         disabled={value == "pending"}
-    //       >
-    //         <SelectTrigger>
-    //           <SelectValue placeholder="Status" className="text-gray-400">
-    //             <span className="flex gap-2 items-center">
-    //               <span
-    //                 className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
-    //               ></span>
-    //               <span>{statusLabel?.label}</span>
-    //             </span>
-    //           </SelectValue>
-    //         </SelectTrigger>
-    //         <SelectContent>
-    //           {status.map((item: any) => (
-    //             <SelectItem key={item.value + ""} value={item.value + ""}>
-    //               {item.label}
-    //             </SelectItem>
-    //           ))}
-    //         </SelectContent>
-    //       </Select>
-    //     );
-    //   },
-    //   enableSorting: false,
-    //   enableHiding: false,
-    // },
     {
-      accessorKey: "check_in",
-      header: "Last Check In",
+      accessorKey: "role_name",
+      header: "Role",
       cell: ({ row }) => {
-        // console.log(row?.original.check_in);
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {/* {displayValue(row?.original.check_in)} */}--
+            {displayValue(row?.original.role_name)}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.status)}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: ({ table }) => <span>Status</span>,
+      cell: ({ row }) => {
+        const value =
+          row.original?.status != null ? row.original?.status + "" : "pending";
+        console.log("value of status", value);
+        const statusLabel = status.filter((r) => r.value === value)[0];
+        const id = Number(row.original.id);
+        const org_id = Number(row.original.org_id);
+
+        return (
+          <Select
+            defaultValue={value}
+            onValueChange={(e: statusEnum) =>
+              handleStatusChange({
+                status: e,
+                id: id,
+                org_id: org_id,
+                own_staff_id: row.original?.own_staff_id,
+                first_name: row.original?.first_name,
+                last_name: row.original?.last_name,
+                gender: row.original?.gender,
+                dob: row.original?.dob,
+                email: row.original?.email,
+                source_id: row.original?.source_id,
+                role_id: row.original?.role_id,
+                country_id: row.original?.country_id,
+              })
+            }
+            disabled={value == "pending"}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Status" className="text-gray-400">
+                <span className="flex gap-2 items-center">
+                  <span
+                    className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
+                  ></span>
+                  <span>{statusLabel?.label}</span>
+                </span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {status.map((item: any) => (
+                <SelectItem key={item.value + ""} value={item.value + ""}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      },
+    },
+    {
+      accessorKey: "last_checkin",
+      header: "Last Check In",
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.last_checkin)}
           </div>
         );
       },
@@ -239,8 +347,7 @@ export default function StaffTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {/* {displayValue(row?.original.last_online)} */}
-            --
+            {displayValue(row?.original.last_online)}
           </div>
         );
       },

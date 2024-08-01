@@ -582,6 +582,7 @@ export interface ServerResponseById {
 }
 
 export interface StaffInputType {
+  id?: number;
   profile_img?: string;
   own_staff_id: string;
   first_name: string;
@@ -590,7 +591,7 @@ export interface StaffInputType {
   dob: string;
   email: string;
   phone?: string;
-  mobile?: string;
+  mobile_number?: string;
   notes?: string;
   source_id: number;
   org_id: number;
@@ -613,7 +614,7 @@ export interface StaffResponseType {
   dob: string;
   email: string;
   phone?: string;
-  mobile?: string;
+  mobile_number?: string;
   notes?: string;
   source_id: number;
   org_id: number;
@@ -623,16 +624,38 @@ export interface StaffResponseType {
   zipcode?: string;
   address_1?: string;
   address_2?: string;
+  status?: statusEnum;
+  send_invitation?: boolean;
+  id: number;
+  activated_on?: string;
+  last_online?: string;
+  last_checkin?: string;
 }
 
 export interface staffTypesResponseList {
-  id: number;
   own_staff_id: string;
+  profile_img?: string;
   first_name: string;
   last_name: string;
+  gender: genderEnum;
+  dob: string;
   email: string;
-  mobile?: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  org_id: number;
   role_id: number;
+  country_id: number;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  status?: statusEnum;
+  send_invitation?: boolean;
+  id: number;
   role_name: string;
-  profile_img: string;
+  activated_on?: string;
+  last_online?: string;
+  last_checkin?: string;
 }

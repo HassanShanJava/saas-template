@@ -166,13 +166,13 @@ export default function CoachTableView() {
         const typedError = error as ErrorType;
         toast({
           variant: "destructive",
-          title: "Error in form Submission",
+          title: "Error in Submission",
           description: `${typedError.data?.detail}`,
         });
       } else {
         toast({
           variant: "destructive",
-          title: "Error in form Submission",
+          title: "Error in Submission",
           description: `Something Went Wrong.`,
         });
       }

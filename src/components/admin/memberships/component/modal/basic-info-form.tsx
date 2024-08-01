@@ -286,10 +286,10 @@ const BasicInfoForm = () => {
                       ))}
                     <Separator className=" h-[1px] font-thin rounded-full" />
                     <div
-                      className="flex items-center gap-2 p-2 cursor-pointer"
+                      className="flex items-center gap-2 p-2 cursor-pointer text-sm"
                       onClick={() => setAddGroup(true)}
                     >
-                      <i className="fa fa-plus text-primary"></i>
+                      <i className="fa fa-plus text-primary "></i>
                       Add Group
                     </div>
                     {isAddGroup && (
@@ -443,8 +443,10 @@ const BasicInfoForm = () => {
                     </span>
                   )}
                   <SelectContent>
-                    <SelectItem value={"weekly"}>Week</SelectItem>
+                    <SelectItem value={"weekly"}>week</SelectItem>
                     <SelectItem value={"monthly"}>Month</SelectItem>
+                    <SelectItem value={"quarterly"}>Quarter</SelectItem>
+                    <SelectItem value={"bi_annually"}>Bi-Annual</SelectItem>
                     <SelectItem value={"yearly"}>Year</SelectItem>
                   </SelectContent>
                 </Select>
@@ -454,7 +456,7 @@ const BasicInfoForm = () => {
           <FloatingLabelInput
             id="duration_no"
             type="number"
-            className="w-20 number-input"
+            className="w-20 "
             {...register("duration_no", { required: "Required" })}
             error={errors.duration_no?.message}
           />

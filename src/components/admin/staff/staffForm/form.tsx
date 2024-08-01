@@ -482,7 +482,7 @@ const StaffForm: React.FC = () => {
                                       )}
                                     >
                                       {field.value ? (
-                                        format(field.value, "PPP")
+                                        format(field.value, "dd-MM-yyyy")
                                       ) : (
                                         <span>Date of Birth*</span>
                                       )}

@@ -72,6 +72,7 @@ export const Header = () => {
     navigate("/");
   };
 
+
   return (
     <header className="font-poppins sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
       <div className="flex w-full justify-between items-center gap-4">
@@ -95,6 +96,7 @@ export const Header = () => {
               />
               <PageTitle
                 currentPath={location.pathname.replace(
+                  //eslint-disable-next-line
                   /(\/[^\/]+\/editmember)\/\d+$/,
                   "$1"
                 )}
@@ -113,6 +115,7 @@ export const Header = () => {
               />
               <PageTitle
                 currentPath={location.pathname.replace(
+                  //eslint-disable-next-line
                   /(\/[^\/]+\/editcoach)\/\d+$/,
                   "$1"
                 )}
@@ -201,6 +204,7 @@ export const Header = () => {
 
             <Breadcrumb
               currentPath={location.pathname.replace(
+                //eslint-disable-next-line
                 /(\/[^\/]+\/editmember)\/\d+$/,
                 "$1"
               )}
@@ -211,6 +215,7 @@ export const Header = () => {
 
             <Breadcrumb
               currentPath={location.pathname.replace(
+                //eslint-disable-next-line
                 /(\/[^\/]+\/editstaff)\/\d+$/,
                 "$1"
               )}
@@ -221,6 +226,7 @@ export const Header = () => {
 
             <Breadcrumb
               currentPath={location.pathname.replace(
+                //eslint-disable-next-line
                 /(\/[^\/]+\/editcoach)\/\d+$/,
                 "$1"
               )}
@@ -230,6 +236,7 @@ export const Header = () => {
             />
             <Breadcrumb
               currentPath={location.pathname.replace(
+                //eslint-disable-next-line
                 /(\/[^\/]+\/addcoach)\/\d+$/,
                 "$1"
               )}

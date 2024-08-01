@@ -23,12 +23,13 @@ import {
 } from "@/components/ui/table";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 import {
   Form,
@@ -114,6 +115,14 @@ export default function CreditsTableView() {
     }
     setFormData((prevData) => {
       const updatedData = { ...prevData, [name]: finalValue };
+      console.log("After update:", updatedData);
+      return updatedData;
+    });
+  };
+
+  const handleStatusOnChange = (value: string) => {
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, status: value === "true" };
       console.log("After update:", updatedData);
       return updatedData;
     });
@@ -563,6 +572,7 @@ export default function CreditsTableView() {
         refetch={refetch}
         setFormData={setFormData}
         handleOnChange={handleOnChange}
+        handleStatusOnChange={handleStatusOnChange}
       />
     </div>
   );
@@ -584,6 +594,7 @@ const CreditForm = ({
   refetch,
   setFormData,
   handleOnChange,
+  handleStatusOnChange,
 }: {
   data: createFormData;
   isDialogOpen: boolean;
@@ -591,6 +602,7 @@ const CreditForm = ({
   refetch?: any;
   setFormData?: any;
   handleOnChange?: any;
+  handleStatusOnChange?: any;
 }) => {
   const { toast } = useToast();
   // const [formData, setFormData] = useState(data);
@@ -684,7 +696,7 @@ const CreditForm = ({
 
   return (
     <div>
-      <Dialog
+      <Sheet
         open={isDialogOpen}
         onOpenChange={() => {
           setFormData((prev: createFormData) => ({
@@ -703,12 +715,12 @@ const CreditForm = ({
         }}
       >
         {/* <DialogTrigger>Open</DialogTrigger> */}
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {formData.case == "add" ? "Add" : "Edit"} Credit
-            </DialogTitle>
-            <DialogDescription>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
+              {formData.case == "add" ? "Create" : "Edit"} Credit
+            </SheetTitle>
+            <SheetDescription>
               <>
                 <Form {...form}>
                   <form
@@ -724,7 +736,7 @@ const CreditForm = ({
                             {...field}
                             id="name"
                             name="name"
-                            label="Credit Name"
+                            label="Credit Name*"
                             value={field.value ?? ""}
                             onChange={handleOnChange}
                           />
@@ -744,8 +756,8 @@ const CreditForm = ({
                             name="min_limit"
                             min={1}
                             type="number"
-                            className="number-input"
-                            label="Min Requred Limit"
+                            className=""
+                            label="Min Requred Limit*"
                             value={field.value ?? 1}
                             onChange={handleOnChange}
                           />
@@ -763,11 +775,12 @@ const CreditForm = ({
                           <FormControl>
                             <Select
                               value={field.value ? "true" : "false"}
-                              onValueChange={(value) =>
-                                field.onChange(value === "true")
-                              }
+                              onValueChange={(value) => {
+                                field.onChange(value === "true");
+                                handleStatusOnChange(value);
+                              }}
                             >
-                              <SelectTrigger floatingLabel="Status">
+                              <SelectTrigger floatingLabel="Status*">
                                 <SelectValue placeholder="">
                                   <span className="flex gap-2 items-center">
                                     <span
@@ -810,10 +823,10 @@ const CreditForm = ({
                   </form>
                 </Form>
               </>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

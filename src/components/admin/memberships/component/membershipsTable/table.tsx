@@ -253,9 +253,7 @@ export default function MembershipsTableView() {
       accessorKey: "duration",
       header: ({ table }) => <span>Duration</span>,
       cell: ({ row }) => {
-        const { duration_no, duration_type } = row.original
-          .access_time as AccessTime;
-        console.log({ duration_no, duration_type });
+        const { duration_no, duration_type } = row.original.access_time as AccessTime;
         return <span>{`${duration_no} ${durationLabels[duration_type]}`}</span>;
       },
       enableSorting: false,

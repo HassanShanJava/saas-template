@@ -23,12 +23,13 @@ import {
 } from "@/components/ui/table";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 import {
   Form,
@@ -648,7 +649,7 @@ const IncomeCategoryForm = ({
 
   return (
     <div>
-      <Dialog
+      <Sheet
         open={isDialogOpen}
         onOpenChange={() => {
           setFormData((prev: incomeCategoryFromData) => ({
@@ -665,12 +666,12 @@ const IncomeCategoryForm = ({
         }}
       >
         {/* <DialogTrigger>Open</DialogTrigger> */}
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
               {formData.case == "add" ? "Create" : "Edit"} Income Category
-            </DialogTitle>
-            <DialogDescription>
+            </SheetTitle>
+            <SheetDescription>
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
@@ -685,7 +686,7 @@ const IncomeCategoryForm = ({
                           {...field}
                           id="name"
                           name="name"
-                          label="Category Name"
+                          label="Category Name*"
                           value={field.value ?? ""}
                           onChange={handleOnChange}
                         />
@@ -707,7 +708,7 @@ const IncomeCategoryForm = ({
                           min={1}
                           step={".1"}
                           max={100}
-                          className="number-input"
+                          className=""
                           label="Percentage"
                           value={field.value ?? 1}
                           onChange={handleOnChange}
@@ -730,7 +731,7 @@ const IncomeCategoryForm = ({
                             defaultValue={field.value?.toString()}
                           >
                             <FormControl>
-                              <SelectTrigger floatingLabel="Default Tax/VAT">
+                              <SelectTrigger floatingLabel="Default Tax/VAT*">
                                 <SelectValue placeholder="Select Tax/VAT" />
                               </SelectTrigger>
                             </FormControl>
@@ -768,10 +769,10 @@ const IncomeCategoryForm = ({
                   </LoadingButton>
                 </form>
               </Form>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

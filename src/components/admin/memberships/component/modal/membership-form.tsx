@@ -19,7 +19,15 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { ErrorType, membeshipsTableType } from "@/app/types";
-import { DialogTitle } from "@radix-ui/react-dialog";
+
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 // import { motion, AnimatePresence } from 'framer-motion';
 
@@ -82,9 +90,9 @@ const defaultValue = {
   reg_fee: null,
   billing_cycle: "",
   auto_renewal: false,
-  prolongation_period: null,
-  days_before: null,
-  next_invoice: null,
+  prolongation_period: undefined,
+  days_before: undefined,
+  next_invoice: undefined,
   renewal_details: {},
   facilities: [],
   id: null,
@@ -137,8 +145,10 @@ const MembershipForm = ({
         ...data?.access_time,
         ...data?.renewal_details,
       };
-      reset(updatedObject);
+      console.log({ updatedObject }, "edit");
+      reset(updatedObject as StepperFormValues);
     } else {
+      console.log({ defaultValue }, "add");
       reset(defaultValue, { keepIsSubmitted: false, keepSubmitCount: false });
     }
   }, [data, action]);
@@ -173,7 +183,10 @@ const MembershipForm = ({
     }
 
     if (payload.facilities.length > 0) {
-      let check = false;
+      const validate: { check: boolean; reason: string } = {
+        check: false,
+        reason: "",
+      };
 
       payload.facilities.forEach((item) => {
         if (item.validity.duration_type === "contract_duration") {
@@ -182,27 +195,52 @@ const MembershipForm = ({
 
         if (
           item.validity.duration_no == undefined ||
-          item.validity.duration_type == undefined
+          item.validity.duration_no == null
         ) {
-          check = true;
+          validate.check = true;
+          validate.reason = "Validity is required";
+        }
+
+        if (item.validity.duration_type == undefined) {
+          validate.check = true;
+          validate.reason = "Validity is required";
+        }
+
+        if (
+          item.validity.duration_type !== null &&
+          item.validity.duration_type !== "" &&
+          item.validity.duration_no !== null
+        ) {
+          if (
+            getDaysCheck(
+              payload.duration_no as number,
+              payload.duration_type as string,
+              item.validity.duration_no as number,
+              item.validity.duration_type as string
+            )
+          ) {
+            validate.check = true;
+            validate.reason = "Validity cannot be greater than duration";
+          }
         }
       });
 
-      if (check) {
+      if (validate.check) {
         toast({
           variant: "destructive",
-          title: "Validity is required",
+          title: validate.reason,
         });
         return;
       }
-    }else{
+    } else {
+      console.log({ payload }, "check credits");
+
       toast({
         variant: "destructive",
         title: "Select at least one credit detail",
       });
       return;
     }
-
     console.log({ payload }, action);
 
     try {
@@ -321,12 +359,13 @@ const MembershipForm = ({
   };
 
   return (
-    <Dialog open={isOpen}>
-      <DialogContent
-        className={`w-full max-w-[1050px] flex flex-col !py-3`}
+    <Sheet open={isOpen}>
+      <SheetContent
+        className={`w-full !max-w-[1050px] flex flex-col !py-3`}
         hideCloseButton
+        onOpenAutoFocus={(e:Event) => e.preventDefault()}
       >
-        <DialogTitle className="absolute  !display-none"></DialogTitle>
+        <SheetTitle className="absolute  !display-none"></SheetTitle>
         <FormProvider {...methods}>
           <div className="flex justify-between gap-5 items-start h-[82px] pl-8  ">
             <StepperIndicator
@@ -396,8 +435,8 @@ const MembershipForm = ({
             </AnimatePresence> */}
           </form>
         </FormProvider>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
 
@@ -415,4 +454,39 @@ function convertStringNumbersToObject(obj: any): void {
       convertStringNumbersToObject(obj[key!]);
     }
   });
+}
+
+// for validation
+
+function getDays(durationNo: number, durationType: string):number {
+  console.log({ durationType, durationNo });
+  switch (durationType) {
+    case "weekly":
+      return durationNo * 7; // 7 days per week
+    case "monthly":
+      return durationNo * 30; // Approximate average days in a month
+    case "quarterly":
+      return durationNo * 120; // Approximate average days in 4 months
+    case "yearly":
+      return durationNo * 365; // Approximate days in a year
+    case "bi_annually":
+      return durationNo * 182; // Approximate days in 6 months
+    case "contract_duration":
+      return durationNo * 0; // Approximate days in 6 months
+    default:
+      return 0
+  }
+}
+
+function getDaysCheck(
+  durationNo: number,
+  durationType: string,
+  itemdurationNo: number,
+  itemdurationType: string
+): boolean {
+  const memberShipDays:number = getDays(durationNo, durationType);
+  const creditsDays:number = getDays(itemdurationNo, itemdurationType);
+
+  console.log({ creditsDays, memberShipDays });
+  return memberShipDays < creditsDays;
 }

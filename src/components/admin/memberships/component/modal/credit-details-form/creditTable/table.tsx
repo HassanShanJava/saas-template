@@ -76,12 +76,6 @@ export default function CreditsTableView({
   const { data: creditsData, isLoading } = useGetCreditsQuery(orgId);
   const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
 
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-  };
-
-  const [count, setCount] = useState(1);
   const creditstableData = React.useMemo(() => {
     return Array.isArray(creditsData) ? creditsData : [];
   }, [creditsData]);
@@ -91,6 +85,7 @@ export default function CreditsTableView({
   const [transformedCredits, setTransformedCredits] = useState<
     tranformData[] | undefined
   >([]);
+
   const [payload, setPayload] = useState<facilitiesData[]>(getValues("facilities")?getValues("facilities"):[]);
 
   useEffect(() => {
@@ -104,11 +99,11 @@ export default function CreditsTableView({
         duration_no: undefined,
       },
     }));
+
     console.log({data})
     
 
     if(payload.length>0 ){
-
       const newRowSelection: Record<number,boolean> = {};
       payload.forEach(item => {
         const index = findIndex(item.id,creditsData as creditTablestypes[]);
@@ -117,23 +112,24 @@ export default function CreditsTableView({
         }
       });
       
-      const result = payload.map((item1) => {
-        const item2 = data?.find(item2 => item2.id === item1.id);
-
-        if (item2) {
-          const count = item1.total_credits as number / item2.credits;
+      const result = data?.map((item) => {
+        const updatedItem = payload.find(payloadItem => payloadItem.id === item.id);
+  
+        if (updatedItem) {
+          const count = updatedItem.total_credits as number / item.credits;
           return {
-            ...item1,
+            ...item,
+            ...updatedItem,
             count: count,
-            credits: item2.credits,
-            total_credits: item1.total_credits,
+            credits: item.credits,
           };
         }
-
-        return item1;
-      });
+  
+        return item;
+      }) || [];
 
       setRowSelection(newRowSelection)
+      console.log({result})
       setTransformedCredits(result as tranformData[]);
     }else{
       setTransformedCredits(data);
@@ -157,7 +153,6 @@ export default function CreditsTableView({
     id: number,
     key: string
   ) => {
-    e.preventDefault();
     const { value } = e.target;
     console.log(value, id, key, "input change");
 
@@ -256,6 +251,7 @@ export default function CreditsTableView({
     });
   };
 
+  console.log({transformedCredits})
   const columns: ColumnDef<creditDetailsTablestypes>[] = [
     {
       id: "select",
@@ -343,7 +339,8 @@ export default function CreditsTableView({
               type="number"
               min={1}
               max={15}
-              className="number-input w-10"
+              className=" w-20"
+              autoFocus
               value={creditData?.validity?.duration_no || ""}
               onChange={(e) => handleChangeRowInput(e, id, "duration_no")}
             />}
@@ -358,6 +355,7 @@ export default function CreditsTableView({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={"contract_duration"}>Contract Duration</SelectItem>
+                <SelectItem value={"weekly"}>Weekly</SelectItem>
                 <SelectItem value={"monthly"}>Monthly</SelectItem>
                 <SelectItem value={"quarterly"}>Quarterly</SelectItem>
                 <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem>

@@ -66,6 +66,7 @@ import {
   MemberInputTypes,
   membershipplanTypes,
   membeshipsTableType,
+  renewalData,
   sourceTypes,
 } from "@/app/types";
 
@@ -148,66 +149,59 @@ const MemberForm: React.FC = () => {
         )
         .optional(),
       own_member_id: z.string({
-        required_error: "Own Member Id Required.",
+        required_error: "Required",
       }),
       first_name: z
         .string({
-          required_error: "Firstname Required.",
+          required_error: "Required",
         })
         .trim()
-        .min(3, { message: "First Name Is Required." }),
+        .min(3, { message: "Required" }),
       last_name: z
         .string({
-          required_error: "Lastname Required.",
+          required_error: "Required",
         })
         .trim()
-        .min(3, { message: "Last Name Is Required" }),
+        .min(3, { message: "Required" }),
       gender: z.nativeEnum(genderEnum, {
-        required_error: "You need to select a gender type.",
+        required_error: "Required",
       }),
       dob: z.coerce.string({
-        required_error: "Date of birth is required.",
+        required_error: "Required",
       }),
       email: z
         .string()
         .email({ message: "Invalid email" })
-        .min(4, { message: "Email is Required" }),
+        .min(4, { message: "Required" }),
       phone: z.string().trim().optional(),
       mobile_number: z.string().trim().optional(),
       notes: z.string().optional(),
       source_id: z.number({
-        required_error: "Source Required.",
+        required_error: "Required",
       }),
       is_business: z.boolean().default(false),
       business_id: z.coerce.number().optional(),
       country_id: z
         .number({
-          required_error: "Country Required.",
+          required_error: "Required",
         })
         .refine((val) => val !== 0, {
-          message: "Country is required",
+          message: "Required",
         }),
-      city: z
-        .string({
-          required_error: "City Required.",
-        })
-        .trim()
-        .min(3, {
-          message: "City Required.",
-        }),
+      city: z.string().trim().optional(),
       zipcode: z.string().trim().optional(),
       address_1: z.string().optional(),
       address_2: z.string().optional(),
       org_id: z
         .number({
-          required_error: "Org id is required",
+          required_error: "Required",
         })
         .default(orgId),
       coach_id: z.number({
-        required_error: "Coach is required",
+        required_error: "Required",
       }),
-      membership_plan_id: z.coerce.number({
-        required_error: "Membership plan is required.",
+      membership_plan_id: z.number({
+        required_error: "Required",
       }),
       send_invitation: z.boolean().default(true).optional(),
       auto_renewal: z.boolean().default(false).optional(),
@@ -244,7 +238,7 @@ const MemberForm: React.FC = () => {
     );
 
   // conditional fetching
-  const { data: memberCountData, refetch } = useGetMemberCountQuery(orgId, {
+  const { data: memberCountData } = useGetMemberCountQuery(orgId, {
     skip: id !== undefined,
   });
   const { data: memberData } = useGetMemberByIdQuery(Number(id), {
@@ -294,8 +288,17 @@ const MemberForm: React.FC = () => {
         }
       }
     } else {
-      setInitialValues(memberData as MemberInputTypes);
-      form.reset(memberData);
+        const initialValue={...memberData}
+        const data = membershipPlans?.filter((item) => item.id == memberData.membership_plan_id)[0];
+        const renewalDetails = data?.renewal_details as renewalData;
+        initialValue.auto_renewal=data?.auto_renewal ?? false;  
+        if(initialValue?.auto_renewal){
+          initialValue.prolongation_period=renewalDetails?.prolongation_period as number| undefined ?? undefined         
+          initialValue.auto_renew_days=renewalDetails?.days_before as number| undefined ?? undefined
+          initialValue.inv_days_cycle=renewalDetails?.next_invoice as number| undefined ?? undefined
+        }
+        setInitialValues(initialValue as MemberInputTypes);
+        form.reset(initialValue);
     }
   }, [memberData, memberCountData, orgName]);
 
@@ -303,7 +306,22 @@ const MemberForm: React.FC = () => {
   const handleMembershipPlanChange = (value: number) => {
     form.setValue("membership_plan_id", value);
     const data = membershipPlans?.filter((item) => item.id == value)[0];
+    const renewalDetails = data?.renewal_details as renewalData;
     form.setValue("auto_renewal", data?.auto_renewal);
+    if (data?.auto_renewal) {
+      form.setValue(
+        "prolongation_period",
+        renewalDetails?.prolongation_period ?? undefined
+      );
+      form.setValue(
+        "auto_renew_days",
+        renewalDetails?.days_before ?? undefined
+      );
+      form.setValue(
+        "inv_days_cycle",
+        renewalDetails?.next_invoice ?? undefined
+      );
+    }
   };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -315,12 +333,11 @@ const MemberForm: React.FC = () => {
       if (id == undefined || id == null) {
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
-          refetch();
           toast({
             variant: "success",
             title: "Added Successfully ",
           });
-          navigate("/admin/members");
+          navigate("/admin/members/");
         }
       } else {
         const resp = await editMember({
@@ -328,7 +345,6 @@ const MemberForm: React.FC = () => {
           id: Number(id),
         }).unwrap();
         if (resp) {
-          refetch();
           toast({
             variant: "success",
             title: "Updated Successfully ",
@@ -359,7 +375,7 @@ const MemberForm: React.FC = () => {
     navigate("/admin/members");
   }
 
-  console.log({ watcher, memberError }, isNaN(Number(id)));
+  console.log({ watcher, memberError });
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -433,6 +449,7 @@ const MemberForm: React.FC = () => {
                           {...field}
                           id="own_member_id"
                           label="Member Id"
+                          className=""
                         />
                         {watcher.own_member_id ? <></> : <FormMessage />}
                       </FormItem>
@@ -449,6 +466,7 @@ const MemberForm: React.FC = () => {
                           {...field}
                           id="first_name"
                           label="First Name*"
+                          className=""
                         />
                         {watcher.first_name ? <></> : <FormMessage />}
                       </FormItem>
@@ -465,6 +483,7 @@ const MemberForm: React.FC = () => {
                           {...field}
                           id="last_name"
                           label="Last Name*"
+                          className=""
                         />
                         {watcher.last_name ? <></> : <FormMessage />}
                       </FormItem>
@@ -488,10 +507,13 @@ const MemberForm: React.FC = () => {
                               floatingLabel="Gender*"
                               className={`text-black`}
                             >
-                              <SelectValue placeholder="Select Gender" />
+                              <SelectValue
+                                placeholder="Select Gender"
+                                className=""
+                              />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="">
                             <SelectItem value="male">Male</SelectItem>
                             <SelectItem value="female">Female</SelectItem>
                             <SelectItem value="other">Other</SelectItem>
@@ -517,14 +539,16 @@ const MemberForm: React.FC = () => {
                                     <Button
                                       variant={"outline"}
                                       className={cn(
-                                        "w-full pl-3 text-left font-normal",
+                                        "w-full pl-3 text-left font-normal ",
                                         !field.value && "text-muted-foreground"
                                       )}
                                     >
                                       {field.value ? (
-                                        format(field.value, "PPP")
+                                        format(field.value, "dd-MM-yyyy")
                                       ) : (
-                                        <span>Date of Birth*</span>
+                                        <span className="font-medium text-gray-400">
+                                          Date of Birth*
+                                        </span>
                                       )}
                                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                     </Button>
@@ -569,6 +593,7 @@ const MemberForm: React.FC = () => {
                         <FloatingLabelInput
                           {...field}
                           id="email"
+                          className=""
                           label="Email Address*"
                         />
                         {watcher.email ? <></> : <FormMessage />}
@@ -586,6 +611,7 @@ const MemberForm: React.FC = () => {
                           {...field}
                           id="phone"
                           label="Landline Number"
+                          className=""
                         />
                         {watcher.phone ? <></> : <FormMessage />}
                       </FormItem>
@@ -602,6 +628,7 @@ const MemberForm: React.FC = () => {
                           {...field}
                           id="mobile_number"
                           label="Mobile Number"
+                          className=""
                         />
                         {watcher.mobile_number ? <></> : <FormMessage />}
                       </FormItem>
@@ -618,6 +645,7 @@ const MemberForm: React.FC = () => {
                           {...field}
                           id="notes"
                           label="Notes"
+                          className=""
                         />
                         <FormMessage />
                       </FormItem>
@@ -638,10 +666,10 @@ const MemberForm: React.FC = () => {
                         >
                           <FormControl>
                             <SelectTrigger
-                              className={`${watcher.source_id ? "text-black" : ""}`}
+                              className={"font-medium text-gray-400 "}
                             >
                               <SelectValue
-                                className="text-black"
+                                className=""
                                 placeholder="Select Source*"
                               />
                             </SelectTrigger>
@@ -685,11 +713,10 @@ const MemberForm: React.FC = () => {
                           value={field.value?.toString()}
                         >
                           <FormControl>
-                            <SelectTrigger className={`text-black`}>
-                              <SelectValue
-                                className="text-black"
-                                placeholder="Select Coach*"
-                              />
+                            <SelectTrigger
+                              className={"font-medium text-gray-400 "}
+                            >
+                              <SelectValue placeholder="Select Coach*" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -724,7 +751,7 @@ const MemberForm: React.FC = () => {
                       control={form.control}
                       name="is_business"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row gap-3 items-center justify-between">
+                        <FormItem className="flex flex-row gap-3 items-center justify-between ">
                           <div className="space-y-0.5">
                             <FormLabel className="text-base">
                               Business :
@@ -762,11 +789,8 @@ const MemberForm: React.FC = () => {
                           value={field.value?.toString()}
                         >
                           <FormControl>
-                            <SelectTrigger className={`text-black`}>
-                              <SelectValue
-                                className="text-gray-400"
-                                placeholder="Select Business*"
-                              />
+                            <SelectTrigger className="font-medium text-gray-400">
+                              <SelectValue placeholder="Select Business*" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -816,6 +840,7 @@ const MemberForm: React.FC = () => {
                           {...field}
                           id="address_1"
                           label="Street Address"
+                          className=""
                         />
                         <FormMessage />
                       </FormItem>
@@ -832,6 +857,7 @@ const MemberForm: React.FC = () => {
                           {...field}
                           id="address_2"
                           label="Extra Address"
+                          className=""
                         />
                         <FormMessage />
                       </FormItem>
@@ -848,6 +874,7 @@ const MemberForm: React.FC = () => {
                           {...field}
                           id="zipcode"
                           label="Zip Code"
+                          className=""
                         />
                         <FormMessage className="" />
                       </FormItem>
@@ -867,9 +894,9 @@ const MemberForm: React.FC = () => {
                                 variant="outline"
                                 role="combobox"
                                 className={cn(
-                                  "justify-between !font-normal",
+                                  "justify-between ",
                                   !field.value &&
-                                    "text-muted-foreground focus:border-primary "
+                                    "font-medium text-gray-400 focus:border-primary "
                                 )}
                               >
                                 {field.value
@@ -882,12 +909,12 @@ const MemberForm: React.FC = () => {
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="p-0">
+                          <PopoverContent className="p-0  ">
                             <Command>
                               <CommandList>
                                 <CommandInput placeholder="Select Country" />
                                 <CommandEmpty>No country found.</CommandEmpty>
-                                <CommandGroup>
+                                <CommandGroup className="">
                                   {countries &&
                                     countries.map((country: CountryTypes) => (
                                       <CommandItem
@@ -931,7 +958,8 @@ const MemberForm: React.FC = () => {
                         <FloatingLabelInput
                           {...field}
                           id="city"
-                          label="City*"
+                          label="City"
+                          className=""
                         />
                         {watcher.city ? <></> : <FormMessage />}
                       </FormItem>
@@ -976,7 +1004,9 @@ const MemberForm: React.FC = () => {
                           value={field.value?.toString()}
                         >
                           <FormControl>
-                            <SelectTrigger className={`text-black`}>
+                            <SelectTrigger
+                              className={`font-medium text-gray-400`}
+                            >
                               <SelectValue
                                 className="text-gray-400"
                                 placeholder="Select membership plan*"
@@ -1034,15 +1064,6 @@ const MemberForm: React.FC = () => {
                       <FormField
                         control={form.control}
                         name="prolongation_period"
-                        rules={{
-                          validate: (value) => {
-                            // Ensure value is treated as a number for comparison
-                            return (
-                              Number(value) !== 0 ||
-                              "Memberhip Plan is Required"
-                            );
-                          },
-                        }}
                         render={({ field }) => {
                           console.log(form.formState.errors);
                           return (
@@ -1052,11 +1073,11 @@ const MemberForm: React.FC = () => {
                               </FormLabel>
                               <FloatingLabelInput
                                 {...field}
-                                id="min_limit"
+                                id="prolongation_period"
                                 type="number"
                                 min={1}
                                 name="min_limit"
-                                className="number-input w-10"
+                                className=" w-16"
                               />
                               {watcher.prolongation_period ? (
                                 <></>
@@ -1072,15 +1093,6 @@ const MemberForm: React.FC = () => {
                       <FormField
                         control={form.control}
                         name="auto_renew_days"
-                        rules={{
-                          validate: (value) => {
-                            // Ensure value is treated as a number for comparison
-                            return (
-                              Number(value) !== 0 ||
-                              "Memberhip Plan is Required"
-                            );
-                          },
-                        }}
                         render={({ field }) => {
                           return (
                             <FormItem className="flex h-10 items-center gap-3">
@@ -1089,11 +1101,11 @@ const MemberForm: React.FC = () => {
                               </FormLabel>
                               <FloatingLabelInput
                                 {...field}
-                                id="min_limit"
+                                id="auto_renew_days"
                                 type="number"
                                 min={1}
                                 name="min_limit"
-                                className="number-input w-10"
+                                className="w-16"
                               />
                               {watcher.auto_renew_days ? (
                                 <></>
@@ -1112,15 +1124,6 @@ const MemberForm: React.FC = () => {
                       <FormField
                         control={form.control}
                         name="inv_days_cycle"
-                        rules={{
-                          validate: (value) => {
-                            // Ensure value is treated as a number for comparison
-                            return (
-                              Number(value) !== 0 ||
-                              "Memberhip Plan is Required"
-                            );
-                          },
-                        }}
                         render={({ field }) => {
                           return (
                             <FormItem className="flex h-10 items-center gap-3">
@@ -1129,11 +1132,11 @@ const MemberForm: React.FC = () => {
                               </FormLabel>
                               <FloatingLabelInput
                                 {...field}
-                                id="min_limit"
+                                id="inv_days_cycle"
                                 type="number"
                                 min={1}
                                 name="min_limit"
-                                className="number-input w-10"
+                                className="w-16"
                               />
                               {watcher.inv_days_cycle ? <></> : <FormMessage />}
                               <Label className="text-xs text-black/60">

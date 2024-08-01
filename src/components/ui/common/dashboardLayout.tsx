@@ -117,6 +117,12 @@ const navItems: NavItem[] = [
     hiddenRoutes: ["/admin/coach/addcoach", "/admin/coach/editcoach"],
   },
   {
+    name: "Roles & Access Management",
+    link: "/admin/roles",
+    icon: EventsIcon,
+    dropdown: false,
+  },
+  {
     name: "Manage",
     dropdown: true,
     icon: ManageIcon,
@@ -158,12 +164,7 @@ const navItems: NavItem[] = [
       },
     ],
   },
-  {
-    name: "Roles & Access Management",
-    link: "/admin/roles",
-    icon: EventsIcon,
-    dropdown: false,
-  },
+  
 ];
 
 const DashboardLayout: React.FC = () => {

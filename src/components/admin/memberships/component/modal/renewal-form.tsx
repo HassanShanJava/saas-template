@@ -48,7 +48,7 @@ const AutoRenewalForm = () => {
       <h1 className="font-semibold text-[#2D374] text-xl">
         Renewal and Billing Cycle
       </h1>
-      <div className="mt-3 flex gap-6 items-center">
+      <div className="mt-6 flex gap-6 items-center">
         <Controller
           name="auto_renewal"
           control={control}
@@ -74,7 +74,7 @@ const AutoRenewalForm = () => {
               id="prolongation_period"
               type="number"
               min={0}
-              className="w-20 number-input"
+              className="w-20 "
               {...register("prolongation_period", {
                 required: "Prolongation period is Required",
               })}
@@ -92,7 +92,7 @@ const AutoRenewalForm = () => {
               type="number"
               min={1}
               max={15}
-              className="w-20 number-input"
+              className="w-20 "
               {...register("days_before", { required: "Days are Required",
                 valueAsNumber: true,
                 validate: (value) =>
@@ -112,7 +112,7 @@ const AutoRenewalForm = () => {
               type="number"
               min={1}
               max={15}
-              className="w-20 number-input"
+              className="w-20 "
               {...register("next_invoice", {
                 required: "Days are Required",
                 valueAsNumber: true,

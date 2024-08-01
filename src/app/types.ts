@@ -37,8 +37,8 @@ export interface facilitiesData extends JSONObject {
   id: number;
   total_credits: number | null;
   validity: {
-    duration_type: string | undefined | null;
-    duration_no: number | undefined | null;
+    duration_type?: string | undefined | null;
+    duration_no?: number | null;
   };
 }
 
@@ -80,6 +80,9 @@ export interface createMembershipType {
   renewal_details: renewalData | object;
   facilities: facilitiesData[] | [];
   created_by: number | null;
+  inv_days_cycle?:number|null;
+  auto_renew_days?:number|null;
+  prolongation_period?:number|null;
 }
 
 export interface membeshipsTableType extends createMembershipType {
@@ -320,7 +323,7 @@ export interface MemberInputTypes {
   is_business?: boolean;
   business_id?: number;
   country_id?: number;
-  city: string;
+  city?: string;
   zipcode?: string;
   address_1?: string;
   address_2?: string;

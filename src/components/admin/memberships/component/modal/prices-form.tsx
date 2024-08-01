@@ -41,7 +41,7 @@ const PriceDiscountTaxForm = () => {
     setValue("income_category_id", value);
   };
 
-  const handleDiscountInput = (e:React.ChangeEvent<HTMLInputElement>) => {
+  const handleDiscountInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10);
     if (value > 99) {
       setValue("discount", 99);
@@ -103,7 +103,8 @@ const PriceDiscountTaxForm = () => {
           {...register("discount", {
             required: "Discount percentage is Required",
             valueAsNumber: true,
-            validate: (value) => value&&value <= 99 || "Value must be 99 or less",
+            validate: (value) =>
+              (value && value <= 99) || "Value must be 99 or less",
             onChange: handleDiscountInput,
           })}
           error={errors.discount?.message}
@@ -151,10 +152,8 @@ const PriceDiscountTaxForm = () => {
         <FloatingLabelInput
           id="tax_rate"
           disabled={true}
-          label="Tax/VAT Rate (%)*"
-          {...register("tax_rate", {
-            required: "Tax/VAT rate is Required",
-          })}
+          label="Tax/VAT Rate*"
+          value={getValues("tax_rate")?("Sales Tax "+getValues("tax_rate")+"%"):undefined}
           error={errors.tax_rate?.message}
         />
         <FloatingLabelInput
@@ -215,12 +214,10 @@ const PriceDiscountTaxForm = () => {
         />
         <FloatingLabelInput
           id="reg_fee"
-          label="Registration Fee*"
+          label="Registration Fee"
           type="number"
           min={0}
-          {...register("reg_fee", {
-            required: "Registration fee is Required",
-          })}
+          {...register("reg_fee")}
           error={errors.reg_fee?.message}
         />
         <Controller
@@ -250,9 +247,10 @@ const PriceDiscountTaxForm = () => {
                   </span>
                 )}
                 <SelectContent>
+                  <SelectItem value={"weekly"}>Weekly</SelectItem>
                   <SelectItem value={"monthly"}>Monthly</SelectItem>
                   <SelectItem value={"quarterly"}>Quarterly</SelectItem>
-                  <SelectItem value={"bi-annually"}>Bi-Annually</SelectItem>
+                  <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem>
                   <SelectItem value={"yearly"}>Yearly</SelectItem>
                 </SelectContent>
               </Select>

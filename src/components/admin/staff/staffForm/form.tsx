@@ -72,12 +72,19 @@ import {
   useAddStaffMutation,
   useGetStaffByIdQuery,
   useGetStaffCountQuery,
+  useUpdateStaffMutation,
 } from "@/services/staffsApi";
 
 enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
+}
+
+export enum statusEnum {
+  pending = "pending",
+  active = "active",
+  inactive = "inactive",
 }
 
 const StaffForm: React.FC = () => {
@@ -87,6 +94,14 @@ const StaffForm: React.FC = () => {
   );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+
+  const {
+    data: EditStaffData,
+    isLoading: editLoading,
+    refetch: editRefetch,
+  } = useGetStaffByIdQuery(Number(id), {
+    skip: isNaN(Number(id)),
+  });
 
   const initialState: StaffInputType = {
     profile_img:
@@ -102,6 +117,7 @@ const StaffForm: React.FC = () => {
     source_id: 0,
     country_id: 0,
     city: "",
+    status: statusEnum.pending,
   };
 
   const [initialValues, setInitialValues] =
@@ -148,7 +164,7 @@ const StaffForm: React.FC = () => {
       })
       .trim()
       .optional(),
-    mobile: z
+    mobile_number: z
       .string()
       .max(11, {
         message: "Cannot be greater than 11 digits",
@@ -170,6 +186,9 @@ const StaffForm: React.FC = () => {
       .refine((value) => value !== 0, {
         message: "Required",
       }),
+    status: z.nativeEnum(statusEnum, {
+      required_error: "You need to select a status.",
+    }),
     city: z.string().optional(),
     zipcode: z.string().trim().optional(),
     address_1: z.string().optional(),
@@ -195,10 +214,11 @@ const StaffForm: React.FC = () => {
   const { data: staffCount } = useGetStaffCountQuery(orgId, {
     skip: id == undefined ? false : true,
   });
-  const { data: staffData } = useGetStaffByIdQuery(Number(id), {
+  const { data: EditstaffData } = useGetStaffByIdQuery(Number(id), {
     skip: isNaN(Number(id)),
   });
   const [addStaff, { isLoading: staffLoading }] = useAddStaffMutation();
+  const [editStaff, { isLoading: editStaffLoading }] = useUpdateStaffMutation();
 
   const navigate = useNavigate();
 
@@ -223,7 +243,9 @@ const StaffForm: React.FC = () => {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: initialState,
+    defaultValues: {
+      ...initialState,
+    },
     mode: "onChange",
   });
 
@@ -248,11 +270,17 @@ const StaffForm: React.FC = () => {
           navigate("/admin/staff");
         }
       } else {
-        toast({
-          variant: "success",
-          title: "Staff Updated Successfully",
-        });
-        navigate("/admin/staff");
+        const resp = await editStaff({
+          ...updatedData,
+          id: Number(id),
+        }).unwrap();
+        if (resp) {
+          toast({
+            variant: "success",
+            title: "Staff Updated Successfully",
+          });
+          navigate("/admin/staff");
+        }
       }
     } catch (error: unknown) {
       console.error("Error", { error });
@@ -278,7 +306,7 @@ const StaffForm: React.FC = () => {
   }
 
   React.useEffect(() => {
-    if (!staffData) {
+    if (!EditStaffData) {
       if (orgName) {
         const total = staffCount?.total_staffs as number;
         if (total >= 0) {
@@ -286,10 +314,10 @@ const StaffForm: React.FC = () => {
         }
       }
     } else {
-      setInitialValues(staffData as StaffInputType);
-      form.reset(staffData);
+      setInitialValues(EditStaffData as StaffInputType);
+      form.reset(EditStaffData);
     }
-  }, [staffData, orgName, staffCount]);
+  }, [EditStaffData, orgName, staffCount]);
 
   return (
     <div className="p-6 bg-bgbackground">
@@ -329,6 +357,7 @@ const StaffForm: React.FC = () => {
                     <Button
                       type={"button"}
                       onClick={gotoStaff}
+                      disabled={staffLoading || editStaffLoading}
                       className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
@@ -338,10 +367,10 @@ const StaffForm: React.FC = () => {
                     <LoadingButton
                       type="submit"
                       className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                      loading={staffLoading}
-                      disabled={staffLoading}
+                      loading={staffLoading || editStaffLoading}
+                      disabled={staffLoading || editStaffLoading}
                     >
-                      {!staffLoading && (
+                      {!(staffLoading || editStaffLoading) && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
                       Save
@@ -501,6 +530,7 @@ const StaffForm: React.FC = () => {
                           {...field}
                           id="email"
                           label="Email Address*"
+                          disabled={typeof id === "number"}
                         />
                         {watcher.email ? <></> : <FormMessage />}
                       </FormItem>
@@ -526,12 +556,12 @@ const StaffForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="mobile"
+                    name="mobile_number"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="mobile"
+                          id="mobile_number"
                           label="Mobile Number"
                         />
                         {<FormMessage />}
@@ -624,7 +654,7 @@ const StaffForm: React.FC = () => {
                                   ? "Select Role*"
                                   : roleData?.find(
                                       (role) => role.role_id === field.value
-                                    )?.name || "Select Role*"}
+                                    )?.role_name || "Select Role*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -636,7 +666,7 @@ const StaffForm: React.FC = () => {
                                     key={sourceval.role_id}
                                     value={sourceval.role_id?.toString()}
                                   >
-                                    {sourceval.name}
+                                    {sourceval.role_name}
                                   </SelectItem>
                                 );
                               })
@@ -648,6 +678,38 @@ const StaffForm: React.FC = () => {
                           </SelectContent>
                         </Select>
                         {watcher.role_id ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={(value: statusEnum) =>
+                            form.setValue("status", value)
+                          }
+                          value={field.value as statusEnum}
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              disabled={field.value == "pending"}
+                              floatingLabel="Status*"
+                              className={`text-black`}
+                            >
+                              <SelectValue placeholder="Select Status*" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="pending">pending</SelectItem>
+                            <SelectItem value="active">active</SelectItem>
+                            <SelectItem value="inactive">inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />

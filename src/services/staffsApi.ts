@@ -63,6 +63,18 @@ export const StaffApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Staffs"],
     }),
+    updateStaff: builder.mutation<staffTypesResponseList, StaffInputType>({
+      query: (staffdata) => ({
+        url: "/staff/staffs",
+        method: "PUT",
+        body: staffdata,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }),
+      invalidatesTags: ["Staffs"],
+    }),
   }),
 });
 
@@ -72,4 +84,5 @@ export const {
   useAddStaffMutation,
   useGetStaffListQuery,
   useDeleteStaffMutation,
+  useUpdateStaffMutation
 } = StaffApi;

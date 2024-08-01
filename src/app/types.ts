@@ -1,3 +1,4 @@
+import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
 export interface createRoleTypes {
@@ -437,7 +438,7 @@ export interface updateStatusInput {
 }
 
 export interface getRolesType {
-  name: string;
+  role_name: string;
   org_id: number;
   children?: getRolesType[];
   subRows?: getRolesType[];
@@ -573,7 +574,7 @@ export interface ServerResponseById {
   check_in?: string | null;
   last_online: string | null;
   coach_since: string | null; // ISO date string
-  coach_status: "pending" | "active" | "inactive" | undefined;
+  coach_status: "pending" | "active" | "inactive";
   org_id: number;
   bank_name?: string;
   iban_no?: string;
@@ -584,6 +585,7 @@ export interface ServerResponseById {
 }
 
 export interface StaffInputType {
+  id?: number;
   profile_img?: string;
   own_staff_id: string;
   first_name: string;
@@ -592,17 +594,18 @@ export interface StaffInputType {
   dob: string;
   email: string;
   phone?: string;
-  mobile?: string;
+  mobile_number?: string;
   notes?: string;
   source_id: number;
   org_id: number;
+  status: statusEnum;
   role_id: number;
   country_id: number;
   city?: string;
   zipcode?: string;
   address_1?: string;
   address_2?: string;
-  // send_invitation?: boolean;
+  send_invitation?: boolean;
 }
 
 export interface StaffResponseType {
@@ -614,7 +617,7 @@ export interface StaffResponseType {
   dob: string;
   email: string;
   phone?: string;
-  mobile?: string;
+  mobile_number?: string;
   notes?: string;
   source_id: number;
   org_id: number;
@@ -624,16 +627,38 @@ export interface StaffResponseType {
   zipcode?: string;
   address_1?: string;
   address_2?: string;
+  status?: statusEnum;
+  send_invitation?: boolean;
+  id: number;
+  activated_on?: string;
+  last_online?: string;
+  last_checkin?: string;
 }
 
 export interface staffTypesResponseList {
-  id: number;
   own_staff_id: string;
+  profile_img?: string;
   first_name: string;
   last_name: string;
+  gender: genderEnum;
+  dob: string;
   email: string;
-  mobile?: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  org_id: number;
   role_id: number;
+  country_id: number;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  status?: statusEnum;
+  send_invitation?: boolean;
+  id: number;
   role_name: string;
-  profile_img: string;
+  activated_on?: string;
+  last_online?: string;
+  last_checkin?: string;
 }

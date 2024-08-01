@@ -123,6 +123,15 @@ export const Header = () => {
                 title="Edit Coach"
               />
 
+              <PageTitle
+                currentPath={location.pathname.replace(
+                  /(\/[^\/]+\/editstaff)\/\d+$/,
+                  "$1"
+                )}
+                targetPath="/admin/staff/editstaff"
+                title="Edit Staff"
+              />
+
               {/* <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/leads"

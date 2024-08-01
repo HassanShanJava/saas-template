@@ -134,7 +134,7 @@ const navItems: NavItem[] = [
         icon: "fa fa-user",
       },
     ],
-    hiddenRoutes: ["/admin/staff/addstaff"],
+    hiddenRoutes: ["/admin/staff/addstaff", "/admin/staff/editstaff"],
   },
   {
     name: "System Settings",

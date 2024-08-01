@@ -89,6 +89,12 @@ function App() {
               element={<StaffForm />}
             />
             <Route path="/admin/staff/addStaff" index element={<StaffForm />} />
+
+            <Route
+              path="/admin/staff/editstaff/:id"
+              index
+              element={<StaffForm />}
+            />
             <Route path="/admin/exercise/addexercise" index element={<ExerciseForm />} />
             <Route path="/admin/exercise/editexercise/:id" index element={<ExerciseForm />} />
           </Route>

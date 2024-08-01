@@ -25,6 +25,7 @@ import Coach from "./components/admin/coach";
 import CoachForm from "./components/admin/coach/coachForm/Form";
 import ExerciseForm from "./components/admin/exercise/form/form";
 import Exercise from "./components/admin/exercise";
+import FileUploadComponent from "./components/admin/test/FileUploadComponent";
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -35,6 +36,7 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<AuthenticationPage />} />
+        <Route path="/test" element={<FileUploadComponent/>} />
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/admin" element={<DashboardLayout />}>
             <Route path="/admin/dashboard" index element={<Dashboard />} />

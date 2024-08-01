@@ -1,4 +1,4 @@
-import { Check, ChevronDownIcon } from "lucide-react";
+import { Check, ChevronDownIcon, ImageIcon } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -23,6 +23,8 @@ import { RxCross2 } from "react-icons/rx";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { FiUpload } from "react-icons/fi";
+
 import {
   Form,
   FormField,
@@ -51,7 +53,34 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import { ErrorType } from "@/app/types";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+import { FaFileUpload } from "react-icons/fa";
 
+
+enum genderEnum {
+  male = "male",
+  female = "female",
+  other = "other",
+}
+
+enum difficultyEnum{
+  Novice='Novice',
+    Beginner='Beginner',
+    Intermediate='Intermediate',
+    Advance='Advance',
+    Expert='Expert',
+}
+
+enum ExerciseTypeEnum{
+    time_based = 'Time Based',
+    repetition_based = 'Repetition Based',
+}
+
+enum VisibilityEnum{
+  only_myself = 'Only Myself',
+  staff_of_my_club = 'Staff of My Club',
+  members_of_my_club = 'Members of My Club',
+  everyone_in_my_club = 'Everyone in My Club'
+}
 const ExericeForm: React.FC = () => {
   const { id } = useParams();
 
@@ -70,22 +99,29 @@ const ExericeForm: React.FC = () => {
     notes: "",
     org_id: orgId,
   };
+
+
   const FormSchema = z.object({
-    own_coach_id: z.string({
+    exercise_name: z.string({
       required_error: "Required",
     }),
-    gender: z
-      .enum(["male", "female", "other"], {
-        required_error: "You need to select a gender type.",
-      })
-      .default("male"),
+    exercise_type:z.nativeEnum(ExerciseTypeEnum,{
+      required_error:"Required"
+    }),
+    difficulty:z.nativeEnum(difficultyEnum,{
+      required_error:"Required"
+    }),
+    visibility:z.nativeEnum(VisibilityEnum,{
+      required_error:"Required"
+    }),
+    gender: z.nativeEnum(genderEnum, {
+      required_error: "Required",
+    }),
     email: z.string().min(1, { message: "Required" }).email("invalid email"),
     notes: z.string().optional(),
-    org_id: z
-      .number({
-        required_error: "Required",
-      })
-      .default(orgId),
+    gif_url: z.string().optional(),
+    youtube_male:z.string().optional(),
+    youtube_female:z.string().optional(),
   });
 
   const orgName = useSelector(
@@ -139,8 +175,8 @@ const ExericeForm: React.FC = () => {
     }
   }
 
-  function gotoCaoch() {
-    navigate("/admin/coach");
+  function gotoExercise() {
+    navigate("/admin/exercise");
   }
 
   // React.useEffect(() => {
@@ -173,7 +209,7 @@ const ExericeForm: React.FC = () => {
                   <div>
                     <Button
                       type={"button"}
-                      onClick={gotoCaoch}
+                      onClick={gotoExercise}
                       // disabled={memberLoading || editcoachLoading}
                       className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                     >
@@ -199,15 +235,15 @@ const ExericeForm: React.FC = () => {
                 <div className="relative">
                   <FormField
                     control={form.control}
-                    name="own_coach_id"
+                    name="exercise_name"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="own_coach_id"
+                          id="exercise_name"
                           label="Exercise Name*"
                         />
-                        {watcher.own_coach_id ? <></> : <FormMessage />}
+                        {watcher.exercise_name ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -369,15 +405,15 @@ const ExericeForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="notes"
+                    name="gif_url"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="notes"
+                          id="gif_url"
                           label="GIF URL"
                         />
-                        {watcher.notes ? <></> : <FormMessage />}
+                        {watcher.gif_url ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -385,15 +421,15 @@ const ExericeForm: React.FC = () => {
                 <div className="relative">
                   <FormField
                     control={form.control}
-                    name="notes"
+                    name="youtube_female"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="notes"
+                          id="youtube_female"
                           label="Youtube Link : Female"
                         />
-                        {watcher.notes ? <></> : <FormMessage />}
+                        {watcher.youtube_female ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -401,20 +437,97 @@ const ExericeForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="notes"
+                    name="youtube_male"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="notes"
+                          id="youtube_male"
                           label="Youtube Link : Male"
                         />
-                        {watcher.notes ? <></> : <FormMessage />}
+                        {watcher.youtube_male ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
                 </div>
               </div>
+              <div className="w-4/5  flex justify-start gap-4items-start">
+              <div className="grid grid-cols-2 gap-4 mt-6">
+              <div>
+                <h3 className="text-lg font-semibold">Images</h3>
+                <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
+                  <div className="justify-center items-center flex flex-col"> 
+                  <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                    <ImageIcon className="w-12 h-12 text-gray-400" />
+                  </div>
+                  <Button variant="ghost" className="mt-2 gap-2 border-dashed border-2 text-xs" >
+                    <FiUpload className="text-primary w-5 h-5" />  Image - Male
+                    </Button>
+                  </div>
+                  <div className="justify-center items-center flex flex-col"> 
+                  <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                    <ImageIcon className="w-12 h-12 text-gray-400" />
+                  </div>
+                  <Button variant="ghost" className="gap-2 mt-2 text-xs border-dashed border-2">
+                    
+                  <FiUpload className="text-primary w-5 h-5 " /> 
+                  Image - Female
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Thumbnail</h3>
+                <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
+                  <div className="justify-center items-center flex flex-col"> 
+                  <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                    <ImageIcon className="w-12 h-12 text-gray-400" />
+                  </div>
+                  <Button variant="ghost" className="mt-2 text-xs border-dashed gap-2 border-2">
+                  <FiUpload className="text-primary w-5 h-5 " />
+                      Thumbnail - Male
+                    </Button>
+                  </div>
+                  <div className="justify-center items-center flex flex-col"> 
+                  <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                    <ImageIcon className="w-12 h-12 text-gray-400" />
+                  </div>
+                  <Button variant="ghost" className="mt-2 text-xs gap-2 border-dashed border-2">
+                  <FiUpload className="text-primary w-5 h-5" />
+                  Thumbnail - Female
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div>
+            <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+                <div className="relative">
+                  <FormField
+                    control={form.control}
+                    name="exercise_type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex gap-4">
+                        Exercise Type:
+                        {Object.values(ExerciseTypeEnum).map((value) => (
+                          <label key={value}>
+                            <input
+                              type="radio"
+                              value={value}  // Use the enum value here
+                              checked={field.value === value}
+                              onChange={field.onChange}
+                            />
+                            {value}
+                          </label>
+                        ))}
+                        </div>
+                        
+                        {watcher.exercise_type ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div></div>
             </CardContent>
           </Card>
         </form>

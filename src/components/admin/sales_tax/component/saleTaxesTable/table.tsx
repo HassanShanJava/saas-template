@@ -84,6 +84,7 @@ import {
 } from "@/services/salesTaxApi";
 import { StringDecoder } from "string_decoder";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+import { Separator } from "@/components/ui/separator";
 
 const downloadCSV = (data: saleTaxesTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -675,6 +676,8 @@ const SaleTaxesForm = ({
               {formData.case == "add" ? "Create" : "Edit"} Tax/VAT
             </SheetTitle>
             <SheetDescription>
+            <Separator className=" h-[1px] font-thin rounded-full" />
+
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}

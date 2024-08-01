@@ -73,6 +73,7 @@ import {
   useUpdateCreditsMutation,
 } from "@/services/creditsApi";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+import { Separator } from "@/components/ui/separator";
 
 const downloadCSV = (data: creditTablestypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -720,8 +721,11 @@ const CreditForm = ({
             <SheetTitle>
               {formData.case == "add" ? "Create" : "Edit"} Credit
             </SheetTitle>
+
             <SheetDescription>
               <>
+                <Separator className=" h-[1px] font-thin rounded-full" />
+
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmit)}

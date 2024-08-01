@@ -44,6 +44,16 @@
     --bg-secondary-red: 1 100% 77%; /*red color failer*/
     --bg-outlet-background: 0 0% 96.9%; /* outlet one bg- f7f7f7 */
     --table-header-color: 0 0% 96.1%;
+
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    --pc-green: 81, 53%, 47%,
+    --pc-red: 348, 69%, 57%,
+    --pc-yellow: 36, 79%, 57%
   }
 }
 

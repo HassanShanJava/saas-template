@@ -123,8 +123,8 @@ export default function MealPlansTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "group_id",
-      header: ({ table }) => <span>Group</span>,
+      accessorKey: "visible_for",
+      header: ({ table }) => <span>Visible For</span>,
       cell: ({ row }) => {
 
         return <span>any</span>;
@@ -133,8 +133,8 @@ export default function MealPlansTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "duration",
-      header: ({ table }) => <span>Duration</span>,
+      accessorKey: "carbs",
+      header: ({ table }) => <span>Carbs</span>,
       cell: ({ row }) => {
         return <span>any</span>;
       },
@@ -142,8 +142,8 @@ export default function MealPlansTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "income_category_id",
-      header: ({ table }) => <span>Income Category</span>,
+      accessorKey: "protein",
+      header: ({ table }) => <span>Protein</span>,
       cell: ({ row }) => {
         
         return <span>any</span>;
@@ -152,8 +152,8 @@ export default function MealPlansTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "net_price",
-      header: ({ table }) => <span>Net Price</span>,
+      accessorKey: "fats",
+      header: ({ table }) => <span>Fats</span>,
       cell: ({ row }) => {
         return <span>any</span>;
       },
@@ -161,8 +161,8 @@ export default function MealPlansTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "discount",
-      header: ({ table }) => <span>Discount</span>,
+      accessorKey: "action",
+      header: ({ table }) => <span>Action</span>,
       cell: ({ row }) => {
         const { discount } = row.original;
 
@@ -170,69 +170,7 @@ export default function MealPlansTableView() {
       },
       enableSorting: false,
       enableHiding: false,
-    },
-    {
-      accessorKey: "tax_rate",
-      header: ({ table }) => <span>Tax/VAT Rate</span>,
-      cell: ({ row }) => {
-        return <span>any</span>;
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      accessorKey: "total_price",
-      header: ({ table }) => <span>Total Amount</span>,
-      cell: ({ row }) => {
-        return <span>any</span>;
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      accessorKey: "status",
-      header: ({ table }) => <span>Status</span>,
-      cell: ({ row }) => {
-        
-        return (
-          <Select
-            
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Status" className="text-gray-400">
-                <span className="flex gap-2 items-center">
-                  <span
-                    className={` rounded-[50%] w-4 h-4`}
-                  ></span>
-                  <span>any</span>
-                </span>
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {status.map((item) => (
-                <SelectItem key={item.value + ""} value={item.value + ""}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        );
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      maxSize: 100,
-      cell: ({ row }) => (
-        <DataTableRowActions
-          data={row.original}
-          // refetch={refetch}
-          // handleEdit={handleEditMembership}
-        />
-      ),
-    },
+    }
   ];
 
   const table = useReactTable({

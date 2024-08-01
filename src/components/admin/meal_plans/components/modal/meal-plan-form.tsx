@@ -232,7 +232,7 @@ const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
                   label="Description"
                   type="textarea"
                   rows={10}
-                  className=""
+                  customPercentage='4%'
                   // {...register("description")}
                   // error={errors.description?.message}
                 />
@@ -243,7 +243,6 @@ const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
                   name="asign_members"
                   render={({ field }) => (
                     <FormItem>
-                      {/* <FormLabel>Status</FormLabel> */}
                       <FormControl>
                         <Select value={field.value}>
                           <SelectTrigger floatingLabel="Assign Member*">

@@ -15,7 +15,6 @@ import { RootState } from "./app/store";
 import IncomeCategory from "./components/admin/income_category";
 import Memberships from "./components/admin/memberships";
 import RolesAndAccess from "./components/admin/roles";
-
 import Loader from "@/components/Loader";
 import MemberPage from "./components/admin/members";
 import MemberForm from "./components/admin/members/memberForm/form";
@@ -91,8 +90,6 @@ function App() {
             />
             <Route path="/admin/staff" index element={<Staff />} />
             <Route path="/admin/staff/addStaff" index element={<StaffForm />} />
-            <Route path="/admin/staff/addStaff" index element={<StaffForm />} />
-
             <Route
               path="/admin/staff/editstaff/:id"
               index
@@ -109,8 +106,16 @@ function App() {
               index
               element={<ExerciseForm />}
             />
-            <Route path="/admin/exercise/addexercise" index element={<ExerciseForm />} />
-            <Route path="/admin/exercise/editexercise/:id" index element={<ExerciseForm />} />
+            <Route
+              path="/admin/exercise/addexercise"
+              index
+              element={<ExerciseForm />}
+            />
+            <Route
+              path="/admin/exercise/editexercise/:id"
+              index
+              element={<ExerciseForm />}
+            />
             <Route path="/admin/mealplans" index element={<MealPlans />} />
             <Route path="/admin/foods" index element={<FoodsNutrition />} />
           </Route>

@@ -45,7 +45,9 @@ export default function RoleTableView() {
     error: rolesError,
   } = useGetRolesQuery(orgId);
 
-  const [selectedRoleId, setSelectedRoleId] = useState<number|undefined>(undefined); // 0 can be the default for "Select a role"
+  const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(
+    undefined
+  ); // 0 can be the default for "Select a role"
 
   const {
     data: resourceData,
@@ -206,7 +208,7 @@ export default function RoleTableView() {
                         key={sourceval.role_id}
                         value={sourceval.role_id?.toString()}
                       >
-                        {sourceval.name}
+                        {sourceval.role_name}
                       </SelectItem>
                     );
                   })

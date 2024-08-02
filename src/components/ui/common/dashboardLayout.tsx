@@ -207,7 +207,10 @@ const DashboardLayout: React.FC = () => {
       <div
         className={`bg-white border-r text-black shadow-md transition-all duration-300 ${isSidebarOpen ? "w-72" : "w-16"} max-h-screen custom-scrollbar-right `}
       >
-        <div style={{direction:"ltr"}} className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white ">
+        <div
+          style={{ direction: "ltr" }}
+          className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white "
+        >
           <Link to="#" className="flex items-center gap-2 font-semibold">
             <img
               src="/dashboard-svg.svg"
@@ -226,13 +229,18 @@ const DashboardLayout: React.FC = () => {
             <MenuIcon className="h-6 w-6" />
           </Button> */}
         </div>
-        <nav style={{direction:"ltr"}} className="flex flex-col gap-1 px-2 py-2 ">
+        <nav
+          style={{ direction: "ltr" }}
+          className="flex flex-col gap-1 px-2 py-2 "
+        >
           {navItems.map(
-            ({ name, link, icon: Icon, dropdown, children, hiddenRoutes }) => (
+            (
+              { name, link, icon: Icon, dropdown, children, hiddenRoutes },
+              i
+            ) => (
               <>
                 {!dropdown && (
                   <Link
-                    key={name}
                     to={link}
                     className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(link, hiddenRoutes) ? "bg-primary" : ""}`}
                   >

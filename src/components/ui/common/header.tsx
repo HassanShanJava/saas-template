@@ -134,6 +134,7 @@ export const Header = () => {
 
               <PageTitle
                 currentPath={location.pathname.replace(
+                  //eslint-disable-next-line
                   /(\/[^\/]+\/editstaff)\/\d+$/,
                   "$1"
                 )}
@@ -201,6 +202,17 @@ export const Header = () => {
                 currentPath={location.pathname}
                 targetPath="/admin/staff/addstaff"
                 title="Add Staff"
+              />
+              
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/mealplans"
+                title="Meal Plans"
+              />
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/foods"
+                title="Food/ Nutrition"
               />
             </h1>
 

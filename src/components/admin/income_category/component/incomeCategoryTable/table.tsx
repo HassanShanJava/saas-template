@@ -46,7 +46,7 @@ import { useForm } from "react-hook-form";
 
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import {PlusIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -67,9 +67,7 @@ import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
-import {
-  useGetSalesTaxQuery,
-} from "@/services/salesTaxApi";
+import { useGetSalesTaxQuery } from "@/services/salesTaxApi";
 
 import {
   useCreateIncomeCategoryMutation,
@@ -77,6 +75,7 @@ import {
   useUpdateIncomeCategoryMutation,
 } from "@/services/incomeCategoryApi";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+import { Separator } from "@/components/ui/separator";
 
 const downloadCSV = (data: incomeCategoryTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -206,9 +205,11 @@ export default function IncomeCategoryTableView() {
       accessorKey: "sale_tax_id",
       header: ({ table }) => <span>Default Tax/VAT</span>,
       cell: ({ row }) => {
-        const sales:any=salesTaxData?.filter(item=>item.id==row.original.sale_tax_id)[0]
-        console.log({salesTaxData,sales},row.original.sale_tax_id,"sales")
-        return <span>{sales?.name +" ("+sales?.percentage+"%)" }</span>;
+        const sales: any = salesTaxData?.filter(
+          (item) => item.id == row.original.sale_tax_id
+        )[0];
+        console.log({ salesTaxData, sales }, row.original.sale_tax_id, "sales");
+        return <span>{sales?.name + " (" + sales?.percentage + "%)"}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -338,10 +339,10 @@ export default function IncomeCategoryTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    <div className='flex space-x-2 justify-center items-center bg-white '>
-                      <div className='size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                      <div className='size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                      <div className='size-3 bg-black rounded-full animate-bounce'></div>
+                    <div className="flex space-x-2 justify-center items-center bg-white ">
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce"></div>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -536,7 +537,7 @@ export default function IncomeCategoryTableView() {
 }
 
 interface incomeCategoryFromData {
-  sale_tax_id: number|undefined;
+  sale_tax_id: number | undefined;
   name: string;
   org_id: number;
   id?: number;
@@ -558,7 +559,7 @@ const IncomeCategoryForm = ({
   refetch?: any;
   setFormData?: any;
   handleOnChange?: any;
-  salesTaxData?:any
+  salesTaxData?: any;
 }) => {
   const { toast } = useToast();
   // const [formData, setFormData] = useState(data);
@@ -672,6 +673,8 @@ const IncomeCategoryForm = ({
               {formData.case == "add" ? "Create" : "Edit"} Income Category
             </SheetTitle>
             <SheetDescription>
+              <Separator className=" h-[1px] font-thin rounded-full" />
+
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
@@ -719,52 +722,55 @@ const IncomeCategoryForm = ({
                     )}
                   /> */}
 
-                    <FormField
-                      control={form.control}
-                      name="sale_tax_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select
-                            onValueChange={(value) =>
-                              field.onChange(Number(value))
-                            }
-                            defaultValue={field.value?.toString()}
-                          >
-                            <FormControl>
-                              <SelectTrigger floatingLabel="Default Tax/VAT*">
-                                <SelectValue placeholder="Select Tax/VAT" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {salesTaxData && salesTaxData?.length>0 ? (
-                                salesTaxData.map(
-                                  (saleTax:any, i: any) => (
-                                    <SelectItem
-                                      value={saleTax.id?.toString()}
-                                      key={i}
-                                      onClick={handleOnChange}
-                                    >
-                                      {saleTax.name+" ("+saleTax.percentage+"%)"}
-                                    </SelectItem>
-                                  )
-                                )
-                              ) : (
-                                <>
-                                  <p className="p-2"> No Sources Found</p>
-                                </>
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={form.control}
+                    name="sale_tax_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          defaultValue={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger floatingLabel="Default Tax/VAT*">
+                              <SelectValue placeholder="Select Tax/VAT" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {salesTaxData && salesTaxData?.length > 0 ? (
+                              salesTaxData.map((saleTax: any, i: any) => (
+                                <SelectItem
+                                  value={saleTax.id?.toString()}
+                                  key={i}
+                                  onClick={handleOnChange}
+                                >
+                                  {saleTax.name +
+                                    " (" +
+                                    saleTax.percentage +
+                                    "%)"}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <>
+                                <p className="p-2"> No Sources Found</p>
+                              </>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <LoadingButton
                     type="submit"
                     className="bg-primary font-semibold text-black gap-1"
-										loading={form.formState.isSubmitting}
+                    loading={form.formState.isSubmitting}
                   >
-                    {!form.formState.isSubmitting && <i className="fa-regular fa-floppy-disk text-base px-1 "></i>}
+                    {!form.formState.isSubmitting && (
+                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                    )}
                     Save
                   </LoadingButton>
                 </form>

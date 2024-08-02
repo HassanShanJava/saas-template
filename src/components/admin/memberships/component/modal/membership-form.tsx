@@ -28,6 +28,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 
 // import { motion, AnimatePresence } from 'framer-motion';
 
@@ -361,18 +362,25 @@ const MembershipForm = ({
   return (
     <Sheet open={isOpen}>
       <SheetContent
-        className={`w-full !max-w-[1050px] flex flex-col !py-3`}
+        className={`w-full !max-w-[1050px] flex flex-col `}
         hideCloseButton
-        onOpenAutoFocus={(e:Event) => e.preventDefault()}
+        onOpenAutoFocus={(e: Event) => e.preventDefault()}
       >
         <SheetTitle className="absolute  !display-none"></SheetTitle>
         <FormProvider {...methods}>
-          <div className="flex justify-between gap-5 items-start h-[82px] pl-8  ">
-            <StepperIndicator
-              activeStep={activeStep}
-              labels={infoLabels}
-              lastKey={4}
-            />
+          <div className="flex justify-between gap-5 items-start ">
+            <div>
+              <p className="font-semibold">Membership</p>
+              <div className="text-sm">
+                <span className="text-gray-400 pr-1 font-semibold">
+                  System Setting
+                </span>{" "}
+                <span className="text-gray-400 font-semibold">/</span>
+                <span className="pl-1 text-primary font-semibold ">
+                  Membership
+                </span>
+              </div>
+            </div>
             <div className="flex justify-center space-x-[20px]">
               <Button
                 type="button"
@@ -421,6 +429,15 @@ const MembershipForm = ({
               )}
             </div>
           </div>
+
+          <Separator className=" h-[1px] font-thin rounded-full" />
+          <div className="flex justify-start  px-8 pb-8">
+            <StepperIndicator
+              activeStep={activeStep}
+              labels={infoLabels}
+              lastKey={4}
+            />
+          </div>
           <form noValidate className="">
             {/* <AnimatePresence>
               <motion.div
@@ -458,7 +475,7 @@ function convertStringNumbersToObject(obj: any): void {
 
 // for validation
 
-function getDays(durationNo: number, durationType: string):number {
+function getDays(durationNo: number, durationType: string): number {
   console.log({ durationType, durationNo });
   switch (durationType) {
     case "weekly":
@@ -474,7 +491,7 @@ function getDays(durationNo: number, durationType: string):number {
     case "contract_duration":
       return durationNo * 0; // Approximate days in 6 months
     default:
-      return 0
+      return 0;
   }
 }
 
@@ -484,8 +501,8 @@ function getDaysCheck(
   itemdurationNo: number,
   itemdurationType: string
 ): boolean {
-  const memberShipDays:number = getDays(durationNo, durationType);
-  const creditsDays:number = getDays(itemdurationNo, itemdurationType);
+  const memberShipDays: number = getDays(durationNo, durationType);
+  const creditsDays: number = getDays(itemdurationNo, itemdurationType);
 
   console.log({ creditsDays, memberShipDays });
   return memberShipDays < creditsDays;

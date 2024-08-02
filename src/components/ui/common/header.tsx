@@ -190,6 +190,11 @@ export const Header = () => {
                 targetPath="/admin/mealplans"
                 title="Meal Plans"
               />
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/foods"
+                title="Food/ Nutrition"
+              />
             </h1>
 
             <Breadcrumb

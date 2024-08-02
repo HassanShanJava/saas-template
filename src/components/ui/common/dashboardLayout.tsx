@@ -129,6 +129,12 @@ const navItems: NavItem[] = [
     dropdown: false,
   },
   {
+    name: "Food/ Nutrition",
+    link: "/admin/foods",
+    icon: EventsIcon,
+    dropdown: false,
+  },
+  {
     name: "Manage",
     dropdown: true,
     icon: ManageIcon,

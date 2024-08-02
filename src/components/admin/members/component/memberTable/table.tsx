@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
   PaginationState,
@@ -53,7 +53,7 @@ import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
 import { DataTableFacetedFilter } from "./data-table-faced-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { useGetAllMemberQuery } from "@/services/memberAPi";
+import { useGetAllMemberQuery, useGetMemberCountQuery } from "@/services/memberAPi";
 
 const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -69,12 +69,38 @@ const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
 export default function MemberTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const [searchCretiria, setSearchCretiria] = useState({
+    limit: 10,
+    offset: 0,
+    sort_order: "desc"
+  })
+  const [query, setQuery] = useState('')
+
+
+  useEffect(() => {
+
+    const params = new URLSearchParams();
+    // Add each property in searchCretiria to the params
+    for (const [key, value] of Object.entries(searchCretiria)) {
+      if (value !== undefined && value !== null && value !== '' && !isNaN(value as number)) {
+        params.append(key, value as string);
+      }
+    }
+
+    const newQuery = params.toString(); // Convert URLSearchParams to query string format
+    setQuery(newQuery);
+
+  }, [searchCretiria]);
+
   const {
     data: memberData,
     isLoading,
     refetch,
     error,
-  } = useGetAllMemberQuery(orgId);
+  } = useGetAllMemberQuery({ org_id: orgId, query: query },{
+    skip:query==''
+  });
+  const { data: count } = useGetMemberCountQuery(orgId)
   const navigate = useNavigate();
 
   function handleRoute() {
@@ -343,9 +369,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -407,71 +433,17 @@ export default function MemberTableView() {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-          {/* Page {filters.first + 1} of{" "}
-          {Math.ceil((data?.count ?? 0) / filters.rows)} */}
+        {count?.total_members}
         </div>
 
         <div className="flex items-center justify-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Rows per page</p>
-            {/* <Select
-              // value={`${filters.rows}`}
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue defaultValue={pagination.pageSize} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pagination}`} >
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-            {/* <Select
-              value="10"
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue>{10}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
             <Select
               value={pagination.pageSize.toString()}
               onValueChange={(value) => {
                 const newSize = Number(value);
-                setPagination((prevPagination) => ({
-                  ...prevPagination,
-                  pageSize: newSize,
-                }));
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: newSize,
-                  first: 0,
-                }));
-                table.setPageSize(newSize);
+                setSearchCretiria(prev=>({...prev,limit:newSize}))
               }}
             >
               <SelectTrigger className="h-8 w-[70px]">
@@ -487,12 +459,17 @@ export default function MemberTableView() {
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 p-2">
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => handlePagination(0)}
-              // disabled={filters.first === 0}
+              onClick={() => setSearchCretiria(prev=>{
+                return {
+                 ...prev,
+                 offset:0
+                }
+              })}
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to first page</span>
               <DoubleArrowLeftIcon className="h-4 w-4" />
@@ -501,8 +478,13 @@ export default function MemberTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters?.first - 1)}
-              // disabled={filters?.first === 0}
+              onClick={() => setSearchCretiria(prev=>{
+                return {
+                 ...prev,
+                 offset:prev.offset-1
+                }
+              })}
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to previous page</span>
               <ChevronLeftIcon className="h-4 w-4" />
@@ -510,32 +492,30 @@ export default function MemberTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters.first + 1)}
-              // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
-              // }
+              onClick={() => setSearchCretiria(prev=>{
+                return {
+                 ...prev,
+                 offset:prev.offset+1
+                }
+              })}
+              disabled={searchCretiria.offset == Math.ceil(count?.total_members/searchCretiria.limit)-1}
             >
-              <span className="sr-only">Go to next page</span>
+              
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
 
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              // onClick={() =>
-              //   handlePagination(
-              //     Math.ceil((data?.count ?? 0) / filters.rows) - 1
-              //   )
-              // }
-              // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
-              // }
+              className="hidden h-8 w-8 p-0 lg:flex "
+              onClick={() => setSearchCretiria(prev=>{
+                return {
+                 ...prev,
+                 offset:Math.ceil(count?.total_members/searchCretiria.limit)-1
+                }
+              })}
+              disabled={searchCretiria.offset == Math.ceil(count?.total_members/searchCretiria.limit)-1}
             >
-              <span className="sr-only">Go to last page</span>
+              
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>
           </div>

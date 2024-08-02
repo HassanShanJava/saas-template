@@ -563,6 +563,7 @@ const MemberForm: React.FC = () => {
                                   mode="single"
                                   captionLayout="dropdown-buttons"
                                   selected={new Date(field.value)}
+                                  defaultMonth={new Date(field.value)}
                                   onSelect={field.onChange}
                                   fromYear={1960}
                                   toYear={2030}

@@ -33,7 +33,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-import FoodForm from "./food-form";
+import FoodForm from "./add-meal";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 

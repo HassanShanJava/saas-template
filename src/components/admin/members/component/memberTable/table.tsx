@@ -12,13 +12,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useDebounce } from "@/hooks/use-debounce";
 import {
   Table,
   TableBody,
@@ -42,18 +36,20 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { MemberFilterSchema, MemberTabletypes } from "@/app/types";
+import { MemberTabletypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { DataTableViewOptions } from "./data-table-view-options";
-import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
-import { DataTableFacetedFilter } from "./data-table-faced-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { useGetAllMemberQuery, useGetMemberCountQuery } from "@/services/memberAPi";
+import {
+  useGetAllMemberQuery,
+  useGetMemberCountQuery,
+} from "@/services/memberAPi";
+import MemberFilters from "./data-table-filter";
 
 const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -66,42 +62,83 @@ const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
   document.body.removeChild(link);
 };
 
+interface searchCretiriaType {
+  limit: number;
+  offset: number;
+  sort_order: string;
+  client_name?: string;
+}
+
 export default function MemberTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const [searchCretiria, setSearchCretiria] = useState({
+  const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
     limit: 10,
     offset: 0,
-    sort_order: "desc"
-  })
-  const [query, setQuery] = useState('')
+    sort_order: "desc",
+  });
+  const [query, setQuery] = useState("");
 
+  // search input
+  const [inputValue, setInputValue] = useState("");
+  const [openFilter, setOpenFilter] = useState(false);
+  const debouncedInputValue = useDebounce(inputValue, 500);
 
   useEffect(() => {
+    setSearchCretiria((prev) => {
+      const newCriteria = { ...prev };
 
+      if (debouncedInputValue.trim() !== "") {
+        newCriteria.client_name = debouncedInputValue;
+      } else {
+        delete newCriteria.client_name;
+      }
+
+      return newCriteria;
+    });
+    console.log({ debouncedInputValue });
+  }, [debouncedInputValue, setSearchCretiria]);
+
+  useEffect(() => {
     const params = new URLSearchParams();
-    // Add each property in searchCretiria to the params
     for (const [key, value] of Object.entries(searchCretiria)) {
-      if (value !== undefined && value !== null && value !== '' && !isNaN(value as number)) {
-        params.append(key, value as string);
+      console.log({ key, value });
+      if (value !== undefined && value !== null) {
+        params.append(key, value);
       }
     }
-
-    const newQuery = params.toString(); // Convert URLSearchParams to query string format
+    const newQuery = params.toString();
+    console.log({ newQuery });
     setQuery(newQuery);
-
   }, [searchCretiria]);
+
+  const toggleSortOrder = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
+    }));
+  };
 
   const {
     data: memberData,
     isLoading,
     refetch,
     error,
-  } = useGetAllMemberQuery({ org_id: orgId, query: query },{
-    skip:query==''
-  });
-  const { data: count } = useGetMemberCountQuery(orgId)
+  } = useGetAllMemberQuery(
+    { org_id: orgId, query: query },
+    {
+      skip: query == "",
+    }
+  );
+  const { data: count } = useGetMemberCountQuery(orgId);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (query) {
+      refetch();
+    }
+    console.log({ query });
+  }, [query, refetch]);
 
   function handleRoute() {
     navigate("/admin/members/addmember");
@@ -115,7 +152,6 @@ export default function MemberTableView() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
 
-  const [filters, setFilters] = useState<MemberFilterSchema>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
@@ -277,7 +313,7 @@ export default function MemberTableView() {
       ),
     },
   ];
-  // console.log("data",{memberData})
+
   const table = useReactTable({
     data: memberTableData as MemberTabletypes[],
     columns,
@@ -309,52 +345,35 @@ export default function MemberTableView() {
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center justify-between px-5 ">
+      <div className="flex items-center justify-between gap-2 px-4 py-2 ">
         <div className="flex flex-1 items-center space-x-2">
           <div className="flex items-center  relative">
             <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
             <FloatingLabelInput
               id="search"
               placeholder="Search by member name"
-              onChange={(event) =>
-                table.getColumn("full_name")?.setFilterValue(event.target.value)
-              }
+              onChange={(event) => setInputValue(event.target.value)}
               className="w-64 pl-8 text-gray-400"
             />
           </div>
-          {/* {table.getColumn("") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("status")}
-            title="Status"
-            options={status_options}
-          />
-        )}
-        {table.getColumn("priority") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("priority")}
-            title="Priority"
-            options={priority_options}
-          />
-        )} */}
-          {/* {isFiltered && (
-          <Button
-            variant="ghost"
-            onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 lg:px-3"
-          >
-            Reset
-            <X className="ml-2 h-4 w-4" />
-          </Button>
-        )} */}
         </div>
-        <Button
-          className="bg-primary m-4 text-black gap-1"
-          onClick={handleRoute}
-        >
-          <PlusIcon className="h-4 w-4" />
+        <Button className="bg-primary  text-black mr-1 " onClick={handleRoute}>
+          <PlusIcon className="size-4" />
           Create New
         </Button>
         <DataTableViewOptions table={table} action={handleExportSelected} />
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={() => setOpenFilter(true)}
+        >
+          <i className="fa fa-filter"></i>
+        </button>
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={toggleSortOrder}
+        >
+          <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order=='desc'?"rotate-180":"-rotate-180"}`}></i>
+        </button>
       </div>
       <div className="rounded-md border border-border ">
         <ScrollArea className="w-full relative">
@@ -369,9 +388,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -433,7 +452,7 @@ export default function MemberTableView() {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-        {count?.total_members}
+          {count?.total_members}
         </div>
 
         <div className="flex items-center justify-center space-x-6 lg:space-x-8">
@@ -443,7 +462,7 @@ export default function MemberTableView() {
               value={pagination.pageSize.toString()}
               onValueChange={(value) => {
                 const newSize = Number(value);
-                setSearchCretiria(prev=>({...prev,limit:newSize}))
+                setSearchCretiria((prev) => ({ ...prev, limit: newSize }));
               }}
             >
               <SelectTrigger className="h-8 w-[70px]">
@@ -463,12 +482,14 @@ export default function MemberTableView() {
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => setSearchCretiria(prev=>{
-                return {
-                 ...prev,
-                 offset:0
-                }
-              })}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: 0,
+                  };
+                })
+              }
               disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to first page</span>
@@ -478,12 +499,14 @@ export default function MemberTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              onClick={() => setSearchCretiria(prev=>{
-                return {
-                 ...prev,
-                 offset:prev.offset-1
-                }
-              })}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset - 1,
+                  };
+                })
+              }
               disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to previous page</span>
@@ -492,30 +515,47 @@ export default function MemberTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              onClick={() => setSearchCretiria(prev=>{
-                return {
-                 ...prev,
-                 offset:prev.offset+1
-                }
-              })}
-              disabled={searchCretiria.offset == Math.ceil(count?.total_members/searchCretiria.limit)-1}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset + 1,
+                  };
+                })
+              }
+              disabled={
+                searchCretiria.offset ==
+                Math.ceil(
+                  (count?.total_members as number) / searchCretiria.limit
+                ) -
+                  1
+              }
             >
-              
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
 
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex "
-              onClick={() => setSearchCretiria(prev=>{
-                return {
-                 ...prev,
-                 offset:Math.ceil(count?.total_members/searchCretiria.limit)-1
-                }
-              })}
-              disabled={searchCretiria.offset == Math.ceil(count?.total_members/searchCretiria.limit)-1}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset:
+                      Math.ceil(
+                        (count?.total_members as number) / searchCretiria.limit
+                      ) - 1,
+                  };
+                })
+              }
+              disabled={
+                searchCretiria.offset ==
+                Math.ceil(
+                  (count?.total_members as number) / searchCretiria.limit
+                ) -
+                  1
+              }
             >
-              
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>
           </div>
@@ -523,6 +563,7 @@ export default function MemberTableView() {
       </div>
 
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
+      <MemberFilters isOpen={openFilter} setOpen={setOpenFilter} />
     </div>
   );
 }

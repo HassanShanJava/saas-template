@@ -14,7 +14,7 @@ export const Leads = apiSlice.injectEndpoints({
     return {
       AddLead: builder.mutation<LeadResponseTypes, LeadInputTypes>({
         query: (leaddata) => ({
-          url: "/leads/register",
+          url: "/leads ",
           method: "POST",
           body: leaddata,
           headers: {
@@ -24,7 +24,7 @@ export const Leads = apiSlice.injectEndpoints({
       }),
       getAllStaff: builder.query<staffType[], number>({
         query: (org_id) => ({
-          url: `/get_staff?org_id=${org_id}`,
+          url: `/leads?org_id=${org_id}`,
           headers: {
             Accept: "application/json",
           },
@@ -32,7 +32,7 @@ export const Leads = apiSlice.injectEndpoints({
       }),
       getLeads: builder.query<leadType[], number>({
         query: (org_id) => ({
-          url: `/leads/getleads?org_id=${org_id}`,
+          url: `/leads?org_id=${org_id}`,
           headers: {
             Accept: "application/json",
           },
@@ -40,7 +40,7 @@ export const Leads = apiSlice.injectEndpoints({
       }),
       updateStatus: builder.mutation<any, updateStatusInput>({
         query: (clientdata) => ({
-          url: "/leads/updateStatus",
+          url: "/leads/status",
           method: "PUT",
           body: clientdata,
           headers: {
@@ -51,7 +51,7 @@ export const Leads = apiSlice.injectEndpoints({
       }),
       updateStaff: builder.mutation<any, updateStaffInput>({
         query: (clientdata) => ({
-          url: "/leads/updateStaff",
+          url: "/leads/staff",
           method: "PUT",
           body: clientdata,
           headers: {
@@ -62,7 +62,7 @@ export const Leads = apiSlice.injectEndpoints({
       }),
       updateLead: builder.mutation<any, updateLeadInput>({
         query: (clientdata) => ({
-          url: "/leads/update",
+          url: "/leads",
           method: "PUT",
           body: clientdata,
           headers: {

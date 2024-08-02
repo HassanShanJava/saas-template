@@ -11,7 +11,7 @@ export const SalesTax = apiSlice.injectEndpoints({
     return {
       getSalesTax: builder.query<saleTaxesResponseType[], number>({
         query: (org_id) => ({
-          url: `/membership_plan/sale_taxes/getAll?org_id=${org_id}`,
+          url: `/sale_taxes?org_id=${org_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -22,7 +22,7 @@ export const SalesTax = apiSlice.injectEndpoints({
       }),
       createSalesTax: builder.mutation<any, saleTaxesInputType>({
         query: (saleTaxesdata) => ({
-          url: `/membership_plan/sale_taxes`,
+          url: `/sale_taxes`,
           method: "POST",
           body: saleTaxesdata,
           headers: {
@@ -33,7 +33,7 @@ export const SalesTax = apiSlice.injectEndpoints({
       }),
       updateSalesTax: builder.mutation<any, updateSaleTaxesType>({
         query: (saleTaxesdata) => ({
-          url: `/membership_plan/sale_taxes`,
+          url: `/sale_taxes`,
           method: "PUT",
           body: saleTaxesdata,
           headers: {
@@ -42,11 +42,10 @@ export const SalesTax = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["SalesTax"],
       }),
-      deleteSalesTax: builder.mutation<any, deleteSaleTaxesType>({
-        query: (saleTaxesdata) => ({
-          url: `/membership_plan/sale_taxes`,
+      deleteSalesTax: builder.mutation<any, number>({
+        query: (sale_tax_id) => ({
+          url: `/sale_taxes/${sale_tax_id}`,
           method: "DELETE",
-          body: saleTaxesdata,
           headers: {
             Accept: "application/json",
           },
@@ -55,7 +54,7 @@ export const SalesTax = apiSlice.injectEndpoints({
       }),
       getSalesTaxById: builder.query<saleTaxesResponseType, number>({
         query: (sale_tax_id) => ({
-          url: `/membership_plan/sale_taxes?sale_tax_id=${sale_tax_id}`,
+          url: `/sale_taxes/${sale_tax_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

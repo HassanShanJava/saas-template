@@ -421,13 +421,6 @@ export interface CoachTableTypes {
   coach_since?: string | null;
 }
 
-export interface MemberFilterSchema {
-  search_key: string;
-  client_name: string;
-  membership_plan: number;
-  status: string;
-  coach_signed: number;
-}
 export interface updateStaffInput {
   lead_id: number;
   staff_id: number;

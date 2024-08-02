@@ -7,7 +7,7 @@ export const IncomeCategory = apiSlice.injectEndpoints({
     return {
       getIncomeCategory: builder.query<incomeCategoryResponseType[], number>({
         query: (org_id) => ({
-          url: `/membership_plan/income_category/getAll?org_id=${org_id}`,
+          url: `/income_category?org_id=${org_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -17,7 +17,7 @@ export const IncomeCategory = apiSlice.injectEndpoints({
       }),
       createIncomeCategory: builder.mutation<any, createIncomeCategoryType>({
         query: (incomeCategorydata) => ({
-          url: `/membership_plan/income_category`,
+          url: `/income_category`,
           method: "POST",
           body: incomeCategorydata,
           headers: {
@@ -28,7 +28,7 @@ export const IncomeCategory = apiSlice.injectEndpoints({
       }),
       updateIncomeCategory: builder.mutation<any, updateIncomeCategoryType>({
         query: (incomeCategorydata) => ({
-          url: `/membership_plan/income_category`,
+          url: `/income_category`,
           method: "PUT",
           body: incomeCategorydata,
           headers: {
@@ -37,11 +37,10 @@ export const IncomeCategory = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["IncomeCategory"],
       }),
-      deleteIncomeCategory: builder.mutation<any, deleteIncomeCategoryType>({
-        query: (incomeCategorydata) => ({
-          url: `/membership_plan/income_category`,
+      deleteIncomeCategory: builder.mutation<any, number>({
+        query: (income_category_id) => ({
+          url: `/income_category/${income_category_id}`,
           method: "DELETE",
-          body: incomeCategorydata,
           headers: {
             Accept: "application/json",
           },
@@ -50,7 +49,7 @@ export const IncomeCategory = apiSlice.injectEndpoints({
       }),
       getIncomeCategoryById: builder.query<incomeCategoryResponseType, number>({
         query: (income_category_id) => ({
-          url: `/membership_plan/income_category?income_category_id=${income_category_id}`,
+          url: `/income_category/${income_category_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

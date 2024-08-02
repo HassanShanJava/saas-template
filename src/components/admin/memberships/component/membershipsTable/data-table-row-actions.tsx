@@ -37,11 +37,9 @@ export function DataTableRowActions({
   const { toast } = useToast();
 
   const deleteRow = async () => {
-    const payload = {
-      id: data.id,
-    };
+    
     try {
-      const resp = await deleteMembership(payload).unwrap();
+      const resp = await deleteMembership(data.id).unwrap();
       if (resp) {
         refetch();
         toast({

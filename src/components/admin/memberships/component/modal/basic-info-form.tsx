@@ -331,6 +331,7 @@ const BasicInfoForm = () => {
             label="Description"
             type="textarea"
             rows={4}
+            customPercentage={[3,2]}
             className="col-span-2"
             {...register("description")}
             error={errors.description?.message}

@@ -157,7 +157,8 @@ const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
         </SheetHeader>
         <Separator className=" h-[1px] rounded-full my-2" />
         <FormProvider {...form}>
-          <div className="grid gap-4 py-4">
+          <div className="">
+            <p className="font-semibold pb-4 pt-2">General Information</p>
             <div className="grid grid-cols-3 items-start gap-4">
               <div className="flex flex-col gap-2">
                 <FloatingLabelInput id="male_name" label="Name*" />
@@ -232,7 +233,7 @@ const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
                   label="Description"
                   type="textarea"
                   rows={10}
-                  customPercentage='4%'
+                  customPercentage={[14, 0]}
                   // {...register("description")}
                   // error={errors.description?.message}
                 />
@@ -293,11 +294,15 @@ const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
                       {pieChartData.map((item) => (
                         <div className="flex items-center gap-1 font-semibold pb-2">
                           <span
-                            style={{backgroundColor:item.fill}}
+                            style={{ backgroundColor: item.fill }}
                             className={" rounded-[50%] size-2"}
                           ></span>
-                          <span className="capitalize text-xs">{item.food_component+" ("+item.percentage+"%)"}</span>
-                          
+                          <span className="capitalize text-xs">
+                            {item.food_component +
+                              " (" +
+                              item.percentage +
+                              "%)"}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -305,6 +310,96 @@ const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
                 </Card>
               </div>
             </div>
+          </div>
+
+          <div className="py-6 ">
+            <p className="font-semibold">Nutrients/Food Information</p>
+          </div>
+          <div className="h-full max-h-56 custom-scrollbar">
+            <table className="w-full text-left">
+              <tr className="bg-gray-100  font-semibold capitalize ">
+                <th className="p-3">breakfast</th>
+                <th className="p-3">amount</th>
+                <th className="p-3">calories</th>
+                <th className="p-3">carbs</th>
+                <th className="p-3">protein</th>
+                <th className="p-3">fat</th>
+              </tr>
+              <tr>
+                <td className="p-3">Please add food</td>
+                <td className="p-3"></td>
+                <td className="p-3"></td>
+                <td className="p-3"></td>
+                <td className="p-3"></td>
+                <td className="p-3 flex justify-end " >
+                  <i className="text-primary fa fa-plus  cursor-pointer" onClick={()=>setOpenFood(true)}></i>
+                </td>
+              </tr>
+            </table>
+            {/* 2nd */}
+            <table className="w-full text-left">
+              <tr className="bg-gray-100  font-semibold capitalize ">
+                <th className="p-3">morning snacks</th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
+              </tr>
+              <tr>
+                <td className="p-3">Please add food</td>
+                <td className="p-3"></td>
+                <td className="p-3"></td>
+                <td className="p-3"></td>
+                <td className="p-3"></td>
+                <td className="p-3 flex justify-end ">
+                  <i className="text-primary fa fa-plus  cursor-pointer" onClick={()=>setOpenFood(true)}></i>
+                </td>
+              </tr>
+            </table>
+            {/* 3rd */}
+            <table className="w-full text-left">
+              <tr className="bg-gray-100  font-semibold capitalize ">
+                <th className="p-3">lunch</th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
+              </tr>
+              <tr>
+                <td className="p-3">Please add food</td>
+                <td className="p-3"></td>
+                <td className="p-3"></td>
+                <td className="p-3"></td>
+                <td className="p-3"></td>
+                <td className="p-3 flex justify-end " >
+                  <i className="text-primary fa fa-plus cursor-pointer" onClick={()=>setOpenFood(true)}></i>
+                </td>
+              </tr>
+            </table>
+            {/* 4th */}
+            <table className="w-full text-left">
+              <tr className="bg-gray-100  font-semibold capitalize ">
+                <th className="p-3">afternoon lunch</th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
+                <th className="p-3"></th>
+              </tr>
+              <tr>
+                <td className="p-3">Please add food</td>
+                <td className="p-3"></td>
+                <td className="p-3"></td>
+                <td className="p-3"></td>
+                <td className="p-3"></td>
+                <td className="p-3 flex justify-end " >
+                  <i className="text-primary fa fa-plus cursor-pointer" onClick={()=>setOpenFood(true)}></i>
+                </td>
+              </tr>
+            </table>
+            
           </div>
         </FormProvider>
 

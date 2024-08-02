@@ -1,3 +1,4 @@
+import { Separator } from "@/components/ui/separator";
 import {
     Sheet,
     SheetContent,
@@ -18,18 +19,13 @@ const FoodForm = ({isOpen, setOpen}:FoodForm) => {
 
       <SheetContent >
         <SheetHeader>
-          <SheetTitle>Food</SheetTitle>
+          <SheetTitle>Add food or drinks</SheetTitle>
           <SheetDescription>
-            Make changes to your profile here. Click save when you're done.
           </SheetDescription>
         </SheetHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
+        <Separator className=" h-[1px] rounded-full my-2" />
 
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-          </div>
-        </div>
+        
         
       </SheetContent>
     </Sheet>

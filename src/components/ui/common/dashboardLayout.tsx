@@ -190,11 +190,11 @@ const DashboardLayout: React.FC = () => {
   };
 
   return (
-    <div className="font-poppins flex h-screen w-full relative overflow-y-hidden">
+    <div className="font-poppins flex h-full w-full relative ">
       <div
-        className={`bg-white border-r text-black shadow-md transition-all duration-300 ${isSidebarOpen ? "w-72" : "w-16"}`}
+        className={`bg-white border-r text-black shadow-md transition-all duration-300 ${isSidebarOpen ? "w-72" : "w-16"} max-h-screen custom-scrollbar-right `}
       >
-        <div className="flex h-16 items-center justify-between px-4 border-gradient">
+        <div style={{direction:"ltr"}} className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white ">
           <Link to="#" className="flex items-center gap-2 font-semibold">
             <img
               src="/dashboard-svg.svg"
@@ -213,7 +213,7 @@ const DashboardLayout: React.FC = () => {
             <MenuIcon className="h-6 w-6" />
           </Button> */}
         </div>
-        <nav className="flex flex-col gap-1 px-2 py-2">
+        <nav style={{direction:"ltr"}} className="flex flex-col gap-1 px-2 py-2 ">
           {navItems.map(
             ({ name, link, icon: Icon, dropdown, children, hiddenRoutes }) => (
               <>
@@ -278,7 +278,7 @@ const DashboardLayout: React.FC = () => {
           )}
         </nav>
       </div>
-      <div className="relative flex-1 max-h-[100vh] w-[80%]">
+      <div className="relative flex-1 max-h-screen w-[80%]">
         <Header />
         <main className="p-0 bg-outletcolor overflow-y-auto h-[90vh] relative">
           <Outlet />

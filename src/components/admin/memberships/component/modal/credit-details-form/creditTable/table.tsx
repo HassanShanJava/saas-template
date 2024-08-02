@@ -73,7 +73,7 @@ export default function CreditsTableView({
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { getValues } = useFormContext<StepperFormValues>();
-  const { data: creditsData, isLoading } = useGetCreditsQuery(orgId);
+  const { data: creditsData, isLoading } = useGetCreditsQuery({org_id:orgId,query:""});
   const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
 
   const creditstableData = React.useMemo(() => {

@@ -49,12 +49,9 @@ export function DataTableRowActions<TData>({
   const { toast } = useToast();
 
   const deleteRow = async () => {
-    const payload = {
-      id: data.id,
-      org_id: data.org_id,
-    };
+    
     try {
-      const resp = await deleteCredits(payload).unwrap();
+      const resp = await deleteCredits(data.id).unwrap();
       if (resp) {
         console.log({ resp });
         refetch();

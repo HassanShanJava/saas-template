@@ -6,12 +6,17 @@ import {
 } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
+interface saleTaxInput{
+	query:string,
+	org_id:number
+}
+
 export const SalesTax = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getSalesTax: builder.query<saleTaxesResponseType[], number>({
-        query: (org_id) => ({
-          url: `/sale_taxes?org_id=${org_id}`,
+      getSalesTax: builder.query<saleTaxesResponseType[], saleTaxInput>({
+        query: (searchCretiria) => ({
+          url: `/sale_taxes?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
           headers: {
             Accept: "application/json",

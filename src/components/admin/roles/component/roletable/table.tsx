@@ -206,7 +206,7 @@ export default function RoleTableView() {
                         key={sourceval.role_id}
                         value={sourceval.role_id?.toString()}
                       >
-                        {sourceval.name}
+                        {sourceval?.role_name}
                       </SelectItem>
                     );
                   })

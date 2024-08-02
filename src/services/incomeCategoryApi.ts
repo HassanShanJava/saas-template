@@ -2,12 +2,17 @@ import { createIncomeCategoryType, deleteIncomeCategoryType, incomeCategoryRespo
 import { apiSlice } from "@/features/api/apiSlice";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+interface incomeCategoryInput{
+	query:string,
+	org_id:number
+}
+
 export const IncomeCategory = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getIncomeCategory: builder.query<incomeCategoryResponseType[], number>({
-        query: (org_id) => ({
-          url: `/income_category?org_id=${org_id}`,
+      getIncomeCategory: builder.query<incomeCategoryResponseType[], incomeCategoryInput>({
+        query: (searchCretiria) => ({
+          url: `/income_category?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
           headers: {
             Accept: "application/json",

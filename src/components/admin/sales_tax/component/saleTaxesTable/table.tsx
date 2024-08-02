@@ -91,16 +91,54 @@ const downloadCSV = (data: saleTaxesTableType[], fileName: string) => {
   document.body.removeChild(link);
 };
 
+interface searchCretiriaType {
+  limit: number;
+  offset: number;
+  sort_order: string;
+}
+
 export default function SaleTaxesTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+
+  const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
+    limit: 10,
+    offset: 0,
+    sort_order: "desc",
+  });
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchCretiria)) {
+      console.log({ key, value });
+      if (value !== undefined && value !== null) {
+        params.append(key, value);
+      }
+    }
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery);
+  }, [searchCretiria]);
 
   const {
     data: saleTaxesData,
     isLoading,
     refetch,
     error,
-  } = useGetSalesTaxQuery(orgId);
+  } = useGetSalesTaxQuery(
+    { org_id: orgId, query: query },
+    {
+      skip: query == "",
+    }
+  );
+
+  const toggleSortOrder = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
+    }));
+  };
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleCloseDailog = () => setIsDialogOpen(false);
@@ -110,42 +148,6 @@ export default function SaleTaxesTableView() {
     name: "",
     org_id: orgId,
   });
-
-  //   // table dropdown status update
-  //   const handleStatusChange = async (payload: {
-  //     id: number;
-  //     org_id: number;
-  //     percentage: number;
-  // ;
-  //   }) => {
-  //     try {
-  //       const resp = await updateCredits(payload).unwrap();
-  //       if (resp) {
-  //         console.log({ resp });
-  //         refetch();
-  //         toast({
-  //           variant: "success",
-  //           title: "Updated Successfully",
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.error("Error", { error });
-  //       if (error && typeof error === "object" && "data" in error) {
-  //         const typedError = error as ErrorType;
-  //         toast({
-  //           variant: "destructive",
-  //           title: "Error in form Submission",
-  //           description: typedError.data?.detail,
-  //         });
-  //       } else {
-  //         toast({
-  //           variant: "destructive",
-  //           title: "Error in form Submission",
-  //           description: `Something Went Wrong.`,
-  //         });
-  //       }
-  //     }
-  //   };
 
   const saletaxestableData = React.useMemo(() => {
     return Array.isArray(saleTaxesData) ? saleTaxesData : [];
@@ -166,12 +168,12 @@ export default function SaleTaxesTableView() {
   });
   const displayValue = (value: any) => (value === null ? "N/A" : value);
 
-  const handleOnChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     console.log({ name, value }, "name,value");
-    let finalValue:(number|string)=value
-    if(name=='percentage'){
-      finalValue=Number(value)
+    let finalValue: number | string = value;
+    if (name == "percentage") {
+      finalValue = Number(value);
     }
     setFormData((prevData) => {
       const updatedData = { ...prevData, [name]: finalValue };
@@ -267,7 +269,7 @@ export default function SaleTaxesTableView() {
     setIsDialogOpen(true);
   };
 
-  const handleEditSaleTax = (data:saleTaxesFormData) => {
+  const handleEditSaleTax = (data: saleTaxesFormData) => {
     // console.log("Before update:", formData);
     console.log("update:", data);
     setFormData(() => {
@@ -282,24 +284,7 @@ export default function SaleTaxesTableView() {
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
-            {/* <div className="flex items-center w-[40%] gap-2 py-2 rounded-md border border-gray-300 focus-within:border-primary focus-within:ring-[1] ring-primary"> 
-              <Search className="w-6 h-6 text-gray-500" />
-              <input
-                placeholder="Search"
-                value={
-                  (table.getColumn("full_name")?.getFilterValue() as string) ??
-                  ""
-                }
-                onChange={(event) =>
-                  table
-                    .getColumn("full_name")
-                    ?.setFilterValue(event.target.value)
-                }
-                className="h-7 w-[150px] lg:w-[220px] outline-none"
-              /> 
-
-            </div> */}
-            <p className="font-semibold text-2xl">Sales Tax</p>
+          <p className="font-semibold text-2xl">Sales Tax</p>
         </div>
         <Button
           className="bg-primary m-4 text-black gap-1 font-semibold"
@@ -308,7 +293,14 @@ export default function SaleTaxesTableView() {
           <PlusIcon className="h-4 w-4" />
           Create New
         </Button>
-        {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={toggleSortOrder}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
       </div>
       <div className="rounded-none  ">
         <ScrollArea className="w-full relative">
@@ -339,10 +331,10 @@ export default function SaleTaxesTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    <div className='flex space-x-2 justify-center items-center bg-white '>
-                      <div className='size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]'></div>
-                      <div className='size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]'></div>
-                      <div className='size-3 bg-black rounded-full animate-bounce'></div>
+                    <div className="flex space-x-2 justify-center items-center bg-white ">
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce"></div>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -385,73 +377,21 @@ export default function SaleTaxesTableView() {
           </Table>
         </ScrollArea>
       </div>
-      <div className="flex items-center justify-end space-x-2 px-4 py-4">
+
+      {/* pagination */}
+      <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-          {/* Page {filters.first + 1} of{" "}
-          {Math.ceil((data?.count ?? 0) / filters.rows)} */}
+          {/* {count?.total_members} */}
         </div>
 
         <div className="flex items-center justify-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Rows per page</p>
-            {/* <Select
-              // value={`${filters.rows}`}
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue defaultValue={pagination.pageSize} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pagination}`} >
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-            {/* <Select
-              value="10"
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue>{10}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
             <Select
               value={pagination.pageSize.toString()}
               onValueChange={(value) => {
                 const newSize = Number(value);
-                setPagination((prevPagination) => ({
-                  ...prevPagination,
-                  pageSize: newSize,
-                }));
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: newSize,
-                  first: 0,
-                }));
-                table.setPageSize(newSize);
+                setSearchCretiria((prev) => ({ ...prev, limit: newSize }));
               }}
             >
               <SelectTrigger className="h-8 w-[70px]">
@@ -467,12 +407,19 @@ export default function SaleTaxesTableView() {
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 p-2">
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => handlePagination(0)}
-              // disabled={filters.first === 0}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: 0,
+                  };
+                })
+              }
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to first page</span>
               <DoubleArrowLeftIcon className="h-4 w-4" />
@@ -481,8 +428,15 @@ export default function SaleTaxesTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters?.first - 1)}
-              // disabled={filters?.first === 0}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset - 1,
+                  };
+                })
+              }
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to previous page</span>
               <ChevronLeftIcon className="h-4 w-4" />
@@ -490,32 +444,48 @@ export default function SaleTaxesTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters.first + 1)}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset + 1,
+                  };
+                })
+              }
               // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
+              //   searchCretiria.offset ==
+              //   Math.ceil(
+              //     (count?.total_members as number) / searchCretiria.limit
+              //   ) -
+              //     1
               // }
             >
-              <span className="sr-only">Go to next page</span>
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
 
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              // onClick={() =>
-              //   handlePagination(
-              //     Math.ceil((data?.count ?? 0) / filters.rows) - 1
-              //   )
-              // }
+              className="hidden h-8 w-8 p-0 lg:flex "
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    // offset:
+                    //   Math.ceil(
+                    //     (count?.total_members as number) / searchCretiria.limit
+                    //   ) - 1,
+                    offset: 10,
+                  };
+                })
+              }
               // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
+              //   searchCretiria.offset ==
+              //   Math.ceil(
+              //     (count?.total_members as number) / searchCretiria.limit
+              //   ) -
+              //     1
               // }
             >
-              <span className="sr-only">Go to last page</span>
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>
           </div>
@@ -591,7 +561,7 @@ const SaleTaxesForm = ({
 
     try {
       if (formData.case == "add") {
-        const resp = await createSalesTax(data)
+        const resp = await createSalesTax(data);
         if (resp) {
           console.log({ resp });
           refetch();
@@ -603,7 +573,7 @@ const SaleTaxesForm = ({
           setIsDialogOpen(false);
         }
       } else {
-        const resp = await updateSalesTax(data)
+        const resp = await updateSalesTax(data);
         if (resp) {
           console.log({ resp });
           refetch();
@@ -637,20 +607,20 @@ const SaleTaxesForm = ({
   };
 
   const resetFormAndCloseDialog = () => {
-    setFormData((prev:saleTaxesFormData) => ({
+    setFormData((prev: saleTaxesFormData) => ({
       ...prev,
       percentage: 1,
       name: "",
     }));
   };
-  console.log(form.formState.errors)
+  console.log(form.formState.errors);
 
   return (
     <div>
       <Sheet
         open={isDialogOpen}
         onOpenChange={() => {
-          setFormData((prev:saleTaxesFormData) => ({
+          setFormData((prev: saleTaxesFormData) => ({
             ...prev,
             percentage: 1,
             name: "",
@@ -670,7 +640,7 @@ const SaleTaxesForm = ({
               {formData.case == "add" ? "Create" : "Edit"} Tax/VAT
             </SheetTitle>
             <SheetDescription>
-            <Separator className=" h-[1px] font-thin rounded-full" />
+              <Separator className=" h-[1px] font-thin rounded-full" />
 
               <Form {...form}>
                 <form
@@ -712,7 +682,6 @@ const SaleTaxesForm = ({
                           label="Percentage*"
                           value={field.value ?? 1}
                           onChange={handleOnChange}
-
                         />
                         {watcher.percentage ? <></> : <FormMessage />}
                       </FormItem>
@@ -721,9 +690,11 @@ const SaleTaxesForm = ({
                   <LoadingButton
                     type="submit"
                     className="bg-primary font-semibold text-black gap-1"
-										loading={form.formState.isSubmitting}
+                    loading={form.formState.isSubmitting}
                   >
-                      {!form.formState.isSubmitting && <i className="fa-regular fa-floppy-disk text-base px-1 "></i>}
+                    {!form.formState.isSubmitting && (
+                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                    )}
                     Save
                   </LoadingButton>
                 </form>

@@ -4,13 +4,17 @@ import {
   updateCreditsType,
 } from "../app/types";
 import { apiSlice } from "@/features/api/apiSlice";
+interface facilitiesInput{
+	query:string,
+	org_id:number
+}
 
 export const Credits = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getCredits: builder.query<creditsResponseType[], number>({
-        query: (org_id) => ({
-          url: `/facilities?org_id=${org_id}`,
+      getCredits: builder.query<creditsResponseType[], facilitiesInput>({
+        query: (searchCretiria) => ({
+          url: `/facilities?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
           headers: {
             Accept: "application/json",

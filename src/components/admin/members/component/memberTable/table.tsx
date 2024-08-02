@@ -67,6 +67,9 @@ interface searchCretiriaType {
   offset: number;
   sort_order: string;
   client_name?: string;
+  status?: string;
+  membership_plan?: string;
+  coach_asigned?: string;
 }
 
 export default function MemberTableView() {
@@ -450,6 +453,8 @@ export default function MemberTableView() {
           </Table>
         </ScrollArea>
       </div>
+
+      {/* pagination */}
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
           {count?.total_members}

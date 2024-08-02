@@ -1,12 +1,15 @@
 import { createMembershipType, membeshipsTableType, updateMembershipType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
-
+interface membershipInput{
+	query?:string,
+	org_id:number
+}
 export const Memberships = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getMemberships: builder.query<membeshipsTableType[], number>({
-        query: (org_id) => ({
-          url: `/membership_plan?org_id=${org_id}`,
+      getMemberships: builder.query<membeshipsTableType[], membershipInput>({
+        query: (searchCretiria) => ({
+          url: `/membership_plan?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
           headers: {
             Accept: "application/json",

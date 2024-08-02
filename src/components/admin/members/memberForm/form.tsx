@@ -248,7 +248,7 @@ const MemberForm: React.FC = () => {
   const { data: business } = useGetAllBusinessesQuery(orgId);
   const { data: coaches } = useGetListOfCoachQuery(orgId);
   const { data: sources } = useGetAllSourceQuery();
-  const { data: membershipPlans } = useGetMembershipsQuery(orgId);
+  const { data: membershipPlans } = useGetMembershipsQuery({org_id:orgId, query:""});
   const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
   const [editMember, { isLoading: editLoading, isError }] =
     useUpdateMemberMutation();
@@ -282,7 +282,7 @@ const MemberForm: React.FC = () => {
     console.log({ memberData }, "jh");
     if (!memberData) {
       if (orgName) {
-        const total = memberCountData?.total_clients as number;
+        const total = memberCountData?.total_members as number;
         if (total >= 0) {
           form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total + 1}`);
         }

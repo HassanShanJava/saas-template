@@ -122,7 +122,7 @@ const navItems: NavItem[] = [
     link: "/admin/exercise",
     icon: IoIosFitness,
     dropdown: false,
-    // hiddenRoutes: ["/admin/coach/addcoach", "/admin/coach/editcoach"],
+    hiddenRoutes: ["/admin/exercise/addexercise"],
   },
   {
     name: "Roles & Access Management",

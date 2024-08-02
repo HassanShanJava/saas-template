@@ -530,7 +530,7 @@ const StaffForm: React.FC = () => {
                           {...field}
                           id="email"
                           label="Email Address*"
-                          disabled={typeof id === "number"}
+                          disabled={id != undefined}
                         />
                         {watcher.email ? <></> : <FormMessage />}
                       </FormItem>

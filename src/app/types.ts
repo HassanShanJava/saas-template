@@ -480,6 +480,38 @@ export interface CoachInputTypes {
   member_ids: any;
   org_id: number;
 }
+export interface addCoachResponseType {
+  wallet_address?: string;
+  org_id: number;
+  coach_status: "pending" | "active" | "inactive";
+  own_coach_id: string;
+  profile_img?: string;
+  first_name: string;
+  last_name: string;
+  dob: string;
+  gender?: "male" | "female" | "other";
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  country_id: number;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  check_in?: string;
+  last_online?: string;
+  coach_since?: string;
+  bank_name?: string;
+  iban_no?: string;
+  acc_holder_name?: string;
+  swift_code?: string;
+  id: number;
+  created_at?: string;
+  updated_at?: string;
+  member_ids?: any;
+}
 
 export interface CoachResponseType {
   id: number;
@@ -543,7 +575,7 @@ export interface CoachResponseTypeById {
   check_in?: string | null;
   last_online?: string | null;
   coach_since?: string | null; // ISO date string
-  coach_status: "pending" | "active" | "inactive" | undefined;
+  coach_status: "pending" | "active" | "inactive";
   org_id: number;
   bank_name?: string;
   iban_no?: string;
@@ -661,4 +693,37 @@ export interface staffTypesResponseList {
   activated_on?: string;
   last_online?: string;
   last_checkin?: string;
+}
+
+export interface coachUpdateInput {
+  wallet_address?: string;
+  org_id?: 0;
+  coach_status?: "pending" | "active" | "inactive";
+  own_coach_id?: string;
+  profile_img?: string;
+  first_name?: string;
+  last_name?: string;
+  dob?: string;
+  gender?: "male" | "female" | "other";
+  email?: string;
+  password?: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id?: number;
+  country_id?: number;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  check_in?: string;
+  last_online?: string;
+  coach_since?: string;
+  bank_name: string;
+  iban_no: string;
+  acc_holder_name: string;
+  swift_code: string;
+  id: number;
+  updated_by?: number;
+  member_ids?: any;
 }

@@ -561,6 +561,7 @@ const CoachForm: React.FC = () => {
                           {...field}
                           id="email"
                           label="Email Address*"
+                          disabled={id != undefined}
                         />
                         {<FormMessage />}
                       </FormItem>

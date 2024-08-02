@@ -55,32 +55,32 @@ import { ErrorType } from "@/app/types";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { FaFileUpload } from "react-icons/fa";
 
-
 enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
 }
 
-enum difficultyEnum{
-  Novice='Novice',
-    Beginner='Beginner',
-    Intermediate='Intermediate',
-    Advance='Advance',
-    Expert='Expert',
+enum difficultyEnum {
+  Novice = "Novice",
+  Beginner = "Beginner",
+  Intermediate = "Intermediate",
+  Advance = "Advance",
+  Expert = "Expert",
 }
 
-enum ExerciseTypeEnum{
-    time_based = 'Time Based',
-    repetition_based = 'Repetition Based',
+enum ExerciseTypeEnum {
+  time_based = "Time Based",
+  repetition_based = "Repetition Based",
 }
 
-enum VisibilityEnum{
-  only_myself = 'Only Myself',
-  staff_of_my_club = 'Staff of My Club',
-  members_of_my_club = 'Members of My Club',
-  everyone_in_my_club = 'Everyone in My Club'
+enum VisibilityEnum {
+  only_myself = "Only Myself",
+  staff_of_my_club = "Staff of My Club",
+  members_of_my_club = "Members of My Club",
+  everyone_in_my_club = "Everyone in My Club",
 }
+
 const ExericeForm: React.FC = () => {
   const { id } = useParams();
 
@@ -92,36 +92,32 @@ const ExericeForm: React.FC = () => {
     name: z.string(),
   });
 
-  const initialState: any = {
-    own_coach_id: "",
-    gender: "male",
-    email: "",
-    notes: "",
-    org_id: orgId,
-  };
-
+  const initialState: any = {};
 
   const FormSchema = z.object({
     exercise_name: z.string({
       required_error: "Required",
     }),
-    exercise_type:z.nativeEnum(ExerciseTypeEnum,{
-      required_error:"Required"
+    exercise_type: z.nativeEnum(ExerciseTypeEnum, {
+      required_error: "Required",
     }),
-    difficulty:z.nativeEnum(difficultyEnum,{
-      required_error:"Required"
+    difficulty: z.nativeEnum(difficultyEnum, {
+      required_error: "Required",
     }),
-    visibility:z.nativeEnum(VisibilityEnum,{
-      required_error:"Required"
+    visibility: z.nativeEnum(VisibilityEnum, {
+      required_error: "Required",
     }),
     gender: z.nativeEnum(genderEnum, {
       required_error: "Required",
     }),
     email: z.string().min(1, { message: "Required" }).email("invalid email"),
     notes: z.string().optional(),
-    gif_url: z.string().optional(),
-    youtube_male:z.string().optional(),
-    youtube_female:z.string().optional(),
+    gif_url: z.string({
+      required_error: "Required",
+    }),
+    youtube_male: z.string().optional(),
+    youtube_female: z.string().optional(),
+    sets: z.coerce.number().optional(),
   });
 
   const orgName = useSelector(
@@ -134,7 +130,7 @@ const ExericeForm: React.FC = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      ...initialState,
+      exercise_type: ExerciseTypeEnum.time_based, // Set the default value here
     },
     mode: "onChange",
   });
@@ -179,20 +175,6 @@ const ExericeForm: React.FC = () => {
     navigate("/admin/exercise");
   }
 
-  // React.useEffect(() => {
-  //   if (!EditCoachData) {
-  //     if (orgName) {
-  //       const total = coachCountData?.total_coaches as number;
-  //       if (total >= 0) {
-  //         form.setValue("own_coach_id", `${orgName.slice(0, 2)}-C${total + 1}`);
-  //       }
-  //     }
-  //   } else {
-  //     setInitialValues(EditCoachData as CoachInputTypes);
-  //     form.reset(EditCoachData);
-  //   }
-  // }, [EditCoachData, coachCountData, orgName]);
-
   return (
     <div className="p-6 bg-bgbackground">
       <Form {...form}>
@@ -210,7 +192,6 @@ const ExericeForm: React.FC = () => {
                     <Button
                       type={"button"}
                       onClick={gotoExercise}
-                      // disabled={memberLoading || editcoachLoading}
                       className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
@@ -220,8 +201,6 @@ const ExericeForm: React.FC = () => {
                     <LoadingButton
                       type="submit"
                       className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                      // loading={memberLoading || editcoachLoading}
-                      // disabled={memberLoading || editcoachLoading}
                     >
                       {!(true || true) && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
@@ -251,19 +230,43 @@ const ExericeForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="gender"
+                    name="visibility"
                     render={({ field }) => (
                       <FormItem>
-                        <Select>
+                        <Select
+                          onValueChange={(value: VisibilityEnum) =>
+                            form.setValue("visibility", value)
+                          }
+                          value={field.value as VisibilityEnum}
+                        >
                           <FormControl>
                             <SelectTrigger
                               floatingLabel="Visible for*"
-                              className={`${watcher.gender ? "text-black" : "text-gray-500"}`}
+                              className={`${watcher.visibility ? "text-black" : "text-gray-500"}`}
                             >
                               <SelectValue placeholder="Select Visibility" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent></SelectContent>
+                          <SelectContent>
+                            <SelectItem value="Only Myself">
+                              Only Myself
+                            </SelectItem>
+                            <SelectItem value="Staff of My Club">
+                              Staff of My Club
+                            </SelectItem>
+                            <SelectItem
+                              value="Members of
+                            My Club"
+                            >
+                              Members of My Club
+                            </SelectItem>
+                            <SelectItem
+                              value="Everyone in My
+                            Club"
+                            >
+                              Everyone in My Club
+                            </SelectItem>
+                          </SelectContent>
                         </Select>
                         {<FormMessage />}
                       </FormItem>
@@ -295,19 +298,32 @@ const ExericeForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="gender"
+                    name="difficulty"
                     render={({ field }) => (
                       <FormItem>
-                        <Select>
+                        <Select
+                          onValueChange={(value: difficultyEnum) =>
+                            form.setValue("difficulty", value)
+                          }
+                          value={field.value as difficultyEnum}
+                        >
                           <FormControl>
                             <SelectTrigger
-                              floatingLabel="Add difficulty*"
-                              className={`${watcher.gender ? "text-black" : "text-gray-500"}`}
+                              floatingLabel="Select difficulty*"
+                              className={`${watcher.difficulty ? "text-black" : "text-gray-500"}`}
                             >
                               <SelectValue placeholder="Select Difficulty" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent></SelectContent>
+                          <SelectContent>
+                            <SelectItem value="Novice">Novice</SelectItem>
+                            <SelectItem value="Beginner">Beginner</SelectItem>
+                            <SelectItem value="Intermediate">
+                              Intermediate
+                            </SelectItem>
+                            <SelectItem value="Advance">Advance</SelectItem>
+                            <SelectItem value="Expert">Expert</SelectItem>
+                          </SelectContent>
                         </Select>
                         {<FormMessage />}
                       </FormItem>
@@ -452,82 +468,108 @@ const ExericeForm: React.FC = () => {
                 </div>
               </div>
               <div className="w-4/5  flex justify-start gap-4items-start">
-              <div className="grid grid-cols-2 gap-4 mt-6">
-              <div>
-                <h3 className="text-lg font-semibold">Images</h3>
-                <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
-                  <div className="justify-center items-center flex flex-col"> 
-                  <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-                    <ImageIcon className="w-12 h-12 text-gray-400" />
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  <div>
+                    <h3 className="text-lg font-semibold">Images</h3>
+                    <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
+                      <div className="justify-center items-center flex flex-col">
+                        <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                          <ImageIcon className="w-12 h-12 text-gray-400" />
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="mt-2 gap-2 border-dashed border-2 text-xs"
+                        >
+                          <FiUpload className="text-primary w-5 h-5" /> Image -
+                          Male
+                        </Button>
+                      </div>
+                      <div className="justify-center items-center flex flex-col">
+                        <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                          <ImageIcon className="w-12 h-12 text-gray-400" />
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="gap-2 mt-2 text-xs border-dashed border-2"
+                        >
+                          <FiUpload className="text-primary w-5 h-5 " />
+                          Image - Female
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                  <Button variant="ghost" className="mt-2 gap-2 border-dashed border-2 text-xs" >
-                    <FiUpload className="text-primary w-5 h-5" />  Image - Male
-                    </Button>
-                  </div>
-                  <div className="justify-center items-center flex flex-col"> 
-                  <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-                    <ImageIcon className="w-12 h-12 text-gray-400" />
-                  </div>
-                  <Button variant="ghost" className="gap-2 mt-2 text-xs border-dashed border-2">
-                    
-                  <FiUpload className="text-primary w-5 h-5 " /> 
-                  Image - Female
-                    </Button>
+                  <div>
+                    <h3 className="text-lg font-semibold">Thumbnail</h3>
+                    <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
+                      <div className="justify-center items-center flex flex-col">
+                        <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                          <ImageIcon className="w-12 h-12 text-gray-400" />
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="mt-2 text-xs border-dashed gap-2 border-2"
+                        >
+                          <FiUpload className="text-primary w-5 h-5 " />
+                          Thumbnail - Male
+                        </Button>
+                      </div>
+                      <div className="justify-center items-center flex flex-col">
+                        <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                          <ImageIcon className="w-12 h-12 text-gray-400" />
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="mt-2 text-xs gap-2 border-dashed border-2"
+                        >
+                          <FiUpload className="text-primary w-5 h-5" />
+                          Thumbnail - Female
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold">Thumbnail</h3>
-                <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
-                  <div className="justify-center items-center flex flex-col"> 
-                  <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-                    <ImageIcon className="w-12 h-12 text-gray-400" />
-                  </div>
-                  <Button variant="ghost" className="mt-2 text-xs border-dashed gap-2 border-2">
-                  <FiUpload className="text-primary w-5 h-5 " />
-                      Thumbnail - Male
-                    </Button>
-                  </div>
-                  <div className="justify-center items-center flex flex-col"> 
-                  <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-                    <ImageIcon className="w-12 h-12 text-gray-400" />
-                  </div>
-                  <Button variant="ghost" className="mt-2 text-xs gap-2 border-dashed border-2">
-                  <FiUpload className="text-primary w-5 h-5" />
-                  Thumbnail - Female
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            </div>
-            <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+              <div className="w-full flex gap-3 justify-start items-center">
                 <div className="relative">
                   <FormField
                     control={form.control}
                     name="exercise_type"
                     render={({ field }) => (
                       <FormItem>
-                        <div className="flex gap-4">
-                        Exercise Type:
-                        {Object.values(ExerciseTypeEnum).map((value) => (
-                          <label key={value}>
-                            <input
-                              type="radio"
-                              value={value}  // Use the enum value here
-                              checked={field.value === value}
-                              onChange={field.onChange}
-                            />
-                            {value}
-                          </label>
-                        ))}
+                        <div className="flex gap-4 w-full">
+                          Exercise Type:
+                          {Object.values(ExerciseTypeEnum).map((value) => (
+                            <label key={value}>
+                              <input
+                                type="radio"
+                                value={value} // Use the enum value here
+                                checked={field.value === value}
+                                onChange={field.onChange}
+                                className="mr-2"
+                              />
+                              {value}
+                            </label>
+                          ))}
                         </div>
-                        
+
                         {watcher.exercise_type ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
-                </div></div>
+                </div>
+                <div className="w-[10%]">
+                  <FormField
+                    control={form.control}
+                    name="sets"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput {...field} id="sets" label="Set*" />
+                        {watcher.sets ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </form>

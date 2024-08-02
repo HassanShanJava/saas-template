@@ -266,17 +266,7 @@ export default function StaffTableView() {
         );
       },
     },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.status)}
-          </div>
-        );
-      },
-    },
+
     {
       accessorKey: "status",
       header: ({ table }) => <span>Status</span>,

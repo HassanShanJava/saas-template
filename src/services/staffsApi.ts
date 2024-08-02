@@ -9,7 +9,7 @@ export const StaffApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getStaffCount: builder.query<{ total_staffs: number }, number>({
       query: (org_id) => ({
-        url: `/staff/staffs/getTotalStaff?org_id=${org_id}`,
+        url: `/staff/count/${org_id}`,
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -20,7 +20,7 @@ export const StaffApi = apiSlice.injectEndpoints({
     //get the satff by Id
     getStaffById: builder.query<StaffResponseType, number>({
       query: (staff_id) => ({
-        url: `/staff/staffs?staff_id=${staff_id}`,
+        url: `/staff/${staff_id}`,
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -31,7 +31,7 @@ export const StaffApi = apiSlice.injectEndpoints({
     // Adding the Staff
     AddStaff: builder.mutation<StaffResponseType, StaffInputType>({
       query: (staffdata) => ({
-        url: "/staff/staffs",
+        url: "/staff",
         method: "POST",
         body: staffdata,
         headers: {
@@ -43,7 +43,7 @@ export const StaffApi = apiSlice.injectEndpoints({
     }),
     GetStaffList: builder.query<staffTypesResponseList[], number>({
       query: (org_id) => ({
-        url: `/staff/staffs/getAll?org_id=${org_id}`,
+        url: `/staff?org_id=${org_id}`,
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -51,9 +51,9 @@ export const StaffApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Staffs"],
     }),
-    deleteStaff: builder.mutation<any, { id: number }>({
+    deleteStaff: builder.mutation<any, number>({
       query: (staffId) => ({
-        url: "/staff/staffs",
+        url: `/staff/${staffId}`,
         method: "DELETE",
         body: staffId,
         headers: {
@@ -65,7 +65,7 @@ export const StaffApi = apiSlice.injectEndpoints({
     }),
     updateStaff: builder.mutation<staffTypesResponseList, StaffInputType>({
       query: (staffdata) => ({
-        url: "/staff/staffs",
+        url: "/staff",
         method: "PUT",
         body: staffdata,
         headers: {
@@ -84,5 +84,5 @@ export const {
   useAddStaffMutation,
   useGetStaffListQuery,
   useDeleteStaffMutation,
-  useUpdateStaffMutation
+  useUpdateStaffMutation,
 } = StaffApi;

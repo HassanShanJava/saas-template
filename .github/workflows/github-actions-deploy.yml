@@ -33,7 +33,7 @@ jobs:
       - run: aws s3 cp ${{ github.workspace }}/dist/ s3://atmosphere.fitnfi.com/ --recursive
       - id: create_invalidation
         run: |
-          invalidation_id=$(aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --invalidation-batch "CallerReference=$(date +'%Y-%m-%d-%H-%M-%S'),List=['/*']" --output text --query 'Invalidation.Id')
+          invalidation_id=$(aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*" --invalidation-batch "CallerReference=$(date +'%Y-%m-%d-%H-%M-%S'),List=['/*']" --output text --query 'Invalidation.Id')
           echo "Invalidation ID: $invalidation_id"
       - name: Wait for invalidation
         run: |

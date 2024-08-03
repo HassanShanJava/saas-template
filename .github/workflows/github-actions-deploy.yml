@@ -31,4 +31,12 @@ jobs:
       - run: pnpm install # Install dependencies
       - run: pnpm run build # Build the Next.js app
       - run: aws s3 cp ${{ github.workspace }}/dist/ s3://atmosphere.fitnfi.com/ --recursive
-      - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --invalidation-batch "CallerReference=$(date +'%Y-%m-%d-%H-%M-%S'),List=['/*']"  
+      - id: create_invalidation
+        run: |
+          invalidation_id=$(aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*" --caller-reference $(date +'%Y-%m-%d-%H-%M-%S') --output text --query 'Invalidation.Id')
+          echo "Invalidation ID: $invalidation_id"
+      - name: Wait for invalidation
+        run: |
+          while [ "$(aws cloudfront get-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --id $invalidation_id --output text --query 'Invalidation.Status')" != "Completed" ]; do
+            sleep 30
+          done

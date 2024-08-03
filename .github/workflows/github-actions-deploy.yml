@@ -10,10 +10,11 @@ jobs:
   build-dev:
     runs-on: ubuntu-latest # Use a suitable GitHub-hosted runner
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # Access secrets securely
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
+      VITE_APP_SITEKEY: ${{env.VITE_APP_SITEKEY}}
+      VITE_API_URL: ${{env.VITE_API_URL}}
+      VITE_View_URL: ${{env.VITE_View_URL}}
+      VITE_AWS_S3_BUCKET_NAME: ${{env.VITE_AWS_S3_BUCKET_NAME}}
+      VITE_AWS_S3_REGION: ${{env.VITE_AWS_S3_REGION}}
 
     steps:
       - uses: pnpm/action-setup@v4
@@ -35,8 +36,4 @@ jobs:
         run: |
           invalidation_id=$(aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*"  --output text --query 'Invalidation.Id')
           echo "Invalidation ID: $invalidation_id"
-      - name: Wait for invalidation
-        run: |
-          while [ "$(aws cloudfront get-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --id $invalidation_id --output text --query 'Invalidation.Status')" != "Completed" ]; do
-            sleep 30
-          done
+      

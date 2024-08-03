@@ -10,12 +10,11 @@ jobs:
   build-dev:
     runs-on: ubuntu-latest # Use a suitable GitHub-hosted runner
     env:
-      VITE_APP_SITEKEY: ${{secrets.VITE_APP_SITEKEY}}
-      VITE_API_URL: ${{secrets.VITE_API_URL}}
-      VITE_View_URL: ${{secrets.VITE_View_URL}}
-      VITE_AWS_S3_BUCKET_NAME: ${{secrets.VITE_AWS_S3_BUCKET_NAME}}
-      VITE_AWS_S3_REGION: ${{secrets.VITE_AWS_S3_REGION}}
-
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # Access secrets securely
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
+  
     steps:
       - uses: pnpm/action-setup@v4
         with:

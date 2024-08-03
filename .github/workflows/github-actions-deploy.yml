@@ -14,12 +14,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
-      VITE_APP_SITEKEY: ${{env.VITE_APP_SITEKEY}}
-      VITE_API_URL: ${{env.VITE_API_URL}}
-      VITE_View_URL: ${{env.VITE_View_URL}}
-      VITE_AWS_S3_BUCKET_NAME: ${{env.VITE_AWS_S3_BUCKET_NAME}}
-      VITE_AWS_S3_REGION: ${{env.VITE_AWS_S3_REGION}}
-
+  
     steps:
       - uses: pnpm/action-setup@v4
         with:

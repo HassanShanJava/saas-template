@@ -232,7 +232,8 @@ export interface ErrorType {
   };
 }
 export interface CoachTypes {
-  coach_name: string;
+  first_name: string;
+  last_name: string;
   id: number;
   is_deleted: boolean;
 }
@@ -383,6 +384,7 @@ export interface MemberTabletypes {
   last_name: string;
   phone?: string | null;
   mobile_number?: string | null;
+  membership_plan_id?: number;
   check_in?: string | null;
   last_online?: string | null;
   client_since?: string | null;
@@ -431,15 +433,8 @@ export interface updateStatusInput {
 }
 
 export interface getRolesType {
-  role_name: string;
-  org_id: number;
-  children?: getRolesType[];
-  subRows?: getRolesType[];
-  code: string | undefined;
-  parent: string | undefined;
-  is_deleted: boolean;
-  is_parent: boolean;
-  role_id: number;
+  name: string;
+  id: number;
 }
 
 export interface createRole {

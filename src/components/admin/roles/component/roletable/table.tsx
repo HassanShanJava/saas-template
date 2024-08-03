@@ -203,10 +203,10 @@ export default function RoleTableView() {
                     console.log({ sourceval });
                     return (
                       <SelectItem
-                        key={sourceval.role_id}
-                        value={sourceval.role_id?.toString()}
+                        key={sourceval.id}
+                        value={sourceval.id?.toString()}
                       >
-                        {sourceval?.role_name}
+                        {sourceval?.name}
                       </SelectItem>
                     );
                   })
@@ -335,13 +335,13 @@ export default function RoleTableView() {
 const convertToTableData = (data: resourceTypes[]) => {
   console.log({ data }, "datadatadatadata");
   return data.map((parent) => {
-    if (parent.children) {
+    if (parent.children && parent.children?.length>0) {
       const newParent: resourceTypes = {
         ...parent,
         subRows: parent?.children,
       };
 
-      delete newParent.children;
+      // delete newParent.children;
       return newParent;
     } else {
       return parent;

@@ -4,6 +4,7 @@ import { apiSlice } from "@/features/api/apiSlice";
 interface TransformedGroup {
   value: number;
   label: string;
+  id?:number
 }
 
 export const Groups = apiSlice.injectEndpoints({
@@ -20,7 +21,8 @@ export const Groups = apiSlice.injectEndpoints({
         transformResponse: (resp: groupRespType[]) => {
           return resp.map((item) => ({
             value: item.id,
-            label: item.name
+            label: item.name,
+            id:item.id
           }));
         },
         providesTags: ["Groups"],

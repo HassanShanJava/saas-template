@@ -47,12 +47,22 @@ import { useGetMembershipsQuery, useUpdateMembershipsMutation } from "@/services
 import { useGetIncomeCategoryQuery } from "@/services/incomeCategoryApi";
 import { useGetSalesTaxQuery } from "@/services/salesTaxApi";
 import { useGetGroupQuery } from "@/services/groupsApis";
+import { preventContextMenu } from "@fullcalendar/core/internal";
+import MembershipFilters from "./data-table-filter";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
 const status = [
   { value: "true", label: "Active", color: "bg-green-500" },
   { value: "false", label: "Inactive", color: "bg-blue-500" },
 ];
+
+
+const initialValue = {
+  limit: 10,
+  offset: 0,
+  sort_order: "desc",
+};
+
 
 const durationLabels = {
   weekly: "Weeks",
@@ -90,7 +100,9 @@ export default function MembershipsTableView() {
       sort_order: "desc",
     });
     const [query, setQuery] = useState("");
-  
+    const [openFilter, setOpenFilter] = useState(false);
+    const [filterData, setFilter] = useState({});
+
     useEffect(() => {
       const params = new URLSearchParams();
       for (const [key, value] of Object.entries(searchCretiria)) {
@@ -132,43 +144,6 @@ export default function MembershipsTableView() {
       sort_order: prev.sort_order === "desc" ? "asc" : "desc",
     }));
   };
-
-
-  //   // table dropdown status update
-  //   const handleStatusChange = async (payload: {
-  //     id: number;
-  //     org_id: number;
-  //     percentage: number;
-  // ;
-  //   }) => {
-  //     try {
-  //       const resp = await updateCredits(payload).unwrap();
-  //       if (resp) {
-  //         console.log({ resp });
-  //         refetch();
-  //         toast({
-  //           variant: "success",
-  //           title: "Updated Successfully",
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.error("Error", { error });
-  //       if (error && typeof error === "object" && "data" in error) {
-  //         const typedError = error as ErrorType;
-  //         toast({
-  //           variant: "destructive",
-  //           title: "Error in form Submission",
-  //           description: typedError.data?.detail,
-  //         });
-  //       } else {
-  //         toast({
-  //           variant: "destructive",
-  //           title: "Error in form Submission",
-  //           description: `Something Went Wrong.`,
-  //         });
-  //       }
-  //     }
-  //   };
 
   const membershipstableData = React.useMemo(() => {
     return Array.isArray(membershipsData) ? membershipsData : [];
@@ -439,6 +414,38 @@ export default function MembershipsTableView() {
     setData(undefined)
   }
 
+  const handleStatus =(value:string)=>{
+    setFilter(prev=>({
+      ...prev,
+      status:value
+    }))
+  }
+  const handleGroup =(value:number)=>{
+    console.log("grop")
+    setFilter(prev=>({
+      ...prev,
+        group_id:value
+    }))
+  }
+
+
+  const filterDisplay = [
+    {
+      type: "select",
+      name: "status",
+      label: "Status",
+      options: [{id:"true", name:"Active"},{id:"false",name:"Inactive"}],
+      function: handleStatus,
+    },
+    {
+      type: "combobox",
+      name: "group",
+      label: "Group",
+      options: groupData,
+      function: handleGroup,
+    },
+  ];
+
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
@@ -452,6 +459,12 @@ export default function MembershipsTableView() {
           <PlusIcon className="h-4 w-4" />
           Create New
         </Button>
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={() => setOpenFilter(true)}
+        >
+          <i className="fa fa-filter"></i>
+        </button>
         <button
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={toggleSortOrder}
@@ -650,6 +663,15 @@ export default function MembershipsTableView() {
       </div>
 
       <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} data={data} setData={setData} refetch={refetch} action={action} setAction={setAction}/>
+      <MembershipFilters
+        isOpen={openFilter}
+        setOpen={setOpenFilter}
+        initialValue={initialValue}
+        filterData={filterData}
+        setFilter={setFilter}
+        setSearchCriteria={setSearchCretiria}
+        filterDisplay={filterDisplay}
+      />
     </div>
   );
 }

@@ -36,7 +36,7 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { MemberTabletypes } from "@/app/types";
+import { ErrorType, MemberTabletypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
@@ -47,9 +47,12 @@ import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
   useGetAllMemberQuery,
+  useGetCoachesQuery,
   useGetMemberCountQuery,
 } from "@/services/memberAPi";
 import MemberFilters from "./data-table-filter";
+import { useGetMembershipsQuery } from "@/services/membershipsApi";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -72,20 +75,24 @@ interface searchCretiriaType {
   coach_asigned?: string;
 }
 
+const initialValue = {
+  limit: 10,
+  offset: 0,
+  sort_order: "desc",
+};
+
 export default function MemberTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
-    limit: 10,
-    offset: 0,
-    sort_order: "desc",
-  });
+  const [searchCretiria, setSearchCretiria] =
+    useState<searchCretiriaType>(initialValue);
   const [query, setQuery] = useState("");
 
   // search input
   const [inputValue, setInputValue] = useState("");
   const [openFilter, setOpenFilter] = useState(false);
   const debouncedInputValue = useDebounce(inputValue, 500);
+  const [filterData, setFilter] = useState({});
 
   useEffect(() => {
     setSearchCretiria((prev) => {
@@ -127,21 +134,47 @@ export default function MemberTableView() {
     isLoading,
     refetch,
     error,
+    isError,
   } = useGetAllMemberQuery(
     { org_id: orgId, query: query },
     {
       skip: query == "",
     }
   );
+  
+  // const {
+  //   data: coachData,
+  //   error:coachError,
+  //   isError:isCoachError,
+  // } = useGetCoachesQuery(
+  //   { org_id: orgId, query:'' },
+  //   {
+  //     skip: query == "",
+  //   }
+  // );
+  const {
+    data: coachData,
+    error:coachError,
+    isError:isCoachError,
+  } = useGetCoachesQuery(orgId);
+
   const { data: count } = useGetMemberCountQuery(orgId);
+  const { data: membershipPlans } = useGetMembershipsQuery({
+    org_id: orgId,
+    query: "",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (query) {
-      refetch();
+    if (isError|| isCoachError) {
+      // const errorMsg= error?.data?.detail as FetchBaseQueryError || coachError?.data?.detail  satisfies FetchBaseQueryError
+      toast({
+        variant: "destructive",
+        // title: error?.data?.detail as unknown || coachError?.data?.detail  ,
+        title: "Error"  ,
+      });
     }
-    console.log({ query });
-  }, [query, refetch]);
+  }, [isError,isCoachError]);
 
   function handleRoute() {
     navigate("/admin/members/addmember");
@@ -248,8 +281,8 @@ export default function MemberTableView() {
     },
     {
       accessorFn: (row) => row.phone ?? row.mobile_number,
-      id: "contact_number",
-      header: "Contact",
+      id: "membership_plan",
+      header: "Membership Plan",
       cell: ({ row }) => {
         const contactNumber = row.original.phone ?? row.original.mobile_number;
         return (
@@ -341,10 +374,50 @@ export default function MemberTableView() {
     onPaginationChange: setPagination,
   });
 
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
+  function handleMembershipplan(value: string) {
+    setFilter((prev) => ({
+      ...prev,
+      membership_plan: value,
+    }));
   }
+
+  function handleCoachAssigned(value: string) {
+    setFilter((prev) => ({
+      ...prev,
+      coach_assigned: value,
+    }));
+  }
+  
+  function handleStatus(value: string) {
+    setFilter((prev) => ({
+      ...prev,
+      status: value,
+    }));
+  }
+
+  const filterDisplay = [
+    {
+      type: "select",
+      name: "membership_plan",
+      label: "Membership",
+      options: membershipPlans,
+      function: handleMembershipplan,
+    },
+    {
+      type: "select",
+      name: "coach_assigned",
+      label: "Coach",
+      options: coachData&&coachData.map(item=> ({id:item.id, name:item.first_name+" "+item.last_name })),
+      function: handleCoachAssigned,
+    },
+    {
+      type: "select",
+      name: "status",
+      label: "Status",
+      options: [{id:'pending',name:"Pending"},{id:"inactive",name:"Inactive"},{id:"active",name:"Active"}],
+      function: handleStatus,
+    },
+  ];
 
   return (
     <div className="w-full space-y-4">
@@ -375,7 +448,9 @@ export default function MemberTableView() {
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={toggleSortOrder}
         >
-          <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order=='desc'?"rotate-180":"-rotate-180"}`}></i>
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
         </button>
       </div>
       <div className="rounded-md border border-border ">
@@ -568,7 +643,15 @@ export default function MemberTableView() {
       </div>
 
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
-      <MemberFilters isOpen={openFilter} setOpen={setOpenFilter} />
+      <MemberFilters
+        isOpen={openFilter}
+        setOpen={setOpenFilter}
+        initialValue={initialValue}
+        filterData={filterData}
+        setFilter={setFilter}
+        setSearchCriteria={setSearchCretiria}
+        filterDisplay={filterDisplay}
+      />
     </div>
   );
 }

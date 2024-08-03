@@ -11,8 +11,10 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 
 import { cn } from "@/lib/utils";
 import { FloatingLabel } from "./floatinglable/floating";
+import { ChevronDown } from "lucide-react";
 
 const Select = SelectPrimitive.Root;
+
 
 const SelectGroup = SelectPrimitive.Group;
 
@@ -34,7 +36,7 @@ const SelectTrigger = React.forwardRef<
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <CaretSortIcon className="h-4 w-4 opacity-50" />
+      <ChevronDown className="h-4 w-4 opacity-50" />
     </SelectPrimitive.Icon>
     {floatingLabel && <FloatingLabel>{floatingLabel}</FloatingLabel>}
   </SelectPrimitive.Trigger>

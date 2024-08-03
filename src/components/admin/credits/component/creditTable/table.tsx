@@ -23,12 +23,13 @@ import {
 } from "@/components/ui/table";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 import {
   Form,
@@ -45,7 +46,7 @@ import { useForm } from "react-hook-form";
 
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import {  PlusIcon, Search } from "lucide-react";
+import { PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -71,6 +72,8 @@ import {
   useCreateCreditsMutation,
   useUpdateCreditsMutation,
 } from "@/services/creditsApi";
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+import { Separator } from "@/components/ui/separator";
 
 const downloadCSV = (data: creditTablestypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -83,20 +86,59 @@ const downloadCSV = (data: creditTablestypes[], fileName: string) => {
   document.body.removeChild(link);
 };
 
-//
 const status = [
   { value: "true", label: "Active", color: "bg-green-500" },
   { value: "false", label: "Inactive", color: "bg-blue-500" },
 ];
 
+interface searchCretiriaType {
+  limit: number;
+  offset: number;
+  sort_order: string;
+}
+
 export default function CreditsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+
+  const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
+    limit: 10,
+    offset: 0,
+    sort_order: "desc",
+  });
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchCretiria)) {
+      console.log({ key, value });
+      if (value !== undefined && value !== null) {
+        params.append(key, value);
+      }
+    }
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery);
+  }, [searchCretiria]);
+
   const {
     data: creditsData,
     isLoading,
     refetch,
-  } = useGetCreditsQuery(orgId);
+  } = useGetCreditsQuery(
+    { org_id: orgId, query: query },
+    {
+      skip: query == "",
+    }
+  );
+
+  const toggleSortOrder = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
+    }));
+  };
+
   const [updateCredits, { isLoading: creditsLoading }] =
     useUpdateCreditsMutation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -123,6 +165,14 @@ export default function CreditsTableView() {
     });
   };
 
+  const handleStatusOnChange = (value: string) => {
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, status: value === "true" };
+      console.log("After update:", updatedData);
+      return updatedData;
+    });
+  };
+
   // table dropdown status update
   const handleStatusChange = async (payload: {
     id: number;
@@ -141,13 +191,13 @@ export default function CreditsTableView() {
         });
       }
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({
@@ -336,8 +386,7 @@ export default function CreditsTableView() {
               />
             </div>
           </div> */}
-            <p className="font-semibold text-2xl">Credits</p>
-
+          <p className="font-semibold text-2xl">Credits</p>
         </div>
         <Button
           className="bg-primary m-4 text-black font-semibold gap-1"
@@ -346,6 +395,13 @@ export default function CreditsTableView() {
           <PlusIcon className="h-4 w-4 " />
           Create New
         </Button>
+        
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={toggleSortOrder}
+        >
+          <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order=='desc'?"rotate-180":"-rotate-180"}`}></i>
+        </button>
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
       <div className="rounded-none  ">
@@ -377,11 +433,11 @@ export default function CreditsTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    <Spinner className="text-primary">
-                      <span className="text-primary">
-                        Loading data for clients....
-                      </span>
-                    </Spinner>
+                    <div className="flex space-x-2 justify-center items-center bg-white ">
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce"></div>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows.length ? (
@@ -415,7 +471,7 @@ export default function CreditsTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Clients Added yet!.
+                    No records found.
                   </TableCell>
                 </TableRow>
               )}
@@ -423,73 +479,21 @@ export default function CreditsTableView() {
           </Table>
         </ScrollArea>
       </div>
-      <div className="flex items-center justify-end space-x-2 px-4 py-4">
+
+      {/* pagination */}
+      <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-          {/* Page {filters.first + 1} of{" "}
-          {Math.ceil((data?.count ?? 0) / filters.rows)} */}
+          {/* {count?.total_members} */}
         </div>
 
         <div className="flex items-center justify-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Rows per page</p>
-            {/* <Select
-              // value={`${filters.rows}`}
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue defaultValue={pagination.pageSize} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pagination}`} >
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-            {/* <Select
-              value="10"
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue>{10}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
             <Select
               value={pagination.pageSize.toString()}
               onValueChange={(value) => {
                 const newSize = Number(value);
-                setPagination((prevPagination) => ({
-                  ...prevPagination,
-                  pageSize: newSize,
-                }));
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: newSize,
-                  first: 0,
-                }));
-                table.setPageSize(newSize);
+                setSearchCretiria((prev) => ({ ...prev, limit: newSize }));
               }}
             >
               <SelectTrigger className="h-8 w-[70px]">
@@ -505,12 +509,19 @@ export default function CreditsTableView() {
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 p-2">
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => handlePagination(0)}
-              // disabled={filters.first === 0}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: 0,
+                  };
+                })
+              }
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to first page</span>
               <DoubleArrowLeftIcon className="h-4 w-4" />
@@ -519,8 +530,15 @@ export default function CreditsTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters?.first - 1)}
-              // disabled={filters?.first === 0}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset - 1,
+                  };
+                })
+              }
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to previous page</span>
               <ChevronLeftIcon className="h-4 w-4" />
@@ -528,38 +546,53 @@ export default function CreditsTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters.first + 1)}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset + 1,
+                  };
+                })
+              }
               // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
+              //   searchCretiria.offset ==
+              //   Math.ceil(
+              //     (count?.total_members as number) / searchCretiria.limit
+              //   ) -
+              //     1
               // }
             >
-              <span className="sr-only">Go to next page</span>
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
 
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              // onClick={() =>
-              //   handlePagination(
-              //     Math.ceil((data?.count ?? 0) / filters.rows) - 1
-              //   )
-              // }
+              className="hidden h-8 w-8 p-0 lg:flex "
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    // offset:
+                    //   Math.ceil(
+                    //     (count?.total_members as number) / searchCretiria.limit
+                    //   ) - 1,
+                    offset:10,
+                  };
+                })
+              }
               // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
+              //   searchCretiria.offset ==
+              //   Math.ceil(
+              //     (count?.total_members as number) / searchCretiria.limit
+              //   ) -
+              //     1
               // }
             >
-              <span className="sr-only">Go to last page</span>
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
-
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
       <CreditForm
         data={formData}
@@ -568,6 +601,7 @@ export default function CreditsTableView() {
         refetch={refetch}
         setFormData={setFormData}
         handleOnChange={handleOnChange}
+        handleStatusOnChange={handleStatusOnChange}
       />
     </div>
   );
@@ -589,6 +623,7 @@ const CreditForm = ({
   refetch,
   setFormData,
   handleOnChange,
+  handleStatusOnChange,
 }: {
   data: createFormData;
   isDialogOpen: boolean;
@@ -596,6 +631,7 @@ const CreditForm = ({
   refetch?: any;
   setFormData?: any;
   handleOnChange?: any;
+  handleStatusOnChange?: any;
 }) => {
   const { toast } = useToast();
   // const [formData, setFormData] = useState(data);
@@ -657,13 +693,13 @@ const CreditForm = ({
         }
       }
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({
@@ -689,7 +725,7 @@ const CreditForm = ({
 
   return (
     <div>
-      <Dialog
+      <Sheet
         open={isDialogOpen}
         onOpenChange={() => {
           setFormData((prev: createFormData) => ({
@@ -708,13 +744,16 @@ const CreditForm = ({
         }}
       >
         {/* <DialogTrigger>Open</DialogTrigger> */}
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {formData.case == "add" ? "Add" : "Edit"} Credit
-            </DialogTitle>
-            <DialogDescription>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
+              {formData.case == "add" ? "Create" : "Edit"} Credit
+            </SheetTitle>
+
+            <SheetDescription>
               <>
+                <Separator className=" h-[1px] font-thin rounded-full" />
+
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmit)}
@@ -729,7 +768,7 @@ const CreditForm = ({
                             {...field}
                             id="name"
                             name="name"
-                            label="Credit Name"
+                            label="Credit Name*"
                             value={field.value ?? ""}
                             onChange={handleOnChange}
                           />
@@ -749,8 +788,8 @@ const CreditForm = ({
                             name="min_limit"
                             min={1}
                             type="number"
-                            className="number-input"
-                            label="Min Requred Limit"
+                            className=""
+                            label="Min Requred Limit*"
                             value={field.value ?? 1}
                             onChange={handleOnChange}
                           />
@@ -768,12 +807,12 @@ const CreditForm = ({
                           <FormControl>
                             <Select
                               value={field.value ? "true" : "false"}
-                              onValueChange={(value) =>
-                                field.onChange(value === "true")
-                              }
-                              disabled={formData.case == "add"}
+                              onValueChange={(value) => {
+                                field.onChange(value === "true");
+                                handleStatusOnChange(value);
+                              }}
                             >
-                              <SelectTrigger floatingLabel="Status">
+                              <SelectTrigger floatingLabel="Status*">
                                 <SelectValue placeholder="">
                                   <span className="flex gap-2 items-center">
                                     <span
@@ -803,20 +842,23 @@ const CreditForm = ({
                         </FormItem>
                       )}
                     />
-                    <Button
+                    <LoadingButton
                       type="submit"
                       className="bg-primary  text-black gap-1 font-semibold"
+                      loading={form.formState.isSubmitting}
                     >
-                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                      {!form.formState.isSubmitting && (
+                        <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                      )}
                       Save
-                    </Button>
+                    </LoadingButton>
                   </form>
                 </Form>
               </>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

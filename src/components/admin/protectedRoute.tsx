@@ -3,13 +3,13 @@ import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 const ProtectedRoute = () => {
-	const token = localStorage.getItem("userToken");
+  const token = localStorage.getItem("userToken");
 
-	if (!token) {
-		return <Navigate to="/" />;
-	}
+  if (!token) {
+    return <Navigate to="/" />;
+  }
 
-	return <Outlet />;
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

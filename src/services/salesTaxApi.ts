@@ -1,30 +1,22 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { RootState } from "@/app/store";
 import {
   deleteSaleTaxesType,
   saleTaxesInputType,
   saleTaxesResponseType,
   updateSaleTaxesType,
 } from "@/app/types";
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+import { apiSlice } from "@/features/api/apiSlice";
 
-export const SalesTax = createApi({
-  reducerPath: "api/salesTax",
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.userToken;
-      if (token) headers.set("Authorization", `Bearer ${token}`);
-      headers.set("Access-Control-Allow-Origin", `*`);
-      return headers;
-    },
-  }),
-  tagTypes: ["SalesTax"],
+interface saleTaxInput{
+	query:string,
+	org_id:number
+}
+
+export const SalesTax = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getSalesTax: builder.query<saleTaxesResponseType[], number>({
-        query: (org_id) => ({
-          url: `/membership_plan/sale_taxes/getAll?org_id=${org_id}`,
+      getSalesTax: builder.query<saleTaxesResponseType[], saleTaxInput>({
+        query: (searchCretiria) => ({
+          url: `/sale_taxes?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -35,7 +27,7 @@ export const SalesTax = createApi({
       }),
       createSalesTax: builder.mutation<any, saleTaxesInputType>({
         query: (saleTaxesdata) => ({
-          url: `/membership_plan/sale_taxes`,
+          url: `/sale_taxes`,
           method: "POST",
           body: saleTaxesdata,
           headers: {
@@ -46,7 +38,7 @@ export const SalesTax = createApi({
       }),
       updateSalesTax: builder.mutation<any, updateSaleTaxesType>({
         query: (saleTaxesdata) => ({
-          url: `/membership_plan/sale_taxes`,
+          url: `/sale_taxes`,
           method: "PUT",
           body: saleTaxesdata,
           headers: {
@@ -55,11 +47,10 @@ export const SalesTax = createApi({
         }),
         invalidatesTags: ["SalesTax"],
       }),
-      deleteSalesTax: builder.mutation<any, deleteSaleTaxesType>({
-        query: (saleTaxesdata) => ({
-          url: `/membership_plan/sale_taxes`,
+      deleteSalesTax: builder.mutation<any, number>({
+        query: (sale_tax_id) => ({
+          url: `/sale_taxes/${sale_tax_id}`,
           method: "DELETE",
-          body: saleTaxesdata,
           headers: {
             Accept: "application/json",
           },
@@ -68,7 +59,7 @@ export const SalesTax = createApi({
       }),
       getSalesTaxById: builder.query<saleTaxesResponseType, number>({
         query: (sale_tax_id) => ({
-          url: `/membership_plan/sale_taxes?sale_tax_id=${sale_tax_id}`,
+          url: `/sale_taxes/${sale_tax_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

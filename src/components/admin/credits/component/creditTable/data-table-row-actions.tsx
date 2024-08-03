@@ -55,12 +55,9 @@ export function DataTableRowActions<TData>({
   console.log(data);
 
   const deleteRow = async () => {
-    const payload = {
-      id: data.id,
-      org_id: data.org_id,
-    };
+    
     try {
-      const resp = await deleteCredits(payload).unwrap();
+      const resp = await deleteCredits(data.id).unwrap();
       if (resp) {
         console.log({ resp });
         refetch();
@@ -70,13 +67,13 @@ export function DataTableRowActions<TData>({
         });
       }
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({

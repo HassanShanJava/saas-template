@@ -2,9 +2,7 @@ import DashboardLayout from "./components/ui/common/dashboardLayout";
 import AuthenticationPage from "./components/app/login/login";
 import { Route, Routes } from "react-router-dom";
 import Dashboard from "./components/admin/dashboard";
-import Client from "./components/admin/clients";
 import SystemSettings from "./components/admin/system_settings";
-import AddClientForm from "./components/admin/clients/clientForm/form";
 import Leads from "./components/admin/leads";
 import LeadForm from "./components/admin/leads/leadform/form";
 import Credits from "./components/admin/credits";
@@ -16,11 +14,24 @@ import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
 import IncomeCategory from "./components/admin/income_category";
 import Memberships from "./components/admin/memberships";
+import RolesAndAccess from "./components/admin/roles";
 
-// import Loader from "@/components/Loader";
-
+import Loader from "@/components/Loader";
+import MemberPage from "./components/admin/members";
+import MemberForm from "./components/admin/members/memberForm/form";
+import Staff from "./components/admin/staff";
+import StaffForm from "./components/admin/staff/staffForm/form";
+import Coach from "./components/admin/coach"; 
+import CoachForm from "./components/admin/coach/coachForm/Form";
+import ExerciseForm from "./components/admin/exercises/form";
+import MealPlans from "./components/admin/meal_plans";
+import FoodsNutrition from "./components/admin/foods";
 function App() {
-  const { loading } = useSelector((state: RootState) => state.auth);
+  const loading = useSelector((state: RootState) =>
+    Object.values(state.api.queries).some(
+      (query) => query && query.status === "pending"
+    )
+  );
   return (
     <>
       <Routes>
@@ -28,34 +39,72 @@ function App() {
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/admin" element={<DashboardLayout />}>
             <Route path="/admin/dashboard" index element={<Dashboard />} />
-            <Route path="/admin/client" index element={<Client />} />
+            <Route path="/admin/members" index element={<MemberPage />} />
             <Route
               path="/admin/system_settings"
               index
               element={<SystemSettings />}
             />
             <Route
-              path="/admin/client/addclient"
+              path="/admin/members/addmember"
               index
-              element={<AddClientForm />}
+              element={<MemberForm />}
+            />
+            <Route
+              path="/admin/members/editmember/:id"
+              index
+              element={<MemberForm />}
             />
             <Route path="/admin/leads" index element={<Leads />} />
             <Route path="/admin/leads/addlead" index element={<LeadForm />} />
-            <Route path="/admin/leads/editlead/:id" index element={<LeadForm />} />
+            <Route
+              path="/admin/leads/editlead/:id"
+              index
+              element={<LeadForm />}
+            />
             <Route path="/admin/credits" index element={<Credits />} />
             <Route path="/admin/saleTaxes" index element={<SaleTaxes />} />
-            <Route path="/admin/incomeCategory" index element={<IncomeCategory />} />
+            <Route
+              path="/admin/incomeCategory"
+              index
+              element={<IncomeCategory />}
+            />
             <Route path="/admin/memberships" index element={<Memberships />} />
             <Route path="/admin/events" index element={<Events />} />
+            <Route path="/admin/coach" index element={<Coach />} />
+            <Route path="/admin/coach/addcoach" index element={<CoachForm />} />
+            <Route
+              path="/admin/coach/editcoach/:id"
+              index
+              element={<CoachForm />}
+            />
+            <Route path="/admin/roles" index element={<RolesAndAccess />} />
             <Route
               path="/admin/events/addevents"
               index
               element={<EventForm />}
             />
+            <Route path="/admin/staff" index element={<Staff />} />
+            <Route
+              path="/admin/staff/addStaff"
+              index
+              element={<StaffForm />}
+            />
+            <Route path="/admin/staff/addStaff" index element={<StaffForm />} />
+
+            <Route
+              path="/admin/staff/editstaff/:id"
+              index
+              element={<StaffForm />}
+            />
+            <Route path="/admin/exercise/addexercise" index element={<ExerciseForm />} />
+            <Route path="/admin/exercise/editexercise/:id" index element={<ExerciseForm />} />
+            <Route path="/admin/mealplans" index element={<MealPlans />} />
+            <Route path="/admin/foods" index element={<FoodsNutrition />} />
           </Route>
         </Route>
       </Routes>
-      {/* <Loader open={loading} /> */}
+      <Loader open={loading} />
 
       {/* </Routes> */}
     </>

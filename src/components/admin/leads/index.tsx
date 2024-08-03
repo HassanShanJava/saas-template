@@ -113,13 +113,13 @@ const Lead: React.FC = () => {
         });
       }
     } catch (error: unknown) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({
@@ -145,13 +145,13 @@ const Lead: React.FC = () => {
         });
       }
     } catch (error: unknown) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
           variant: "destructive",
           title: "Error",
-          description: `${typedError.data?.detail}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({

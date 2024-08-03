@@ -22,30 +22,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormMessage,
-  FormControl,
-} from "@/components/ui/form";
-import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import {PlusIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -58,18 +37,45 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, incomeCategoryTableType } from "@/app/types";
+import { ErrorType, membeshipsTableType } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
 import MembershipForm from "../modal/membership-form";
+import { useGetMembershipsQuery, useUpdateMembershipsMutation } from "@/services/membershipsApi";
+import { useGetIncomeCategoryQuery } from "@/services/incomeCategoryApi";
+import { useGetSalesTaxQuery } from "@/services/salesTaxApi";
+import { useGetGroupQuery } from "@/services/groupsApis";
+import { preventContextMenu } from "@fullcalendar/core/internal";
+import MembershipFilters from "./data-table-filter";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
+const status = [
+  { value: "true", label: "Active", color: "bg-green-500" },
+  { value: "false", label: "Inactive", color: "bg-blue-500" },
+];
 
 
-const downloadCSV = (data: incomeCategoryTableType[], fileName: string) => {
+const initialValue = {
+  limit: 10,
+  offset: 0,
+  sort_order: "desc",
+};
+
+
+const durationLabels = {
+  weekly: "Weeks",
+  monthly: "Months",
+  yearly: "Years",
+} as const;
+
+interface AccessTime {
+  duration_no: number;
+  duration_type: keyof typeof durationLabels; // ensures duration_type is one of the keys in durationLabels
+}
+
+const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -79,67 +85,73 @@ const downloadCSV = (data: incomeCategoryTableType[], fileName: string) => {
   link.click();
   document.body.removeChild(link);
 };
+interface searchCretiriaType {
+  limit: number;
+  offset: number;
+  sort_order: string;
+}
 
 export default function MembershipsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+    const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
+      limit: 10,
+      offset: 0,
+      sort_order: "desc",
+    });
+    const [query, setQuery] = useState("");
+    const [openFilter, setOpenFilter] = useState(false);
+    const [filterData, setFilter] = useState({});
 
-  // const {
-  //   data: incomeCategoryData,
-  //   isLoading,
-  //   refetch,
-  // } = useGetIncomeCategoryQuery(orgId);
+    useEffect(() => {
+      const params = new URLSearchParams();
+      for (const [key, value] of Object.entries(searchCretiria)) {
+        console.log({ key, value });
+        if (value !== undefined && value !== null) {
+          params.append(key, value);
+        }
+      }
+      const newQuery = params.toString();
+      console.log({ newQuery });
+      setQuery(newQuery);
+    }, [searchCretiria]);
+  const {
+    data: membershipsData,
+    isLoading,
+    refetch,
+  } = useGetMembershipsQuery({ org_id: orgId, query: query },
+    {
+      skip: query == "",
+    });
+  const [updateMemberships]=useUpdateMembershipsMutation()
 
-  // const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
+  const { data: groupData } = useGetGroupQuery(orgId);
 
-  const [isDialogOpen, setIsDialogOpen] = useState(true);
+  const { data: incomeCatData } = useGetIncomeCategoryQuery({org_id:orgId,query:""});
+
+  const { data: salesTaxData } = useGetSalesTaxQuery({org_id:orgId,query:""});
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [action, setAction]=useState<'add'|'edit'>('add')
 
   const handleCloseDailog = () => setIsDialogOpen(false);
 
   const [formData, setFormData] = useState({});
+  
+  const toggleSortOrder = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
+    }));
+  };
 
-  //   // table dropdown status update
-  //   const handleStatusChange = async (payload: {
-  //     id: number;
-  //     org_id: number;
-  //     percentage: number;
-  // ;
-  //   }) => {
-  //     try {
-  //       const resp = await updateCredits(payload).unwrap();
-  //       if (resp) {
-  //         console.log({ resp });
-  //         refetch();
-  //         toast({
-  //           variant: "success",
-  //           title: "Updated Successfully",
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.log("Error", error);
-  //       if (error && typeof error === "object" && "data" in error) {
-  //         const typedError = error as ErrorType;
-  //         toast({
-  //           variant: "destructive",
-  //           title: "Error in form Submission",
-  //           description: `${typedError.data?.detail}`,
-  //         });
-  //       } else {
-  //         toast({
-  //           variant: "destructive",
-  //           title: "Error in form Submission",
-  //           description: `Something Went Wrong.`,
-  //         });
-  //       }
-  //     }
-  //   };
-  const incomeCategoryData:any[]=[]
-  const incomeCategorytableData = React.useMemo(() => {
-    return Array.isArray(incomeCategoryData) ? incomeCategoryData : [];
-  }, [incomeCategoryData]);
+  const membershipstableData = React.useMemo(() => {
+    return Array.isArray(membershipsData) ? membershipsData : [];
+  }, [membershipsData]);
 
   const { toast } = useToast();
 
+  const [data, setData] = useState<membeshipsTableType|undefined>(undefined);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
   const [filters, setFilters] = useState<any>();
@@ -180,24 +192,175 @@ export default function MembershipsTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
-  const columns: any[] = [
+  const handleStatusChange=async(payload:{status:string, id:number, org_id:number})=>{
+    console.log({payload})
+    try {
+      // payload.status=Boolean(payload.status)
+      const resp = await updateMemberships(payload).unwrap();
+      if (resp) {
+        console.log({ resp });
+        refetch();
+        toast({
+          variant: "success",
+          title: "Updated Successfully",
+        });
+      }
+    } catch (error) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: typedError.data?.detail,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
+
+  }
+
+  const handleEditMembership=(data:membeshipsTableType)=>{
+    const updatedObject = {
+      ...data,
+      ...data.access_time,
+      ...data.renewal_details
+    };
+    setData(updatedObject)
+    setAction('edit')
+    setIsDialogOpen(true)
+  }
+
+  const columns: ColumnDef<membeshipsTableType>[] = [
     {
       accessorKey: "name",
-      header: () => <span>Category Name</span>,
-      cell: () => {
-        return <span>name</span>;
+      header: ({ table }) => <span>Membership Name</span>,
+      cell: ({ row }) => {
+        return <span>{row.original.name}</span>;
       },
       enableSorting: false,
       enableHiding: false,
     },
     {
-      accessorKey: "sale_tax_id",
-      header: () => <span>Default Tax/VAT</span>,
-      cell: () => {
-        // const sales:any=salesTaxData?.filter(item=>item.id==row.original.sale_tax_id)[0]
-        // console.log({salesTaxData,sales},row.original.sale_tax_id,"sales")
-        // return <span>{sales?.name +" ("+sales?.percentage+"%)" }</span>;
-        return <span>active</span>;
+      accessorKey: "group_id",
+      header: ({ table }) => <span>Group</span>,
+      cell: ({ row }) => {
+        const group = groupData?.filter(
+          (item) => item.value == row.original.group_id
+        )[0];
+        return <span>{group?.label}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "duration",
+      header: ({ table }) => <span>Duration</span>,
+      cell: ({ row }) => {
+        const { duration_no, duration_type } = row.original.access_time as AccessTime;
+        return <span>{`${duration_no} ${durationLabels[duration_type]}`}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "income_category_id",
+      header: ({ table }) => <span>Income Category</span>,
+      cell: ({ row }) => {
+        const incomeCat = incomeCatData?.filter(
+          (item) => item.id == row.original.income_category_id
+        )[0];
+        return <span>{`${incomeCat?.name}`}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "net_price",
+      header: ({ table }) => <span>Net Price</span>,
+      cell: ({ row }) => {
+        const { net_price } = row.original;
+        return <span>{`Rs. ${net_price}`}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "discount",
+      header: ({ table }) => <span>Discount</span>,
+      cell: ({ row }) => {
+        const { discount } = row.original;
+
+        return <span>{`${discount?.toFixed(2)}%`}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "tax_rate",
+      header: ({ table }) => <span>Tax/VAT Rate</span>,
+      cell: ({ row }) => {
+        const incomeCat = incomeCatData?.filter(
+          (item) => item.id == row.original.income_category_id
+        )[0];
+        const saleTax = salesTaxData?.filter(
+          (item) => item.id == incomeCat?.sale_tax_id
+        )[0];
+        return <span>{`SRB (${saleTax?.percentage.toFixed(2)}%) `}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "total_price",
+      header: ({ table }) => <span>Total Amount</span>,
+      cell: ({ row }) => {
+        const { total_price } = row.original;
+        return <span>{`Rs. ${total_price}`}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "status",
+      header: ({ table }) => <span>Status</span>,
+      cell: ({ row }) => {
+        const value = row.original?.status != null ? row.original?.status + "" : "false";
+        const statusLabel = status.filter((r) => r.value === value)[0];
+        const id = Number(row.original.id);
+        const org_id = Number(row.original.org_id);
+
+        return (
+          <Select
+            defaultValue={value}
+            onValueChange={(e) =>
+              handleStatusChange({ status: e, id: id, org_id: org_id })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Status" className="text-gray-400">
+                <span className="flex gap-2 items-center">
+                  <span
+                    className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
+                  ></span>
+                  <span>{statusLabel?.label}</span>
+                </span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {status.map((item) => (
+                <SelectItem key={item.value + ""} value={item.value + ""}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
       },
       enableSorting: false,
       enableHiding: false,
@@ -206,19 +369,18 @@ export default function MembershipsTableView() {
       id: "actions",
       header: "Actions",
       maxSize: 100,
-      cell: () => (
-        // <DataTableRowActions
-          // data={row.original}
-          // refetch={refetch}
-          // handleEdit={handleEditIncomeCategory}
-        // />
-        <span>data</span>
+      cell: ({ row }) => (
+        <DataTableRowActions
+          data={row.original}
+          refetch={refetch}
+          handleEdit={handleEditMembership}
+        />
       ),
     },
   ];
 
   const table = useReactTable({
-    data: incomeCategorytableData as incomeCategoryTableType[],
+    data: membershipstableData as membeshipsTableType[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -246,39 +408,69 @@ export default function MembershipsTableView() {
     // setFilters
   }
 
-  
+  const handleOpen=()=>{
+    setAction('add')
+    setIsDialogOpen(true)
+    setData(undefined)
+  }
+
+  const handleStatus =(value:string)=>{
+    setFilter(prev=>({
+      ...prev,
+      status:value
+    }))
+  }
+  const handleGroup =(value:number)=>{
+    console.log("grop")
+    setFilter(prev=>({
+      ...prev,
+        group_id:value
+    }))
+  }
+
+
+  const filterDisplay = [
+    {
+      type: "select",
+      name: "status",
+      label: "Status",
+      options: [{id:"true", name:"Active"},{id:"false",name:"Inactive"}],
+      function: handleStatus,
+    },
+    {
+      type: "combobox",
+      name: "group",
+      label: "Group",
+      options: groupData,
+      function: handleGroup,
+    },
+  ];
 
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
-          {/* <div className="flex items-center w-[40%] gap-2 py-2 rounded-md border border-gray-300 focus-within:border-primary focus-within:ring-[1] ring-primary"> 
-              <Search className="w-6 h-6 text-gray-500" />
-              <input
-                placeholder="Search"
-                value={
-                  (table.getColumn("full_name")?.getFilterValue() as string) ??
-                  ""
-                }
-                onChange={(event) =>
-                  table
-                    .getColumn("full_name")
-                    ?.setFilterValue(event.target.value)
-                }
-                className="h-7 w-[150px] lg:w-[220px] outline-none"
-              /> 
-
-            </div> */}
           <p className="font-semibold text-2xl">Memberships</p>
         </div>
         <Button
           className="bg-primary m-4 text-black gap-1 font-semibold"
-          onClick={()=>setIsDialogOpen(true)}
-
+          onClick={handleOpen}
         >
           <PlusIcon className="h-4 w-4" />
           Create New
         </Button>
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={() => setOpenFilter(true)}
+        >
+          <i className="fa fa-filter"></i>
+        </button>
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={toggleSortOrder}
+        >
+          <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order=='desc'?"rotate-180":"-rotate-180"}`}></i>
+        </button>
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
       <div className="rounded-none  ">
@@ -304,17 +496,17 @@ export default function MembershipsTableView() {
               ))}
             </TableHeader>
             <TableBody>
-              {isDialogOpen ? (
+              {isLoading ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    <Spinner className="text-primary">
-                      <span className="text-primary">
-                        Loading data for clients....
-                      </span>
-                    </Spinner>
+                    <div className="flex space-x-2 justify-center items-center bg-white ">
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce"></div>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows.length ? (
@@ -333,7 +525,7 @@ export default function MembershipsTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : incomeCategorytableData.length > 0 ? (
+              ) : membershipstableData.length > 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -348,7 +540,7 @@ export default function MembershipsTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Clients Added yet!.
+                    No records found.
                   </TableCell>
                 </TableRow>
               )}
@@ -356,73 +548,21 @@ export default function MembershipsTableView() {
           </Table>
         </ScrollArea>
       </div>
-      <div className="flex items-center justify-end space-x-2 px-4 py-4">
+
+      {/* pagination */}
+      <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-          {/* Page {filters.first + 1} of{" "}
-          {Math.ceil((data?.count ?? 0) / filters.rows)} */}
+          {/* {count?.total_members} */}
         </div>
 
         <div className="flex items-center justify-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Rows per page</p>
-            {/* <Select
-              // value={`${filters.rows}`}
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue defaultValue={pagination.pageSize} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pagination}`} >
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-            {/* <Select
-              value="10"
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue>{10}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
             <Select
               value={pagination.pageSize.toString()}
               onValueChange={(value) => {
                 const newSize = Number(value);
-                setPagination((prevPagination) => ({
-                  ...prevPagination,
-                  pageSize: newSize,
-                }));
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: newSize,
-                  first: 0,
-                }));
-                table.setPageSize(newSize);
+                setSearchCretiria((prev) => ({ ...prev, limit: newSize }));
               }}
             >
               <SelectTrigger className="h-8 w-[70px]">
@@ -438,12 +578,19 @@ export default function MembershipsTableView() {
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 p-2">
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => handlePagination(0)}
-              // disabled={filters.first === 0}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: 0,
+                  };
+                })
+              }
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to first page</span>
               <DoubleArrowLeftIcon className="h-4 w-4" />
@@ -452,8 +599,15 @@ export default function MembershipsTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters?.first - 1)}
-              // disabled={filters?.first === 0}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset - 1,
+                  };
+                })
+              }
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to previous page</span>
               <ChevronLeftIcon className="h-4 w-4" />
@@ -461,291 +615,63 @@ export default function MembershipsTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters.first + 1)}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset + 1,
+                  };
+                })
+              }
               // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
+              //   searchCretiria.offset ==
+              //   Math.ceil(
+              //     (count?.total_members as number) / searchCretiria.limit
+              //   ) -
+              //     1
               // }
             >
-              <span className="sr-only">Go to next page</span>
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
 
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
+              className="hidden h-8 w-8 p-0 lg:flex "
               // onClick={() =>
-              //   handlePagination(
-              //     Math.ceil((data?.count ?? 0) / filters.rows) - 1
-              //   )
+              //   setSearchCretiria((prev) => {
+              //     return {
+              //       ...prev,
+              //       offset:
+              //         Math.ceil(
+              //           (count?.total_members as number) / searchCretiria.limit
+              //         ) - 1,
+              //     };
+              //   })
               // }
               // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
+              //   searchCretiria.offset ==
+              //   Math.ceil(
+              //     (count?.total_members as number) / searchCretiria.limit
+              //   ) -
+              //     1
               // }
             >
-              <span className="sr-only">Go to last page</span>
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
 
-      {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
-      {/* <IncomeCategoryForm
-        data={formData}
-        isDialogOpen={isDialogOpen}
-        setIsDialogOpen={handleCloseDailog}
-        refetch={refetch}
-        setFormData={setFormData}
-        handleOnChange={handleOnChange}
-        salesTaxData={salesTaxData}
-      /> */}
-      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen}/>
+      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} data={data} setData={setData} refetch={refetch} action={action} setAction={setAction}/>
+      <MembershipFilters
+        isOpen={openFilter}
+        setOpen={setOpenFilter}
+        initialValue={initialValue}
+        filterData={filterData}
+        setFilter={setFilter}
+        setSearchCriteria={setSearchCretiria}
+        filterDisplay={filterDisplay}
+      />
     </div>
   );
 }
-
-// interface incomeCategoryFromData {
-//   sale_tax_id: number|undefined;
-//   name: string;
-//   org_id: number;
-//   id?: number;
-//   case?: string;
-// }
-
-// const IncomeCategoryForm = ({
-//   data: formData,
-//   setIsDialogOpen,
-//   isDialogOpen,
-//   refetch,
-//   setFormData,
-//   handleOnChange,
-//   salesTaxData,
-// }: {
-//   data: incomeCategoryFromData;
-//   isDialogOpen: boolean;
-//   setIsDialogOpen: any;
-//   refetch?: any;
-//   setFormData?: any;
-//   handleOnChange?: any;
-//   salesTaxData?:any
-// }) => {
-//   const { toast } = useToast();
-//   // const [formData, setFormData] = useState(data);
-//   const [createIncomeCategory, { isLoading: incomeCategoryLoading }] =
-//     useCreateIncomeCategoryMutation();
-//   const [updateIncomeCategory, { isLoading: updateLoading }] =
-//     useUpdateIncomeCategoryMutation();
-
-//   useEffect(() => {
-//     form.reset(formData);
-//     setFormData(formData);
-//     console.log({ formData, form }, "in useeffect");
-//   }, [formData]);
-
-//   const incomeCategoryFormSchema = z.object({
-//     id: z.number().optional(),
-//     org_id: z.number(),
-//     sale_tax_id: z.number(),
-//     name: z.string().min(1, { message: "Name is required" }),
-//   });
-
-//   const form = useForm<z.infer<typeof incomeCategoryFormSchema>>({
-//     resolver: zodResolver(incomeCategoryFormSchema),
-//     defaultValues: formData,
-//     mode: "onChange",
-//   });
-
-//   const watcher = form.watch();
-
-//   const onSubmit = async (data: z.infer<typeof incomeCategoryFormSchema>) => {
-//     console.log({ data });
-
-//     try {
-//       if (formData.case == "add") {
-//         const resp = await createIncomeCategory(data);
-//         if (resp) {
-//           console.log({ resp });
-//           refetch();
-//           toast({
-//             variant: "success",
-//             title: "Income Category Created Successfully",
-//           });
-//           resetFormAndCloseDialog();
-//           setIsDialogOpen(false);
-//         }
-//       } else {
-//         const resp = await updateIncomeCategory(data);
-//         if (resp) {
-//           console.log({ resp });
-//           refetch();
-//           toast({
-//             variant: "success",
-//             title: "Updated Successfully",
-//           });
-//           resetFormAndCloseDialog();
-//           setIsDialogOpen(false);
-//         }
-//       }
-//     } catch (error) {
-//       console.log("Error", error);
-//       if (error && typeof error === "object" && "data" in error) {
-//         const typedError = error as ErrorType;
-//         toast({
-//           variant: "destructive",
-//           title: "Error in form Submission",
-//           description: `${typedError.data?.detail}`,
-//         });
-//       } else {
-//         toast({
-//           variant: "destructive",
-//           title: "Error in form Submission",
-//           description: `Something Went Wrong.`,
-//         });
-//       }
-//       resetFormAndCloseDialog();
-//       setIsDialogOpen(false);
-//     }
-//   };
-
-//   const resetFormAndCloseDialog = () => {
-//     setFormData((prev: incomeCategoryFromData) => ({
-//       ...prev,
-//       sale_tax_id: undefined,
-//       name: "",
-//     }));
-//   };
-//   console.log(form.formState.errors);
-
-//   return (
-//     <div>
-//       <Dialog
-//         open={isDialogOpen}
-//         onOpenChange={() => {
-//           setFormData((prev: incomeCategoryFromData) => ({
-//             ...prev,
-//             sale_tax_id: undefined,
-//             name: "",
-//           }));
-//           form.reset({
-//             org_id: formData.org_id,
-//             sale_tax_id: undefined,
-//             name: "",
-//           });
-//           setIsDialogOpen();
-//         }}
-//       >
-//         {/* <DialogTrigger>Open</DialogTrigger> */}
-//         <DialogContent>
-//           <DialogHeader>
-//             <DialogTitle>
-//               {formData.case == "add" ? "Create" : "Edit"} Income Category
-//             </DialogTitle>
-//             <DialogDescription>
-//               <Form {...form}>
-//                 <form
-//                   onSubmit={form.handleSubmit(onSubmit)}
-//                   className="flex flex-col py-4 gap-4"
-//                 >
-//                   <FormField
-//                     control={form.control}
-//                     name="name"
-//                     render={({ field }) => (
-//                       <FormItem>
-//                         <FloatingLabelInput
-//                           {...field}
-//                           id="name"
-//                           name="name"
-//                           label="Category Name"
-//                           value={field.value ?? ""}
-//                           onChange={handleOnChange}
-//                         />
-//                         {watcher.name ? <></> : <FormMessage />}
-//                       </FormItem>
-//                     )}
-//                   />
-
-//                   {/* <FormField
-//                     control={form.control}
-//                     name="percentage"
-//                     render={({ field }) => (
-//                       <FormItem>
-//                         <FloatingLabelInput
-//                           {...field}
-//                           type="number"
-//                           id="percentage"
-//                           name="percentage"
-//                           min={1}
-//                           step={".1"}
-//                           max={100}
-//                           className="number-input"
-//                           label="Percentage"
-//                           value={field.value ?? 1}
-//                           onChange={handleOnChange}
-
-//                         />
-//                         {watcher.percentage ? <></> : <FormMessage />}
-//                       </FormItem>
-//                     )}
-//                   /> */}
-
-//                     <FormField
-//                       control={form.control}
-//                       name="sale_tax_id"
-//                       render={({ field }) => (
-//                         <FormItem>
-//                           <Select
-//                             onValueChange={(value) =>
-//                               field.onChange(Number(value))
-//                             }
-//                             defaultValue={field.value?.toString()}
-//                           >
-//                             <FormControl>
-//                               <SelectTrigger>
-//                                 <SelectValue placeholder="Default Tax/VAT" />
-//                               </SelectTrigger>
-//                             </FormControl>
-//                             <SelectContent>
-//                               {salesTaxData && salesTaxData?.length>0 ? (
-//                                 salesTaxData.map(
-//                                   (saleTax:any, i: any) => (
-//                                     <SelectItem
-//                                       value={saleTax.id?.toString()}
-//                                       key={i}
-//                                       onClick={handleOnChange}
-//                                     >
-//                                       {saleTax.name+" ("+saleTax.percentage+"%)"}
-//                                     </SelectItem>
-//                                   )
-//                                 )
-//                               ) : (
-//                                 <>
-//                                   <p className="p-2"> No Sources Found</p>
-//                                 </>
-//                               )}
-//                             </SelectContent>
-//                           </Select>
-//                           <FormMessage />
-//                         </FormItem>
-//                       )}
-//                     />
-
-//                   <Button
-//                     type="submit"
-//                     className="bg-primary font-semibold text-black gap-1"
-//                   >
-//                     <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-//                     Save
-//                   </Button>
-//                 </form>
-//               </Form>
-//             </DialogDescription>
-//           </DialogHeader>
-//         </DialogContent>
-//       </Dialog>
-//     </div>
-//   );
-// };

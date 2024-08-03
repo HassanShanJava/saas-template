@@ -23,12 +23,13 @@ import {
 } from "@/components/ui/table";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 import {
   Form,
@@ -45,7 +46,7 @@ import { useForm } from "react-hook-form";
 
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import {PlusIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -66,15 +67,15 @@ import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
-import {
-  useGetSalesTaxQuery,
-} from "@/services/salesTaxApi";
+import { useGetSalesTaxQuery } from "@/services/salesTaxApi";
 
 import {
   useCreateIncomeCategoryMutation,
   useGetIncomeCategoryQuery,
   useUpdateIncomeCategoryMutation,
 } from "@/services/incomeCategoryApi";
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+import { Separator } from "@/components/ui/separator";
 
 const downloadCSV = (data: incomeCategoryTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -87,17 +88,48 @@ const downloadCSV = (data: incomeCategoryTableType[], fileName: string) => {
   document.body.removeChild(link);
 };
 
+interface searchCretiriaType {
+  limit: number;
+  offset: number;
+  sort_order: string;
+}
+
 export default function IncomeCategoryTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+
+  const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
+    limit: 10,
+    offset: 0,
+    sort_order: "desc",
+  });
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchCretiria)) {
+      console.log({ key, value });
+      if (value !== undefined && value !== null) {
+        params.append(key, value);
+      }
+    }
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery);
+  }, [searchCretiria]);
 
   const {
     data: incomeCategoryData,
     isLoading,
     refetch,
-  } = useGetIncomeCategoryQuery(orgId);
+  } = useGetIncomeCategoryQuery(
+    { org_id: orgId, query: query },
+    {
+      skip: query == "",
+    }
+  );
 
-  const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
+  const { data: salesTaxData } = useGetSalesTaxQuery({org_id:orgId,query:""});
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -109,6 +141,14 @@ export default function IncomeCategoryTableView() {
     org_id: orgId,
   });
 
+
+  const toggleSortOrder = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
+    }));
+  };
+  
   //   // table dropdown status update
   //   const handleStatusChange = async (payload: {
   //     id: number;
@@ -127,13 +167,13 @@ export default function IncomeCategoryTableView() {
   //         });
   //       }
   //     } catch (error) {
-  //       console.log("Error", error);
+  //       console.error("Error", { error });
   //       if (error && typeof error === "object" && "data" in error) {
   //         const typedError = error as ErrorType;
   //         toast({
   //           variant: "destructive",
   //           title: "Error in form Submission",
-  //           description: `${typedError.data?.detail}`,
+  //           description: typedError.data?.detail,
   //         });
   //       } else {
   //         toast({
@@ -165,7 +205,6 @@ export default function IncomeCategoryTableView() {
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log({ name, value }, "name,value");
     let finalValue: number | string = value;
     if (name == "sale_tax_id") {
       finalValue = Number(value);
@@ -205,9 +244,11 @@ export default function IncomeCategoryTableView() {
       accessorKey: "sale_tax_id",
       header: ({ table }) => <span>Default Tax/VAT</span>,
       cell: ({ row }) => {
-        const sales:any=salesTaxData?.filter(item=>item.id==row.original.sale_tax_id)[0]
-        console.log({salesTaxData,sales},row.original.sale_tax_id,"sales")
-        return <span>{sales?.name +" ("+sales?.percentage+"%)" }</span>;
+        const sales: any = salesTaxData?.filter(
+          (item) => item.id == row.original.sale_tax_id
+        )[0];
+        console.log({ salesTaxData, sales }, row.original.sale_tax_id, "sales");
+        return <span>{sales?.name + " (" + sales?.percentage + "%)"}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -280,23 +321,6 @@ export default function IncomeCategoryTableView() {
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
-          {/* <div className="flex items-center w-[40%] gap-2 py-2 rounded-md border border-gray-300 focus-within:border-primary focus-within:ring-[1] ring-primary"> 
-              <Search className="w-6 h-6 text-gray-500" />
-              <input
-                placeholder="Search"
-                value={
-                  (table.getColumn("full_name")?.getFilterValue() as string) ??
-                  ""
-                }
-                onChange={(event) =>
-                  table
-                    .getColumn("full_name")
-                    ?.setFilterValue(event.target.value)
-                }
-                className="h-7 w-[150px] lg:w-[220px] outline-none"
-              /> 
-
-            </div> */}
           <p className="font-semibold text-2xl">Income Categories</p>
         </div>
         <Button
@@ -306,6 +330,13 @@ export default function IncomeCategoryTableView() {
           <PlusIcon className="h-4 w-4" />
           Create New
         </Button>
+
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={toggleSortOrder}
+        >
+          <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order=='desc'?"rotate-180":"-rotate-180"}`}></i>
+        </button>
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
       <div className="rounded-none  ">
@@ -337,11 +368,11 @@ export default function IncomeCategoryTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    <Spinner className="text-primary">
-                      <span className="text-primary">
-                        Loading data for clients....
-                      </span>
-                    </Spinner>
+                    <div className="flex space-x-2 justify-center items-center bg-white ">
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce"></div>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows.length ? (
@@ -375,7 +406,7 @@ export default function IncomeCategoryTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Clients Added yet!.
+                    No records found.
                   </TableCell>
                 </TableRow>
               )}
@@ -383,73 +414,20 @@ export default function IncomeCategoryTableView() {
           </Table>
         </ScrollArea>
       </div>
-      <div className="flex items-center justify-end space-x-2 px-4 py-4">
+      {/* pagination */}
+      <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-          {/* Page {filters.first + 1} of{" "}
-          {Math.ceil((data?.count ?? 0) / filters.rows)} */}
+          {/* {count?.total_members} */}
         </div>
 
         <div className="flex items-center justify-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Rows per page</p>
-            {/* <Select
-              // value={`${filters.rows}`}
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue defaultValue={pagination.pageSize} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pagination}`} >
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-            {/* <Select
-              value="10"
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue>{10}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
             <Select
               value={pagination.pageSize.toString()}
               onValueChange={(value) => {
                 const newSize = Number(value);
-                setPagination((prevPagination) => ({
-                  ...prevPagination,
-                  pageSize: newSize,
-                }));
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: newSize,
-                  first: 0,
-                }));
-                table.setPageSize(newSize);
+                setSearchCretiria((prev) => ({ ...prev, limit: newSize }));
               }}
             >
               <SelectTrigger className="h-8 w-[70px]">
@@ -465,12 +443,19 @@ export default function IncomeCategoryTableView() {
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 p-2">
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => handlePagination(0)}
-              // disabled={filters.first === 0}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: 0,
+                  };
+                })
+              }
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to first page</span>
               <DoubleArrowLeftIcon className="h-4 w-4" />
@@ -479,8 +464,15 @@ export default function IncomeCategoryTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters?.first - 1)}
-              // disabled={filters?.first === 0}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset - 1,
+                  };
+                })
+              }
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to previous page</span>
               <ChevronLeftIcon className="h-4 w-4" />
@@ -488,38 +480,53 @@ export default function IncomeCategoryTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters.first + 1)}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset + 1,
+                  };
+                })
+              }
               // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
+              //   searchCretiria.offset ==
+              //   Math.ceil(
+              //     (count?.total_members as number) / searchCretiria.limit
+              //   ) -
+              //     1
               // }
             >
-              <span className="sr-only">Go to next page</span>
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
 
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              // onClick={() =>
-              //   handlePagination(
-              //     Math.ceil((data?.count ?? 0) / filters.rows) - 1
-              //   )
-              // }
+              className="hidden h-8 w-8 p-0 lg:flex "
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    // offset:
+                    //   Math.ceil(
+                    //     (count?.total_members as number) / searchCretiria.limit
+                    //   ) - 1,
+                    offset: 10,
+                  };
+                })
+              }
               // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
+              //   searchCretiria.offset ==
+              //   Math.ceil(
+              //     (count?.total_members as number) / searchCretiria.limit
+              //   ) -
+              //     1
               // }
             >
-              <span className="sr-only">Go to last page</span>
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
-
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
       <IncomeCategoryForm
         data={formData}
@@ -535,7 +542,7 @@ export default function IncomeCategoryTableView() {
 }
 
 interface incomeCategoryFromData {
-  sale_tax_id: number|undefined;
+  sale_tax_id: number | undefined;
   name: string;
   org_id: number;
   id?: number;
@@ -557,7 +564,7 @@ const IncomeCategoryForm = ({
   refetch?: any;
   setFormData?: any;
   handleOnChange?: any;
-  salesTaxData?:any
+  salesTaxData?: any;
 }) => {
   const { toast } = useToast();
   // const [formData, setFormData] = useState(data);
@@ -617,13 +624,13 @@ const IncomeCategoryForm = ({
         }
       }
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({
@@ -648,7 +655,7 @@ const IncomeCategoryForm = ({
 
   return (
     <div>
-      <Dialog
+      <Sheet
         open={isDialogOpen}
         onOpenChange={() => {
           setFormData((prev: incomeCategoryFromData) => ({
@@ -665,12 +672,14 @@ const IncomeCategoryForm = ({
         }}
       >
         {/* <DialogTrigger>Open</DialogTrigger> */}
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
               {formData.case == "add" ? "Create" : "Edit"} Income Category
-            </DialogTitle>
-            <DialogDescription>
+            </SheetTitle>
+            <SheetDescription>
+              <Separator className=" h-[1px] font-thin rounded-full" />
+
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
@@ -685,7 +694,7 @@ const IncomeCategoryForm = ({
                           {...field}
                           id="name"
                           name="name"
-                          label="Category Name"
+                          label="Category Name*"
                           value={field.value ?? ""}
                           onChange={handleOnChange}
                         />
@@ -707,7 +716,7 @@ const IncomeCategoryForm = ({
                           min={1}
                           step={".1"}
                           max={100}
-                          className="number-input"
+                          className=""
                           label="Percentage"
                           value={field.value ?? 1}
                           onChange={handleOnChange}
@@ -718,60 +727,63 @@ const IncomeCategoryForm = ({
                     )}
                   /> */}
 
-                    <FormField
-                      control={form.control}
-                      name="sale_tax_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select
-                            onValueChange={(value) =>
-                              field.onChange(Number(value))
-                            }
-                            defaultValue={field.value?.toString()}
-                          >
-                            <FormControl>
-                              <SelectTrigger floatingLabel="Default Tax/VAT">
-                                <SelectValue placeholder="Select Tax/VAT" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {salesTaxData && salesTaxData?.length>0 ? (
-                                salesTaxData.map(
-                                  (saleTax:any, i: any) => (
-                                    <SelectItem
-                                      value={saleTax.id?.toString()}
-                                      key={i}
-                                      onClick={handleOnChange}
-                                    >
-                                      {saleTax.name+" ("+saleTax.percentage+"%)"}
-                                    </SelectItem>
-                                  )
-                                )
-                              ) : (
-                                <>
-                                  <p className="p-2"> No Sources Found</p>
-                                </>
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                  <Button
+                  <FormField
+                    control={form.control}
+                    name="sale_tax_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          defaultValue={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger floatingLabel="Default Tax/VAT*">
+                              <SelectValue placeholder="Select Tax/VAT" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {salesTaxData && salesTaxData?.length > 0 ? (
+                              salesTaxData.map((saleTax: any, i: any) => (
+                                <SelectItem
+                                  value={saleTax.id?.toString()}
+                                  key={i}
+                                  onClick={handleOnChange}
+                                >
+                                  {saleTax.name +
+                                    " (" +
+                                    saleTax.percentage +
+                                    "%)"}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <>
+                                <p className="p-2"> No Sources Found</p>
+                              </>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <LoadingButton
                     type="submit"
                     className="bg-primary font-semibold text-black gap-1"
+                    loading={form.formState.isSubmitting}
                   >
-                    <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                    {!form.formState.isSubmitting && (
+                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                    )}
                     Save
-                  </Button>
+                  </LoadingButton>
                 </form>
               </Form>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

@@ -44,6 +44,16 @@
     --bg-secondary-red: 1 100% 77%; /*red color failer*/
     --bg-outlet-background: 0 0% 96.9%; /* outlet one bg- f7f7f7 */
     --table-header-color: 0 0% 96.1%;
+
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    --pc-green: 81, 53%, 47%,
+    --pc-red: 348, 69%, 57%,
+    --pc-yellow: 36, 79%, 57%
   }
 }
 
@@ -76,7 +86,7 @@
 }
 
 .custom-scrollbar {
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -89,3 +99,32 @@
   border-radius: 20px;
   outline: 1px solid #77dd77;
 }
+
+.custom-scrollbar-right {
+  overflow-y: auto;
+  direction: rtl;
+}
+.custom-scrollbar-right::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar-right::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+.custom-scrollbar-right::-webkit-scrollbar-thumb {
+  background-color: #77dd77;
+  border-radius: 20px;
+  outline: 1px solid #77dd77;
+}
+
+
+
+/* Change background color of the input when it is focused (dropdown open) */
+
+/* Change the background color of the selected time */
+
+/* Change the background color when hovering over the dropdown times */
+/* .time-input[type="time"]::-webkit-datetime-edit-hour-field:hover {
+  background-color: #77dd77; /* Example color */
+/* } */ 
+
+

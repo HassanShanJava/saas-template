@@ -1,25 +1,15 @@
-import { RootState } from "@/app/store";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
-const API_BASE_URL = import.meta.env.VITE_API_URL;
-
-export const Memberships = createApi({
-  reducerPath: "api/memberships",
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.userToken;
-      if (token) headers.set("Authorization", `Bearer ${token}`);
-      headers.set("Access-Control-Allow-Origin", `*`);
-      return headers;
-    },
-  }),
-  tagTypes: ["Memberships"],
+import { createMembershipType, membeshipsTableType, updateMembershipType } from "@/app/types";
+import { apiSlice } from "@/features/api/apiSlice";
+interface membershipInput{
+	query?:string,
+	org_id:number
+}
+export const Memberships = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getMemberships: builder.query<any[], number>({
-        query: (org_id) => ({
-          url: `/membership_plan/income_category/getAll?org_id=${org_id}`,
+      getMemberships: builder.query<membeshipsTableType[], membershipInput>({
+        query: (searchCretiria) => ({
+          url: `/membership_plan?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -27,33 +17,32 @@ export const Memberships = createApi({
         }),
         providesTags: ["Memberships"],
       }),
-      createMemberships: builder.mutation<any, any[]>({
-        query: (membershipsydata) => ({
-          url: `/membership_plan/income_category`,
+      createMemberships: builder.mutation<any, createMembershipType>({
+        query: (membershipsdata) => ({
+          url: `/membership_plan`,
           method: "POST",
-          body: membershipsydata,
+          body: membershipsdata,
           headers: {
             Accept: "application/json",
           },
         }),
         invalidatesTags: ["Memberships"],
       }),
-      updateMemberships: builder.mutation<any, any>({
-        query: (membershipsydata) => ({
-          url: `/membership_plan/income_category`,
+      updateMemberships: builder.mutation<any, updateMembershipType>({
+        query: (membershipsdata) => ({
+          url: `/membership_plan`,
           method: "PUT",
-          body: membershipsydata,
+          body: membershipsdata,
           headers: {
             Accept: "application/json",
           },
         }),
         invalidatesTags: ["Memberships"],
       }),
-      deleteMemberships: builder.mutation<any, any>({
-        query: (membershipsydata) => ({
-          url: `/membership_plan/income_category`,
+      deleteMemberships: builder.mutation<any, number>({
+        query: (membership_id) => ({
+          url: `/membership_plan/${membership_id}`,
           method: "DELETE",
-          body: membershipsydata,
           headers: {
             Accept: "application/json",
           },
@@ -62,7 +51,7 @@ export const Memberships = createApi({
       }),
       getMembershipsById: builder.query<any, number>({
         query: (membership_id) => ({
-          url: `/membership_plan/income_category?income_category_id=${membership_id}`,
+          url: `/membership_plan/${membership_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

@@ -1,4 +1,3 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   staffType,
   leadType,
@@ -8,26 +7,14 @@ import {
   updateStaffInput,
   updateLeadInput
 } from "../app/types";
-import { RootState } from "@/app/store";
+import { apiSlice } from "@/features/api/apiSlice";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
-
-export const Leads = createApi({
-  reducerPath: "api/leads",
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.userToken;
-      if (token) headers.set("Authorization", `Bearer ${token}`);
-      headers.set("Access-Control-Allow-Origin", `*`);
-      return headers;
-    },
-  }),
-  endpoints(builder) {
+export const Leads = apiSlice.injectEndpoints({
+	endpoints(builder) {
     return {
       AddLead: builder.mutation<LeadResponseTypes, LeadInputTypes>({
         query: (leaddata) => ({
-          url: "/leads/register",
+          url: "/leads ",
           method: "POST",
           body: leaddata,
           headers: {
@@ -37,7 +24,7 @@ export const Leads = createApi({
       }),
       getAllStaff: builder.query<staffType[], number>({
         query: (org_id) => ({
-          url: `/get_staff?org_id=${org_id}`,
+          url: `/leads?org_id=${org_id}`,
           headers: {
             Accept: "application/json",
           },
@@ -45,7 +32,7 @@ export const Leads = createApi({
       }),
       getLeads: builder.query<leadType[], number>({
         query: (org_id) => ({
-          url: `/leads/getleads?org_id=${org_id}`,
+          url: `/leads?org_id=${org_id}`,
           headers: {
             Accept: "application/json",
           },
@@ -53,7 +40,7 @@ export const Leads = createApi({
       }),
       updateStatus: builder.mutation<any, updateStatusInput>({
         query: (clientdata) => ({
-          url: "/leads/updateStatus",
+          url: "/leads/status",
           method: "PUT",
           body: clientdata,
           headers: {
@@ -64,7 +51,7 @@ export const Leads = createApi({
       }),
       updateStaff: builder.mutation<any, updateStaffInput>({
         query: (clientdata) => ({
-          url: "/leads/updateStaff",
+          url: "/leads/staff",
           method: "PUT",
           body: clientdata,
           headers: {
@@ -75,7 +62,7 @@ export const Leads = createApi({
       }),
       updateLead: builder.mutation<any, updateLeadInput>({
         query: (clientdata) => ({
-          url: "/leads/update",
+          url: "/leads",
           method: "PUT",
           body: clientdata,
           headers: {

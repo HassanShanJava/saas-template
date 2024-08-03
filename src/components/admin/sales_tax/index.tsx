@@ -9,7 +9,7 @@ const SaleTaxes = () => {
   const orgId = useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
   return (
-    <div className="w-full py-12 px-8">
+    <div className="w-full p-5">
       <Card className="py-3">
         <SaleTaxesTableView />
       </Card>

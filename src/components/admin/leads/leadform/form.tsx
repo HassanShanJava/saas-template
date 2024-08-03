@@ -32,7 +32,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
-import { useGetAllSourceQuery } from "@/services/clientAPi";
 import { ErrorType, sourceTypes, staffType } from "@/app/types";
 import { useGetAllStaffQuery } from "@/services/leadsApi";
 import { useSelector } from "react-redux";
@@ -47,6 +46,7 @@ import {
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 import { useParams } from "react-router-dom";
+import { useGetAllSourceQuery } from "@/services/memberAPi";
 
 const LeadForm: React.FC = () => {
   const orgId =
@@ -136,7 +136,7 @@ const LeadForm: React.FC = () => {
         phone: "",
         mobile: "",
         source_id: undefined,
-        status: "",
+        status: undefined,
         staff_id: undefined,
         lead_since: undefined,
         notes: "",
@@ -147,13 +147,13 @@ const LeadForm: React.FC = () => {
       });
       navigate("/admin/leads");
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({
@@ -184,7 +184,7 @@ const LeadForm: React.FC = () => {
                     <Button
                       type={"button"}
                       onClick={gotoLeads}
-                      className="gap-2 bg-transparent border border-primary text-black hover:bg-red-300 hover:text-white"
+                      className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                     >
                       <RxCross2 className="w-4 h-4" /> Cancel
                     </Button>
@@ -374,6 +374,7 @@ const LeadForm: React.FC = () => {
                                 <SelectValue
                                   placeholder="Lead Status"
                                   className="text-gray-400"
+                                  defaultValue={undefined}
                                 />
                               </SelectTrigger>
                             </FormControl>
@@ -425,10 +426,10 @@ const LeadForm: React.FC = () => {
                       render={({ field }) => (
                         <FormItem>
                           <Select
+                            defaultValue={undefined}
                             onValueChange={(value) =>
                               field.onChange(Number(value))
                             }
-                            defaultValue={field.value?.toString()}
                           >
                             <FormControl>
                               <SelectTrigger>

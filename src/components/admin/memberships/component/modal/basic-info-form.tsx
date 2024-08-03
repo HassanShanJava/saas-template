@@ -5,56 +5,233 @@ import { StepperFormValues } from "@/types/hook-stepper";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-interface group {
-  name: string;
-  value: string;
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
+import {
+  useCreateGroupMutation,
+  useGetGroupQuery,
+} from "@/services/groupsApis";
+import { useToast } from "@/components/ui/use-toast";
+
+const status = [
+  { value: "true", label: "Active", color: "bg-green-500" },
+  { value: "false", label: "Inactive", color: "bg-blue-500" },
+];
+
+interface groupList {
+  label: string;
+  value: number;
+}
+
+const daysOrder = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+];
+
+interface limitedAccessDaysTypes {
+  id: number;
+  day: string;
+  from: string;
+  to: string;
 }
 
 const BasicInfoForm = () => {
   const {
     control,
     formState: { errors },
+    setValue,
+    getValues,
     register,
     trigger,
     watch,
   } = useFormContext<StepperFormValues>();
+  const { toast } = useToast();
 
-  const [groups, setGroups] = useState<group[]>([]);
   const [isAddGroup, setAddGroup] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<any>("");
   const [access, setAccess] = useState<string | undefined>("");
+  const [groupList, setGroupList] = useState<groupList[]>([]);
+
+  const [limitedAccessDays, setLimitedAccessDays] = useState<
+    limitedAccessDaysTypes[]
+  >(
+    (getValues("limited_access_data") as limitedAccessDaysTypes[]).length > 0
+      ? (getValues("limited_access_data") as limitedAccessDaysTypes[])
+      : [
+          { id: 1, day: "monday", from: "", to: "" },
+          { id: 2, day: "tuesday", from: "", to: "" },
+          { id: 3, day: "wednesday", from: "", to: "" },
+          { id: 4, day: "thursday", from: "", to: "" },
+          { id: 5, day: "friday", from: "", to: "" },
+          { id: 6, day: "saturday", from: "", to: "" },
+          { id: 7, day: "sunday", from: "", to: "" },
+        ]
+  );
+
+  // useEffect(() => {
+  //   const initialData = getValues();
+  //   if (initialData) {
+  //     setValue("name", initialData.name);
+  //     setValue("group_id", initialData.group_id);
+  //     setValue("description", initialData.description);
+  //     setValue("status", initialData.status);
+  //     setValue("access_type", initialData.access_type);
+  //     setValue("limited_access_data", initialData.limited_access_data);
+  //     setLimitedAccessDays(
+  //       (initialData.limited_access_data as limitedAccessDaysTypes[]) ||
+  //         limitedAccessDays
+  //     );
+  //   }
+  // }, [getValues, setValue]);
+
+  console.log({ limitedAccessDays });
+
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+
+  const { data: groupData, isFetching } = useGetGroupQuery(orgId);
+  const [createGroups, { isLoading: groupCreateLoading, isUninitialized }] =
+  useCreateGroupMutation();
+
+  const handleAdd = (day: string) => {
+    setLimitedAccessDays((prev) => [
+      ...prev,
+      { id: Date.now(), day, from: "", to: "" },
+    ]);
+  };
+
+  const handleDelete = (id: number) => {
+    setLimitedAccessDays((prev) => {
+      const entryToDelete = prev.find((entry) => entry.id === id);
+      const sameDayEntries = prev.filter(
+        (entry) => entry.day === entryToDelete?.day
+      );
+
+      if (sameDayEntries.length > 1) {
+        return prev.filter((entry) => entry.id !== id);
+      } else {
+        return prev.map((entry) =>
+          entry.id === id ? { ...entry, from: "", to: "" } : entry
+        );
+      }
+    });
+  };
+
+  const isValidTimeRange = (from: string, to: string) => {
+    return from < to;
+  };
+
+  const isConflictingTime = (
+    day: string,
+    from: string,
+    to: string,
+    id: number | undefined = undefined
+  ) => {
+    const dayEntries = limitedAccessDays.filter(
+      (entry) => entry.day === day && entry.id !== id
+    );
+    return dayEntries.some((entry) => from < entry.to && to > entry.from);
+  };
+
+  console.log({ access });
+
+  const handleTimeChange = (id: number, type: string, value: string) => {
+    setLimitedAccessDays((prev) => {
+      const updatedEntries = prev.map((entry) => {
+        if (entry.id === id) {
+          const updatedEntry = { ...entry, [type]: value };
+          if (
+            !isValidTimeRange(updatedEntry.from, updatedEntry.to) &&
+            updatedEntry.to != "" &&
+            updatedEntry.from != ""
+          ) {
+            toast({
+              variant: "destructive",
+              title: "Enter valid time range",
+            });
+            return entry;
+          } else if (
+            isConflictingTime(
+              updatedEntry.day,
+              updatedEntry.from,
+              updatedEntry.to,
+              id
+            )
+          ) {
+            toast({
+              variant: "destructive",
+              title: "Time slot conflicts on the same day.",
+            });
+            return entry;
+          } else {
+            return updatedEntry;
+          }
+        }
+        return entry;
+      });
+      return updatedEntries;
+    });
+  };
+
+  const sortedDays = limitedAccessDays.sort(
+    (a, b) => daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day)
+  );
 
   useEffect(() => {
     const subscription = watch((value) => {
-      setAccess(value?.access);
+      setAccess(value?.access_type);
     });
     return () => subscription.unsubscribe();
   }, [watch]);
 
-  const addGroup = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if (limitedAccessDays) {
+      setValue("limited_access_data", limitedAccessDays);
+    }
+  }, [limitedAccessDays]);
+
+  useEffect(() => {
+    if (groupData) {
+      setGroupList(groupData);
+    }
+  }, [groupData]);
+
+  const addGroup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!inputValue.trim()) return;
 
-    setGroups((prev) => [
-      ...prev,
-      {
+    try {
+      const payload = {
+        org_id: orgId,
         name: inputValue,
-        value: inputValue,
-      },
-    ]);
+      };
+
+      const resp = await createGroups(payload).unwrap();
+      if (resp) {
+        const response = {
+          value: resp.id,
+          label: resp.name,
+        };
+        setGroupList((prev) => [...prev, response]);
+      }
+    } catch (error) {
+      console.error({ error });
+    }
 
     setInputValue("");
     setAddGroup(false);
@@ -66,19 +243,17 @@ const BasicInfoForm = () => {
 
   return (
     <div className="text-black h-full">
-      <h1 className="font-semibold text-[#2D374] text-xl">
-        Basic Information
-      </h1>
+      <h1 className="font-semibold text-[#2D374] text-xl">Basic Information</h1>
       <div className="grid grid-cols-3 gap-4 items-start my-3">
         <div className="flex flex-col gap-4 col-span-1">
           <FloatingLabelInput
             id="membership_name"
             label="Name*"
-            {...register("membership_name", { required: "Name is Required" })}
-            error={errors.membership_name?.message}
+            {...register("name", { required: "Name is Required" })}
+            error={errors.name?.message}
           />
           <Controller
-            name="membership_group"
+            name="group_id"
             rules={{ required: "Group Name is Required" }}
             control={control}
             render={({
@@ -90,9 +265,10 @@ const BasicInfoForm = () => {
                   onValueChange={(value) => {
                     onChange(value);
                   }}
-                  value={value}
+                  defaultValue={value ? value + "" : undefined}
+                  disabled={isFetching}
                 >
-                  <SelectTrigger name="membership_group" floatingLabel="Group*">
+                  <SelectTrigger name="group_id" floatingLabel="Group*">
                     <SelectValue placeholder="Select group" />
                   </SelectTrigger>
                   {invalid && (
@@ -101,18 +277,19 @@ const BasicInfoForm = () => {
                     </span>
                   )}
                   <SelectContent>
-                    {groups?.length > 0 &&
-                      groups.map((item, i) => (
-                        <SelectItem value={item?.value} key={i}>
-                          {item?.name}
+                    {groupList &&
+                      groupList.length > 0 &&
+                      groupList.map((item) => (
+                        <SelectItem value={item?.value + ""} key={item?.value}>
+                          {item?.label}
                         </SelectItem>
                       ))}
                     <Separator className=" h-[1px] font-thin rounded-full" />
                     <div
-                      className="flex items-center gap-2 p-2 cursor-pointer"
+                      className="flex items-center gap-2 p-2 cursor-pointer text-sm"
                       onClick={() => setAddGroup(true)}
                     >
-                      <i className="fa fa-plus text-primary"></i>
+                      <i className="fa fa-plus text-primary "></i>
                       Add Group
                     </div>
                     {isAddGroup && (
@@ -127,12 +304,18 @@ const BasicInfoForm = () => {
                           placeholder="Enter group name"
                           value={inputValue}
                           onChange={handleOnChange}
+                          disabled={groupCreateLoading}
                         />
                         <button
                           type="submit"
+                          disabled={!isUninitialized}
                           className="absolute right-3 bg-primary text-black font-semibold rounded-lg  px-1.5 "
                         >
-                          <i className=" fa-regular fa-floppy-disk text-lg "></i>
+                          {groupCreateLoading ? (
+                            <i className=" fa fa-circle-notch animate-spin text-base p-0.5 "></i>
+                          ) : (
+                            <i className=" fa-regular fa-floppy-disk text-lg "></i>
+                          )}
                         </button>
                       </form>
                     )}
@@ -145,13 +328,12 @@ const BasicInfoForm = () => {
         <div className="col-span-2">
           <FloatingLabelInput
             id="description"
-            label="Description*"
+            label="Description"
             type="textarea"
             rows={4}
+            customPercentage={[3,2]}
             className="col-span-2"
-            {...register("description", {
-              required: "Description is required",
-            })}
+            {...register("description")}
             error={errors.description?.message}
           />
         </div>
@@ -162,48 +344,46 @@ const BasicInfoForm = () => {
           render={({
             field: { onChange, value, onBlur },
             fieldState: { invalid, error },
-          }) => (
-            <div>
+          }) => {
+            console.log({ value, error });
+            const statusLabel = status.filter((r) => r.value == value)[0];
+            return (
               <Select
-                onValueChange={(value) => {
-                  onChange(value === "true");
-                }}
-                value={value + ""}
-                // value={true}
+                onValueChange={(value) => onChange(value)}
+                defaultValue={value}
               >
-                <SelectTrigger name="status" floatingLabel="Status*">
-                  <SelectValue placeholder="Select status">
+                <SelectTrigger floatingLabel="Status*">
+                  <SelectValue
+                    placeholder="Select status"
+                    className="text-gray-400"
+                  >
                     <span className="flex gap-2 items-center">
                       <span
-                        className={`w-2 h-2 rounded-full ${
-                          value ? "bg-green-500" : "bg-blue-500"
-                        }`}
+                        className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
                       ></span>
-                      {value ? "Active" : "Inactive"}
+                      <span>{statusLabel?.label}</span>
                     </span>
                   </SelectValue>
                 </SelectTrigger>
-                {invalid && (
-                  <span className="text-destructive block !mt-[5px] text-[12px]">
-                    {error?.message}
-                  </span>
-                )}
                 <SelectContent>
-                  <SelectItem value="true">Active</SelectItem>
-                  <SelectItem value="false">Inactive</SelectItem>
+                  {status.map((item) => (
+                    <SelectItem key={item.value + ""} value={item.value + ""}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-            </div>
-          )}
+            );
+          }}
         />
       </div>
 
-      <h1 className="font-semibold text-[#2D374] text-2xl">Membership Scope</h1>
-      <div className="flex items-center gap-6  my-3">
+      <h1 className="font-semibold text-[#2D374] text-xl">Membership Scope</h1>
+      <div className="flex items-center gap-6  ">
         <div className="flex items-center gap-4">
           <Label className="font-semibold ">Access times*</Label>
           <Controller
-            name="access"
+            name="access_type"
             rules={{ required: "Access is Required" }}
             control={control}
             render={({
@@ -212,7 +392,7 @@ const BasicInfoForm = () => {
             }) => (
               <div>
                 <RadioGroup
-                  defaultValue=""
+                  defaultValue={value}
                   className="flex items-center gap-4"
                   onValueChange={onChange}
                 >
@@ -238,8 +418,8 @@ const BasicInfoForm = () => {
         <div className="flex items-center gap-4">
           <Label className="font-semibold">Duration*</Label>
           <Controller
-            name="duration"
-            rules={{ required: "Duration is Required" }}
+            name="duration_type"
+            rules={{ required: "Required" }}
             control={control}
             render={({
               field: { onChange, value, onBlur },
@@ -252,8 +432,11 @@ const BasicInfoForm = () => {
                   }}
                   value={value}
                 >
-                  <SelectTrigger name="duration">
-                    <SelectValue placeholder="Month" defaultValue={undefined} />
+                  <SelectTrigger name="duration_type">
+                    <SelectValue
+                      placeholder="Select duration"
+                      defaultValue={undefined}
+                    />
                   </SelectTrigger>
                   {invalid && (
                     <span className="text-destructive block !mt-[5px] text-[12px]">
@@ -261,114 +444,62 @@ const BasicInfoForm = () => {
                     </span>
                   )}
                   <SelectContent>
-                    <SelectItem value={"month"}>Month</SelectItem>
-                    <SelectItem value={"year"}>Year</SelectItem>
+                    <SelectItem value={"weekly"}>week</SelectItem>
+                    <SelectItem value={"monthly"}>Month</SelectItem>
+                    <SelectItem value={"quarterly"}>Quarter</SelectItem>
+                    <SelectItem value={"bi_annually"}>Bi-Annual</SelectItem>
+                    <SelectItem value={"yearly"}>Year</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             )}
           />
           <FloatingLabelInput
-            id="duration"
+            id="duration_no"
             type="number"
-            className="w-20 number-input"
-            {...register("duration", { required: "Duration is Required" })}
-            error={errors.duration?.message}
+            className="w-20 "
+            {...register("duration_no", { required: "Required" })}
+            error={errors.duration_no?.message}
           />
         </div>
       </div>
       {access == "limited-access" && (
-        <div className="bg-gray-200 p-3 w-fit h-fit text-sm rounded-lg">
+        <div className="bg-gray-200 px-3 py-2 w-fit h-full text-sm rounded-lg max-h-[264px]  custom-scrollbar ">
           <p className="font-semibold text-base">Limited Access</p>
-          {[
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thrusday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-          ].map((day, i) => (
-            <div key={i} className="grid grid-cols-3 items-center gap-3 py-0.5">
-              <div className="flex col-span-1 items-center gap-3">
-                <i className="text-base text-primary fa fa-plus cursor-pointer"></i>
-                <p className="my-auto">{day}</p>
+          {sortedDays.map(({ id, day, from, to }) => (
+            <div
+              key={id}
+              className="grid grid-cols-3 items-center gap-3 space-y-1"
+            >
+              <div className="flex col-span-1  gap-3">
+                <i
+                  className="text-base text-primary fa fa-plus cursor-pointer"
+                  onClick={() => handleAdd(day)}
+                ></i>
+                <p className="my-auto capitalize">{day}</p>
               </div>
-              {/* time */}
-              <div className="flex col-span-2 items-center gap-2">
-                <div>
-                  <Select>
-                    <SelectTrigger className="!bg-white ">
-                      <SelectValue placeholder="00" defaultValue={"0"} />
-                    </SelectTrigger>
-                    <SelectContent >
-                      {[
-                        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                        16, 17, 18, 19, 20, 21, 22, 23,
-                      ].map((hour, i) => (
-                        <SelectItem
-                          value={hour.toString()}
-                          className="w-fit !p-0"
-                        >{`${hour <= 9 ? "0" : ""}${hour} `}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Select>
-                    <SelectTrigger className="!bg-white">
-                      <SelectValue placeholder="00" defaultValue={"0"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map(
-                        (minute, i) => (
-                          <SelectItem value={minute.toString()}>
-                            {`${minute < 10 ? "0" : ""}${minute}`}
-                          </SelectItem>
-                        )
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-
+              <div className="flex col-span-2 items-center gap-2 ">
+                <Input
+                  type="time"
+                  value={from}
+                  onChange={(e) => handleTimeChange(id, "from", e.target.value)}
+                  id="time"
+                  aria-label="Choose time"
+                  className="w-full h-7 "
+                />
                 <p>till</p>
-
-                <div>
-                  <Select >
-                    <SelectTrigger className="!bg-white">
-                      <SelectValue placeholder="00" defaultValue={"0"} />
-                    </SelectTrigger>
-                    <SelectContent className="w-fit ">
-                      {[
-                        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                        16, 17, 18, 19, 20, 21, 22, 23,
-                      ].map((hour, i) => (
-                        <SelectItem
-                          value={hour.toString()}
-                          className=""
-                        >{`${hour <= 9 ? "0" : ""}${hour}`}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Select>
-                    <SelectTrigger className="!bg-white">
-                      <SelectValue placeholder="00" defaultValue={"0"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map(
-                        (minute, i) => (
-                          <SelectItem value={minute.toString()}>
-                            {`${minute < 10 ? "0" : ""}${minute}`}
-                          </SelectItem>
-                        )
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <i className="fa-regular fa-trash-can cursor-pointer"></i>
+                <Input
+                  type="time"
+                  value={to}
+                  onChange={(e) => handleTimeChange(id, "to", e.target.value)}
+                  id="time"
+                  aria-label="Choose time"
+                  className="w-full h-7 "
+                />
+                <i
+                  className="fa-regular fa-trash-can cursor-pointer"
+                  onClick={() => handleDelete(id)}
+                ></i>
               </div>
             </div>
           ))}

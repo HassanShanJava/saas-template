@@ -6,7 +6,6 @@ import SplineChart from "./component/spline-chart";
 import SimpleBarChart from "./component/barchart";
 import CardComponent from "./component/card-component";
 
-
 const Dashboard = () => {
   return (
     <div className="grid gap-6  p-3">

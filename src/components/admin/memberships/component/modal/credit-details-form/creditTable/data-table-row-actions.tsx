@@ -18,10 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import {
-  useUpdateCreditsMutation,
-  useDeleteCreditsMutation,
-} from "@/services/creditsApi";
+import { useDeleteCreditsMutation } from "@/services/creditsApi";
 
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
@@ -47,20 +44,14 @@ export function DataTableRowActions<TData>({
   handleEdit?: any;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
-  const [updateCredits, { isLoading: updateLoading }] =
-    useUpdateCreditsMutation();
   const [deleteCredits, { isLoading: deleteLoading }] =
     useDeleteCreditsMutation();
   const { toast } = useToast();
-  console.log(data);
 
   const deleteRow = async () => {
-    const payload = {
-      id: data.id,
-      org_id: data.org_id,
-    };
+    
     try {
-      const resp = await deleteCredits(payload).unwrap();
+      const resp = await deleteCredits(data.id).unwrap();
       if (resp) {
         console.log({ resp });
         refetch();
@@ -70,13 +61,13 @@ export function DataTableRowActions<TData>({
         });
       }
     } catch (error) {
-      console.log("Error", error);
+      console.error("Error", {error});
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: typedError.data?.detail,
         });
       } else {
         toast({

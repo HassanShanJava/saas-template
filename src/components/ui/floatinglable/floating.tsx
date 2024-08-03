@@ -21,6 +21,7 @@ export interface FloatingLabelInputProps extends CommonProps {
   label?: string;
   error?: string;
   autoComplete?: string;
+  customPercentage?:Array<number>
 }
 
 const FloatingInput = React.forwardRef<
@@ -44,7 +45,7 @@ const FloatingInput = React.forwardRef<
         placeholder=" "
         className={cn(
           "peer",
-          "flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex w-full font-poppins rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         ref={textareaRef}
@@ -57,7 +58,7 @@ const FloatingInput = React.forwardRef<
     <Input
       placeholder=" "
       type={type}
-      className={cn("peer", className)}
+      className={cn("peer", "font-poppins",className)}
       ref={inputRef}
       {...props}
     />
@@ -68,18 +69,19 @@ FloatingInput.displayName = "FloatingInput";
 interface FloatingLabelProps
   extends React.ComponentPropsWithoutRef<typeof Label> {
   isTextarea?: boolean;
+  customPercentage?:Array<number>
 }
 
 const FloatingLabel = React.forwardRef<
   React.ElementRef<typeof Label>,
   FloatingLabelProps
->(({ className, isTextarea, ...props }, ref) => {
+>(({ className, isTextarea, customPercentage=[13,13],...props }, ref) => {
   return (
     <Label
       className={cn(
         "peer-focus:secondary font-poppins peer-focus:dark:secondary absolute start-2 z-10 origin-[0] scale-75 transform bg-background px-2 text-sm text-gray-400 duration-300",
         isTextarea
-          ? "peer-placeholder-shown:top-[13%] peer-placeholder-shown:-translate-y-[13%] peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2"
+          ? `top-2 -translate-y-4 peer-placeholder-shown:top-[${customPercentage[0]}%] peer-placeholder-shown:-translate-y-[${customPercentage[1]}%] peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2`
           : "top-2 -translate-y-4 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2",
         className
       )}
@@ -93,19 +95,19 @@ FloatingLabel.displayName = "FloatingLabel";
 const FloatingLabelInput = React.forwardRef<
   React.ElementRef<typeof FloatingInput>,
   React.PropsWithoutRef<FloatingLabelInputProps>
->(({ id, label, error, type, rows, ...props }, ref) => {
+>(({ id, label, error, type, rows, customPercentage = [],...props }, ref) => {
   const isTextarea = type === "textarea";
 
   return (
     <div className="font-poppins ">
       <div className="relative">
         <FloatingInput ref={ref} id={id} type={type} rows={rows} {...props} />
-        <FloatingLabel htmlFor={id} isTextarea={isTextarea}>
+        <FloatingLabel htmlFor={id} isTextarea={isTextarea} customPercentage={customPercentage}>
           {label}
         </FloatingLabel>
       </div>
       {error && (
-        <span className="text-destructive block !mt-[5px] text-[12px]">
+        <span className="text-destructive font-poppins block !mt-[5px] text-[12px]">
           {error}
         </span>
       )}

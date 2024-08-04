@@ -143,9 +143,8 @@ export const RoleForm = ({
       ...prev,
     }));
     createAccess(data?.allResourceData as resourceTypes[]);
-    form.reset()
+    form.reset();
   };
-
 
   const handleClose = () => {
     // clearErrors();
@@ -239,11 +238,9 @@ export const RoleForm = ({
                 ) : (
                   <i className="fa fa-angle-right w-3 h-3"></i>
                 )}
-
-                {row?.original?.name}
               </button>
             )}
-            {!row.original.is_parent && row?.original?.name}
+            {row?.original?.name}
           </div>
         );
       },
@@ -252,7 +249,7 @@ export const RoleForm = ({
       id: "no_access",
       header: "No Access",
       cell: ({ row }) =>
-        !row.original.is_parent && (
+        row.original.subRows?.length == 0 && (
           <Checkbox
             defaultChecked={tableAccess[row.original.id] == "no_access"}
             aria-label="No Access"
@@ -269,7 +266,7 @@ export const RoleForm = ({
       id: "read",
       header: "Read",
       cell: ({ row }) =>
-        !row.original.is_parent && (
+        row.original.subRows?.length == 0 && (
           <Checkbox
             defaultChecked={tableAccess[row.original.id] == "read"}
             aria-label="Read Access"
@@ -284,7 +281,7 @@ export const RoleForm = ({
       id: "write",
       header: "Write",
       cell: ({ row }) =>
-        !row.original.is_parent &&row.original.parent==null && (
+        row.original.subRows?.length == 0 && (
           <Checkbox
             defaultChecked={tableAccess[row.original.id] == "write"}
             aria-label="Write Access"
@@ -299,7 +296,7 @@ export const RoleForm = ({
       id: "full_access",
       header: "Full Access",
       cell: ({ row }) =>
-        !row.original.is_parent && (
+        row.original.subRows?.length == 0 && (
           <Checkbox
             defaultChecked={tableAccess[row.original.id] == "full_access"}
             aria-label="Full Access"
@@ -330,7 +327,7 @@ export const RoleForm = ({
     getExpandedRowModel: getExpandedRowModel(),
   });
 
-  console.log({allResourceTableData})
+  console.log({ allResourceTableData },"role form");
 
   return (
     <div>
@@ -541,18 +538,20 @@ export const RoleForm = ({
 };
 
 const convertToTableData = (data: resourceTypes[]) => {
-  console.log({ data }, "datadatadatadata");
-  return data.map((parent) => {
-    if (parent.children) {
-      const newParent: resourceTypes = {
-        ...parent,
-        subRows: parent?.children,
+  const processItem = (item: resourceTypes) => {
+    if (item.children) {
+      // Recursively process each child and convert `children` to `subRows`
+      const newItem: resourceTypes = {
+        ...item,
+        subRows: item.children.map(processItem),
       };
 
-      delete newParent.children;
-      return newParent;
+      delete newItem.children;
+      return newItem;
     } else {
-      return parent;
+      return item;
     }
-  });
+  };
+
+  return data.map(processItem);
 };

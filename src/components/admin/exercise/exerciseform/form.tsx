@@ -1,4 +1,10 @@
-import { Check, ChevronDownIcon, ImageIcon } from "lucide-react";
+import {
+  Check,
+  ChevronDownIcon,
+  ImageIcon,
+  PlusIcon,
+  TrashIcon,
+} from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -64,6 +70,7 @@ import {
   useGetAllJointsQuery,
   useGetAllMuscleQuery,
 } from "@/services/exerciseApi";
+import { watch } from "fs";
 
 enum genderEnum {
   male = "male",
@@ -84,6 +91,11 @@ enum ExerciseTypeEnum {
   repetition_based = "Repetition Based",
 }
 
+enum IntensityEnum {
+  maxIntensity = "maxIntensity",
+  irm = "irm",
+}
+
 enum VisibilityEnum {
   only_myself = "Only Myself",
   staff_of_my_club = "Staff of My Club",
@@ -93,7 +105,8 @@ enum VisibilityEnum {
 
 const ExericeForm: React.FC = () => {
   const { id } = useParams();
-
+  const [entries, setEntries] = React.useState([{ time: "", restTime: "" }]);
+  const [errors, setErrors] = React.useState<z.ZodError | null>(null);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -108,8 +121,12 @@ const ExericeForm: React.FC = () => {
   });
 
   // const initialState: any = {};
-  const ExerciseTimeSchema = z.object({});
+  const ExerciseTimeSchema = z.object({
+    time: z.array(z.coerce.number()).nonempty("Required"),
+    restTime: z.array(z.coerce.number()).nonempty("Required"),
+  });
 
+  const timeEntriesSchema = z.array(ExerciseTimeSchema);
   const FormSchema = z.object({
     exercise_name: z.string({
       required_error: "Required",
@@ -155,6 +172,21 @@ const ExericeForm: React.FC = () => {
     exercise_type: z.nativeEnum(ExerciseTypeEnum, {
       required_error: "Required",
     }),
+    timeEntriesSchema,
+    distance: z.number().optional(),
+    speed: z.number().optional(),
+    max_intensity: z
+      .nativeEnum(IntensityEnum)
+      .default(IntensityEnum.maxIntensity),
+    irmValue: z.number().optional(),
+    met: z.coerce
+      .number({
+        required_error: "Required",
+      })
+      .refine((value) => value !== 0 || isNaN(value), {
+        message: "Required",
+      })
+      .default(0),
   });
 
   const orgName = useSelector(
@@ -167,12 +199,32 @@ const ExericeForm: React.FC = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      exercise_type: ExerciseTypeEnum.time_based, // Set the default value here
+      exercise_type: ExerciseTypeEnum.time_based,
+      max_intensity: IntensityEnum.maxIntensity, // Set the default value here
     },
     mode: "onChange",
   });
 
   const watcher = form.watch();
+
+  const handleChange = (
+    index: number,
+    field: "time" | "restTime",
+    value: string
+  ) => {
+    const newEntries = [...entries];
+    newEntries[index][field] = value;
+    setEntries(newEntries);
+  };
+
+  const addEntry = () => {
+    setEntries([...entries, { time: "", restTime: "" }]);
+  };
+
+  const removeEntry = (index: number) => {
+    const newEntries = entries.filter((_, i) => i !== index);
+    setEntries(newEntries);
+  };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
@@ -303,7 +355,7 @@ const ExericeForm: React.FC = () => {
                             </SelectItem>
                           </SelectContent>
                         </Select>
-                        {<FormMessage />}
+                        {watcher.visible_for ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -407,7 +459,7 @@ const ExericeForm: React.FC = () => {
                             <SelectItem value="Expert">Expert</SelectItem>
                           </SelectContent>
                         </Select>
-                        {<FormMessage />}
+                        {watcher.difficulty ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -709,10 +761,271 @@ const ExericeForm: React.FC = () => {
                 </div>
               </div>
               <div className="relative">
+                {entries.map((entry, index) => (
+                  <div key={index} className=" p-4">
+                    <div className="flex gap-2">
+                      <label className="block font-semibold">
+                        <input
+                          type="text"
+                          value={entry.time}
+                          placeholder={
+                            watcher.exercise_type ===
+                            ExerciseTypeEnum.time_based
+                              ? "Time (s)*"
+                              : "Repetition (x)*"
+                          }
+                          onChange={(e) =>
+                            handleChange(index, "time", e.target.value)
+                          }
+                          required={watcher.gif_url ? true : false}
+                          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </label>
+                      {errors?.issues.find(
+                        (issue) =>
+                          issue.path[0] === index && issue.path[1] === "time"
+                      )?.message && (
+                        <div className="text-red-500 text-sm">
+                          {
+                            errors.issues.find(
+                              (issue) =>
+                                issue.path[0] === index &&
+                                issue.path[1] === "time"
+                            )?.message
+                          }
+                        </div>
+                      )}
+                      <label className="block font-semibold">
+                        <input
+                          type="text"
+                          value={entry.restTime}
+                          placeholder="Rest time(s)*"
+                          required={watcher.gif_url ? true : false}
+                          onChange={(e) =>
+                            handleChange(index, "restTime", e.target.value)
+                          }
+                          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </label>
+                      {errors?.issues.find(
+                        (issue) =>
+                          issue.path[0] === index &&
+                          issue.path[1] === "restTime"
+                      )?.message && (
+                        <div className="text-red-500 text-sm">
+                          {
+                            errors.issues.find(
+                              (issue) =>
+                                issue.path[0] === index &&
+                                issue.path[1] === "restTime"
+                            )?.message
+                          }
+                        </div>
+                      )}
+                      <Button
+                        type="button"
+                        variant={"outline"}
+                        onClick={addEntry}
+                        className="text-black rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-blue-500 gap-2 justify-center items-center flex"
+                      >
+                        <PlusIcon className="h-5 w-5 text-black" /> Add a Set
+                      </Button>
+                      {entries.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeEntry(index)}
+                          className="text-red-500 hover:text-red-700 focus:outline-none"
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
                 {watcher.exercise_type === ExerciseTypeEnum.time_based ? (
-                  <>hello</>
+                  <>
+                    <div className="relative">
+                      {
+                        <div className="flex gap-4">
+                          {/* <FormField
+                            control={form.control}
+                            name="visible_for"
+                            render={({ field }) => (
+                              <FormItem>
+                                <Select
+                                  onValueChange={(value: VisibilityEnum) =>
+                                    form.setValue("visible_for", value)
+                                  }
+                                  value={field.value as VisibilityEnum}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger
+                                      className={`${watcher.visible_for ? "text-black" : "text-gray-500"}`}
+                                    >
+                                      <SelectValue placeholder="MET" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent></SelectContent>
+                                </Select>
+                                {watcher.visible_for ? <></> : <FormMessage />}
+                              </FormItem>
+                            )}
+                          /> */}
+                          <FormField
+                            control={form.control}
+                            name="met"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        className={cn(
+                                          "justify-between font-normal",
+                                          !field.value &&
+                                            "font-medium text-gray-400 focus:border-primary "
+                                        )}
+                                      >
+                                        {field.value
+                                          ? CategoryData?.find(
+                                              (
+                                                category: baseExerciseApiResponse
+                                              ) => category.id === field.value // Compare with numeric value
+                                            )?.name // Display category name if selected
+                                          : "MET"}
+                                        <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                      </Button>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="p-0">
+                                    <Command>
+                                      <CommandList>
+                                        <CommandInput placeholder="Select Metabolism" />
+                                        <CommandEmpty>
+                                          No Metabolism found.
+                                        </CommandEmpty>
+                                        <CommandGroup>
+                                          {CategoryData &&
+                                            CategoryData.map(
+                                              (
+                                                Category: baseExerciseApiResponse
+                                              ) => (
+                                                <CommandItem
+                                                  value={Category.name}
+                                                  key={Category.id}
+                                                  onSelect={() => {
+                                                    form.setValue(
+                                                      "met",
+                                                      Category.id
+                                                    );
+                                                  }}
+                                                >
+                                                  <Check
+                                                    className={cn(
+                                                      "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                                      Category.id ===
+                                                        field.value
+                                                        ? "opacity-100"
+                                                        : "opacity-0"
+                                                    )}
+                                                  />
+                                                  {Category.name}{" "}
+                                                </CommandItem>
+                                              )
+                                            )}
+                                        </CommandGroup>
+                                      </CommandList>
+                                    </Command>
+                                  </PopoverContent>
+                                </Popover>
+                                {watcher.category_id ? <></> : <FormMessage />}
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="distance"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FloatingLabelInput
+                                  {...field}
+                                  id="distance"
+                                  label="Distance"
+                                />
+                                {watcher.distance ? <></> : <FormMessage />}
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="speed"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FloatingLabelInput
+                                  {...field}
+                                  id="speed"
+                                  label="speed"
+                                />
+                                {watcher.speed ? <></> : <FormMessage />}
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      }
+                    </div>
+                  </>
                 ) : (
-                  <>Bye</>
+                  <>
+                    <div className="relative">
+                      <FormField
+                        control={form.control}
+                        name="max_intensity"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex gap-4 w-full justify-start items-center">
+                              Exercise Type:
+                              {Object.values(IntensityEnum).map((value) => (
+                                <label key={value}>
+                                  <input
+                                    type="radio"
+                                    value={value} // Use the enum value here
+                                    checked={field.value === value}
+                                    onChange={field.onChange}
+                                    className="mr-2 checked:bg-primary"
+                                  />
+                                  {value}
+                                </label>
+                              ))}
+                              {field.value == "irm" && (
+                                <FormField
+                                  control={form.control}
+                                  name="irmValue"
+                                  render={({ field }) => (
+                                    <FormItem className="w-[10%]">
+                                      <FloatingLabelInput
+                                        {...field}
+                                        id="irmValue"
+                                        label="IRM*"
+                                      />
+                                      {watcher.irmValue ? (
+                                        <></>
+                                      ) : (
+                                        <FormMessage />
+                                      )}
+                                    </FormItem>
+                                  )}
+                                />
+                              )}
+                            </div>
+
+                            {watcher.max_intensity ? <></> : <FormMessage />}
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </>
                 )}
               </div>
             </CardContent>

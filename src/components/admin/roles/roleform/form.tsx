@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { ErrorType, getRolesType, resourceTypes } from "@/app/types";
+import { ErrorType,  resourceTypes } from "@/app/types";
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
@@ -14,7 +13,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
@@ -52,11 +50,8 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   useCreateRoleMutation,
   useGetAllResourcesQuery,
-  useGetRolesQuery,
   useUpdateRoleMutation,
 } from "@/services/rolesApi";
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/store";
 
 const status = [
   { value: "true", label: "Active", color: "bg-green-500" },

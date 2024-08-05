@@ -1,4 +1,4 @@
-import React, { HTMLProps, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import {
   ColumnDef,
   ExpandedState,
@@ -8,7 +8,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { FaEdit } from "react-icons/fa";
 import {
   Table,
   TableBody,
@@ -26,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getRolesType, MemberTabletypes, resourceTypes } from "@/app/types";
+import { getRolesType,  resourceTypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RootState, AppDispatch } from "@/app/store";
 import { useSelector, useDispatch } from "react-redux";

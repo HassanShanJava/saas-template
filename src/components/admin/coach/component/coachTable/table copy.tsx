@@ -12,7 +12,13 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { useDebounce } from "@/hooks/use-debounce";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -36,26 +42,33 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, MemberTabletypes } from "@/app/types";
+// import { MemberFilterSchema, MemberTabletypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { DataTableViewOptions } from "./data-table-view-options";
+import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
+import { DataTableFacetedFilter } from "./data-table-faced-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
+import { useGetAllMemberQuery } from "@/services/memberAPi";
 import {
-  useGetAllMemberQuery,
-  useGetCoachesQuery,
-  useGetMemberCountQuery,
-} from "@/services/memberAPi";
-import MemberFilters from "./data-table-filter";
-import { useGetMembershipsQuery } from "@/services/membershipsApi";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+  useGetListOfCoachQuery,
+  useUpdateCoachMutation,
+} from "@/services/coachApi";
+import { CoachTableTypes, ErrorType } from "@/app/types";
+import { useDebounce } from "@/hooks/use-debounce";
 import { Separator } from "@/components/ui/separator";
 
-const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
+const status = [
+  { value: "active", label: "Active", color: "bg-green-500" },
+  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
+  { value: "pending", label: "Pending", color: "bg-orange-500" },
+];
+
+const downloadCSV = (data: any[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -70,10 +83,8 @@ interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
-  client_name?: string;
-  status?: string;
-  membership_plan?: string;
-  coach_asigned?: string;
+  status?:boolean;
+  search_key?:string
 }
 
 const initialValue = {
@@ -82,10 +93,11 @@ const initialValue = {
   sort_order: "desc",
 };
 
-export default function MemberTableView() {
+
+export default function CoachTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const [searchCretiria, setSearchCretiria] =
+    const [searchCretiria, setSearchCretiria] =
     useState<searchCretiriaType>(initialValue);
   const [query, setQuery] = useState("");
 
@@ -100,9 +112,9 @@ export default function MemberTableView() {
       const newCriteria = { ...prev };
 
       if (debouncedInputValue.trim() !== "") {
-        newCriteria.client_name = debouncedInputValue;
+        newCriteria.search_key = debouncedInputValue;
       } else {
-        delete newCriteria.client_name;
+        delete newCriteria.search_key;
       }
 
       return newCriteria;
@@ -123,72 +135,33 @@ export default function MemberTableView() {
     setQuery(newQuery);
   }, [searchCretiria]);
 
-  const toggleSortOrder = () => {
-    setSearchCretiria((prev) => ({
-      ...prev,
-      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
-    }));
-  };
 
   const {
-    data: memberData,
+    data: coachData,
     isLoading,
     refetch,
     error,
-    isError,
-  } = useGetAllMemberQuery(
-    { org_id: orgId, query: query },
+  } = useGetListOfCoachQuery({ org_id: orgId, query: query },
     {
       skip: query == "",
-    }
-  );
+    });
 
-  // const {
-  //   data: coachData,
-  //   error:coachError,
-  //   isError:isCoachError,
-  // } = useGetCoachesQuery(
-  //   { org_id: orgId, query:'' },
-  //   {
-  //     skip: query == "",
-  //   }
-  // );
-  const {
-    data: coachData,
-    error: coachError,
-    isError: isCoachError,
-  } = useGetCoachesQuery(orgId);
-
-  const { data: count } = useGetMemberCountQuery(orgId);
-  const { data: membershipPlans } = useGetMembershipsQuery({
-    org_id: orgId,
-    query: "",
-  });
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (isError || isCoachError) {
-      // const errorMsg= error?.data?.detail as FetchBaseQueryError || coachError?.data?.detail  satisfies FetchBaseQueryError
-      toast({
-        variant: "destructive",
-        // title: error?.data?.detail as unknown || coachError?.data?.detail  ,
-        title: "Error",
-      });
-    }
-  }, [isError, isCoachError]);
+  const [updateCoach] = useUpdateCoachMutation();
 
   function handleRoute() {
-    navigate("/admin/members/addmember");
+    navigate("/admin/coach/addcoach");
   }
-  const memberTableData = React.useMemo(() => {
-    return Array.isArray(memberData) ? memberData : [];
-  }, [memberData]);
+  const coachTableData = React.useMemo(() => {
+    return Array.isArray(coachData) ? coachData : [];
+  }, [coachData]);
   const { toast } = useToast();
-  console.log("data", { memberData, error });
+  console.log("data", { coachData, error });
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
 
+  const [filters, setFilters] = useState<"">();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
@@ -197,8 +170,6 @@ export default function MemberTableView() {
     pageIndex: 0,
     pageSize: 10, // Adjust this based on your preference
   });
-  const displayValue = (value: string | undefined | null) =>
-    value == null || value == undefined || value == "" ? "N/A" : value;
 
   const displayDate = (value: any) => {
     const date = new Date(value);
@@ -209,6 +180,7 @@ export default function MemberTableView() {
 
     return `${day}-${month}-${year}`;
   };
+
   const handleExportSelected = () => {
     const selectedRows = table
       .getSelectedRowModel()
@@ -222,7 +194,62 @@ export default function MemberTableView() {
     }
     downloadCSV(selectedRows, "members_list.csv");
   };
-  const columns: ColumnDef<MemberTabletypes>[] = [
+
+  const handleStatusChange = async (payload: {
+    coach_status: string;
+    id: number;
+    org_id: number;
+  }) => {
+    console.log("handle change status", { payload });
+
+    try {
+      if (payload.coach_status == "pending") {
+        toast({
+          variant: "destructive",
+          title: "Only Active/Inactive",
+        });
+        return;
+      }
+      const resp = await updateCoach(payload).unwrap();
+      refetch();
+      if (resp) {
+        console.log({ resp });
+        toast({
+          variant: "success",
+          title: "Updated Successfully",
+        });
+      }
+    } catch (error) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
+  };
+  // const displayValue = (value: ) =>
+  //   value == null || value === "" || value == undefined ? "N/A" : value;
+  const displayValue = (value: string | undefined | null) =>
+    value == null || value == "" ? "N/A" : value;
+
+  const toggleSortOrder = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
+    }));
+  };
+
+  const columns: ColumnDef<CoachTableTypes>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -247,12 +274,12 @@ export default function MemberTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "own_member_id",
-      header: "Member Id ",
+      accessorKey: "own_coach_id",
+      header: "Gym Coach ID",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original?.own_member_id)}
+            {displayValue(row?.original?.own_coach_id)}
           </div>
         );
       },
@@ -260,7 +287,7 @@ export default function MemberTableView() {
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
-      header: "Member Name",
+      header: "Coach Name",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -270,58 +297,68 @@ export default function MemberTableView() {
       },
     },
     {
-      accessorKey: "business_name",
-      header: "Business Name",
+      accessorKey: "coach_since",
+      header: "Coach Since",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original?.business_name)}
+            {displayDate(row?.original.coach_since)}
           </div>
         );
       },
     },
     {
-      accessorFn: (row) => row.phone ?? row.mobile_number,
-      id: "membership_plan",
-      header: "Membership Plan",
+      accessorKey: "coach_status",
+      header: ({ table }) => <span>Status</span>,
       cell: ({ row }) => {
-        const contactNumber = row.original.phone ?? row.original.mobile_number;
+        const value =
+          row.original?.coach_status != null
+            ? row.original?.coach_status + ""
+            : "pending";
+        console.log("value of status", value);
+        const statusLabel = status.filter((r) => r.value === value)[0];
+        const id = Number(row.original.id);
+        const org_id = Number(row.original.org_id);
+
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(contactNumber)}
-          </div>
+          <Select
+            defaultValue={value}
+            onValueChange={(e) =>
+              handleStatusChange({ coach_status: e, id: id, org_id: org_id })
+            }
+            disabled={value == "pending"}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Status" className="text-gray-400">
+                <span className="flex gap-2 items-center">
+                  <span
+                    className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
+                  ></span>
+                  <span>{statusLabel?.label}</span>
+                </span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {status.map((item: any) => (
+                <SelectItem key={item.value + ""} value={item.value + ""}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         );
       },
-    },
-    {
-      accessorKey: "coach_name",
-      header: "Coach",
-      cell: ({ row }) => {
-        return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.coach_name)}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "client_since",
-      header: "Activation Date",
-      cell: ({ row }) => {
-        return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayDate(row?.original.client_since)}
-          </div>
-        );
-      },
+      enableSorting: false,
+      enableHiding: false,
     },
     {
       accessorKey: "check_in",
       header: "Last Check In",
       cell: ({ row }) => {
+        console.log(row?.original.check_in);
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden text-black">
-            {displayValue(row?.original?.check_in)}
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.check_in)}
           </div>
         );
       },
@@ -330,10 +367,9 @@ export default function MemberTableView() {
       accessorKey: "last_online",
       header: "Last Login",
       cell: ({ row }) => {
-        console.log(row?.original.last_online, "last_online");
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden text-black">
-            {displayValue(row?.original?.last_online)}
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.last_online)}
           </div>
         );
       },
@@ -342,17 +378,13 @@ export default function MemberTableView() {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <DataTableRowActions
-          row={row.original.id}
-          data={row?.original}
-          refetch={refetch}
-        />
+        <DataTableRowActions data={row.original} refetch={refetch} />
       ),
     },
   ];
-
+  // console.log("data",{memberData})
   const table = useReactTable({
-    data: memberTableData as MemberTabletypes[],
+    data: coachTableData as CoachTableTypes[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -375,61 +407,11 @@ export default function MemberTableView() {
     onPaginationChange: setPagination,
   });
 
-  function handleMembershipplan(value: string) {
-    setFilter((prev) => ({
-      ...prev,
-      membership_plan: value,
-    }));
+  function handlePagination(page: number) {
+    if (page < 0) return;
+    // setFilters
   }
 
-  function handleCoachAssigned(value: string) {
-    setFilter((prev) => ({
-      ...prev,
-      coach_assigned: value,
-    }));
-  }
-
-  function handleMemberStatus(value: string) {
-    setFilter((prev) => ({
-      ...prev,
-      status: value,
-    }));
-  }
-
-  const filterDisplay = [
-    {
-      type: "select",
-      name: "membership_plan",
-      label: "Membership",
-      options: membershipPlans,
-      function: handleMembershipplan,
-    },
-    {
-      type: "select",
-      name: "coach_assigned",
-      label: "Coach",
-      options:
-        coachData &&
-        coachData.map((item) => ({
-          id: item.id,
-          name: item.first_name + " " + item.last_name,
-        })),
-      function: handleCoachAssigned,
-    },
-    {
-      type: "select",
-      name: "status",
-      label: "Status",
-      options: [
-        { id: "pending", name: "Pending" },
-        { id: "inactive", name: "Inactive" },
-        { id: "active", name: "Active" },
-      ],
-      function: handleMemberStatus,
-    },
-  ];
-
-  console.log({ searchCretiria });
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between gap-2 px-4 py-2 ">
@@ -438,7 +420,7 @@ export default function MemberTableView() {
             <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
             <FloatingLabelInput
               id="search"
-              placeholder="Search by member name"
+              placeholder="Search by coach name"
               onChange={(event) => setInputValue(event.target.value)}
               className="w-64 pl-8 text-gray-400"
             />
@@ -516,7 +498,7 @@ export default function MemberTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : memberTableData.length > 0 ? (
+              ) : coachTableData.length > 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -531,7 +513,7 @@ export default function MemberTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Members Added yet!.
+                    No Coach Added yet!.
                   </TableCell>
                 </TableRow>
               )}
@@ -634,13 +616,13 @@ export default function MemberTableView() {
                   };
                 })
               }
-              disabled={
-                searchCretiria.offset ==
-                Math.ceil(
-                  (count?.total_members as number) / searchCretiria.limit
-                ) -
-                  1
-              }
+              // disabled={
+              //   searchCretiria.offset ==
+              //   Math.ceil(
+              //     (count?.total_members as number) / searchCretiria.limit
+              //   ) -
+              //     1
+              // }
             >
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
@@ -652,41 +634,31 @@ export default function MemberTableView() {
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    offset:
-                      Math.ceil(
-                        (count?.total_members as number) / searchCretiria.limit
-                      ) - 1,
-                  };
-                })
-              }
-              disabled={
-                searchCretiria.offset ==
-                Math.ceil(
-                  (count?.total_members as number) / searchCretiria.limit
-                ) -
-                  1
-              }
+              // onClick={() =>
+              //   setSearchCretiria((prev) => {
+              //     return {
+              //       ...prev,
+              //       offset:
+              //         Math.ceil(
+              //           (count?.total_members as number) / searchCretiria.limit
+              //         ) - 1,
+              //     };
+              //   })
+              // }
+              // disabled={
+              //   searchCretiria.offset ==
+              //   Math.ceil(
+              //     (count?.total_members as number) / searchCretiria.limit
+              //   ) -
+              //     1
+              // }
             >
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
-
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
-      <MemberFilters
-        isOpen={openFilter}
-        setOpen={setOpenFilter}
-        initialValue={initialValue}
-        filterData={filterData}
-        setFilter={setFilter}
-        setSearchCriteria={setSearchCretiria}
-        filterDisplay={filterDisplay}
-      />
     </div>
   );
 }

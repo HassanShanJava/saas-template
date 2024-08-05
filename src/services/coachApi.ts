@@ -8,6 +8,15 @@ import {
 
 import { apiSlice } from "@/features/api/apiSlice";
 
+
+
+interface coachInput{
+	query:string,
+	org_id:number
+}
+
+
+
 export const Roles = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
@@ -46,9 +55,9 @@ export const Roles = apiSlice.injectEndpoints({
             name: `${member.first_name} ${member.last_name}`,
           })),
       }),
-      getListOfCoach: builder.query<any[], number>({
-        query: (org_id) => ({
-          url: `/coach?org_id=${org_id}`,
+      getListOfCoach: builder.query<any[], coachInput>({
+        query: (searchCretiria) => ({
+          url: `/coach?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           headers: {
             Accept: "application/json",
           },

@@ -410,19 +410,15 @@ export default function IncomeCategoryTableView() {
                   </TableCell>
                 </TableRow>
               )}
-            </TableBody>
+            </TableBody>k
           </Table>
         </ScrollArea>
       </div>
       {/* pagination */}
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-          {/* {count?.total_members} */}
-        </div>
-
-        <div className="flex items-center justify-center space-x-6 lg:space-x-8">
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">Rows per page</p>
+      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+        <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium">Items per page:</p>
             <Select
               value={pagination.pageSize.toString()}
               onValueChange={(value) => {
@@ -430,10 +426,10 @@ export default function IncomeCategoryTableView() {
                 setSearchCretiria((prev) => ({ ...prev, limit: newSize }));
               }}
             >
-              <SelectTrigger className="h-8 w-[70px]">
+              <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
                 <SelectValue>{pagination.pageSize}</SelectValue>
               </SelectTrigger>
-              <SelectContent side="top">
+              <SelectContent side="bottom">
                 {[5, 10, 20, 30, 40, 50].map((pageSize) => (
                   <SelectItem key={pageSize} value={pageSize.toString()}>
                     {pageSize}
@@ -442,11 +438,27 @@ export default function IncomeCategoryTableView() {
               </SelectContent>
             </Select>
           </div>
+          <Separator
+            orientation="vertical"
+            className="h-11 w-[1px] bg-gray-300  "
+          />
+          {/* <div className="flex items-center gap-2">
+            <p className="text-sm font-medium">
+              {searchCretiria.offset + 1 + " of "}
+            </p>
+          </div> */}
+        </div>
 
-          <div className="flex items-center space-x-2 p-2">
+        <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center space-x-2">
+            <Separator
+              orientation="vertical"
+              className="hidden lg:flex h-11 w-[1px] bg-gray-300 "
+            />
+
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
+              className="hidden h-8 w-8 p-0 lg:flex border-none !!disabled:cursor-not-allowed"
               onClick={() =>
                 setSearchCretiria((prev) => {
                   return {
@@ -457,13 +469,17 @@ export default function IncomeCategoryTableView() {
               }
               disabled={searchCretiria.offset === 0}
             >
-              <span className="sr-only">Go to first page</span>
               <DoubleArrowLeftIcon className="h-4 w-4" />
             </Button>
 
+            <Separator
+              orientation="vertical"
+              className="h-11 w-[0.5px] bg-gray-300 "
+            />
+
             <Button
               variant="outline"
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
               onClick={() =>
                 setSearchCretiria((prev) => {
                   return {
@@ -474,12 +490,16 @@ export default function IncomeCategoryTableView() {
               }
               disabled={searchCretiria.offset === 0}
             >
-              <span className="sr-only">Go to previous page</span>
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
+            <Separator
+              orientation="vertical"
+              className="h-11 w-[1px] bg-gray-300 "
+            />
+
             <Button
               variant="outline"
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
               onClick={() =>
                 setSearchCretiria((prev) => {
                   return {
@@ -498,22 +518,25 @@ export default function IncomeCategoryTableView() {
             >
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
+            <Separator
+              orientation="vertical"
+              className="hidden lg:flex h-11 w-[1px] bg-gray-300 "
+            />
 
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex "
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    // offset:
-                    //   Math.ceil(
-                    //     (count?.total_members as number) / searchCretiria.limit
-                    //   ) - 1,
-                    offset: 10,
-                  };
-                })
-              }
+              className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+              // onClick={() =>
+              //   setSearchCretiria((prev) => {
+              //     return {
+              //       ...prev,
+              //       offset:
+              //         Math.ceil(
+              //           (count?.total_members as number) / searchCretiria.limit
+              //         ) - 1,
+              //     };
+              //   })
+              // }
               // disabled={
               //   searchCretiria.offset ==
               //   Math.ceil(

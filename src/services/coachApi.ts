@@ -25,7 +25,7 @@ export const Roles = apiSlice.injectEndpoints({
       }),
       getCoachCount: builder.query<{ total_coaches: number }, number>({
         query: (org_id) => ({
-          url: `/coach/count?org_id=${org_id}`,
+          url: `/coach/count/${org_id}`,
           headers: {
             Accept: "application/json",
           },

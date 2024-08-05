@@ -152,7 +152,18 @@ export const RoleForm = ({
   const handleClose = () => {
     form.clearErrors();
     // createAccess(data?.allResourceData as resourceTypes[])
-    setIsDialogOpen(false);
+
+    setFormData((prev: any) => ({
+      ...prev,
+      status: true,
+      name: "",
+    }));
+    form.reset({
+      org_id: formData.org_id,
+      status: true,
+      name: "",
+    });
+    setIsDialogOpen();
   };
 
   const handleAccessChange = (id: number, access: string) => {
@@ -337,19 +348,6 @@ export const RoleForm = ({
     <div>
       <Sheet
         open={isDialogOpen}
-        onOpenChange={() => {
-          setFormData((prev: any) => ({
-            ...prev,
-            status: true,
-            name: "",
-          }));
-          form.reset({
-            org_id: formData.org_id,
-            status: true,
-            name: "",
-          });
-          setIsDialogOpen();
-        }}
       >
         <SheetContent
           className="w-full !max-w-[930px]  flex flex-col"

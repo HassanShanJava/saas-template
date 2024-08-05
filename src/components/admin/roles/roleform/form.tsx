@@ -68,15 +68,15 @@ export const RoleForm = ({
   setIsDialogOpen,
   isDialogOpen,
   setFormData,
-  handleOnChange,
   refetch,
+  resourceRefetch,
 }: {
   data: any;
   isDialogOpen: boolean;
   setIsDialogOpen: any;
   setFormData?: any;
-  handleOnChange?: any;
   refetch?: any;
+  resourceRefetch?: any;
 }) => {
   const { toast } = useToast();
   const [tableAccess, setAccess] = useState<Record<number, string>>({});
@@ -99,7 +99,7 @@ export const RoleForm = ({
   const createAccess = (array: resourceTypes[]) => {
     const noAccessMap: Record<number, string> = {};
     array.forEach((item: resourceTypes) => {
-      if (!item.is_parent) {
+      if (item.is_root) {
         noAccessMap[item.id] = "no_access";
       }
       if (item.children && item.children.length > 0) {
@@ -115,17 +115,20 @@ export const RoleForm = ({
     if (data?.allResourceData && formData.case == "add") {
       createAccess(data?.allResourceData);
     } else if (formData.case == "edit") {
-      createAccess(formData.tableAccess as resourceTypes[]);
+      // createAccess(formData.tableAccess as resourceTypes);
+      console.log(formData.tableAccess,"formData.tableAccess")
+      setAccess(formData.tableAccess)
+      form.reset(formData)
     }
   }, [data, formData]);
 
   console.log({ tableAccess });
   const RoleFormSchema = z.object({
     org_id: z.number(),
-    name: z.string().min(1, { message: "Name is required" }),
+    name: z.string().min(1, { message: "Required" }),
     status: z
       .boolean({
-        required_error: "Please select a status",
+        required_error: "Required",
       })
       .default(true),
   });
@@ -147,7 +150,7 @@ export const RoleForm = ({
   };
 
   const handleClose = () => {
-    // clearErrors();
+    form.clearErrors();
     // createAccess(data?.allResourceData as resourceTypes[])
     setIsDialogOpen(false);
   };
@@ -185,6 +188,7 @@ export const RoleForm = ({
         if (resp) {
           console.log({ resp });
           refetch();
+          resourceRefetch();
           toast({
             variant: "success",
             title: "Updated Successfully",
@@ -327,7 +331,7 @@ export const RoleForm = ({
     getExpandedRowModel: getExpandedRowModel(),
   });
 
-  console.log({ allResourceTableData },"role form");
+  console.log({ watcher },"role form");
 
   return (
     <div>
@@ -372,7 +376,8 @@ export const RoleForm = ({
                             id="name"
                             name="name"
                             label="Role Name*"
-                            value={field.value ?? ""}
+                            value={field.value}
+                            defaultValue={field.value}
                           />
                           {watcher.name ? <></> : <FormMessage />}
                         </FormItem>
@@ -385,6 +390,7 @@ export const RoleForm = ({
                       render={({ field }) => (
                         <FormItem className="w-1/2">
                           <Select
+                            defaultValue={field.value ? "true" : "false"}
                             onValueChange={(value) =>
                               field.onChange(value === "true")
                             }

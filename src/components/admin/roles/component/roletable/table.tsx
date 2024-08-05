@@ -50,8 +50,8 @@ export default function RoleTableView() {
 
   const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(
     undefined
-  ); // 0 can be the default for "Select a role"
-
+  ); 
+  
   const {
     data: resourceData,
     isLoading,
@@ -154,7 +154,6 @@ export default function RoleTableView() {
         ),
     },
   ];
-  console.log({ permissionTableData });
 
   useEffect(() => {
     if (resourceData) {
@@ -180,30 +179,15 @@ export default function RoleTableView() {
     getExpandedRowModel: getExpandedRowModel(),
   });
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedId = event.target.value;
-    console.log("Selected Role ID:", selectedId);
-    setSelectedRoleId(Number(selectedId));
-  };
   // default values in form
   const [formData, setFormData] = useState<any>({
     status: true,
     name: "",
     org_id: orgId,
   });
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const handleCloseDailog = () => setIsDialogOpen(false);
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const finalValue: number | string = value;
-
-    setFormData((prevData: any) => {
-      const updatedData = { ...prevData, [name]: finalValue };
-      console.log("After update:", updatedData);
-      return updatedData;
-    });
-  };
 
   const handleAddRole = () => {
     console.log("Before update:", formData);
@@ -217,8 +201,19 @@ export default function RoleTableView() {
 
   const handleEditRole = () => {
     console.log("Before update:", formData);
+    const data =
+      rolesData && rolesData.filter((item) => item.id == selectedRoleId)[0];
+    const tableAccess = createTableAccess(resourceData);
+    console.log({ tableAccess }, "role access");
     setFormData((prevData: any) => {
-      const updatedData = { ...prevData, case: "edit", id: selectedRoleId };
+      const updatedData = {
+        ...prevData,
+        case: "edit",
+        id: selectedRoleId,
+        tableAccess: tableAccess,
+        name: data?.name,
+        status: data?.status,
+      };
       console.log("After update:", updatedData);
       return updatedData;
     });
@@ -365,8 +360,8 @@ export default function RoleTableView() {
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={handleCloseDailog}
         setFormData={setFormData}
-        handleOnChange={handleOnChange}
         refetch={rolesRefetch}
+        resourceRefetch={refetch}
       />
     </div>
   );
@@ -389,4 +384,22 @@ const convertToTableData = (data: resourceTypes[]) => {
   };
 
   return data.map(processItem);
+};
+
+const createTableAccess = (array: resourceTypes[]) => {
+  const accessMap: Record<number, string> = {};
+
+  const processItem = (item: resourceTypes) => {
+    if (item.access_type) {
+      accessMap[item.id] = item.access_type;
+    }
+
+    if (item.children && item.children.length > 0) {
+      item.children.forEach(processItem);
+    }
+  };
+
+  array.forEach(processItem);
+
+  return accessMap;
 };

@@ -436,6 +436,7 @@ export interface updateStatusInput {
 
 export interface getRolesType {
   name: string;
+  status?:boolean;
   id: number;
 }
 

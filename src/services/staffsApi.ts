@@ -5,6 +5,12 @@ import {
 } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
+
+interface staffInput{
+	query:string,
+	org_id:number
+}
+
 export const StaffApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getStaffCount: builder.query<{ total_staffs: number }, number>({
@@ -41,9 +47,9 @@ export const StaffApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Staffs"],
     }),
-    GetStaffList: builder.query<staffTypesResponseList[], number>({
-      query: (org_id) => ({
-        url: `/staff?org_id=${org_id}`,
+    GetStaffList: builder.query<staffTypesResponseList[], staffInput>({
+      query: (searchCretiria) => ({
+        url: `/staff?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
         method: "GET",
         headers: {
           Accept: "application/json",

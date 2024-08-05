@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { ErrorType, getRolesType, resourceTypes } from "@/app/types";
+import { ErrorType,  resourceTypes } from "@/app/types";
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
@@ -14,7 +13,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
@@ -52,11 +50,8 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   useCreateRoleMutation,
   useGetAllResourcesQuery,
-  useGetRolesQuery,
   useUpdateRoleMutation,
 } from "@/services/rolesApi";
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/store";
 
 const status = [
   { value: "true", label: "Active", color: "bg-green-500" },
@@ -68,15 +63,15 @@ export const RoleForm = ({
   setIsDialogOpen,
   isDialogOpen,
   setFormData,
-  handleOnChange,
   refetch,
+  resourceRefetch,
 }: {
   data: any;
   isDialogOpen: boolean;
   setIsDialogOpen: any;
   setFormData?: any;
-  handleOnChange?: any;
   refetch?: any;
+  resourceRefetch?: any;
 }) => {
   const { toast } = useToast();
   const [tableAccess, setAccess] = useState<Record<number, string>>({});
@@ -99,7 +94,7 @@ export const RoleForm = ({
   const createAccess = (array: resourceTypes[]) => {
     const noAccessMap: Record<number, string> = {};
     array.forEach((item: resourceTypes) => {
-      if (!item.is_parent) {
+      if (item.is_root) {
         noAccessMap[item.id] = "no_access";
       }
       if (item.children && item.children.length > 0) {
@@ -115,17 +110,20 @@ export const RoleForm = ({
     if (data?.allResourceData && formData.case == "add") {
       createAccess(data?.allResourceData);
     } else if (formData.case == "edit") {
-      createAccess(formData.tableAccess as resourceTypes[]);
+      // createAccess(formData.tableAccess as resourceTypes);
+      console.log(formData.tableAccess,"formData.tableAccess")
+      setAccess(formData.tableAccess)
+      form.reset(formData)
     }
   }, [data, formData]);
 
   console.log({ tableAccess });
   const RoleFormSchema = z.object({
     org_id: z.number(),
-    name: z.string().min(1, { message: "Name is required" }),
+    name: z.string().min(1, { message: "Required" }),
     status: z
       .boolean({
-        required_error: "Please select a status",
+        required_error: "Required",
       })
       .default(true),
   });
@@ -143,14 +141,24 @@ export const RoleForm = ({
       ...prev,
     }));
     createAccess(data?.allResourceData as resourceTypes[]);
-    form.reset()
+    form.reset();
   };
 
-
   const handleClose = () => {
-    // clearErrors();
+    form.clearErrors();
     // createAccess(data?.allResourceData as resourceTypes[])
-    setIsDialogOpen(false);
+
+    setFormData((prev: any) => ({
+      ...prev,
+      status: true,
+      name: "",
+    }));
+    form.reset({
+      org_id: formData.org_id,
+      status: true,
+      name: "",
+    });
+    setIsDialogOpen();
   };
 
   const handleAccessChange = (id: number, access: string) => {
@@ -186,6 +194,7 @@ export const RoleForm = ({
         if (resp) {
           console.log({ resp });
           refetch();
+          resourceRefetch();
           toast({
             variant: "success",
             title: "Updated Successfully",
@@ -239,11 +248,9 @@ export const RoleForm = ({
                 ) : (
                   <i className="fa fa-angle-right w-3 h-3"></i>
                 )}
-
-                {row?.original?.name}
               </button>
             )}
-            {!row.original.is_parent && row?.original?.name}
+            {row?.original?.name}
           </div>
         );
       },
@@ -252,7 +259,7 @@ export const RoleForm = ({
       id: "no_access",
       header: "No Access",
       cell: ({ row }) =>
-        !row.original.is_parent && (
+        row.original.subRows?.length == 0 && (
           <Checkbox
             defaultChecked={tableAccess[row.original.id] == "no_access"}
             aria-label="No Access"
@@ -269,7 +276,7 @@ export const RoleForm = ({
       id: "read",
       header: "Read",
       cell: ({ row }) =>
-        !row.original.is_parent && (
+        row.original.subRows?.length == 0 && (
           <Checkbox
             defaultChecked={tableAccess[row.original.id] == "read"}
             aria-label="Read Access"
@@ -284,7 +291,7 @@ export const RoleForm = ({
       id: "write",
       header: "Write",
       cell: ({ row }) =>
-        !row.original.is_parent &&row.original.parent==null && (
+        row.original.subRows?.length == 0 && (
           <Checkbox
             defaultChecked={tableAccess[row.original.id] == "write"}
             aria-label="Write Access"
@@ -299,7 +306,7 @@ export const RoleForm = ({
       id: "full_access",
       header: "Full Access",
       cell: ({ row }) =>
-        !row.original.is_parent && (
+        row.original.subRows?.length == 0 && (
           <Checkbox
             defaultChecked={tableAccess[row.original.id] == "full_access"}
             aria-label="Full Access"
@@ -330,25 +337,12 @@ export const RoleForm = ({
     getExpandedRowModel: getExpandedRowModel(),
   });
 
-  console.log({allResourceTableData})
+  console.log({ watcher },"role form");
 
   return (
     <div>
       <Sheet
         open={isDialogOpen}
-        onOpenChange={() => {
-          setFormData((prev: any) => ({
-            ...prev,
-            status: true,
-            name: "",
-          }));
-          form.reset({
-            org_id: formData.org_id,
-            status: true,
-            name: "",
-          });
-          setIsDialogOpen();
-        }}
       >
         <SheetContent
           className="w-full !max-w-[930px]  flex flex-col"
@@ -375,7 +369,8 @@ export const RoleForm = ({
                             id="name"
                             name="name"
                             label="Role Name*"
-                            value={field.value ?? ""}
+                            value={field.value}
+                            defaultValue={field.value}
                           />
                           {watcher.name ? <></> : <FormMessage />}
                         </FormItem>
@@ -388,6 +383,7 @@ export const RoleForm = ({
                       render={({ field }) => (
                         <FormItem className="w-1/2">
                           <Select
+                            defaultValue={field.value ? "true" : "false"}
                             onValueChange={(value) =>
                               field.onChange(value === "true")
                             }
@@ -541,18 +537,20 @@ export const RoleForm = ({
 };
 
 const convertToTableData = (data: resourceTypes[]) => {
-  console.log({ data }, "datadatadatadata");
-  return data.map((parent) => {
-    if (parent.children) {
-      const newParent: resourceTypes = {
-        ...parent,
-        subRows: parent?.children,
+  const processItem = (item: resourceTypes) => {
+    if (item.children) {
+      // Recursively process each child and convert `children` to `subRows`
+      const newItem: resourceTypes = {
+        ...item,
+        subRows: item.children.map(processItem),
       };
 
-      delete newParent.children;
-      return newParent;
+      delete newItem.children;
+      return newItem;
     } else {
-      return parent;
+      return item;
     }
-  });
+  };
+
+  return data.map(processItem);
 };

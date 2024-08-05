@@ -61,7 +61,6 @@ import {
 import { CoachTableTypes, ErrorType } from "@/app/types";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Separator } from "@/components/ui/separator";
-import CoachFilters from "./data-table-filter";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -193,7 +192,7 @@ export default function CoachTableView() {
       });
       return;
     }
-    downloadCSV(selectedRows, "coach_list.csv");
+    downloadCSV(selectedRows, "members_list.csv");
   };
 
   const handleStatusChange = async (payload: {
@@ -412,27 +411,6 @@ export default function CoachTableView() {
     if (page < 0) return;
     // setFilters
   }
-
-  function handleCoachStatus(value: string) {
-    setFilter((prev) => ({
-      ...prev,
-      status: value,
-    }));
-  }
-
-  const filterDisplay = [
-    {
-      type: "select",
-      name: "status",
-      label: "Status",
-      options: [
-        { id: "pending", name: "Pending" },
-        { id: "inactive", name: "Inactive" },
-        { id: "active", name: "Active" },
-      ],
-      function: handleCoachStatus,
-    },
-  ];
 
   return (
     <div className="w-full space-y-4">
@@ -681,17 +659,6 @@ export default function CoachTableView() {
         </div>
       </div>
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
-
-
-      <CoachFilters
-        isOpen={openFilter}
-        setOpen={setOpenFilter}
-        initialValue={initialValue}
-        filterData={filterData}
-        setFilter={setFilter}
-        setSearchCriteria={setSearchCretiria}
-        filterDisplay={filterDisplay}
-      />
     </div>
   );
 }

@@ -22,8 +22,10 @@ export interface resourceTypes {
   code: string | undefined;
   parent: string | undefined;
   subRows?: resourceTypes[];
+  access_type?: string;
   children?: resourceTypes[];
   is_parent: boolean;
+  is_root: boolean;
   link: string;
   icon: string;
 }
@@ -434,6 +436,7 @@ export interface updateStatusInput {
 
 export interface getRolesType {
   name: string;
+  status?:boolean;
   id: number;
 }
 

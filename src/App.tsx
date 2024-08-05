@@ -28,6 +28,7 @@ import FileUploadComponent from "./components/admin/test/FileUploadComponent";
 import DynamicForm from "./components/admin/test/DynamicForm";
 import MealPlans from "./components/admin/meal_plans";
 import FoodsNutrition from "./components/admin/foods";
+import TimeInputsForm from "./components/admin/test/Timebox";
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -38,8 +39,9 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<AuthenticationPage />} />
-        <Route path="/test" element={<FileUploadComponent />} />
-        <Route path="/testform" element={<DynamicForm />} />
+        {/* <Route path="/test" element={<FileUploadComponent />} /> */}
+        <Route path="/testbox" element={<TimeInputsForm />} />
+        {/* <Route path="/testform" element={<DynamicForm />} /> */}
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/admin" element={<DashboardLayout />}>
             <Route path="/admin/dashboard" index element={<Dashboard />} />

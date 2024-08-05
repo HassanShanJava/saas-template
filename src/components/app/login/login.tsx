@@ -51,7 +51,14 @@ export default function AuthenticationPage() {
   });
 
   useEffect(() => {
-    if (error != null) console.log(error);
+    if (error != null) {
+      console.log("Error Login", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error,
+      });
+    }
   }, [error]);
 
   useEffect(() => {

@@ -51,9 +51,19 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { ErrorType } from "@/app/types";
+import {
+  baseExerciseApiResponse,
+  CategoryApiResponse,
+  ErrorType,
+} from "@/app/types";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { FaFileUpload } from "react-icons/fa";
+import {
+  useGetAllCategoryQuery,
+  useGetAllEquipmentsQuery,
+  useGetAllJointsQuery,
+  useGetAllMuscleQuery,
+} from "@/services/exerciseApi";
 
 enum genderEnum {
   male = "male",
@@ -87,37 +97,64 @@ const ExericeForm: React.FC = () => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  const membersSchema = z.object({
+  const { data: CategoryData } = useGetAllCategoryQuery();
+  const { data: EquipmentData } = useGetAllEquipmentsQuery();
+  const { data: MuscleData } = useGetAllMuscleQuery();
+  const { data: JointsData } = useGetAllJointsQuery();
+
+  const baseScehmaExercise = z.object({
     id: z.number(),
     name: z.string(),
   });
 
-  const initialState: any = {};
+  // const initialState: any = {};
+  const ExerciseTimeSchema = z.object({});
 
   const FormSchema = z.object({
     exercise_name: z.string({
       required_error: "Required",
     }),
-    exercise_type: z.nativeEnum(ExerciseTypeEnum, {
+    visible_for: z.nativeEnum(VisibilityEnum, {
       required_error: "Required",
     }),
+    org_id: z
+      .number({
+        required_error: "Required",
+      })
+      .default(orgId),
+    category_id: z.coerce
+      .number({
+        required_error: "Required",
+      })
+      .refine((value) => value !== 0 || isNaN(value), {
+        message: "Required",
+      })
+      .default(0),
     difficulty: z.nativeEnum(difficultyEnum, {
       required_error: "Required",
     }),
-    visibility: z.nativeEnum(VisibilityEnum, {
-      required_error: "Required",
+    equipments: z.array(baseScehmaExercise).nonempty({
+      message: "Required",
     }),
-    gender: z.nativeEnum(genderEnum, {
-      required_error: "Required",
+    primary_muscle_ids: z.array(baseScehmaExercise).nonempty({
+      message: "Required",
     }),
-    email: z.string().min(1, { message: "Required" }).email("invalid email"),
-    notes: z.string().optional(),
+    secondary_muscle_ids: z.array(baseScehmaExercise).optional(),
+    primary_joint_ids: z.array(baseScehmaExercise).nonempty({
+      message: "Required",
+    }),
     gif_url: z.string({
       required_error: "Required",
     }),
-    youtube_male: z.string().optional(),
-    youtube_female: z.string().optional(),
-    sets: z.coerce.number().optional(),
+    video_url_male: z.string().optional(),
+    video_url_female: z.string().optional(),
+    thumbnail_male: z.string().optional(),
+    thumbnail_female: z.string().optional(),
+    image_url_female: z.string().optional(),
+    image_url_male: z.string().optional(),
+    exercise_type: z.nativeEnum(ExerciseTypeEnum, {
+      required_error: "Required",
+    }),
   });
 
   const orgName = useSelector(
@@ -125,7 +162,7 @@ const ExericeForm: React.FC = () => {
   );
 
   const navigate = useNavigate();
-  const [initialValues, setInitialValues] = React.useState<any>(initialState);
+  // const [initialValues, setInitialValues] = React.useState<any>(initialState);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -142,15 +179,13 @@ const ExericeForm: React.FC = () => {
       if (true) {
         toast({
           variant: "success",
-          title: "Coach Created Successfully ",
+          title: "Exercise Created Successfully ",
         });
-        navigate("/admin/coach");
       } else {
         toast({
           variant: "success",
-          title: "Coach Updated Successfully ",
+          title: "Exercise Updated Successfully ",
         });
-        navigate("/admin/coach");
       }
     } catch (error: unknown) {
       console.error("Error", { error });
@@ -230,19 +265,19 @@ const ExericeForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="visibility"
+                    name="visible_for"
                     render={({ field }) => (
                       <FormItem>
                         <Select
                           onValueChange={(value: VisibilityEnum) =>
-                            form.setValue("visibility", value)
+                            form.setValue("visible_for", value)
                           }
                           value={field.value as VisibilityEnum}
                         >
                           <FormControl>
                             <SelectTrigger
                               floatingLabel="Visible for*"
-                              className={`${watcher.visibility ? "text-black" : "text-gray-500"}`}
+                              className={`${watcher.visible_for ? "text-black" : "text-gray-500"}`}
                             >
                               <SelectValue placeholder="Select Visibility" />
                             </SelectTrigger>
@@ -273,24 +308,71 @@ const ExericeForm: React.FC = () => {
                     )}
                   />
                 </div>
-                <div className="relative ">
+                <div className="relative">
                   <FormField
                     control={form.control}
-                    name="gender"
+                    name="category_id"
                     render={({ field }) => (
-                      <FormItem>
-                        <Select>
-                          <FormControl>
-                            <SelectTrigger
-                              floatingLabel="Exercise Category*"
-                              className={`${watcher.gender ? "text-black" : "text-gray-500"}`}
-                            >
-                              <SelectValue placeholder="Select Category" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent></SelectContent>
-                        </Select>
-                        <FormMessage />
+                      <FormItem className="flex flex-col w-full">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "justify-between font-normal",
+                                  !field.value &&
+                                    "font-medium text-gray-400 focus:border-primary "
+                                )}
+                              >
+                                {field.value
+                                  ? CategoryData?.find(
+                                      (category: baseExerciseApiResponse) =>
+                                        category.id === field.value // Compare with numeric value
+                                    )?.name // Display category name if selected
+                                  : "Select Category*"}
+                                <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="p-0">
+                            <Command>
+                              <CommandList>
+                                <CommandInput placeholder="Select Category" />
+                                <CommandEmpty>No Category found.</CommandEmpty>
+                                <CommandGroup>
+                                  {CategoryData &&
+                                    CategoryData.map(
+                                      (Category: baseExerciseApiResponse) => (
+                                        <CommandItem
+                                          value={Category.name}
+                                          key={Category.id}
+                                          onSelect={() => {
+                                            form.setValue(
+                                              "category_id",
+                                              Category.id
+                                            );
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                              Category.id === field.value
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                          {Category.name}{" "}
+                                        </CommandItem>
+                                      )
+                                    )}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        {watcher.category_id ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -333,21 +415,38 @@ const ExericeForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="equipments"
                     render={({ field }) => (
-                      <FormItem>
-                        <Select>
-                          <FormControl>
-                            <SelectTrigger
-                              floatingLabel="Equipment*"
-                              className={`${watcher.gender ? "text-black" : ""}`}
-                            >
-                              <SelectValue placeholder="Select Equipment" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent></SelectContent>
-                        </Select>
-                        {<FormMessage />}
+                      <FormItem className="w-full ">
+                        <MultiSelector
+                          onValuesChange={(values) => field.onChange(values)}
+                          values={field.value}
+                        >
+                          <MultiSelectorTrigger className="border-[1px] border-gray-300">
+                            <MultiSelectorInput
+                              className="font-medium"
+                              placeholder={
+                                field.value?.length >= 1
+                                  ? ""
+                                  : "Select Equipments"
+                              }
+                            />
+                            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+                          </MultiSelectorTrigger>
+                          <MultiSelectorContent className="">
+                            <MultiSelectorList>
+                              {EquipmentData &&
+                                EquipmentData.map((user: any) => (
+                                  <MultiSelectorItem key={user.id} value={user}>
+                                    <div className="flex items-center space-x-2">
+                                      <span>{user.name}</span>
+                                    </div>
+                                  </MultiSelectorItem>
+                                ))}
+                            </MultiSelectorList>
+                          </MultiSelectorContent>
+                        </MultiSelector>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -355,21 +454,38 @@ const ExericeForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="primary_muscle_ids"
                     render={({ field }) => (
-                      <FormItem>
-                        <Select>
-                          <FormControl>
-                            <SelectTrigger
-                              floatingLabel="Primary Muscle"
-                              className={`${watcher.gender ? "text-black" : ""}`}
-                            >
-                              <SelectValue placeholder="Select Primary Muscle" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent></SelectContent>
-                        </Select>
-                        {<FormMessage />}
+                      <FormItem className="w-full ">
+                        <MultiSelector
+                          onValuesChange={(values) => field.onChange(values)}
+                          values={field.value}
+                        >
+                          <MultiSelectorTrigger className="border-[1px] border-gray-300">
+                            <MultiSelectorInput
+                              className="font-medium"
+                              placeholder={
+                                field.value?.length >= 1
+                                  ? ""
+                                  : "Select Primary Muscles"
+                              }
+                            />
+                            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+                          </MultiSelectorTrigger>
+                          <MultiSelectorContent className="">
+                            <MultiSelectorList>
+                              {MuscleData &&
+                                MuscleData.map((user: any) => (
+                                  <MultiSelectorItem key={user.id} value={user}>
+                                    <div className="flex items-center space-x-2">
+                                      <span>{user.name}</span>
+                                    </div>
+                                  </MultiSelectorItem>
+                                ))}
+                            </MultiSelectorList>
+                          </MultiSelectorContent>
+                        </MultiSelector>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -377,21 +493,38 @@ const ExericeForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="gender"
+                    name="secondary_muscle_ids"
                     render={({ field }) => (
-                      <FormItem>
-                        <Select>
-                          <FormControl>
-                            <SelectTrigger
-                              floatingLabel="Secondary Muscle"
-                              className={`${watcher.gender ? "text-black" : ""}`}
-                            >
-                              <SelectValue placeholder="Select Secondary Muscle" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent></SelectContent>
-                        </Select>
-                        {<FormMessage />}
+                      <FormItem className="w-full ">
+                        <MultiSelector
+                          onValuesChange={(values) => field.onChange(values)}
+                          values={field.value || []}
+                        >
+                          <MultiSelectorTrigger className="border-[1px] border-gray-300">
+                            <MultiSelectorInput
+                              className="font-medium"
+                              placeholder={
+                                field.value?.length && field.value?.length >= 1
+                                  ? ""
+                                  : "Select Secondary Muscles"
+                              }
+                            />
+                            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+                          </MultiSelectorTrigger>
+                          <MultiSelectorContent className="">
+                            <MultiSelectorList>
+                              {MuscleData &&
+                                MuscleData.map((user: any) => (
+                                  <MultiSelectorItem key={user.id} value={user}>
+                                    <div className="flex items-center space-x-2">
+                                      <span>{user.name}</span>
+                                    </div>
+                                  </MultiSelectorItem>
+                                ))}
+                            </MultiSelectorList>
+                          </MultiSelectorContent>
+                        </MultiSelector>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -399,21 +532,38 @@ const ExericeForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="primary_joint_ids"
                     render={({ field }) => (
-                      <FormItem>
-                        <Select>
-                          <FormControl>
-                            <SelectTrigger
-                              floatingLabel="Primary Joint"
-                              className={`${watcher.gender ? "text-black" : ""}`}
-                            >
-                              <SelectValue placeholder="Select Primary Joint" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent></SelectContent>
-                        </Select>
-                        {<FormMessage />}
+                      <FormItem className="w-full ">
+                        <MultiSelector
+                          onValuesChange={(values) => field.onChange(values)}
+                          values={field.value || []}
+                        >
+                          <MultiSelectorTrigger className="border-[1px] border-gray-300">
+                            <MultiSelectorInput
+                              className="font-medium"
+                              placeholder={
+                                field.value?.length && field.value?.length >= 1
+                                  ? ""
+                                  : "Select Primary Joints"
+                              }
+                            />
+                            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+                          </MultiSelectorTrigger>
+                          <MultiSelectorContent className="">
+                            <MultiSelectorList>
+                              {JointsData &&
+                                JointsData.map((user: any) => (
+                                  <MultiSelectorItem key={user.id} value={user}>
+                                    <div className="flex items-center space-x-2">
+                                      <span>{user.name}</span>
+                                    </div>
+                                  </MultiSelectorItem>
+                                ))}
+                            </MultiSelectorList>
+                          </MultiSelectorContent>
+                        </MultiSelector>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -437,15 +587,15 @@ const ExericeForm: React.FC = () => {
                 <div className="relative">
                   <FormField
                     control={form.control}
-                    name="youtube_female"
+                    name="video_url_female"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="youtube_female"
+                          id="video_url_female"
                           label="Youtube Link : Female"
                         />
-                        {watcher.youtube_female ? <></> : <FormMessage />}
+                        {watcher.video_url_female ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -453,15 +603,15 @@ const ExericeForm: React.FC = () => {
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="youtube_male"
+                    name="video_url_male"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="youtube_male"
+                          id="video_url_male"
                           label="Youtube Link : Male"
                         />
-                        {watcher.youtube_male ? <></> : <FormMessage />}
+                        {watcher.video_url_male ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -557,18 +707,13 @@ const ExericeForm: React.FC = () => {
                     )}
                   />
                 </div>
-                <div className="w-[10%]">
-                  <FormField
-                    control={form.control}
-                    name="sets"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput {...field} id="sets" label="Set*" />
-                        {watcher.sets ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  />
-                </div>
+              </div>
+              <div className="relative">
+                {watcher.exercise_type === ExerciseTypeEnum.time_based ? (
+                  <>hello</>
+                ) : (
+                  <>Bye</>
+                )}
               </div>
             </CardContent>
           </Card>

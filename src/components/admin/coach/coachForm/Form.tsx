@@ -71,7 +71,6 @@ import {
   useGetCountriesQuery,
 } from "@/services/memberAPi";
 
-import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import {
   useAddCoachMutation,
   useGetCoachByIdQuery,
@@ -79,11 +78,7 @@ import {
   useGetMemberListQuery,
   useUpdateCoachMutation,
 } from "@/services/coachApi";
-enum genderEnum {
-  male = "male",
-  female = "female",
-  other = "other",
-}
+
 const CoachForm: React.FC = () => {
   const { id } = useParams();
   const {
@@ -93,8 +88,6 @@ const CoachForm: React.FC = () => {
   } = useGetCoachByIdQuery(Number(id), {
     skip: isNaN(Number(id)),
   });
-  console.log("update the damn data", EditCoachData);
-  // const [counter, setCounter] = React.useState(0);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -228,11 +221,7 @@ const CoachForm: React.FC = () => {
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
-  const {
-    data: coachCountData,
-    isLoading,
-    refetch,
-  } = useGetCoachCountQuery(orgId, {
+  const { data: coachCountData } = useGetCoachCountQuery(orgId, {
     skip: id == undefined ? false : true,
   });
 
@@ -533,6 +522,13 @@ const CoachForm: React.FC = () => {
                                   onSelect={field.onChange}
                                   fromYear={1960}
                                   toYear={2030}
+                                  defaultMonth={
+                                    new Date(
+                                      field && field.value
+                                        ? field.value
+                                        : Date.now()
+                                    )
+                                  }
                                   disabled={(date: any) =>
                                     date > new Date() ||
                                     date < new Date("1900-01-01")
@@ -561,6 +557,7 @@ const CoachForm: React.FC = () => {
                           {...field}
                           id="email"
                           label="Email Address*"
+                          disabled={id != undefined}
                         />
                         {<FormMessage />}
                       </FormItem>

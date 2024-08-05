@@ -214,9 +214,7 @@ const StaffForm: React.FC = () => {
   const { data: staffCount } = useGetStaffCountQuery(orgId, {
     skip: id == undefined ? false : true,
   });
-  const { data: EditstaffData } = useGetStaffByIdQuery(Number(id), {
-    skip: isNaN(Number(id)),
-  });
+
   const [addStaff, { isLoading: staffLoading }] = useAddStaffMutation();
   const [editStaff, { isLoading: editStaffLoading }] = useUpdateStaffMutation();
 
@@ -502,6 +500,13 @@ const StaffForm: React.FC = () => {
                                   onSelect={field.onChange}
                                   fromYear={1960}
                                   toYear={2030}
+                                  defaultMonth={
+                                    new Date(
+                                      field && field.value
+                                        ? field.value
+                                        : Date.now()
+                                    )
+                                  }
                                   disabled={(date: any) =>
                                     date > new Date() ||
                                     date < new Date("1900-01-01")
@@ -530,7 +535,7 @@ const StaffForm: React.FC = () => {
                           {...field}
                           id="email"
                           label="Email Address*"
-                          disabled={typeof id === "number"}
+                          disabled={id != undefined}
                         />
                         {watcher.email ? <></> : <FormMessage />}
                       </FormItem>

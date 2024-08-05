@@ -4,7 +4,7 @@ import { DataTable } from "./component/data-table";
 import {
   useGetAllStaffQuery,
   useGetLeadsQuery,
-  useUpdateStaffMutation,
+  useUpdateleadStaffMutation,
   useUpdateStatusMutation,
 } from "@/services/leadsApi";
 import { useSelector } from "react-redux";
@@ -87,7 +87,8 @@ const Lead: React.FC = () => {
   const [updateStatus, { isLoading: statusLoading }] =
     useUpdateStatusMutation();
 
-  const [updateStaff, { isLoading: staffLoading }] = useUpdateStaffMutation();
+  const [updateStaff, { isLoading: staffLoading }] =
+    useUpdateleadStaffMutation();
 
   useEffect(() => {
     const parseddata: any = leadsData?.map((item) => {

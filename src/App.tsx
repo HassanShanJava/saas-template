@@ -15,15 +15,17 @@ import { RootState } from "./app/store";
 import IncomeCategory from "./components/admin/income_category";
 import Memberships from "./components/admin/memberships";
 import RolesAndAccess from "./components/admin/roles";
-
 import Loader from "@/components/Loader";
 import MemberPage from "./components/admin/members";
 import MemberForm from "./components/admin/members/memberForm/form";
 import Staff from "./components/admin/staff";
 import StaffForm from "./components/admin/staff/staffForm/form";
-import Coach from "./components/admin/coach"; 
+import Coach from "./components/admin/coach";
 import CoachForm from "./components/admin/coach/coachForm/Form";
-import ExerciseForm from "./components/admin/exercises/form";
+import ExerciseForm from "./components/admin/exercise/exerciseform/form";
+import Exercise from "./components/admin/exercise";
+import FileUploadComponent from "./components/admin/test/FileUploadComponent";
+import DynamicForm from "./components/admin/test/DynamicForm";
 import MealPlans from "./components/admin/meal_plans";
 import FoodsNutrition from "./components/admin/foods";
 function App() {
@@ -36,6 +38,8 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<AuthenticationPage />} />
+        <Route path="/test" element={<FileUploadComponent />} />
+        <Route path="/testform" element={<DynamicForm />} />
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/admin" element={<DashboardLayout />}>
             <Route path="/admin/dashboard" index element={<Dashboard />} />
@@ -85,20 +89,33 @@ function App() {
               element={<EventForm />}
             />
             <Route path="/admin/staff" index element={<Staff />} />
-            <Route
-              path="/admin/staff/addStaff"
-              index
-              element={<StaffForm />}
-            />
             <Route path="/admin/staff/addStaff" index element={<StaffForm />} />
-
             <Route
               path="/admin/staff/editstaff/:id"
               index
               element={<StaffForm />}
             />
-            <Route path="/admin/exercise/addexercise" index element={<ExerciseForm />} />
-            <Route path="/admin/exercise/editexercise/:id" index element={<ExerciseForm />} />
+            <Route path="/admin/exercise" index element={<Exercise />} />
+            <Route
+              path="/admin/exercise/addexercise"
+              index
+              element={<ExerciseForm />}
+            />
+            <Route
+              path="/admin/exercise/editexercise/:id"
+              index
+              element={<ExerciseForm />}
+            />
+            <Route
+              path="/admin/exercise/addexercise"
+              index
+              element={<ExerciseForm />}
+            />
+            <Route
+              path="/admin/exercise/editexercise/:id"
+              index
+              element={<ExerciseForm />}
+            />
             <Route path="/admin/mealplans" index element={<MealPlans />} />
             <Route path="/admin/foods" index element={<FoodsNutrition />} />
           </Route>

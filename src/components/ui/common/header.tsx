@@ -72,7 +72,6 @@ export const Header = () => {
     navigate("/");
   };
 
-
   return (
     <header className="font-poppins sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
       <div className="flex w-full justify-between items-center gap-4">
@@ -112,6 +111,16 @@ export const Header = () => {
                 currentPath={location.pathname}
                 targetPath="/admin/coach/addcoach"
                 title="Add Coach"
+              />
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/exercise"
+                title="Exercises"
+              />
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/exercise/addexercise"
+                title="Add Exercise"
               />
               <PageTitle
                 currentPath={location.pathname.replace(
@@ -211,6 +220,13 @@ export const Header = () => {
               currentPath={location.pathname}
               targetPath="/admin/members/addmember"
               title="Add Member"
+              pageSetting="Dashboard"
+            />
+
+            <Breadcrumb
+              currentPath={location.pathname}
+              targetPath="/admin/exercise/addexercise"
+              title="Add Exercise"
               pageSetting="Dashboard"
             />
 

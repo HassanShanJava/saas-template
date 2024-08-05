@@ -1,12 +1,15 @@
 import { createMembershipType, membeshipsTableType, updateMembershipType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
-
+interface membershipInput{
+	query?:string,
+	org_id:number
+}
 export const Memberships = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getMemberships: builder.query<membeshipsTableType[], number>({
-        query: (org_id) => ({
-          url: `/membership_plan/membership_plans/getAll?org_id=${org_id}`,
+      getMemberships: builder.query<membeshipsTableType[], membershipInput>({
+        query: (searchCretiria) => ({
+          url: `/membership_plan?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -16,7 +19,7 @@ export const Memberships = apiSlice.injectEndpoints({
       }),
       createMemberships: builder.mutation<any, createMembershipType>({
         query: (membershipsdata) => ({
-          url: `/membership_plan/membership_plans`,
+          url: `/membership_plan`,
           method: "POST",
           body: membershipsdata,
           headers: {
@@ -27,7 +30,7 @@ export const Memberships = apiSlice.injectEndpoints({
       }),
       updateMemberships: builder.mutation<any, updateMembershipType>({
         query: (membershipsdata) => ({
-          url: `/membership_plan/membership_plans`,
+          url: `/membership_plan`,
           method: "PUT",
           body: membershipsdata,
           headers: {
@@ -36,11 +39,10 @@ export const Memberships = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Memberships"],
       }),
-      deleteMemberships: builder.mutation<any, any>({
-        query: (membershipsdata) => ({
-          url: `/membership_plan/membership_plans`,
+      deleteMemberships: builder.mutation<any, number>({
+        query: (membership_id) => ({
+          url: `/membership_plan/${membership_id}`,
           method: "DELETE",
-          body: membershipsdata,
           headers: {
             Accept: "application/json",
           },
@@ -49,7 +51,7 @@ export const Memberships = apiSlice.injectEndpoints({
       }),
       getMembershipsById: builder.query<any, number>({
         query: (membership_id) => ({
-          url: `/membership_plan/membership_plans?membership_id=${membership_id}`,
+          url: `/membership_plan/${membership_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

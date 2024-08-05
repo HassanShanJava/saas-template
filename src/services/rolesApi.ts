@@ -1,9 +1,14 @@
 import { apiSlice } from "@/features/api/apiSlice";
-import { createRoleTypes, getRolesType, resourceTypes, updateRoleTypes } from "../app/types";
+import {
+  createRoleTypes,
+  getRolesType,
+  resourceTypes,
+  updateRoleTypes,
+} from "../app/types";
 
-interface TranformedResourceRsp{
-  allResourceData:resourceTypes[];
-  count:number;
+interface TranformedResourceRsp {
+  allResourceData: resourceTypes[];
+  count: number;
 }
 
 export const Roles = apiSlice.injectEndpoints({
@@ -39,29 +44,9 @@ export const Roles = apiSlice.injectEndpoints({
           providesTags: ["Roles"],
         }),
         transformResponse: (resp: resourceTypes[]) => {
-          const count:number=resp.filter(item=>!item.is_parent).length
-          const allResourceData:resourceTypes[] = [];
-          const childrenMap:Record<string,Array<resourceTypes>>={};
-          resp.forEach((item) => {
-            if (item.is_parent) {
-              item.children = [];
-              allResourceData.push(item);
-            } else if (item.parent) {
-              childrenMap[item.parent!] = childrenMap[item.parent!] || [];
-              childrenMap[item.parent!].push(item);
-            } else {
-              allResourceData.push(item);
-            }
-          });
-
-          // Associate children with their respective parents
-          allResourceData.forEach((parent) => {
-            if (childrenMap[parent.code!]) {
-              parent.children = childrenMap[parent.code!];
-            }
-          });
-
-          return {allResourceData, count};
+          const count: number = resp.filter((item) => !item.is_parent).length;
+          const allResourceData: resourceTypes[] = resp;
+          return { allResourceData, count };
         },
       }),
       createRole: builder.mutation<any[], createRoleTypes>({

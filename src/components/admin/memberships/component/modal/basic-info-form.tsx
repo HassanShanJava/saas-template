@@ -17,8 +17,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import {
-  useCreateGroupsMutation,
-  useGetGroupsQuery,
+  useCreateGroupMutation,
+  useGetGroupQuery,
 } from "@/services/groupsApis";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -103,9 +103,9 @@ const BasicInfoForm = () => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  const { data: groupData, isFetching } = useGetGroupsQuery(orgId);
+  const { data: groupData, isFetching } = useGetGroupQuery(orgId);
   const [createGroups, { isLoading: groupCreateLoading, isUninitialized }] =
-    useCreateGroupsMutation();
+  useCreateGroupMutation();
 
   const handleAdd = (day: string) => {
     setLimitedAccessDays((prev) => [

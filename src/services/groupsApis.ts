@@ -4,14 +4,15 @@ import { apiSlice } from "@/features/api/apiSlice";
 interface TransformedGroup {
   value: number;
   label: string;
+  id?:number
 }
 
 export const Groups = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getGroups: builder.query<TransformedGroup[], number>({
+      getGroup: builder.query<TransformedGroup[], number>({
         query: (org_id) => ({
-          url: `/membership_plan/group/getAll?org_id=${org_id}`,
+          url: `/group?org_id=${org_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -20,16 +21,48 @@ export const Groups = apiSlice.injectEndpoints({
         transformResponse: (resp: groupRespType[]) => {
           return resp.map((item) => ({
             value: item.id,
-            label: item.name
+            label: item.name,
+            id:item.id
           }));
         },
         providesTags: ["Groups"],
       }),
-      createGroups: builder.mutation<groupRespType, groupCreateType>({
+      createGroup: builder.mutation<groupRespType, groupCreateType>({
         query: (membershipsydata) => ({
-          url: `/membership_plan/group`,
+          url: `/group`,
           method: "POST",
           body: membershipsydata,
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        invalidatesTags: ["Groups"],
+      }),
+      updateGroup: builder.mutation<groupRespType, groupCreateType>({
+        query: (groupdata) => ({
+          url: `/group`,
+          method: "POST",
+          body: groupdata,
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        invalidatesTags: ["Groups"],
+      }),
+      deleteGroup: builder.mutation<any, number>({
+        query: (group_id) => ({
+          url: `/group/${group_id}`,
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        invalidatesTags: ["Groups"],
+      }),
+      getGroupById: builder.mutation<groupRespType, number>({
+        query: (group_id) => ({
+          url: `/group/${group_id}`,
+          method: "GET",
           headers: {
             Accept: "application/json",
           },
@@ -41,6 +74,9 @@ export const Groups = apiSlice.injectEndpoints({
 });
 
 export const {
-  useGetGroupsQuery,
-  useCreateGroupsMutation,
+  useGetGroupQuery,
+  useCreateGroupMutation,
+  useUpdateGroupMutation,
+  useDeleteGroupMutation,
+  useGetGroupByIdMutation
 } = Groups;

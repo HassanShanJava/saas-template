@@ -22,7 +22,8 @@ const baseQueryWithReauth: BaseQueryFn<
     const refresh_token = (api.getState() as RootState).auth.userToken;
     const refreshResult = await baseQuery(
       {
-        url: `/refresh_token?refresh_token=${refresh_token}`,
+        url: `/refresh_token`,
+        body: { refresh_token: refresh_token },
         method: "POST",
       },
       api,

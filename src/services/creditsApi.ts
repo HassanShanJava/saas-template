@@ -4,13 +4,17 @@ import {
   updateCreditsType,
 } from "../app/types";
 import { apiSlice } from "@/features/api/apiSlice";
+interface facilitiesInput{
+	query:string,
+	org_id:number
+}
 
 export const Credits = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getCredits: builder.query<creditsResponseType[], number>({
-        query: (org_id) => ({
-          url: `/membership_plan/facilities/getAll?org_id=${org_id}`,
+      getCredits: builder.query<creditsResponseType[], facilitiesInput>({
+        query: (searchCretiria) => ({
+          url: `/facilities?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -20,7 +24,7 @@ export const Credits = apiSlice.injectEndpoints({
       }),
       createCredits: builder.mutation<any, createCreditsType>({
         query: (creditsdata) => ({
-          url: `/membership_plan/facilities`,
+          url: `/facilities`,
           method: "POST",
           body: creditsdata,
           headers: {
@@ -31,7 +35,7 @@ export const Credits = apiSlice.injectEndpoints({
       }),
       updateCredits: builder.mutation<any, updateCreditsType>({
         query: (creditsdata) => ({
-          url: `/membership_plan/facilities`,
+          url: `/facilities`,
           method: "PUT",
           body: creditsdata,
           headers: {
@@ -40,11 +44,10 @@ export const Credits = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Credits"],
       }),
-      deleteCredits: builder.mutation<any, any>({
-        query: (creditsdata) => ({
-          url: `/membership_plan/facilities`,
+      deleteCredits: builder.mutation<any, number>({
+        query: (facility_id) => ({
+          url: `/facilities/${facility_id}`,
           method: "DELETE",
-          body: creditsdata,
           headers: {
             Accept: "application/json",
           },
@@ -52,8 +55,8 @@ export const Credits = apiSlice.injectEndpoints({
         invalidatesTags: ["Credits"],
       }),
       getCreditsById: builder.query<any, number>({
-        query: (org_id) => ({
-          url: `/membership_plan/facilities?credit_id=${org_id}`,
+        query: (facility_id) => ({
+          url: `/facilities/${facility_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

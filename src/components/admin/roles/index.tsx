@@ -3,7 +3,7 @@ import RoleTableView from "./component/roletable/table";
 
 const RolesAndAccess = () => {
   return (
-    <div className="w-full py-12 px-8">
+    <div className="w-full p-5">
       <Card>
         <RoleTableView />
       </Card>

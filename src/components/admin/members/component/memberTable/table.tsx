@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
   PaginationState,
@@ -12,13 +12,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useDebounce } from "@/hooks/use-debounce";
 import {
   Table,
   TableBody,
@@ -42,18 +36,23 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { MemberFilterSchema, MemberTabletypes } from "@/app/types";
+import { ErrorType, MemberTabletypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { DataTableViewOptions } from "./data-table-view-options";
-import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
-import { DataTableFacetedFilter } from "./data-table-faced-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { useGetAllMemberQuery } from "@/services/memberAPi";
+import {
+  useGetAllMemberQuery,
+  useGetCoachesQuery,
+  useGetMemberCountQuery,
+} from "@/services/memberAPi";
+import MemberFilters from "./data-table-filter";
+import { useGetMembershipsQuery } from "@/services/membershipsApi";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -66,16 +65,116 @@ const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
   document.body.removeChild(link);
 };
 
+interface searchCretiriaType {
+  limit: number;
+  offset: number;
+  sort_order: string;
+  client_name?: string;
+  status?: string;
+  membership_plan?: string;
+  coach_asigned?: string;
+}
+
+const initialValue = {
+  limit: 10,
+  offset: 0,
+  sort_order: "desc",
+};
+
 export default function MemberTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const [searchCretiria, setSearchCretiria] =
+    useState<searchCretiriaType>(initialValue);
+  const [query, setQuery] = useState("");
+
+  // search input
+  const [inputValue, setInputValue] = useState("");
+  const [openFilter, setOpenFilter] = useState(false);
+  const debouncedInputValue = useDebounce(inputValue, 500);
+  const [filterData, setFilter] = useState({});
+
+  useEffect(() => {
+    setSearchCretiria((prev) => {
+      const newCriteria = { ...prev };
+
+      if (debouncedInputValue.trim() !== "") {
+        newCriteria.client_name = debouncedInputValue;
+      } else {
+        delete newCriteria.client_name;
+      }
+
+      return newCriteria;
+    });
+    console.log({ debouncedInputValue });
+  }, [debouncedInputValue, setSearchCretiria]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchCretiria)) {
+      console.log({ key, value });
+      if (value !== undefined && value !== null) {
+        params.append(key, value);
+      }
+    }
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery);
+  }, [searchCretiria]);
+
+  const toggleSortOrder = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
+    }));
+  };
+
   const {
     data: memberData,
     isLoading,
     refetch,
     error,
-  } = useGetAllMemberQuery(orgId);
+    isError,
+  } = useGetAllMemberQuery(
+    { org_id: orgId, query: query },
+    {
+      skip: query == "",
+    }
+  );
+  
+  // const {
+  //   data: coachData,
+  //   error:coachError,
+  //   isError:isCoachError,
+  // } = useGetCoachesQuery(
+  //   { org_id: orgId, query:'' },
+  //   {
+  //     skip: query == "",
+  //   }
+  // );
+  const {
+    data: coachData,
+    error:coachError,
+    isError:isCoachError,
+  } = useGetCoachesQuery(orgId);
+
+  const { data: count } = useGetMemberCountQuery(orgId);
+  const { data: membershipPlans } = useGetMembershipsQuery({
+    org_id: orgId,
+    query: "",
+  });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isError|| isCoachError) {
+      // const errorMsg= error?.data?.detail as FetchBaseQueryError || coachError?.data?.detail  satisfies FetchBaseQueryError
+      toast({
+        variant: "destructive",
+        // title: error?.data?.detail as unknown || coachError?.data?.detail  ,
+        title: "Error"  ,
+      });
+    }
+  }, [isError,isCoachError]);
 
   function handleRoute() {
     navigate("/admin/members/addmember");
@@ -89,7 +188,6 @@ export default function MemberTableView() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
 
-  const [filters, setFilters] = useState<MemberFilterSchema>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
@@ -183,8 +281,8 @@ export default function MemberTableView() {
     },
     {
       accessorFn: (row) => row.phone ?? row.mobile_number,
-      id: "contact_number",
-      header: "Contact",
+      id: "membership_plan",
+      header: "Membership Plan",
       cell: ({ row }) => {
         const contactNumber = row.original.phone ?? row.original.mobile_number;
         return (
@@ -251,7 +349,7 @@ export default function MemberTableView() {
       ),
     },
   ];
-  // console.log("data",{memberData})
+
   const table = useReactTable({
     data: memberTableData as MemberTabletypes[],
     columns,
@@ -276,59 +374,84 @@ export default function MemberTableView() {
     onPaginationChange: setPagination,
   });
 
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
+  function handleMembershipplan(value: string) {
+    setFilter((prev) => ({
+      ...prev,
+      membership_plan: value,
+    }));
   }
+
+  function handleCoachAssigned(value: string) {
+    setFilter((prev) => ({
+      ...prev,
+      coach_assigned: value,
+    }));
+  }
+  
+  function handleStatus(value: string) {
+    setFilter((prev) => ({
+      ...prev,
+      status: value,
+    }));
+  }
+
+  const filterDisplay = [
+    {
+      type: "select",
+      name: "membership_plan",
+      label: "Membership",
+      options: membershipPlans,
+      function: handleMembershipplan,
+    },
+    {
+      type: "select",
+      name: "coach_assigned",
+      label: "Coach",
+      options: coachData&&coachData.map(item=> ({id:item.id, name:item.first_name+" "+item.last_name })),
+      function: handleCoachAssigned,
+    },
+    {
+      type: "select",
+      name: "status",
+      label: "Status",
+      options: [{id:'pending',name:"Pending"},{id:"inactive",name:"Inactive"},{id:"active",name:"Active"}],
+      function: handleStatus,
+    },
+  ];
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center justify-between px-5 ">
+      <div className="flex items-center justify-between gap-2 px-4 py-2 ">
         <div className="flex flex-1 items-center space-x-2">
           <div className="flex items-center  relative">
             <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
             <FloatingLabelInput
               id="search"
               placeholder="Search by member name"
-              onChange={(event) =>
-                table.getColumn("full_name")?.setFilterValue(event.target.value)
-              }
+              onChange={(event) => setInputValue(event.target.value)}
               className="w-64 pl-8 text-gray-400"
             />
           </div>
-          {/* {table.getColumn("") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("status")}
-            title="Status"
-            options={status_options}
-          />
-        )}
-        {table.getColumn("priority") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("priority")}
-            title="Priority"
-            options={priority_options}
-          />
-        )} */}
-          {/* {isFiltered && (
-          <Button
-            variant="ghost"
-            onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 lg:px-3"
-          >
-            Reset
-            <X className="ml-2 h-4 w-4" />
-          </Button>
-        )} */}
         </div>
-        <Button
-          className="bg-primary m-4 text-black gap-1"
-          onClick={handleRoute}
-        >
-          <PlusIcon className="h-4 w-4" />
+        <Button className="bg-primary  text-black mr-1 " onClick={handleRoute}>
+          <PlusIcon className="size-4" />
           Create New
         </Button>
         <DataTableViewOptions table={table} action={handleExportSelected} />
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={() => setOpenFilter(true)}
+        >
+          <i className="fa fa-filter"></i>
+        </button>
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={toggleSortOrder}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
       </div>
       <div className="rounded-md border border-border ">
         <ScrollArea className="w-full relative">
@@ -405,73 +528,21 @@ export default function MemberTableView() {
           </Table>
         </ScrollArea>
       </div>
+
+      {/* pagination */}
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-          {/* Page {filters.first + 1} of{" "}
-          {Math.ceil((data?.count ?? 0) / filters.rows)} */}
+          {count?.total_members}
         </div>
 
         <div className="flex items-center justify-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Rows per page</p>
-            {/* <Select
-              // value={`${filters.rows}`}
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue defaultValue={pagination.pageSize} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pagination}`} >
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-            {/* <Select
-              value="10"
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue>{10}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
             <Select
               value={pagination.pageSize.toString()}
               onValueChange={(value) => {
                 const newSize = Number(value);
-                setPagination((prevPagination) => ({
-                  ...prevPagination,
-                  pageSize: newSize,
-                }));
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: newSize,
-                  first: 0,
-                }));
-                table.setPageSize(newSize);
+                setSearchCretiria((prev) => ({ ...prev, limit: newSize }));
               }}
             >
               <SelectTrigger className="h-8 w-[70px]">
@@ -487,12 +558,19 @@ export default function MemberTableView() {
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 p-2">
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => handlePagination(0)}
-              // disabled={filters.first === 0}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: 0,
+                  };
+                })
+              }
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to first page</span>
               <DoubleArrowLeftIcon className="h-4 w-4" />
@@ -501,8 +579,15 @@ export default function MemberTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters?.first - 1)}
-              // disabled={filters?.first === 0}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset - 1,
+                  };
+                })
+              }
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to previous page</span>
               <ChevronLeftIcon className="h-4 w-4" />
@@ -510,32 +595,47 @@ export default function MemberTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters.first + 1)}
-              // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
-              // }
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset + 1,
+                  };
+                })
+              }
+              disabled={
+                searchCretiria.offset ==
+                Math.ceil(
+                  (count?.total_members as number) / searchCretiria.limit
+                ) -
+                  1
+              }
             >
-              <span className="sr-only">Go to next page</span>
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
 
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              // onClick={() =>
-              //   handlePagination(
-              //     Math.ceil((data?.count ?? 0) / filters.rows) - 1
-              //   )
-              // }
-              // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
-              // }
+              className="hidden h-8 w-8 p-0 lg:flex "
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset:
+                      Math.ceil(
+                        (count?.total_members as number) / searchCretiria.limit
+                      ) - 1,
+                  };
+                })
+              }
+              disabled={
+                searchCretiria.offset ==
+                Math.ceil(
+                  (count?.total_members as number) / searchCretiria.limit
+                ) -
+                  1
+              }
             >
-              <span className="sr-only">Go to last page</span>
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>
           </div>
@@ -543,6 +643,15 @@ export default function MemberTableView() {
       </div>
 
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
+      <MemberFilters
+        isOpen={openFilter}
+        setOpen={setOpenFilter}
+        initialValue={initialValue}
+        filterData={filterData}
+        setFilter={setFilter}
+        setSearchCriteria={setSearchCretiria}
+        filterDisplay={filterDisplay}
+      />
     </div>
   );
 }

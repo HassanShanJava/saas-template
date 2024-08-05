@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
   PaginationState,
@@ -44,15 +44,25 @@ import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import MembershipForm from "../modal/membership-form";
 import { useGetMembershipsQuery, useUpdateMembershipsMutation } from "@/services/membershipsApi";
-import { useGetGroupsQuery } from "@/services/groupsApis";
 import { useGetIncomeCategoryQuery } from "@/services/incomeCategoryApi";
 import { useGetSalesTaxQuery } from "@/services/salesTaxApi";
+import { useGetGroupQuery } from "@/services/groupsApis";
+import { preventContextMenu } from "@fullcalendar/core/internal";
+import MembershipFilters from "./data-table-filter";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
 const status = [
   { value: "true", label: "Active", color: "bg-green-500" },
   { value: "false", label: "Inactive", color: "bg-blue-500" },
 ];
+
+
+const initialValue = {
+  limit: 10,
+  offset: 0,
+  sort_order: "desc",
+};
+
 
 const durationLabels = {
   weekly: "Weeks",
@@ -75,23 +85,51 @@ const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
   link.click();
   document.body.removeChild(link);
 };
+interface searchCretiriaType {
+  limit: number;
+  offset: number;
+  sort_order: string;
+}
 
 export default function MembershipsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+    const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
+      limit: 10,
+      offset: 0,
+      sort_order: "desc",
+    });
+    const [query, setQuery] = useState("");
+    const [openFilter, setOpenFilter] = useState(false);
+    const [filterData, setFilter] = useState({});
 
+    useEffect(() => {
+      const params = new URLSearchParams();
+      for (const [key, value] of Object.entries(searchCretiria)) {
+        console.log({ key, value });
+        if (value !== undefined && value !== null) {
+          params.append(key, value);
+        }
+      }
+      const newQuery = params.toString();
+      console.log({ newQuery });
+      setQuery(newQuery);
+    }, [searchCretiria]);
   const {
     data: membershipsData,
     isLoading,
     refetch,
-  } = useGetMembershipsQuery(orgId);
+  } = useGetMembershipsQuery({ org_id: orgId, query: query },
+    {
+      skip: query == "",
+    });
   const [updateMemberships]=useUpdateMembershipsMutation()
 
-  const { data: groupData } = useGetGroupsQuery(orgId);
+  const { data: groupData } = useGetGroupQuery(orgId);
 
-  const { data: incomeCatData } = useGetIncomeCategoryQuery(orgId);
+  const { data: incomeCatData } = useGetIncomeCategoryQuery({org_id:orgId,query:""});
 
-  const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
+  const { data: salesTaxData } = useGetSalesTaxQuery({org_id:orgId,query:""});
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [action, setAction]=useState<'add'|'edit'>('add')
@@ -99,42 +137,13 @@ export default function MembershipsTableView() {
   const handleCloseDailog = () => setIsDialogOpen(false);
 
   const [formData, setFormData] = useState({});
-
-  //   // table dropdown status update
-  //   const handleStatusChange = async (payload: {
-  //     id: number;
-  //     org_id: number;
-  //     percentage: number;
-  // ;
-  //   }) => {
-  //     try {
-  //       const resp = await updateCredits(payload).unwrap();
-  //       if (resp) {
-  //         console.log({ resp });
-  //         refetch();
-  //         toast({
-  //           variant: "success",
-  //           title: "Updated Successfully",
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.error("Error", { error });
-  //       if (error && typeof error === "object" && "data" in error) {
-  //         const typedError = error as ErrorType;
-  //         toast({
-  //           variant: "destructive",
-  //           title: "Error in form Submission",
-  //           description: typedError.data?.detail,
-  //         });
-  //       } else {
-  //         toast({
-  //           variant: "destructive",
-  //           title: "Error in form Submission",
-  //           description: `Something Went Wrong.`,
-  //         });
-  //       }
-  //     }
-  //   };
+  
+  const toggleSortOrder = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
+    }));
+  };
 
   const membershipstableData = React.useMemo(() => {
     return Array.isArray(membershipsData) ? membershipsData : [];
@@ -405,6 +414,38 @@ export default function MembershipsTableView() {
     setData(undefined)
   }
 
+  const handleStatus =(value:string)=>{
+    setFilter(prev=>({
+      ...prev,
+      status:value
+    }))
+  }
+  const handleGroup =(value:number)=>{
+    console.log("grop")
+    setFilter(prev=>({
+      ...prev,
+        group_id:value
+    }))
+  }
+
+
+  const filterDisplay = [
+    {
+      type: "select",
+      name: "status",
+      label: "Status",
+      options: [{id:"true", name:"Active"},{id:"false",name:"Inactive"}],
+      function: handleStatus,
+    },
+    {
+      type: "combobox",
+      name: "group",
+      label: "Group",
+      options: groupData,
+      function: handleGroup,
+    },
+  ];
+
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
@@ -418,6 +459,18 @@ export default function MembershipsTableView() {
           <PlusIcon className="h-4 w-4" />
           Create New
         </Button>
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={() => setOpenFilter(true)}
+        >
+          <i className="fa fa-filter"></i>
+        </button>
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={toggleSortOrder}
+        >
+          <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order=='desc'?"rotate-180":"-rotate-180"}`}></i>
+        </button>
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
       <div className="rounded-none  ">
@@ -495,73 +548,21 @@ export default function MembershipsTableView() {
           </Table>
         </ScrollArea>
       </div>
-      <div className="flex items-center justify-end space-x-2 px-4 py-4">
+
+      {/* pagination */}
+      <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-          {/* Page {filters.first + 1} of{" "}
-          {Math.ceil((data?.count ?? 0) / filters.rows)} */}
+          {/* {count?.total_members} */}
         </div>
 
         <div className="flex items-center justify-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Rows per page</p>
-            {/* <Select
-              // value={`${filters.rows}`}
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue defaultValue={pagination.pageSize} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pagination}`} >
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-            {/* <Select
-              value="10"
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue>{10}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
             <Select
               value={pagination.pageSize.toString()}
               onValueChange={(value) => {
                 const newSize = Number(value);
-                setPagination((prevPagination) => ({
-                  ...prevPagination,
-                  pageSize: newSize,
-                }));
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: newSize,
-                  first: 0,
-                }));
-                table.setPageSize(newSize);
+                setSearchCretiria((prev) => ({ ...prev, limit: newSize }));
               }}
             >
               <SelectTrigger className="h-8 w-[70px]">
@@ -577,12 +578,19 @@ export default function MembershipsTableView() {
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 p-2">
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => handlePagination(0)}
-              // disabled={filters.first === 0}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: 0,
+                  };
+                })
+              }
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to first page</span>
               <DoubleArrowLeftIcon className="h-4 w-4" />
@@ -591,8 +599,15 @@ export default function MembershipsTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters?.first - 1)}
-              // disabled={filters?.first === 0}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset - 1,
+                  };
+                })
+              }
+              disabled={searchCretiria.offset === 0}
             >
               <span className="sr-only">Go to previous page</span>
               <ChevronLeftIcon className="h-4 w-4" />
@@ -600,32 +615,47 @@ export default function MembershipsTableView() {
             <Button
               variant="outline"
               className="h-8 w-8 p-0"
-              // onClick={() => handlePagination(filters.first + 1)}
+              onClick={() =>
+                setSearchCretiria((prev) => {
+                  return {
+                    ...prev,
+                    offset: prev.offset + 1,
+                  };
+                })
+              }
               // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
+              //   searchCretiria.offset ==
+              //   Math.ceil(
+              //     (count?.total_members as number) / searchCretiria.limit
+              //   ) -
+              //     1
               // }
             >
-              <span className="sr-only">Go to next page</span>
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
 
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
+              className="hidden h-8 w-8 p-0 lg:flex "
               // onClick={() =>
-              //   handlePagination(
-              //     Math.ceil((data?.count ?? 0) / filters.rows) - 1
-              //   )
+              //   setSearchCretiria((prev) => {
+              //     return {
+              //       ...prev,
+              //       offset:
+              //         Math.ceil(
+              //           (count?.total_members as number) / searchCretiria.limit
+              //         ) - 1,
+              //     };
+              //   })
               // }
               // disabled={
-              //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-              //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-              //     filters.first + 1
+              //   searchCretiria.offset ==
+              //   Math.ceil(
+              //     (count?.total_members as number) / searchCretiria.limit
+              //   ) -
+              //     1
               // }
             >
-              <span className="sr-only">Go to last page</span>
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>
           </div>
@@ -633,6 +663,15 @@ export default function MembershipsTableView() {
       </div>
 
       <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} data={data} setData={setData} refetch={refetch} action={action} setAction={setAction}/>
+      <MembershipFilters
+        isOpen={openFilter}
+        setOpen={setOpenFilter}
+        initialValue={initialValue}
+        filterData={filterData}
+        setFilter={setFilter}
+        setSearchCriteria={setSearchCretiria}
+        filterDisplay={filterDisplay}
+      />
     </div>
   );
 }

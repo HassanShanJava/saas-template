@@ -284,7 +284,7 @@ export const RoleForm = ({
       id: "write",
       header: "Write",
       cell: ({ row }) =>
-        !row.original.is_parent && (
+        !row.original.is_parent &&row.original.parent==null && (
           <Checkbox
             defaultChecked={tableAccess[row.original.id] == "write"}
             aria-label="Write Access"

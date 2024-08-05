@@ -1,0 +1,38 @@
+# GitHub Action Testing for git commands through AWS SSM2
+name: build-fitnfi-staging # Descriptive name for the workflow
+
+on:
+  push:
+    branches:
+      - main # Trigger workflow on pushes to the 'dev' branch
+
+jobs:
+  build-dev:
+    runs-on: ubuntu-latest # Use a suitable GitHub-hosted runner
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # Access secrets securely
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_DISTRIBUTION_ID: ${{ secrets.AWS_DISTRIBUTION_ID }}
+  
+    steps:
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 7.30.0
+      - uses: actions/checkout@v4 # Checkout the repository
+      - uses: actions/cache@v3 # Cache dependencies for faster builds
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - run: echo '${{ secrets.ENV_FILE }}' | base64 -d > .env # Create .env file from secret
+      - run: pnpm install # Install dependencies
+      - run: pnpm run build # Build the Next.js app
+      - run: aws s3 cp ${{ github.workspace }}/dist/ s3://atmosphere.fitnfi.com/ --recursive
+      - id: create_invalidation
+        run: |
+          invalidation_id=$(aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*"  --output text --query 'Invalidation.Id')
+          echo "Invalidation ID: $invalidation_id"
+      

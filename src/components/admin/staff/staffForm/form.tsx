@@ -658,8 +658,8 @@ const StaffForm: React.FC = () => {
                                 {field.value === 0
                                   ? "Select Role*"
                                   : roleData?.find(
-                                      (role) => role.role_id === field.value
-                                    )?.role_name || "Select Role*"}
+                                      (role) => role.id === field.value
+                                    )?.name || "Select Role*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -668,10 +668,10 @@ const StaffForm: React.FC = () => {
                               roleData?.map((sourceval: getRolesType) => {
                                 return (
                                   <SelectItem
-                                    key={sourceval.role_id}
-                                    value={sourceval.role_id?.toString()}
+                                    key={sourceval.id}
+                                    value={sourceval.id?.toString()}
                                   >
-                                    {sourceval.role_name}
+                                    {sourceval.name}
                                   </SelectItem>
                                 );
                               })

@@ -17,8 +17,8 @@ import { RootState } from "@/app/store";
 const PriceDiscountTaxForm = () => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const { data: incomeCategoryData } = useGetIncomeCategoryQuery(orgId);
-  const { data: salesTaxData } = useGetSalesTaxQuery(orgId);
+  const { data: incomeCategoryData } = useGetIncomeCategoryQuery({org_id:orgId,query:""});
+  const { data: salesTaxData } = useGetSalesTaxQuery({org_id:orgId,query:""});
 
   const {
     control,

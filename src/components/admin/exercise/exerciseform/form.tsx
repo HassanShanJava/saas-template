@@ -227,6 +227,7 @@ const ExericeForm: React.FC = () => {
   };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    // if()
     try {
       if (true) {
         toast({

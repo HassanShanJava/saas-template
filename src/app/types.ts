@@ -380,6 +380,11 @@ export interface updateStatusInput {
   lead_id: number;
 }
 export interface MemberTabletypes {
+  data:MemberTableDatatypes[];
+  total_counts: number;
+  filtered_counts:number;
+}
+export interface MemberTableDatatypes {
   id: number;
   own_member_id: string;
   first_name: string;

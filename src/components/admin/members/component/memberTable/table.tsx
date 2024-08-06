@@ -36,7 +36,7 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, MemberTabletypes } from "@/app/types";
+import { ErrorType, MemberTableDatatypes, MemberTabletypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
@@ -55,7 +55,7 @@ import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { Separator } from "@/components/ui/separator";
 
-const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
+const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -181,7 +181,7 @@ export default function MemberTableView() {
     navigate("/admin/members/addmember");
   }
   const memberTableData = React.useMemo(() => {
-    return Array.isArray(memberData) ? memberData : [];
+    return Array.isArray(memberData?.data) ? memberData?.data : [];
   }, [memberData]);
   const { toast } = useToast();
   console.log("data", { memberData, error });
@@ -222,7 +222,7 @@ export default function MemberTableView() {
     }
     downloadCSV(selectedRows, "members_list.csv");
   };
-  const columns: ColumnDef<MemberTabletypes>[] = [
+  const columns: ColumnDef<MemberTableDatatypes>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -352,7 +352,7 @@ export default function MemberTableView() {
   ];
 
   const table = useReactTable({
-    data: memberTableData as MemberTabletypes[],
+    data: memberTableData as MemberTableDatatypes[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -410,7 +410,7 @@ export default function MemberTableView() {
       label: "Coach",
       options:
         coachData &&
-        coachData.map((item) => ({
+        coachData.data.map((item) => ({
           id: item.id,
           name: item.first_name + " " + item.last_name,
         })),

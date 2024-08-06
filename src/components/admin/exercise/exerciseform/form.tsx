@@ -762,7 +762,7 @@ const ExericeForm: React.FC = () => {
               </div>
               <div className="relative">
                 {entries.map((entry, index) => (
-                  <div key={index} className=" p-4">
+                  <div key={index} className="mb-4">
                     <div className="flex gap-2">
                       <label className="block font-semibold">
                         <input
@@ -847,30 +847,6 @@ const ExericeForm: React.FC = () => {
                     <div className="relative">
                       {
                         <div className="flex gap-4">
-                          {/* <FormField
-                            control={form.control}
-                            name="visible_for"
-                            render={({ field }) => (
-                              <FormItem>
-                                <Select
-                                  onValueChange={(value: VisibilityEnum) =>
-                                    form.setValue("visible_for", value)
-                                  }
-                                  value={field.value as VisibilityEnum}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger
-                                      className={`${watcher.visible_for ? "text-black" : "text-gray-500"}`}
-                                    >
-                                      <SelectValue placeholder="MET" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent></SelectContent>
-                                </Select>
-                                {watcher.visible_for ? <></> : <FormMessage />}
-                              </FormItem>
-                            )}
-                          /> */}
                           <FormField
                             control={form.control}
                             name="met"

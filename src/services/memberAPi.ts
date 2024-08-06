@@ -38,15 +38,6 @@ export const MemberAPi = apiSlice.injectEndpoints({
 				},
 			}),
 		}),
-		getCoaches: builder.query<CoachTypes[], number>({
-			query: (org_id) => ({
-				url: `/coach?org_id=${org_id}`,
-				method: "GET",
-				headers: {
-					Accept: "application/json",
-				},
-			}),
-		}),
 		getAllSource: builder.query<sourceTypes[], void>({
 			query: () => ({
 				url: "/sources",
@@ -83,17 +74,6 @@ export const MemberAPi = apiSlice.injectEndpoints({
 				},
 			}),
 		}),
-		
-		getMembersDropdown: builder.query<MemberInputTypes[], number>({
-			query: (org_id) => ({
-				url: `/member/list/${org_id}`,
-				method: "GET",
-				headers: {
-					Accept: "application/json",
-				},
-			}),
-		}),
-
 		AddMember: builder.mutation<MemberResponseTypes, MemberInputTypes>({
 			query: (memberdata) => ({
 				url: "/member",
@@ -126,18 +106,32 @@ export const MemberAPi = apiSlice.injectEndpoints({
 				},
 			}),
 		}),
+		getMembersList: builder.query<{ id: number; name: string }[], number>({
+			query: (org_id) => ({
+			  url: `/member/list/${org_id}`,
+			  headers: {
+				Accept: "application/json",
+			  },
+			}),
+			transformResponse: (
+			  resp: { id: number; first_name: string; last_name: string }[]
+			) =>
+			  resp.map((member) => ({
+				id: member.id,
+				name: `${member.first_name} ${member.last_name}`,
+			  })),
+		  }),
 	}),
 });
 
 export const {
 	useGetMemberCountQuery,
 	useGetCountriesQuery,
-	useGetCoachesQuery,
 	useGetAllSourceQuery,
 	useGetAllBusinessesQuery,
 	useGetAllMemberQuery,
+	useGetMembersListQuery,
 	useGetMemberByIdQuery,
-	useGetMembersDropdownQuery,
 	useAddMemberMutation,
 	useUpdateMemberMutation,
 	useDeleteMemberMutation,

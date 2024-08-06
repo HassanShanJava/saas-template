@@ -56,7 +56,7 @@ import { DataTableViewOptions } from "./data-table-view-options";
 import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
-  useGetStaffListQuery,
+  useGetStaffsQuery,
   useUpdateStaffMutation,
 } from "@/services/staffsApi";
 import { statusEnum } from "../../staffForm/form";
@@ -147,7 +147,7 @@ export default function StaffTableView() {
     isLoading,
     refetch,
     error,
-  } = useGetStaffListQuery(
+  } = useGetStaffsQuery(
     { org_id: orgId, query: query },
     {
       skip: query == "",
@@ -160,7 +160,7 @@ export default function StaffTableView() {
   }
 
   const staffTableData = React.useMemo(() => {
-    return Array.isArray(staffData) ? staffData : [];
+    return Array.isArray(staffData?.data) ? staffData.data : [];
   }, [staffData]);
   const { toast } = useToast();
   const [sorting, setSorting] = useState<SortingState>([]);

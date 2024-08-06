@@ -75,9 +75,12 @@ import {
   useAddCoachMutation,
   useGetCoachByIdQuery,
   useGetCoachCountQuery,
-  useGetMemberListQuery,
   useUpdateCoachMutation,
 } from "@/services/coachApi";
+
+import {
+  useGetMembersListQuery,
+} from "@/services/memberAPi"
 
 const CoachForm: React.FC = () => {
   const { id } = useParams();
@@ -231,7 +234,7 @@ const CoachForm: React.FC = () => {
   const [addCoach, { isLoading: memberLoading }] = useAddCoachMutation();
   const [editCoach, { isLoading: editcoachLoading }] = useUpdateCoachMutation();
 
-  const { data: transformedData } = useGetMemberListQuery(orgId);
+  const { data: transformedData } = useGetMembersListQuery(orgId);
   const navigate = useNavigate();
   const [initialValues, setInitialValues] =
     React.useState<CoachInputTypes>(initialState);
@@ -614,7 +617,6 @@ const CoachForm: React.FC = () => {
                                 field.value.length == 0 ? `Assign Members*` : ""
                               }
                             />
-                            <ChevronDownIcon className="h-5 w-5 text-gray-500" />
                           </MultiSelectorTrigger>
                           <MultiSelectorContent className="">
                             <MultiSelectorList>

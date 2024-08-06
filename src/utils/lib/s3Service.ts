@@ -1,10 +1,18 @@
 import { v4 as uuidv4 } from "uuid";
 import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
 import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 
-const { VITE_POOl_id, VITE_AWS_S3_BUCKET_NAME, VITE_AWS_S3_REGION } =
-  import.meta.env;
+const {
+  VITE_VIEW_S3_URL,
+  VITE_POOl_id,
+  VITE_AWS_S3_BUCKET_NAME,
+  VITE_AWS_S3_REGION,
+} = import.meta.env;
 
 const region = VITE_AWS_S3_REGION as string;
 const IdentityPoolId = VITE_POOl_id as string;
@@ -39,7 +47,7 @@ export const UploadCognitoImage = async (file: File) => {
 
     const uploadParams = {
       Bucket: s3BucketName,
-      Key: fileName,
+      Key: `images/${fileName}`,
       ContentType: file?.type,
       Body: file,
     };
@@ -53,7 +61,29 @@ export const UploadCognitoImage = async (file: File) => {
     return {
       success: true,
       data: fileName,
-      location: `https://${s3BucketName}.s3.${region}.amazonaws.com/${fileName}`,
+      location: `${VITE_VIEW_S3_URL}/${fileName}`,
+    };
+  } catch (error: any) {
+    console.log({ error });
+    return { success: false, message: error?.message };
+  }
+};
+
+export const deleteCognitoImage = async (fileName: string) => {
+  try {
+    const deleteParams = {
+      Bucket: s3BucketName,
+      Key: `images/${fileName}`,
+    };
+
+    const command = new DeleteObjectCommand(deleteParams);
+
+    const data = await s3Client.send(command);
+    console.log(`Deleted image: ${data}`);
+
+    return {
+      success: true,
+      message: `File ${fileName} deleted successfully.`,
     };
   } catch (error: any) {
     console.log({ error });

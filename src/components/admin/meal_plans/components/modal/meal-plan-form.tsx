@@ -61,7 +61,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { zodResolver } from "@hookform/resolvers/zod";
+// import { zodResolver } from "@hookform/resolvers/zod";
 
 const chartData = [
   { food_component: "protein", percentage: 10, fill: "#8BB738" },

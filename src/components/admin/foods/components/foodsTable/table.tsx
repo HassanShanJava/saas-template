@@ -211,7 +211,7 @@ export default function FoodsTableView() {
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
-          <p className="font-semibold text-2xl">Meal Plans</p>
+          <p className="font-semibold text-2xl">Food / Nutrition</p>
         </div>
         <Button
           className="bg-primary m-4 text-black gap-1 font-semibold"

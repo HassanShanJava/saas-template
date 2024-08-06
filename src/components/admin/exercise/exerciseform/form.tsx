@@ -71,13 +71,7 @@ import {
   useGetAllJointsQuery,
   useGetAllMuscleQuery,
 } from "@/services/exerciseApi";
-import { watch } from "fs";
-
-enum genderEnum {
-  male = "male",
-  female = "female",
-  other = "other",
-}
+import { UploadCognitoImage } from "@/utils/lib/s3Service";
 
 enum difficultyEnum {
   Novice = "Novice",
@@ -106,6 +100,20 @@ enum VisibilityEnum {
 
 const ExericeForm: React.FC = () => {
   const { id } = useParams();
+
+  const [images, setImages] = React.useState({
+    maleImage: null as File | null,
+    femaleImage: null as File | null,
+    maleThumbnail: null as File | null,
+    femaleThumbnail: null as File | null,
+  });
+  const [previewUrls, setPreviewUrls] = React.useState({
+    maleImage: "",
+    femaleImage: "",
+    maleThumbnail: "",
+    femaleThumbnail: "",
+
+  });
   const [entries, setEntries] = React.useState([{ time: "", restTime: "" }]);
   const [errors, setErrors] = React.useState<z.ZodError | null>(null);
   const orgId =
@@ -121,13 +129,8 @@ const ExericeForm: React.FC = () => {
     name: z.string(),
   });
 
-  // const initialState: any = {};
-  const ExerciseTimeSchema = z.object({
-    time: z.array(z.coerce.number()).nonempty("Required"),
-    restTime: z.array(z.coerce.number()).nonempty("Required"),
-  });
 
-  const timeEntriesSchema = z.array(ExerciseTimeSchema);
+
   const FormSchema = z.object({
     exercise_name: z.string({
       required_error: "Required",
@@ -173,21 +176,21 @@ const ExericeForm: React.FC = () => {
     exercise_type: z.nativeEnum(ExerciseTypeEnum, {
       required_error: "Required",
     }),
-    timeEntriesSchema,
-    distance: z.number().optional(),
-    speed: z.number().optional(),
+    distance: z.coerce.number().optional(),
+    speed: z.coerce.number().optional(),
     max_intensity: z
       .nativeEnum(IntensityEnum)
       .default(IntensityEnum.maxIntensity),
     irmValue: z.number().optional(),
-    met: z.coerce
-      .number({
-        required_error: "Required",
-      })
-      .refine((value) => value !== 0 || isNaN(value), {
-        message: "Required",
-      })
-      .default(0),
+    met:z.coerce.number().optional()
+    // met: z.coerce
+    //   .number({
+    //     required_error: "Required",
+    //   })
+    //   .refine((value) => value !== 0 || isNaN(value), {
+    //     message: "Required",
+    //   })
+    //   .default(0),
   });
 
   const orgName = useSelector(
@@ -208,6 +211,39 @@ const ExericeForm: React.FC = () => {
 
   const watcher = form.watch();
 
+  type ImageType = 'maleImage' | 'femaleImage' | 'maleThumbnail' | 'femaleThumbnail';
+
+  // const handleImageChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   imageType: ImageType
+  // ) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setImages((prevImages) => ({
+  //         ...prevImages,
+  //         [imageType]: reader.result as string,
+  //       }));
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
+
+  const handleImageChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    imageType: keyof typeof images
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrls((prevImages) => ({
+        ...prevImages,
+        [imageType]: objectUrl,
+      }));
+    }
+  };
+  
   const handleChange = (
     index: number,
     field: "time" | "restTime",
@@ -229,18 +265,59 @@ const ExericeForm: React.FC = () => {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     // if()
-    try {
-      if (true) {
-        toast({
-          variant: "success",
-          title: "Exercise Created Successfully ",
-        });
-      } else {
-        toast({
-          variant: "success",
-          title: "Exercise Updated Successfully ",
-        });
+    const uploadResults = await Promise.all(Object.entries(images).map(async ([key, file]) => {
+      if (file) {
+        const result = await UploadCognitoImage(file);
+        if (result.success) {
+          return { key, url: result.location };
+        } else {
+          // setUploadStatus((prev) => prev ? `${prev}\n${key} upload failed: ${result.message}` : `${key} upload failed: ${result.message}`);
+          return null;
+        }
       }
+      return { key, url: null };
+    }));
+
+    // Build the URL object and log it to the console
+    const urls = uploadResults.reduce((acc, result) => {
+      if (result && result.url) {
+        acc[result.key] = result.url;
+      }
+      return acc;
+    }, {} as { [key: string]: string });
+
+    // Log URLs to the console
+    console.log("Uploaded image URLs:", urls);
+
+    // Set status if no URLs were uploaded
+    if (Object.keys(urls).length === 0) {
+      // toast({
+      //   variant: "destructive",
+      //   title: "Error",
+      //   description: `No files were uploaded..`,
+      // });
+      // setUploadStatus("No files were uploaded.");
+    } else {
+      // setUploadStatus("Files uploaded successfully.");
+      // toast({
+      //       variant: "success",
+      //       title: "Files uploaded successfully",
+      //     });
+    }
+    try {
+      console.log(data)
+      console.log("images",images)
+      // if (true) {
+      //   toast({
+      //     variant: "success",
+      //     title: "Exercise Created Successfully ",
+      //   });
+      // } else {
+      //   toast({
+      //     variant: "success",
+      //     title: "Exercise Updated Successfully ",
+      //   });
+      // }
     } catch (error: unknown) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -671,7 +748,7 @@ const ExericeForm: React.FC = () => {
                   />
                 </div>
               </div>
-              <div className="w-4/5  flex justify-start gap-4items-start">
+              {/* <div className="w-4/5  flex justify-start gap-4items-start">
                 <div className="grid grid-cols-2 gap-4 mt-6">
                   <div>
                     <h3 className="text-lg font-semibold">Images</h3>
@@ -732,7 +809,128 @@ const ExericeForm: React.FC = () => {
                     </div>
                   </div>
                 </div>
+              </div> */}
+
+<div className="w-4/5 flex justify-start gap-4 items-start">
+      <div className="grid grid-cols-2 gap-4 mt-6">
+        {/* Images Section */}
+        <div>
+          <h3 className="text-lg font-semibold">Images</h3>
+          <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
+            {/* Male Image */}
+            <div className="justify-center items-center flex flex-col">
+              <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                {images.maleImage ? (
+                  <img src={previewUrls.maleImage} alt="Male" className="h-full w-full object-cover" />
+                ) : (
+                  <ImageIcon className="w-12 h-12 text-gray-400" />
+                )}
               </div>
+              <Button
+                variant="ghost"
+                className="mt-2 gap-2 border-dashed border-2 text-xs"
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="male-image-upload"
+                  onChange={(e) => handleImageChange(e, 'maleImage')}
+                />
+                <label htmlFor="male-image-upload" className="cursor-pointer flex items-center gap-2">
+                  <FiUpload className="text-primary w-5 h-5" /> Image - Male
+                </label>
+              </Button>
+            </div>
+            {/* Female Image */}
+            <div className="justify-center items-center flex flex-col">
+              <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                {images.femaleImage ? (
+                  <img src={previewUrls.femaleImage} alt="Female" className="h-full w-full object-cover" />
+                ) : (
+                  <ImageIcon className="w-12 h-12 text-gray-400" />
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                className="gap-2 mt-2 text-xs border-dashed border-2"
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="female-image-upload"
+                  onChange={(e) => handleImageChange(e, 'femaleImage')}
+                />
+                <label htmlFor="female-image-upload" className="cursor-pointer flex items-center gap-2">
+                  <FiUpload className="text-primary w-5 h-5" />
+                  Image - Female
+                </label>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Thumbnails Section */}
+        <div>
+          <h3 className="text-lg font-semibold">Thumbnail</h3>
+          <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
+            {/* Male Thumbnail */}
+            <div className="justify-center items-center flex flex-col">
+              <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                {images.maleThumbnail ? (
+                  <img src={previewUrls.maleThumbnail} alt="Male Thumbnail" className="h-full w-full object-cover" />
+                ) : (
+                  <ImageIcon className="w-12 h-12 text-gray-400" />
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                className="mt-2 text-xs border-dashed gap-2 border-2"
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="male-thumbnail-upload"
+                  onChange={(e) => handleImageChange(e, 'maleThumbnail')}
+                />
+                <label htmlFor="male-thumbnail-upload" className="cursor-pointer flex items-center gap-2">
+                  <FiUpload className="text-primary w-5 h-5" />
+                  Thumbnail - Male
+                </label>
+              </Button>
+            </div>
+            {/* Female Thumbnail */}
+            <div className="justify-center items-center flex flex-col">
+              <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                {images.femaleThumbnail ? (
+                  <img src={previewUrls.femaleThumbnail} alt="Female Thumbnail" className="h-full w-full object-cover" />
+                ) : (
+                  <ImageIcon className="w-12 h-12 text-gray-400" />
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                className="mt-2 text-xs gap-2 border-dashed border-2"
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="female-thumbnail-upload"
+                  onChange={(e) => handleImageChange(e, 'femaleThumbnail')}
+                />
+                <label htmlFor="female-thumbnail-upload" className="cursor-pointer flex items-center gap-2">
+                  <FiUpload className="text-primary w-5 h-5" />
+                  Thumbnail - Female
+                </label>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
               <div className="w-full flex gap-3 justify-start items-center">
                 <div className="relative">
                   <FormField
@@ -929,6 +1127,7 @@ const ExericeForm: React.FC = () => {
                               <FormItem>
                                 <FloatingLabelInput
                                   {...field}
+                                  type="number"
                                   id="distance"
                                   label="Distance"
                                 />
@@ -944,6 +1143,8 @@ const ExericeForm: React.FC = () => {
                                 <FloatingLabelInput
                                   {...field}
                                   id="speed"
+                                  type="number"
+
                                   label="speed"
                                 />
                                 {watcher.speed ? <></> : <FormMessage />}

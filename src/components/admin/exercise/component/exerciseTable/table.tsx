@@ -11,6 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import ExerciseFilters from "./data-table-filter"
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -52,6 +53,7 @@ import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetAllMemberQuery } from "@/services/memberAPi";
 import { ErrorType } from "@/app/types";
+import { DataTableViewOptions } from "./data-table-view-options";
 
 const downloadCSV = (data: any[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -63,6 +65,21 @@ const downloadCSV = (data: any[], fileName: string) => {
   link.click();
   document.body.removeChild(link);
 };
+interface searchCretiriaType {
+  limit: number;
+  offset: number;
+  sort_order: string;
+  client_name?: string;
+  status?: string;
+  membership_plan?: string;
+  coach_asigned?: string;
+}
+const initialValue = {
+  limit: 10,
+  offset: 0,
+  sort_order: "desc",
+};
+
 export default function ExerciseTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -75,8 +92,12 @@ export default function ExerciseTableView() {
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
-
+  const [searchCretiria, setSearchCretiria] =
+  useState<searchCretiriaType>(initialValue);
   const [filters, setFilters] = useState<"">();
+  const [openFilter, setOpenFilter] = useState(false);
+  const [filterData, setFilter] = useState({});
+
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
@@ -230,7 +251,38 @@ export default function ExerciseTableView() {
     if (page < 0) return;
     // setFilters
   }
-
+  const filterDisplay = [
+    {
+      type: "select",
+      name: "membership_plan",
+      label: "Membership",
+      // options: membershipPlans,
+      // function: handleMembershipplan,
+    },
+    {
+      type: "select",
+      name: "coach_assigned",
+      label: "Coach",
+      // options:
+      //   coachData &&
+      //   coachData.data.map((item) => ({
+      //     id: item.id,
+      //     name: item.first_name + " " + item.last_name,
+      //   })),
+      // function: handleCoachAssigned,
+    },
+    {
+      type: "select",
+      name: "status",
+      label: "Status",
+      // options: [
+      //   { id: "pending", name: "Pending" },
+      //   { id: "inactive", name: "Inactive" },
+      //   { id: "active", name: "Active" },
+      // ],
+      // function: handleMemberStatus,
+    },
+  ];
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-5 ">
@@ -254,6 +306,13 @@ export default function ExerciseTableView() {
           <PlusIcon className="h-4 w-4" />
           Create New
         </Button>
+        <DataTableViewOptions table={table} action={handleExportSelected} />
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={() => setOpenFilter(true)}
+        >
+          <i className="fa fa-filter"></i>
+        </button>
       </div>
       <div className="rounded-none  ">
         <ScrollArea className="w-full relative">
@@ -466,6 +525,15 @@ export default function ExerciseTableView() {
           </div>
         </div>
       </div>
+      {/* <ExerciseFilters
+        isOpen={openFilter}
+        setOpen={setOpenFilter}
+        initialValue={initialValue}
+        filterData={filterData}
+        setFilter={setFilter}
+        setSearchCriteria={setSearchCretiria}
+        filterDisplay={filterDisplay}
+      /> */}
     </div>
   );
 }

@@ -26,7 +26,7 @@ import { useNavigate } from "react-router-dom";
 
 interface DataTableRowActionsProps<TData> {
   row: number;
-  data:MemberTabletypes,
+  data:MemberTableDatatypes,
   refetch:any
 }
 

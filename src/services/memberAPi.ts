@@ -65,7 +65,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
 				},
 			}),
 		}),
-		getAllMember: builder.query<MemberTabletypes[], memberInput>({
+		getAllMember: builder.query<MemberTabletypes, memberInput>({
 			query: (searchCretiria) => ({
 				url: `/member?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
 				method: "GET",
@@ -84,7 +84,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
 			}),
 		}),
 		
-		getMembersDropdown: builder.query<MemberInputTypes, number>({
+		getMembersDropdown: builder.query<MemberInputTypes[], number>({
 			query: (org_id) => ({
 				url: `/member/list/${org_id}`,
 				method: "GET",

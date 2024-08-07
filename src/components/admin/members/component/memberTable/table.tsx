@@ -249,17 +249,17 @@ export default function MemberTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      id: "id",
-      header: () => (
-        <span>S No.</span>
-      ),
-      cell: ({ row }) => (
-        <span>{row.index + 1 + (searchCretiria.offset)}.</span>
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+    // {
+    //   id: "id",
+    //   header: () => (
+    //     <span>S No.</span>
+    //   ),
+    //   cell: ({ row }) => (
+    //     <span>{row.index + 1 + (searchCretiria.offset)}.</span>
+    //   ),
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
     {
       accessorKey: "own_member_id",
       header: "Member Id ",
@@ -444,11 +444,18 @@ export default function MemberTableView() {
 
   console.log({ searchCretiria });
   // Function to go to the next page
+
+  const totalRecords = memberData?.total_counts || 0
+  const lastPageOffset = Math.max(0, Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit);
+  const isLastPage = searchCretiria.offset >= lastPageOffset;
+
   const nextPage = () => {
-    setSearchCretiria(prev => ({
-      ...prev,
-      offset: prev.offset + prev.limit
-    }));
+    if (!isLastPage) {
+      setSearchCretiria(prev => ({
+        ...prev,
+        offset: prev.offset + prev.limit
+      }));
+    }
   };
 
   // Function to go to the previous page
@@ -467,15 +474,14 @@ export default function MemberTableView() {
     }));
   };
 
-  // Function to go to the last page (this requires knowing the total number of records)
+  // Function to go to the last page
   const lastPage = () => {
-    // Assuming you have a total count of records (totalRecords) from your API
-    const totalRecords = memberData?.total_counts; // Replace this with actual value from API
-    const lastOffset = Math.max(0, Math.floor(totalRecords as number / searchCretiria.limit) * searchCretiria.limit);
-    setSearchCretiria(prev => ({
-      ...prev,
-      offset: lastOffset
-    }));
+    if (!isLastPage) {
+      setSearchCretiria(prev => ({
+        ...prev,
+        offset: lastPageOffset
+      }));
+    }
   };
 
   return (
@@ -617,6 +623,7 @@ export default function MemberTableView() {
             </Select>
           </div>
           <Separator orientation="vertical" className="h-11 w-[1px] bg-gray-300" />
+          <span> {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${memberData?.filtered_counts} Items  `}</span>
         </div>
 
         <div className="flex items-center justify-center gap-2">
@@ -627,7 +634,7 @@ export default function MemberTableView() {
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
               onClick={firstPage}
-              disabled={searchCretiria.offet === 0}
+              disabled={searchCretiria.offset === 0}
             >
               <DoubleArrowLeftIcon className="h-4 w-4" />
             </Button>
@@ -638,7 +645,7 @@ export default function MemberTableView() {
               variant="outline"
               className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
               onClick={prevPage}
-              disabled={searchCretiria.offet === 0}
+              disabled={searchCretiria.offset === 0}
             >
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
@@ -649,7 +656,7 @@ export default function MemberTableView() {
               variant="outline"
               className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
               onClick={nextPage}
-              // disabled={currentPage >= totalPages - 1}
+              disabled={isLastPage}
             >
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
@@ -660,7 +667,7 @@ export default function MemberTableView() {
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
               onClick={lastPage}
-              // disabled={currentPage >= totalPages - 1}
+              disabled={isLastPage}
             >
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>

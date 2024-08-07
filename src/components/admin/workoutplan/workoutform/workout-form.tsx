@@ -62,15 +62,15 @@ import { toast } from "@/components/ui/use-toast";
 import { CountryTypes, ErrorType } from "@/app/types";
 import { AutosizeTextarea } from "@/components/ui/autosizetextarea/autosizetextarea";
 import { membersSchema } from "@/schema/formSchema";
-import { useGetMemberListQuery } from "@/services/coachApi";
+
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { useGetCountriesQuery } from "@/services/memberAPi";
+import { useGetCountriesQuery, useGetMembersListQuery } from "@/services/memberAPi";
 import { cn } from "@/lib/utils";
 const WorkoutPlanForm = ({ isOpen, setOpen }: WorkOutPlanForm) => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const { data: transformedData } = useGetMemberListQuery(orgId);
+  const { data: transformedData } = useGetMembersListQuery(orgId);
 
   const FormSchema = z.object({
     name: z

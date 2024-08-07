@@ -91,10 +91,7 @@ import {
   useGetMemberByIdQuery,
 } from "@/services/memberAPi";
 
-import {
-  useGetCoachListQuery,
-
-} from '@/services/coachApi'
+import { useGetCoachListQuery } from "@/services/coachApi";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { useParams } from "react-router-dom";
 import { UploadCognitoImage } from "@/utils/lib/s3Service";
@@ -375,7 +372,6 @@ const MemberForm: React.FC = () => {
         };
       } catch (error) {
         console.error("Upload failed:", error);
-        console.error("Upload failed:", error);
         toast({
           variant: "destructive",
           title: "Image Upload Failed",
@@ -384,7 +380,7 @@ const MemberForm: React.FC = () => {
         return;
       }
     }
-
+    
     try {
       if (id == undefined || id == null) {
         console.log({ updatedData }, "add");
@@ -392,7 +388,7 @@ const MemberForm: React.FC = () => {
         if (resp) {
           toast({
             variant: "success",
-            title: "Added Successfully ",
+            title: "Member Created Successfully ",
           });
           navigate("/admin/members");
         }
@@ -405,7 +401,7 @@ const MemberForm: React.FC = () => {
         if (resp) {
           toast({
             variant: "success",
-            title: "Updated Successfully ",
+            title: "Member Updated Successfully ",
           });
           navigate("/admin/members");
         }

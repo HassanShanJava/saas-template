@@ -764,3 +764,27 @@ export interface coachUpdateInput {
   updated_by?: number;
   member_ids?: any;
 }
+
+export interface muscleserverResponse {
+  id: number;
+  muscle_name: string;
+}
+export interface baseExerciseApiResponse {
+  id: number;
+  name: string;
+}
+
+export interface EquipmentApiResponse {
+  id: number;
+  equipment_name: string;
+}
+
+export interface CategoryApiResponse {
+  id: number;
+  category_name: string;
+}
+
+export interface JointApiResponse {
+  id: number;
+  joint_name: string;
+}

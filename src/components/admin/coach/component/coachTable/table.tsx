@@ -193,7 +193,7 @@ export default function CoachTableView() {
       });
       return;
     }
-    downloadCSV(selectedRows, "members_list.csv");
+    downloadCSV(selectedRows, "coach_list.csv");
   };
 
   const handleStatusChange = async (payload: {

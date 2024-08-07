@@ -125,6 +125,12 @@ const navItems: NavItem[] = [
     hiddenRoutes: ["/admin/exercise/addexercise"],
   },
   {
+    name: "Workout Plan",
+    link: "/admin/workoutplans",
+    icon: IoIosFitness,
+    dropdown: false,
+  },
+  {
     name: "Roles & Access Management",
     link: "/admin/roles",
     icon: EventsIcon,

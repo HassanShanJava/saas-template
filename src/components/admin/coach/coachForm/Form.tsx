@@ -612,7 +612,7 @@ const CoachForm: React.FC = () => {
                         >
                           <MultiSelectorTrigger className="border-[1px] border-gray-300">
                             <MultiSelectorInput
-                              className="font-medium  "
+                              className="font-medium"
                               placeholder={
                                 field.value.length == 0 ? `Assign Members*` : ""
                               }

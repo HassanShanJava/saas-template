@@ -1,6 +1,6 @@
 // FileUploadComponent.tsx
 import React, { useState, ChangeEvent } from "react";
-import { uploadFileToS3 } from "@/services/s3Upload"; // adjust the path as needed
+import { uploadFileToS3 ,} from "@/services/s3Upload"; // adjust the path as needed
 
 const FileUploadComponent: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);

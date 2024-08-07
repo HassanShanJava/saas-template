@@ -92,6 +92,17 @@ export const Roles = apiSlice.injectEndpoints({
         },
         providesTags: (result, error, arg) => [{ type: "Coaches", id: arg }],
       }),
+      
+      getCoachList: builder.query<{id:number, name:string}[], number>({
+        query: (org_id) => ({
+          url: `/coach/list/${org_id}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+          providesTags:["Coaches"],
+        }),
+      }),
     };
   },
 });
@@ -103,4 +114,5 @@ export const {
   useDeleteCoachMutation,
   useUpdateCoachMutation,
   useGetCoachByIdQuery,
+  useGetCoachListQuery,
 } = Roles;

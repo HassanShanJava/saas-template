@@ -92,6 +92,7 @@ interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
+  sort_key: string;
 }
 
 export default function IncomeCategoryTableView() {
@@ -102,6 +103,7 @@ export default function IncomeCategoryTableView() {
     limit: 10,
     offset: 0,
     sort_order: "desc",
+    sort_key:"created_at",
   });
   const [query, setQuery] = useState("");
 
@@ -129,7 +131,7 @@ export default function IncomeCategoryTableView() {
     }
   );
 
-  const { data: salesTaxData } = useGetSalesTaxQuery({org_id:orgId,query:""});
+  const { data: salesTaxData } = useGetSalesTaxQuery({ org_id: orgId, query: "" });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -148,7 +150,7 @@ export default function IncomeCategoryTableView() {
       sort_order: prev.sort_order === "desc" ? "asc" : "desc",
     }));
   };
-  
+
   //   // table dropdown status update
   //   const handleStatusChange = async (payload: {
   //     id: number;
@@ -335,7 +337,7 @@ export default function IncomeCategoryTableView() {
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={toggleSortOrder}
         >
-          <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order=='desc'?"rotate-180":"-rotate-180"}`}></i>
+          <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == 'desc' ? "rotate-180" : "-rotate-180"}`}></i>
         </button>
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
@@ -352,9 +354,9 @@ export default function IncomeCategoryTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -508,13 +510,13 @@ export default function IncomeCategoryTableView() {
                   };
                 })
               }
-              // disabled={
-              //   searchCretiria.offset ==
-              //   Math.ceil(
-              //     (count?.total_members as number) / searchCretiria.limit
-              //   ) -
-              //     1
-              // }
+            // disabled={
+            //   searchCretiria.offset ==
+            //   Math.ceil(
+            //     (count?.total_members as number) / searchCretiria.limit
+            //   ) -
+            //     1
+            // }
             >
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
@@ -526,24 +528,24 @@ export default function IncomeCategoryTableView() {
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-              // onClick={() =>
-              //   setSearchCretiria((prev) => {
-              //     return {
-              //       ...prev,
-              //       offset:
-              //         Math.ceil(
-              //           (count?.total_members as number) / searchCretiria.limit
-              //         ) - 1,
-              //     };
-              //   })
-              // }
-              // disabled={
-              //   searchCretiria.offset ==
-              //   Math.ceil(
-              //     (count?.total_members as number) / searchCretiria.limit
-              //   ) -
-              //     1
-              // }
+            // onClick={() =>
+            //   setSearchCretiria((prev) => {
+            //     return {
+            //       ...prev,
+            //       offset:
+            //         Math.ceil(
+            //           (count?.total_members as number) / searchCretiria.limit
+            //         ) - 1,
+            //     };
+            //   })
+            // }
+            // disabled={
+            //   searchCretiria.offset ==
+            //   Math.ceil(
+            //     (count?.total_members as number) / searchCretiria.limit
+            //   ) -
+            //     1
+            // }
             >
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>

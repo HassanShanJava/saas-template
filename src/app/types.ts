@@ -380,9 +380,9 @@ export interface updateStatusInput {
   lead_id: number;
 }
 export interface MemberTabletypes {
-  data:MemberTableDatatypes[];
+  data: MemberTableDatatypes[];
   total_counts: number;
-  filtered_counts:number;
+  filtered_counts: number;
 }
 export interface MemberTableDatatypes {
   id: number;
@@ -397,6 +397,10 @@ export interface MemberTableDatatypes {
   client_since?: string | null;
   business_name?: string | null;
   coach_name?: string | null;
+  coaches?: {
+    id: number,
+    name: string
+  }[];
 }
 
 export interface CoachTableTypes {
@@ -441,7 +445,7 @@ export interface updateStatusInput {
 
 export interface getRolesType {
   name: string;
-  status?:boolean;
+  status?: boolean;
   id: number;
 }
 
@@ -550,10 +554,10 @@ interface Member {
   name: string;
 }
 
-export interface CoachTypes{
-  data:CoachTableDataTypes[],
+export interface CoachTypes {
+  data: CoachTableDataTypes[],
   total_counts: number;
-  filtered_counts: number; 
+  filtered_counts: number;
 }
 
 export interface CoachTableDataTypes {
@@ -699,8 +703,8 @@ export interface StaffResponseType {
   last_checkin?: string;
 }
 
-export interface staffTableTypes{
-  data:staffTypesResponseList[];
+export interface staffTableTypes {
+  data: staffTypesResponseList[];
   total_counts: number;
   filtered_counts: number;
 }

@@ -51,6 +51,7 @@ import {
 } from "@/services/memberAPi";
 import {
   useGetCoachesQuery,
+  useGetCoachListQuery,
 
 } from "@/services/coachApi"
 import MemberFilters from "./data-table-filter";
@@ -73,6 +74,7 @@ interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
+  sort_key: string;
   client_name?: string;
   status?: string;
   membership_plan?: string;
@@ -83,6 +85,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
+  sort_key:"created_at",
 };
 
 export default function MemberTableView() {
@@ -146,21 +149,9 @@ export default function MemberTableView() {
     }
   );
 
-  // const {
-  //   data: coachData,
-  //   error:coachError,
-  //   isError:isCoachError,
-  // } = useGetCoachesQuery(
-  //   { org_id: orgId, query:'' },
-  //   {
-  //     skip: query == "",
-  //   }
-  // );
-  const {
-    data: coachData,
-    error: coachError,
-    isError: isCoachError,
-  } = useGetCoachesQuery({ org_id: orgId, query: '' });
+
+  const { data: coachesData } = useGetCoachListQuery(orgId);
+
 
   const { data: count } = useGetMemberCountQuery(orgId);
   const { data: membershipPlans } = useGetMembershipsQuery({
@@ -170,15 +161,14 @@ export default function MemberTableView() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isError || isCoachError) {
-      // const errorMsg= error?.data?.detail as FetchBaseQueryError || coachError?.data?.detail  satisfies FetchBaseQueryError
+    if (isError) {
+      const typedError = error as ErrorType;
       toast({
         variant: "destructive",
-        // title: error?.data?.detail as unknown || coachError?.data?.detail  ,
-        title: "Error",
+        title: typedError.data?.detail,
       });
     }
-  }, [isError, isCoachError]);
+  }, [isError]);
 
   function handleRoute() {
     navigate("/admin/members/addmember");
@@ -201,7 +191,7 @@ export default function MemberTableView() {
     pageSize: 10, // Adjust this based on your preference
   });
   const displayValue = (value: string | undefined | null) =>
-    value == null || value == undefined || value == "" ? "N/A" : value;
+    value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
   const displayDate = (value: any) => {
     const date = new Date(value);
@@ -308,12 +298,17 @@ export default function MemberTableView() {
       },
     },
     {
-      accessorKey: "coach_name",
+      accessorKey: "coaches",
       header: "Coach",
       cell: ({ row }) => {
+
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.coach_name)}
+            <div>
+              {row.original.coaches && row.original.coaches.map((coach) => (
+                <p className="text-sm">{displayValue(coach.name)}</p>
+              ))}
+            </div>
           </div>
         );
       },
@@ -421,12 +416,7 @@ export default function MemberTableView() {
       type: "select",
       name: "coach_assigned",
       label: "Coach",
-      options:
-        coachData &&
-        coachData.data.map((item) => ({
-          id: item.id,
-          name: item.first_name + " " + item.last_name,
-        })),
+      options: coachesData && coachesData,
       function: handleCoachAssigned,
     },
     {

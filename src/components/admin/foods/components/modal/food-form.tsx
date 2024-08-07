@@ -12,6 +12,13 @@ import {
 } from "@/components/ui/sheet";
 
 import {
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+  FileInput,
+} from "@/components/ui/file-uploader";
+
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -19,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { DropzoneOptions } from "react-dropzone";
 
 interface FoodForm {
   isOpen: boolean;
@@ -308,6 +316,16 @@ const nutrientsInfo = [
 
 const FoodForm = ({ isOpen, setOpen }: FoodForm) => {
   const [showMore, setShowMore] = useState(false);
+  const [files, setFiles] = useState<File[] | null>([]);
+
+  const dropzone = {
+    accept: {
+      "image/*": [".jpg", ".jpeg", ".png"],
+    },
+    multiple: true,
+    maxFiles: 1,
+    maxSize: 1 * 1024 * 1024,
+  } satisfies DropzoneOptions;
 
   const filteredNutrients = showMore
     ? nutrientsInfo
@@ -350,9 +368,9 @@ const FoodForm = ({ isOpen, setOpen }: FoodForm) => {
                 <LoadingButton
                   type="submit"
                   className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                  // onClick={handleSubmit(onSubmit)}
-                  // loading={isSubmitting}
-                  // disabled={isSubmitting}
+                // onClick={handleSubmit(onSubmit)}
+                // loading={isSubmitting}
+                // disabled={isSubmitting}
                 >
                   {/* {!isSubmitting && ( */}
                   <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
@@ -400,7 +418,43 @@ const FoodForm = ({ isOpen, setOpen }: FoodForm) => {
                   </Select>
                 );
               }
+
             })}
+            <FileUploader
+              value={files}
+              onValueChange={setFiles}
+              dropzoneOptions={dropzone}
+            >
+              <FileInput className="flex flex-col gap-2">
+                <div className="flex items-center justify-center h-[5rem] w-full border bg-background rounded-md bg-gray-100">
+                  <i className="text-gray-400 fa-regular fa-image size-5"></i>
+                </div>
+
+                <div className="flex items-center justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
+                  {/* <i className="text-gray-400 fa-regular fa-image size-5"></i> */}
+                  <img src="/src/assets/upload.svg" className="size-10" />
+                  <span className="text-sm">Upload Image</span>
+                </div>
+              </FileInput>
+              <FileUploaderContent className="flex items-center flex-row gap-2">
+                {files?.map((file, i) => (
+                  <FileUploaderItem
+                    key={i}
+                    index={i}
+                    className="size-20 p-0 rounded-md overflow-hidden"
+                    aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                  >
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={file.name}
+                      height={80}
+                      width={80}
+                      className="size-20 p-0"
+                    />
+                  </FileUploaderItem>
+                ))}
+              </FileUploaderContent>
+            </FileUploader>
           </div>
 
           <div className="flex justify-between items-center my-4">
@@ -448,10 +502,10 @@ const FoodForm = ({ isOpen, setOpen }: FoodForm) => {
               </Select>
 
               <FloatingLabelInput
-                    id={'units'}
-                    name={"units"}
-                    label={"Provide Units"}
-                  />
+                id={'units'}
+                name={"units"}
+                label={"Provide Units"}
+              />
             </div>
           </div>
         </div>

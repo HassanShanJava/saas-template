@@ -94,7 +94,7 @@ import {
 } from "@/services/memberAPi";
 
 import {
-  useGetCoachesQuery,
+  useGetCoachListQuery,
 
 } from '@/services/coachApi'
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
@@ -142,7 +142,7 @@ const MemberForm: React.FC = () => {
     address_1: "",
     address_2: "",
     org_id: orgId,
-    coach_id: [] as CoachTableDataTypes[],
+    coach_id: [] as z.infer<typeof coachsSchema>[],
     membership_plan_id: undefined,
     send_invitation: true,
     status: "pending",
@@ -266,7 +266,7 @@ const MemberForm: React.FC = () => {
   });
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
-  const { data: coachesData } = useGetCoachesQuery({org_id:orgId,query:''});
+  const { data: coachesData } = useGetCoachListQuery(orgId);
   const { data: sources } = useGetAllSourceQuery();
   const { data: membershipPlans } = useGetMembershipsQuery({ org_id: orgId, query: "" });
   const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
@@ -740,14 +740,14 @@ const MemberForm: React.FC = () => {
                           <MultiSelectorContent className="">
                             <MultiSelectorList>
                               {coachesData &&
-                                coachesData.data.map((user: any) => (
+                                coachesData.map((user: any) => (
                                   <MultiSelectorItem
                                     key={user.id}
                                     value={user}
                                     // disabled={field.value?.length >= 5}
                                   >
                                     <div className="flex items-center space-x-2">
-                                      <span>{user.first_name}</span>
+                                      <span>{user.name}</span>
                                     </div>
                                   </MultiSelectorItem>
                                 ))}

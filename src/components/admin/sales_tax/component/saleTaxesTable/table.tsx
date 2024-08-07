@@ -95,6 +95,7 @@ interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
+  sort_key: string;
 }
 
 export default function SaleTaxesTableView() {
@@ -105,6 +106,7 @@ export default function SaleTaxesTableView() {
     limit: 10,
     offset: 0,
     sort_order: "desc",
+    sort_key:"created_at",
   });
   const [query, setQuery] = useState("");
 

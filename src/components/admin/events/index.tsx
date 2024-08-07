@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { PlusIcon } from "lucide-react";
 import { FaFilter } from "react-icons/fa";
 import { useState } from "react";
-import EventForm from "./eventForm";
+import EventForm from "./eventForm/form";
 
 const Events = () => {
   const [isOpen, setOpen] = useState(false)

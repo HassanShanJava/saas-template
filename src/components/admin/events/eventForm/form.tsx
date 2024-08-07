@@ -61,7 +61,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-
 const FormSchema = z.object({
   Activity: z.string({
     required_error: "Required",
@@ -94,17 +93,23 @@ const FormSchema = z.object({
     required_error: "Required",
   }),
   showLink: z.boolean(),
-  type: z.enum(["enable online booking", "enable third party", "ask covid 19"], {
-    required_error: "You need to select a gender type.",
-  }),
+  type: z.enum(
+    ["enable online booking", "enable third party", "ask covid 19"],
+    {
+      required_error: "You need to select a gender type.",
+    }
+  ),
 });
-interface eventFormType{
+interface eventFormType {
   isOpen: boolean;
   setOpen: (isOpen: boolean) => void;
   // setOpen: any;
 }
 
-const EventForm: React.FC<eventFormType> = ({isOpen, setOpen}:eventFormType) => {
+const EventForm: React.FC<eventFormType> = ({
+  isOpen,
+  setOpen,
+}: eventFormType) => {
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -128,47 +133,46 @@ const EventForm: React.FC<eventFormType> = ({isOpen, setOpen}:eventFormType) => 
       <SheetContent hideCloseButton className="!max-w-[1050px]">
         <SheetHeader>
           <SheetTitle>
-          <div className="flex justify-between items-center gap-3">
-                  <div className="flex flex-row gap-4 items-center">
-                    <h1 className="font-bold text-xl text-black">New event</h1>
-                    <div className="w-[32%]">
-                      <Select>
-                        <SelectTrigger className="w-[140px]">
-                          <SelectValue placeholder="Choose..." />
-                        </SelectTrigger>
-                        {/* <SelectContent>
+            <div className="flex justify-between items-center gap-3">
+              <div className="flex flex-row gap-4 items-center">
+                <h1 className="font-bold text-xl text-black">New event</h1>
+                <div className="w-[32%]">
+                  <Select>
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue placeholder="Choose..." />
+                    </SelectTrigger>
+                    {/* <SelectContent>
                 <SelectGroup> */}
 
-                        {/* </SelectGroup>
+                    {/* </SelectGroup>
               </SelectContent> */}
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <div>
-                      <Button
-                        type={"button"}
-                        onClick={()=>setOpen((false))}
-                        className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
-                      >
-                        <RxCross2 className="w-4 h-4" /> Cancel
-                      </Button>
-                    </div>
-                    <div>
-                      <Button
-                        type="submit"
-                        className="gap-2 text-black hover:opacity-90 hover:text-white"
-                      >
-                        <PlusIcon className="h-4 w-4 hover:text-white" /> Add
-                      </Button>
-                    </div>
-                  </div>
+                  </Select>
                 </div>
+              </div>
+              <div className="flex gap-2">
+                <div>
+                  <Button
+                    type={"button"}
+                    onClick={() => setOpen(false)}
+                    className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
+                  >
+                    <RxCross2 className="w-4 h-4" /> Cancel
+                  </Button>
+                </div>
+                <div>
+                  <Button
+                    type="submit"
+                    className="gap-2 text-black hover:opacity-90 hover:text-white"
+                  >
+                    <PlusIcon className="h-4 w-4 hover:text-white" /> Add
+                  </Button>
+                </div>
+              </div>
+            </div>
           </SheetTitle>
           <SheetDescription>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                
                 <div className="w-full flex justify-between items-center gap-4 pt-3">
                   <div className="relative w-[33%]">
                     <FormField
@@ -259,7 +263,10 @@ const EventForm: React.FC<eventFormType> = ({isOpen, setOpen}:eventFormType) => 
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-2" align="center">
+                            <PopoverContent
+                              className="w-auto p-2"
+                              align="center"
+                            >
                               <Calendar
                                 mode="single"
                                 captionLayout="dropdown-buttons"
@@ -568,7 +575,11 @@ const EventForm: React.FC<eventFormType> = ({isOpen, setOpen}:eventFormType) => 
                       name="link"
                       render={({ field }) => (
                         <FormItem>
-                          <FloatingLabelInput {...field} id="link" label="Link" />
+                          <FloatingLabelInput
+                            {...field}
+                            id="link"
+                            label="Link"
+                          />
                           <FormMessage />
                         </FormItem>
                       )}
@@ -650,7 +661,6 @@ const EventForm: React.FC<eventFormType> = ({isOpen, setOpen}:eventFormType) => 
                     )}
                   />
                 </div>
-
               </form>
             </Form>
           </SheetDescription>

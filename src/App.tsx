@@ -8,7 +8,6 @@ import LeadForm from "./components/admin/leads/leadform/form";
 import Credits from "./components/admin/credits";
 import SaleTaxes from "./components/admin/sales_tax";
 import Events from "./components/admin/events";
-import EventForm from "./components/admin/events/eventForm";
 import ProtectedRoute from "./components/admin/protectedRoute";
 import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
@@ -89,11 +88,6 @@ function App() {
               element={<CoachForm />}
             />
             <Route path="/admin/roles" index element={<RolesAndAccess />} />
-            <Route
-              path="/admin/events/addevents"
-              index
-              element={<EventForm />}
-            />
             <Route path="/admin/staff" index element={<Staff />} />
             <Route path="/admin/staff/addStaff" index element={<StaffForm />} />
             <Route

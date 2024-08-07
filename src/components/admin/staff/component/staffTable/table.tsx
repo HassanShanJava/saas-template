@@ -90,6 +90,7 @@ interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
+  sort_key: string;
   status?: boolean;
   search_key?: string;
 }
@@ -98,6 +99,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
+  sort_key:"created_at",
 };
 export default function StaffTableView() {
   const orgId =

@@ -15,8 +15,11 @@ import { RxUpload } from "react-icons/rx";
 import { useNavigate } from "react-router-dom";
 import { PlusIcon } from "lucide-react";
 import { FaFilter } from "react-icons/fa";
+import { useState } from "react";
+import EventForm from "./eventForm";
 
 const Events = () => {
+  const [isOpen, setOpen] = useState(false)
   const navigate = useNavigate();
   const today = new Date();
   const day = today.getDate();
@@ -49,7 +52,7 @@ const Events = () => {
   const monthName = months[today.getMonth()];
 
   function handleRoute() {
-    navigate("/admin/events/addevents");
+    setOpen(true)
   }
   const events = [
     {
@@ -103,6 +106,11 @@ const Events = () => {
       end: new Date(new Date().getTime() + 19 * 60 * 60 * 1000),
     },
   ];
+
+
+  const handleClose = (bool: boolean) => {
+    setOpen(prev => bool)
+  }
 
   return (
     <div className="w-full p-12">
@@ -224,6 +232,11 @@ const Events = () => {
           )}
         />
       </div>
+
+      <EventForm
+        isOpen={isOpen}
+        setOpen={handleClose}
+      />
     </div>
   );
 };

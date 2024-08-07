@@ -397,6 +397,10 @@ export interface MemberTableDatatypes {
   client_since?: string | null;
   business_name?: string | null;
   coach_name?: string | null;
+  coaches?: {
+    id: number,
+    name: string
+  }[];
 }
 
 export interface CoachTableTypes {
@@ -551,7 +555,7 @@ interface Member {
 }
 
 export interface CoachTypes {
-  data: CoachTableDataTypes[];
+  data: CoachTableDataTypes[],
   total_counts: number;
   filtered_counts: number;
 }

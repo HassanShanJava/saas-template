@@ -27,6 +27,13 @@ import {
 } from "@/components/ui/card";
 
 import {
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+  FileInput,
+} from "@/components/ui/file-uploader";
+
+import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
@@ -42,13 +49,6 @@ interface MealPlanForm {
   isOpen: boolean;
   setOpen: any;
 }
-
-import {
-  FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
-  FileInput,
-} from "@/components/ui/file-uploader";
 
 import { DropzoneOptions } from "react-dropzone";
 import { Button } from "@/components/ui/button";

@@ -1,78 +1,77 @@
-import { createFoodTypes, groupCreateType, groupRespType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
-interface foodsInput {
+interface mealPlansInput {
     query: string,
     org_id: number
 }
 
-export const Foods = apiSlice.injectEndpoints({
+export const MealPlans = apiSlice.injectEndpoints({
     endpoints(builder) {
         return {
-            getFoods: builder.query<any[], foodsInput>({
+            getMealPlans: builder.query<any[], mealPlansInput>({
                 query: (searchCretiria) => ({
-                    url: `/foods?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
+                    url: `/meal_plans?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
                     method: "GET",
                     headers: {
                         Accept: "application/json",
                     },
-                    providesTags: ["Foods"],
+                    providesTags: ["MealPlans"],
                 }),
             }),
-            createFoods: builder.query<any, createFoodTypes>({
+            createMealPlans: builder.query<any, any>({
                 query: (fooddata) => ({
-                    url: `/foods`,
+                    url: `/meal_plans`,
                     method: "POST",
                     body: fooddata,
                     headers: {
                         Accept: "application/json",
                     },
-                    invalidatesTags: ["Foods"],
+                    invalidatesTags: ["MealPlans"],
 
                 }),
             }),
-            updateFoods: builder.query<any, createFoodTypes & { id: number }>({
+            updateMealPlans: builder.query<any, any & { id: number }>({
                 query: (fooddata) => ({
-                    url: `/foods`,
+                    url: `/meal_plans`,
                     method: "PUT",
                     body: fooddata,
                     headers: {
                         Accept: "application/json",
                     },
-                    invalidatesTags: ["Foods"],
+                    invalidatesTags: ["MealPlans"],
 
                 }),
             }),
-            deleteFoods: builder.query<any[], number>({
-                query: (food_id) => ({
-                    url: `/foods/${food_id}`,
+            deleteMealPlans: builder.query<any[], number>({
+                query: (meal_plan_id) => ({
+                    url: `/meal_plans/${meal_plan_id}`,
                     method: "DELETE",
                     headers: {
                         Accept: "application/json",
                     },
-                    invalidatesTags: ["Foods"],
+                    invalidatesTags: ["MealPlans"],
 
                 }),
             }),
-            getFoodById: builder.query<any[], number>({
-                query: (food_id) => ({
-                    url: `/foods/${food_id}`,
+            getMealPlanById: builder.query<any[], number>({
+                query: (meal_plan_id) => ({
+                    url: `/meal_plans/${meal_plan_id}`,
                     method: "GET",
                     headers: {
                         Accept: "application/json",
                     },
-                    providesTags: ["Foods"],
+                    providesTags: ["MealPlans"],
 
                 }),
             }),
-            getFoodList: builder.query<any[], number>({
+            getMealPlansList: builder.query<any[], number>({
                 query: (org_id) => ({
-                    url: `/foods/list/${org_id}`,
+                    url: `/meal_plans/list/${org_id}`,
                     method: "GET",
                     headers: {
                         Accept: "application/json",
                     },
-                    providesTags: ["Foods"],
+                    providesTags: ["MealPlans"],
 
                 }),
             }),
@@ -82,5 +81,10 @@ export const Foods = apiSlice.injectEndpoints({
 });
 
 export const {
-    useGetFoodsQuery,
-} = Foods;
+    useGetMealPlansQuery,
+    useCreateMealPlansQuery,
+    useUpdateMealPlansQuery,
+    useDeleteMealPlansQuery,
+    useGetMealPlanByIdQuery,
+    useGetMealPlansListQuery,
+} = MealPlans;

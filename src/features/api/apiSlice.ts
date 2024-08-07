@@ -70,5 +70,6 @@ export const apiSlice = createApi({
     "Staffs",
     "Exercise",
     "Foods",
+    "MealPlans",
   ],
 });

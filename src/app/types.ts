@@ -380,9 +380,9 @@ export interface updateStatusInput {
   lead_id: number;
 }
 export interface MemberTabletypes {
-  data:MemberTableDatatypes[];
+  data: MemberTableDatatypes[];
   total_counts: number;
-  filtered_counts:number;
+  filtered_counts: number;
 }
 export interface MemberTableDatatypes {
   id: number;
@@ -441,7 +441,7 @@ export interface updateStatusInput {
 
 export interface getRolesType {
   name: string;
-  status?:boolean;
+  status?: boolean;
   id: number;
 }
 
@@ -550,10 +550,10 @@ interface Member {
   name: string;
 }
 
-export interface CoachTypes{
-  data:CoachTableDataTypes[],
+export interface CoachTypes {
+  data: CoachTableDataTypes[];
   total_counts: number;
-  filtered_counts: number; 
+  filtered_counts: number;
 }
 
 export interface CoachTableDataTypes {
@@ -699,8 +699,8 @@ export interface StaffResponseType {
   last_checkin?: string;
 }
 
-export interface staffTableTypes{
-  data:staffTypesResponseList[];
+export interface staffTableTypes {
+  data: staffTypesResponseList[];
   total_counts: number;
   filtered_counts: number;
 }
@@ -787,4 +787,9 @@ export interface CategoryApiResponse {
 export interface JointApiResponse {
   id: number;
   joint_name: string;
+}
+
+export interface MetApiResponse {
+  id: number;
+  met_value: string;
 }

@@ -3,14 +3,20 @@ import { z } from "zod";
 
 // Import the uploadCognitoImage function
 import { UploadCognitoImage } from "@/utils/lib/s3Service";
-// Define the Zod schema for image URL validation
-const imageUrlSchema = z.string().url();
+// Define the Zod schema for image URL and name validation
+const imageUrlSchema = z.object({
+  url: z.string(),
+  name: z.string().default("John Doe"),
+});
+
+interface ImageData {
+  url: string;
+  name: string;
+}
 
 const UseForm: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -19,34 +25,27 @@ const UseForm: React.FC = () => {
       if (validTypes.includes(file.type)) {
         setSelectedImage(file);
         setPreviewUrl(URL.createObjectURL(file));
-        setError(null);
       } else {
-        setError(
-          "Invalid image format. Only PNG, JPG, JPEG, and GIF are allowed."
-        );
+       
         setSelectedImage(null);
         setPreviewUrl(null);
       }
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: 
+    React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (selectedImage) {
       try {
-        const url = await UploadCognitoImage(selectedImage);
-
-        // Validate the URL using the Zod schema
-        const result = imageUrlSchema.safeParse(url);
-        if (result.success) {
-          setImageUrl(result.data);
-          console.log("Uploaded Image URL:", result.data);
-        } else {
-          setError("Invalid image URL received.");
-        }
+        const geturl = await UploadCognitoImage(selectedImage);
+        console.log("URL data required and add the data", geturl.data);
+        const url = geturl?.location as string;
+        // Validate the URL and name using the Zod schema
+        const schema = imageUrlSchema.safeParse({ url });
+        console.log("updated the image", schema);
       } catch (err) {
         console.error("Upload failed:", err);
-        setError("Failed to upload image. Please try again.");
       }
     }
   };
@@ -61,7 +60,6 @@ const UseForm: React.FC = () => {
           accept=".png, .jpg, .jpeg, .gif"
           onChange={handleImageChange}
         />
-        {error && <div style={{ color: "red" }}>{error}</div>}
       </div>
       {previewUrl && (
         <div>
@@ -73,14 +71,6 @@ const UseForm: React.FC = () => {
         </div>
       )}
       <button type="submit">Upload Image</button>
-      {imageUrl && (
-        <div>
-          <p>Image uploaded successfully!</p>
-          <a href={imageUrl} target="_blank" rel="noopener noreferrer">
-            View Image
-          </a>
-        </div>
-      )}
     </form>
   );
 };

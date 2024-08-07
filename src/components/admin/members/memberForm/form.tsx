@@ -93,14 +93,10 @@ import {
   useGetMemberByIdQuery,
 } from "@/services/memberAPi";
 
-import {
-  useGetCoachesQuery,
-
-} from '@/services/coachApi'
+import { useGetCoachesQuery } from "@/services/coachApi";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { useParams } from "react-router-dom";
-
-
+import { UploadCognitoImage } from "@/utils/lib/s3Service";
 enum genderEnum {
   male = "male",
   female = "female",
@@ -111,7 +107,6 @@ const coachsSchema = z.object({
   id: z.number(),
   name: z.string(),
 });
-
 
 const MemberForm: React.FC = () => {
   const { id } = useParams();
@@ -157,17 +152,14 @@ const MemberForm: React.FC = () => {
   const [counter, setCounter] = React.useState(0);
   const [initialValues, setInitialValues] =
     React.useState<MemberInputTypes>(initialState);
+
+  const [selectedImage, setSelectedImage] = React.useState<File | null>(null);
+
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   const FormSchema = z
     .object({
-      profile_img: z
-        .string()
-        .trim()
-        .default(
-          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        )
-        .optional(),
+      profile_img: z.string().trim().default("").optional(),
       own_member_id: z.string({
         required_error: "Required",
       }),
@@ -266,23 +258,40 @@ const MemberForm: React.FC = () => {
   });
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
-  const { data: coachesData } = useGetCoachesQuery({org_id:orgId,query:''});
+  const { data: coachesData } = useGetCoachesQuery({
+    org_id: orgId,
+    query: "",
+  });
   const { data: sources } = useGetAllSourceQuery();
-  const { data: membershipPlans } = useGetMembershipsQuery({ org_id: orgId, query: "" });
+  const { data: membershipPlans } = useGetMembershipsQuery({
+    org_id: orgId,
+    query: "",
+  });
   const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
   const [editMember, { isLoading: editLoading, isError }] =
     useUpdateMemberMutation();
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    const reader = new FileReader();
 
-    reader.onloadend = () => {
-      setAvatar(reader.result);
-    };
+    const validTypes = ["image/png", "image/jpg", "image/jpeg", "image/gif"];
 
-    if (file) {
+    if (file && validTypes.includes(file.type)) {
+      const reader = new FileReader();
+
+      setSelectedImage(file);
+
+      reader.onloadend = () => {
+        setAvatar(reader.result);
+      };
+
       reader.readAsDataURL(file);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error Uploading image",
+        description: "Unsupported image only Support (png/jpg/jpeg/gif)",
+      });
     }
   };
 
@@ -298,6 +307,7 @@ const MemberForm: React.FC = () => {
 
   const watcher = form.watch();
   const memberError = form.formState.errors;
+
   React.useEffect(() => {
     console.log({ memberData }, "jh");
     if (!memberData) {
@@ -308,17 +318,24 @@ const MemberForm: React.FC = () => {
         }
       }
     } else {
-      const initialValue = { ...memberData }
-      const data = membershipPlans?.filter((item) => item.id == memberData.membership_plan_id)[0];
+      const initialValue = { ...memberData };
+      const data = membershipPlans?.filter(
+        (item) => item.id == memberData.membership_plan_id
+      )[0];
       const renewalDetails = data?.renewal_details as renewalData;
       initialValue.auto_renewal = data?.auto_renewal ?? false;
       if (initialValue?.auto_renewal) {
-        initialValue.prolongation_period = renewalDetails?.prolongation_period as number | undefined ?? undefined
-        initialValue.auto_renew_days = renewalDetails?.days_before as number | undefined ?? undefined
-        initialValue.inv_days_cycle = renewalDetails?.next_invoice as number | undefined ?? undefined
+        initialValue.prolongation_period =
+          (renewalDetails?.prolongation_period as number | undefined) ??
+          undefined;
+        initialValue.auto_renew_days =
+          (renewalDetails?.days_before as number | undefined) ?? undefined;
+        initialValue.inv_days_cycle =
+          (renewalDetails?.next_invoice as number | undefined) ?? undefined;
       }
       setInitialValues(initialValue as MemberInputTypes);
       form.reset(initialValue);
+      setAvatar(initialValue.profile_img as string);
     }
   }, [memberData, memberCountData, orgName]);
 
@@ -345,24 +362,44 @@ const MemberForm: React.FC = () => {
   };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const updatedData = {
+    let updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-      coach_id:data.coach_id.map((coach) => coach.id)
+      coach_id: data.coach_id.map((coach) => coach.id),
     };
+
+    if (selectedImage) {
+      try {
+        const getUrl = await UploadCognitoImage(selectedImage);
+        updatedData = {
+          ...updatedData,
+          profile_img: getUrl?.location as string,
+        };
+      } catch (error) {
+        console.error("Upload failed:", error);
+        console.error("Upload failed:", error);
+        toast({
+          variant: "destructive",
+          title: "Image Upload Failed",
+          description: "Please try again.",
+        });
+        return;
+      }
+    }
+
     try {
       if (id == undefined || id == null) {
-        console.log({updatedData},'add');
+        console.log({ updatedData }, "add");
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
           toast({
             variant: "success",
             title: "Added Successfully ",
           });
-          navigate("/admin/members/");
+          navigate("/admin/members");
         }
       } else {
-        console.log({updatedData,id:+id},'update');
+        console.log({ updatedData, id: +id }, "update");
         const resp = await editMember({
           ...updatedData,
           id: Number(id),
@@ -400,6 +437,7 @@ const MemberForm: React.FC = () => {
 
   console.log({ watcher, memberError });
 
+  console.log("selected image", selectedImage);
   return (
     <div className="p-6 bg-bgbackground">
       <Form {...form}>
@@ -586,7 +624,11 @@ const MemberForm: React.FC = () => {
                                   mode="single"
                                   captionLayout="dropdown-buttons"
                                   selected={new Date(field.value)}
-                                  defaultMonth={field.value&&new Date(field.value)}
+                                  defaultMonth={
+                                    field.value
+                                      ? new Date(field.value)
+                                      : undefined
+                                  }
                                   onSelect={field.onChange}
                                   fromYear={1960}
                                   toYear={2030}
@@ -722,13 +764,12 @@ const MemberForm: React.FC = () => {
                   <FormField
                     control={form.control}
                     name="coach_id"
-                    
                     render={({ field }) => (
                       <FormItem>
                         <MultiSelector
                           onValuesChange={(values) => field.onChange(values)}
                           values={field.value}
-                          >
+                        >
                           <MultiSelectorTrigger className="border-[1px] border-gray-300">
                             <MultiSelectorInput
                               className="font-medium  "
@@ -910,14 +951,14 @@ const MemberForm: React.FC = () => {
                                 className={cn(
                                   "justify-between ",
                                   !field.value &&
-                                  "font-medium text-gray-400 focus:border-primary "
+                                    "font-medium text-gray-400 focus:border-primary "
                                 )}
                               >
                                 {field.value
                                   ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === field.value // Compare with numeric value
-                                  )?.country // Display country name if selected
+                                      (country: CountryTypes) =>
+                                        country.id === field.value // Compare with numeric value
+                                    )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

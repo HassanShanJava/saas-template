@@ -1,6 +1,7 @@
 import {
   StaffInputType,
   StaffResponseType,
+  staffTableTypes,
   staffTypesResponseList,
 } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
@@ -47,7 +48,7 @@ export const StaffApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Staffs"],
     }),
-    GetStaffList: builder.query<staffTypesResponseList[], staffInput>({
+    getStaffs: builder.query<staffTableTypes, staffInput>({
       query: (searchCretiria) => ({
         url: `/staff?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
         method: "GET",
@@ -88,7 +89,7 @@ export const {
   useGetStaffCountQuery,
   useGetStaffByIdQuery,
   useAddStaffMutation,
-  useGetStaffListQuery,
+  useGetStaffsQuery,
   useDeleteStaffMutation,
   useUpdateStaffMutation,
 } = StaffApi;

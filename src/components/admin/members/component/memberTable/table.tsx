@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MoreHorizontal, PlusIcon, Search } from "lucide-react";
+import { MoreHorizontal, PlusIcon, Rows, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -47,9 +47,12 @@ import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
   useGetAllMemberQuery,
-  useGetCoachesQuery,
   useGetMemberCountQuery,
 } from "@/services/memberAPi";
+import {
+  useGetCoachesQuery,
+
+} from "@/services/coachApi"
 import MemberFilters from "./data-table-filter";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
@@ -157,7 +160,7 @@ export default function MemberTableView() {
     data: coachData,
     error: coachError,
     isError: isCoachError,
-  } = useGetCoachesQuery(orgId);
+  } = useGetCoachesQuery({ org_id: orgId, query: '' });
 
   const { data: count } = useGetMemberCountQuery(orgId);
   const { data: membershipPlans } = useGetMembershipsQuery({
@@ -247,6 +250,17 @@ export default function MemberTableView() {
       enableHiding: false,
     },
     {
+      id: "id",
+      header: () => (
+        <span>S No.</span>
+      ),
+      cell: ({ row }) => (
+        <span>{row.index + 1 + (searchCretiria.offset)}.</span>
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: "own_member_id",
       header: "Member Id ",
       cell: ({ row }) => {
@@ -330,7 +344,6 @@ export default function MemberTableView() {
       accessorKey: "last_online",
       header: "Last Login",
       cell: ({ row }) => {
-        console.log(row?.original.last_online, "last_online");
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden text-black">
             {displayValue(row?.original?.last_online)}
@@ -430,6 +443,41 @@ export default function MemberTableView() {
   ];
 
   console.log({ searchCretiria });
+  // Function to go to the next page
+  const nextPage = () => {
+    setSearchCretiria(prev => ({
+      ...prev,
+      offset: prev.offset + prev.limit
+    }));
+  };
+
+  // Function to go to the previous page
+  const prevPage = () => {
+    setSearchCretiria(prev => ({
+      ...prev,
+      offset: Math.max(0, prev.offset - prev.limit)
+    }));
+  };
+
+  // Function to go to the first page
+  const firstPage = () => {
+    setSearchCretiria(prev => ({
+      ...prev,
+      offset: 0
+    }));
+  };
+
+  // Function to go to the last page (this requires knowing the total number of records)
+  const lastPage = () => {
+    // Assuming you have a total count of records (totalRecords) from your API
+    const totalRecords = memberData?.total_counts; // Replace this with actual value from API
+    const lastOffset = Math.max(0, Math.floor(totalRecords as number / searchCretiria.limit) * searchCretiria.limit);
+    setSearchCretiria(prev => ({
+      ...prev,
+      offset: lastOffset
+    }));
+  };
+
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between gap-2 px-4 py-2 ">
@@ -477,9 +525,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -546,14 +594,18 @@ export default function MemberTableView() {
           <div className="flex items-center gap-2">
             <p className="text-sm font-medium">Items per page:</p>
             <Select
-              value={pagination.pageSize.toString()}
+              value={searchCretiria.limit.toString()}
               onValueChange={(value) => {
                 const newSize = Number(value);
-                setSearchCretiria((prev) => ({ ...prev, limit: newSize }));
+                setSearchCretiria((prev) => ({
+                  ...prev,
+                  limit: newSize,
+                  offset: 0, // Reset offset when page size changes
+                }));
               }}
             >
               <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-                <SelectValue>{pagination.pageSize}</SelectValue>
+                <SelectValue>{searchCretiria.limit}</SelectValue>
               </SelectTrigger>
               <SelectContent side="bottom">
                 {[5, 10, 20, 30, 40, 50].map((pageSize) => (
@@ -564,119 +616,57 @@ export default function MemberTableView() {
               </SelectContent>
             </Select>
           </div>
-          <Separator
-            orientation="vertical"
-            className="h-11 w-[1px] bg-gray-300  "
-          />
-          {/* <div className="flex items-center gap-2">
-            <p className="text-sm font-medium">
-              {searchCretiria.offset + 1 + " of "}
-            </p>
-          </div> */}
+          <Separator orientation="vertical" className="h-11 w-[1px] bg-gray-300" />
         </div>
 
         <div className="flex items-center justify-center gap-2">
           <div className="flex items-center space-x-2">
-            <Separator
-              orientation="vertical"
-              className="hidden lg:flex h-11 w-[1px] bg-gray-300 "
-            />
+            <Separator orientation="vertical" className="hidden lg:flex h-11 w-[1px] bg-gray-300" />
 
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex border-none !!disabled:cursor-not-allowed"
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    offset: 0,
-                  };
-                })
-              }
-              disabled={searchCretiria.offset === 0}
+              className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+              onClick={firstPage}
+              disabled={searchCretiria.offet === 0}
             >
               <DoubleArrowLeftIcon className="h-4 w-4" />
             </Button>
 
-            <Separator
-              orientation="vertical"
-              className="h-11 w-[0.5px] bg-gray-300 "
-            />
+            <Separator orientation="vertical" className="h-11 w-[0.5px] bg-gray-300" />
 
             <Button
               variant="outline"
               className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    offset: prev.offset - 1,
-                  };
-                })
-              }
-              disabled={searchCretiria.offset === 0}
+              onClick={prevPage}
+              disabled={searchCretiria.offet === 0}
             >
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
-            <Separator
-              orientation="vertical"
-              className="h-11 w-[1px] bg-gray-300 "
-            />
+
+            <Separator orientation="vertical" className="h-11 w-[1px] bg-gray-300" />
 
             <Button
               variant="outline"
               className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    offset: prev.offset + 1,
-                  };
-                })
-              }
-              disabled={
-                searchCretiria.offset ==
-                Math.ceil(
-                  (count?.total_members as number) / searchCretiria.limit
-                ) -
-                  1
-              }
+              onClick={nextPage}
+              // disabled={currentPage >= totalPages - 1}
             >
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
-            <Separator
-              orientation="vertical"
-              className="hidden lg:flex h-11 w-[1px] bg-gray-300 "
-            />
+
+            <Separator orientation="vertical" className="hidden lg:flex h-11 w-[1px] bg-gray-300" />
 
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    offset:
-                      Math.ceil(
-                        (count?.total_members as number) / searchCretiria.limit
-                      ) - 1,
-                  };
-                })
-              }
-              disabled={
-                searchCretiria.offset ==
-                Math.ceil(
-                  (count?.total_members as number) / searchCretiria.limit
-                ) -
-                  1
-              }
+              onClick={lastPage}
+              // disabled={currentPage >= totalPages - 1}
             >
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
-
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
       <MemberFilters
         isOpen={openFilter}

@@ -2,6 +2,7 @@ import {
   addCoachResponseType,
   CoachInputTypes,
   CoachResponseTypeById,
+  CoachTypes,
   coachUpdateInput,
   ServerResponseById,
 } from "@/app/types";
@@ -39,23 +40,10 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
+        providesTags: ["Coaches"],
       }),
-      getMemberList: builder.query<{ id: number; name: string }[], number>({
-        query: (org_id) => ({
-          url: `/member/list/${org_id}`,
-          headers: {
-            Accept: "application/json",
-          },
-        }),
-        transformResponse: (
-          resp: { id: number; first_name: string; last_name: string }[]
-        ) =>
-          resp.map((member) => ({
-            id: member.id,
-            name: `${member.first_name} ${member.last_name}`,
-          })),
-      }),
-      getListOfCoach: builder.query<any[], coachInput>({
+      
+      getCoaches: builder.query<CoachTypes, coachInput>({
         query: (searchCretiria) => ({
           url: `/coach?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           headers: {
@@ -111,8 +99,7 @@ export const Roles = apiSlice.injectEndpoints({
 export const {
   useAddCoachMutation,
   useGetCoachCountQuery,
-  useGetMemberListQuery,
-  useGetListOfCoachQuery,
+  useGetCoachesQuery,
   useDeleteCoachMutation,
   useUpdateCoachMutation,
   useGetCoachByIdQuery,

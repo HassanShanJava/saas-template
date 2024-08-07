@@ -8,6 +8,16 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+
+import {
+  MultiSelector,
+  MultiSelectorContent,
+  MultiSelectorInput,
+  MultiSelectorItem,
+  MultiSelectorList,
+  MultiSelectorTrigger,
+} from "@/components/ui/multiselect/multiselect";
+
 import { Switch } from "@/components/ui/switch";
 import "react-phone-number-input/style.css";
 import * as React from "react";
@@ -60,6 +70,7 @@ import { RootState } from "@/app/store";
 import {
   BusinessTypes,
   CoachResponseType,
+  CoachTableDataTypes,
   CoachTypes,
   CountryTypes,
   ErrorType,
@@ -76,22 +87,31 @@ import {
   useGetAllBusinessesQuery,
   useGetAllSourceQuery,
   useGetCountriesQuery,
-  useGetCoachesQuery,
   useGetMemberCountQuery,
   useAddMemberMutation,
   useUpdateMemberMutation,
   useGetMemberByIdQuery,
 } from "@/services/memberAPi";
 
+import {
+  useGetCoachesQuery,
+
+} from '@/services/coachApi'
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { useParams } from "react-router-dom";
-import { useGetListOfCoachQuery } from "@/services/coachApi";
+
 
 enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
 }
+
+const coachsSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+});
+
 
 const MemberForm: React.FC = () => {
   const { id } = useParams();
@@ -122,7 +142,7 @@ const MemberForm: React.FC = () => {
     address_1: "",
     address_2: "",
     org_id: orgId,
-    coach_id: undefined,
+    coach_id: [] as CoachTableDataTypes[],
     membership_plan_id: undefined,
     send_invitation: true,
     status: "pending",
@@ -197,8 +217,8 @@ const MemberForm: React.FC = () => {
           required_error: "Required",
         })
         .default(orgId),
-      coach_id: z.number({
-        required_error: "Required",
+      coach_id: z.array(z.any()).nonempty({
+        message: "Required",
       }),
       membership_plan_id: z.number({
         required_error: "Required",
@@ -246,9 +266,9 @@ const MemberForm: React.FC = () => {
   });
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
-  const { data: coaches } = useGetListOfCoachQuery(orgId);
+  const { data: coachesData } = useGetCoachesQuery({org_id:orgId,query:''});
   const { data: sources } = useGetAllSourceQuery();
-  const { data: membershipPlans } = useGetMembershipsQuery({org_id:orgId, query:""});
+  const { data: membershipPlans } = useGetMembershipsQuery({ org_id: orgId, query: "" });
   const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
   const [editMember, { isLoading: editLoading, isError }] =
     useUpdateMemberMutation();
@@ -288,17 +308,17 @@ const MemberForm: React.FC = () => {
         }
       }
     } else {
-        const initialValue={...memberData}
-        const data = membershipPlans?.filter((item) => item.id == memberData.membership_plan_id)[0];
-        const renewalDetails = data?.renewal_details as renewalData;
-        initialValue.auto_renewal=data?.auto_renewal ?? false;  
-        if(initialValue?.auto_renewal){
-          initialValue.prolongation_period=renewalDetails?.prolongation_period as number| undefined ?? undefined         
-          initialValue.auto_renew_days=renewalDetails?.days_before as number| undefined ?? undefined
-          initialValue.inv_days_cycle=renewalDetails?.next_invoice as number| undefined ?? undefined
-        }
-        setInitialValues(initialValue as MemberInputTypes);
-        form.reset(initialValue);
+      const initialValue = { ...memberData }
+      const data = membershipPlans?.filter((item) => item.id == memberData.membership_plan_id)[0];
+      const renewalDetails = data?.renewal_details as renewalData;
+      initialValue.auto_renewal = data?.auto_renewal ?? false;
+      if (initialValue?.auto_renewal) {
+        initialValue.prolongation_period = renewalDetails?.prolongation_period as number | undefined ?? undefined
+        initialValue.auto_renew_days = renewalDetails?.days_before as number | undefined ?? undefined
+        initialValue.inv_days_cycle = renewalDetails?.next_invoice as number | undefined ?? undefined
+      }
+      setInitialValues(initialValue as MemberInputTypes);
+      form.reset(initialValue);
     }
   }, [memberData, memberCountData, orgName]);
 
@@ -328,9 +348,11 @@ const MemberForm: React.FC = () => {
     const updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
+      coach_id:data.coach_id.map((coach) => coach.id)
     };
     try {
       if (id == undefined || id == null) {
+        console.log({updatedData},'add');
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
           toast({
@@ -340,6 +362,7 @@ const MemberForm: React.FC = () => {
           navigate("/admin/members/");
         }
       } else {
+        console.log({updatedData,id:+id},'update');
         const resp = await editMember({
           ...updatedData,
           id: Number(id),
@@ -563,7 +586,7 @@ const MemberForm: React.FC = () => {
                                   mode="single"
                                   captionLayout="dropdown-buttons"
                                   selected={new Date(field.value)}
-                                  defaultMonth={new Date(field.value)}
+                                  defaultMonth={field.value&&new Date(field.value)}
                                   onSelect={field.onChange}
                                   fromYear={1960}
                                   toYear={2030}
@@ -699,48 +722,38 @@ const MemberForm: React.FC = () => {
                   <FormField
                     control={form.control}
                     name="coach_id"
-                    // rules={{
-                    //   validate: (value) => {
-                    //     // Ensure value is treated as a number for comparison
-                    //     return Number(value) !== 0;
-                    //   },
-                    // }}
+                    
                     render={({ field }) => (
                       <FormItem>
-                        <Select
-                          onValueChange={(value) =>
-                            field.onChange(Number(value))
-                          }
-                          value={field.value?.toString()}
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              className={"font-medium text-gray-400 "}
-                            >
-                              <SelectValue placeholder="Select Coach*" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {coaches && coaches.length > 0 ? (
-                              coaches?.map((sourceval: CoachResponseType) => {
-                                return (
-                                  <SelectItem
-                                    key={sourceval.id}
-                                    value={sourceval.id?.toString()}
+                        <MultiSelector
+                          onValuesChange={(values) => field.onChange(values)}
+                          values={field.value}
+                          >
+                          <MultiSelectorTrigger className="border-[1px] border-gray-300">
+                            <MultiSelectorInput
+                              className="font-medium  "
+                              placeholder={
+                                field.value.length == 0 ? `Select Coaches*` : ""
+                              }
+                            />
+                          </MultiSelectorTrigger>
+                          <MultiSelectorContent className="">
+                            <MultiSelectorList>
+                              {coachesData &&
+                                coachesData.data.map((user: any) => (
+                                  <MultiSelectorItem
+                                    key={user.id}
+                                    value={user}
+                                    // disabled={field.value?.length >= 5}
                                   >
-                                    {sourceval.first_name +
-                                      " " +
-                                      sourceval.last_name}
-                                  </SelectItem>
-                                );
-                              })
-                            ) : (
-                              <>
-                                <p className="p-2"> No Coach Found</p>
-                              </>
-                            )}
-                          </SelectContent>
-                        </Select>
+                                    <div className="flex items-center space-x-2">
+                                      <span>{user.first_name}</span>
+                                    </div>
+                                  </MultiSelectorItem>
+                                ))}
+                            </MultiSelectorList>
+                          </MultiSelectorContent>
+                        </MultiSelector>
                         {watcher.coach_id ? <></> : <FormMessage />}
                       </FormItem>
                     )}
@@ -897,14 +910,14 @@ const MemberForm: React.FC = () => {
                                 className={cn(
                                   "justify-between ",
                                   !field.value &&
-                                    "font-medium text-gray-400 focus:border-primary "
+                                  "font-medium text-gray-400 focus:border-primary "
                                 )}
                               >
                                 {field.value
                                   ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === field.value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                    (country: CountryTypes) =>
+                                      country.id === field.value // Compare with numeric value
+                                  )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

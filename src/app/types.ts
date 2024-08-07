@@ -334,7 +334,7 @@ export interface MemberInputTypes {
   created_at?: string | null;
   created_by?: number | null;
   org_id: number;
-  coach_id?: number;
+  coach_id?: any[];
   membership_plan_id: number | undefined;
   send_invitation?: boolean;
   status?: string;
@@ -368,7 +368,7 @@ export interface MemberResponseTypes {
   created_at?: string | null;
   created_by?: number | null;
   org_id: number;
-  coach_id?: number | null;
+  coach_id?: any[] | null;
   membership_plan_id: number | undefined;
   send_invitation?: boolean | null;
   status?: string | null;
@@ -550,6 +550,42 @@ interface Member {
   name: string;
 }
 
+export interface CoachTypes{
+  data:CoachTableDataTypes[],
+  total_counts: number;
+  filtered_counts: number; 
+}
+
+export interface CoachTableDataTypes {
+  id: number;
+  own_coach_id: string;
+  profile_img?: string;
+  first_name: string;
+  last_name: string;
+  dob: string; // ISO date string
+  gender: "male" | "female" | "other";
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  country_id: number;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  check_in?: string | null;
+  last_online?: string | null;
+  coach_since?: string | null; // ISO date string
+  coach_status: "pending" | "active" | "inactive";
+  org_id: number;
+  bank_name?: string;
+  iban_no?: string;
+  acc_holder_name?: string;
+  swift_code?: string;
+  created_at?: string;
+  member_ids: Member[];
+}
 export interface CoachResponseTypeById {
   id: number;
   own_coach_id: string;
@@ -663,6 +699,11 @@ export interface StaffResponseType {
   last_checkin?: string;
 }
 
+export interface staffTableTypes{
+  data:staffTypesResponseList[];
+  total_counts: number;
+  filtered_counts: number;
+}
 export interface staffTypesResponseList {
   own_staff_id: string;
   profile_img?: string;

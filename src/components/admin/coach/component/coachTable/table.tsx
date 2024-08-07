@@ -55,7 +55,7 @@ import { DataTableFacetedFilter } from "./data-table-faced-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetAllMemberQuery } from "@/services/memberAPi";
 import {
-  useGetListOfCoachQuery,
+  useGetCoachesQuery,
   useUpdateCoachMutation,
 } from "@/services/coachApi";
 import { CoachTableTypes, ErrorType } from "@/app/types";
@@ -142,7 +142,7 @@ export default function CoachTableView() {
     isLoading,
     refetch,
     error,
-  } = useGetListOfCoachQuery({ org_id: orgId, query: query },
+  } = useGetCoachesQuery({ org_id: orgId, query: query },
     {
       skip: query == "",
     });
@@ -154,7 +154,7 @@ export default function CoachTableView() {
     navigate("/admin/coach/addcoach");
   }
   const coachTableData = React.useMemo(() => {
-    return Array.isArray(coachData) ? coachData : [];
+    return Array.isArray(coachData?.data) ? coachData.data : [];
   }, [coachData]);
   const { toast } = useToast();
   console.log("data", { coachData, error });

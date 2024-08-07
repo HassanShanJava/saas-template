@@ -838,3 +838,8 @@ export interface JointApiResponse {
   id: number;
   joint_name: string;
 }
+
+export interface MetApiResponse {
+  id: number;
+  met_value: string;
+}

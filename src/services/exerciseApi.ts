@@ -5,11 +5,27 @@ import {
   muscleserverResponse,
   CategoryApiResponse,
   JointApiResponse,
+  MetApiResponse,
 } from "@/app/types";
 
 export const Exercise = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
+      getAllMet: builder.query<baseExerciseApiResponse[], void>({
+        query: () => ({
+          url: "/exercise/met",
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        transformResponse: (resp: MetApiResponse[]) =>
+          resp.map((met) => ({
+            id: met.id,
+            name: met.met_value,
+          })),
+        providesTags: ["Exercise"],
+      }),
       getAllMuscle: builder.query<baseExerciseApiResponse[], void>({
         query: () => ({
           url: "/exercise/muscles",
@@ -75,6 +91,7 @@ export const Exercise = apiSlice.injectEndpoints({
 });
 
 export const {
+  useGetAllMetQuery,
   useGetAllMuscleQuery,
   useGetAllEquipmentsQuery,
   useGetAllCategoryQuery,

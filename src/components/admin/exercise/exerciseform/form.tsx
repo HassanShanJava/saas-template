@@ -69,6 +69,7 @@ import {
   useGetAllCategoryQuery,
   useGetAllEquipmentsQuery,
   useGetAllJointsQuery,
+  useGetAllMetQuery,
   useGetAllMuscleQuery,
 } from "@/services/exerciseApi";
 import { UploadCognitoImage } from "@/utils/lib/s3Service";
@@ -112,7 +113,6 @@ const ExericeForm: React.FC = () => {
     femaleImage: "",
     maleThumbnail: "",
     femaleThumbnail: "",
-
   });
   const [entries, setEntries] = React.useState([{ time: "", restTime: "" }]);
   const [errors, setErrors] = React.useState<z.ZodError | null>(null);
@@ -123,13 +123,12 @@ const ExericeForm: React.FC = () => {
   const { data: EquipmentData } = useGetAllEquipmentsQuery();
   const { data: MuscleData } = useGetAllMuscleQuery();
   const { data: JointsData } = useGetAllJointsQuery();
+  const { data: MetsData } = useGetAllMetQuery();
 
   const baseScehmaExercise = z.object({
     id: z.number(),
     name: z.string(),
   });
-
-
 
   const FormSchema = z.object({
     exercise_name: z.string({
@@ -182,7 +181,7 @@ const ExericeForm: React.FC = () => {
       .nativeEnum(IntensityEnum)
       .default(IntensityEnum.maxIntensity),
     irmValue: z.number().optional(),
-    met:z.coerce.number().optional()
+    met: z.coerce.number().optional(),
     // met: z.coerce
     //   .number({
     //     required_error: "Required",
@@ -211,7 +210,11 @@ const ExericeForm: React.FC = () => {
 
   const watcher = form.watch();
 
-  type ImageType = 'maleImage' | 'femaleImage' | 'maleThumbnail' | 'femaleThumbnail';
+  type ImageType =
+    | "maleImage"
+    | "femaleImage"
+    | "maleThumbnail"
+    | "femaleThumbnail";
 
   // const handleImageChange = (
   //   e: React.ChangeEvent<HTMLInputElement>,
@@ -243,7 +246,7 @@ const ExericeForm: React.FC = () => {
       }));
     }
   };
-  
+
   const handleChange = (
     index: number,
     field: "time" | "restTime",
@@ -265,26 +268,31 @@ const ExericeForm: React.FC = () => {
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     // if()
-    const uploadResults = await Promise.all(Object.entries(images).map(async ([key, file]) => {
-      if (file) {
-        const result = await UploadCognitoImage(file);
-        if (result.success) {
-          return { key, url: result.location };
-        } else {
-          // setUploadStatus((prev) => prev ? `${prev}\n${key} upload failed: ${result.message}` : `${key} upload failed: ${result.message}`);
-          return null;
+    const uploadResults = await Promise.all(
+      Object.entries(images).map(async ([key, file]) => {
+        if (file) {
+          const result = await UploadCognitoImage(file);
+          if (result.success) {
+            return { key, url: result.location };
+          } else {
+            // setUploadStatus((prev) => prev ? `${prev}\n${key} upload failed: ${result.message}` : `${key} upload failed: ${result.message}`);
+            return null;
+          }
         }
-      }
-      return { key, url: null };
-    }));
+        return { key, url: null };
+      })
+    );
 
     // Build the URL object and log it to the console
-    const urls = uploadResults.reduce((acc, result) => {
-      if (result && result.url) {
-        acc[result.key] = result.url;
-      }
-      return acc;
-    }, {} as { [key: string]: string });
+    const urls = uploadResults.reduce(
+      (acc, result) => {
+        if (result && result.url) {
+          acc[result.key] = result.url;
+        }
+        return acc;
+      },
+      {} as { [key: string]: string }
+    );
 
     // Log URLs to the console
     console.log("Uploaded image URLs:", urls);
@@ -305,8 +313,8 @@ const ExericeForm: React.FC = () => {
       //     });
     }
     try {
-      console.log(data)
-      console.log("images",images)
+      console.log(data);
+      console.log("images", images);
       // if (true) {
       //   toast({
       //     variant: "success",
@@ -811,126 +819,161 @@ const ExericeForm: React.FC = () => {
                 </div>
               </div> */}
 
-<div className="w-4/5 flex justify-start gap-4 items-start">
-      <div className="grid grid-cols-2 gap-4 mt-6">
-        {/* Images Section */}
-        <div>
-          <h3 className="text-lg font-semibold">Images</h3>
-          <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
-            {/* Male Image */}
-            <div className="justify-center items-center flex flex-col">
-              <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-                {images.maleImage ? (
-                  <img src={previewUrls.maleImage} alt="Male" className="h-full w-full object-cover" />
-                ) : (
-                  <ImageIcon className="w-12 h-12 text-gray-400" />
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                className="mt-2 gap-2 border-dashed border-2 text-xs"
-              >
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  id="male-image-upload"
-                  onChange={(e) => handleImageChange(e, 'maleImage')}
-                />
-                <label htmlFor="male-image-upload" className="cursor-pointer flex items-center gap-2">
-                  <FiUpload className="text-primary w-5 h-5" /> Image - Male
-                </label>
-              </Button>
-            </div>
-            {/* Female Image */}
-            <div className="justify-center items-center flex flex-col">
-              <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-                {images.femaleImage ? (
-                  <img src={previewUrls.femaleImage} alt="Female" className="h-full w-full object-cover" />
-                ) : (
-                  <ImageIcon className="w-12 h-12 text-gray-400" />
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                className="gap-2 mt-2 text-xs border-dashed border-2"
-              >
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  id="female-image-upload"
-                  onChange={(e) => handleImageChange(e, 'femaleImage')}
-                />
-                <label htmlFor="female-image-upload" className="cursor-pointer flex items-center gap-2">
-                  <FiUpload className="text-primary w-5 h-5" />
-                  Image - Female
-                </label>
-              </Button>
-            </div>
-          </div>
-        </div>
+              <div className="w-4/5 flex justify-start gap-4 items-start">
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  {/* Images Section */}
+                  <div>
+                    <h3 className="text-lg font-semibold">Images</h3>
+                    <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
+                      {/* Male Image */}
+                      <div className="justify-center items-center flex flex-col">
+                        <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                          {images.maleImage ? (
+                            <img
+                              src={previewUrls.maleImage}
+                              alt="Male"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <ImageIcon className="w-12 h-12 text-gray-400" />
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="mt-2 gap-2 border-dashed border-2 text-xs"
+                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            id="male-image-upload"
+                            onChange={(e) => handleImageChange(e, "maleImage")}
+                          />
+                          <label
+                            htmlFor="male-image-upload"
+                            className="cursor-pointer flex items-center gap-2"
+                          >
+                            <FiUpload className="text-primary w-5 h-5" /> Image
+                            - Male
+                          </label>
+                        </Button>
+                      </div>
+                      {/* Female Image */}
+                      <div className="justify-center items-center flex flex-col">
+                        <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                          {images.femaleImage ? (
+                            <img
+                              src={previewUrls.femaleImage}
+                              alt="Female"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <ImageIcon className="w-12 h-12 text-gray-400" />
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="gap-2 mt-2 text-xs border-dashed border-2"
+                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            id="female-image-upload"
+                            onChange={(e) =>
+                              handleImageChange(e, "femaleImage")
+                            }
+                          />
+                          <label
+                            htmlFor="female-image-upload"
+                            className="cursor-pointer flex items-center gap-2"
+                          >
+                            <FiUpload className="text-primary w-5 h-5" />
+                            Image - Female
+                          </label>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
 
-        {/* Thumbnails Section */}
-        <div>
-          <h3 className="text-lg font-semibold">Thumbnail</h3>
-          <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
-            {/* Male Thumbnail */}
-            <div className="justify-center items-center flex flex-col">
-              <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-                {images.maleThumbnail ? (
-                  <img src={previewUrls.maleThumbnail} alt="Male Thumbnail" className="h-full w-full object-cover" />
-                ) : (
-                  <ImageIcon className="w-12 h-12 text-gray-400" />
-                )}
+                  {/* Thumbnails Section */}
+                  <div>
+                    <h3 className="text-lg font-semibold">Thumbnail</h3>
+                    <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
+                      {/* Male Thumbnail */}
+                      <div className="justify-center items-center flex flex-col">
+                        <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                          {images.maleThumbnail ? (
+                            <img
+                              src={previewUrls.maleThumbnail}
+                              alt="Male Thumbnail"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <ImageIcon className="w-12 h-12 text-gray-400" />
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="mt-2 text-xs border-dashed gap-2 border-2"
+                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            id="male-thumbnail-upload"
+                            onChange={(e) =>
+                              handleImageChange(e, "maleThumbnail")
+                            }
+                          />
+                          <label
+                            htmlFor="male-thumbnail-upload"
+                            className="cursor-pointer flex items-center gap-2"
+                          >
+                            <FiUpload className="text-primary w-5 h-5" />
+                            Thumbnail - Male
+                          </label>
+                        </Button>
+                      </div>
+                      {/* Female Thumbnail */}
+                      <div className="justify-center items-center flex flex-col">
+                        <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                          {images.femaleThumbnail ? (
+                            <img
+                              src={previewUrls.femaleThumbnail}
+                              alt="Female Thumbnail"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <ImageIcon className="w-12 h-12 text-gray-400" />
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="mt-2 text-xs gap-2 border-dashed border-2"
+                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            id="female-thumbnail-upload"
+                            onChange={(e) =>
+                              handleImageChange(e, "femaleThumbnail")
+                            }
+                          />
+                          <label
+                            htmlFor="female-thumbnail-upload"
+                            className="cursor-pointer flex items-center gap-2"
+                          >
+                            <FiUpload className="text-primary w-5 h-5" />
+                            Thumbnail - Female
+                          </label>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <Button
-                variant="ghost"
-                className="mt-2 text-xs border-dashed gap-2 border-2"
-              >
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  id="male-thumbnail-upload"
-                  onChange={(e) => handleImageChange(e, 'maleThumbnail')}
-                />
-                <label htmlFor="male-thumbnail-upload" className="cursor-pointer flex items-center gap-2">
-                  <FiUpload className="text-primary w-5 h-5" />
-                  Thumbnail - Male
-                </label>
-              </Button>
-            </div>
-            {/* Female Thumbnail */}
-            <div className="justify-center items-center flex flex-col">
-              <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-                {images.femaleThumbnail ? (
-                  <img src={previewUrls.femaleThumbnail} alt="Female Thumbnail" className="h-full w-full object-cover" />
-                ) : (
-                  <ImageIcon className="w-12 h-12 text-gray-400" />
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                className="mt-2 text-xs gap-2 border-dashed border-2"
-              >
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  id="female-thumbnail-upload"
-                  onChange={(e) => handleImageChange(e, 'femaleThumbnail')}
-                />
-                <label htmlFor="female-thumbnail-upload" className="cursor-pointer flex items-center gap-2">
-                  <FiUpload className="text-primary w-5 h-5" />
-                  Thumbnail - Female
-                </label>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
               <div className="w-full flex gap-3 justify-start items-center">
                 <div className="relative">
                   <FormField
@@ -1065,10 +1108,9 @@ const ExericeForm: React.FC = () => {
                                         )}
                                       >
                                         {field.value
-                                          ? CategoryData?.find(
-                                              (
-                                                category: baseExerciseApiResponse
-                                              ) => category.id === field.value // Compare with numeric value
+                                          ? MetsData?.find(
+                                              (mets: baseExerciseApiResponse) =>
+                                                mets.id === field.value // Compare with numeric value
                                             )?.name // Display category name if selected
                                           : "MET"}
                                         <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -1083,31 +1125,30 @@ const ExericeForm: React.FC = () => {
                                           No Metabolism found.
                                         </CommandEmpty>
                                         <CommandGroup>
-                                          {CategoryData &&
-                                            CategoryData.map(
+                                          {MetsData &&
+                                            MetsData.map(
                                               (
-                                                Category: baseExerciseApiResponse
+                                                mets: baseExerciseApiResponse
                                               ) => (
                                                 <CommandItem
-                                                  value={Category.name}
-                                                  key={Category.id}
+                                                  value={mets.name}
+                                                  key={mets.id}
                                                   onSelect={() => {
                                                     form.setValue(
                                                       "met",
-                                                      Category.id
+                                                      mets.id
                                                     );
                                                   }}
                                                 >
                                                   <Check
                                                     className={cn(
                                                       "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                                      Category.id ===
-                                                        field.value
+                                                      mets.id === field.value
                                                         ? "opacity-100"
                                                         : "opacity-0"
                                                     )}
                                                   />
-                                                  {Category.name}{" "}
+                                                  {mets.name}{" "}
                                                 </CommandItem>
                                               )
                                             )}
@@ -1116,7 +1157,7 @@ const ExericeForm: React.FC = () => {
                                     </Command>
                                   </PopoverContent>
                                 </Popover>
-                                {watcher.category_id ? <></> : <FormMessage />}
+                                {watcher.met ? <></> : <FormMessage />}
                               </FormItem>
                             )}
                           />
@@ -1144,7 +1185,6 @@ const ExericeForm: React.FC = () => {
                                   {...field}
                                   id="speed"
                                   type="number"
-
                                   label="speed"
                                 />
                                 {watcher.speed ? <></> : <FormMessage />}
@@ -1172,7 +1212,7 @@ const ExericeForm: React.FC = () => {
                                     value={value} // Use the enum value here
                                     checked={field.value === value}
                                     onChange={field.onChange}
-                                    className="mr-2 checked:bg-primary"
+                                    className="mr-2 checked:bg-primary "
                                   />
                                   {value}
                                 </label>

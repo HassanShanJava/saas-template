@@ -49,11 +49,7 @@ import {
   useGetAllMemberQuery,
   useGetMemberCountQuery,
 } from "@/services/memberAPi";
-import {
-  useGetCoachesQuery,
-  useGetCoachListQuery,
-
-} from "@/services/coachApi"
+import { useGetCoachesQuery, useGetCoachListQuery } from "@/services/coachApi";
 import MemberFilters from "./data-table-filter";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
@@ -85,7 +81,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key:"created_at",
+  sort_key: "created_at",
 };
 
 export default function MemberTableView() {
@@ -149,9 +145,7 @@ export default function MemberTableView() {
     }
   );
 
-
   const { data: coachesData } = useGetCoachListQuery(orgId);
-
 
   const { data: count } = useGetMemberCountQuery(orgId);
   const { data: membershipPlans } = useGetMembershipsQuery({
@@ -165,7 +159,8 @@ export default function MemberTableView() {
       const typedError = error as ErrorType;
       toast({
         variant: "destructive",
-        title: typedError.data?.detail,
+        title: "Error",
+        description: typedError.data?.detail ?? "Internal Server Errors",
       });
     }
   }, [isError]);
@@ -301,13 +296,13 @@ export default function MemberTableView() {
       accessorKey: "coaches",
       header: "Coach",
       cell: ({ row }) => {
-
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             <div>
-              {row.original.coaches && row.original.coaches.map((coach) => (
-                <p className="text-sm">{displayValue(coach.name)}</p>
-              ))}
+              {row.original.coaches &&
+                row.original.coaches.map((coach) => (
+                  <p className="text-sm">{displayValue(coach.name)}</p>
+                ))}
             </div>
           </div>
         );
@@ -435,41 +430,44 @@ export default function MemberTableView() {
   console.log({ searchCretiria });
   // Function to go to the next page
 
-  const totalRecords = memberData?.total_counts || 0
-  const lastPageOffset = Math.max(0, Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit);
+  const totalRecords = memberData?.total_counts || 0;
+  const lastPageOffset = Math.max(
+    0,
+    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+  );
   const isLastPage = searchCretiria.offset >= lastPageOffset;
 
   const nextPage = () => {
     if (!isLastPage) {
-      setSearchCretiria(prev => ({
+      setSearchCretiria((prev) => ({
         ...prev,
-        offset: prev.offset + prev.limit
+        offset: prev.offset + prev.limit,
       }));
     }
   };
 
   // Function to go to the previous page
   const prevPage = () => {
-    setSearchCretiria(prev => ({
+    setSearchCretiria((prev) => ({
       ...prev,
-      offset: Math.max(0, prev.offset - prev.limit)
+      offset: Math.max(0, prev.offset - prev.limit),
     }));
   };
 
   // Function to go to the first page
   const firstPage = () => {
-    setSearchCretiria(prev => ({
+    setSearchCretiria((prev) => ({
       ...prev,
-      offset: 0
+      offset: 0,
     }));
   };
 
   // Function to go to the last page
   const lastPage = () => {
     if (!isLastPage) {
-      setSearchCretiria(prev => ({
+      setSearchCretiria((prev) => ({
         ...prev,
-        offset: lastPageOffset
+        offset: lastPageOffset,
       }));
     }
   };
@@ -521,9 +519,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -612,13 +610,22 @@ export default function MemberTableView() {
               </SelectContent>
             </Select>
           </div>
-          <Separator orientation="vertical" className="h-11 w-[1px] bg-gray-300" />
-          <span> {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${memberData?.filtered_counts} Items  `}</span>
+          <Separator
+            orientation="vertical"
+            className="h-11 w-[1px] bg-gray-300"
+          />
+          <span>
+            {" "}
+            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${memberData?.filtered_counts} Items  `}
+          </span>
         </div>
 
         <div className="flex items-center justify-center gap-2">
           <div className="flex items-center space-x-2">
-            <Separator orientation="vertical" className="hidden lg:flex h-11 w-[1px] bg-gray-300" />
+            <Separator
+              orientation="vertical"
+              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+            />
 
             <Button
               variant="outline"
@@ -629,7 +636,10 @@ export default function MemberTableView() {
               <DoubleArrowLeftIcon className="h-4 w-4" />
             </Button>
 
-            <Separator orientation="vertical" className="h-11 w-[0.5px] bg-gray-300" />
+            <Separator
+              orientation="vertical"
+              className="h-11 w-[0.5px] bg-gray-300"
+            />
 
             <Button
               variant="outline"
@@ -640,7 +650,10 @@ export default function MemberTableView() {
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
 
-            <Separator orientation="vertical" className="h-11 w-[1px] bg-gray-300" />
+            <Separator
+              orientation="vertical"
+              className="h-11 w-[1px] bg-gray-300"
+            />
 
             <Button
               variant="outline"
@@ -651,7 +664,10 @@ export default function MemberTableView() {
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
 
-            <Separator orientation="vertical" className="hidden lg:flex h-11 w-[1px] bg-gray-300" />
+            <Separator
+              orientation="vertical"
+              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+            />
 
             <Button
               variant="outline"

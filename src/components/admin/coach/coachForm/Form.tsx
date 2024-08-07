@@ -78,9 +78,8 @@ import {
   useUpdateCoachMutation,
 } from "@/services/coachApi";
 
-import {
-  useGetMembersListQuery,
-} from "@/services/memberAPi"
+import { useGetMembersListQuery } from "@/services/memberAPi";
+import { UploadCognitoImage } from "@/utils/lib/s3Service";
 
 const CoachForm: React.FC = () => {
   const { id } = useParams();
@@ -103,8 +102,7 @@ const CoachForm: React.FC = () => {
   });
 
   const initialState: CoachInputTypes = {
-    profile_img:
-      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+    profile_img: "",
     own_coach_id: "",
     first_name: "",
     last_name: "",
@@ -129,13 +127,7 @@ const CoachForm: React.FC = () => {
     member_ids: [] as z.infer<typeof membersSchema>[], // Correct placement of brackets
   };
   const FormSchema = z.object({
-    profile_img: z
-      .string()
-      .trim()
-      .default(
-        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-      )
-      .optional(),
+    profile_img: z.string().trim().default("").optional(),
     own_coach_id: z.string({
       required_error: "Required",
     }),
@@ -238,18 +230,32 @@ const CoachForm: React.FC = () => {
   const navigate = useNavigate();
   const [initialValues, setInitialValues] =
     React.useState<CoachInputTypes>(initialState);
+
+  const [selectedImage, setSelectedImage] = React.useState<File | null>(null);
+
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    const reader = new FileReader();
 
-    reader.onloadend = () => {
-      setAvatar(reader.result);
-    };
+    const validTypes = ["image/png", "image/jpg", "image/jpeg", "image/gif"];
 
-    if (file) {
+    if (file && validTypes.includes(file.type)) {
+      const reader = new FileReader();
+
+      setSelectedImage(file);
+
+      reader.onloadend = () => {
+        setAvatar(reader.result);
+      };
+
       reader.readAsDataURL(file);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error Uploading image",
+        description: "Unsupported image only Support (png/jpg/jpeg/gif)",
+      });
     }
   };
 
@@ -268,7 +274,7 @@ const CoachForm: React.FC = () => {
   const watcher = form.watch();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const updatedData = {
+    let updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
       member_ids: data.member_ids.map((member) => member.id),
@@ -276,7 +282,23 @@ const CoachForm: React.FC = () => {
 
     console.log("Updated data with only date:", updatedData);
     console.log("only once", data);
-
+      if (selectedImage) {
+        try {
+          const getUrl = await UploadCognitoImage(selectedImage);
+          updatedData = {
+            ...updatedData,
+            profile_img: getUrl?.location as string,
+          };
+        } catch (error) {
+          console.error("Upload failed:", error);
+          toast({
+            variant: "destructive",
+            title: "Image Upload Failed",
+            description: "Please try again.",
+          });
+          return;
+        }
+      }
     try {
       if (id == undefined || id == null) {
         const resp = await addCoach(updatedData).unwrap();
@@ -334,6 +356,7 @@ const CoachForm: React.FC = () => {
     } else {
       setInitialValues(EditCoachData as CoachInputTypes);
       form.reset(EditCoachData);
+      setAvatar(EditCoachData.profile_img as string);
     }
   }, [EditCoachData, coachCountData, orgName]);
 

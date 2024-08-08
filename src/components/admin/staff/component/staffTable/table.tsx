@@ -63,6 +63,7 @@ import { statusEnum } from "../../staffForm/form";
 import { useDebounce } from "@/hooks/use-debounce";
 import StaffFilters from "./data-table-filter";
 import { Separator } from "@/components/ui/separator";
+import { useGetRolesQuery } from "@/services/rolesApi";
 
 const downloadCSV = (data: staffTypesResponseList[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -105,6 +106,14 @@ export default function StaffTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const navigate = useNavigate();
+
+  const {
+    data: rolesData,
+    isLoading: rolesLoading,
+    refetch: rolesRefetch,
+    error: rolesError,
+  } = useGetRolesQuery(orgId);
+
 
   const [searchCretiria, setSearchCretiria] =
     useState<searchCretiriaType>(initialValue);
@@ -447,6 +456,13 @@ export default function StaffTableView() {
       status: value,
     }));
   }
+  
+  function handleRoleName(value: string) {
+    setFilter((prev) => ({
+      ...prev,
+      role_name: value,
+    }));
+  }
 
   const filterDisplay = [
     {
@@ -459,6 +475,13 @@ export default function StaffTableView() {
         { id: "active", name: "Active" },
       ],
       function: handleStaffStatus,
+    },
+    {
+      type: "select",
+      name: "role_name",
+      label: "Role Name",
+      options: rolesData&&rolesData.map(role=>({id:role.name, name:role.name})),
+      function: handleRoleName,
     },
   ];
 

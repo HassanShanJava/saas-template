@@ -42,7 +42,6 @@ export const Roles = apiSlice.injectEndpoints({
         }),
         providesTags: ["Coaches"],
       }),
-      
       getCoaches: builder.query<CoachTypes, coachInput>({
         query: (searchCretiria) => ({
           url: `/coach?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
@@ -92,7 +91,6 @@ export const Roles = apiSlice.injectEndpoints({
         },
         providesTags: (result, error, arg) => [{ type: "Coaches", id: arg }],
       }),
-      
       getCoachList: builder.query<{id:number, name:string}[], number>({
         query: (org_id) => ({
           url: `/coach/list/${org_id}`,

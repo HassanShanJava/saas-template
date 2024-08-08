@@ -54,6 +54,7 @@ import MemberFilters from "./data-table-filter";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { Separator } from "@/components/ui/separator";
+import MemberForm from "../../memberForm/form";
 
 const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -70,7 +71,7 @@ interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
-  sort_key: string;
+  sort_key?: string;
   client_name?: string;
   status?: string;
   membership_plan?: string;
@@ -81,10 +82,11 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key: "created_at",
+  // sort_key: "created_at",
 };
 
 export default function MemberTableView() {
+  const [isOpen, setOpen] = useState(false)
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCretiria, setSearchCretiria] =
@@ -181,6 +183,7 @@ export default function MemberTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
+  const [data, setData] = useState<MemberTableDatatypes>(undefined);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10, // Adjust this based on your preference
@@ -210,6 +213,13 @@ export default function MemberTableView() {
     }
     downloadCSV(selectedRows, "members_list.csv");
   };
+
+
+  const handleEditMember=(data:MemberTableDatatypes)=>{
+    setData(data as MemberTableDatatypes);
+    setOpen(true);
+  }
+
   const columns: ColumnDef<MemberTableDatatypes>[] = [
     {
       id: "select",
@@ -349,6 +359,7 @@ export default function MemberTableView() {
           row={row.original.id}
           data={row?.original}
           refetch={refetch}
+          handleEditMember={handleEditMember}
         />
       ),
     },
@@ -519,9 +530,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -690,6 +701,7 @@ export default function MemberTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
+      <MemberForm isOpen={isOpen} setOpen={setOpen} data={data} />
     </div>
   );
 }

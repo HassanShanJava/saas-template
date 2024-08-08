@@ -54,6 +54,8 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetAllMemberQuery } from "@/services/memberAPi";
 import { ErrorType } from "@/app/types";
 import { DataTableViewOptions } from "./data-table-view-options";
+import { useDebounce } from "@/hooks/use-debounce";
+import { useGetAllExercisesQuery } from "@/services/exerciseApi";
 
 const downloadCSV = (data: any[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -70,10 +72,7 @@ interface searchCretiriaType {
   offset: number;
   sort_order: string;
   sort_key?: string;
-  client_name?: string;
-  status?: string;
-  membership_plan?: string;
-  coach_asigned?: string;
+  search_key?: string;
 }
 const initialValue = {
   limit: 10,
@@ -83,10 +82,80 @@ const initialValue = {
 };
 
 export default function ExerciseTableView() {
+  const [isOpen, setOpen] = useState(false);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const navigate = useNavigate();
+  
+    const [searchCretiria, setSearchCretiria] =
+  useState<searchCretiriaType>(initialValue);
 
+  const [query, setQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [openFilter, setOpenFilter] = useState(false);
+  const debouncedInputValue = useDebounce(inputValue, 500);
+  const [filterData, setFilter] = useState({});
+
+
+  React.useEffect(() => {
+    setSearchCretiria((prev) => {
+      const newCriteria = { ...prev };
+
+      if (debouncedInputValue.trim() !== "") {
+        newCriteria.search_key = debouncedInputValue;
+      } else {
+        delete newCriteria.search_key;
+      }
+
+      return newCriteria;
+    });
+    console.log({ debouncedInputValue });
+  }, [debouncedInputValue, setSearchCretiria]);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchCretiria)) {
+      console.log({ key, value });
+      if (value !== undefined && value !== null) {
+        params.append(key, value);
+      }
+    }
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery);
+  }, [searchCretiria]);
+
+  const toggleSortOrder = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
+    }));
+  };
+
+
+
+  const {
+    data: exercisedata,
+    isLoading,
+    refetch,
+    error,
+    isError,
+  } =useGetAllExercisesQuery({
+    org_id:orgId, query:query
+  },{
+    skip:query==""
+  })
+
+  React.useEffect(() => {
+    if (isError) {
+      const typedError = error as ErrorType;
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: typedError.data?.detail ?? "Internal Server Errors",
+      });
+    }
+  }, [isError]);
+  const navigate = useNavigate();
   function handleRoute() {
     navigate("/admin/exercise/addexercise");
   }
@@ -94,11 +163,8 @@ export default function ExerciseTableView() {
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
-  const [searchCretiria, setSearchCretiria] =
-  useState<searchCretiriaType>(initialValue);
+
   const [filters, setFilters] = useState<"">();
-  const [openFilter, setOpenFilter] = useState(false);
-  const [filterData, setFilter] = useState({});
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});

@@ -125,7 +125,7 @@ export const Exercise = apiSlice.injectEndpoints({
       }),
       deleteExercise: builder.mutation<
         deleteExerciseResponse,
-        deleteExerciseInput
+        number
       >({
         query: (ExerciseId) => ({
           url: `/exercise/${ExerciseId}`,
@@ -170,4 +170,8 @@ export const {
   useGetAllCategoryQuery,
   useGetAllJointsQuery,
   useAddExerciseMutation,
+  useGetAllExercisesQuery,
+  useDeleteExerciseMutation,
+  useUpdateExerciseMutation,
+  useGetExerciseByIdQuery
 } = Exercise;

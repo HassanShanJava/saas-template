@@ -87,8 +87,8 @@ const downloadCSV = (data: creditTablestypes[], fileName: string) => {
 };
 
 const status = [
-  { value: "true", label: "Active", color: "bg-green-500" },
-  { value: "false", label: "Inactive", color: "bg-blue-500" },
+  { value: "active", label: "Active", color: "bg-green-500" },
+  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
 ];
 
 interface searchCretiriaType {
@@ -147,7 +147,7 @@ export default function CreditsTableView() {
   const handleCloseDailog = () => setIsDialogOpen(false);
 
   const [formData, setFormData] = useState<createFormData>({
-    status: true,
+    status: 'active',
     name: "",
     min_limit: 1,
     org_id: orgId,
@@ -169,7 +169,7 @@ export default function CreditsTableView() {
 
   const handleStatusOnChange = (value: string) => {
     setFormData((prevData) => {
-      const updatedData = { ...prevData, status: value === "true" };
+      const updatedData = { ...prevData, status: value };
       console.log("After update:", updatedData);
       return updatedData;
     });
@@ -212,7 +212,7 @@ export default function CreditsTableView() {
   };
 
   const creditstableData = React.useMemo(() => {
-    return Array.isArray(creditsData) ? creditsData : [];
+    return Array.isArray(creditsData?.data) ? creditsData?.data : [];
   }, [creditsData]);
 
   const { toast } = useToast();
@@ -366,47 +366,47 @@ export default function CreditsTableView() {
     setIsDialogOpen(true);
   };
 
-  // const totalRecords = membershipsData?.total_counts || 0;
-  // const lastPageOffset = Math.max(
-  //   0,
-  //   Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
-  // );
-  // const isLastPage = searchCretiria.offset >= lastPageOffset;
+  const totalRecords = creditsData?.total_counts || 0;
+  const lastPageOffset = Math.max(
+    0,
+    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+  );
+  const isLastPage = searchCretiria.offset >= lastPageOffset;
 
-  // const nextPage = () => {
-  //   if (!isLastPage) {
-  //     setSearchCretiria((prev) => ({
-  //       ...prev,
-  //       offset: prev.offset + prev.limit,
-  //     }));
-  //   }
-  // };
+  const nextPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria((prev) => ({
+        ...prev,
+        offset: prev.offset + prev.limit,
+      }));
+    }
+  };
 
-  // // Function to go to the previous page
-  // const prevPage = () => {
-  //   setSearchCretiria((prev) => ({
-  //     ...prev,
-  //     offset: Math.max(0, prev.offset - prev.limit),
-  //   }));
-  // };
+  // Function to go to the previous page
+  const prevPage = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      offset: Math.max(0, prev.offset - prev.limit),
+    }));
+  };
 
-  // // Function to go to the first page
-  // const firstPage = () => {
-  //   setSearchCretiria((prev) => ({
-  //     ...prev,
-  //     offset: 0,
-  //   }));
-  // };
+  // Function to go to the first page
+  const firstPage = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      offset: 0,
+    }));
+  };
 
-  // // Function to go to the last page
-  // const lastPage = () => {
-  //   if (!isLastPage) {
-  //     setSearchCretiria((prev) => ({
-  //       ...prev,
-  //       offset: lastPageOffset,
-  //     }));
-  //   }
-  // };
+  // Function to go to the last page
+  const lastPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria((prev) => ({
+        ...prev,
+        offset: lastPageOffset,
+      }));
+    }
+  };
 
   return (
     <div className="w-full space-y-4">
@@ -525,7 +525,7 @@ export default function CreditsTableView() {
       </div>
 
       {/* pagination */}
-      {/* <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
         <div className="flex items-center justify-center gap-2">
           <div className="flex items-center gap-2">
             <p className="text-sm font-medium">Items per page:</p>
@@ -558,7 +558,7 @@ export default function CreditsTableView() {
           />
           <span>
             {" "}
-            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${memberData?.filtered_counts} Items  `}
+            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${creditsData?.filtered_counts} Items  `}
           </span>
         </div>
 
@@ -621,7 +621,8 @@ export default function CreditsTableView() {
             </Button>
           </div>
         </div>
-      </div> */}
+      </div>
+      
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
       
       <CreditForm
@@ -638,7 +639,7 @@ export default function CreditsTableView() {
 }
 
 interface createFormData {
-  status: boolean;
+  status: string;
   name: string;
   min_limit: number;
   org_id: number;
@@ -680,7 +681,7 @@ const CreditForm = ({
   const creditFormSchema = z.object({
     id: z.number().optional(),
     org_id: z.number(),
-    status: z.boolean(),
+    status: z.string(),
     name: z.string().min(1, { message: "Name is required" }),
     min_limit: z.number().min(1, { message: "Minimum limit is required" }),
   });
@@ -747,7 +748,7 @@ const CreditForm = ({
     console.log("calling close");
     setFormData((prev: createFormData) => ({
       ...prev,
-      status: true,
+      status: 'active',
       name: "",
       min_limit: 1,
     }));
@@ -760,13 +761,13 @@ const CreditForm = ({
         onOpenChange={() => {
           setFormData((prev: createFormData) => ({
             ...prev,
-            status: true,
+            status: 'active',
             name: "",
             min_limit: 1,
           }));
           form.reset({
             org_id: formData.org_id,
-            status: true,
+            status: 'active',
             name: "",
             min_limit: 1,
           });
@@ -836,9 +837,9 @@ const CreditForm = ({
                           {/* <FormLabel>Status</FormLabel> */}
                           <FormControl>
                             <Select
-                              value={field.value ? "true" : "false"}
+                              value={field.value}
                               onValueChange={(value) => {
-                                field.onChange(value === "true");
+                                field.onChange(value);
                                 handleStatusOnChange(value);
                               }}
                             >
@@ -847,12 +848,12 @@ const CreditForm = ({
                                   <span className="flex gap-2 items-center">
                                     <span
                                       className={`w-2 h-2 rounded-full ${
-                                        field.value
+                                        field.value =='active'
                                           ? "bg-green-500"
                                           : "bg-blue-500"
                                       }`}
                                     ></span>
-                                    {field.value ? "Active" : "Inactive"}
+                                    {field.value =='active'? "Active" : "Inactive"}
                                   </span>
                                 </SelectValue>
                               </SelectTrigger>

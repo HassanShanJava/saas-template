@@ -180,7 +180,7 @@ export default function RoleTableView() {
 
   // default values in form
   const [formData, setFormData] = useState<any>({
-    status: true,
+    status: 'active',
     name: "",
     org_id: orgId,
   });

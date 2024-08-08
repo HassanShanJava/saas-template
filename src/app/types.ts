@@ -49,7 +49,7 @@ export interface createFoodTypes {
 
 export interface createRoleTypes {
   org_id: number;
-  status: boolean;
+  status: string;
   name: string;
   resource_id: Array<number>;
   access_type: Array<string>;
@@ -211,6 +211,12 @@ export interface saleTaxesResponseType {
   is_deleted: boolean;
   created_at: Date;
   updated_at: Date;
+}
+
+export interface creditsTableResponseType {
+  data:creditsResponseType[];
+  total_counts: number;
+  filtered_counts: number;
 }
 export interface creditsResponseType {
   created_at: Date;

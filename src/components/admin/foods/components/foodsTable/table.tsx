@@ -47,8 +47,8 @@ import FoodForm from "../modal/food-form";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
 const status = [
-  { value: "true", label: "Active", color: "bg-green-500" },
-  { value: "false", label: "Inactive", color: "bg-blue-500" },
+  { value: "active", label: "Active", color: "bg-green-500" },
+  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
 ];
 
 

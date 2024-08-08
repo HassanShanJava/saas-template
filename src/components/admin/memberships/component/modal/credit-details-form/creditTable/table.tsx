@@ -34,7 +34,7 @@ import {
 import { creditDetailsTablestypes, creditTablestypes, facilitiesData } from "@/app/types";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { useGetCreditsQuery } from "@/services/creditsApi";
+import { useGetCreditsListQuery, useGetCreditsQuery } from "@/services/creditsApi";
 import { Search } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -73,7 +73,7 @@ export default function CreditsTableView({
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { getValues } = useFormContext<StepperFormValues>();
-  const { data: creditsData, isLoading } = useGetCreditsQuery({org_id:orgId,query:""});
+  const { data: creditsData, isLoading } = useGetCreditsListQuery(orgId);
   const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
 
   const creditstableData = React.useMemo(() => {

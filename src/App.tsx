@@ -54,16 +54,6 @@ function App() {
               index
               element={<SystemSettings />}
             />
-            <Route
-              path="/admin/members/addmember"
-              index
-              element={<MemberForm />}
-            />
-            <Route
-              path="/admin/members/editmember/:id"
-              index
-              element={<MemberForm />}
-            />
             <Route path="/admin/leads" index element={<Leads />} />
             <Route path="/admin/leads/addlead" index element={<LeadForm />} />
             <Route

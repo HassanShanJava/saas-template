@@ -180,7 +180,7 @@ export default function MemberTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-  const [data, setData] = useState<MemberTableDatatypes>(undefined);
+  const [data, setData] = useState<MemberTableDatatypes|undefined>(undefined);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10, // Adjust this based on your preference
@@ -291,7 +291,7 @@ export default function MemberTableView() {
       id: "membership_plan_id",
       header: "Membership Plan",
       cell: ({ row }) => {
-        const mebershipName = membershipPlans.filter((plan) => plan.id==row.original.membership_plan_id)[0];
+        const mebershipName = membershipPlans.filter((plan:any) => plan.id==row.original.membership_plan_id)[0];
         console.log({mebershipName})
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">

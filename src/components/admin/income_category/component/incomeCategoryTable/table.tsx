@@ -319,47 +319,47 @@ export default function IncomeCategoryTableView() {
     setIsDialogOpen(true);
   };
 
-  // const totalRecords = membershipsData?.total_counts || 0;
-  // const lastPageOffset = Math.max(
-  //   0,
-  //   Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
-  // );
-  // const isLastPage = searchCretiria.offset >= lastPageOffset;
+  const totalRecords = incomeCategoryData?.total_counts || 0;
+  const lastPageOffset = Math.max(
+    0,
+    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+  );
+  const isLastPage = searchCretiria.offset >= lastPageOffset;
 
-  // const nextPage = () => {
-  //   if (!isLastPage) {
-  //     setSearchCretiria((prev) => ({
-  //       ...prev,
-  //       offset: prev.offset + prev.limit,
-  //     }));
-  //   }
-  // };
+  const nextPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria((prev) => ({
+        ...prev,
+        offset: prev.offset + prev.limit,
+      }));
+    }
+  };
 
-  // // Function to go to the previous page
-  // const prevPage = () => {
-  //   setSearchCretiria((prev) => ({
-  //     ...prev,
-  //     offset: Math.max(0, prev.offset - prev.limit),
-  //   }));
-  // };
+  // Function to go to the previous page
+  const prevPage = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      offset: Math.max(0, prev.offset - prev.limit),
+    }));
+  };
 
-  // // Function to go to the first page
-  // const firstPage = () => {
-  //   setSearchCretiria((prev) => ({
-  //     ...prev,
-  //     offset: 0,
-  //   }));
-  // };
+  // Function to go to the first page
+  const firstPage = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      offset: 0,
+    }));
+  };
 
-  // // Function to go to the last page
-  // const lastPage = () => {
-  //   if (!isLastPage) {
-  //     setSearchCretiria((prev) => ({
-  //       ...prev,
-  //       offset: lastPageOffset,
-  //     }));
-  //   }
-  // };
+  // Function to go to the last page
+  const lastPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria((prev) => ({
+        ...prev,
+        offset: lastPageOffset,
+      }));
+    }
+  };
 
 
   return (
@@ -461,7 +461,7 @@ export default function IncomeCategoryTableView() {
       </div>
       
       {/* pagination */}
-      {/* <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
         <div className="flex items-center justify-center gap-2">
           <div className="flex items-center gap-2">
             <p className="text-sm font-medium">Items per page:</p>
@@ -494,7 +494,7 @@ export default function IncomeCategoryTableView() {
           />
           <span>
             {" "}
-            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${memberData?.filtered_counts} Items  `}
+            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${incomeCategoryData?.filtered_counts} Items  `}
           </span>
         </div>
 
@@ -557,7 +557,7 @@ export default function IncomeCategoryTableView() {
             </Button>
           </div>
         </div>
-      </div> */}
+      </div>
       
 
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}

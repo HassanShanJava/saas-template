@@ -10,15 +10,16 @@ import {
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useGetIncomeCategoryQuery } from "@/services/incomeCategoryApi";
-import { useGetSalesTaxQuery } from "@/services/salesTaxApi";
+import { useGetIncomeCategorListQuery } from "@/services/incomeCategoryApi";
+import { useGetSalesTaxListQuery} from "@/services/salesTaxApi";
 import { RootState } from "@/app/store";
 
 const PriceDiscountTaxForm = () => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const { data: incomeCategoryData } = useGetIncomeCategoryQuery({org_id:orgId,query:""});
-  const { data: salesTaxData } = useGetSalesTaxQuery({org_id:orgId,query:""});
+  const { data: incomeCategoryData } = useGetIncomeCategorListQuery(orgId);
+
+  const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
 
   const {
     control,
@@ -33,9 +34,9 @@ const PriceDiscountTaxForm = () => {
   const netPrice = watch("net_price");
   const discountPercentage = watch("discount") || 0;
   const incomeCategory = watch("income_category_id");
-  const salesTaxId = incomeCategoryData?.filter(
+  const salesTaxId = incomeCategoryData?.find(
     (item) => item.id == incomeCategory
-  )[0];
+  );
 
   const handleIncomeCategory = (value: number) => {
     setValue("income_category_id", value);
@@ -47,6 +48,7 @@ const PriceDiscountTaxForm = () => {
       setValue("discount", 99);
     }
   };
+  console.log({salesTaxData})
 
   useEffect(() => {
     if (salesTaxId && salesTaxData) {
@@ -76,6 +78,7 @@ const PriceDiscountTaxForm = () => {
     netPrice,
     discountPercentage,
     salesTaxData,
+    salesTaxId,
     setValue,
     watch,
   ]);

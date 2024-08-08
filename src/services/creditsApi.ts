@@ -1,6 +1,7 @@
 import {
   createCreditsType,
   creditsResponseType,
+  creditsTableResponseType,
   updateCreditsType,
 } from "../app/types";
 import { apiSlice } from "@/features/api/apiSlice";
@@ -12,7 +13,7 @@ interface facilitiesInput{
 export const Credits = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getCredits: builder.query<creditsResponseType[], facilitiesInput>({
+      getCredits: builder.query<creditsTableResponseType, facilitiesInput>({
         query: (searchCretiria) => ({
           url: `/facilities?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
@@ -64,6 +65,17 @@ export const Credits = apiSlice.injectEndpoints({
         }),
         providesTags: ["Credits"],
       }),
+      
+      getCreditsList: builder.query<any[], number>({
+        query: (org_id) => ({
+          url: `/facility/list/${org_id}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        providesTags: ["Credits"],
+      }),
     };
   },
 });
@@ -74,4 +86,5 @@ export const {
   useUpdateCreditsMutation,
   useDeleteCreditsMutation,
   useGetCreditsByIdQuery,
+  useGetCreditsListQuery,
 } = Credits;

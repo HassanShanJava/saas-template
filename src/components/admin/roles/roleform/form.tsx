@@ -54,8 +54,8 @@ import {
 } from "@/services/rolesApi";
 
 const status = [
-  { value: "true", label: "Active", color: "bg-green-500" },
-  { value: "false", label: "Inactive", color: "bg-blue-500" },
+  { value: "active", label: "Active", color: "bg-green-500" },
+  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
 ];
 
 export const RoleForm = ({
@@ -122,10 +122,10 @@ export const RoleForm = ({
     org_id: z.number(),
     name: z.string().min(1, { message: "Required" }),
     status: z
-      .boolean({
+      .string({
         required_error: "Required",
       })
-      .default(true),
+      .default('active'),
   });
 
   const form = useForm<z.infer<typeof RoleFormSchema>>({
@@ -150,12 +150,12 @@ export const RoleForm = ({
 
     setFormData((prev: any) => ({
       ...prev,
-      status: true,
+      status: 'active',
       name: "",
     }));
     form.reset({
       org_id: formData.org_id,
-      status: true,
+      status: 'active',
       name: "",
     });
     setIsDialogOpen();
@@ -383,11 +383,11 @@ export const RoleForm = ({
                       render={({ field }) => (
                         <FormItem className="w-1/2">
                           <Select
-                            defaultValue={field.value ? "true" : "false"}
+                            defaultValue={field.value}
                             onValueChange={(value) =>
-                              field.onChange(value === "true")
+                              field.onChange(value)
                             }
-                            value={field.value ? "true" : "false"} // Ensure value is a string
+                            value={field.value} // Ensure value is a string
                           >
                             <FormControl>
                               <SelectTrigger floatingLabel="Status">
@@ -395,19 +395,19 @@ export const RoleForm = ({
                                   <span className="flex gap-2 items-center">
                                     <span
                                       className={`w-2 h-2 rounded-full ${
-                                        field.value
+                                        field.value =='active'
                                           ? "bg-green-500"
                                           : "bg-blue-500"
                                       }`}
                                     ></span>
-                                    {field.value ? "Active" : "Inactive"}
+                                    {status.filter(status => status.value===field.value)[0]?.label}
                                   </span>
                                 </SelectValue>
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="true">Active</SelectItem>
-                              <SelectItem value="false">Inactive</SelectItem>
+                              <SelectItem value="active">Active</SelectItem>
+                              <SelectItem value="inactive">Inactive</SelectItem>
                             </SelectContent>
                           </Select>
                           {watcher.status ? <></> : <FormMessage />}

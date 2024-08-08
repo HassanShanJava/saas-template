@@ -51,9 +51,10 @@ import {
 } from "@/services/memberAPi";
 import { useGetCoachesQuery, useGetCoachListQuery } from "@/services/coachApi";
 import MemberFilters from "./data-table-filter";
-import { useGetMembershipsQuery } from "@/services/membershipsApi";
+import { useGetMembershipListQuery, useGetMembershipsQuery } from "@/services/membershipsApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { Separator } from "@/components/ui/separator";
+import MemberForm from "../../memberForm/form";
 
 const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -70,8 +71,8 @@ interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
-  sort_key: string;
-  client_name?: string;
+  sort_key?: string;
+  search_key?: string;
   status?: string;
   membership_plan?: string;
   coach_asigned?: string;
@@ -81,10 +82,11 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key: "created_at",
+  // sort_key: "created_at",
 };
 
 export default function MemberTableView() {
+  const [isOpen, setOpen] = useState(false)
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCretiria, setSearchCretiria] =
@@ -102,9 +104,9 @@ export default function MemberTableView() {
       const newCriteria = { ...prev };
 
       if (debouncedInputValue.trim() !== "") {
-        newCriteria.client_name = debouncedInputValue;
+        newCriteria.search_key = debouncedInputValue;
       } else {
-        delete newCriteria.client_name;
+        delete newCriteria.search_key;
       }
 
       return newCriteria;
@@ -148,10 +150,7 @@ export default function MemberTableView() {
   const { data: coachesData } = useGetCoachListQuery(orgId);
 
   const { data: count } = useGetMemberCountQuery(orgId);
-  const { data: membershipPlans } = useGetMembershipsQuery({
-    org_id: orgId,
-    query: "",
-  });
+  const { data: membershipPlans } = useGetMembershipListQuery(orgId);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -181,6 +180,7 @@ export default function MemberTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
+  const [data, setData] = useState<MemberTableDatatypes|undefined>(undefined);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10, // Adjust this based on your preference
@@ -210,6 +210,13 @@ export default function MemberTableView() {
     }
     downloadCSV(selectedRows, "members_list.csv");
   };
+
+
+  const handleEditMember=(data:MemberTableDatatypes)=>{
+    setData(data as MemberTableDatatypes);
+    setOpen(true);
+  }
+
   const columns: ColumnDef<MemberTableDatatypes>[] = [
     {
       id: "select",
@@ -280,14 +287,15 @@ export default function MemberTableView() {
       },
     },
     {
-      accessorFn: (row) => row.phone ?? row.mobile_number,
-      id: "membership_plan",
+      accessorFn: (row) => row.membership_plan_id,
+      id: "membership_plan_id",
       header: "Membership Plan",
       cell: ({ row }) => {
-        const contactNumber = row.original.phone ?? row.original.mobile_number;
+        const mebershipName = membershipPlans.filter((plan:any) => plan.id==row.original.membership_plan_id)[0];
+        console.log({mebershipName})
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(contactNumber)}
+            {displayValue(mebershipName?.name??'')}
           </div>
         );
       },
@@ -349,6 +357,7 @@ export default function MemberTableView() {
           row={row.original.id}
           data={row?.original}
           refetch={refetch}
+          handleEditMember={handleEditMember}
         />
       ),
     },
@@ -519,9 +528,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -690,6 +699,7 @@ export default function MemberTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
+      <MemberForm isOpen={isOpen} setOpen={setOpen} data={data} />
     </div>
   );
 }

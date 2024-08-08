@@ -10,9 +10,9 @@ import {
 } from "../app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
-interface memberInput{
-	query:string,
-	org_id:number
+interface memberInput {
+	query: string,
+	org_id: number
 }
 
 
@@ -108,19 +108,19 @@ export const MemberAPi = apiSlice.injectEndpoints({
 		}),
 		getMembersList: builder.query<{ id: number; name: string }[], number>({
 			query: (org_id) => ({
-			  url: `/member/list/${org_id}`,
-			  headers: {
-				Accept: "application/json",
-			  },
+				url: `/member/list/${org_id}`,
+				headers: {
+					Accept: "application/json",
+				},
 			}),
 			transformResponse: (
-			  resp: { id: number; first_name: string; last_name: string }[]
+				resp: { id: number; first_name: string; last_name: string }[]
 			) =>
-			  resp.map((member) => ({
-				id: member.id,
-				name: `${member.first_name} ${member.last_name}`,
-			  })),
-		  }),
+				resp.map((member) => ({
+					id: member.id,
+					name: `${member.first_name} ${member.last_name}`,
+				})),
+		}),
 	}),
 });
 

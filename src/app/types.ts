@@ -1,9 +1,55 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
+export interface createFoodTypes {
+  org_id: number;
+  name: string;
+  brand: string;
+  category: string;
+  description?: string;
+  other_name?: string;
+  total_nutrition?: number;
+  kcal?: number;
+  protein?: number;
+  fat?: number;
+  carbohydrates?: number;
+  carbs_sugar?: number;
+  carbs_saturated?: number;
+  kilojoules?: number;
+  fiber?: number;
+  calcium?: number;
+  iron?: number;
+  magnesium?: number;
+  phosphorus?: number;
+  potassium?: number;
+  sodium?: number;
+  zinc?: number;
+  copper?: number;
+  selenium?: number;
+  vitamin_a?: number;
+  vitamin_b1?: number;
+  vitamin_b2?: number;
+  vitamin_b6?: number;
+  vitamin_b12?: number;
+  vitamin_c?: number;
+  vitamin_d?: number;
+  vitamin_e?: number;
+  folic_acid?: number;
+  fat_unsaturated?: number;
+  cholesterol?: number;
+  alcohol?: number;
+  alchohol_mono?: number;
+  alchohol_poly?: number;
+  trans_fat?: number;
+  weight?: number;
+  weight_unit?: string;
+  created_at?: Date;
+  created_by?: number;
+}
+
 export interface createRoleTypes {
   org_id: number;
-  status: boolean;
+  status: string;
   name: string;
   resource_id: Array<number>;
   access_type: Array<string>;
@@ -105,6 +151,12 @@ export interface incomeCategoryTableType {
   org_id: number;
   sale_tax_id: number;
 }
+
+export interface incomeCategoryTableResponseType {
+  data: incomeCategoryResponseType[];
+  total_counts: number;
+  filtered_counts: number;
+}
 export interface incomeCategoryResponseType {
   id: number;
   org_id: number;
@@ -143,6 +195,13 @@ export interface saleTaxesTableType {
   name: string;
   org_id: number;
   percentage: number;
+  
+}
+
+export interface saleTaxTableType{
+  data:saleTaxesResponseType[]
+  total_counts: number;
+  filtered_counts: number;
 }
 export interface saleTaxesResponseType {
   name: string;
@@ -152,6 +211,12 @@ export interface saleTaxesResponseType {
   is_deleted: boolean;
   created_at: Date;
   updated_at: Date;
+}
+
+export interface creditsTableResponseType {
+  data:creditsResponseType[];
+  total_counts: number;
+  filtered_counts: number;
 }
 export interface creditsResponseType {
   created_at: Date;

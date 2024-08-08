@@ -28,12 +28,14 @@ interface DataTableRowActionsProps<TData> {
   row: number;
   data:MemberTableDatatypes,
   refetch:any
+  handleEditMember:any
 }
 
 export function DataTableRowActions<TData>({
   row,
   data,
-  refetch
+  refetch,
+  handleEditMember
 }: DataTableRowActionsProps<TData>) {
   const [isdelete, setIsDelete] = React.useState(false);
   const [deleteMembers]=useDeleteMemberMutation()
@@ -70,10 +72,6 @@ export function DataTableRowActions<TData>({
     }
   };
 
-  const handleEdit =()=>{
-    navigate(`/admin/members/editmember/${data.id}`)
-  }
-
   return (
     <>
       <Dialog>
@@ -89,7 +87,7 @@ export function DataTableRowActions<TData>({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-4 ">
             <DialogTrigger asChild>
-              <DropdownMenuItem onClick={handleEdit}>
+              <DropdownMenuItem onClick={()=>handleEditMember(data)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>

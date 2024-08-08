@@ -182,14 +182,6 @@ const ExericeForm: React.FC = () => {
       .default(IntensityEnum.maxIntensity),
     irmValue: z.number().optional(),
     met: z.coerce.number().optional(),
-    // met: z.coerce
-    //   .number({
-    //     required_error: "Required",
-    //   })
-    //   .refine((value) => value !== 0 || isNaN(value), {
-    //     message: "Required",
-    //   })
-    //   .default(0),
   });
 
   const orgName = useSelector(
@@ -238,14 +230,69 @@ const ExericeForm: React.FC = () => {
     imageType: keyof typeof images
   ) => {
     const file = e.target.files?.[0];
+    // Validate the file type
+    if (
+      file &&
+      !["image/png", "image/jpeg", "image/jpg", "image/gif"].includes(file.type)
+    ) {
+      toast({
+        variant: "destructive",
+        title: `Invalid file type for ${imageType}.`,
+        description: "Only PNG, JPEG, JPG, and GIF are allowed.",
+      });
+      console.error(
+        `Invalid file type for ${imageType}. Only PNG, JPEG, JPG, and GIF are allowed.`
+      );
+      return; // Exit if the file type is not allowed
+    }
     if (file) {
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrls((prevImages) => ({
         ...prevImages,
         [imageType]: objectUrl,
       }));
+
+      setImages((prevFiles) => ({
+        ...prevFiles,
+        [imageType]: file,
+      }));
     }
   };
+
+
+  // const uploadFile = async (
+  //   type: ImageType
+  // ): Promise<{ type: ImageType; url: string } | null>=>{
+
+  // }
+      const uploadFile = async (
+        type: ImageType
+      ): Promise<{ type: ImageType; url: string } | null> => {
+        const selectedFile = images[type];
+        if (!selectedFile) {
+          console.log(`No file selected for ${type}`);
+          return null; // Return null if no file is selected
+        }
+
+        try {
+          // Call the custom upload function and get the S3 URL
+          const s3Response = await UploadCognitoImage(selectedFile);
+          const s3Url = s3Response.location;
+
+          // Return the structured data for this image
+          return { type, url: s3Url as string };
+        } catch (error) {
+          console.error(`Error uploading ${type}:`, error);
+          return null; // Return null in case of an error
+        }
+      };
+
+
+    const uploadAllFiles=async()=>{
+      
+    }
+
+
 
   const handleChange = (
     index: number,
@@ -267,51 +314,6 @@ const ExericeForm: React.FC = () => {
   };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    // if()
-    const uploadResults = await Promise.all(
-      Object.entries(images).map(async ([key, file]) => {
-        if (file) {
-          const result = await UploadCognitoImage(file);
-          if (result.success) {
-            return { key, url: result.location };
-          } else {
-            // setUploadStatus((prev) => prev ? `${prev}\n${key} upload failed: ${result.message}` : `${key} upload failed: ${result.message}`);
-            return null;
-          }
-        }
-        return { key, url: null };
-      })
-    );
-
-    // Build the URL object and log it to the console
-    const urls = uploadResults.reduce(
-      (acc, result) => {
-        if (result && result.url) {
-          acc[result.key] = result.url;
-        }
-        return acc;
-      },
-      {} as { [key: string]: string }
-    );
-
-    // Log URLs to the console
-    console.log("Uploaded image URLs:", urls);
-
-    // Set status if no URLs were uploaded
-    if (Object.keys(urls).length === 0) {
-      // toast({
-      //   variant: "destructive",
-      //   title: "Error",
-      //   description: `No files were uploaded..`,
-      // });
-      // setUploadStatus("No files were uploaded.");
-    } else {
-      // setUploadStatus("Files uploaded successfully.");
-      // toast({
-      //       variant: "success",
-      //       title: "Files uploaded successfully",
-      //     });
-    }
     try {
       console.log(data);
       console.log("images", images);

@@ -151,6 +151,12 @@ export interface incomeCategoryTableType {
   org_id: number;
   sale_tax_id: number;
 }
+
+export interface incomeCategoryTableResponseType {
+  data: incomeCategoryResponseType[];
+  total_counts: number;
+  filtered_counts: number;
+}
 export interface incomeCategoryResponseType {
   id: number;
   org_id: number;
@@ -189,6 +195,13 @@ export interface saleTaxesTableType {
   name: string;
   org_id: number;
   percentage: number;
+  
+}
+
+export interface saleTaxTableType{
+  data:saleTaxesResponseType[]
+  total_counts: number;
+  filtered_counts: number;
 }
 export interface saleTaxesResponseType {
   name: string;

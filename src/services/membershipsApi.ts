@@ -59,6 +59,16 @@ export const Memberships = apiSlice.injectEndpoints({
         }),
         providesTags: ["Memberships"],
       }),
+      getMembershipList: builder.query<any, number>({
+        query: (org_id) => ({
+          url: `/membership_plan/list/${org_id}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        providesTags: ["Memberships"],
+      }),
     };
   },
 });
@@ -69,4 +79,5 @@ export const {
   useUpdateMembershipsMutation,
   useDeleteMembershipsMutation,
   useGetMembershipsByIdQuery,
+useGetMembershipListQuery,
 } = Memberships;

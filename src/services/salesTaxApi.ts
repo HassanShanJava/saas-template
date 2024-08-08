@@ -2,6 +2,7 @@ import {
   deleteSaleTaxesType,
   saleTaxesInputType,
   saleTaxesResponseType,
+  saleTaxTableType,
   updateSaleTaxesType,
 } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
@@ -14,7 +15,7 @@ interface saleTaxInput{
 export const SalesTax = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getSalesTax: builder.query<saleTaxesResponseType[], saleTaxInput>({
+      getSalesTax: builder.query<saleTaxTableType, saleTaxInput>({
         query: (searchCretiria) => ({
           url: `/sale_taxes?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
@@ -67,6 +68,16 @@ export const SalesTax = apiSlice.injectEndpoints({
         }),
         providesTags: ["SalesTax"],
       }),
+      getSalesTaxList: builder.query<any[], number>({
+        query: (org_id) => ({
+          url: `/sale_taxes/list/${org_id}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        providesTags: ["SalesTax"],
+      }),
     };
   },
 });
@@ -77,4 +88,5 @@ export const {
   useUpdateSalesTaxMutation,
   useDeleteSalesTaxMutation,
   useGetSalesTaxByIdQuery,
+  useGetSalesTaxListQuery,
 } = SalesTax;

@@ -69,7 +69,7 @@ interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
-  sort_key: string;
+  sort_key?: string;
   client_name?: string;
   status?: string;
   membership_plan?: string;
@@ -79,7 +79,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key:"created_at",
+  // sort_key:"created_at",
 };
 
 export default function ExerciseTableView() {

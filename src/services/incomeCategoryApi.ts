@@ -1,4 +1,4 @@
-import { createIncomeCategoryType, deleteIncomeCategoryType, incomeCategoryResponseType, updateIncomeCategoryType } from "@/app/types";
+import { createIncomeCategoryType, deleteIncomeCategoryType, incomeCategoryResponseType, incomeCategoryTableResponseType, updateIncomeCategoryType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
@@ -10,7 +10,7 @@ interface incomeCategoryInput{
 export const IncomeCategory = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getIncomeCategory: builder.query<incomeCategoryResponseType[], incomeCategoryInput>({
+      getIncomeCategory: builder.query<incomeCategoryTableResponseType, incomeCategoryInput>({
         query: (searchCretiria) => ({
           url: `/income_category?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
@@ -62,6 +62,16 @@ export const IncomeCategory = apiSlice.injectEndpoints({
         }),
         providesTags: ["IncomeCategory"],
       }),
+      getIncomeCategorList: builder.query<any[], number>({
+        query: (org_id) => ({
+          url: `/income_category/list/${org_id}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        providesTags: ["IncomeCategory"],
+      }),
     };
   },
 });
@@ -72,4 +82,5 @@ export const {
   useUpdateIncomeCategoryMutation,
   useDeleteIncomeCategoryMutation,
   useGetIncomeCategoryByIdQuery,
+  useGetIncomeCategorListQuery,
 } = IncomeCategory;

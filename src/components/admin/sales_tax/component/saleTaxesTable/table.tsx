@@ -171,10 +171,7 @@ export default function SaleTaxesTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10, // Adjust this based on your preference
-  });
+  
   const displayValue = (value: any) => (value === null ? "N/A" : value);
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -264,23 +261,16 @@ export default function SaleTaxesTableView() {
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      pagination,
       sorting,
       columnVisibility,
       rowSelection,
     },
-    initialState: {
-      pagination: {
-        pageSize: 10, // Set your default page size here
-      },
-    },
-    onPaginationChange: setPagination,
+    
   });
 
   function handlePagination(page: number) {

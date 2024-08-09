@@ -23,14 +23,10 @@ import Coach from "./components/admin/coach";
 import CoachForm from "./components/admin/coach/coachForm/Form";
 import ExerciseForm from "./components/admin/exercise/exerciseform/form";
 import Exercise from "./components/admin/exercise";
-import FileUploadComponent from "./components/admin/test/FileUploadComponent";
-import DynamicForm from "./components/admin/test/DynamicForm";
 import MealPlans from "./components/admin/meal_plans";
 import FoodsNutrition from "./components/admin/foods";
-import TimeInputsForm from "./components/admin/test/Timebox";
-import FileUpload from "./components/admin/test/ImageUpload";
 import WorkoutPlan from "./components/admin/workoutplan";
-import UseForm from "./components/admin/test/imageUploadcomponent";
+
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -41,7 +37,6 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<AuthenticationPage />} />
-        <Route path="/test" element={<UseForm />} />
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/admin" element={<DashboardLayout />}>
             <Route path="/admin/dashboard" index element={<Dashboard />} />

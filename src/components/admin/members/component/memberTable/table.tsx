@@ -182,16 +182,13 @@ export default function MemberTableView() {
   console.log("data", { memberData, error });
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [filterID, setFilterID] = useState({});
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [isClear, setIsClear] = useState(false);
-  const [clearValue, setIsClearValue] = useState({});
   const [data, setData] = useState<MemberTableDatatypes | undefined>(undefined);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10, // Adjust this based on your preference
+    pageSize: searchCretiria.limit, // Adjust this based on your preference
   });
   const displayValue = (value: string | undefined | null) =>
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
@@ -449,23 +446,15 @@ export default function MemberTableView() {
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      pagination,
       sorting,
       columnVisibility,
       rowSelection,
-    },
-    initialState: {
-      pagination: {
-        pageSize: 10, // Set your default page size here
-      },
-    },
-    onPaginationChange: setPagination,
+    }
   });
 
   function handleMembershipplan(value: string) {

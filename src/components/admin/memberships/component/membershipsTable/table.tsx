@@ -169,10 +169,7 @@ export default function MembershipsTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10, // Adjust this based on your preference
-  });
+  
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -468,7 +465,7 @@ export default function MembershipsTableView() {
           data={row.original}
           refetch={refetch}
           handleEdit={handleEditMembership}
-        />
+          />
       ),
     },
   ];
@@ -478,23 +475,16 @@ export default function MembershipsTableView() {
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      pagination,
       sorting,
       columnVisibility,
       rowSelection,
     },
-    initialState: {
-      pagination: {
-        pageSize: 10, // Set your default page size here
-      },
-    },
-    onPaginationChange: setPagination,
+
   });
 
   function handlePagination(page: number) {

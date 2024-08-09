@@ -84,7 +84,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  // sort_key:"created_at",
+  sort_key:"created_at",
 };
 
 export default function ExerciseTableView() {
@@ -179,15 +179,9 @@ export default function ExerciseTableView() {
   const [filterID, setFilterID] = useState({});
 
   const [filters, setFilters] = useState<"">();
-
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [isClear, setIsClear] = useState(false);
-  const [clearValue, setIsClearValue] = useState({});
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10, // Adjust this based on your preference
-  });
+  
 
   const displayDate = (value: any) => {
     const date = new Date(value);
@@ -344,23 +338,15 @@ export default function ExerciseTableView() {
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      pagination,
       sorting,
       columnVisibility,
       rowSelection,
     },
-    initialState: {
-      pagination: {
-        pageSize: 10, // Set your default page size here
-      },
-    },
-    onPaginationChange: setPagination,
   });
 
   function handlePagination(page: number) {

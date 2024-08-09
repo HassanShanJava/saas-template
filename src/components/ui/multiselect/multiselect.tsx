@@ -171,7 +171,7 @@ const MultiSelectorTrigger = forwardRef<
 >(({ className, children, ...props }, ref) => {
   const { value, onValueChange, activeIndex } = useMultiSelect();
 
-  // console.log("valye", value);
+  console.log("valye", value);
   const mousePreventDefault = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -195,7 +195,7 @@ const MultiSelectorTrigger = forwardRef<
           )}
           variant={"secondary"}
         >
-          <span className="text-xs">{item.name || item.first_name}</span>
+          <span className="text-xs">{item.name}</span>
           <button
             aria-label={`Remove ${item.id} option`}
             aria-roledescription="button to remove option"

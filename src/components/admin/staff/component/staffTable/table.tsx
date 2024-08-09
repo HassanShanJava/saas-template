@@ -100,7 +100,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  // sort_key:"created_at",
+  sort_key:"created_at",
 };
 export default function StaffTableView() {
   const orgId =
@@ -144,7 +144,7 @@ export default function StaffTableView() {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(searchCretiria)) {
       console.log({ key, value });
-      if (value !== undefined && value !== null) {
+      if (value !== undefined && value !== null ) {
         params.append(key, value);
       }
     }
@@ -182,10 +182,7 @@ export default function StaffTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10, // Adjust this based on your preference
-  });
+  
 
   const handleExportSelected = () => {
     const selectedRows = table
@@ -293,7 +290,17 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "own_staff_id",
-      header: "Gym Staff ID",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Gym Staff ID</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("own_staff_id")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -305,7 +312,17 @@ export default function StaffTableView() {
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
-      header: "Staff Name",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Staff Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("first_name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -316,7 +333,17 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "activated_on",
-      header: "Staff Since",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Staff Since</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("activated_on")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -327,7 +354,17 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "role_name",
-      header: "Role",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Role</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("role_name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -339,7 +376,17 @@ export default function StaffTableView() {
 
     {
       accessorKey: "status",
-      header: ({ table }) => <span>Status</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Status</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("status")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const value =
           row.original?.status != null ? row.original?.status + "" : "pending";
@@ -392,7 +439,17 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "last_checkin",
-      header: "Last Check In",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Last Check In</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("last_checkin")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -403,7 +460,17 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "last_online",
-      header: "Last Login",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Last Login</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("last_online")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -426,23 +493,15 @@ export default function StaffTableView() {
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      pagination,
       sorting,
       columnVisibility,
       rowSelection,
     },
-    initialState: {
-      pagination: {
-        pageSize: 10, // Set your default page size here
-      },
-    },
-    onPaginationChange: setPagination,
   });
 
   function handlePagination(page: number) {
@@ -485,12 +544,19 @@ export default function StaffTableView() {
     },
   ];
 
-  const toggleSortOrder = () => {
-    setSearchCretiria((prev) => ({
+  const toggleSortOrder = (key: string) => {
+  setSearchCretiria((prev) => {
+    const newSortOrder = prev.sort_key === key 
+      ? (prev.sort_order === "desc" ? "asc" : "desc")
+      : "desc"; // Default to descending order if the key is different
+
+    return {
       ...prev,
-      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
-    }));
-  };
+      sort_key: key,
+      sort_order: newSortOrder,
+    };
+  });
+};
   const totalRecords = staffData?.total_counts || 0
   const lastPageOffset = Math.max(0, Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit);
   const isLastPage = searchCretiria.offset >= lastPageOffset;
@@ -555,14 +621,14 @@ export default function StaffTableView() {
         >
           <i className="fa fa-filter"></i>
         </button>
-        <button
+        {/* <button
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={toggleSortOrder}
         >
           <i
             className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
           ></i>
-        </button>
+        </button> */}
       </div>
       <div className="rounded-md border border-border ">
         <ScrollArea className="w-full relative">

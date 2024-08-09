@@ -113,13 +113,6 @@ export const MemberAPi = apiSlice.injectEndpoints({
 					Accept: "application/json",
 				},
 			}),
-			transformResponse: (
-				resp: { id: number; first_name: string; last_name: string }[]
-			) =>
-				resp.map((member) => ({
-					id: member.id,
-					name: `${member.first_name} ${member.last_name}`,
-				})),
 		}),
 	}),
 });

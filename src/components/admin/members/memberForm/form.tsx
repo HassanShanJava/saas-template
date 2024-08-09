@@ -103,7 +103,7 @@ import {
 } from "@/services/memberAPi";
 
 import { useGetCoachListQuery } from "@/services/coachApi";
-import { useGetMembershipsQuery } from "@/services/membershipsApi";
+import { useGetMembershipListQuery, useGetMembershipsQuery } from "@/services/membershipsApi";
 import { useParams } from "react-router-dom";
 import { UploadCognitoImage } from "@/utils/lib/s3Service";
 enum genderEnum {
@@ -277,10 +277,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
   const { data: business } = useGetAllBusinessesQuery(orgId);
   const { data: coachesData } = useGetCoachListQuery(orgId);
   const { data: sources } = useGetAllSourceQuery();
-  const { data: membershipPlans } = useGetMembershipsQuery({
-    org_id: orgId,
-    query: "",
-  });
+  const { data: membershipPlans } = useGetMembershipListQuery(orgId);
   const [addMember, { isLoading: memberLoading }] = useAddMemberMutation();
   const [editMember, { isLoading: editLoading, isError }] =
     useUpdateMemberMutation();
@@ -333,8 +330,8 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
       }
     } else {
       const initialValue = { ...memberData };
-      const data = membershipPlans?.filter(
-        (item) => item.id == memberData.membership_plan_id
+      const data = membershipPlans&&membershipPlans?.filter(
+        (item:any) => item.id == memberData.membership_plan_id
       )[0];
       const renewalDetails = data?.renewal_details as renewalData;
       initialValue.auto_renewal = data?.auto_renewal ?? false;
@@ -356,7 +353,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
   // set auto_renewal
   const handleMembershipPlanChange = (value: number) => {
     form.setValue("membership_plan_id", value);
-    const data = membershipPlans?.filter((item) => item.id == value)[0];
+    const data = membershipPlans&&membershipPlans?.filter((item:any) => item.id == value)[0];
     const renewalDetails = data?.renewal_details as renewalData;
     form.setValue("auto_renewal", data?.auto_renewal);
     if (data?.auto_renewal) {
@@ -1038,7 +1035,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                     />
                   </div>
                   <div className="h-full relative">
-                    <FormField
+                    {/* <FormField
                       control={form.control}
                       name="send_invitation"
                       defaultValue={true}
@@ -1053,7 +1050,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                           <FormLabel className="!mt-0">Send invitation</FormLabel>
                         </FormItem>
                       )}
-                    />
+                    /> */}
                   </div>
                 </div>
                 <div>
@@ -1085,7 +1082,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {membershipPlans && membershipPlans?.length ? (
+                              {membershipPlans && membershipPlans?.length >0? (
                                 membershipPlans.map(
                                   (sourceval: membeshipsTableType) => {
                                     console.log({ sourceval });

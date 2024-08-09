@@ -209,7 +209,7 @@ const PriceDiscountTaxForm = () => {
                 )}
                 <SelectContent>
                   <SelectItem value={"cash"}>Cash</SelectItem>
-                  <SelectItem value={"credit-debit"}>Credit/Debit</SelectItem>
+                  {/* <SelectItem value={"credit-debit"}>Credit/Debit</SelectItem> */}
                 </SelectContent>
               </Select>
             </div>

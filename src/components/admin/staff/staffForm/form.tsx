@@ -876,7 +876,7 @@ const StaffForm: React.FC = () => {
                   />
                 </div>
                 <div className="h-full relative">
-                  <FormField
+                  {/* <FormField
                     control={form.control}
                     name="send_invitation"
                     defaultValue={true}
@@ -891,7 +891,7 @@ const StaffForm: React.FC = () => {
                         <FormLabel className="!mt-0">Send invitation</FormLabel>
                       </FormItem>
                     )}
-                  />
+                  /> */}
                 </div>
               </div>
             </CardContent>

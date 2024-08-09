@@ -103,7 +103,7 @@ export default function IncomeCategoryTableView() {
     limit: 10,
     offset: 0,
     sort_order: "desc",
-    // sort_key:"created_at",
+    sort_key:"created_at",
   });
   const [query, setQuery] = useState("");
 
@@ -144,12 +144,19 @@ export default function IncomeCategoryTableView() {
   });
 
 
-  const toggleSortOrder = () => {
-    setSearchCretiria((prev) => ({
+  const toggleSortOrder = (key: string) => {
+  setSearchCretiria((prev) => {
+    const newSortOrder = prev.sort_key === key 
+      ? (prev.sort_order === "desc" ? "asc" : "desc")
+      : "desc"; // Default to descending order if the key is different
+
+    return {
       ...prev,
-      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
-    }));
-  };
+      sort_key: key,
+      sort_order: newSortOrder,
+    };
+  });
+};
 
   //   // table dropdown status update
   //   const handleStatusChange = async (payload: {
@@ -200,11 +207,7 @@ export default function IncomeCategoryTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10, // Adjust this based on your preference
-  });
-
+  
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     let finalValue: number | string = value;
@@ -235,7 +238,17 @@ export default function IncomeCategoryTableView() {
   const columns: ColumnDef<incomeCategoryTableType>[] = [
     {
       accessorKey: "name",
-      header: ({ table }) => <span>Category Name</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Category Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return <span>{row.original.name}</span>;
       },
@@ -244,7 +257,17 @@ export default function IncomeCategoryTableView() {
     },
     {
       accessorKey: "sale_tax_id",
-      header: ({ table }) => <span>Default Tax/VAT</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Default Tax/VAT</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("sale_tax_id")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const sales: any = salesTaxData?.filter(
           (item) => item.id == row.original.sale_tax_id
@@ -274,23 +297,16 @@ export default function IncomeCategoryTableView() {
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      pagination,
       sorting,
       columnVisibility,
       rowSelection,
     },
-    initialState: {
-      pagination: {
-        pageSize: 10, // Set your default page size here
-      },
-    },
-    onPaginationChange: setPagination,
+    
   });
 
   function handlePagination(page: number) {
@@ -376,12 +392,12 @@ export default function IncomeCategoryTableView() {
           Create New
         </Button>
 
-        <button
-          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
-          onClick={toggleSortOrder}
-        >
-          <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == 'desc' ? "rotate-180" : "-rotate-180"}`}></i>
-        </button>
+          {/* <button
+            className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+            onClick={toggleSortOrder}
+          >
+            <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == 'desc' ? "rotate-180" : "-rotate-180"}`}></i>
+          </button> */}
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
       <div className="rounded-none  ">

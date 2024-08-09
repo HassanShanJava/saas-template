@@ -41,10 +41,7 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<AuthenticationPage />} />
-        {/* <Route path="/test" element={<FileUploadComponent />} /> */}
-        {/* <Route path="/testbox" element={<TimeInputsForm />} /> */}
         <Route path="/test" element={<UseForm />} />
-        {/* <Route path="/testform" element={<DynamicForm />} /> */}
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/admin" element={<DashboardLayout />}>
             <Route path="/admin/dashboard" index element={<Dashboard />} />
@@ -54,13 +51,13 @@ function App() {
               index
               element={<SystemSettings />}
             />
-            <Route path="/admin/leads" index element={<Leads />} />
-            <Route path="/admin/leads/addlead" index element={<LeadForm />} />
-            <Route
+            {/* <Route path="/admin/leads" index element={<Leads />} />
+            <Route path="/admin/leads/addlead" index element={<LeadForm />} /> */}
+            {/* <Route
               path="/admin/leads/editlead/:id"
               index
               element={<LeadForm />}
-            />
+            /> */}
             <Route path="/admin/credits" index element={<Credits />} />
             <Route path="/admin/saleTaxes" index element={<SaleTaxes />} />
             <Route
@@ -85,7 +82,7 @@ function App() {
               index
               element={<StaffForm />}
             />
-            <Route path="/admin/exercise" index element={<Exercise />} />
+            {/* <Route path="/admin/exercise" index element={<Exercise />} />
             <Route
               path="/admin/exercise/addexercise"
               index
@@ -95,20 +92,10 @@ function App() {
               path="/admin/exercise/editexercise/:id"
               index
               element={<ExerciseForm />}
-            />
-            <Route
-              path="/admin/exercise/addexercise"
-              index
-              element={<ExerciseForm />}
-            />
-            <Route
-              path="/admin/exercise/editexercise/:id"
-              index
-              element={<ExerciseForm />}
-            />
-            <Route path="/admin/mealplans" index element={<MealPlans />} />
+            /> */}
+            {/* <Route path="/admin/mealplans" index element={<MealPlans />} />
             <Route path="/admin/foods" index element={<FoodsNutrition />} />
-            <Route path="/admin/workoutplans" index element={<WorkoutPlan />} />
+            <Route path="/admin/workoutplans" index element={<WorkoutPlan />} /> */}
           </Route>
         </Route>
       </Routes>

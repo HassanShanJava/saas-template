@@ -93,7 +93,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  // sort_key:"created_at",
+  sort_key:"created_at",
 };
 
 
@@ -245,12 +245,19 @@ export default function CoachTableView() {
   const displayValue = (value: string | undefined | null) =>
     value == null || value == "" ? "N/A" : value;
 
-  const toggleSortOrder = () => {
-    setSearchCretiria((prev) => ({
+  const toggleSortOrder = (key: string) => {
+  setSearchCretiria((prev) => {
+    const newSortOrder = prev.sort_key === key 
+      ? (prev.sort_order === "desc" ? "asc" : "desc")
+      : "desc"; // Default to descending order if the key is different
+
+    return {
       ...prev,
-      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
-    }));
-  };
+      sort_key: key,
+      sort_order: newSortOrder,
+    };
+  });
+};
 
   const columns: ColumnDef<CoachTableTypes>[] = [
     {
@@ -278,7 +285,17 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "own_coach_id",
-      header: "Gym Coach ID",
+      header:  () => (<div className="flex items-center gap-2">
+        <p>Gym Coach ID</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("own_coach_id")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -290,7 +307,17 @@ export default function CoachTableView() {
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
-      header: "Coach Name",
+      header:  () => (<div className="flex items-center gap-2">
+        <p>Coach Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("first_name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -301,7 +328,17 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "coach_since",
-      header: "Coach Since",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Coach Since</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("coach_since")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -312,7 +349,17 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "coach_status",
-      header: ({ table }) => <span>Status</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Status</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("coach_status")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const value =
           row.original?.coach_status != null
@@ -356,7 +403,17 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "check_in",
-      header: "Last Check In",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Last Check In</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("check_in")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         console.log(row?.original.check_in);
         return (
@@ -368,7 +425,17 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "last_online",
-      header: "Last Login",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Last Login</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("last_online")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -500,14 +567,14 @@ export default function CoachTableView() {
         >
           <i className="fa fa-filter"></i>
         </button>
-        <button
+        {/* <button
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={toggleSortOrder}
         >
           <i
             className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
           ></i>
-        </button>
+        </button> */}
       </div>
       <div className="rounded-md border border-border ">
         <ScrollArea className="w-full relative">

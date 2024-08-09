@@ -70,7 +70,7 @@ export const SalesTax = apiSlice.injectEndpoints({
       }),
       getSalesTaxList: builder.query<any[], number>({
         query: (org_id) => ({
-          url: `/sales_tax/list/${org_id}`,
+          url: `/sale_taxes/list/${org_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

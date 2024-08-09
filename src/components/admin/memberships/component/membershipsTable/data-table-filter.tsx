@@ -109,6 +109,12 @@ const MembershipFilters = ({
                       name={element.name}
                       label={element.label}
                       onChange={element.function}
+                      onInput={(e) => {
+                        const target = e.target as HTMLInputElement;
+                        if (Number(target.value) > 100) {
+                          target.value = "100";
+                        }
+                      }}
                     />
                   );
                 }
@@ -117,6 +123,7 @@ const MembershipFilters = ({
                     <FloatingLabelInput
                       type={"number"}
                       min={0}
+                      id={element.name}
                       name={element.name}
                       label={element.label}
                       onChange={element.function}

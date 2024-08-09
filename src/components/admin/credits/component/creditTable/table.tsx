@@ -106,7 +106,7 @@ export default function CreditsTableView() {
     limit: 10,
     offset: 0,
     sort_order: "desc",
-    // sort_key:"created_at",
+    sort_key:"created_at",
   });
   const [query, setQuery] = useState("");
 
@@ -134,12 +134,19 @@ export default function CreditsTableView() {
     }
   );
 
-  const toggleSortOrder = () => {
-    setSearchCretiria((prev) => ({
+  const toggleSortOrder = (key: string) => {
+  setSearchCretiria((prev) => {
+    const newSortOrder = prev.sort_key === key 
+      ? (prev.sort_order === "desc" ? "asc" : "desc")
+      : "desc"; // Default to descending order if the key is different
+
+    return {
       ...prev,
-      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
-    }));
-  };
+      sort_key: key,
+      sort_order: newSortOrder,
+    };
+  });
+};
 
   const [updateCredits, { isLoading: creditsLoading }] =
     useUpdateCreditsMutation();
@@ -247,7 +254,17 @@ export default function CreditsTableView() {
   const columns: ColumnDef<creditTablestypes>[] = [
     {
       accessorKey: "name",
-      header: ({ table }) => <p>Name</p>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return <p>{row.original.name}</p>;
       },
@@ -256,7 +273,17 @@ export default function CreditsTableView() {
     },
     {
       accessorKey: "min_limit",
-      header: ({ table }) => <p>Min Required Credits</p>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Min Required Credits</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("min_limit")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return <p>{row.original.min_limit}</p>;
       },
@@ -265,7 +292,17 @@ export default function CreditsTableView() {
     },
     {
       accessorKey: "status",
-      header: ({ table }) => <p>Status</p>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Status</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("status")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const value =
           row.original?.status != null ? row.original?.status + "" : "false";
@@ -440,12 +477,12 @@ export default function CreditsTableView() {
           Create New
         </Button>
         
-        <button
+        {/* <button
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={toggleSortOrder}
         >
           <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order=='desc'?"rotate-180":"-rotate-180"}`}></i>
-        </button>
+        </button> */}
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
       <div className="rounded-none  ">

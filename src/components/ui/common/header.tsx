@@ -112,7 +112,7 @@ export const Header = () => {
                 targetPath="/admin/coach/addcoach"
                 title="Add Coach"
               />
-              <PageTitle
+              {/* <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/exercise"
                 title="Exercises"
@@ -121,7 +121,7 @@ export const Header = () => {
                 currentPath={location.pathname}
                 targetPath="/admin/exercise/addexercise"
                 title="Add Exercise"
-              />
+              /> */}
               <PageTitle
                 currentPath={location.pathname.replace(
                   //eslint-disable-next-line
@@ -172,7 +172,7 @@ export const Header = () => {
                 targetPath="/admin/roles"
                 title="Roles and Access Management"
               />
-              <PageTitle
+              {/* <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/leads"
                 title="Leads"
@@ -181,8 +181,8 @@ export const Header = () => {
                 currentPath={location.pathname}
                 targetPath="/admin/leads/addlead"
                 title="Leads"
-              />
-              <PageTitle
+              /> */}
+              {/* <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/events"
                 title="Events"
@@ -191,7 +191,7 @@ export const Header = () => {
                 currentPath={location.pathname}
                 targetPath="/admin/events/addevents"
                 title="Events"
-              />
+              /> */}
 
               <PageTitle
                 currentPath={location.pathname}
@@ -204,7 +204,7 @@ export const Header = () => {
                 title="Add Staff"
               />
               
-              <PageTitle
+              {/* <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/mealplans"
                 title="Meal Plans"
@@ -213,7 +213,7 @@ export const Header = () => {
                 currentPath={location.pathname}
                 targetPath="/admin/foods"
                 title="Food/ Nutrition"
-              />
+              /> */}
             </h1>
 
             <Breadcrumb

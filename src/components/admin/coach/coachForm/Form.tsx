@@ -233,6 +233,9 @@ const CoachForm: React.FC = () => {
 
   const [selectedImage, setSelectedImage] = React.useState<File | null>(null);
 
+
+  console.log({transformedData})
+
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {

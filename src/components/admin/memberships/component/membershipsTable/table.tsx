@@ -96,28 +96,28 @@ interface searchCretiriaType {
 export default function MembershipsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-    const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
-      limit: 10,
-      offset: 0,
-      sort_order: "desc",
-      // sort_key:"created_at",
-    });
-    const [query, setQuery] = useState("");
-    const [openFilter, setOpenFilter] = useState(false);
-    const [filterData, setFilter] = useState({});
+  const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
+    limit: 10,
+    offset: 0,
+    sort_order: "desc",
+    sort_key: "created_at",
+  });
+  const [query, setQuery] = useState("");
+  const [openFilter, setOpenFilter] = useState(false);
+  const [filterData, setFilter] = useState<Record<string, any>>({});
 
-    useEffect(() => {
-      const params = new URLSearchParams();
-      for (const [key, value] of Object.entries(searchCretiria)) {
-        console.log({ key, value });
-        if (value !== undefined && value !== null) {
-          params.append(key, value);
-        }
+  useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchCretiria)) {
+      console.log({ key, value });
+      if (value !== undefined && value !== null) {
+        params.append(key, value);
       }
-      const newQuery = params.toString();
-      console.log({ newQuery });
-      setQuery(newQuery);
-    }, [searchCretiria]);
+    }
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery);
+  }, [searchCretiria]);
   const {
     data: membershipsData,
     isLoading,
@@ -126,7 +126,7 @@ export default function MembershipsTableView() {
     {
       skip: query == "",
     });
-  const [updateMemberships]=useUpdateMembershipsMutation()
+  const [updateMemberships] = useUpdateMembershipsMutation()
 
   const { data: groupData } = useGetGroupQuery(orgId);
 
@@ -135,26 +135,33 @@ export default function MembershipsTableView() {
   const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [action, setAction]=useState<'add'|'edit'>('add')
+  const [action, setAction] = useState<'add' | 'edit'>('add')
 
   const handleCloseDailog = () => setIsDialogOpen(false);
 
   const [formData, setFormData] = useState({});
-  
-  const toggleSortOrder = () => {
-    setSearchCretiria((prev) => ({
-      ...prev,
-      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
-    }));
+
+  const toggleSortOrder = (key: string) => {
+    setSearchCretiria((prev) => {
+      const newSortOrder = prev.sort_key === key
+        ? (prev.sort_order === "desc" ? "asc" : "desc")
+        : "desc"; // Default to descending order if the key is different
+
+      return {
+        ...prev,
+        sort_key: key,
+        sort_order: newSortOrder,
+      };
+    });
   };
 
   const membershipstableData = React.useMemo(() => {
-    return Array.isArray(membershipsData?.data) ?membershipsData.data : [];
+    return Array.isArray(membershipsData?.data) ? membershipsData.data : [];
   }, [membershipsData]);
 
   const { toast } = useToast();
 
-  const [data, setData] = useState<membeshipsTableType|undefined>(undefined);
+  const [data, setData] = useState<membeshipsTableType | undefined>(undefined);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
   const [filters, setFilters] = useState<any>();
@@ -195,8 +202,8 @@ export default function MembershipsTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
-  const handleStatusChange=async(payload:{status:string, id:number, org_id:number})=>{
-    console.log({payload})
+  const handleStatusChange = async (payload: { status: string, id: number, org_id: number }) => {
+    console.log({ payload })
     try {
       // payload.status=Boolean(payload.status)
       const resp = await updateMemberships(payload).unwrap();
@@ -228,7 +235,7 @@ export default function MembershipsTableView() {
 
   }
 
-  const handleEditMembership=(data:membeshipsTableType)=>{
+  const handleEditMembership = (data: membeshipsTableType) => {
     const updatedObject = {
       ...data,
       ...data.access_time,
@@ -242,7 +249,17 @@ export default function MembershipsTableView() {
   const columns: ColumnDef<membeshipsTableType>[] = [
     {
       accessorKey: "name",
-      header: ({ table }) => <span>Membership Name</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Membership Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return <span>{row.original.name}</span>;
       },
@@ -251,7 +268,17 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "group_id",
-      header: ({ table }) => <span>Group</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Group</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("group_id")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const group = groupData?.filter(
           (item) => item.value == row.original.group_id
@@ -273,7 +300,17 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "income_category_id",
-      header: ({ table }) => <span>Income Category</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Income Category</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("income_category_id")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const incomeCat = incomeCatData?.filter(
           (item) => item.id == row.original.income_category_id
@@ -285,7 +322,17 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "net_price",
-      header: ({ table }) => <span>Net Price</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Net Price</p>
+        {/* <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("net_price")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button> */}
+      </div>),
       cell: ({ row }) => {
         const { net_price } = row.original;
         return <span>{`Rs. ${net_price}`}</span>;
@@ -295,11 +342,35 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "discount",
-      header: ({ table }) => <span>Discount</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Discount</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("discount")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const { discount } = row.original;
 
         return <span>{`${discount?.toFixed(2)}%`}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "payment_method",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Payment Method</p>
+
+      </div>),
+      cell: ({ row }) => {
+        const { payment_method } = row.original;
+
+        return <span className="capitalize">{payment_method}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -321,7 +392,17 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "total_price",
-      header: ({ table }) => <span>Total Amount</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Total Amount</p>
+        <button
+          className=" size-5 text-gray-400 p-2 flex items-center justify-center"
+          onClick={() => toggleSortOrder("total_price")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const { total_price } = row.original;
         return <span>{`Rs. ${total_price}`}</span>;
@@ -331,7 +412,17 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "status",
-      header: ({ table }) => <span>Status</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Status</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("status")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const value = row.original?.status != null ? row.original?.status + "" : "false";
         const statusLabel = status.filter((r) => r.value === value)[0];
@@ -411,42 +502,69 @@ export default function MembershipsTableView() {
     // setFilters
   }
 
-  const handleOpen=()=>{
+  const handleOpen = () => {
     setAction('add')
     setIsDialogOpen(true)
     setData(undefined)
   }
 
-  const handleStatus =(value:string)=>{
-    setFilter(prev=>({
+  const handleStatus = (value: string) => {
+    setFilter(prev => ({
       ...prev,
-      status:value
+      status: value
     }))
   }
-  const handleGroup =(value:number)=>{
-    setFilter(prev=>({
+  const handleGroup = (value: number) => {
+    setFilter(prev => ({
       ...prev,
-        group_id:value
+      group_id: value
     }))
   }
-  const handleDiscountPrecentage =(e:React.ChangeEvent<HTMLInputElement>)=>{
-    const {value}=e.target
-    setFilter(prev=>({
-      ...prev,
-      discount_percentage:value
-    }))
+  const handleDiscountPrecentage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let { value, name } = e.target
+    let numericValue = Number(value);
+  if (numericValue > 99) {
+    numericValue = 100;
+    // Update the input field with the capped value
+    if (name) {
+      const inputElement = document.getElementById(name) as HTMLInputElement;
+      if (inputElement) {
+        inputElement.value = String(numericValue);
+      }
+    }
   }
-  const handleTotalAmount =(e:React.ChangeEvent<HTMLInputElement>)=>{
-    const {value}=e.target
-    setFilter(prev=>({
-      ...prev,
-      total_amount:value
-    }))
+
+    setFilter(prev => {
+      const newFilter = { ...prev };
+
+      if (value.trim() == "") {
+        delete newFilter.discount_percentage;
+      } else {
+        newFilter.discount_percentage = value;
+      }
+      console.log({ newFilter })
+      return newFilter;
+    });
+
   }
-  const handleIncomeCategory =(value:number)=>{
-    setFilter(prev=>({
+  const handleTotalAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target
+    setFilter(prev => {
+      const newFilter = { ...prev };
+
+      if (value.trim() == "") {
+        delete newFilter.total_amount;
+      } else {
+        newFilter.total_amount = value;
+      }
+
+      return newFilter;
+    });
+  }
+  const handleIncomeCategory = (value: number) => {
+    setFilter(prev => ({
       ...prev,
-      income_category_id:value
+      income_category_id: value
     }))
   }
 
@@ -457,7 +575,7 @@ export default function MembershipsTableView() {
       type: "select",
       name: "status",
       label: "Status",
-      options: [{id:"active", name:"Active"},{id:"inactive",name:"Inactive"}],
+      options: [{ id: "active", name: "Active" }, { id: "inactive", name: "Inactive" }],
       function: handleStatus,
     },
     {
@@ -483,7 +601,7 @@ export default function MembershipsTableView() {
       type: "select",
       name: "income_category_id",
       label: "Income Category",
-      options:incomeCatData,
+      options: incomeCatData,
       function: handleIncomeCategory,
     },
   ];
@@ -551,12 +669,12 @@ export default function MembershipsTableView() {
         >
           <i className="fa fa-filter"></i>
         </button>
-        <button
+        {/* {/* <button
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={toggleSortOrder}
         >
           <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order=='desc'?"rotate-180":"-rotate-180"}`}></i>
-        </button>
+        </button> */}
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
       <div className="rounded-none  ">
@@ -572,9 +690,9 @@ export default function MembershipsTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -734,7 +852,7 @@ export default function MembershipsTableView() {
         </div>
       </div>
 
-      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} data={data} setData={setData} refetch={refetch} action={action} setAction={setAction}/>
+      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} data={data} setData={setData} refetch={refetch} action={action} setAction={setAction} />
       <MembershipFilters
         isOpen={openFilter}
         setOpen={setOpenFilter}

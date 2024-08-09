@@ -79,7 +79,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  // sort_key:"created_at",
+  sort_key:"created_at",
 };
 
 export default function ExerciseTableView() {

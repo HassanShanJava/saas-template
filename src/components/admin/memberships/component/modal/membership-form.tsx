@@ -74,7 +74,7 @@ const defaultValue = {
   name: "",
   group_id: null,
   description: "",
-  status: "true",
+  status: "active",
   access_type: "no-restriction",
   limited_access_data: [],
   duration_type: "",

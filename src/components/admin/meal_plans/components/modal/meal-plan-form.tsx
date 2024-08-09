@@ -27,6 +27,13 @@ import {
 } from "@/components/ui/card";
 
 import {
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+  FileInput,
+} from "@/components/ui/file-uploader";
+
+import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
@@ -43,13 +50,6 @@ interface MealPlanForm {
   setOpen: any;
 }
 
-import {
-  FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
-  FileInput,
-} from "@/components/ui/file-uploader";
-
 import { DropzoneOptions } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
@@ -61,7 +61,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { zodResolver } from "@hookform/resolvers/zod";
+// import { zodResolver } from "@hookform/resolvers/zod";
 
 const chartData = [
   { food_component: "protein", percentage: 10, fill: "#8BB738" },

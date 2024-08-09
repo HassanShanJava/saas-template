@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MoreHorizontal, PlusIcon, Search } from "lucide-react";
+import { MoreHorizontal, PlusIcon, Rows, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -36,7 +36,7 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, MemberTabletypes } from "@/app/types";
+import { ErrorType, MemberTableDatatypes, MemberTabletypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
@@ -47,14 +47,16 @@ import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
   useGetAllMemberQuery,
-  useGetCoachesQuery,
   useGetMemberCountQuery,
 } from "@/services/memberAPi";
+import { useGetCoachesQuery, useGetCoachListQuery } from "@/services/coachApi";
 import MemberFilters from "./data-table-filter";
-import { useGetMembershipsQuery } from "@/services/membershipsApi";
+import { useGetMembershipListQuery, useGetMembershipsQuery } from "@/services/membershipsApi";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { Separator } from "@/components/ui/separator";
+import MemberForm from "../../memberForm/form";
 
-const downloadCSV = (data: MemberTabletypes[], fileName: string) => {
+const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -69,7 +71,8 @@ interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
-  client_name?: string;
+  sort_key?: string;
+  search_key?: string;
   status?: string;
   membership_plan?: string;
   coach_asigned?: string;
@@ -79,9 +82,11 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
+  // sort_key: "created_at",
 };
 
 export default function MemberTableView() {
+  const [isOpen, setOpen] = useState(false)
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCretiria, setSearchCretiria] =
@@ -99,9 +104,9 @@ export default function MemberTableView() {
       const newCriteria = { ...prev };
 
       if (debouncedInputValue.trim() !== "") {
-        newCriteria.client_name = debouncedInputValue;
+        newCriteria.search_key = debouncedInputValue;
       } else {
-        delete newCriteria.client_name;
+        delete newCriteria.search_key;
       }
 
       return newCriteria;
@@ -122,11 +127,18 @@ export default function MemberTableView() {
     setQuery(newQuery);
   }, [searchCretiria]);
 
-  const toggleSortOrder = () => {
-    setSearchCretiria((prev) => ({
-      ...prev,
-      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
-    }));
+  const toggleSortOrder = (key: string) => {
+    setSearchCretiria((prev) => {
+      const newSortOrder = prev.sort_key === key
+        ? (prev.sort_order === "desc" ? "asc" : "desc")
+        : "desc"; // Default to descending order if the key is different
+
+      return {
+        ...prev,
+        sort_key: key,
+        sort_order: newSortOrder,
+      };
+    });
   };
 
   const {
@@ -141,63 +153,45 @@ export default function MemberTableView() {
       skip: query == "",
     }
   );
-  
-  // const {
-  //   data: coachData,
-  //   error:coachError,
-  //   isError:isCoachError,
-  // } = useGetCoachesQuery(
-  //   { org_id: orgId, query:'' },
-  //   {
-  //     skip: query == "",
-  //   }
-  // );
-  const {
-    data: coachData,
-    error:coachError,
-    isError:isCoachError,
-  } = useGetCoachesQuery(orgId);
+
+  const { data: coachesData } = useGetCoachListQuery(orgId);
 
   const { data: count } = useGetMemberCountQuery(orgId);
-  const { data: membershipPlans } = useGetMembershipsQuery({
-    org_id: orgId,
-    query: "",
-  });
+  const { data: membershipPlans } = useGetMembershipListQuery(orgId);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isError|| isCoachError) {
-      // const errorMsg= error?.data?.detail as FetchBaseQueryError || coachError?.data?.detail  satisfies FetchBaseQueryError
+    if (isError) {
+      const typedError = error as ErrorType;
       toast({
         variant: "destructive",
-        // title: error?.data?.detail as unknown || coachError?.data?.detail  ,
-        title: "Error"  ,
+        title: "Error",
+        description: typedError.data?.detail ?? "Internal Server Errors",
       });
     }
-  }, [isError,isCoachError]);
+  }, [isError]);
 
-  function handleRoute() {
-    navigate("/admin/members/addmember");
+  function handleOpenForm() {
+    // navigate("/admin/members/addmember");
+    setOpen(true)
   }
   const memberTableData = React.useMemo(() => {
-    return Array.isArray(memberData) ? memberData : [];
+    return Array.isArray(memberData?.data) ? memberData?.data : [];
   }, [memberData]);
   const { toast } = useToast();
   console.log("data", { memberData, error });
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [filterID, setFilterID] = useState({});
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [isClear, setIsClear] = useState(false);
-  const [clearValue, setIsClearValue] = useState({});
+  const [data, setData] = useState<MemberTableDatatypes | undefined>(undefined);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10, // Adjust this based on your preference
+    pageSize: searchCretiria.limit, // Adjust this based on your preference
   });
   const displayValue = (value: string | undefined | null) =>
-    value == null || value == undefined || value == "" ? "N/A" : value;
+    value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
   const displayDate = (value: any) => {
     const date = new Date(value);
@@ -221,7 +215,14 @@ export default function MemberTableView() {
     }
     downloadCSV(selectedRows, "members_list.csv");
   };
-  const columns: ColumnDef<MemberTabletypes>[] = [
+
+
+  const handleEditMember = (data: MemberTableDatatypes) => {
+    setData(data as MemberTableDatatypes);
+    setOpen(true);
+  }
+
+  const columns: ColumnDef<MemberTableDatatypes>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -245,13 +246,35 @@ export default function MemberTableView() {
       enableSorting: false,
       enableHiding: false,
     },
+    // {
+    //   id: "id",
+    //   header: () => (
+    //     <span>S No.</span>
+    //   ),
+    //   cell: ({ row }) => (
+    //     <span>{row.index + 1 + (searchCretiria.offset)}.</span>
+    //   ),
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
     {
       accessorKey: "own_member_id",
-      header: "Member Id ",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Member Id</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("own_member_id")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original?.own_member_id)}
+
           </div>
         );
       },
@@ -259,64 +282,122 @@ export default function MemberTableView() {
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
-      header: "Member Name",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Member Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("first_name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {row.original.first_name} {row.original.last_name}
+            {displayValue(row.original.first_name + " " + row.original.last_name)}
+
           </div>
         );
       },
     },
     {
       accessorKey: "business_name",
-      header: "Business Name",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Business Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("business_name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original?.business_name)}
+
           </div>
         );
       },
     },
     {
-      accessorFn: (row) => row.phone ?? row.mobile_number,
-      id: "membership_plan",
-      header: "Membership Plan",
+      accessorFn: (row) => row.membership_plan_id,
+      id: "membership_plan_id",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Membership Plan</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("membership_plan_id")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
-        const contactNumber = row.original.phone ?? row.original.mobile_number;
+        const mebershipName = membershipPlans&&membershipPlans.filter((plan: any) => plan.id == row.original.membership_plan_id)[0];
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(contactNumber)}
+            {displayValue(mebershipName?.name ?? '')}
           </div>
         );
       },
     },
     {
-      accessorKey: "coach_name",
+      accessorKey: "coaches",
       header: "Coach",
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.coach_name)}
+            <div>
+              {row.original.coaches &&
+                row.original.coaches.map((coach) => (
+                  <p className="text-sm">{displayValue(coach.name)}</p>
+                ))}
+            </div>
           </div>
         );
       },
     },
     {
       accessorKey: "client_since",
-      header: "Activation Date",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Activation Date</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("client_since")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayDate(row?.original.client_since)}
+
           </div>
         );
       },
     },
     {
       accessorKey: "check_in",
-      header: "Last Check In",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Last Check In</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("check_in")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden text-black">
@@ -327,9 +408,18 @@ export default function MemberTableView() {
     },
     {
       accessorKey: "last_online",
-      header: "Last Login",
+      header:  () => (<div className="flex items-center gap-2">
+        <p>Last Login</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("last_online")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
-        console.log(row?.original.last_online, "last_online");
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden text-black">
             {displayValue(row?.original?.last_online)}
@@ -345,33 +435,26 @@ export default function MemberTableView() {
           row={row.original.id}
           data={row?.original}
           refetch={refetch}
+          handleEditMember={handleEditMember}
         />
       ),
     },
   ];
 
   const table = useReactTable({
-    data: memberTableData as MemberTabletypes[],
+    data: memberTableData as MemberTableDatatypes[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      pagination,
       sorting,
       columnVisibility,
       rowSelection,
-    },
-    initialState: {
-      pagination: {
-        pageSize: 10, // Set your default page size here
-      },
-    },
-    onPaginationChange: setPagination,
+    }
   });
 
   function handleMembershipplan(value: string) {
@@ -387,8 +470,8 @@ export default function MemberTableView() {
       coach_assigned: value,
     }));
   }
-  
-  function handleStatus(value: string) {
+
+  function handleMemberStatus(value: string) {
     setFilter((prev) => ({
       ...prev,
       status: value,
@@ -407,17 +490,65 @@ export default function MemberTableView() {
       type: "select",
       name: "coach_assigned",
       label: "Coach",
-      options: coachData&&coachData.map(item=> ({id:item.id, name:item.first_name+" "+item.last_name })),
+      options: coachesData && coachesData,
       function: handleCoachAssigned,
     },
     {
       type: "select",
       name: "status",
       label: "Status",
-      options: [{id:'pending',name:"Pending"},{id:"inactive",name:"Inactive"},{id:"active",name:"Active"}],
-      function: handleStatus,
+      options: [
+        { id: "pending", name: "Pending" },
+        { id: "inactive", name: "Inactive" },
+        { id: "active", name: "Active" },
+      ],
+      function: handleMemberStatus,
     },
   ];
+
+  console.log({ searchCretiria });
+
+  const totalRecords = memberData?.total_counts || 0;
+  const lastPageOffset = Math.max(
+    0,
+    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+  );
+  const isLastPage = searchCretiria.offset >= lastPageOffset;
+
+  const nextPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria((prev) => ({
+        ...prev,
+        offset: prev.offset + prev.limit,
+      }));
+    }
+  };
+
+  // Function to go to the previous page
+  const prevPage = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      offset: Math.max(0, prev.offset - prev.limit),
+    }));
+  };
+
+  // Function to go to the first page
+  const firstPage = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      offset: 0,
+    }));
+  };
+
+  // Function to go to the last page
+  const lastPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria((prev) => ({
+        ...prev,
+        offset: lastPageOffset,
+      }));
+    }
+  };
 
   return (
     <div className="w-full space-y-4">
@@ -433,7 +564,7 @@ export default function MemberTableView() {
             />
           </div>
         </div>
-        <Button className="bg-primary  text-black mr-1 " onClick={handleRoute}>
+        <Button className="bg-primary  text-black mr-1 " onClick={handleOpenForm}>
           <PlusIcon className="size-4" />
           Create New
         </Button>
@@ -444,14 +575,14 @@ export default function MemberTableView() {
         >
           <i className="fa fa-filter"></i>
         </button>
-        <button
+        {/* <button
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={toggleSortOrder}
         >
           <i
             className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
           ></i>
-        </button>
+        </button> */}
       </div>
       <div className="rounded-md border border-border ">
         <ScrollArea className="w-full relative">
@@ -466,9 +597,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -530,25 +661,25 @@ export default function MemberTableView() {
       </div>
 
       {/* pagination */}
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-          {count?.total_members}
-        </div>
-
-        <div className="flex items-center justify-center space-x-6 lg:space-x-8">
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">Rows per page</p>
+      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+        <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium">Items per page:</p>
             <Select
-              value={pagination.pageSize.toString()}
+              value={searchCretiria.limit.toString()}
               onValueChange={(value) => {
                 const newSize = Number(value);
-                setSearchCretiria((prev) => ({ ...prev, limit: newSize }));
+                setSearchCretiria((prev) => ({
+                  ...prev,
+                  limit: newSize,
+                  offset: 0, // Reset offset when page size changes
+                }));
               }}
             >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue>{pagination.pageSize}</SelectValue>
+              <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+                <SelectValue>{searchCretiria.limit}</SelectValue>
               </SelectTrigger>
-              <SelectContent side="top">
+              <SelectContent side="bottom">
                 {[5, 10, 20, 30, 40, 50].map((pageSize) => (
                   <SelectItem key={pageSize} value={pageSize.toString()}>
                     {pageSize}
@@ -557,91 +688,76 @@ export default function MemberTableView() {
               </SelectContent>
             </Select>
           </div>
+          <Separator
+            orientation="vertical"
+            className="h-11 w-[1px] bg-gray-300"
+          />
+          <span>
+            {" "}
+            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${memberData?.filtered_counts} Items  `}
+          </span>
+        </div>
 
-          <div className="flex items-center space-x-2 p-2">
+        <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center space-x-2">
+            <Separator
+              orientation="vertical"
+              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+            />
+
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    offset: 0,
-                  };
-                })
-              }
+              className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+              onClick={firstPage}
               disabled={searchCretiria.offset === 0}
             >
-              <span className="sr-only">Go to first page</span>
               <DoubleArrowLeftIcon className="h-4 w-4" />
             </Button>
 
+            <Separator
+              orientation="vertical"
+              className="h-11 w-[0.5px] bg-gray-300"
+            />
+
             <Button
               variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    offset: prev.offset - 1,
-                  };
-                })
-              }
+              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+              onClick={prevPage}
               disabled={searchCretiria.offset === 0}
             >
-              <span className="sr-only">Go to previous page</span>
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
+
+            <Separator
+              orientation="vertical"
+              className="h-11 w-[1px] bg-gray-300"
+            />
+
             <Button
               variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    offset: prev.offset + 1,
-                  };
-                })
-              }
-              disabled={
-                searchCretiria.offset ==
-                Math.ceil(
-                  (count?.total_members as number) / searchCretiria.limit
-                ) -
-                  1
-              }
+              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+              onClick={nextPage}
+              disabled={isLastPage}
             >
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
 
+            <Separator
+              orientation="vertical"
+              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+            />
+
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex "
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    offset:
-                      Math.ceil(
-                        (count?.total_members as number) / searchCretiria.limit
-                      ) - 1,
-                  };
-                })
-              }
-              disabled={
-                searchCretiria.offset ==
-                Math.ceil(
-                  (count?.total_members as number) / searchCretiria.limit
-                ) -
-                  1
-              }
+              className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+              onClick={lastPage}
+              disabled={isLastPage}
             >
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
-
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
       <MemberFilters
         isOpen={openFilter}
@@ -652,6 +768,7 @@ export default function MemberTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
+      <MemberForm isOpen={isOpen} setOpen={setOpen} data={data} />
     </div>
   );
 }

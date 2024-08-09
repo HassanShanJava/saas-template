@@ -1,16 +1,29 @@
 import {
+  addCoachResponseType,
   CoachInputTypes,
   CoachResponseTypeById,
+  CoachTypes,
+  coachUpdateInput,
   ServerResponseById,
 } from "@/app/types";
+
 import { apiSlice } from "@/features/api/apiSlice";
+
+
+
+interface coachInput{
+	query:string,
+	org_id:number
+}
+
+
 
 export const Roles = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      AddCoach: builder.mutation<any, CoachInputTypes>({
+      AddCoach: builder.mutation<addCoachResponseType, CoachInputTypes>({
         query: (coachdata) => ({
-          url: "/coach/coaches",
+          url: "/coach",
           method: "POST",
           body: coachdata,
           headers: {
@@ -22,41 +35,27 @@ export const Roles = apiSlice.injectEndpoints({
       }),
       getCoachCount: builder.query<{ total_coaches: number }, number>({
         query: (org_id) => ({
-          url: `/coach/getTotalCoach?org_id=${org_id}`,
-          headers: {
-            Accept: "application/json",
-          },
-        }),
-      }),
-      getMemberList: builder.query<{ id: number; name: string }[], number>({
-        query: (org_id) => ({
-          url: `/member/list?org_id=${org_id}`,
-          headers: {
-            Accept: "application/json",
-          },
-        }),
-        transformResponse: (
-          resp: { id: number; first_name: string; last_name: string }[]
-        ) =>
-          resp.map((member) => ({
-            id: member.id,
-            name: `${member.first_name} ${member.last_name}`,
-          })),
-      }),
-      getListOfCoach: builder.query<any, number>({
-        query: (org_id) => ({
-          url: `/coach/coaches/getAll?org_id=${org_id}`,
+          url: `/coach/count/${org_id}`,
           headers: {
             Accept: "application/json",
           },
         }),
         providesTags: ["Coaches"],
       }),
-      deleteCoach: builder.mutation<any, any>({
+      
+      getCoaches: builder.query<CoachTypes, coachInput>({
+        query: (searchCretiria) => ({
+          url: `/coach?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        providesTags: ["Coaches"],
+      }),
+      deleteCoach: builder.mutation<addCoachResponseType, number>({
         query: (coachId) => ({
-          url: "/coach/coaches",
+          url: `/coach/${coachId}`,
           method: "DELETE",
-          body: coachId,
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -66,7 +65,7 @@ export const Roles = apiSlice.injectEndpoints({
       }),
       updateCoach: builder.mutation<any, any>({
         query: (coachdata) => ({
-          url: "/coach/coaches",
+          url: "/coach",
           method: "PUT",
           body: coachdata,
           headers: {
@@ -78,7 +77,7 @@ export const Roles = apiSlice.injectEndpoints({
       }),
       getCoachById: builder.query<CoachResponseTypeById, number>({
         query: (coach_id) => ({
-          url: `/coach/coaches?coach_id=${coach_id}`,
+          url: `/coach/${coach_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -92,7 +91,17 @@ export const Roles = apiSlice.injectEndpoints({
           };
         },
         providesTags: (result, error, arg) => [{ type: "Coaches", id: arg }],
-        // providesTags: ["Coaches"],
+      }),
+      
+      getCoachList: builder.query<{id:number, name:string}[], number>({
+        query: (org_id) => ({
+          url: `/coach/list/${org_id}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+          providesTags:["Coaches"],
+        }),
       }),
     };
   },
@@ -101,9 +110,9 @@ export const Roles = apiSlice.injectEndpoints({
 export const {
   useAddCoachMutation,
   useGetCoachCountQuery,
-  useGetMemberListQuery,
-  useGetListOfCoachQuery,
+  useGetCoachesQuery,
   useDeleteCoachMutation,
   useUpdateCoachMutation,
   useGetCoachByIdQuery,
+  useGetCoachListQuery,
 } = Roles;

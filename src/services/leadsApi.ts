@@ -5,12 +5,12 @@ import {
   LeadResponseTypes,
   updateStatusInput,
   updateStaffInput,
-  updateLeadInput
+  updateLeadInput,
 } from "../app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
 export const Leads = apiSlice.injectEndpoints({
-	endpoints(builder) {
+  endpoints(builder) {
     return {
       AddLead: builder.mutation<LeadResponseTypes, LeadInputTypes>({
         query: (leaddata) => ({
@@ -49,7 +49,7 @@ export const Leads = apiSlice.injectEndpoints({
           },
         }),
       }),
-      updateStaff: builder.mutation<any, updateStaffInput>({
+      updateleadStaff: builder.mutation<any, updateStaffInput>({
         query: (clientdata) => ({
           url: "/leads/staff",
           method: "PUT",
@@ -80,5 +80,5 @@ export const {
   useAddLeadMutation,
   useGetLeadsQuery,
   useUpdateStatusMutation,
-  useUpdateStaffMutation,
+  useUpdateleadStaffMutation,
 } = Leads;

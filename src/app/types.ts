@@ -1,9 +1,55 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
+export interface createFoodTypes {
+  org_id: number;
+  name: string;
+  brand: string;
+  category: string;
+  description?: string;
+  other_name?: string;
+  total_nutrition?: number;
+  kcal?: number;
+  protein?: number;
+  fat?: number;
+  carbohydrates?: number;
+  carbs_sugar?: number;
+  carbs_saturated?: number;
+  kilojoules?: number;
+  fiber?: number;
+  calcium?: number;
+  iron?: number;
+  magnesium?: number;
+  phosphorus?: number;
+  potassium?: number;
+  sodium?: number;
+  zinc?: number;
+  copper?: number;
+  selenium?: number;
+  vitamin_a?: number;
+  vitamin_b1?: number;
+  vitamin_b2?: number;
+  vitamin_b6?: number;
+  vitamin_b12?: number;
+  vitamin_c?: number;
+  vitamin_d?: number;
+  vitamin_e?: number;
+  folic_acid?: number;
+  fat_unsaturated?: number;
+  cholesterol?: number;
+  alcohol?: number;
+  alchohol_mono?: number;
+  alchohol_poly?: number;
+  trans_fat?: number;
+  weight?: number;
+  weight_unit?: string;
+  created_at?: Date;
+  created_by?: number;
+}
+
 export interface createRoleTypes {
   org_id: number;
-  status: boolean;
+  status: string;
   name: string;
   resource_id: Array<number>;
   access_type: Array<string>;
@@ -22,8 +68,10 @@ export interface resourceTypes {
   code: string | undefined;
   parent: string | undefined;
   subRows?: resourceTypes[];
+  access_type?: string;
   children?: resourceTypes[];
   is_parent: boolean;
+  is_root: boolean;
   link: string;
   icon: string;
 }
@@ -80,9 +128,15 @@ export interface createMembershipType {
   renewal_details: renewalData | object;
   facilities: facilitiesData[] | [];
   created_by: number | null;
-  inv_days_cycle?:number|null;
-  auto_renew_days?:number|null;
-  prolongation_period?:number|null;
+  inv_days_cycle?: number | null;
+  auto_renew_days?: number | null;
+  prolongation_period?: number | null;
+}
+
+export interface  membeshipsTableResonseType{
+  data:membeshipsTableType[];
+  total_counts:number;
+  filtered_counts:number;
 }
 
 export interface membeshipsTableType extends createMembershipType {
@@ -102,6 +156,12 @@ export interface incomeCategoryTableType {
   name: string;
   org_id: number;
   sale_tax_id: number;
+}
+
+export interface incomeCategoryTableResponseType {
+  data: incomeCategoryResponseType[];
+  total_counts: number;
+  filtered_counts: number;
 }
 export interface incomeCategoryResponseType {
   id: number;
@@ -141,6 +201,13 @@ export interface saleTaxesTableType {
   name: string;
   org_id: number;
   percentage: number;
+  
+}
+
+export interface saleTaxTableType{
+  data:saleTaxesResponseType[]
+  total_counts: number;
+  filtered_counts: number;
 }
 export interface saleTaxesResponseType {
   name: string;
@@ -150,6 +217,12 @@ export interface saleTaxesResponseType {
   is_deleted: boolean;
   created_at: Date;
   updated_at: Date;
+}
+
+export interface creditsTableResponseType {
+  data:creditsResponseType[];
+  total_counts: number;
+  filtered_counts: number;
 }
 export interface creditsResponseType {
   created_at: Date;
@@ -332,7 +405,7 @@ export interface MemberInputTypes {
   created_at?: string | null;
   created_by?: number | null;
   org_id: number;
-  coach_id?: number;
+  coach_id?: any[];
   membership_plan_id: number | undefined;
   send_invitation?: boolean;
   status?: string;
@@ -366,7 +439,7 @@ export interface MemberResponseTypes {
   created_at?: string | null;
   created_by?: number | null;
   org_id: number;
-  coach_id?: number | null;
+  coach_id?: any[] | null;
   membership_plan_id: number | undefined;
   send_invitation?: boolean | null;
   status?: string | null;
@@ -378,6 +451,11 @@ export interface updateStatusInput {
   lead_id: number;
 }
 export interface MemberTabletypes {
+  data: MemberTableDatatypes[];
+  total_counts: number;
+  filtered_counts: number;
+}
+export interface MemberTableDatatypes {
   id: number;
   own_member_id: string;
   first_name: string;
@@ -390,6 +468,10 @@ export interface MemberTabletypes {
   client_since?: string | null;
   business_name?: string | null;
   coach_name?: string | null;
+  coaches?: {
+    id: number,
+    name: string
+  }[];
 }
 
 export interface CoachTableTypes {
@@ -434,6 +516,7 @@ export interface updateStatusInput {
 
 export interface getRolesType {
   name: string;
+  status?: boolean;
   id: number;
 }
 
@@ -467,6 +550,38 @@ export interface CoachInputTypes {
   created_by?: number;
   member_ids: any;
   org_id: number;
+}
+export interface addCoachResponseType {
+  wallet_address?: string;
+  org_id: number;
+  coach_status: "pending" | "active" | "inactive";
+  own_coach_id: string;
+  profile_img?: string;
+  first_name: string;
+  last_name: string;
+  dob: string;
+  gender?: "male" | "female" | "other";
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  country_id: number;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  check_in?: string;
+  last_online?: string;
+  coach_since?: string;
+  bank_name?: string;
+  iban_no?: string;
+  acc_holder_name?: string;
+  swift_code?: string;
+  id: number;
+  created_at?: string;
+  updated_at?: string;
+  member_ids?: any;
 }
 
 export interface CoachResponseType {
@@ -510,6 +625,42 @@ interface Member {
   name: string;
 }
 
+export interface CoachTypes {
+  data: CoachTableDataTypes[],
+  total_counts: number;
+  filtered_counts: number;
+}
+
+export interface CoachTableDataTypes {
+  id: number;
+  own_coach_id: string;
+  profile_img?: string;
+  first_name: string;
+  last_name: string;
+  dob: string; // ISO date string
+  gender: "male" | "female" | "other";
+  email: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number;
+  country_id: number;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  check_in?: string | null;
+  last_online?: string | null;
+  coach_since?: string | null; // ISO date string
+  coach_status: "pending" | "active" | "inactive";
+  org_id: number;
+  bank_name?: string;
+  iban_no?: string;
+  acc_holder_name?: string;
+  swift_code?: string;
+  created_at?: string;
+  member_ids: Member[];
+}
 export interface CoachResponseTypeById {
   id: number;
   own_coach_id: string;
@@ -531,7 +682,7 @@ export interface CoachResponseTypeById {
   check_in?: string | null;
   last_online?: string | null;
   coach_since?: string | null; // ISO date string
-  coach_status: "pending" | "active" | "inactive" | undefined;
+  coach_status: "pending" | "active" | "inactive";
   org_id: number;
   bank_name?: string;
   iban_no?: string;
@@ -623,6 +774,11 @@ export interface StaffResponseType {
   last_checkin?: string;
 }
 
+export interface staffTableTypes {
+  data: staffTypesResponseList[];
+  total_counts: number;
+  filtered_counts: number;
+}
 export interface staffTypesResponseList {
   own_staff_id: string;
   profile_img?: string;
@@ -649,4 +805,66 @@ export interface staffTypesResponseList {
   activated_on?: string;
   last_online?: string;
   last_checkin?: string;
+}
+
+export interface coachUpdateInput {
+  wallet_address?: string;
+  org_id?: 0;
+  coach_status?: "pending" | "active" | "inactive";
+  own_coach_id?: string;
+  profile_img?: string;
+  first_name?: string;
+  last_name?: string;
+  dob?: string;
+  gender?: "male" | "female" | "other";
+  email?: string;
+  password?: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id?: number;
+  country_id?: number;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  check_in?: string;
+  last_online?: string;
+  coach_since?: string;
+  bank_name: string;
+  iban_no: string;
+  acc_holder_name: string;
+  swift_code: string;
+  id: number;
+  updated_by?: number;
+  member_ids?: any;
+}
+
+export interface muscleserverResponse {
+  id: number;
+  muscle_name: string;
+}
+export interface baseExerciseApiResponse {
+  id: number;
+  name: string;
+}
+
+export interface EquipmentApiResponse {
+  id: number;
+  equipment_name: string;
+}
+
+export interface CategoryApiResponse {
+  id: number;
+  category_name: string;
+}
+
+export interface JointApiResponse {
+  id: number;
+  joint_name: string;
+}
+
+export interface MetApiResponse {
+  id: number;
+  met_value: string;
 }

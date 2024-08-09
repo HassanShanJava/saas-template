@@ -44,16 +44,17 @@ import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import MembershipForm from "../modal/membership-form";
 import { useGetMembershipsQuery, useUpdateMembershipsMutation } from "@/services/membershipsApi";
-import { useGetIncomeCategoryQuery } from "@/services/incomeCategoryApi";
-import { useGetSalesTaxQuery } from "@/services/salesTaxApi";
+import { useGetIncomeCategorListQuery, useGetIncomeCategoryQuery } from "@/services/incomeCategoryApi";
+import { useGetSalesTaxListQuery, useGetSalesTaxQuery } from "@/services/salesTaxApi";
 import { useGetGroupQuery } from "@/services/groupsApis";
 import { preventContextMenu } from "@fullcalendar/core/internal";
 import MembershipFilters from "./data-table-filter";
+import { Separator } from "@/components/ui/separator";
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
 const status = [
-  { value: "true", label: "Active", color: "bg-green-500" },
-  { value: "false", label: "Inactive", color: "bg-blue-500" },
+  { value: "active", label: "Active", color: "bg-green-500" },
+  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
 ];
 
 
@@ -89,32 +90,34 @@ interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
+  sort_key?: string;
 }
 
 export default function MembershipsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-    const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
-      limit: 10,
-      offset: 0,
-      sort_order: "desc",
-    });
-    const [query, setQuery] = useState("");
-    const [openFilter, setOpenFilter] = useState(false);
-    const [filterData, setFilter] = useState({});
+  const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
+    limit: 10,
+    offset: 0,
+    sort_order: "desc",
+    sort_key: "created_at",
+  });
+  const [query, setQuery] = useState("");
+  const [openFilter, setOpenFilter] = useState(false);
+  const [filterData, setFilter] = useState<Record<string, any>>({});
 
-    useEffect(() => {
-      const params = new URLSearchParams();
-      for (const [key, value] of Object.entries(searchCretiria)) {
-        console.log({ key, value });
-        if (value !== undefined && value !== null) {
-          params.append(key, value);
-        }
+  useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchCretiria)) {
+      console.log({ key, value });
+      if (value !== undefined && value !== null) {
+        params.append(key, value);
       }
-      const newQuery = params.toString();
-      console.log({ newQuery });
-      setQuery(newQuery);
-    }, [searchCretiria]);
+    }
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery);
+  }, [searchCretiria]);
   const {
     data: membershipsData,
     isLoading,
@@ -123,35 +126,42 @@ export default function MembershipsTableView() {
     {
       skip: query == "",
     });
-  const [updateMemberships]=useUpdateMembershipsMutation()
+  const [updateMemberships] = useUpdateMembershipsMutation()
 
   const { data: groupData } = useGetGroupQuery(orgId);
 
-  const { data: incomeCatData } = useGetIncomeCategoryQuery({org_id:orgId,query:""});
+  const { data: incomeCatData } = useGetIncomeCategorListQuery(orgId);
 
-  const { data: salesTaxData } = useGetSalesTaxQuery({org_id:orgId,query:""});
+  const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [action, setAction]=useState<'add'|'edit'>('add')
+  const [action, setAction] = useState<'add' | 'edit'>('add')
 
   const handleCloseDailog = () => setIsDialogOpen(false);
 
   const [formData, setFormData] = useState({});
-  
-  const toggleSortOrder = () => {
-    setSearchCretiria((prev) => ({
-      ...prev,
-      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
-    }));
+
+  const toggleSortOrder = (key: string) => {
+    setSearchCretiria((prev) => {
+      const newSortOrder = prev.sort_key === key
+        ? (prev.sort_order === "desc" ? "asc" : "desc")
+        : "desc"; // Default to descending order if the key is different
+
+      return {
+        ...prev,
+        sort_key: key,
+        sort_order: newSortOrder,
+      };
+    });
   };
 
   const membershipstableData = React.useMemo(() => {
-    return Array.isArray(membershipsData) ? membershipsData : [];
+    return Array.isArray(membershipsData?.data) ? membershipsData.data : [];
   }, [membershipsData]);
 
   const { toast } = useToast();
 
-  const [data, setData] = useState<membeshipsTableType|undefined>(undefined);
+  const [data, setData] = useState<membeshipsTableType | undefined>(undefined);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
   const [filters, setFilters] = useState<any>();
@@ -159,10 +169,7 @@ export default function MembershipsTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10, // Adjust this based on your preference
-  });
+  
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -192,8 +199,8 @@ export default function MembershipsTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
-  const handleStatusChange=async(payload:{status:string, id:number, org_id:number})=>{
-    console.log({payload})
+  const handleStatusChange = async (payload: { status: string, id: number, org_id: number }) => {
+    console.log({ payload })
     try {
       // payload.status=Boolean(payload.status)
       const resp = await updateMemberships(payload).unwrap();
@@ -225,7 +232,7 @@ export default function MembershipsTableView() {
 
   }
 
-  const handleEditMembership=(data:membeshipsTableType)=>{
+  const handleEditMembership = (data: membeshipsTableType) => {
     const updatedObject = {
       ...data,
       ...data.access_time,
@@ -239,7 +246,17 @@ export default function MembershipsTableView() {
   const columns: ColumnDef<membeshipsTableType>[] = [
     {
       accessorKey: "name",
-      header: ({ table }) => <span>Membership Name</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Membership Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return <span>{row.original.name}</span>;
       },
@@ -248,7 +265,17 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "group_id",
-      header: ({ table }) => <span>Group</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Group</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("group_id")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const group = groupData?.filter(
           (item) => item.value == row.original.group_id
@@ -270,7 +297,17 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "income_category_id",
-      header: ({ table }) => <span>Income Category</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Income Category</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("income_category_id")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const incomeCat = incomeCatData?.filter(
           (item) => item.id == row.original.income_category_id
@@ -282,7 +319,17 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "net_price",
-      header: ({ table }) => <span>Net Price</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Net Price</p>
+        {/* <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("net_price")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button> */}
+      </div>),
       cell: ({ row }) => {
         const { net_price } = row.original;
         return <span>{`Rs. ${net_price}`}</span>;
@@ -292,11 +339,35 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "discount",
-      header: ({ table }) => <span>Discount</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Discount</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("discount")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const { discount } = row.original;
 
         return <span>{`${discount?.toFixed(2)}%`}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "payment_method",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Payment Method</p>
+
+      </div>),
+      cell: ({ row }) => {
+        const { payment_method } = row.original;
+
+        return <span className="capitalize">{payment_method}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -318,7 +389,17 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "total_price",
-      header: ({ table }) => <span>Total Amount</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Total Amount</p>
+        <button
+          className=" size-5 text-gray-400 p-2 flex items-center justify-center"
+          onClick={() => toggleSortOrder("total_price")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const { total_price } = row.original;
         return <span>{`Rs. ${total_price}`}</span>;
@@ -328,7 +409,17 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "status",
-      header: ({ table }) => <span>Status</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Status</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("status")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         const value = row.original?.status != null ? row.original?.status + "" : "false";
         const statusLabel = status.filter((r) => r.value === value)[0];
@@ -374,7 +465,7 @@ export default function MembershipsTableView() {
           data={row.original}
           refetch={refetch}
           handleEdit={handleEditMembership}
-        />
+          />
       ),
     },
   ];
@@ -384,23 +475,16 @@ export default function MembershipsTableView() {
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      pagination,
       sorting,
       columnVisibility,
       rowSelection,
     },
-    initialState: {
-      pagination: {
-        pageSize: 10, // Set your default page size here
-      },
-    },
-    onPaginationChange: setPagination,
+
   });
 
   function handlePagination(page: number) {
@@ -408,25 +492,72 @@ export default function MembershipsTableView() {
     // setFilters
   }
 
-  const handleOpen=()=>{
+  const handleOpen = () => {
     setAction('add')
     setIsDialogOpen(true)
     setData(undefined)
   }
 
-  const handleStatus =(value:string)=>{
-    setFilter(prev=>({
+  const handleStatus = (value: string) => {
+    setFilter(prev => ({
       ...prev,
-      status:value
+      status: value
     }))
   }
-  const handleGroup =(value:number)=>{
-    console.log("grop")
-    setFilter(prev=>({
+  const handleGroup = (value: number) => {
+    setFilter(prev => ({
       ...prev,
-        group_id:value
+      group_id: value
     }))
   }
+  const handleDiscountPrecentage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let { value, name } = e.target
+    let numericValue = Number(value);
+  if (numericValue > 99) {
+    numericValue = 100;
+    // Update the input field with the capped value
+    if (name) {
+      const inputElement = document.getElementById(name) as HTMLInputElement;
+      if (inputElement) {
+        inputElement.value = String(numericValue);
+      }
+    }
+  }
+
+    setFilter(prev => {
+      const newFilter = { ...prev };
+
+      if (value.trim() == "") {
+        delete newFilter.discount_percentage;
+      } else {
+        newFilter.discount_percentage = value;
+      }
+      console.log({ newFilter })
+      return newFilter;
+    });
+
+  }
+  const handleTotalAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target
+    setFilter(prev => {
+      const newFilter = { ...prev };
+
+      if (value.trim() == "") {
+        delete newFilter.total_amount;
+      } else {
+        newFilter.total_amount = value;
+      }
+
+      return newFilter;
+    });
+  }
+  const handleIncomeCategory = (value: number) => {
+    setFilter(prev => ({
+      ...prev,
+      income_category_id: value
+    }))
+  }
+
 
 
   const filterDisplay = [
@@ -434,7 +565,7 @@ export default function MembershipsTableView() {
       type: "select",
       name: "status",
       label: "Status",
-      options: [{id:"true", name:"Active"},{id:"false",name:"Inactive"}],
+      options: [{ id: "active", name: "Active" }, { id: "inactive", name: "Inactive" }],
       function: handleStatus,
     },
     {
@@ -444,7 +575,70 @@ export default function MembershipsTableView() {
       options: groupData,
       function: handleGroup,
     },
+    {
+      type: "percentage",
+      name: "discount",
+      label: "Discount Percentage",
+      function: handleDiscountPrecentage,
+    },
+    {
+      type: "number",
+      name: "total_amount",
+      label: "Total Amount",
+      function: handleTotalAmount,
+    },
+    {
+      type: "select",
+      name: "income_category_id",
+      label: "Income Category",
+      options: incomeCatData,
+      function: handleIncomeCategory,
+    },
   ];
+
+
+  const totalRecords = membershipsData?.total_counts || 0;
+  const lastPageOffset = Math.max(
+    0,
+    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+  );
+  const isLastPage = searchCretiria.offset >= lastPageOffset;
+
+  const nextPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria((prev) => ({
+        ...prev,
+        offset: prev.offset + prev.limit,
+      }));
+    }
+  };
+
+  // Function to go to the previous page
+  const prevPage = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      offset: Math.max(0, prev.offset - prev.limit),
+    }));
+  };
+
+  // Function to go to the first page
+  const firstPage = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      offset: 0,
+    }));
+  };
+
+  // Function to go to the last page
+  const lastPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria((prev) => ({
+        ...prev,
+        offset: lastPageOffset,
+      }));
+    }
+  };
+
 
   return (
     <div className="w-full space-y-4">
@@ -465,12 +659,12 @@ export default function MembershipsTableView() {
         >
           <i className="fa fa-filter"></i>
         </button>
-        <button
+        {/* {/* <button
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={toggleSortOrder}
         >
           <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order=='desc'?"rotate-180":"-rotate-180"}`}></i>
-        </button>
+        </button> */}
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
       <div className="rounded-none  ">
@@ -486,9 +680,9 @@ export default function MembershipsTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -550,25 +744,25 @@ export default function MembershipsTableView() {
       </div>
 
       {/* pagination */}
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-          {/* {count?.total_members} */}
-        </div>
-
-        <div className="flex items-center justify-center space-x-6 lg:space-x-8">
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">Rows per page</p>
+      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+        <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium">Items per page:</p>
             <Select
-              value={pagination.pageSize.toString()}
+              value={searchCretiria.limit.toString()}
               onValueChange={(value) => {
                 const newSize = Number(value);
-                setSearchCretiria((prev) => ({ ...prev, limit: newSize }));
+                setSearchCretiria((prev) => ({
+                  ...prev,
+                  limit: newSize,
+                  offset: 0, // Reset offset when page size changes
+                }));
               }}
             >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue>{pagination.pageSize}</SelectValue>
+              <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+                <SelectValue>{searchCretiria.limit}</SelectValue>
               </SelectTrigger>
-              <SelectContent side="top">
+              <SelectContent side="bottom">
                 {[5, 10, 20, 30, 40, 50].map((pageSize) => (
                   <SelectItem key={pageSize} value={pageSize.toString()}>
                     {pageSize}
@@ -577,84 +771,70 @@ export default function MembershipsTableView() {
               </SelectContent>
             </Select>
           </div>
+          <Separator
+            orientation="vertical"
+            className="h-11 w-[1px] bg-gray-300"
+          />
+          <span>
+            {" "}
+            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${membershipsData?.filtered_counts} Items  `}
+          </span>
+        </div>
 
-          <div className="flex items-center space-x-2 p-2">
+        <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center space-x-2">
+            <Separator
+              orientation="vertical"
+              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+            />
+
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    offset: 0,
-                  };
-                })
-              }
+              className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+              onClick={firstPage}
               disabled={searchCretiria.offset === 0}
             >
-              <span className="sr-only">Go to first page</span>
               <DoubleArrowLeftIcon className="h-4 w-4" />
             </Button>
 
+            <Separator
+              orientation="vertical"
+              className="h-11 w-[0.5px] bg-gray-300"
+            />
+
             <Button
               variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    offset: prev.offset - 1,
-                  };
-                })
-              }
+              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+              onClick={prevPage}
               disabled={searchCretiria.offset === 0}
             >
-              <span className="sr-only">Go to previous page</span>
               <ChevronLeftIcon className="h-4 w-4" />
             </Button>
+
+            <Separator
+              orientation="vertical"
+              className="h-11 w-[1px] bg-gray-300"
+            />
+
             <Button
               variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() =>
-                setSearchCretiria((prev) => {
-                  return {
-                    ...prev,
-                    offset: prev.offset + 1,
-                  };
-                })
-              }
-              // disabled={
-              //   searchCretiria.offset ==
-              //   Math.ceil(
-              //     (count?.total_members as number) / searchCretiria.limit
-              //   ) -
-              //     1
-              // }
+              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+              onClick={nextPage}
+              disabled={isLastPage}
             >
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
 
+            <Separator
+              orientation="vertical"
+              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+            />
+
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex "
-              // onClick={() =>
-              //   setSearchCretiria((prev) => {
-              //     return {
-              //       ...prev,
-              //       offset:
-              //         Math.ceil(
-              //           (count?.total_members as number) / searchCretiria.limit
-              //         ) - 1,
-              //     };
-              //   })
-              // }
-              // disabled={
-              //   searchCretiria.offset ==
-              //   Math.ceil(
-              //     (count?.total_members as number) / searchCretiria.limit
-              //   ) -
-              //     1
-              // }
+              className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+              onClick={lastPage}
+              disabled={isLastPage}
             >
               <DoubleArrowRightIcon className="h-4 w-4" />
             </Button>
@@ -662,7 +842,7 @@ export default function MembershipsTableView() {
         </div>
       </div>
 
-      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} data={data} setData={setData} refetch={refetch} action={action} setAction={setAction}/>
+      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} data={data} setData={setData} refetch={refetch} action={action} setAction={setAction} />
       <MembershipFilters
         isOpen={openFilter}
         setOpen={setOpenFilter}

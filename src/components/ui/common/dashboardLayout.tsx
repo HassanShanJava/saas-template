@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { Header } from "./header";
 import { Toaster } from "@/components/ui/toaster";
 import "./style.css";
+import { IoIosFitness } from "react-icons/io";
 
 import {
   Accordion,
@@ -95,20 +96,20 @@ const navItems: NavItem[] = [
     icon: MultiUserIcon,
     dropdown: false,
   },
-  {
-    name: "Leads",
-    link: "/admin/leads",
-    icon: RocketIcon,
-    dropdown: false,
-    hiddenRoutes: ["/admin/leads/addlead", "/admin/leads/editleads"],
-  },
-  {
-    name: "Events",
-    link: "/admin/events",
-    icon: EventsIcon,
-    dropdown: false,
-    hiddenRoutes: ["/admin/events/addevents", "/admin/events/editevents"],
-  },
+  // {
+  //   name: "Leads",
+  //   link: "/admin/leads",
+  //   icon: RocketIcon,
+  //   dropdown: false,
+  //   hiddenRoutes: ["/admin/leads/addlead", "/admin/leads/editleads"],
+  // },
+  // {
+  //   name: "Events",
+  //   link: "/admin/events",
+  //   icon: EventsIcon,
+  //   dropdown: false,
+  //   hiddenRoutes: ["/admin/events/addevents", "/admin/events/editevents"],
+  // },
   {
     name: "Coach",
     link: "/admin/coach",
@@ -116,24 +117,37 @@ const navItems: NavItem[] = [
     dropdown: false,
     hiddenRoutes: ["/admin/coach/addcoach", "/admin/coach/editcoach"],
   },
+  // {
+  //   name: "Exercise",
+  //   link: "/admin/exercise",
+  //   icon: IoIosFitness,
+  //   dropdown: false,
+  //   hiddenRoutes: ["/admin/exercise/addexercise"],
+  // },
+  // {
+  //   name: "Workout Plan",
+  //   link: "/admin/workoutplans",
+  //   icon: IoIosFitness,
+  //   dropdown: false,
+  // },
   {
     name: "Roles & Access Management",
     link: "/admin/roles",
     icon: EventsIcon,
     dropdown: false,
   },
-  {
-    name: "Meal Plans",
-    link: "/admin/mealplans",
-    icon: EventsIcon,
-    dropdown: false,
-  },
-  {
-    name: "Food/ Nutrition",
-    link: "/admin/foods",
-    icon: EventsIcon,
-    dropdown: false,
-  },
+  // {
+  //   name: "Meal Plans",
+  //   link: "/admin/mealplans",
+  //   icon: EventsIcon,
+  //   dropdown: false,
+  // },
+  // {
+  //   name: "Food/ Nutrition",
+  //   link: "/admin/foods",
+  //   icon: EventsIcon,
+  //   dropdown: false,
+  // },
   {
     name: "Manage",
     dropdown: true,
@@ -176,7 +190,6 @@ const navItems: NavItem[] = [
       },
     ],
   },
-  
 ];
 
 const DashboardLayout: React.FC = () => {
@@ -200,7 +213,10 @@ const DashboardLayout: React.FC = () => {
       <div
         className={`bg-white border-r text-black shadow-md transition-all duration-300 ${isSidebarOpen ? "w-72" : "w-16"} max-h-screen custom-scrollbar-right `}
       >
-        <div style={{direction:"ltr"}} className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white ">
+        <div
+          style={{ direction: "ltr" }}
+          className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white "
+        >
           <Link to="#" className="flex items-center gap-2 font-semibold">
             <img
               src="/dashboard-svg.svg"
@@ -219,13 +235,18 @@ const DashboardLayout: React.FC = () => {
             <MenuIcon className="h-6 w-6" />
           </Button> */}
         </div>
-        <nav style={{direction:"ltr"}} className="flex flex-col gap-1 px-2 py-2 ">
+        <nav
+          style={{ direction: "ltr" }}
+          className="flex flex-col gap-1 px-2 py-2 "
+        >
           {navItems.map(
-            ({ name, link, icon: Icon, dropdown, children, hiddenRoutes }) => (
+            (
+              { name, link, icon: Icon, dropdown, children, hiddenRoutes },
+              i
+            ) => (
               <>
                 {!dropdown && (
                   <Link
-                    key={name}
                     to={link}
                     className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(link, hiddenRoutes) ? "bg-primary" : ""}`}
                   >

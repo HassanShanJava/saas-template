@@ -1,15 +1,22 @@
 import {
   StaffInputType,
   StaffResponseType,
+  staffTableTypes,
   staffTypesResponseList,
 } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
+
+
+interface staffInput{
+	query:string,
+	org_id:number
+}
 
 export const StaffApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getStaffCount: builder.query<{ total_staffs: number }, number>({
       query: (org_id) => ({
-        url: `/staff/staffs/getTotalStaff?org_id=${org_id}`,
+        url: `/staff/count/${org_id}`,
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -20,7 +27,7 @@ export const StaffApi = apiSlice.injectEndpoints({
     //get the satff by Id
     getStaffById: builder.query<StaffResponseType, number>({
       query: (staff_id) => ({
-        url: `/staff/staffs?staff_id=${staff_id}`,
+        url: `/staff/${staff_id}`,
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -31,7 +38,7 @@ export const StaffApi = apiSlice.injectEndpoints({
     // Adding the Staff
     AddStaff: builder.mutation<StaffResponseType, StaffInputType>({
       query: (staffdata) => ({
-        url: "/staff/staffs",
+        url: "/staff",
         method: "POST",
         body: staffdata,
         headers: {
@@ -41,9 +48,9 @@ export const StaffApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Staffs"],
     }),
-    GetStaffList: builder.query<staffTypesResponseList[], number>({
-      query: (org_id) => ({
-        url: `/staff/staffs/getAll?org_id=${org_id}`,
+    getStaffs: builder.query<staffTableTypes, staffInput>({
+      query: (searchCretiria) => ({
+        url: `/staff?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -51,9 +58,9 @@ export const StaffApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Staffs"],
     }),
-    deleteStaff: builder.mutation<any, { id: number }>({
+    deleteStaff: builder.mutation<any, number>({
       query: (staffId) => ({
-        url: "/staff/staffs",
+        url: `/staff/${staffId}`,
         method: "DELETE",
         body: staffId,
         headers: {
@@ -65,7 +72,7 @@ export const StaffApi = apiSlice.injectEndpoints({
     }),
     updateStaff: builder.mutation<staffTypesResponseList, StaffInputType>({
       query: (staffdata) => ({
-        url: "/staff/staffs",
+        url: "/staff",
         method: "PUT",
         body: staffdata,
         headers: {
@@ -82,7 +89,7 @@ export const {
   useGetStaffCountQuery,
   useGetStaffByIdQuery,
   useAddStaffMutation,
-  useGetStaffListQuery,
+  useGetStaffsQuery,
   useDeleteStaffMutation,
-  useUpdateStaffMutation
+  useUpdateStaffMutation,
 } = StaffApi;

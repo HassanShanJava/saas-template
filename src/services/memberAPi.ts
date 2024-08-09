@@ -10,9 +10,9 @@ import {
 } from "../app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
-interface memberInput{
-	query:string,
-	org_id:number
+interface memberInput {
+	query: string,
+	org_id: number
 }
 
 
@@ -38,15 +38,6 @@ export const MemberAPi = apiSlice.injectEndpoints({
 				},
 			}),
 		}),
-		getCoaches: builder.query<CoachTypes[], number>({
-			query: (org_id) => ({
-				url: `/coach?org_id=${org_id}`,
-				method: "GET",
-				headers: {
-					Accept: "application/json",
-				},
-			}),
-		}),
 		getAllSource: builder.query<sourceTypes[], void>({
 			query: () => ({
 				url: "/sources",
@@ -65,7 +56,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
 				},
 			}),
 		}),
-		getAllMember: builder.query<MemberTabletypes[], memberInput>({
+		getAllMember: builder.query<MemberTabletypes, memberInput>({
 			query: (searchCretiria) => ({
 				url: `/member?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
 				method: "GET",
@@ -83,17 +74,6 @@ export const MemberAPi = apiSlice.injectEndpoints({
 				},
 			}),
 		}),
-		
-		getMembersDropdown: builder.query<MemberInputTypes, number>({
-			query: (org_id) => ({
-				url: `/member/list/${org_id}`,
-				method: "GET",
-				headers: {
-					Accept: "application/json",
-				},
-			}),
-		}),
-
 		AddMember: builder.mutation<MemberResponseTypes, MemberInputTypes>({
 			query: (memberdata) => ({
 				url: "/member",
@@ -126,18 +106,25 @@ export const MemberAPi = apiSlice.injectEndpoints({
 				},
 			}),
 		}),
+		getMembersList: builder.query<{ id: number; name: string }[], number>({
+			query: (org_id) => ({
+				url: `/member/list/${org_id}`,
+				headers: {
+					Accept: "application/json",
+				},
+			}),
+		}),
 	}),
 });
 
 export const {
 	useGetMemberCountQuery,
 	useGetCountriesQuery,
-	useGetCoachesQuery,
 	useGetAllSourceQuery,
 	useGetAllBusinessesQuery,
 	useGetAllMemberQuery,
+	useGetMembersListQuery,
 	useGetMemberByIdQuery,
-	useGetMembersDropdownQuery,
 	useAddMemberMutation,
 	useUpdateMemberMutation,
 	useDeleteMemberMutation,

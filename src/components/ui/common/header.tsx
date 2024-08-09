@@ -72,7 +72,6 @@ export const Header = () => {
     navigate("/");
   };
 
-
   return (
     <header className="font-poppins sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
       <div className="flex w-full justify-between items-center gap-4">
@@ -113,6 +112,16 @@ export const Header = () => {
                 targetPath="/admin/coach/addcoach"
                 title="Add Coach"
               />
+              {/* <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/exercise"
+                title="Exercises"
+              />
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/exercise/addexercise"
+                title="Add Exercise"
+              /> */}
               <PageTitle
                 currentPath={location.pathname.replace(
                   //eslint-disable-next-line
@@ -163,7 +172,7 @@ export const Header = () => {
                 targetPath="/admin/roles"
                 title="Roles and Access Management"
               />
-              <PageTitle
+              {/* <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/leads"
                 title="Leads"
@@ -172,8 +181,8 @@ export const Header = () => {
                 currentPath={location.pathname}
                 targetPath="/admin/leads/addlead"
                 title="Leads"
-              />
-              <PageTitle
+              /> */}
+              {/* <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/events"
                 title="Events"
@@ -182,7 +191,7 @@ export const Header = () => {
                 currentPath={location.pathname}
                 targetPath="/admin/events/addevents"
                 title="Events"
-              />
+              /> */}
 
               <PageTitle
                 currentPath={location.pathname}
@@ -195,7 +204,7 @@ export const Header = () => {
                 title="Add Staff"
               />
               
-              <PageTitle
+              {/* <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/mealplans"
                 title="Meal Plans"
@@ -204,13 +213,20 @@ export const Header = () => {
                 currentPath={location.pathname}
                 targetPath="/admin/foods"
                 title="Food/ Nutrition"
-              />
+              /> */}
             </h1>
 
             <Breadcrumb
               currentPath={location.pathname}
               targetPath="/admin/members/addmember"
               title="Add Member"
+              pageSetting="Dashboard"
+            />
+
+            <Breadcrumb
+              currentPath={location.pathname}
+              targetPath="/admin/exercise/addexercise"
+              title="Add Exercise"
               pageSetting="Dashboard"
             />
 

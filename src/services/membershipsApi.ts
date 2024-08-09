@@ -1,4 +1,4 @@
-import { createMembershipType, membeshipsTableType, updateMembershipType } from "@/app/types";
+import { createMembershipType, membeshipsTableResonseType, membeshipsTableType, updateMembershipType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 interface membershipInput{
 	query?:string,
@@ -7,7 +7,7 @@ interface membershipInput{
 export const Memberships = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getMemberships: builder.query<membeshipsTableType[], membershipInput>({
+      getMemberships: builder.query<membeshipsTableResonseType, membershipInput>({
         query: (searchCretiria) => ({
           url: `/membership_plan?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
@@ -59,6 +59,16 @@ export const Memberships = apiSlice.injectEndpoints({
         }),
         providesTags: ["Memberships"],
       }),
+      getMembershipList: builder.query<any, number>({
+        query: (org_id) => ({
+          url: `/membership_plan/list/${org_id}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        providesTags: ["Memberships"],
+      }),
     };
   },
 });
@@ -69,4 +79,5 @@ export const {
   useUpdateMembershipsMutation,
   useDeleteMembershipsMutation,
   useGetMembershipsByIdQuery,
+useGetMembershipListQuery,
 } = Memberships;

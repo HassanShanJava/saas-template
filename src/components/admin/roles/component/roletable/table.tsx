@@ -1,12 +1,13 @@
-import React, { HTMLProps, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import {
   ColumnDef,
+  ExpandedState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { FaEdit } from "react-icons/fa";
 import {
   Table,
   TableBody,
@@ -24,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getRolesType, MemberTabletypes, resourceTypes } from "@/app/types";
+import { getRolesType,  resourceTypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RootState, AppDispatch } from "@/app/store";
 import { useSelector, useDispatch } from "react-redux";
@@ -35,6 +36,7 @@ import { RoleForm } from "./../../roleform/form";
 export default function RoleTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const [expanded, setExpanded] = useState<ExpandedState>(true);
 
   const [isRoleFound, setRoleFound] = useState<boolean>(false);
 
@@ -45,8 +47,10 @@ export default function RoleTableView() {
     error: rolesError,
   } = useGetRolesQuery(orgId);
 
-  const [selectedRoleId, setSelectedRoleId] = useState<number|undefined>(undefined); // 0 can be the default for "Select a role"
-
+  const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(
+    undefined
+  ); 
+  
   const {
     data: resourceData,
     isLoading,
@@ -57,19 +61,36 @@ export default function RoleTableView() {
   });
 
   const permissionTableData = React.useMemo(() => {
-    return Array.isArray(resourceData) && convertToTableData(resourceData)
-      ? resourceData
-      : [];
+    return Array.isArray(resourceData) ? convertToTableData(resourceData) : [];
   }, [resourceData]);
-  console.log("data", { resourceData, error });
+  console.log("data", { resourceData, error, permissionTableData });
 
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<resourceTypes>[] = [
     {
       accessorKey: "name",
       header: "Module",
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div
+            className={`flex items-center gap-2 text-ellipsis whitespace-nowrap overflow-hidden ${row.original.is_parent && " font-bold"}`}
+            style={{
+              paddingLeft: `${row.depth * 2}rem`,
+            }}
+          >
+            {row.getCanExpand() && (
+              <button
+                {...{
+                  onClick: row.getToggleExpandedHandler(),
+                }}
+                className="flex gap-1 items-center"
+              >
+                {row.getIsExpanded() ? (
+                  <i className="fa fa-angle-down w-3 h-3"></i>
+                ) : (
+                  <i className="fa fa-angle-right w-3 h-3"></i>
+                )}
+              </button>
+            )}
             {row?.original?.name}
           </div>
         );
@@ -78,53 +99,60 @@ export default function RoleTableView() {
     {
       id: "no_access",
       header: "No Access",
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.original.access_type === "no_access"}
-          aria-label="No Access"
-          disabled
-          className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
-        />
-      ),
+      cell: ({ row }) =>
+        row.original.subRows?.length == 0 && (
+          <Checkbox
+            defaultChecked={row.original.access_type == "no_access"}
+            aria-label="No Access"
+            className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
+            value={"no_access"}
+            disabled
+          />
+        ),
     },
     {
       id: "read",
       header: "Read",
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.original.access_type === "read"}
-          disabled
-          aria-label="Read Access"
-          className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
-        />
-      ),
+      cell: ({ row }) =>
+        row.original.subRows?.length == 0 && (
+          <Checkbox
+            defaultChecked={row.original.access_type == "read"}
+            aria-label="Read Access"
+            className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
+            value={"read"}
+            disabled
+          />
+        ),
     },
     {
       id: "write",
       header: "Write",
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.original.access_type === "write"}
-          disabled
-          aria-label="Write Access"
-          className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
-        />
-      ),
+      cell: ({ row }) =>
+        row.original.subRows?.length == 0 && (
+          <Checkbox
+            defaultChecked={row.original.access_type == "write"}
+            aria-label="Write Access"
+            className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
+            value={"write"}
+            disabled
+          />
+        ),
     },
     {
       id: "full_access",
       header: "Full Access",
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.original.access_type === "full_access"}
-          disabled
-          aria-label="Full Access"
-          className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
-        />
-      ),
+      cell: ({ row }) =>
+        row.original.subRows?.length == 0 && (
+          <Checkbox
+            defaultChecked={row.original.access_type == "full_access"}
+            aria-label="Full Access"
+            className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
+            value={"full_access"}
+            disabled
+          />
+        ),
     },
   ];
-  console.log({ permissionTableData });
 
   useEffect(() => {
     if (resourceData) {
@@ -135,35 +163,30 @@ export default function RoleTableView() {
   }, [resourceData]);
 
   const table = useReactTable({
-    data: permissionTableData as getRolesType[],
+    data: permissionTableData as resourceTypes[],
     columns,
     getCoreRowModel: getCoreRowModel(),
+    state: {
+      expanded,
+    },
+    autoResetExpanded: false,
+    initialState: {
+      expanded: true,
+    },
+    onExpandedChange: setExpanded,
+    getSubRows: (row) => row?.subRows,
+    getExpandedRowModel: getExpandedRowModel(),
   });
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedId = event.target.value;
-    console.log("Selected Role ID:", selectedId);
-    setSelectedRoleId(Number(selectedId));
-  };
   // default values in form
   const [formData, setFormData] = useState<any>({
-    status: true,
+    status: 'active',
     name: "",
     org_id: orgId,
   });
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const handleCloseDailog = () => setIsDialogOpen(false);
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const finalValue: number | string = value;
-
-    setFormData((prevData: any) => {
-      const updatedData = { ...prevData, [name]: finalValue };
-      console.log("After update:", updatedData);
-      return updatedData;
-    });
-  };
 
   const handleAddRole = () => {
     console.log("Before update:", formData);
@@ -177,8 +200,19 @@ export default function RoleTableView() {
 
   const handleEditRole = () => {
     console.log("Before update:", formData);
+    const data =
+      rolesData && rolesData.filter((item) => item.id == selectedRoleId)[0];
+    const tableAccess = createTableAccess(resourceData);
+    console.log({ tableAccess }, "role access");
     setFormData((prevData: any) => {
-      const updatedData = { ...prevData, case: "edit", id: selectedRoleId };
+      const updatedData = {
+        ...prevData,
+        case: "edit",
+        id: selectedRoleId,
+        tableAccess: tableAccess,
+        name: data?.name,
+        status: data?.status,
+      };
       console.log("After update:", updatedData);
       return updatedData;
     });
@@ -325,26 +359,46 @@ export default function RoleTableView() {
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={handleCloseDailog}
         setFormData={setFormData}
-        handleOnChange={handleOnChange}
         refetch={rolesRefetch}
+        resourceRefetch={refetch}
       />
     </div>
   );
 }
 
 const convertToTableData = (data: resourceTypes[]) => {
-  console.log({ data }, "datadatadatadata");
-  return data.map((parent) => {
-    if (parent.children && parent.children?.length>0) {
-      const newParent: resourceTypes = {
-        ...parent,
-        subRows: parent?.children,
+  const processItem = (item: resourceTypes) => {
+    if (item.children) {
+      // Recursively process each child and convert `children` to `subRows`
+      const newItem: resourceTypes = {
+        ...item,
+        subRows: item.children.map(processItem),
       };
 
-      // delete newParent.children;
-      return newParent;
+      delete newItem.children;
+      return newItem;
     } else {
-      return parent;
+      return item;
     }
-  });
+  };
+
+  return data.map(processItem);
+};
+
+const createTableAccess = (array: resourceTypes[]) => {
+  const accessMap: Record<number, string> = {};
+
+  const processItem = (item: resourceTypes) => {
+    if (item.access_type) {
+      accessMap[item.id] = item.access_type;
+    }
+
+    if (item.children && item.children.length > 0) {
+      item.children.forEach(processItem);
+    }
+  };
+
+  array.forEach(processItem);
+
+  return accessMap;
 };

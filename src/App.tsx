@@ -8,24 +8,25 @@ import LeadForm from "./components/admin/leads/leadform/form";
 import Credits from "./components/admin/credits";
 import SaleTaxes from "./components/admin/sales_tax";
 import Events from "./components/admin/events";
-import EventForm from "./components/admin/events/eventForm";
 import ProtectedRoute from "./components/admin/protectedRoute";
 import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
 import IncomeCategory from "./components/admin/income_category";
 import Memberships from "./components/admin/memberships";
 import RolesAndAccess from "./components/admin/roles";
-
 import Loader from "@/components/Loader";
 import MemberPage from "./components/admin/members";
 import MemberForm from "./components/admin/members/memberForm/form";
 import Staff from "./components/admin/staff";
 import StaffForm from "./components/admin/staff/staffForm/form";
-import Coach from "./components/admin/coach"; 
+import Coach from "./components/admin/coach";
 import CoachForm from "./components/admin/coach/coachForm/Form";
-import ExerciseForm from "./components/admin/exercises/form";
+import ExerciseForm from "./components/admin/exercise/exerciseform/form";
+import Exercise from "./components/admin/exercise";
 import MealPlans from "./components/admin/meal_plans";
 import FoodsNutrition from "./components/admin/foods";
+import WorkoutPlan from "./components/admin/workoutplan";
+
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -45,23 +46,13 @@ function App() {
               index
               element={<SystemSettings />}
             />
-            <Route
-              path="/admin/members/addmember"
-              index
-              element={<MemberForm />}
-            />
-            <Route
-              path="/admin/members/editmember/:id"
-              index
-              element={<MemberForm />}
-            />
-            <Route path="/admin/leads" index element={<Leads />} />
-            <Route path="/admin/leads/addlead" index element={<LeadForm />} />
-            <Route
+            {/* <Route path="/admin/leads" index element={<Leads />} />
+            <Route path="/admin/leads/addlead" index element={<LeadForm />} /> */}
+            {/* <Route
               path="/admin/leads/editlead/:id"
               index
               element={<LeadForm />}
-            />
+            /> */}
             <Route path="/admin/credits" index element={<Credits />} />
             <Route path="/admin/saleTaxes" index element={<SaleTaxes />} />
             <Route
@@ -79,28 +70,27 @@ function App() {
               element={<CoachForm />}
             />
             <Route path="/admin/roles" index element={<RolesAndAccess />} />
-            <Route
-              path="/admin/events/addevents"
-              index
-              element={<EventForm />}
-            />
             <Route path="/admin/staff" index element={<Staff />} />
-            <Route
-              path="/admin/staff/addStaff"
-              index
-              element={<StaffForm />}
-            />
             <Route path="/admin/staff/addStaff" index element={<StaffForm />} />
-
             <Route
               path="/admin/staff/editstaff/:id"
               index
               element={<StaffForm />}
             />
-            <Route path="/admin/exercise/addexercise" index element={<ExerciseForm />} />
-            <Route path="/admin/exercise/editexercise/:id" index element={<ExerciseForm />} />
-            <Route path="/admin/mealplans" index element={<MealPlans />} />
+            {/* <Route path="/admin/exercise" index element={<Exercise />} />
+            <Route
+              path="/admin/exercise/addexercise"
+              index
+              element={<ExerciseForm />}
+            />
+            <Route
+              path="/admin/exercise/editexercise/:id"
+              index
+              element={<ExerciseForm />}
+            /> */}
+            {/* <Route path="/admin/mealplans" index element={<MealPlans />} />
             <Route path="/admin/foods" index element={<FoodsNutrition />} />
+            <Route path="/admin/workoutplans" index element={<WorkoutPlan />} /> */}
           </Route>
         </Route>
       </Routes>

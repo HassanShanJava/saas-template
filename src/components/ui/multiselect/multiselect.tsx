@@ -54,7 +54,7 @@ const MultiSelector = ({
   ...props
 }: MultiSelectorProps) => {
   const value = Array.isArray(values) ? values : [];
-  console.log({ value });
+  // console.log({ value });
 
   const [inputValue, setInputValue] = useState("");
   const [open, setOpen] = useState<boolean>(false);
@@ -224,20 +224,24 @@ const MultiSelectorInput = forwardRef<
 
   console.log("Active", activeIndex);
   return (
-    <CommandPrimitive.Input
-      {...props}
-      ref={ref}
-      value={inputValue}
-      onValueChange={activeIndex === -1 ? setInputValue : () => {}}
-      onBlur={() => setOpen(false)}
-      onFocus={() => setOpen(true)}
-      onClick={() => setActiveIndex(-1)}
-      className={cn(
-        "ml-2 bg-transparent outline-none placeholder:text-gray-400 flex-1 text-sm",
-        className,
-        activeIndex !== -1 && "caret-transparent"
-      )}
-    />
+    <>
+      <CommandPrimitive.Input
+        {...props}
+        ref={ref}
+        value={inputValue}
+        onValueChange={activeIndex === -1 ? setInputValue : () => { }}
+        onBlur={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onClick={() => setActiveIndex(-1)}
+        className={cn(
+          "ml-2 bg-transparent outline-none placeholder:text-gray-400 flex-1 text-sm",
+          className,
+          activeIndex !== -1 && "caret-transparent"
+        )}
+      />
+      <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+
+    </>
   );
 });
 
@@ -291,7 +295,7 @@ const MultiSelectorItem = forwardRef<
     e.preventDefault();
     e.stopPropagation();
   }, []);
-  console.log("option", { Options, value });
+  // console.log("option", { Options, value });
   const isIncluded = Options.some(
     (obj) => obj.id == value.id && obj.name == value.name
   );

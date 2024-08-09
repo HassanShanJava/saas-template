@@ -23,8 +23,8 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 
 const status = [
-  { value: "true", label: "Active", color: "bg-green-500" },
-  { value: "false", label: "Inactive", color: "bg-blue-500" },
+  { value: "active", label: "Active", color: "bg-green-500" },
+  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
 ];
 
 interface groupList {
@@ -367,7 +367,7 @@ const BasicInfoForm = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {status.map((item) => (
-                    <SelectItem key={item.value + ""} value={item.value + ""}>
+                    <SelectItem key={item.value} value={item.value}>
                       {item.label}
                     </SelectItem>
                   ))}

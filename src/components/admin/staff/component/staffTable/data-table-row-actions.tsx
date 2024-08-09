@@ -39,7 +39,7 @@ export function DataTableRowActions({
       id: data.id,
     };
     try {
-      const resp = await deleteCoach(data).unwrap();
+      const resp = await deleteCoach(data?.id).unwrap();
       refetch();
       if (resp) {
         console.log({ resp });

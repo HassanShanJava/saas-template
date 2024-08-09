@@ -74,6 +74,7 @@ import {
   useGetStaffCountQuery,
   useUpdateStaffMutation,
 } from "@/services/staffsApi";
+import { UploadCognitoImage } from "@/utils/lib/s3Service";
 
 enum genderEnum {
   male = "male",
@@ -104,8 +105,7 @@ const StaffForm: React.FC = () => {
   });
 
   const initialState: StaffInputType = {
-    profile_img:
-      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+    profile_img: "",
     gender: genderEnum.male,
     org_id: orgId,
     own_staff_id: "",
@@ -124,13 +124,7 @@ const StaffForm: React.FC = () => {
     React.useState<StaffInputType>(initialState);
 
   const FormSchema = z.object({
-    profile_img: z
-      .string()
-      .trim()
-      .default(
-        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-      )
-      .optional(),
+    profile_img: z.string().trim().default("").optional(),
     own_staff_id: z.string({
       required_error: "Required",
     }),
@@ -214,26 +208,36 @@ const StaffForm: React.FC = () => {
   const { data: staffCount } = useGetStaffCountQuery(orgId, {
     skip: id == undefined ? false : true,
   });
-  const { data: EditstaffData } = useGetStaffByIdQuery(Number(id), {
-    skip: isNaN(Number(id)),
-  });
+
   const [addStaff, { isLoading: staffLoading }] = useAddStaffMutation();
   const [editStaff, { isLoading: editStaffLoading }] = useUpdateStaffMutation();
 
   const navigate = useNavigate();
+  const [selectedImage, setSelectedImage] = React.useState<File | null>(null);
 
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    const reader = new FileReader();
 
-    reader.onloadend = () => {
-      setAvatar(reader.result);
-    };
+    const validTypes = ["image/png", "image/jpg", "image/jpeg", "image/gif"];
 
-    if (file) {
+    if (file && validTypes.includes(file.type)) {
+      const reader = new FileReader();
+
+      setSelectedImage(file);
+
+      reader.onloadend = () => {
+        setAvatar(reader.result);
+      };
+
       reader.readAsDataURL(file);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error Uploading image",
+        description: "Unsupported image only Support (png/jpg/jpeg/gif)",
+      });
     }
   };
 
@@ -252,13 +256,29 @@ const StaffForm: React.FC = () => {
   const watcher = form.watch();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const updatedData = {
+    let updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
     };
     console.log("Updated data with only date:", updatedData);
     console.log("only once", data);
-
+    if (selectedImage) {
+      try {
+        const getUrl = await UploadCognitoImage(selectedImage);
+        updatedData = {
+          ...updatedData,
+          profile_img: getUrl?.location as string,
+        };
+      } catch (error) {
+        console.error("Upload failed:", error);
+        toast({
+          variant: "destructive",
+          title: "Image Upload Failed",
+          description: "Please try again.",
+        });
+        return;
+      }
+    }
     try {
       if (id == undefined || id == null) {
         const resp = await addStaff(updatedData).unwrap();
@@ -316,6 +336,7 @@ const StaffForm: React.FC = () => {
     } else {
       setInitialValues(EditStaffData as StaffInputType);
       form.reset(EditStaffData);
+      setAvatar(EditStaffData.profile_img as string);
     }
   }, [EditStaffData, orgName, staffCount]);
 
@@ -502,6 +523,13 @@ const StaffForm: React.FC = () => {
                                   onSelect={field.onChange}
                                   fromYear={1960}
                                   toYear={2030}
+                                  defaultMonth={
+                                    new Date(
+                                      field && field.value
+                                        ? field.value
+                                        : Date.now()
+                                    )
+                                  }
                                   disabled={(date: any) =>
                                     date > new Date() ||
                                     date < new Date("1900-01-01")
@@ -530,7 +558,7 @@ const StaffForm: React.FC = () => {
                           {...field}
                           id="email"
                           label="Email Address*"
-                          disabled={typeof id === "number"}
+                          disabled={id != undefined}
                         />
                         {watcher.email ? <></> : <FormMessage />}
                       </FormItem>
@@ -848,7 +876,7 @@ const StaffForm: React.FC = () => {
                   />
                 </div>
                 <div className="h-full relative">
-                  <FormField
+                  {/* <FormField
                     control={form.control}
                     name="send_invitation"
                     defaultValue={true}
@@ -863,7 +891,7 @@ const StaffForm: React.FC = () => {
                         <FormLabel className="!mt-0">Send invitation</FormLabel>
                       </FormItem>
                     )}
-                  />
+                  /> */}
                 </div>
               </div>
             </CardContent>

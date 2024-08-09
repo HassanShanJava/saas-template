@@ -137,11 +137,20 @@ export const RoleForm = ({
   const watcher = form.watch();
 
   const resetFormAndCloseDialog = () => {
+    form.clearErrors();
+    // createAccess(data?.allResourceData as resourceTypes[])
+
     setFormData((prev: any) => ({
       ...prev,
+      status: 'active',
+      name: "",
     }));
+    form.reset({
+      org_id: formData.org_id,
+      status: 'active',
+      name: "",
+    });
     createAccess(data?.allResourceData as resourceTypes[]);
-    form.reset();
   };
 
   const handleClose = () => {

@@ -149,7 +149,7 @@ export default function MembershipsTableView() {
   };
 
   const membershipstableData = React.useMemo(() => {
-    return Array.isArray(membershipsData) ? membershipsData : [];
+    return Array.isArray(membershipsData?.data) ?membershipsData.data : [];
   }, [membershipsData]);
 
   const { toast } = useToast();

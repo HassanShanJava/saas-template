@@ -74,6 +74,7 @@ import {
   useGetAllMuscleQuery,
 } from "@/services/exerciseApi";
 import { UploadCognitoImage } from "@/utils/lib/s3Service";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 enum difficultyEnum {
   Novice = "Novice",
@@ -100,7 +101,12 @@ enum VisibilityEnum {
   everyone_in_my_club = "Everyone in My Club",
 }
 
-const ExericeForm: React.FC = () => {
+interface ExerciseFormProps {
+  isOpen: boolean;
+  setOpen: (open: boolean) => void;
+}
+
+const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
   const [images, setImages] = React.useState({
     image_url_male: null as File | null,
     image_url_female: null as File | null,
@@ -412,11 +418,11 @@ const ExericeForm: React.FC = () => {
   }
 
   return (
-    <div className="p-6 bg-bgbackground">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <Card className="py-7 px-4">
-            <CardContent className="space-y-3">
+    <Sheet open={isOpen}>
+      <SheetContent hideCloseButton className="!max-w-[1050px]">
+        <div className="p-6 bg-bgbackground">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="flex justify-between items-center">
                 <div className="flex flex-row gap-4 items-center">
                   <p className="text-lg font-bold text-black">
@@ -1242,12 +1248,12 @@ const ExericeForm: React.FC = () => {
                   </>
                 )}
               </div>
-            </CardContent>
-          </Card>
-        </form>
-      </Form>
-    </div>
+            </form>
+          </Form>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 };
 
-export default ExericeForm;
+export default ExerciseForm;

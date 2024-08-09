@@ -195,11 +195,10 @@ export interface saleTaxesTableType {
   name: string;
   org_id: number;
   percentage: number;
-  
 }
 
-export interface saleTaxTableType{
-  data:saleTaxesResponseType[]
+export interface saleTaxTableType {
+  data: saleTaxesResponseType[];
   total_counts: number;
   filtered_counts: number;
 }
@@ -214,7 +213,7 @@ export interface saleTaxesResponseType {
 }
 
 export interface creditsTableResponseType {
-  data:creditsResponseType[];
+  data: creditsResponseType[];
   total_counts: number;
   filtered_counts: number;
 }
@@ -951,7 +950,11 @@ export interface ExerciseResponseViewType {
   secondary_muscles?: baseExerciseApiResponse[];
   primary_joints: baseExerciseApiResponse[];
 }
-
+export interface ExerciseTableTypes {
+  data: ExerciseResponseViewType[];
+  total_counts: number;
+  filtered_counts: number;
+}
 export interface deleteExerciseResponse {
   detail: string;
 }

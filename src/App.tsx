@@ -88,26 +88,6 @@ function App() {
               element={<StaffForm />}
             />
             <Route path="/admin/exercise" index element={<Exercise />} />
-            <Route
-              path="/admin/exercise/addexercise"
-              index
-              element={<ExerciseForm />}
-            />
-            <Route
-              path="/admin/exercise/editexercise/:id"
-              index
-              element={<ExerciseForm />}
-            />
-            <Route
-              path="/admin/exercise/addexercise"
-              index
-              element={<ExerciseForm />}
-            />
-            <Route
-              path="/admin/exercise/editexercise/:id"
-              index
-              element={<ExerciseForm />}
-            />
             <Route path="/admin/mealplans" index element={<MealPlans />} />
             <Route path="/admin/foods" index element={<FoodsNutrition />} />
             <Route path="/admin/workoutplans" index element={<WorkoutPlan />} />

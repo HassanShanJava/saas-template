@@ -11,6 +11,7 @@ import {
   ExerciseResponseViewType,
   deleteExerciseResponse,
   deleteExerciseInput,
+  ExerciseTableTypes,
 } from "@/app/types";
 
 interface ExerciseQueryInput {
@@ -110,10 +111,7 @@ export const Exercise = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Exercise"],
       }),
-      getAllExercises: builder.query<
-        ExerciseResponseViewType[],
-        ExerciseQueryInput
-      >({
+      getAllExercises: builder.query<ExerciseTableTypes, ExerciseQueryInput>({
         query: (SearchCriteria) => ({
           url: `/exercise?org_id=${SearchCriteria.org_id}&${SearchCriteria.query}`,
           method: "GET",
@@ -123,10 +121,7 @@ export const Exercise = apiSlice.injectEndpoints({
         }),
         providesTags: ["Exercise"],
       }),
-      deleteExercise: builder.mutation<
-        deleteExerciseResponse,
-        number
-      >({
+      deleteExercise: builder.mutation<deleteExerciseResponse, number>({
         query: (ExerciseId) => ({
           url: `/exercise/${ExerciseId}`,
           method: "DELETE",
@@ -173,5 +168,5 @@ export const {
   useGetAllExercisesQuery,
   useDeleteExerciseMutation,
   useUpdateExerciseMutation,
-  useGetExerciseByIdQuery
+  useGetExerciseByIdQuery,
 } = Exercise;

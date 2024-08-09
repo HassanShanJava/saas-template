@@ -424,12 +424,32 @@ export default function MembershipsTableView() {
     }))
   }
   const handleGroup =(value:number)=>{
-    console.log("grop")
     setFilter(prev=>({
       ...prev,
         group_id:value
     }))
   }
+  const handleDiscountPrecentage =(e:React.ChangeEvent<HTMLInputElement>)=>{
+    const {value}=e.target
+    setFilter(prev=>({
+      ...prev,
+      discount_percentage:value
+    }))
+  }
+  const handleTotalAmount =(e:React.ChangeEvent<HTMLInputElement>)=>{
+    const {value}=e.target
+    setFilter(prev=>({
+      ...prev,
+      total_amount:value
+    }))
+  }
+  const handleIncomeCategory =(value:number)=>{
+    setFilter(prev=>({
+      ...prev,
+      income_category_id:value
+    }))
+  }
+
 
 
   const filterDisplay = [
@@ -437,7 +457,7 @@ export default function MembershipsTableView() {
       type: "select",
       name: "status",
       label: "Status",
-      options: [{id:"true", name:"Active"},{id:"false",name:"Inactive"}],
+      options: [{id:"active", name:"Active"},{id:"inactive",name:"Inactive"}],
       function: handleStatus,
     },
     {
@@ -447,50 +467,69 @@ export default function MembershipsTableView() {
       options: groupData,
       function: handleGroup,
     },
+    {
+      type: "percentage",
+      name: "discount",
+      label: "Discount Percentage",
+      function: handleDiscountPrecentage,
+    },
+    {
+      type: "number",
+      name: "total_amount",
+      label: "Total Amount",
+      function: handleTotalAmount,
+    },
+    {
+      type: "select",
+      name: "income_category_id",
+      label: "Income Category",
+      options:incomeCatData,
+      function: handleIncomeCategory,
+    },
   ];
 
 
-  // const totalRecords = membershipsData?.total_counts || 0;
-  // const lastPageOffset = Math.max(
-  //   0,
-  //   Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
-  // );
-  // const isLastPage = searchCretiria.offset >= lastPageOffset;
+  const totalRecords = membershipsData?.total_counts || 0;
+  const lastPageOffset = Math.max(
+    0,
+    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+  );
+  const isLastPage = searchCretiria.offset >= lastPageOffset;
 
-  // const nextPage = () => {
-  //   if (!isLastPage) {
-  //     setSearchCretiria((prev) => ({
-  //       ...prev,
-  //       offset: prev.offset + prev.limit,
-  //     }));
-  //   }
-  // };
+  const nextPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria((prev) => ({
+        ...prev,
+        offset: prev.offset + prev.limit,
+      }));
+    }
+  };
 
-  // // Function to go to the previous page
-  // const prevPage = () => {
-  //   setSearchCretiria((prev) => ({
-  //     ...prev,
-  //     offset: Math.max(0, prev.offset - prev.limit),
-  //   }));
-  // };
+  // Function to go to the previous page
+  const prevPage = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      offset: Math.max(0, prev.offset - prev.limit),
+    }));
+  };
 
-  // // Function to go to the first page
-  // const firstPage = () => {
-  //   setSearchCretiria((prev) => ({
-  //     ...prev,
-  //     offset: 0,
-  //   }));
-  // };
+  // Function to go to the first page
+  const firstPage = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      offset: 0,
+    }));
+  };
 
-  // // Function to go to the last page
-  // const lastPage = () => {
-  //   if (!isLastPage) {
-  //     setSearchCretiria((prev) => ({
-  //       ...prev,
-  //       offset: lastPageOffset,
-  //     }));
-  //   }
-  // };
+  // Function to go to the last page
+  const lastPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria((prev) => ({
+        ...prev,
+        offset: lastPageOffset,
+      }));
+    }
+  };
 
 
   return (
@@ -597,7 +636,7 @@ export default function MembershipsTableView() {
       </div>
 
       {/* pagination */}
-      {/* <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
         <div className="flex items-center justify-center gap-2">
           <div className="flex items-center gap-2">
             <p className="text-sm font-medium">Items per page:</p>
@@ -630,7 +669,7 @@ export default function MembershipsTableView() {
           />
           <span>
             {" "}
-            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${memberData?.filtered_counts} Items  `}
+            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${membershipsData?.filtered_counts} Items  `}
           </span>
         </div>
 
@@ -693,7 +732,7 @@ export default function MembershipsTableView() {
             </Button>
           </div>
         </div>
-      </div> */}
+      </div>
 
       <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} data={data} setData={setData} refetch={refetch} action={action} setAction={setAction}/>
       <MembershipFilters

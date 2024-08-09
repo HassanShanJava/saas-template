@@ -133,6 +133,12 @@ export interface createMembershipType {
   prolongation_period?: number | null;
 }
 
+export interface  membeshipsTableResonseType{
+  data:membeshipsTableType[];
+  total_counts:number;
+  filtered_counts:number;
+}
+
 export interface membeshipsTableType extends createMembershipType {
   id: number;
 }

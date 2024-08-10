@@ -218,7 +218,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
           message: "Required",
         }),
       city: z.string().trim().optional(),
-      zipcode: z.string().trim().optional(),
+      zipcode: z.string().trim().max(10, "Zipcode must be 10 characters or less").optional(),
       address_1: z.string().optional(),
       address_2: z.string().optional(),
       org_id: z

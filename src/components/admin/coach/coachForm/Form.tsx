@@ -85,10 +85,11 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 
 interface CoachFormProps {
 	setOpen: React.Dispatch<React.SetStateAction<boolean>>
-	coachId: number;
+	setCoachId: React.Dispatch<React.SetStateAction<number | undefined>>
+	coachId: number | undefined;
 }
 
-const CoachForm: React.FC<CoachFormProps> = ({coachId, setOpen}) => {
+const CoachForm: React.FC<CoachFormProps> = ({coachId, setCoachId, setOpen}) => {
   //const { id } = useParams();
   const {
     data: EditCoachData,
@@ -195,7 +196,7 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setOpen}) => {
       }),
     address_1: z.string().optional(),
     address_2: z.string().optional(),
-    zipcode: z.string().trim().optional(),
+    zipcode: z.string().trim().max(10, "Zipcode must be 10 characters or less").optional(),
     bank_name: z.string().trim().optional(),
     iban_no: z.string().trim().optional(),
     swift_code: z.string().trim().optional(),
@@ -224,7 +225,7 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setOpen}) => {
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
   const { data: coachCountData } = useGetCoachCountQuery(orgId, {
-    skip: coachId == undefined,
+    skip: coachId != undefined,
   });
 
   const { data: countries } = useGetCountriesQuery();
@@ -283,6 +284,12 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setOpen}) => {
 
   const watcher = form.watch();
 
+  function handleClose() {
+		form.reset(initialState);
+		setCoachId(undefined);
+		setOpen(false);
+  }
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let updatedData = {
       ...data,
@@ -310,26 +317,26 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setOpen}) => {
         }
       }
     try {
-      if (id == undefined || id == null) {
+      if (coachId == undefined) {
         const resp = await addCoach(updatedData).unwrap();
         if (resp) {
           toast({
             variant: "success",
             title: "Coach Created Successfully ",
           });
-          navigate("/admin/coach");
+          handleClose();
         }
       } else {
         const resp = await editCoach({
           ...updatedData,
-          id: Number(id),
+          id: coachId,
         }).unwrap();
         if (resp) {
           toast({
             variant: "success",
             title: "Coach Updated Successfully ",
           });
-          navigate("/admin/coach");
+          handleClose();
         }
       }
     } catch (error: unknown) {
@@ -351,13 +358,10 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setOpen}) => {
     }
   }
 
-  function handleCancel() {
-		setOpen(false);
-  }
 
   useEffect(() => {
-		console.log("coachId", coachId);
-    if (!EditCoachData) {
+	form.clearErrors();
+    if (!coachId) {
       if (orgName) {
         const total = coachCountData?.total_coaches as number;
         if (total >= 0) {
@@ -367,9 +371,9 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setOpen}) => {
     } else {
       //setInitialValues(EditCoachData as CoachInputTypes);
       form.reset(EditCoachData);
-      setAvatar(EditCoachData.profile_img as string);
+      setAvatar(EditCoachData?.profile_img as string);
     }
-  }, [EditCoachData, coachCountData, orgName]);
+  }, [coachId]);
 
   console.log("user list create", form.getValues);
   console.log("Source from the get APIs", EditCoachData);
@@ -416,7 +420,7 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setOpen}) => {
 												<div>
 													<Button
 														type={"button"}
-														onClick={handleCancel}
+														onClick={handleClose}
 														disabled={memberLoading || editcoachLoading}
 														className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
 													>

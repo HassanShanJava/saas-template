@@ -184,7 +184,7 @@ const StaffForm: React.FC = () => {
       required_error: "You need to select a status.",
     }),
     city: z.string().optional(),
-    zipcode: z.string().trim().optional(),
+    zipcode: z.string().trim().max(10, "Zipcode must be 10 characters or less").optional(),
     address_1: z.string().optional(),
     address_2: z.string().optional(),
     org_id: z

@@ -350,6 +350,23 @@ const MembershipForm = ({
         });
         return;
       }
+
+      // Check for time conflicts
+    const timeConflicts = limited_access_data.some((day: any, index: number) => {
+      const otherDays = limited_access_data.slice(index + 1);
+      return otherDays.some((otherDay: any) => 
+        day.day === otherDay.day &&
+        isTimeOverlap(day.from, day.to, otherDay.from, otherDay.to)
+      );
+    });
+
+    if (timeConflicts) {
+      toast({
+        variant: "destructive",
+        title: "Time slots overlap on the same day",
+      });
+      return;
+    }
     }
     if (isStepValid) setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -514,4 +531,12 @@ function getDaysCheck(
 
   console.log({ creditsDays, memberShipDays });
   return memberShipDays < creditsDays;
+}
+
+
+
+function isTimeOverlap(from1: string, to1: string, from2: string, to2: string): boolean {
+  const [f1, t1] = [new Date(`1970-01-01T${from1}:00Z`), new Date(`1970-01-01T${to1}:00Z`)];
+  const [f2, t2] = [new Date(`1970-01-01T${from2}:00Z`), new Date(`1970-01-01T${to2}:00Z`)];
+  return (f1 < t2 && f2 < t1);
 }

@@ -169,8 +169,8 @@ const navItems: NavItem[] = [
     link: "",
     children: [
       {
-        name: "Credit",
-        link: "/admin/credits",
+        name: "Facilities",
+        link: "/admin/Facilities",
         icon: "fa fa-user",
       },
       {

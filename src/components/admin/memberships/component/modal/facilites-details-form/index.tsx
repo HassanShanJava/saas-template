@@ -2,11 +2,11 @@ import { Controller, useFormContext } from "react-hook-form";
 import { StepperFormValues } from "@/types/hook-stepper";
 
 import { useEffect, useState } from "react";
-import CreditsTableView from "./creditTable/table";
+import FacilityTableView from "./facilityTable/table";
 import { facilitiesData } from "@/app/types";
 
 
-const CreditDetailsForm = () => {
+const FacilityDetailsForm = () => {
   const [facilites,setFacilities]=useState<facilitiesData[]>([])
   const {
     control,
@@ -27,9 +27,9 @@ const CreditDetailsForm = () => {
 
   return (
     <div className="text-black h-full">
-      <CreditsTableView setFacilities={setFacilities} />
+      <FacilityTableView setFacilities={setFacilities} />
     </div>
   );
 };
 
-export default CreditDetailsForm;
+export default FacilityDetailsForm;

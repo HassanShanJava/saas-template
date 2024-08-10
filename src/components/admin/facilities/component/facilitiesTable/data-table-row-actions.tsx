@@ -125,7 +125,7 @@ export function DataTableRowActions<TData>({
                     className="w-18 h-18"
                   />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this Credit
+                    Please confirm if you want to delete this Facility
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

@@ -59,11 +59,12 @@ import {
   useGetStaffsQuery,
   useUpdateStaffMutation,
 } from "@/services/staffsApi";
-import { statusEnum } from "../../staffForm/form";
+import StaffForm, { statusEnum } from "../../staffForm/form";
 import { useDebounce } from "@/hooks/use-debounce";
 import StaffFilters from "./data-table-filter";
 import { Separator } from "@/components/ui/separator";
 import { useGetRolesQuery } from "@/services/rolesApi";
+import { Sheet } from "@/components/ui/sheet";
 
 const downloadCSV = (data: staffTypesResponseList[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -166,9 +167,6 @@ export default function StaffTableView() {
   );
 
   const [updateStaff] = useUpdateStaffMutation();
-  function handleRoute() {
-    navigate("/admin/staff/addstaff");
-  }
 
   const staffTableData = React.useMemo(() => {
     return Array.isArray(staffData?.data) ? staffData.data : [];
@@ -264,6 +262,13 @@ export default function StaffTableView() {
       }
     }
   };
+
+	const [staffId, setStaffId] = useState<number | undefined>(undefined);
+	const handleOpenForm = (staffId: number) => {
+		setStaffId(staffId);
+		setOpen(true);
+	}
+
   const columns: ColumnDef<staffTypesResponseList>[] = [
     {
       id: "select",
@@ -483,7 +488,7 @@ export default function StaffTableView() {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <DataTableRowActions data={row.original} refetch={refetch} />
+        <DataTableRowActions handleEdit={handleOpenForm} data={row.original} refetch={refetch} />
       ),
     },
   ];
@@ -596,6 +601,7 @@ export default function StaffTableView() {
     }
   };
 
+	const [open, setOpen] = useState<boolean>(false);
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between gap-2 px-4 py-2 ">
@@ -610,7 +616,7 @@ export default function StaffTableView() {
             />
           </div>
         </div>
-        <Button className="bg-primary  text-black mr-1 " onClick={handleRoute}>
+        <Button className="bg-primary  text-black mr-1 " onClick={() => handleOpenForm()}>
           <PlusIcon className="size-4" />
           Create New
         </Button>
@@ -796,6 +802,7 @@ export default function StaffTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
+			<StaffForm setOpen={setOpen} staffId={staffId} setStaffId={setStaffId} open={open} />
     </div>
   );
 }

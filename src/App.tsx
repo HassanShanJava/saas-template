@@ -5,7 +5,7 @@ import Dashboard from "./components/admin/dashboard";
 import SystemSettings from "./components/admin/system_settings";
 import Leads from "./components/admin/leads";
 import LeadForm from "./components/admin/leads/leadform/form";
-import Credits from "./components/admin/credits";
+import Facilities from "./components/admin/facilities";
 import SaleTaxes from "./components/admin/sales_tax";
 import Events from "./components/admin/events";
 import ProtectedRoute from "./components/admin/protectedRoute";
@@ -53,7 +53,7 @@ function App() {
               
               element={<LeadForm />}
             /> */}
-            <Route path="/admin/credits"  element={<Credits />} />
+            <Route path="/admin/facilities"  element={<Facilities />} /> 
             <Route path="/admin/saleTaxes"  element={<SaleTaxes />} />
             <Route
               path="/admin/incomeCategory"
@@ -63,20 +63,20 @@ function App() {
             <Route path="/admin/memberships"  element={<Memberships />} />
             <Route path="/admin/events"  element={<Events />} />
             <Route path="/admin/coach"  element={<Coach />} />
-            <Route path="/admin/coach/addcoach"  element={<CoachForm />} />
-            <Route
+            {/*<Route path="/admin/coach/addcoach"  element={<CoachForm />} />*/}
+            {/*<Route
               path="/admin/coach/editcoach/:id"
               
               element={<CoachForm />}
-            />
+            />*/}
             {/* <Route path="/admin/roles"  element={<RolesAndAccess />} /> */}
             <Route path="/admin/staff"  element={<Staff />} />
-            <Route path="/admin/staff/addStaff"  element={<StaffForm />} />
-            <Route
+            {/*<Route path="/admin/staff/addStaff"  element={<StaffForm />} />*/}
+            {/*<Route
               path="/admin/staff/editstaff/:id"
               
               element={<StaffForm />}
-            />
+            />*/}
             {/* <Route path="/admin/exercise"  element={<Exercise />} />
             <Route
               path="/admin/exercise/addexercise"

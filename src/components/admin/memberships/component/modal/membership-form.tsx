@@ -9,7 +9,7 @@ import BasicInfoForm from "./basic-info-form";
 import PriceDiscountTaxForm from "./prices-form";
 import AutoRenewalForm from "./renewal-form";
 import { useToast } from "@/components/ui/use-toast";
-import CreditDetailsForm from "./credit-details-form";
+import FacilityDetailsForm from "./facilites-details-form";
 import {
   useCreateMembershipsMutation,
   useUpdateMembershipsMutation,
@@ -55,7 +55,7 @@ const stepContentComponents = [
   BasicInfoForm, // Step 1
   PriceDiscountTaxForm, // Step 2
   AutoRenewalForm, // Step 3
-  CreditDetailsForm, // Step 4
+  FacilityDetailsForm, // Step 4
 ];
 
 const getStepContent = (step: number) => {
@@ -67,7 +67,7 @@ const infoLabels = [
   { label: "Basic Information and Scope", key: 1 },
   { label: "Price, Discounts, and Tax Details", key: 2 },
   { label: "Renewal and Billing Cycle", key: 3 },
-  { label: "Credit details", key: 4 },
+  { label: "Facility details", key: 4 },
 ];
 
 const defaultValue = {

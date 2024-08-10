@@ -444,7 +444,7 @@ export default function CoachTableView() {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <DataTableRowActions data={row.original} refetch={refetch} handleEdit={handleEdit} />
+        <DataTableRowActions data={row.original} refetch={refetch} handleEdit={handleOpenForm} />
       ),
     },
   ];
@@ -529,12 +529,12 @@ export default function CoachTableView() {
     }
   };
 
-	const handleEdit = (coachId: number) => {
+	const handleOpenForm = (coachId: number | undefined = undefined) => {
 		setCoachId(coachId);
 		setOpen(true);
 	}
 
-	const [open, setOpen] = useState<boolean>(true);
+	const [open, setOpen] = useState<boolean>(false);
 	const [coachId, setCoachId] = useState<number | undefined>(undefined);
   return (
     <div className="w-full space-y-4">
@@ -550,7 +550,7 @@ export default function CoachTableView() {
             />
           </div>
         </div>
-        <Button className="bg-primary  text-black mr-1 " onClick={() => setOpen(true)}>
+        <Button className="bg-primary  text-black mr-1 " onClick={() => handleOpenForm()}>
           <PlusIcon className="size-4" />
           Create New
         </Button>
@@ -738,9 +738,7 @@ export default function CoachTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
-			<Sheet open={open}>
-				<CoachForm coachId={coachId} setOpen={setOpen} />
-			</Sheet>
+			<CoachForm coachId={coachId} setCoachId={setCoachId} setOpen={setOpen} open={open} />
     </div>
   );
 }

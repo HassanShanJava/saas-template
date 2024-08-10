@@ -41,6 +41,12 @@ interface membershipFormTypes {
   refetch: any;
   action: "add" | "edit";
 }
+interface LimitedAccessDay {
+  id: number;
+  day: string;
+  from: string;
+  to: string;
+}
 
 interface membershipFromTypes {
   membership_name: string;
@@ -138,6 +144,7 @@ const MembershipForm = ({
 
   const access_type = getValues("access_type");
   const limited_access_data = getValues("limited_access_data");
+  console.log({ access_type, limited_access_data })
 
   useEffect(() => {
     if (action == "edit" && data != undefined) {
@@ -306,19 +313,13 @@ const MembershipForm = ({
 
   const handleNext = async () => {
     const isStepValid = await trigger(undefined, { shouldFocus: true });
-    // for check on limited_Access_Data after submiting
 
-    if (activeStep == 1 && access_type == "limited-access") {
-      const check = limited_access_data.some(
-        (day: any) => day?.from != "" && day?.to != ""
-      );
-      const checkFrom = limited_access_data.some(
-        (day: any) => day?.from != "" && day?.to == ""
-      );
-      const checkTo = limited_access_data.some(
-        (day: any) => day?.from == "" && day?.to != ""
-      );
-      console.log({ check, limited_access_data });
+    if (activeStep == 1 && access_type == "limited-access" ) {
+      // Check if there is at least one time slot
+      const check = limited_access_data.some(day => day.from !== "" && day.to !== "");
+      const checkFrom = limited_access_data.some(day => day.from !== "" && day.to === "");
+      const checkTo = limited_access_data.some(day => day.from === "" && day.to !== "");
+
       if (checkFrom) {
         toast({
           variant: "destructive",
@@ -342,8 +343,53 @@ const MembershipForm = ({
         });
         return;
       }
+
+      // Group time slots by day
+      const timeSlotsByDay = limited_access_data.reduce((acc, entry) => {
+        if (entry.from && entry.to) {
+          if (!acc[entry.day]) acc[entry.day] = [];
+          acc[entry.day].push({ from: entry.from, to: entry.to });
+        }
+        return acc;
+      }, {} as Record<string, { from: string; to: string }[]>);
+
+      // Validate each day's time slots
+      for (const [day, slots] of Object.entries(timeSlotsByDay)) {
+        // Sort slots by 'from' time
+        slots.sort((a, b) => a.from.localeCompare(b.from));
+
+        // Check for overlapping slots
+        for (let i = 0; i < slots.length - 1; i++) {
+          const current = slots[i];
+          const next = slots[i + 1];
+          if (current.to > next.from) {
+            toast({
+              variant: "destructive",
+              title: `Time slots on ${day} overlap`,
+            });
+            return;
+          }
+        }
+
+        // Calculate total duration for the day
+        const totalMinutes = slots.reduce((total, slot) => {
+          const [fromHours, fromMinutes] = slot.from.split(':').map(Number);
+          const [toHours, toMinutes] = slot.to.split(':').map(Number);
+          const duration = (toHours - fromHours) * 60 + (toMinutes - fromMinutes);
+          return total + duration;
+        }, 0);
+
+        if (totalMinutes > 1440) { // 24 hours = 1440 minutes
+          toast({
+            variant: "destructive",
+            title: `Time slots on ${day} exceed 24 hours`,
+          });
+          return;
+        }
+      }
     }
-    if (isStepValid) setActiveStep((prevActiveStep) => prevActiveStep + 1);
+
+    if (isStepValid) setActiveStep(prevActiveStep => prevActiveStep + 1);
   };
 
   const handleBack = () => {

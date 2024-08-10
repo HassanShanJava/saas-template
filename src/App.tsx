@@ -46,8 +46,8 @@ function App() {
               
               element={<SystemSettings />}
             />
-            {/* <Route path="/admin/leads"  element={<Leads />} />
-            <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}
+            {/* <Route path="/admin/leads"  element={<Leads />} /> */}
+            {/* <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}
             {/* <Route
               path="/admin/leads/editlead/:id"
               

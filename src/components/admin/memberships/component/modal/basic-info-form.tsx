@@ -9,6 +9,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
 import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -21,6 +37,9 @@ import {
   useGetGroupQuery,
 } from "@/services/groupsApis";
 import { useToast } from "@/components/ui/use-toast";
+import { Check, ChevronsDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -153,33 +172,7 @@ const BasicInfoForm = () => {
     setLimitedAccessDays((prev) => {
       const updatedEntries = prev.map((entry) => {
         if (entry.id === id) {
-          const updatedEntry = { ...entry, [type]: value };
-          if (
-            !isValidTimeRange(updatedEntry.from, updatedEntry.to) &&
-            updatedEntry.to != "" &&
-            updatedEntry.from != ""
-          ) {
-            toast({
-              variant: "destructive",
-              title: "Enter valid time range",
-            });
-            return entry;
-          } else if (
-            isConflictingTime(
-              updatedEntry.day,
-              updatedEntry.from,
-              updatedEntry.to,
-              id
-            )
-          ) {
-            toast({
-              variant: "destructive",
-              title: "Time slot conflicts on the same day.",
-            });
-            return entry;
-          } else {
-            return updatedEntry;
-          }
+          return { ...entry, [type]: value };
         }
         return entry;
       });
@@ -249,12 +242,12 @@ const BasicInfoForm = () => {
           <FloatingLabelInput
             id="membership_name"
             label="Name*"
-            {...register("name", { required: "Name is Required" })}
+            {...register("name", { required: "Required" })}
             error={errors.name?.message}
           />
           <Controller
             name="group_id"
-            rules={{ required: "Group Name is Required" }}
+            rules={{ required: "Required" }}
             control={control}
             render={({
               field: { onChange, value, onBlur },
@@ -331,7 +324,7 @@ const BasicInfoForm = () => {
             label="Description"
             type="textarea"
             rows={4}
-            customPercentage={[3,2]}
+            customPercentage={[14,12]}
             className="col-span-2"
             {...register("description")}
             error={errors.description?.message}
@@ -339,7 +332,7 @@ const BasicInfoForm = () => {
         </div>
         <Controller
           name="status"
-          rules={{ required: "Status is Required" }}
+          rules={{ required: "Required" }}
           control={control}
           render={({
             field: { onChange, value, onBlur },
@@ -384,7 +377,7 @@ const BasicInfoForm = () => {
           <Label className="font-semibold ">Access times*</Label>
           <Controller
             name="access_type"
-            rules={{ required: "Access is Required" }}
+            rules={{ required: "Required" }}
             control={control}
             render={({
               field: { onChange, value, onBlur },
@@ -444,7 +437,7 @@ const BasicInfoForm = () => {
                     </span>
                   )}
                   <SelectContent>
-                    <SelectItem value={"weekly"}>week</SelectItem>
+                    <SelectItem value={"weekly"}>Week</SelectItem>
                     <SelectItem value={"monthly"}>Month</SelectItem>
                     <SelectItem value={"quarterly"}>Quarter</SelectItem>
                     <SelectItem value={"bi_annually"}>Bi-Annual</SelectItem>
@@ -514,3 +507,72 @@ const BasicInfoForm = () => {
 };
 
 export default BasicInfoForm;
+
+
+
+interface comboboxType {
+  list?: {
+    label: string;
+    value: string;
+  }[];
+  setFilter?: any;
+  name?: string;
+}
+
+function Combobox({ list, setFilter, name }: comboboxType) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  console.log({ value, list });
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+        >
+          {value
+            ? list && list?.find((list) => list.label === value)?.label
+            : "Select " + name + "..."}
+          <ChevronsDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[330px] p-0">
+        <Command>
+          <CommandInput placeholder={`Search ${name}`} />
+          <CommandEmpty>No list found.</CommandEmpty>
+          <CommandList>
+            <CommandGroup>
+              {list &&
+                list?.map((item) => (
+                  <CommandItem
+                    key={item.value}
+                    value={item.value}
+                    onSelect={(currentValue) => {
+                      console.log({ currentValue, value });
+                      setValue(currentValue == value ? "" : currentValue);
+                      setFilter(
+                        list &&
+                          list?.find((list) => list.label === currentValue)
+                            ?.value
+                      );
+                      setOpen(false);
+                    }}
+                  >
+                    <Check 
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === item.value ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {item.label}
+                  </CommandItem>
+                ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}

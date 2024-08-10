@@ -75,13 +75,13 @@ interface FloatingLabelProps
 const FloatingLabel = React.forwardRef<
   React.ElementRef<typeof Label>,
   FloatingLabelProps
->(({ className, isTextarea, customPercentage=[13,13],...props }, ref) => {
+>(({ className, isTextarea, customPercentage=[14,13],...props }, ref) => {
   return (
     <Label
       className={cn(
         "peer-focus:secondary font-poppins peer-focus:dark:secondary absolute start-2 z-10 origin-[0] scale-75 transform bg-background px-2 text-sm text-gray-400 duration-300",
         isTextarea
-          ? `top-2 -translate-y-4 peer-placeholder-shown:top-[${customPercentage[0]}%] peer-placeholder-shown:-translate-y-[${customPercentage[1]}%] peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2`
+          ? `top-2 -translate-y-4 peer-placeholder-shown:top-${customPercentage[0]} peer-placeholder-shown:-translate-y-${customPercentage[1]} peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2`
           : "top-2 -translate-y-4 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2",
         className
       )}

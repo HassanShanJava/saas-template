@@ -48,16 +48,17 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
   useGetAllMemberQuery,
   useGetMemberCountQuery,
+  useUpdateMemberMutation,
 } from "@/services/memberAPi";
-import { useGetCoachesQuery, useGetCoachListQuery } from "@/services/coachApi";
+import { useGetCoachListQuery } from "@/services/coachApi";
 import MemberFilters from "./data-table-filter";
-import { useGetMembershipListQuery, useGetMembershipsQuery } from "@/services/membershipsApi";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { useGetMembershipListQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
 import MemberForm from "../../memberForm/form";
 
-const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
-  const csv = Papa.unparse(data);
+const downloadCSV = (data, fileName: string) => {
+  const csvData=data.map(({coaches, ...newdata})=>newdata)
+  const csv = Papa.unparse(csvData);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
@@ -82,9 +83,14 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  // sort_key: "created_at",
+  sort_key: "created_at",
 };
 
+const status = [
+  { value: "active", label: "Active", color: "bg-green-500" },
+  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
+  { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
+];
 export default function MemberTableView() {
   const [isOpen, setOpen] = useState(false)
   const orgId =
@@ -154,11 +160,9 @@ export default function MemberTableView() {
     }
   );
 
-  const { data: coachesData } = useGetCoachListQuery(orgId);
 
   const { data: count } = useGetMemberCountQuery(orgId);
   const { data: membershipPlans } = useGetMembershipListQuery(orgId);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (isError) {
@@ -186,10 +190,7 @@ export default function MemberTableView() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState<MemberTableDatatypes | undefined>(undefined);
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: searchCretiria.limit, // Adjust this based on your preference
-  });
+
   const displayValue = (value: string | undefined | null) =>
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
@@ -220,6 +221,37 @@ export default function MemberTableView() {
   const handleEditMember = (data: MemberTableDatatypes) => {
     setData(data as MemberTableDatatypes);
     setOpen(true);
+  }
+  const [updateMember]=useUpdateMemberMutation()
+
+  const handleStatusChange = async (payload: { client_status: string, id: number, org_id: number }) => {
+    try {
+      const resp = await updateMember(payload).unwrap();
+      if (resp) {
+        refetch();
+        toast({
+          variant: "success",
+          title: "Updated Successfully",
+        });
+      }
+    } catch (error) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: typedError.data?.detail,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
+
   }
 
   const columns: ColumnDef<MemberTableDatatypes>[] = [
@@ -259,6 +291,7 @@ export default function MemberTableView() {
     // },
     {
       accessorKey: "own_member_id",
+      meta:"Member Id",
       header: () => (<div className="flex items-center gap-2">
         <p>Member Id</p>
         <button
@@ -282,6 +315,7 @@ export default function MemberTableView() {
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
+      meta:"Member Name",
       header: () => (<div className="flex items-center gap-2">
         <p>Member Name</p>
         <button
@@ -304,6 +338,7 @@ export default function MemberTableView() {
     },
     {
       accessorKey: "business_name",
+      meta:"Business Name",
       header: () => (<div className="flex items-center gap-2">
         <p>Business Name</p>
         <button
@@ -327,6 +362,7 @@ export default function MemberTableView() {
     {
       accessorFn: (row) => row.membership_plan_id,
       id: "membership_plan_id",
+      meta:"Membership Plan",
       header: () => (<div className="flex items-center gap-2">
         <p>Membership Plan</p>
         <button
@@ -348,23 +384,59 @@ export default function MemberTableView() {
       },
     },
     {
-      accessorKey: "coaches",
-      header: "Coach",
+      accessorKey: "client_status",
+      meta:"Status",
+      header: () => (<div className="flex items-center gap-2">
+        <p>Status</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("client_status")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
+        const value = row.original?.client_status  ;
+        const statusLabel = status.filter((r) => r.value === value)[0];
+        const id = Number(row.original.id);
+        const org_id = Number(row.original?.org_id);
+
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            <div>
-              {row.original.coaches &&
-                row.original.coaches.map((coach) => (
-                  <p className="text-sm">{displayValue(coach.name)}</p>
-                ))}
-            </div>
-          </div>
+          <Select
+            defaultValue={value}
+            onValueChange={(e) =>
+              handleStatusChange({ client_status: e, id: id, org_id: org_id })
+            }
+            disabled={statusLabel.hide}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Status" className="text-gray-400">
+                <span className="flex gap-2 items-center">
+                  <span
+                    className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
+                  ></span>
+                  <span>{statusLabel?.label}</span>
+                </span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {status.map((item) => !item.hide &&(
+                <SelectItem key={item.value + ""} value={item.value + ""}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         );
       },
+      enableSorting: false,
+      enableHiding: false,
     },
     {
       accessorKey: "client_since",
+      meta:"Activation Date",
       header: () => (<div className="flex items-center gap-2">
         <p>Activation Date</p>
         <button
@@ -387,6 +459,7 @@ export default function MemberTableView() {
     },
     {
       accessorKey: "check_in",
+      meta:"Last Check In",
       header: () => (<div className="flex items-center gap-2">
         <p>Last Check In</p>
         <button
@@ -408,6 +481,7 @@ export default function MemberTableView() {
     },
     {
       accessorKey: "last_online",
+      meta:"Last Login",
       header:  () => (<div className="flex items-center gap-2">
         <p>Last Login</p>
         <button
@@ -464,13 +538,6 @@ export default function MemberTableView() {
     }));
   }
 
-  function handleCoachAssigned(value: string) {
-    setFilter((prev) => ({
-      ...prev,
-      coach_assigned: value,
-    }));
-  }
-
   function handleMemberStatus(value: string) {
     setFilter((prev) => ({
       ...prev,
@@ -486,13 +553,7 @@ export default function MemberTableView() {
       options: membershipPlans,
       function: handleMembershipplan,
     },
-    {
-      type: "select",
-      name: "coach_assigned",
-      label: "Coach",
-      options: coachesData && coachesData,
-      function: handleCoachAssigned,
-    },
+    
     {
       type: "select",
       name: "status",

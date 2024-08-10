@@ -80,7 +80,7 @@ const AutoRenewalForm = () => {
               min={0}
               className="w-20 "
               {...register("prolongation_period", {
-                required: "Prolongation period is Required",
+                required: "Required",
               })}
               error={errors.prolongation_period?.message}
             />

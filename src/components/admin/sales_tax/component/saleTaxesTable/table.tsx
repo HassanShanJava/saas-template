@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
-  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -28,7 +26,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 
 import {
@@ -36,9 +33,6 @@ import {
   FormField,
   FormItem,
   FormMessage,
-  FormLabel,
-  FormControl,
-  FormDescription,
 } from "@/components/ui/form";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 
@@ -48,7 +42,7 @@ import { useForm } from "react-hook-form";
 
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MoreHorizontal, PlusIcon, Search } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -62,23 +56,24 @@ import {
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import { saleTaxesTableType, ErrorType } from "@/app/types";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { DataTableViewOptions } from "./data-table-view-options";
-import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
-// import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
 import {
   useCreateSalesTaxMutation,
   useGetSalesTaxQuery,
   useUpdateSalesTaxMutation,
 } from "@/services/salesTaxApi";
-import { StringDecoder } from "string_decoder";
+
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Separator } from "@/components/ui/separator";
+
+const status = [
+  { value: "active", label: "Active", color: "bg-green-500" },
+  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
+];
 
 const downloadCSV = (data: saleTaxesTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -134,6 +129,8 @@ export default function SaleTaxesTableView() {
       skip: query == "",
     }
   );
+  const [updateSaleTax, { isLoading: saleTaxLoading }] =
+    useUpdateSalesTaxMutation();
 
   const toggleSortOrder = (key: string) => {
   setSearchCretiria((prev) => {
@@ -155,6 +152,7 @@ export default function SaleTaxesTableView() {
   const [formData, setFormData] = useState<saleTaxesFormData>({
     percentage: 1,
     name: "",
+    status:"active",
     org_id: orgId,
   });
 
@@ -165,12 +163,8 @@ export default function SaleTaxesTableView() {
   const { toast } = useToast();
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [filterID, setFilterID] = useState({});
-  const [filters, setFilters] = useState<any>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [isClear, setIsClear] = useState(false);
-  const [clearValue, setIsClearValue] = useState({});
   
   const displayValue = (value: any) => (value === null ? "N/A" : value);
 
@@ -186,6 +180,40 @@ export default function SaleTaxesTableView() {
       console.log("After update:", updatedData);
       return updatedData;
     });
+  };
+
+  const handleStatusChange = async (payload: {
+    id: number;
+    org_id: number;
+    status: string;
+  }) => {
+    try {
+      const resp = await updateSaleTax(payload).unwrap();
+      if (resp) {
+        console.log({ resp });
+        refetch();
+        toast({
+          variant: "success",
+          title: "Updated Successfully",
+        });
+      }
+    } catch (error) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: typedError.data?.detail,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
   };
 
   const handleExportSelected = () => {
@@ -241,8 +269,56 @@ export default function SaleTaxesTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-
-    {
+    // {
+    //   accessorKey: "status",
+    //   header: () => (<div className="flex items-center gap-2">
+    //     <p>Status</p>
+    //     <button
+    //       className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+    //       onClick={() => toggleSortOrder("status")}
+    //     >
+    //       <i
+    //         className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+    //       ></i>
+    //     </button>
+    //   </div>),
+    //   cell: ({ row }) => {
+    //     const value =
+    //       row.original?.status != null ? row.original?.status + "" : "false";
+    //     const statusLabel = status.filter((r) => r.value === value)[0];
+    //     const id = Number(row.original.id);
+    //     const org_id = Number(row.original.org_id);
+    //     return (
+    //       <Select
+    //         defaultValue={value}
+    //         onValueChange={(e) =>
+    //           handleStatusChange({ status: e, id: id, org_id: org_id })
+    //         }
+    //       >
+    //         <SelectTrigger>
+    //           <SelectValue placeholder="Status" className="text-gray-400">
+    //             <span className="flex gap-2 items-center">
+    //               <span
+    //                 className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
+    //               ></span>
+    //               <span>{statusLabel?.label}</span>
+    //             </span>
+    //           </SelectValue>
+    //         </SelectTrigger>
+    //         <SelectContent>
+    //           {status.map((item) => (
+    //             <SelectItem key={item.value + ""} value={item.value + ""}>
+    //               {item.label}
+    //             </SelectItem>
+    //           ))}
+    //         </SelectContent>
+    //       </Select>
+    //     );
+    //   },
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
+    {  
       id: "actions",
       header: "Actions",
       maxSize: 100,
@@ -553,6 +629,7 @@ export default function SaleTaxesTableView() {
 
 interface saleTaxesFormData {
   percentage: number;
+  status:string;
   name: string;
   org_id: number;
   id?: number;
@@ -590,8 +667,9 @@ const SaleTaxesForm = ({
   const saleTaxFormSchema = z.object({
     id: z.number().optional(),
     org_id: z.number(),
-    name: z.string().min(1, { message: "Name is required" }),
-    percentage: z.number().min(1, { message: "Percentage Tax is required" }),
+    name: z.string().min(1, { message: "Required" }),
+    status: z.string({required_error:"Required"}).default("active"),
+    percentage: z.number().min(1, { message: "Required" }),
   });
 
   const form = useForm<z.infer<typeof saleTaxFormSchema>>({
@@ -657,6 +735,7 @@ const SaleTaxesForm = ({
       ...prev,
       percentage: 1,
       name: "",
+      statu:"active"
     }));
   };
   console.log(form.formState.errors);
@@ -670,16 +749,17 @@ const SaleTaxesForm = ({
             ...prev,
             percentage: 1,
             name: "",
+            status:"active",
           }));
           form.reset({
             org_id: formData.org_id,
             percentage: 1,
             name: "",
+            status:"active",
           });
           setIsDialogOpen();
         }}
       >
-        {/* <DialogTrigger>Open</DialogTrigger> */}
         <SheetContent>
           <SheetHeader>
             <SheetTitle>

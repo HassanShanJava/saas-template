@@ -5,7 +5,7 @@ import Dashboard from "./components/admin/dashboard";
 import SystemSettings from "./components/admin/system_settings";
 import Leads from "./components/admin/leads";
 import LeadForm from "./components/admin/leads/leadform/form";
-import Credits from "./components/admin/credits";
+import Facilities from "./components/admin/facilities";
 import SaleTaxes from "./components/admin/sales_tax";
 import Events from "./components/admin/events";
 import ProtectedRoute from "./components/admin/protectedRoute";
@@ -53,7 +53,7 @@ function App() {
               
               element={<LeadForm />}
             /> */}
-            <Route path="/admin/credits"  element={<Credits />} />
+            <Route path="/admin/facilities"  element={<Facilities />} /> 
             <Route path="/admin/saleTaxes"  element={<SaleTaxes />} />
             <Route
               path="/admin/incomeCategory"

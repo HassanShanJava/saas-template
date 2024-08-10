@@ -95,7 +95,7 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setCoachId, setOpen}) => 
     data: EditCoachData,
     isLoading: editisLoading,
     refetch: editRefetch,
-  } = useGetCoachByIdQuery(coachId, {
+  } = useGetCoachByIdQuery(coachId as number, {
     skip: coachId == undefined,
   });
   const orgId =

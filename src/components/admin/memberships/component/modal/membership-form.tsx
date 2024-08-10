@@ -314,12 +314,19 @@ const MembershipForm = ({
   const handleNext = async () => {
     const isStepValid = await trigger(undefined, { shouldFocus: true });
 
-    if (activeStep == 1 && access_type == "limited-access" ) {
-      // Check if there is at least one time slot
-      const check = limited_access_data.some(day => day.from !== "" && day.to !== "");
-      const checkFrom = limited_access_data.some(day => day.from !== "" && day.to === "");
-      const checkTo = limited_access_data.some(day => day.from === "" && day.to !== "");
+    if (activeStep == 1 && access_type == "limited-access") {
 
+      const check = limited_access_data.some(
+        (day: any) => day?.from != "" && day?.to != ""
+      );
+      const checkFrom = limited_access_data.some(
+        (day: any) => day?.from != "" && day?.to == ""
+      );
+      const checkTo = limited_access_data.some(
+        (day: any) => day?.from == "" && day?.to != ""
+      );
+      console.log({ check, limited_access_data });
+      
       if (checkFrom) {
         toast({
           variant: "destructive",
@@ -343,53 +350,8 @@ const MembershipForm = ({
         });
         return;
       }
-
-      // Group time slots by day
-      const timeSlotsByDay = limited_access_data.reduce((acc, entry) => {
-        if (entry.from && entry.to) {
-          if (!acc[entry.day]) acc[entry.day] = [];
-          acc[entry.day].push({ from: entry.from, to: entry.to });
-        }
-        return acc;
-      }, {} as Record<string, { from: string; to: string }[]>);
-
-      // Validate each day's time slots
-      for (const [day, slots] of Object.entries(timeSlotsByDay)) {
-        // Sort slots by 'from' time
-        slots.sort((a, b) => a.from.localeCompare(b.from));
-
-        // Check for overlapping slots
-        for (let i = 0; i < slots.length - 1; i++) {
-          const current = slots[i];
-          const next = slots[i + 1];
-          if (current.to > next.from) {
-            toast({
-              variant: "destructive",
-              title: `Time slots on ${day} overlap`,
-            });
-            return;
-          }
-        }
-
-        // Calculate total duration for the day
-        const totalMinutes = slots.reduce((total, slot) => {
-          const [fromHours, fromMinutes] = slot.from.split(':').map(Number);
-          const [toHours, toMinutes] = slot.to.split(':').map(Number);
-          const duration = (toHours - fromHours) * 60 + (toMinutes - fromMinutes);
-          return total + duration;
-        }, 0);
-
-        if (totalMinutes > 1440) { // 24 hours = 1440 minutes
-          toast({
-            variant: "destructive",
-            title: `Time slots on ${day} exceed 24 hours`,
-          });
-          return;
-        }
-      }
     }
-
-    if (isStepValid) setActiveStep(prevActiveStep => prevActiveStep + 1);
+    if (isStepValid) setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
@@ -414,7 +376,7 @@ const MembershipForm = ({
       >
         <SheetTitle className="absolute  !display-none"></SheetTitle>
         <FormProvider {...methods}>
-          <div className="flex justify-between gap-5 items-start ">
+          <div className="flex justify-between gap-5 items-start  ">
             <div>
               <p className="font-semibold">Membership</p>
               <div className="text-sm">

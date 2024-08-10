@@ -17,7 +17,7 @@ import {
 
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { createMembershipType, ErrorType } from "@/app/types";
 import { useDeleteCoachMutation } from "@/services/coachApi";
@@ -26,11 +26,11 @@ import { CoachInputTypes } from "@/app/types";
 export function DataTableRowActions({
   data,
   refetch,
-  // handleEdit,
+  handleEdit,
 }: {
   data: CoachInputTypes & { id: number };
   refetch: () => void;
-  // handleEdit?: any;
+  handleEdit: (coachId: number) => void;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const [deleteCoach, { isLoading: deleteLoading }] = useDeleteCoachMutation();
@@ -90,9 +90,7 @@ export function DataTableRowActions({
             <DialogTrigger asChild>
               <DropdownMenuItem
                 // onClick={() => handleEdit(data)}
-                onClick={() => {
-                  navigate(`/admin/coach/editcoach/${data.id}`);
-                }}
+                onClick={() => handleEdit(data.id)}
               >
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit

@@ -62,6 +62,8 @@ import { CoachTableTypes, ErrorType } from "@/app/types";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Separator } from "@/components/ui/separator";
 import CoachFilters from "./data-table-filter";
+import CoachForm from "../../coachForm/Form"
+import { Sheet } from "@/components/ui/sheet";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -152,9 +154,6 @@ export default function CoachTableView() {
   const navigate = useNavigate();
   const [updateCoach] = useUpdateCoachMutation();
 
-  function handleRoute() {
-    navigate("/admin/coach/addcoach");
-  }
   const coachTableData = React.useMemo(() => {
     return Array.isArray(coachData?.data) ? coachData.data : [];
   }, [coachData]);
@@ -445,7 +444,7 @@ export default function CoachTableView() {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <DataTableRowActions data={row.original} refetch={refetch} />
+        <DataTableRowActions data={row.original} refetch={refetch} handleEdit={handleEdit} />
       ),
     },
   ];
@@ -530,7 +529,13 @@ export default function CoachTableView() {
     }
   };
 
+	const handleEdit = (coachId: number) => {
+		setCoachId(coachId);
+		setOpen(true);
+	}
 
+	const [open, setOpen] = useState<boolean>(true);
+	const [coachId, setCoachId] = useState<number | undefined>(undefined);
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between gap-2 px-4 py-2 ">
@@ -545,7 +550,7 @@ export default function CoachTableView() {
             />
           </div>
         </div>
-        <Button className="bg-primary  text-black mr-1 " onClick={handleRoute}>
+        <Button className="bg-primary  text-black mr-1 " onClick={() => setOpen(true)}>
           <PlusIcon className="size-4" />
           Create New
         </Button>
@@ -733,6 +738,9 @@ export default function CoachTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
+			<Sheet open={open}>
+				<CoachForm coachId={coachId} setOpen={setOpen} />
+			</Sheet>
     </div>
   );
 }

@@ -71,12 +71,12 @@ function App() {
             />*/}
             {/* <Route path="/admin/roles"  element={<RolesAndAccess />} /> */}
             <Route path="/admin/staff"  element={<Staff />} />
-            <Route path="/admin/staff/addStaff"  element={<StaffForm />} />
-            <Route
+            {/*<Route path="/admin/staff/addStaff"  element={<StaffForm />} />*/}
+            {/*<Route
               path="/admin/staff/editstaff/:id"
               
               element={<StaffForm />}
-            />
+            />*/}
             {/* <Route path="/admin/exercise"  element={<Exercise />} />
             <Route
               path="/admin/exercise/addexercise"

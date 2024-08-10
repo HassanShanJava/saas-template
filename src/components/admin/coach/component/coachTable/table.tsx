@@ -738,9 +738,7 @@ export default function CoachTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
-			<Sheet open={open}>
-				<CoachForm coachId={coachId} setCoachId={setCoachId} setOpen={setOpen} />
-			</Sheet>
+			<CoachForm coachId={coachId} setCoachId={setCoachId} setOpen={setOpen} open={open} />
     </div>
   );
 }

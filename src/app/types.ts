@@ -304,13 +304,6 @@ export interface ErrorType {
     detail?: string;
   };
 }
-export interface CoachTypes {
-  first_name: string;
-  last_name: string;
-  id: number;
-  is_deleted: boolean;
-}
-
 export interface sourceTypes {
   id: number;
   source: string;

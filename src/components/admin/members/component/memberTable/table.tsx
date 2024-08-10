@@ -82,11 +82,12 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  // sort_key: "created_at",
+  sort_key: "created_at",
 };
 
 export default function MemberTableView() {
-  const [isOpen, setOpen] = useState(false)
+  const [open, setOpen] = useState<boolean>(false)
+  const [memberId, setMemberId] = useState<number | undefined>(undefined)
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCretiria, setSearchCretiria] =
@@ -217,8 +218,8 @@ export default function MemberTableView() {
   };
 
 
-  const handleEditMember = (data: MemberTableDatatypes) => {
-    setData(data as MemberTableDatatypes);
+  const handleEditMember = (memberId: number) => {
+    setMemberId(memberId);
     setOpen(true);
   }
 
@@ -768,7 +769,7 @@ export default function MemberTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
-      <MemberForm isOpen={isOpen} setOpen={setOpen} data={data} />
+      <MemberForm open={open} setOpen={setOpen} memberId={memberId} setMemberId={setMemberId} />
     </div>
   );
 }

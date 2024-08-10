@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/multiselect/multiselect";
 import { Switch } from "@/components/ui/switch";
 import "react-phone-number-input/style.css";
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
@@ -119,13 +119,13 @@ const coachsSchema = z.object({
 
 
 interface memberFormTypes {
-  isOpen: boolean;
-  setOpen: any;
-  data?: MemberTableDatatypes;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  memberId: number | undefined;
+  setMemberId: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
-const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
-  const id  = data?.id;
+const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) => {
   // const { id } = data;
   // console.log({ id });
   const orgId =
@@ -208,7 +208,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
       source_id: z.number({
         required_error: "Required",
       }),
-      is_business: z.boolean().default(false),
+      is_business: z.boolean().default(false).optional(),
       business_id: z.coerce.number().optional(),
       country_id: z
         .number({
@@ -268,10 +268,10 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
 
   // conditional fetching
   const { data: memberCountData } = useGetMemberCountQuery(orgId, {
-    skip: id !== undefined,
+    skip: memberId != undefined,
   });
-  const { data: memberData } = useGetMemberByIdQuery(Number(id), {
-    skip: isNaN(Number(id)),
+  const { data: memberData } = useGetMemberByIdQuery(memberId as number, {
+    skip: memberId == undefined,
   });
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
@@ -317,38 +317,39 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
   });
 
   const watcher = form.watch();
+	console.error(watcher, form.formState.errors);
   const memberError = form.formState.errors;
 
-  React.useEffect(() => {
-    console.log({ memberData }, "jh");
-    if (!memberData) {
-      if (orgName) {
-        const total = memberCountData?.total_members as number;
-        if (total >= 0) {
-          form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total + 1}`);
-        }
-      }
-    } else {
-      const initialValue = { ...memberData };
-      const data = membershipPlans&&membershipPlans?.filter(
-        (item:any) => item.id == memberData.membership_plan_id
-      )[0];
-      const renewalDetails = data?.renewal_details as renewalData;
-      initialValue.auto_renewal = data?.auto_renewal ?? false;
-      if (initialValue?.auto_renewal) {
-        initialValue.prolongation_period =
-          (renewalDetails?.prolongation_period as number | undefined) ??
-          undefined;
-        initialValue.auto_renew_days =
-          (renewalDetails?.days_before as number | undefined) ?? undefined;
-        initialValue.inv_days_cycle =
-          (renewalDetails?.next_invoice as number | undefined) ?? undefined;
-      }
-      setInitialValues(initialValue as MemberInputTypes);
-      form.reset(initialValue);
-      setAvatar(initialValue.profile_img as string);
-    }
-  }, [memberData, memberCountData, orgName]);
+
+	useEffect(() => {
+		if (!open) return;
+		const total = memberCountData?.total_members as number;
+		if (total >= 0) {
+			form.setValue("own_member_id", `${orgName?.slice(0, 2)}-${total + 1}`);
+		}
+	}, [open, memberCountData]);
+
+  useEffect(() => {
+		if (!open) return;
+		const initialValue = { ...memberData };
+		const data = membershipPlans&&membershipPlans?.filter(
+			(item:any) => item.id == memberData?.membership_plan_id
+		)[0];
+		const renewalDetails = data?.renewal_details as renewalData;
+		initialValue.auto_renewal = data?.auto_renewal ?? false;
+		if (initialValue?.auto_renewal) {
+			initialValue.prolongation_period =
+				(renewalDetails?.prolongation_period as number | undefined) ??
+				undefined;
+			initialValue.auto_renew_days =
+				(renewalDetails?.days_before as number | undefined) ?? undefined;
+			initialValue.inv_days_cycle =
+				(renewalDetails?.next_invoice as number | undefined) ?? undefined;
+		}
+		setInitialValues(initialValue as MemberInputTypes);
+		form.reset(initialValue);
+		setAvatar(initialValue.profile_img as string);
+  }, [open, memberData]);
 
   // set auto_renewal
   const handleMembershipPlanChange = (value: number) => {
@@ -371,6 +372,15 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
       );
     }
   };
+
+
+	function handleClose() {
+		setAvatar(null);
+		form.clearErrors();
+		form.reset(initialState);
+		setMemberId(undefined);
+		setOpen(false);
+	}
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let updatedData = {
@@ -398,7 +408,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
     }
 
     try {
-      if (id == undefined || id == null) {
+      if (memberId == undefined) {
         console.log({ updatedData }, "add");
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
@@ -406,20 +416,20 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
             variant: "success",
             title: "Member Created Successfully ",
           });
-          navigate("/admin/members");
+          handleClose();
         }
       } else {
-        console.log({ updatedData, id: +id }, "update");
+        console.log({ updatedData, id: +memberId }, "update");
         const resp = await editMember({
           ...updatedData,
-          id: Number(id),
+          id: memberId,
         }).unwrap();
         if (resp) {
           toast({
             variant: "success",
             title: "Member Updated Successfully ",
           });
-          navigate("/admin/members");
+          handleClose();
         }
       }
     } catch (error: unknown) {
@@ -441,15 +451,8 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
     }
   }
 
-  function gotoMember() {
-    navigate("/admin/members");
-  }
-
-  console.log({ watcher, memberError });
-
-  console.log("selected image", selectedImage);
   return (
-    <Sheet open={isOpen}>
+    <Sheet open={open}>
       <SheetContent hideCloseButton className="!max-w-[1050px]">
         <SheetHeader>
           <SheetTitle>
@@ -488,7 +491,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                     <div>
                       <Button
                         type={"button"}
-                        onClick={()=>setOpen(false)}
+                        onClick={handleClose}
                         className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                       >
                         <RxCross2 className="w-4 h-4" /> Cancel
@@ -787,7 +790,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                               <MultiSelectorInput
                                 className="font-medium  "
                                 placeholder={
-                                  field.value.length == 0 ? `Select Coaches*` : ""
+                                  field?.value?.length == 0 ? `Select Coaches*` : ""
                                 }
                               />
                             </MultiSelectorTrigger>

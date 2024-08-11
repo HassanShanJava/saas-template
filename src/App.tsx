@@ -5,7 +5,7 @@ import Dashboard from "./components/admin/dashboard";
 import SystemSettings from "./components/admin/system_settings";
 import Leads from "./components/admin/leads";
 import LeadForm from "./components/admin/leads/leadform/form";
-import Credits from "./components/admin/credits";
+import Facilities from "./components/admin/facilities";
 import SaleTaxes from "./components/admin/sales_tax";
 import Events from "./components/admin/events";
 import ProtectedRoute from "./components/admin/protectedRoute";
@@ -36,61 +36,61 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<AuthenticationPage />} />
+        <Route path="/" index element={<AuthenticationPage />} />
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/admin" element={<DashboardLayout />}>
-            <Route path="/admin/dashboard" index element={<Dashboard />} />
-            <Route path="/admin/members" index element={<MemberPage />} />
+            <Route path="/admin/dashboard"  element={<Dashboard />} />
+            <Route path="/admin/members"  element={<MemberPage />} />
             <Route
               path="/admin/system_settings"
-              index
+              
               element={<SystemSettings />}
             />
-            {/* <Route path="/admin/leads" index element={<Leads />} />
-            <Route path="/admin/leads/addlead" index element={<LeadForm />} /> */}
+            {/* <Route path="/admin/leads"  element={<Leads />} /> */}
+            {/* <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}
             {/* <Route
               path="/admin/leads/editlead/:id"
-              index
+              
               element={<LeadForm />}
             /> */}
-            <Route path="/admin/credits" index element={<Credits />} />
-            <Route path="/admin/saleTaxes" index element={<SaleTaxes />} />
+            <Route path="/admin/facilities"  element={<Facilities />} /> 
+            <Route path="/admin/saleTaxes"  element={<SaleTaxes />} />
             <Route
               path="/admin/incomeCategory"
-              index
+              
               element={<IncomeCategory />}
             />
-            <Route path="/admin/memberships" index element={<Memberships />} />
-            <Route path="/admin/events" index element={<Events />} />
-            <Route path="/admin/coach" index element={<Coach />} />
-            <Route path="/admin/coach/addcoach" index element={<CoachForm />} />
+            <Route path="/admin/memberships"  element={<Memberships />} />
+            <Route path="/admin/events"  element={<Events />} />
+            <Route path="/admin/coach"  element={<Coach />} />
+            <Route path="/admin/coach/addcoach"  element={<CoachForm />} />
             <Route
               path="/admin/coach/editcoach/:id"
-              index
+              
               element={<CoachForm />}
             />
-            <Route path="/admin/roles" index element={<RolesAndAccess />} />
-            <Route path="/admin/staff" index element={<Staff />} />
-            <Route path="/admin/staff/addStaff" index element={<StaffForm />} />
+            {/* <Route path="/admin/roles"  element={<RolesAndAccess />} /> */}
+            <Route path="/admin/staff"  element={<Staff />} />
+            <Route path="/admin/staff/addStaff"  element={<StaffForm />} />
             <Route
               path="/admin/staff/editstaff/:id"
-              index
+              
               element={<StaffForm />}
             />
-            {/* <Route path="/admin/exercise" index element={<Exercise />} />
+            {/* <Route path="/admin/exercise"  element={<Exercise />} />
             <Route
               path="/admin/exercise/addexercise"
-              index
+              
               element={<ExerciseForm />}
             />
             <Route
               path="/admin/exercise/editexercise/:id"
-              index
+              
               element={<ExerciseForm />}
             /> */}
-            {/* <Route path="/admin/mealplans" index element={<MealPlans />} />
-            <Route path="/admin/foods" index element={<FoodsNutrition />} />
-            <Route path="/admin/workoutplans" index element={<WorkoutPlan />} /> */}
+            {/* <Route path="/admin/mealplans"  element={<MealPlans />} />
+            <Route path="/admin/foods"  element={<FoodsNutrition />} />
+            <Route path="/admin/workoutplans"  element={<WorkoutPlan />} /> */}
           </Route>
         </Route>
       </Routes>

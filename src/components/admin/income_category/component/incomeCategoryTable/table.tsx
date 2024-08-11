@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
-  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -28,7 +26,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 
 import {
@@ -63,11 +60,14 @@ import { ErrorType, incomeCategoryTableType } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
-// import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
-import { useGetSalesTaxListQuery, useGetSalesTaxQuery } from "@/services/salesTaxApi";
+import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
+
+const status = [
+  { value: "active", label: "Active", color: "bg-green-500" },
+  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
+];
 
 import {
   useCreateIncomeCategoryMutation,
@@ -131,6 +131,7 @@ export default function IncomeCategoryTableView() {
     }
   );
 
+  const [updateIncomeCategory, { isLoading: updateLoading }] = useUpdateIncomeCategoryMutation();
   const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -141,6 +142,7 @@ export default function IncomeCategoryTableView() {
     sale_tax_id: undefined,
     name: "",
     org_id: orgId,
+    status:"active",
   });
 
 
@@ -162,11 +164,11 @@ export default function IncomeCategoryTableView() {
   //   const handleStatusChange = async (payload: {
   //     id: number;
   //     org_id: number;
-  //     percentage: number;
+  //     status: string;
   // ;
   //   }) => {
   //     try {
-  //       const resp = await updateCredits(payload).unwrap();
+  //       const resp = await updateIncomeCategory(payload).unwrap();
   //       if (resp) {
   //         console.log({ resp });
   //         refetch();
@@ -278,6 +280,55 @@ export default function IncomeCategoryTableView() {
       enableSorting: false,
       enableHiding: false,
     },
+    // {
+    //   accessorKey: "status",
+    //   header: () => (<div className="flex items-center gap-2">
+    //     <p>Status</p>
+    //     <button
+    //       className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+    //       onClick={() => toggleSortOrder("status")}
+    //     >
+    //       <i
+    //         className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+    //       ></i>
+    //     </button>
+    //   </div>),
+    //   cell: ({ row }) => {
+    //     const value =
+    //       row.original?.status != null ? row.original?.status + "" : "false";
+    //     const statusLabel = status.filter((r) => r.value === value)[0];
+    //     const id = Number(row.original.id);
+    //     const org_id = Number(row.original.org_id);
+    //     return (
+    //       <Select
+    //         defaultValue={value}
+    //         onValueChange={(e) =>
+    //           handleStatusChange({ status: e, id: id, org_id: org_id })
+    //         }
+    //       >
+    //         <SelectTrigger>
+    //           <SelectValue placeholder="Status" className="text-gray-400">
+    //             <span className="flex gap-2 items-center">
+    //               <span
+    //                 className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
+    //               ></span>
+    //               <span>{statusLabel?.label}</span>
+    //             </span>
+    //           </SelectValue>
+    //         </SelectTrigger>
+    //         <SelectContent>
+    //           {status.map((item) => (
+    //             <SelectItem key={item.value + ""} value={item.value + ""}>
+    //               {item.label}
+    //             </SelectItem>
+    //           ))}
+    //         </SelectContent>
+    //       </Select>
+    //     );
+    //   },
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
     {
       id: "actions",
       header: "Actions",
@@ -592,6 +643,7 @@ export default function IncomeCategoryTableView() {
 
 interface incomeCategoryFromData {
   sale_tax_id: number | undefined;
+  status: string;
   name: string;
   org_id: number;
   id?: number;
@@ -632,7 +684,8 @@ const IncomeCategoryForm = ({
     id: z.number().optional(),
     org_id: z.number(),
     sale_tax_id: z.number(),
-    name: z.string().min(1, { message: "Name is required" }),
+    status: z.string({required_error:"Required"}).default("active"),
+    name: z.string().min(1, { message: "Required" }),
   });
 
   const form = useForm<z.infer<typeof incomeCategoryFormSchema>>({
@@ -760,6 +813,10 @@ const IncomeCategoryForm = ({
                         <FloatingLabelInput
                           {...field}
                           type="number"
+                          onInput={(e) => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.replace(/[^0-9.]/g, '');
+          }}
                           id="percentage"
                           name="percentage"
                           min={1}

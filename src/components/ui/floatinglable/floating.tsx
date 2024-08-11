@@ -75,7 +75,7 @@ interface FloatingLabelProps
 const FloatingLabel = React.forwardRef<
   React.ElementRef<typeof Label>,
   FloatingLabelProps
->(({ className, isTextarea, customPercentage=[14,13],...props }, ref) => {
+>(({ className, isTextarea, customPercentage=[14,12],...props }, ref) => {
   return (
     <Label
       className={cn(

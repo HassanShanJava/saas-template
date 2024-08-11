@@ -462,14 +462,14 @@ export default function ExerciseTableView() {
             >
               <i className="fa fa-filter"></i>
             </button>
-            {/* <button
+            <button
               className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
               onClick={toggleSortOrder}
             >
               <i
                 className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
               ></i>
-            </button> */}
+            </button>
           </div>
         </div>
         <div className="rounded-none  ">
@@ -782,7 +782,7 @@ export default function ExerciseTableView() {
             </div>
           </div>
         </div> */}
-        {/* <ExerciseFilters
+        <ExerciseFilters
         isOpen={openFilter}
         setOpen={setOpenFilter}
         initialValue={initialValue}
@@ -790,9 +790,9 @@ export default function ExerciseTableView() {
         setFilter={setFilter}
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
-      /> */}
+      />
       </div>
-      {/* <ExerciseForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} /> */}
+      <ExerciseForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} />
     </>
   );
 }

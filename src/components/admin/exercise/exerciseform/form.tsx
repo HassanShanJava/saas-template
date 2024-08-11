@@ -414,7 +414,7 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
   }
 
   function gotoExercise() {
-    navigate("/admin/exercise");
+    setOpen(false);
   }
 
   return (

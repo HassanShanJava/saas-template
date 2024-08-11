@@ -71,15 +71,7 @@ function App() {
               path="/admin/staff/editstaff/:id"
               element={<StaffForm />}
             />
-            {/* <Route path="/admin/exercise" element={<Exercise />} />
-            <Route
-              path="/admin/exercise/addexercise"
-              element={<ExerciseForm />}
-            />
-            <Route
-              path="/admin/exercise/editexercise/:id"
-              element={<ExerciseForm />}
-            /> */}
+            <Route path="/admin/exercise" element={<Exercise />} />
             {/* <Route path="/admin/mealplans" element={<MealPlans />} />
             <Route path="/admin/foods" element={<FoodsNutrition />} />
             <Route path="/admin/workoutplans" element={<WorkoutPlan />} /> */}

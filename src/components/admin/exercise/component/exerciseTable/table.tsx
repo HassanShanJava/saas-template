@@ -59,9 +59,10 @@ import {
 } from "@/app/types";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useGetAllExercisesQuery } from "@/services/exerciseApi";
+import { useGetAllCategoryQuery, useGetAllExercisesQuery } from "@/services/exerciseApi";
 import ExerciseForm from "../../exerciseform/form";
 import { Separator } from "@/components/ui/separator";
+import { DataTableRowActions } from "./data-table-row-actions";
 
 const downloadCSV = (data: any[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -79,6 +80,7 @@ interface searchCretiriaType {
   sort_order: string;
   sort_key?: string;
   search_key?: string;
+  category?:string;
 }
 const initialValue = {
   limit: 10,
@@ -92,6 +94,7 @@ export default function ExerciseTableView() {
   const [isOpen, setOpen] = useState(false);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+    const [data, setData] = useState<ExerciseResponseViewType | undefined>(undefined);
 
   const [searchCretiria, setSearchCretiria] =
     useState<searchCretiriaType>(initialValue);
@@ -102,6 +105,8 @@ export default function ExerciseTableView() {
   const debouncedInputValue = useDebounce(inputValue, 500);
   const [filterData, setFilter] = useState({});
   const [action, setAction] = useState<"add" | "edit">("add");
+  
+  const { data: CategoryData } = useGetAllCategoryQuery();
   React.useEffect(() => {
     setSearchCretiria((prev) => {
       const newCriteria = { ...prev };
@@ -130,11 +135,18 @@ export default function ExerciseTableView() {
     setQuery(newQuery);
   }, [searchCretiria]);
 
-  const toggleSortOrder = () => {
-    setSearchCretiria((prev) => ({
-      ...prev,
-      sort_order: prev.sort_order === "desc" ? "asc" : "desc",
-    }));
+  const toggleSortOrder = (key: string) => {
+    setSearchCretiria((prev) => {
+      const newSortOrder = prev.sort_key === key
+        ? (prev.sort_order === "desc" ? "asc" : "desc")
+        : "desc"; // Default to descending order if the key is different
+
+      return {
+        ...prev,
+        sort_key: key,
+        sort_order: newSortOrder,
+      };
+    });
   };
 
   const {
@@ -210,6 +222,13 @@ export default function ExerciseTableView() {
   const displayValue = (value: string | undefined | null) =>
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
+
+  const handleEditExercise = (data: ExerciseResponseViewType) => {
+    setData(data as ExerciseResponseViewType);
+    setOpen(true);
+  }
+
+
   const columns: ColumnDef<ExerciseResponseViewType>[] = [
     {
       id: "select",
@@ -236,7 +255,17 @@ export default function ExerciseTableView() {
     },
     {
       accessorKey: "exercise_name",
-      header: ({ table }) => <span>Exercise Name</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Exercise Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("exercise_name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -249,7 +278,17 @@ export default function ExerciseTableView() {
     },
     {
       accessorKey: "category_name",
-      header: ({ table }) => <span>Exercise Category</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Category Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("category_name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -262,7 +301,17 @@ export default function ExerciseTableView() {
     },
     {
       accessorKey: "visible_for",
-      header: ({ table }) => <span>Visible For</span>,
+      header: () => (<div className="flex items-center gap-2">
+        <p>Visible For</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("visible_for")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -323,13 +372,16 @@ export default function ExerciseTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "Action",
-      header: ({ table }) => <span>Actions</span>,
-      cell: ({ row }) => {
-        return <span>any</span>;
-      },
-      enableSorting: false,
-      enableHiding: false,
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <DataTableRowActions
+          row={row.original.id}
+          data={row?.original}
+          refetch={refetch}
+          hanleEditExercise={handleEditExercise}
+        />
+      ),
     },
   ];
   // console.log("data",{memberData})
@@ -349,6 +401,13 @@ export default function ExerciseTableView() {
     },
   });
 
+  function handleCategory(value: number) {
+    setFilter((prev) => ({
+      ...prev,
+      category: value,
+    }));
+  }
+
   function handlePagination(page: number) {
     if (page < 0) return;
     // setFilters
@@ -356,33 +415,10 @@ export default function ExerciseTableView() {
   const filterDisplay = [
     {
       type: "select",
-      name: "membership_plan",
-      label: "Membership",
-      // options: membershipPlans,
-      // function: handleMembershipplan,
-    },
-    {
-      type: "select",
-      name: "coach_assigned",
-      label: "Coach",
-      // options:
-      //   coachData &&
-      //   coachData.data.map((item) => ({
-      //     id: item.id,
-      //     name: item.first_name + " " + item.last_name,
-      //   })),
-      // function: handleCoachAssigned,
-    },
-    {
-      type: "select",
-      name: "status",
-      label: "Status",
-      // options: [
-      //   { id: "pending", name: "Pending" },
-      //   { id: "inactive", name: "Inactive" },
-      //   { id: "active", name: "Active" },
-      // ],
-      // function: handleMemberStatus,
+      name: "category",
+      label: "Category",
+      options: CategoryData,
+      function: handleCategory,
     },
   ];
   console.log({ searchCretiria });
@@ -437,12 +473,8 @@ export default function ExerciseTableView() {
               <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
               <FloatingLabelInput
                 id="search"
-                placeholder="Search by Name"
-                onChange={(event) =>
-                  table
-                    .getColumn("full_name")
-                    ?.setFilterValue(event.target.value)
-                }
+                placeholder="Search by Exercise Name"
+                onChange={(event) => setInputValue(event.target.value)}
                 className="w-64 pl-8 text-gray-400"
               />
             </div>
@@ -462,14 +494,7 @@ export default function ExerciseTableView() {
             >
               <i className="fa fa-filter"></i>
             </button>
-            <button
-              className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
-              onClick={toggleSortOrder}
-            >
-              <i
-                className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-              ></i>
-            </button>
+           
           </div>
         </div>
         <div className="rounded-none  ">

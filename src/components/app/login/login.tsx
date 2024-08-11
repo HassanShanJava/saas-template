@@ -18,14 +18,12 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const { VITE_APP_SITEKEY } = import.meta.env;
 
 export default function AuthenticationPage() {
-  // const token = localStorage.getItem("userToken");
+  const token = localStorage.getItem("userToken");
+  const navigate = useNavigate();
 
-  // if (token) {
-  //   return <Navigate to="/admin/dashboard" />;
-  // }
+
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [checked, setChecked] = useState<boolean>(false);
   const { loading, userInfo, error, isLoggedIn } = useSelector(
@@ -50,6 +48,13 @@ export default function AuthenticationPage() {
     },
   });
 
+  useEffect(() => {
+    if (token) {
+      // Redirect to dashboard if already logged in
+      navigate("/admin/dashboard");
+    }
+  }, [token, navigate]);
+  
   useEffect(() => {
     if (error != null) {
       console.log("Error Login", error);

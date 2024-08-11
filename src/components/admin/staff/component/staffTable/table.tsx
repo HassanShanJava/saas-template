@@ -264,8 +264,9 @@ export default function StaffTableView() {
   };
 
 	const [staffId, setStaffId] = useState<number | undefined>(undefined);
-	const handleOpenForm = (staffId: number) => {
-		setStaffId(staffId);
+	const [editStaff, setEditStaff] = useState<staffTypesResponseList | null>(null);
+	const handleOpenForm = (staffData: staffTypesResponseList | null = null) => {
+		setEditStaff(staffData);
 		setOpen(true);
 	}
 
@@ -802,7 +803,12 @@ export default function StaffTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
-			<StaffForm setOpen={setOpen} staffId={staffId} setStaffId={setStaffId} open={open} />
+			<StaffForm 
+				setOpen={setOpen} 
+				staffData={editStaff} 
+				setStaffData={setEditStaff} 
+				open={open} 
+			/>
     </div>
   );
 }

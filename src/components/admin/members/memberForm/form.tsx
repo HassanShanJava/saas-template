@@ -317,7 +317,7 @@ const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) =
   });
 
   const watcher = form.watch();
-	console.error(watcher, form.formState.errors);
+console.error(watcher, form.formState.errors);
   const memberError = form.formState.errors;
 
 
@@ -330,7 +330,7 @@ const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) =
 	}, [open, memberCountData]);
 
   useEffect(() => {
-		if (!open) return;
+		if (!open || memberId == undefined) return
 		const initialValue = { ...memberData };
 		const data = membershipPlans&&membershipPlans?.filter(
 			(item:any) => item.id == memberData?.membership_plan_id

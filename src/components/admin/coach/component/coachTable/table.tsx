@@ -58,7 +58,7 @@ import {
   useGetCoachesQuery,
   useUpdateCoachMutation,
 } from "@/services/coachApi";
-import { CoachTableTypes, ErrorType } from "@/app/types";
+import { CoachTableDataTypes, CoachTableTypes, coachUpdateInput, ErrorType } from "@/app/types";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Separator } from "@/components/ui/separator";
 import CoachFilters from "./data-table-filter";
@@ -529,13 +529,13 @@ export default function CoachTableView() {
     }
   };
 
-	const handleOpenForm = (coachId: number | undefined = undefined) => {
-		setCoachId(coachId);
+	const handleOpenForm = (coachData: coachUpdateInput | null = null) => {
+		setEditCoach(coachData);
 		setOpen(true);
 	}
 
 	const [open, setOpen] = useState<boolean>(false);
-	const [coachId, setCoachId] = useState<number | undefined>(undefined);
+	const [editCoach, setEditCoach] = useState<coachUpdateInput | null>(null);
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between gap-2 px-4 py-2 ">
@@ -738,7 +738,7 @@ export default function CoachTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
-			<CoachForm coachId={coachId} setCoachId={setCoachId} setOpen={setOpen} open={open} />
+			<CoachForm coachData={editCoach} setCoachData={setEditCoach} setOpen={setOpen} open={open} />
     </div>
   );
 }

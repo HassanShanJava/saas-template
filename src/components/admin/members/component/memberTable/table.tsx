@@ -87,7 +87,7 @@ const initialValue = {
 
 export default function MemberTableView() {
   const [open, setOpen] = useState<boolean>(false)
-  const [memberId, setMemberId] = useState<number | undefined>(undefined)
+  const [memberId, setMemberId] = useState<number | undefined>(undefined);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCretiria, setSearchCretiria] =
@@ -172,10 +172,11 @@ export default function MemberTableView() {
     }
   }, [isError]);
 
-  function handleOpenForm() {
-    // navigate("/admin/members/addmember");
-    setOpen(true)
+  function handleOpenForm(memberId: number | undefined = undefined) {
+		setMemberId(memberId);
+    setOpen(true);
   }
+
   const memberTableData = React.useMemo(() => {
     return Array.isArray(memberData?.data) ? memberData?.data : [];
   }, [memberData]);
@@ -217,11 +218,6 @@ export default function MemberTableView() {
     downloadCSV(selectedRows, "members_list.csv");
   };
 
-
-  const handleEditMember = (memberId: number) => {
-    setMemberId(memberId);
-    setOpen(true);
-  }
 
   const columns: ColumnDef<MemberTableDatatypes>[] = [
     {
@@ -436,7 +432,7 @@ export default function MemberTableView() {
           row={row.original.id}
           data={row?.original}
           refetch={refetch}
-          handleEditMember={handleEditMember}
+          handleEditMember={handleOpenForm}
         />
       ),
     },
@@ -565,7 +561,7 @@ export default function MemberTableView() {
             />
           </div>
         </div>
-        <Button className="bg-primary  text-black mr-1 " onClick={handleOpenForm}>
+        <Button className="bg-primary  text-black mr-1 " onClick={() => handleOpenForm()}>
           <PlusIcon className="size-4" />
           Create New
         </Button>

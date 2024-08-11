@@ -59,6 +59,7 @@ import {
   getRolesType,
   sourceTypes,
   StaffInputType,
+  staffTypesResponseList,
 } from "@/app/types";
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
@@ -90,26 +91,25 @@ export enum statusEnum {
 }
 
 interface StaffFormProps {
-	staffId: number | undefined,
-	setStaffId: React.Dispatch<React.SetStateAction<number | undefined>>
 	setOpen: React.Dispatch<React.SetStateAction<boolean>>
 	open: boolean;
+	staffData: staffTypesResponseList | null,
+	setStaffData: React.Dispatch<React.SetStateAction<staffTypesResponseList | null>>
 }
-const StaffForm: React.FC<StaffFormProps> = ({setOpen, staffId, setStaffId, open}) => {
-	console.log("staffId", staffId);
+const StaffForm: React.FC<StaffFormProps> = ({open, setOpen, staffData, setStaffData}) => {
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  const {
-    data: EditStaffData,
-    isLoading: editLoading,
-    refetch: editRefetch,
-  } = useGetStaffByIdQuery(staffId as number, {
-    skip: staffId == undefined,
-  });
+  //const {
+  //  data: EditStaffData,
+  //  isLoading: editLoading,
+  //  refetch: editRefetch,
+  //} = useGetStaffByIdQuery(staffId as number, {
+  //  skip: staffId == undefined,
+  //});
 
   const initialState: StaffInputType = {
     profile_img: "",
@@ -131,7 +131,7 @@ const StaffForm: React.FC<StaffFormProps> = ({setOpen, staffId, setStaffId, open
 		form.clearErrors();
 		form.reset(initialState);
 		setAvatar(null);
-		setStaffId(undefined);
+		setStaffData(null);
 		setOpen(false);
 	}
 
@@ -218,7 +218,7 @@ const StaffForm: React.FC<StaffFormProps> = ({setOpen, staffId, setStaffId, open
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
   const { data: staffCount } = useGetStaffCountQuery(orgId, {
-    skip: staffId != undefined,
+    skip: staffData != null,
   });
 
   const [addStaff, { isLoading: staffLoading }] = useAddStaffMutation();
@@ -292,7 +292,7 @@ const StaffForm: React.FC<StaffFormProps> = ({setOpen, staffId, setStaffId, open
       }
     }
     try {
-      if (!staffId) {
+      if (!staffData) {
         const resp = await addStaff(updatedData).unwrap();
         if (resp) {
           toast({
@@ -304,7 +304,7 @@ const StaffForm: React.FC<StaffFormProps> = ({setOpen, staffId, setStaffId, open
       } else {
         const resp = await editStaff({
           ...updatedData,
-          id: staffId,
+          id: staffData.id,
         }).unwrap();
         if (resp) {
           toast({
@@ -334,6 +334,12 @@ const StaffForm: React.FC<StaffFormProps> = ({setOpen, staffId, setStaffId, open
   }
 
 
+	useEffect(() => {
+		if(!open || staffData == null) return
+		form.reset(staffData);
+		setAvatar(staffData?.profile_img as string);
+	}, [open, staffData]);
+
   useEffect(() => {
 			if (!open) return
 			const total = staffCount?.total_staffs as number;
@@ -342,11 +348,6 @@ const StaffForm: React.FC<StaffFormProps> = ({setOpen, staffId, setStaffId, open
 			form.clearErrors();
     } 
 	}, [open, staffCount]);
-
-	useEffect(() => {
-      form.reset(EditStaffData);
-      setAvatar(EditStaffData?.profile_img as string);
-	}, [EditStaffData])
 
   return (
 		<Sheet open={open}>
@@ -570,7 +571,7 @@ const StaffForm: React.FC<StaffFormProps> = ({setOpen, staffId, setStaffId, open
 															{...field}
 															id="email"
 															label="Email Address*"
-															disabled={staffId != undefined}
+															disabled={staffData != null}
 														/>
 														{watcher.email ? <></> : <FormMessage />}
 													</FormItem>

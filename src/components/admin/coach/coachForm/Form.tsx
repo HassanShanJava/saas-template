@@ -60,6 +60,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import {
   CoachInputTypes,
+  CoachTableDataTypes,
   CountryTypes,
   ErrorType,
   sourceTypes,
@@ -85,20 +86,20 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 
 interface CoachFormProps {
 	setOpen: React.Dispatch<React.SetStateAction<boolean>>
-	setCoachId: React.Dispatch<React.SetStateAction<number | undefined>>
-	coachId: number | undefined;
 	open: boolean;
+	coachData: coachUpdateInput,
+	setCoachData: React.Dispatch<React.SetStateAction<coachUpdateInput | null>>
 }
 
-const CoachForm: React.FC<CoachFormProps> = ({coachId, setCoachId, setOpen, open}) => {
+const CoachForm: React.FC<CoachFormProps> = ({coachData, setCoachData, setOpen, open}) => {
   //const { id } = useParams();
-  const {
-    data: EditCoachData,
-    isLoading: editisLoading,
-    refetch: editRefetch,
-  } = useGetCoachByIdQuery(coachId as number, {
-    skip: coachId == undefined,
-  });
+  //const {
+  //  data: EditCoachData,
+  //  isLoading: editisLoading,
+  //  refetch: editRefetch,
+  //} = useGetCoachByIdQuery(coachId as number, {
+  //  skip: coachId == undefined,
+  //});
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -226,7 +227,7 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setCoachId, setOpen, open
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
   const { data: coachCountData } = useGetCoachCountQuery(orgId, {
-    skip: coachId != undefined,
+    skip: coachData != null,
   });
 
   const { data: countries } = useGetCountriesQuery();
@@ -289,7 +290,7 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setCoachId, setOpen, open
 		form.clearErrors();
 		form.reset(initialState);
 		setAvatar(null);
-		setCoachId(undefined);
+		setCoachData(null);
 		setOpen(false);
   }
 
@@ -320,7 +321,7 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setCoachId, setOpen, open
         }
       }
     try {
-      if (coachId == undefined) {
+      if (coachData == null) {
         const resp = await addCoach(updatedData).unwrap();
         if (resp) {
           toast({
@@ -332,7 +333,7 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setCoachId, setOpen, open
       } else {
         const resp = await editCoach({
           ...updatedData,
-          id: coachId,
+          id: coachData.id,
         }).unwrap();
         if (resp) {
           toast({
@@ -372,12 +373,13 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setCoachId, setOpen, open
 	}, [open, coachCountData]);
 
 	useEffect(() => {
-      form.reset(EditCoachData);
-      setAvatar(EditCoachData?.profile_img as string);
-	}, [EditCoachData])
+			if (!open || coachData == null) return
+			coachData.member_ids = transformedData?.filter(e => coachData.member_ids.includes(e.id))
+      form.reset(coachData);
+      setAvatar(coachData?.profile_img as string);
+	}, [open, coachData])
 
   console.log("user list create", form.getValues);
-  console.log("Source from the get APIs", EditCoachData);
 
   return (
 			<Sheet open={open}>
@@ -605,7 +607,7 @@ const CoachForm: React.FC<CoachFormProps> = ({coachId, setCoachId, setOpen, open
 																	{...field}
 																	id="email"
 																	label="Email Address*"
-																	disabled={coachId != undefined}
+																	disabled={coachData != null}
 																/>
 																{<FormMessage />}
 															</FormItem>

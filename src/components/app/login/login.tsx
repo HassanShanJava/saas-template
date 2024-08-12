@@ -48,13 +48,6 @@ export default function AuthenticationPage() {
   });
 
   useEffect(() => {
-    if (token) {
-      // Redirect to dashboard if already logged in
-      navigate("/admin/dashboard");
-    }
-  }, [token, navigate]);
-
-  useEffect(() => {
     if (error != null) {
       console.log("Error Login", error);
       toast({

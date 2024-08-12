@@ -26,6 +26,7 @@ import Exercise from "./components/admin/exercise";
 import MealPlans from "./components/admin/meal_plans";
 import FoodsNutrition from "./components/admin/foods";
 import WorkoutPlan from "./components/admin/workoutplan";
+import withAuth from "./components/HOC/WithAuth";
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -36,9 +37,14 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" index element={<AuthenticationPage />} />
+        <Route
+          path="/"
+          index
+          element={withAuth(AuthenticationPage)({} as any)}
+        />
         <Route path="/" element={<ProtectedRoute />}>
-          <Route path="/admin" element={<DashboardLayout />}>
+          <Route path="/" element={<DashboardLayout />}>
+            {" "}
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/members" element={<MemberPage />} />
             <Route path="/admin/system_settings" element={<SystemSettings />} />

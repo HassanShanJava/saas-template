@@ -11,8 +11,8 @@ const withAuth = <P extends WithAuthProps>(
   return (props: P) => {
     const isAuthenticated = Boolean(localStorage.getItem("userToken")); // Replace with your auth logic
 
-    if (!isAuthenticated) {
-      return <Navigate to="/" />;
+    if (isAuthenticated) {
+      return <Navigate to="/admin/dashboard" />;
     }
 
     return <Component {...props} />;

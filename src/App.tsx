@@ -75,7 +75,7 @@ function App() {
               
               element={<StaffForm />}
             />*/}
-            <Route path="/admin/exercise" element={<Exercise />} />
+            {/* <Route path="/admin/exercise" element={<Exercise />} /> */}
             {/* <Route
               path="/admin/exercise/addexercise"
               

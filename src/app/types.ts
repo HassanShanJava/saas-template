@@ -1,18 +1,21 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
-export interface createFoodTypes {
-  org_id: number;
+
+
+export interface CreateFoodTypes {
+  org_id?: number;
   name: string;
   brand: string;
-  category: string;
+  category: string|undefined;
   description?: string;
   other_name?: string;
-  total_nutrition?: number;
-  kcal?: number;
-  protein?: number;
-  fat?: number;
-  carbohydrates?: number;
+  visible_for:string|undefined;
+  total_nutrition: number|undefined;
+  kcal: number|undefined;
+  protein: number|undefined;
+  fat: number|undefined;
+  carbohydrates: number|undefined;
   carbs_sugar?: number;
   carbs_saturated?: number;
   kilojoules?: number;
@@ -41,8 +44,8 @@ export interface createFoodTypes {
   alchohol_mono?: number;
   alchohol_poly?: number;
   trans_fat?: number;
-  weight?: number;
-  weight_unit?: string;
+  weight: string|undefined;
+  weight_unit: number;
   created_at?: Date;
   created_by?: number;
 }

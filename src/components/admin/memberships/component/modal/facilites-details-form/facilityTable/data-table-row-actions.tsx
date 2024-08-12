@@ -17,6 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import warning from "@/assets/warning.svg";
 
 import { useDeleteCreditsMutation } from "@/services/creditsApi";
 
@@ -112,11 +113,7 @@ export function DataTableRowActions<TData>({
               {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
-                  <img
-                    src="/src/assets/warning.svg"
-                    alt="warning"
-                    className="w-18 h-18"
-                  />
+                  <img src={warning} alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
                     Please confirm if you want to delete this Credit
                   </AlertDialogTitle>

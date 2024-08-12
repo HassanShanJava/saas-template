@@ -76,7 +76,14 @@ import {
   useUpdateStaffMutation,
 } from "@/services/staffsApi";
 import { UploadCognitoImage } from "@/utils/lib/s3Service";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import profileimg from "@/assets/profile-image.svg";
 
 enum genderEnum {
   male = "male",
@@ -91,12 +98,19 @@ export enum statusEnum {
 }
 
 interface StaffFormProps {
-	setOpen: React.Dispatch<React.SetStateAction<boolean>>
-	open: boolean;
-	staffData: staffTypesResponseList | null,
-	setStaffData: React.Dispatch<React.SetStateAction<staffTypesResponseList | null>>
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  open: boolean;
+  staffData: staffTypesResponseList | null;
+  setStaffData: React.Dispatch<
+    React.SetStateAction<staffTypesResponseList | null>
+  >;
 }
-const StaffForm: React.FC<StaffFormProps> = ({open, setOpen, staffData, setStaffData}) => {
+const StaffForm: React.FC<StaffFormProps> = ({
+  open,
+  setOpen,
+  staffData,
+  setStaffData,
+}) => {
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
@@ -127,13 +141,13 @@ const StaffForm: React.FC<StaffFormProps> = ({open, setOpen, staffData, setStaff
     status: statusEnum.pending,
   };
 
-	const handleClose = () => {
-		form.clearErrors();
-		form.reset(initialState);
-		setAvatar(null);
-		setStaffData(null);
-		setOpen(false);
-	}
+  const handleClose = () => {
+    form.clearErrors();
+    form.reset(initialState);
+    setAvatar(null);
+    setStaffData(null);
+    setOpen(false);
+  };
 
   const FormSchema = z.object({
     profile_img: z.string().trim().default("").optional(),
@@ -196,7 +210,11 @@ const StaffForm: React.FC<StaffFormProps> = ({open, setOpen, staffData, setStaff
       required_error: "You need to select a status.",
     }),
     city: z.string().optional(),
-    zipcode: z.string().trim().max(10, "Zipcode must be 10 characters or less").optional(),
+    zipcode: z
+      .string()
+      .trim()
+      .max(10, "Zipcode must be 10 characters or less")
+      .optional(),
     address_1: z.string().optional(),
     address_2: z.string().optional(),
     org_id: z
@@ -333,21 +351,20 @@ const StaffForm: React.FC<StaffFormProps> = ({open, setOpen, staffData, setStaff
     }
   }
 
-
-	useEffect(() => {
-		if(!open || staffData == null) return
-		form.reset(staffData);
-		setAvatar(staffData?.profile_img as string);
-	}, [open, staffData]);
+  useEffect(() => {
+    if (!open || staffData == null) return;
+    form.reset(staffData);
+    setAvatar(staffData?.profile_img as string);
+  }, [open, staffData]);
 
   useEffect(() => {
-			if (!open) return
-			const total = staffCount?.total_staffs as number;
-			if (total >= 0) {
-				form.setValue("own_staff_id", `${orgName?.slice(0, 2)}-S${total + 1}`);
-			form.clearErrors();
-    } 
-	}, [open, staffCount]);
+    if (!open) return;
+    const total = staffCount?.total_staffs as number;
+    if (total >= 0) {
+      form.setValue("own_staff_id", `${orgName?.slice(0, 2)}-S${total + 1}`);
+      form.clearErrors();
+    }
+  }, [open, staffCount]);
 
   return (
     <Sheet open={open}>
@@ -366,12 +383,8 @@ const StaffForm: React.FC<StaffFormProps> = ({open, setOpen, staffData, setStaff
                       <div className="relative flex">
                         <img
                           id="avatar"
-                          src={
-                            avatar
-                              ? String(avatar)
-                              : "/src/assets/profile-image.svg"
-                          }
-                          alt="/src/assets/profile-image.svg"
+                          src={avatar ? String(avatar) : profileimg}
+                          alt={profileimg}
                           className="w-20 h-20 rounded-full object-cover mb-4 relative"
                         />
                         <CameraIcon className="w-8 h-8 text-black bg-primary rounded-full p-2 absolute top-8 left-14 " />

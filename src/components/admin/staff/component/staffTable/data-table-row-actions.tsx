@@ -22,6 +22,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { ErrorType, staffTypesResponseList } from "@/app/types";
 import { useNavigate } from "react-router-dom";
 import { useDeleteStaffMutation } from "@/services/staffsApi";
+import warning from "@/assets/warning.svg";
+
 export function DataTableRowActions({
   data,
   refetch,
@@ -105,11 +107,7 @@ export function DataTableRowActions({
               {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
-                  <img
-                    src="/src/assets/warning.svg"
-                    alt="warning"
-                    className="w-18 h-18"
-                  />
+                  <img src={warning} alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
                     Please confirm if you want to delete this Staff
                   </AlertDialogTitle>

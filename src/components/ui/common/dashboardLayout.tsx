@@ -4,7 +4,8 @@ import { Header } from "./header";
 import { Toaster } from "@/components/ui/toaster";
 import "./style.css";
 import { IoIosFitness } from "react-icons/io";
-
+import dashboardsvg from "@/assets/dashboard-svg.svg";
+import event from "@/assets/events.svg";
 import {
   Accordion,
   AccordionContent,
@@ -76,11 +77,11 @@ const RocketIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 const EventsIcon: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (
   props
-) => <img {...props} src="/src/assets/events.svg" alt="Events" />;
+) => <img {...props} src={event} alt="Events" />;
 
 const ManageIcon: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (
   props
-) => <img {...props} src="/src/assets/manage.svg" alt="manage" />;
+) => <img {...props} src={event} alt="manage" />;
 
 const navItems: NavItem[] = [
   {
@@ -117,13 +118,13 @@ const navItems: NavItem[] = [
     dropdown: false,
     hiddenRoutes: ["/admin/coach/addcoach", "/admin/coach/editcoach"],
   },
-  // {
-  //   name: "Exercise",
-  //   link: "/admin/exercise",
-  //   icon: IoIosFitness,
-  //   dropdown: false,
-  //   hiddenRoutes: ["/admin/exercise/addexercise"],
-  // },
+  {
+    name: "Exercise",
+    link: "/admin/exercise",
+    icon: IoIosFitness,
+    dropdown: false,
+    hiddenRoutes: ["/admin/exercise/addexercise"],
+  },
   // {
   //   name: "Workout Plan",
   //   link: "/admin/workoutplans",
@@ -219,7 +220,7 @@ const DashboardLayout: React.FC = () => {
         >
           <Link to="#" className="flex items-center gap-2 font-semibold">
             <img
-              src="/src/assets/dashboard-svg.svg"
+              src={dashboardsvg}
               className={`h-8 w-9 ${!isSidebarOpen && "hidden"}`}
               alt="Dashboard"
             />

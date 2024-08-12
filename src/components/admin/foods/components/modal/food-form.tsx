@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { DropzoneOptions } from "react-dropzone";
-
+import uploadimg from "@/assets/upload.svg";
 interface FoodForm {
   isOpen: boolean;
   setOpen: any;
@@ -368,9 +368,9 @@ const FoodForm = ({ isOpen, setOpen }: FoodForm) => {
                 <LoadingButton
                   type="submit"
                   className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                // onClick={handleSubmit(onSubmit)}
-                // loading={isSubmitting}
-                // disabled={isSubmitting}
+                  // onClick={handleSubmit(onSubmit)}
+                  // loading={isSubmitting}
+                  // disabled={isSubmitting}
                 >
                   {/* {!isSubmitting && ( */}
                   <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
@@ -418,7 +418,6 @@ const FoodForm = ({ isOpen, setOpen }: FoodForm) => {
                   </Select>
                 );
               }
-
             })}
             <FileUploader
               value={files}
@@ -432,7 +431,7 @@ const FoodForm = ({ isOpen, setOpen }: FoodForm) => {
 
                 <div className="flex items-center justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
                   {/* <i className="text-gray-400 fa-regular fa-image size-5"></i> */}
-                  <img src="/src/assets/upload.svg" className="size-10" />
+                  <img src={uploadimg} className="size-10" />
                   <span className="text-sm">Upload Image</span>
                 </div>
               </FileInput>
@@ -478,7 +477,7 @@ const FoodForm = ({ isOpen, setOpen }: FoodForm) => {
                     type="number"
                     onInput={(e) => {
                       const target = e.target as HTMLInputElement;
-                      target.value = target.value.replace(/[^0-9.]/g, '');
+                      target.value = target.value.replace(/[^0-9.]/g, "");
                     }}
                     min={0}
                     step={0.01}
@@ -506,7 +505,7 @@ const FoodForm = ({ isOpen, setOpen }: FoodForm) => {
               </Select>
 
               <FloatingLabelInput
-                id={'units'}
+                id={"units"}
                 name={"units"}
                 label={"Provide Units"}
               />

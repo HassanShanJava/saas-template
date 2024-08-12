@@ -109,6 +109,7 @@ import {
 } from "@/services/membershipsApi";
 import { useParams } from "react-router-dom";
 import { UploadCognitoImage } from "@/utils/lib/s3Service";
+import profileimg from "@/assets/profile-image.svg";
 enum genderEnum {
   male = "male",
   female = "female",
@@ -477,12 +478,8 @@ const MemberForm = ({
                     <div className="relative flex">
                       <img
                         id="avatar"
-                        src={
-                          avatar
-                            ? String(avatar)
-                            : "/src/assets/profile-image.svg"
-                        }
-                        alt="/src/assets/profile-image.svg"
+                        src={avatar ? String(avatar) : profileimg}
+                        alt={profileimg}
                         className="w-20 h-20 rounded-full object-cover mb-4 relative"
                       />
                       <CameraIcon className="w-8 h-8 text-black bg-primary rounded-full p-2 absolute top-8 left-14 " />

@@ -1,6 +1,8 @@
 import { BarChart, Bar, YAxis, Tooltip, XAxis } from "recharts";
 import { Progress } from "@/components/ui/progress";
-
+import walletimg from "@/assets/wallet.svg";
+import Rocketimg from "@/assets/rocket.svg";
+import Starimg from "@/assets/star.svg";
 import { Card, CardContent } from "@/components/ui/card";
 // Sample data array with metrics
 const data = [
@@ -135,10 +137,7 @@ const SimpleBarChart = () => {
         <div className="w-24 p-2">
           <div className=" flex justify-between items-center">
             <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-primary">
-              <img
-                src="/src/assets/wallet.svg"
-                className={`w-4 h-4 items-center `}
-              ></img>
+              <img src={walletimg} className={`w-4 h-4 items-center `}></img>
             </div>
             <h2 className="font-bold text-sm text-gray-400"> Users</h2>
           </div>
@@ -157,10 +156,7 @@ const SimpleBarChart = () => {
         <div className="w-24 p-2">
           <div className=" flex justify-between items-center">
             <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-primary">
-              <img
-                src="/src/assets/rocket.svg"
-                className={`w-4 h-4 items-center `}
-              ></img>
+              <img src={Rocketimg} className={`w-4 h-4 items-center `}></img>
             </div>
             <h2 className="font-bold text-sm text-gray-400"> Leads</h2>
           </div>
@@ -199,10 +195,7 @@ const SimpleBarChart = () => {
         <div className="w-24 p-2">
           <div className=" flex justify-between items-center">
             <div className=" flex justify-center items-center w-7 h-7 rounded-lg bg-primary">
-              <img
-                src="/src/assets/star.svg"
-                className={`w-4 h-4 items-center `}
-              ></img>
+              <img src={Starimg} className={`w-4 h-4 items-center `}></img>
             </div>
             <h2 className="font-bold text-sm text-gray-400"> Sales</h2>
           </div>

@@ -16,7 +16,7 @@ import { AppDispatch, RootState } from "@/app/store";
 import { cn } from "@/lib/utils";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const { VITE_APP_SITEKEY } = import.meta.env;
-
+import logomainsvg from "@/assets/logo-main.svg";
 export default function AuthenticationPage() {
   const token = localStorage.getItem("userToken");
   const navigate = useNavigate();
@@ -116,10 +116,10 @@ export default function AuthenticationPage() {
                   <div className="gap-1 flex justify-center items-center">
                     <div>
                       <img
-                        src="/src/assets/logo-main.svg"
+                        src={logomainsvg}
                         height={110}
                         width={100}
-                        alt="Logo"
+                        alt="Main logo"
                       ></img>
                     </div>
                     <div className="flex flex-col gap-2">

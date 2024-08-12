@@ -315,13 +315,6 @@ export interface ErrorType {
     detail?: string;
   };
 }
-export interface CoachTypes {
-  first_name: string;
-  last_name: string;
-  id: number;
-  is_deleted: boolean;
-}
-
 export interface sourceTypes {
   id: number;
   source: string;
@@ -672,7 +665,7 @@ export interface CoachTableDataTypes {
   acc_holder_name?: string;
   swift_code?: string;
   created_at?: string;
-  member_ids: Member[];
+  members: number[];
 }
 export interface CoachResponseTypeById {
   id: number;

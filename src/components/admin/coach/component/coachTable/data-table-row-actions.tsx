@@ -17,20 +17,20 @@ import {
 
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { createMembershipType, ErrorType } from "@/app/types";
+import { CoachResponseTypeById, CoachTableDataTypes, coachUpdateInput, createMembershipType, ErrorType } from "@/app/types";
 import { useDeleteCoachMutation } from "@/services/coachApi";
 import { useNavigate } from "react-router-dom";
 import { CoachInputTypes } from "@/app/types";
 export function DataTableRowActions({
   data,
   refetch,
-  // handleEdit,
+  handleEdit,
 }: {
-  data: CoachInputTypes & { id: number };
+  data: CoachTableDataTypes;
   refetch: () => void;
-  // handleEdit?: any;
+  handleEdit: (coachData: coachUpdateInput) => void;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const [deleteCoach, { isLoading: deleteLoading }] = useDeleteCoachMutation();
@@ -91,8 +91,13 @@ export function DataTableRowActions({
               <DropdownMenuItem
                 // onClick={() => handleEdit(data)}
                 onClick={() => {
-                  navigate(`/admin/coach/editcoach/${data.id}`);
-                }}
+									const { members, ...rest } = data;
+									const coachData = {
+										 ...rest,
+										 member_ids: data.members
+									} as coachUpdateInput
+									handleEdit(coachData);
+								}}
               >
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit

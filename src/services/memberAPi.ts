@@ -24,6 +24,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
 					Accept: "application/json",
 				},
 			}),
+			providesTags: ["Members"],
 		}),
 		getCountries: builder.query<CountryTypes[], void>({
 			query: () => ({
@@ -60,6 +61,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
 					Accept: "application/json",
 				},
 			}),
+			providesTags: ["Members"],
 		}),
 		getMemberById: builder.query<MemberInputTypes, number>({
 			query: (member_id) => ({
@@ -69,6 +71,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
 					Accept: "application/json",
 				},
 			}),
+			providesTags: ["Members"],
 		}),
 		AddMember: builder.mutation<MemberResponseTypes, MemberInputTypes>({
 			query: (memberdata) => ({
@@ -80,6 +83,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
 					"Content-Type": "application/json",
 				},
 			}),
+			invalidatesTags: ["Members"],
 		}),
 		updateMember: builder.mutation<MemberResponseTypes, MemberInputTypes & { id: number }>({
 			query: (memberdata) => ({
@@ -91,6 +95,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
 					"Content-Type": "application/json",
 				},
 			}),
+			invalidatesTags: ["Members"],
 		}),
 		deleteMember: builder.mutation<MemberResponseTypes, number>({
 			query: (member_id) => ({
@@ -101,6 +106,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
 					"Content-Type": "application/json",
 				},
 			}),
+			invalidatesTags: ["Members"],
 		}),
 		getMembersList: builder.query<{ id: number; name: string }[], number>({
 			query: (org_id) => ({
@@ -109,6 +115,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
 					Accept: "application/json",
 				},
 			}),
+			providesTags: ["Members"],
 		}),
 	}),
 });

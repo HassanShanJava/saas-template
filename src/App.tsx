@@ -55,20 +55,32 @@ function App() {
               
               element={<LeadForm />}
             /> */}
-            <Route path="/admin/facilities" element={<Facilities />} />
-            <Route path="/admin/saleTaxes" element={<SaleTaxes />} />
-            <Route path="/admin/incomeCategory" element={<IncomeCategory />} />
-            <Route path="/admin/memberships" element={<Memberships />} />
-            <Route path="/admin/events" element={<Events />} />
-            <Route path="/admin/coach" element={<Coach />} />
-            <Route path="/admin/coach/addcoach" element={<CoachForm />} />
-            <Route path="/admin/coach/editcoach/:id" element={<CoachForm />} />
+            <Route path="/admin/facilities"  element={<Facilities />} /> 
+            <Route path="/admin/saleTaxes"  element={<SaleTaxes />} />
+            <Route
+              path="/admin/incomeCategory"
+              
+              element={<IncomeCategory />}
+            />
+            <Route path="/admin/memberships"  element={<Memberships />} />
+            <Route path="/admin/events"  element={<Events />} />
+            <Route path="/admin/coach"  element={<Coach />} />
+            {/*<Route path="/admin/coach/addcoach"  element={<CoachForm />} />*/}
+            {/*<Route
+              path="/admin/coach/editcoach/:id"
+              
+              element={<CoachForm />}
+            />*/}
             {/* <Route path="/admin/roles"  element={<RolesAndAccess />} /> */}
-            <Route path="/admin/staff" element={<Staff />} />
-            <Route path="/admin/staff/addStaff" element={<StaffForm />} />
-            <Route path="/admin/staff/editstaff/:id" element={<StaffForm />} />
-            <Route path="/admin/exercise" element={<Exercise />} />
-            {/* <Route
+            <Route path="/admin/staff"  element={<Staff />} />
+            {/*<Route path="/admin/staff/addStaff"  element={<StaffForm />} />*/}
+            {/*<Route
+              path="/admin/staff/editstaff/:id"
+              
+              element={<StaffForm />}
+            />*/}
+            {/* <Route path="/admin/exercise"  element={<Exercise />} />
+            <Route
               path="/admin/exercise/addexercise"
               
               element={<ExerciseForm />}

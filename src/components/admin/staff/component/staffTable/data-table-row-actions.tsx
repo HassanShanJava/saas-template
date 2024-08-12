@@ -25,9 +25,11 @@ import { useDeleteStaffMutation } from "@/services/staffsApi";
 export function DataTableRowActions({
   data,
   refetch,
+	handleEdit
 }: {
   data: staffTypesResponseList & { id: number };
   refetch: () => void;
+	handleEdit: (staffData: staffTypesResponseList | null) => void
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const { toast } = useToast();
@@ -85,9 +87,7 @@ export function DataTableRowActions({
           <DropdownMenuContent align="end" className="w-4">
             <DialogTrigger asChild>
               <DropdownMenuItem
-                onClick={() => {
-                  navigate(`/admin/staff/editstaff/${data.id}`);
-                }}
+                onClick={() => handleEdit(data)}
               >
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit

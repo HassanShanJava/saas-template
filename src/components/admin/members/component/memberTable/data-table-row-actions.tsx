@@ -86,7 +86,7 @@ export function DataTableRowActions<TData>({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-4 ">
             <DialogTrigger asChild>
-              <DropdownMenuItem onClick={() => handleEditMember(data)}>
+              <DropdownMenuItem onClick={()=>handleEditMember(data.id)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>

@@ -233,8 +233,7 @@ const CoachForm: React.FC = () => {
 
   const [selectedImage, setSelectedImage] = React.useState<File | null>(null);
 
-
-  console.log({transformedData})
+  console.log({ transformedData });
 
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
@@ -285,23 +284,23 @@ const CoachForm: React.FC = () => {
 
     console.log("Updated data with only date:", updatedData);
     console.log("only once", data);
-      if (selectedImage) {
-        try {
-          const getUrl = await UploadCognitoImage(selectedImage);
-          updatedData = {
-            ...updatedData,
-            profile_img: getUrl?.location as string,
-          };
-        } catch (error) {
-          console.error("Upload failed:", error);
-          toast({
-            variant: "destructive",
-            title: "Image Upload Failed",
-            description: "Please try again.",
-          });
-          return;
-        }
+    if (selectedImage) {
+      try {
+        const getUrl = await UploadCognitoImage(selectedImage);
+        updatedData = {
+          ...updatedData,
+          profile_img: getUrl?.location as string,
+        };
+      } catch (error) {
+        console.error("Upload failed:", error);
+        toast({
+          variant: "destructive",
+          title: "Image Upload Failed",
+          description: "Please try again.",
+        });
+        return;
       }
+    }
     try {
       if (id == undefined || id == null) {
         const resp = await addCoach(updatedData).unwrap();

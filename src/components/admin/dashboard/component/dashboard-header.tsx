@@ -47,7 +47,10 @@ const DashboardHeader = () => {
             <i className="ml-2 fa fa-caret-down  text-black"></i>
           </li>
           <li className=" flex  justify-center items-center gap-1">
-            <img src="/calendar.svg" className={`w-5 h-5 items-center `}></img>
+            <img
+              src="/assets/calendar.svg"
+              className={`w-5 h-5 items-center `}
+            ></img>
 
             <span className="text-black cursor-pointer text-xs">SCHEDULE</span>
             <i className="ml-2 fa fa-caret-down  text-black "></i>
@@ -70,6 +73,6 @@ const DashboardHeader = () => {
       </nav>
     </header>
   );
-}
+};
 
 export default DashboardHeader;

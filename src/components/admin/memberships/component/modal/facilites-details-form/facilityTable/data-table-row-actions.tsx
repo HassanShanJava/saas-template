@@ -49,7 +49,6 @@ export function DataTableRowActions<TData>({
   const { toast } = useToast();
 
   const deleteRow = async () => {
-    
     try {
       const resp = await deleteCredits(data.id).unwrap();
       if (resp) {
@@ -61,7 +60,7 @@ export function DataTableRowActions<TData>({
         });
       }
     } catch (error) {
-      console.error("Error", {error});
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
@@ -113,11 +112,7 @@ export function DataTableRowActions<TData>({
               {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
-                  <img
-                    src="/public/warning.svg"
-                    alt="warning"
-                    className="w-18 h-18"
-                  />
+                  <img src="/warning.svg" alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
                     Please confirm if you want to delete this Credit
                   </AlertDialogTitle>

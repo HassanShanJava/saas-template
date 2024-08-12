@@ -112,11 +112,7 @@ export function DataTableRowActions({
               {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
-                  <img
-                    src="/public/warning.svg"
-                    alt="warning"
-                    className="w-18 h-18"
-                  />
+                  <img src="/warning.svg" alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
                     Please confirm if you want to delete this Coach
                   </AlertDialogTitle>

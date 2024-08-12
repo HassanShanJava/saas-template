@@ -26,24 +26,23 @@ import { useNavigate } from "react-router-dom";
 
 interface DataTableRowActionsProps<TData> {
   row: number;
-  data:MemberTableDatatypes,
-  refetch:any
-  handleEditMember:any
+  data: MemberTableDatatypes;
+  refetch: any;
+  handleEditMember: any;
 }
 
 export function DataTableRowActions<TData>({
   row,
   data,
   refetch,
-  handleEditMember
+  handleEditMember,
 }: DataTableRowActionsProps<TData>) {
   const [isdelete, setIsDelete] = React.useState(false);
-  const [deleteMembers]=useDeleteMemberMutation()
-  const navigate=useNavigate()
+  const [deleteMembers] = useDeleteMemberMutation();
+  const navigate = useNavigate();
 
   const deleteRow = async () => {
     try {
-      
       const resp = await deleteMembers(data.id).unwrap();
       if (resp) {
         console.log({ resp });
@@ -54,7 +53,7 @@ export function DataTableRowActions<TData>({
         });
       }
     } catch (error) {
-      console.error("Error", {error});
+      console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
@@ -87,7 +86,7 @@ export function DataTableRowActions<TData>({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-4 ">
             <DialogTrigger asChild>
-              <DropdownMenuItem onClick={()=>handleEditMember(data)}>
+              <DropdownMenuItem onClick={() => handleEditMember(data)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
@@ -99,42 +98,42 @@ export function DataTableRowActions<TData>({
           </DropdownMenuContent>
         </DropdownMenu>
         {isdelete && (
-        <AlertDialog open={isdelete} onOpenChange={() => setIsDelete(false)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
-              <AlertDialogDescription>
-                <div className="flex flex-col items-center  justify-center gap-4">
-                  <img
-                    src="/public/warning.svg"
-                    alt="warning"
-                    className="w-18 h-18"
-                  />
-                  <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this member
-                  </AlertDialogTitle>
-                </div>
-                <div className="w-full flex justify-between items-center gap-3 mt-4">
-                  <AlertDialogCancel
-                    onClick={() => setIsDelete(false)}
-                    className="w-full border border-primary font-semibold"
-                  >
-                    <i className="fa fa-xmark text-base px-1 "></i>
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={deleteRow}
-                    className="w-full bg-primary !text-black font-semibold"
-                  >
-                    <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                    Delete
-                  </AlertDialogAction>
-                </div>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
+          <AlertDialog open={isdelete} onOpenChange={() => setIsDelete(false)}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
+                <AlertDialogDescription>
+                  <div className="flex flex-col items-center  justify-center gap-4">
+                    <img
+                      src="/warning.svg"
+                      alt="warning"
+                      className="w-18 h-18"
+                    />
+                    <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
+                      Please confirm if you want to delete this member
+                    </AlertDialogTitle>
+                  </div>
+                  <div className="w-full flex justify-between items-center gap-3 mt-4">
+                    <AlertDialogCancel
+                      onClick={() => setIsDelete(false)}
+                      className="w-full border border-primary font-semibold"
+                    >
+                      <i className="fa fa-xmark text-base px-1 "></i>
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={deleteRow}
+                      className="w-full bg-primary !text-black font-semibold"
+                    >
+                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                      Delete
+                    </AlertDialogAction>
+                  </div>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </Dialog>
     </>
   );

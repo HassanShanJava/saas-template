@@ -59,7 +59,10 @@ import {
 } from "@/app/types";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useGetAllCategoryQuery, useGetAllExercisesQuery } from "@/services/exerciseApi";
+import {
+  useGetAllCategoryQuery,
+  useGetAllExercisesQuery,
+} from "@/services/exerciseApi";
 import ExerciseForm from "../../exerciseform/form";
 import { Separator } from "@/components/ui/separator";
 import { DataTableRowActions } from "./data-table-row-actions";
@@ -80,13 +83,13 @@ interface searchCretiriaType {
   sort_order: string;
   sort_key?: string;
   search_key?: string;
-  category?:string;
+  category?: string;
 }
 const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key:"created_at",
+  sort_key: "created_at",
 };
 
 export default function ExerciseTableView() {
@@ -94,7 +97,9 @@ export default function ExerciseTableView() {
   const [isOpen, setOpen] = useState(false);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-    const [data, setData] = useState<ExerciseResponseViewType | undefined>(undefined);
+  const [data, setData] = useState<ExerciseResponseViewType | undefined>(
+    undefined
+  );
 
   const [searchCretiria, setSearchCretiria] =
     useState<searchCretiriaType>(initialValue);
@@ -105,7 +110,7 @@ export default function ExerciseTableView() {
   const debouncedInputValue = useDebounce(inputValue, 500);
   const [filterData, setFilter] = useState({});
   const [action, setAction] = useState<"add" | "edit">("add");
-  
+
   const { data: CategoryData } = useGetAllCategoryQuery();
   React.useEffect(() => {
     setSearchCretiria((prev) => {
@@ -137,9 +142,12 @@ export default function ExerciseTableView() {
 
   const toggleSortOrder = (key: string) => {
     setSearchCretiria((prev) => {
-      const newSortOrder = prev.sort_key === key
-        ? (prev.sort_order === "desc" ? "asc" : "desc")
-        : "desc"; // Default to descending order if the key is different
+      const newSortOrder =
+        prev.sort_key === key
+          ? prev.sort_order === "desc"
+            ? "asc"
+            : "desc"
+          : "desc"; // Default to descending order if the key is different
 
       return {
         ...prev,
@@ -193,7 +201,6 @@ export default function ExerciseTableView() {
   const [filters, setFilters] = useState<"">();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  
 
   const displayDate = (value: any) => {
     const date = new Date(value);
@@ -222,12 +229,10 @@ export default function ExerciseTableView() {
   const displayValue = (value: string | undefined | null) =>
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
-
   const handleEditExercise = (data: ExerciseResponseViewType) => {
     setData(data as ExerciseResponseViewType);
     setOpen(true);
-  }
-
+  };
 
   const columns: ColumnDef<ExerciseResponseViewType>[] = [
     {
@@ -255,17 +260,19 @@ export default function ExerciseTableView() {
     },
     {
       accessorKey: "exercise_name",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Exercise Name</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("exercise_name")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Exercise Name</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("exercise_name")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -278,17 +285,19 @@ export default function ExerciseTableView() {
     },
     {
       accessorKey: "category_name",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Category Name</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("category_name")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Category Name</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("category_name")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -301,17 +310,19 @@ export default function ExerciseTableView() {
     },
     {
       accessorKey: "visible_for",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Visible For</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("visible_for")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Visible For</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("visible_for")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -323,16 +334,12 @@ export default function ExerciseTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "equipments",
-      header: ({ table }) => <span>Equipments</span>,
+      accessorKey: "exercise_type",
+      header: ({ table }) => <span>Exercise Type</span>,
       cell: ({ row }) => {
-        const equipments = row.original.equipments;
-
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {equipments.length === 1
-              ? equipments[0].name // Show the name of the single equipment
-              : "Multiple Equipments"}{" "}
+            {row.original.exercise_type}{" "}
           </div>
         );
       },
@@ -340,15 +347,12 @@ export default function ExerciseTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "primary_muscles",
-      header: ({ table }) => <span>Primary Muscle</span>,
+      accessorKey: "difficulty",
+      header: ({ table }) => <span>Difficulty</span>,
       cell: ({ row }) => {
-        const muscles = row.original.primary_muscles;
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {muscles.length === 1
-              ? muscles[0].name // Show the name of the single equipment
-              : "Multiple Muscle"}{" "}
+            {row.original.difficulty}{" "}
           </div>
         );
       },
@@ -356,15 +360,12 @@ export default function ExerciseTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "primary_joints",
-      header: ({ table }) => <span>Primary Joints</span>,
+      accessorKey: "sets",
+      header: ({ table }) => <span>Exercise Sets</span>,
       cell: ({ row }) => {
-        const joints = row.original.primary_joints;
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {joints.length === 1
-              ? joints[0].name // Show the name of the single equipment
-              : "Multiple Joints"}{" "}
+            {row.original.sets}{" "}
           </div>
         );
       },
@@ -494,7 +495,6 @@ export default function ExerciseTableView() {
             >
               <i className="fa fa-filter"></i>
             </button>
-           
           </div>
         </div>
         <div className="rounded-none  ">
@@ -808,14 +808,14 @@ export default function ExerciseTableView() {
           </div>
         </div> */}
         <ExerciseFilters
-        isOpen={openFilter}
-        setOpen={setOpenFilter}
-        initialValue={initialValue}
-        filterData={filterData}
-        setFilter={setFilter}
-        setSearchCriteria={setSearchCretiria}
-        filterDisplay={filterDisplay}
-      />
+          isOpen={openFilter}
+          setOpen={setOpenFilter}
+          initialValue={initialValue}
+          filterData={filterData}
+          setFilter={setFilter}
+          setSearchCriteria={setSearchCretiria}
+          filterDisplay={filterDisplay}
+        />
       </div>
       <ExerciseForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} />
     </>

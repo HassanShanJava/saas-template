@@ -424,8 +424,12 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
         <div className="p-6 bg-bgbackground">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="flex justify-between items-center">
-                <div className="flex flex-row gap-4 items-center"></div>
+              <div className="flex justify-between items-center pb-4">
+                <div className="flex flex-row gap-4 items-center">
+                  <p className="text-lg font-bold text-black">
+                    Exercise Details
+                  </p>
+                </div>
                 <div className="flex gap-2">
                   <div>
                     <Button
@@ -449,14 +453,9 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
                   </div>
                 </div>
               </div>
-              <ScrollArea className="h-[600px]">
-                <ScrollBar orientation="vertical" />
-                <div>
-                  <p className="text-lg font-bold text-black">
-                    Exercise Details
-                  </p>
-                </div>
-                <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+              <ScrollArea className="h-[600px] ">
+                <ScrollBar orientation="vertical" className="" />
+                <div className="w-full grid grid-cols-3 gap-3 justify-between items-center p-5">
                   <div className="relative">
                     <FormField
                       control={form.control}
@@ -1026,7 +1025,7 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
                   />
                 </div> */}
                 </div>
-                <div className="relative">
+                <div className="relative pt-6">
                   {entries.map((entry, index) => (
                     <div key={index} className="mb-4">
                       <div className="flex gap-2">

@@ -26,7 +26,7 @@ import Exercise from "./components/admin/exercise";
 import MealPlans from "./components/admin/meal_plans";
 import FoodsNutrition from "./components/admin/foods";
 import WorkoutPlan from "./components/admin/workoutplan";
-import withAuth from "./components/HOC/WithAuth";
+import withAuth from "./components/WithAuth";
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(

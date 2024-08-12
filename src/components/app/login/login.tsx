@@ -30,6 +30,8 @@ export default function AuthenticationPage() {
   );
   const email = localStorage.getItem("email") ?? "";
   const password = localStorage.getItem("password") ?? "";
+  // const token =
+  //   useSelector((state: RootState) => state.auth.userToken);
 
   const {
     register,
@@ -46,6 +48,8 @@ export default function AuthenticationPage() {
       rememberme: false,
     },
   });
+
+
 
   useEffect(() => {
     if (error != null) {

@@ -116,7 +116,7 @@ export default function AuthenticationPage() {
                   <div className="gap-1 flex justify-center items-center">
                     <div>
                       <img
-                        src="logo-main.svg"
+                        src="/src/assets/logo-main.svg"
                         height={110}
                         width={100}
                         alt="Logo"

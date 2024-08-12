@@ -76,11 +76,11 @@ const RocketIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 const EventsIcon: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (
   props
-) => <img {...props} src="/events.svg" alt="Events" />;
+) => <img {...props} src="/src/assets/events.svg" alt="Events" />;
 
 const ManageIcon: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (
   props
-) => <img {...props} src="/manage.svg" alt="manage" />;
+) => <img {...props} src="/src/assets/manage.svg" alt="manage" />;
 
 const navItems: NavItem[] = [
   {
@@ -219,7 +219,7 @@ const DashboardLayout: React.FC = () => {
         >
           <Link to="#" className="flex items-center gap-2 font-semibold">
             <img
-              src="/dashboard-svg.svg"
+              src="/src/assets/dashboard-svg.svg"
               className={`h-8 w-9 ${!isSidebarOpen && "hidden"}`}
               alt="Dashboard"
             />

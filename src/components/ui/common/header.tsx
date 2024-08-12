@@ -203,7 +203,7 @@ export const Header = () => {
                 targetPath="/admin/staff/addstaff"
                 title="Add Staff"
               />
-              
+
               {/* <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/mealplans"
@@ -331,7 +331,7 @@ export const Header = () => {
             <DropdownMenuTrigger asChild>
               <div className="justify-center cursor-pointer items-center flex gap-3">
                 <img
-                  src="/userSvg.svg"
+                  src="/src/assets/userSvg.svg"
                   width="32"
                   height="32"
                   className="rounded-full"

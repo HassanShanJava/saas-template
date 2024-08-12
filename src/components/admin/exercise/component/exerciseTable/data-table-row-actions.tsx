@@ -105,7 +105,7 @@ export function DataTableRowActions<TData>({
                 <AlertDialogDescription>
                   <div className="flex flex-col items-center  justify-center gap-4">
                     <img
-                      src="/warning.svg"
+                      src="/src/assets/warning.svg"
                       alt="warning"
                       className="w-18 h-18"
                     />

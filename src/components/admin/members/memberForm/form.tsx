@@ -103,7 +103,10 @@ import {
 } from "@/services/memberAPi";
 
 import { useGetCoachListQuery } from "@/services/coachApi";
-import { useGetMembershipListQuery, useGetMembershipsQuery } from "@/services/membershipsApi";
+import {
+  useGetMembershipListQuery,
+  useGetMembershipsQuery,
+} from "@/services/membershipsApi";
 import { useParams } from "react-router-dom";
 import { UploadCognitoImage } from "@/utils/lib/s3Service";
 enum genderEnum {
@@ -117,7 +120,6 @@ const coachsSchema = z.object({
   name: z.string(),
 });
 
-
 interface memberFormTypes {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -125,7 +127,12 @@ interface memberFormTypes {
   setMemberId: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
-const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) => {
+const MemberForm = ({
+  open,
+  setOpen,
+  memberId,
+  setMemberId,
+}: memberFormTypes) => {
   // const { id } = data;
   // console.log({ id });
   const orgId =
@@ -218,7 +225,11 @@ const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) =
           message: "Required",
         }),
       city: z.string().trim().optional(),
-      zipcode: z.string().trim().max(10, "Zipcode must be 10 characters or less").optional(),
+      zipcode: z
+        .string()
+        .trim()
+        .max(10, "Zipcode must be 10 characters or less")
+        .optional(),
       address_1: z.string().optional(),
       address_2: z.string().optional(),
       org_id: z
@@ -317,44 +328,47 @@ const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) =
   });
 
   const watcher = form.watch();
-console.error(watcher, form.formState.errors);
+  console.error(watcher, form.formState.errors);
   const memberError = form.formState.errors;
 
-
-	useEffect(() => {
-		if (!open) return;
-		const total = memberCountData?.total_members as number;
-		if (total >= 0) {
-			form.setValue("own_member_id", `${orgName?.slice(0, 2)}-${total + 1}`);
-		}
-	}, [open, memberCountData]);
+  useEffect(() => {
+    if (!open) return;
+    const total = memberCountData?.total_members as number;
+    if (total >= 0) {
+      form.setValue("own_member_id", `${orgName?.slice(0, 2)}-${total + 1}`);
+    }
+  }, [open, memberCountData]);
 
   useEffect(() => {
-		if (!open || memberId == undefined) return
-		const initialValue = { ...memberData };
-		const data = membershipPlans&&membershipPlans?.filter(
-			(item:any) => item.id == memberData?.membership_plan_id
-		)[0];
-		const renewalDetails = data?.renewal_details as renewalData;
-		initialValue.auto_renewal = data?.auto_renewal ?? false;
-		if (initialValue?.auto_renewal) {
-			initialValue.prolongation_period =
-				(renewalDetails?.prolongation_period as number | undefined) ??
-				undefined;
-			initialValue.auto_renew_days =
-				(renewalDetails?.days_before as number | undefined) ?? undefined;
-			initialValue.inv_days_cycle =
-				(renewalDetails?.next_invoice as number | undefined) ?? undefined;
-		}
-		setInitialValues(initialValue as MemberInputTypes);
-		form.reset(initialValue);
-		setAvatar(initialValue.profile_img as string);
+    if (!open || memberId == undefined) return;
+    const initialValue = { ...memberData };
+    const data =
+      membershipPlans &&
+      membershipPlans?.filter(
+        (item: any) => item.id == memberData?.membership_plan_id
+      )[0];
+    const renewalDetails = data?.renewal_details as renewalData;
+    initialValue.auto_renewal = data?.auto_renewal ?? false;
+    if (initialValue?.auto_renewal) {
+      initialValue.prolongation_period =
+        (renewalDetails?.prolongation_period as number | undefined) ??
+        undefined;
+      initialValue.auto_renew_days =
+        (renewalDetails?.days_before as number | undefined) ?? undefined;
+      initialValue.inv_days_cycle =
+        (renewalDetails?.next_invoice as number | undefined) ?? undefined;
+    }
+    setInitialValues(initialValue as MemberInputTypes);
+    form.reset(initialValue);
+    setAvatar(initialValue.profile_img as string);
   }, [open, memberData]);
 
   // set auto_renewal
   const handleMembershipPlanChange = (value: number) => {
     form.setValue("membership_plan_id", value);
-    const data = membershipPlans&&membershipPlans?.filter((item:any) => item.id == value)[0];
+    const data =
+      membershipPlans &&
+      membershipPlans?.filter((item: any) => item.id == value)[0];
     const renewalDetails = data?.renewal_details as renewalData;
     form.setValue("auto_renewal", data?.auto_renewal);
     if (data?.auto_renewal) {
@@ -373,14 +387,13 @@ console.error(watcher, form.formState.errors);
     }
   };
 
-
-	function handleClose() {
-		setAvatar(null);
-		form.clearErrors();
-		form.reset(initialState);
-		setMemberId(undefined);
-		setOpen(false);
-	}
+  function handleClose() {
+    setAvatar(null);
+    form.clearErrors();
+    form.reset(initialState);
+    setMemberId(undefined);
+    setOpen(false);
+  }
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let updatedData = {
@@ -455,8 +468,7 @@ console.error(watcher, form.formState.errors);
     <Sheet open={open}>
       <SheetContent hideCloseButton className="!max-w-[1050px]">
         <SheetHeader>
-          <SheetTitle>
-          </SheetTitle>
+          <SheetTitle></SheetTitle>
           <SheetDescription>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -465,8 +477,12 @@ console.error(watcher, form.formState.errors);
                     <div className="relative flex">
                       <img
                         id="avatar"
-                        src={avatar ? String(avatar) : "/profile-image.svg"}
-                        alt="Avatar"
+                        src={
+                          avatar
+                            ? String(avatar)
+                            : "/src/assets/profile-image.svg"
+                        }
+                        alt="/src/assets/profile-image.svg"
                         className="w-20 h-20 rounded-full object-cover mb-4 relative"
                       />
                       <CameraIcon className="w-8 h-8 text-black bg-primary rounded-full p-2 absolute top-8 left-14 " />
@@ -617,7 +633,8 @@ console.error(watcher, form.formState.errors);
                                         variant={"outline"}
                                         className={cn(
                                           "w-full pl-3 text-left font-normal ",
-                                          !field.value && "text-muted-foreground"
+                                          !field.value &&
+                                            "text-muted-foreground"
                                         )}
                                       >
                                         {field.value ? (
@@ -758,14 +775,16 @@ console.error(watcher, form.formState.errors);
                             </FormControl>
                             <SelectContent>
                               {sources && sources.length > 0 ? (
-                                sources.map((sourceval: sourceTypes, i: any) => (
-                                  <SelectItem
-                                    value={sourceval.id?.toString()}
-                                    key={i}
-                                  >
-                                    {sourceval.source}
-                                  </SelectItem>
-                                ))
+                                sources.map(
+                                  (sourceval: sourceTypes, i: any) => (
+                                    <SelectItem
+                                      value={sourceval.id?.toString()}
+                                      key={i}
+                                    >
+                                      {sourceval.source}
+                                    </SelectItem>
+                                  )
+                                )
                               ) : (
                                 <p className="p-2">No Sources Found</p>
                               )}
@@ -790,7 +809,9 @@ console.error(watcher, form.formState.errors);
                               <MultiSelectorInput
                                 className="font-medium  "
                                 placeholder={
-                                  field?.value?.length == 0 ? `Select Coaches*` : ""
+                                  field?.value?.length == 0
+                                    ? `Select Coaches*`
+                                    : ""
                                 }
                               />
                             </MultiSelectorTrigger>
@@ -801,7 +822,7 @@ console.error(watcher, form.formState.errors);
                                     <MultiSelectorItem
                                       key={user.id}
                                       value={user}
-                                    // disabled={field.value?.length >= 5}
+                                      // disabled={field.value?.length >= 5}
                                     >
                                       <div className="flex items-center space-x-2">
                                         <span>{user.name}</span>
@@ -967,14 +988,14 @@ console.error(watcher, form.formState.errors);
                                   className={cn(
                                     "justify-between ",
                                     !field.value &&
-                                    "font-medium text-gray-400 focus:border-primary "
+                                      "font-medium text-gray-400 focus:border-primary "
                                   )}
                                 >
                                   {field.value
                                     ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === field.value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                        (country: CountryTypes) =>
+                                          country.id === field.value // Compare with numeric value
+                                      )?.country // Display country name if selected
                                     : "Select country*"}
                                   <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
@@ -1085,7 +1106,8 @@ console.error(watcher, form.formState.errors);
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {membershipPlans && membershipPlans?.length >0? (
+                              {membershipPlans &&
+                              membershipPlans?.length > 0 ? (
                                 membershipPlans.map(
                                   (sourceval: membeshipsTableType) => {
                                     console.log({ sourceval });
@@ -1148,7 +1170,10 @@ console.error(watcher, form.formState.errors);
                                   type="number"
                                   onInput={(e) => {
                                     const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(/[^0-9.]/g, '');
+                                    target.value = target.value.replace(
+                                      /[^0-9.]/g,
+                                      ""
+                                    );
                                   }}
                                   min={1}
                                   name="min_limit"
@@ -1180,7 +1205,10 @@ console.error(watcher, form.formState.errors);
                                   type="number"
                                   onInput={(e) => {
                                     const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(/[^0-9.]/g, '');
+                                    target.value = target.value.replace(
+                                      /[^0-9.]/g,
+                                      ""
+                                    );
                                   }}
                                   min={1}
                                   name="min_limit"
@@ -1215,13 +1243,20 @@ console.error(watcher, form.formState.errors);
                                   type="number"
                                   onInput={(e) => {
                                     const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(/[^0-9.]/g, '');
+                                    target.value = target.value.replace(
+                                      /[^0-9.]/g,
+                                      ""
+                                    );
                                   }}
                                   min={1}
                                   name="min_limit"
                                   className="w-16"
                                 />
-                                {watcher.inv_days_cycle ? <></> : <FormMessage />}
+                                {watcher.inv_days_cycle ? (
+                                  <></>
+                                ) : (
+                                  <FormMessage />
+                                )}
                                 <Label className="text-xs text-black/60">
                                   days before contracts runs out.
                                 </Label>
@@ -1233,7 +1268,6 @@ console.error(watcher, form.formState.errors);
                     </>
                   )}
                 </div>
-
               </form>
             </Form>
           </SheetDescription>

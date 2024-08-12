@@ -25,11 +25,11 @@ import { useDeleteStaffMutation } from "@/services/staffsApi";
 export function DataTableRowActions({
   data,
   refetch,
-	handleEdit
+  handleEdit,
 }: {
   data: staffTypesResponseList & { id: number };
   refetch: () => void;
-	handleEdit: (staffData: staffTypesResponseList | null) => void
+  handleEdit: (staffData: staffTypesResponseList | null) => void;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const { toast } = useToast();
@@ -86,9 +86,7 @@ export function DataTableRowActions({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-4">
             <DialogTrigger asChild>
-              <DropdownMenuItem
-                onClick={() => handleEdit(data)}
-              >
+              <DropdownMenuItem onClick={() => handleEdit(data)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
@@ -107,7 +105,11 @@ export function DataTableRowActions({
               {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
-                  <img src="/warning.svg" alt="warning" className="w-18 h-18" />
+                  <img
+                    src="/src/assets/warning.svg"
+                    alt="warning"
+                    className="w-18 h-18"
+                  />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
                     Please confirm if you want to delete this Staff
                   </AlertDialogTitle>

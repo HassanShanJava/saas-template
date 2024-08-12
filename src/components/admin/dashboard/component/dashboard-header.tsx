@@ -4,12 +4,18 @@ const DashboardHeader = () => {
       <nav>
         <ul className="flex justify-between items-center">
           <li className="flex gap-1 justify-center items-center">
-            <img src="/overview.svg" className={`w-5 h-5 items-center `}></img>
+            <img
+              src="/src/assets/overview.svg"
+              className={`w-5 h-5 items-center `}
+            ></img>
             <span className="text-black text-xs cursor-pointer">Overview</span>
             <i className="ml-2 fa fa-caret-down  text-black"></i>
           </li>
           <li className=" flex  justify-start items-center gap-1">
-            <img src="/multiuser.svg" className={`w-5 h-5 items-center `}></img>
+            <img
+              src="/src/assets/multiuser.svg"
+              className={`w-5 h-5 items-center `}
+            ></img>
             <span
               className="text-black cursor-pointer text-xs"
               style={{ whiteSpace: "nowrap" }}
@@ -20,7 +26,7 @@ const DashboardHeader = () => {
           </li>
           <li className=" flex  justify-center items-center gap-1">
             <img
-              src="/chart-line.svg"
+              src="/src/assets/chart-line.svg"
               className={`w-5 h-5 items-center `}
             ></img>
             <span
@@ -32,7 +38,10 @@ const DashboardHeader = () => {
             <i className="ml-2 fa fa-caret-down  text-black"></i>
           </li>
           <li className=" flex  justify-center items-center gap-1">
-            <img src="/finance.svg" className={`w-5 h-5 items-center `}></img>
+            <img
+              src="/src/assets/finance.svg"
+              className={`w-5 h-5 items-center `}
+            ></img>
             <span className="text-black cursor-pointer text-xs">FINANCE</span>
             <i className="ml-2 fa fa-caret-down  text-black"></i>
           </li>
@@ -48,7 +57,7 @@ const DashboardHeader = () => {
           </li>
           <li className=" flex  justify-center items-center gap-1">
             <img
-              src="/assets/calendar.svg"
+              src="/src/assets/calendar.svg"
               className={`w-5 h-5 items-center `}
             ></img>
 
@@ -62,7 +71,10 @@ const DashboardHeader = () => {
             <i className="ml-2 fa fa-caret-down  text-black"></i>
           </li>
           <li className=" flex  justify-center items-center gap-1">
-            <img src="/star.svg" className={`w-5 h-5 items-center `}></img>
+            <img
+              src="/src/assets/star.svg"
+              className={`w-5 h-5 items-center `}
+            ></img>
 
             <span className="text-black cursor-pointer text-xs">
               ENGAGEMENT

@@ -229,7 +229,7 @@ const MultiSelectorInput = forwardRef<
         {...props}
         ref={ref}
         value={inputValue}
-        onValueChange={activeIndex === -1 ? setInputValue : () => { }}
+        onValueChange={activeIndex === -1 ? setInputValue : () => {}}
         onBlur={() => setOpen(false)}
         onFocus={() => setOpen(true)}
         onClick={() => setActiveIndex(-1)}
@@ -239,8 +239,7 @@ const MultiSelectorInput = forwardRef<
           activeIndex !== -1 && "caret-transparent"
         )}
       />
-      <ChevronDownIcon className="h-5 w-5 text-gray-500" />
-
+      <ChevronDownIcon className="h-5 w-5 text-gray-300" />
     </>
   );
 });

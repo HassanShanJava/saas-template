@@ -28,7 +28,7 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ErrorType } from "@/app/types";
-
+import warning from "@/assets/warning.svg";
 interface DataTableRowActionsProps<TData> {
   id: number;
   org_id: number;
@@ -55,7 +55,6 @@ export function DataTableRowActions<TData>({
   console.log(data);
 
   const deleteRow = async () => {
-    
     try {
       const resp = await deleteCredits(data.id).unwrap();
       if (resp) {
@@ -119,11 +118,7 @@ export function DataTableRowActions<TData>({
               {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
-                  <img
-                    src="/public/warning.svg"
-                    alt="warning"
-                    className="w-18 h-18"
-                  />
+                  <img src={warning} alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
                     Please confirm if you want to delete this Facility
                   </AlertDialogTitle>

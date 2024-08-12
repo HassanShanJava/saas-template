@@ -4,7 +4,8 @@ import { Header } from "./header";
 import { Toaster } from "@/components/ui/toaster";
 import "./style.css";
 import { IoIosFitness } from "react-icons/io";
-
+import dashboardsvg from "@/assets/dashboard-svg.svg";
+import event from "@/assets/events.svg";
 import {
   Accordion,
   AccordionContent,
@@ -76,11 +77,11 @@ const RocketIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 const EventsIcon: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (
   props
-) => <img {...props} src="/events.svg" alt="Events" />;
+) => <img {...props} src={event} alt="Events" />;
 
 const ManageIcon: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (
   props
-) => <img {...props} src="/manage.svg" alt="manage" />;
+) => <img {...props} src={event} alt="manage" />;
 
 const navItems: NavItem[] = [
   {
@@ -142,12 +143,12 @@ const navItems: NavItem[] = [
   //   icon: EventsIcon,
   //   dropdown: false,
   // },
-  // {
-  //   name: "Food/ Nutrition",
-  //   link: "/admin/foods",
-  //   icon: EventsIcon,
-  //   dropdown: false,
-  // },
+  {
+    name: "Food/ Nutrition",
+    link: "/admin/foods",
+    icon: EventsIcon,
+    dropdown: false,
+  },
   {
     name: "Manage",
     dropdown: true,
@@ -219,7 +220,7 @@ const DashboardLayout: React.FC = () => {
         >
           <Link to="#" className="flex items-center gap-2 font-semibold">
             <img
-              src="/dashboard-svg.svg"
+              src={dashboardsvg}
               className={`h-8 w-9 ${!isSidebarOpen && "hidden"}`}
               alt="Dashboard"
             />

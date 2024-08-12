@@ -1,4 +1,4 @@
-import { createFoodTypes, groupCreateType, groupRespType } from "@/app/types";
+import { CreateFoodTypes, groupCreateType, groupRespType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
 interface foodsInput {
@@ -9,7 +9,7 @@ interface foodsInput {
 export const Foods = apiSlice.injectEndpoints({
     endpoints(builder) {
         return {
-            getFoods: builder.query<any[], foodsInput>({
+        getFoods: builder.query<any[], foodsInput>({
                 query: (searchCretiria) => ({
                     url: `/foods?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
                     method: "GET",
@@ -19,7 +19,7 @@ export const Foods = apiSlice.injectEndpoints({
                     providesTags: ["Foods"],
                 }),
             }),
-            createFoods: builder.query<any, createFoodTypes>({
+            createFoods: builder.query<any, CreateFoodTypes>({
                 query: (fooddata) => ({
                     url: `/foods`,
                     method: "POST",
@@ -31,7 +31,7 @@ export const Foods = apiSlice.injectEndpoints({
 
                 }),
             }),
-            updateFoods: builder.query<any, createFoodTypes & { id: number }>({
+            updateFoods: builder.query<any, CreateFoodTypes & { id: number }>({
                 query: (fooddata) => ({
                     url: `/foods`,
                     method: "PUT",

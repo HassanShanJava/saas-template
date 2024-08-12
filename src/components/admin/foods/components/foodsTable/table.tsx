@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
   PaginationState,
@@ -24,7 +24,7 @@ import {
 
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -43,14 +43,9 @@ import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import FoodForm from "../modal/food-form";
-
-// import { DataTableFacetedFilter } from "./data-table-faced-filter";
-
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-];
-
+import { useGetFoodsQuery } from "@/services/foodsApi";
+import { useDebounce } from "@/hooks/use-debounce";
+import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 
 const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -63,16 +58,97 @@ const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
   document.body.removeChild(link);
 };
 
+
+interface searchCretiriaType {
+  limit: number;
+  offset: number;
+  sort_order: string;
+  sort_key?: string;
+  search_key?: string;
+}
+
+const initialValue = {
+  limit: 10,
+  offset: 0,
+  sort_order: "desc",
+  sort_key: "created_at",
+};
+
 export default function FoodsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
   const [action, setAction]=useState<'add'|'edit'>('add')
   const [isDialogOpen, setIsDialogOpen]=useState<boolean>(false)
+  const [searchCretiria, setSearchCretiria] =
+    useState<searchCretiriaType>(initialValue);
+  const [query, setQuery] = useState("");
+
+  // search input
+  const [inputValue, setInputValue] = useState("");
+  const [openFilter, setOpenFilter] = useState(false);
+  const debouncedInputValue = useDebounce(inputValue, 500);
+  const [filterData, setFilter] = useState({});
+
+  useEffect(() => {
+    setSearchCretiria((prev) => {
+      const newCriteria = { ...prev };
+
+      if (debouncedInputValue.trim() !== "") {
+        newCriteria.search_key = debouncedInputValue;
+      } else {
+        delete newCriteria.search_key;
+      }
+
+      return newCriteria;
+    });
+    console.log({ debouncedInputValue });
+  }, [debouncedInputValue, setSearchCretiria]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchCretiria)) {
+      console.log({ key, value });
+      if (value !== undefined && value !== null) {
+        params.append(key, value);
+      }
+    }
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery);
+  }, [searchCretiria]);
+
+  const toggleSortOrder = (key: string) => {
+    setSearchCretiria((prev) => {
+      const newSortOrder = prev.sort_key === key
+        ? (prev.sort_order === "desc" ? "asc" : "desc")
+        : "desc"; // Default to descending order if the key is different
+
+      return {
+        ...prev,
+        sort_key: key,
+        sort_order: newSortOrder,
+      };
+    });
+  };
+
+  const {
+    data: foodData,
+    isLoading,
+    refetch,
+    error,
+    isError,
+  } = useGetFoodsQuery(
+    { org_id: orgId, query: query },
+    {
+      skip: query == "",
+    }
+  );
+
+
 
   const handleCloseDailog = () => setIsDialogOpen(false);
 
-  const [formData, setFormData] = useState({});
 
   // const membershipstableData = React.useMemo(() => {
   //   return Array.isArray(membershipsData) ? membershipsData : [];
@@ -80,18 +156,11 @@ export default function FoodsTableView() {
 
   const { toast } = useToast();
 
-  // const [data, setData] = useState<membeshipsTableType|undefined>(undefined);
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [filterID, setFilterID] = useState({});
   const [filters, setFilters] = useState<any>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [isClear, setIsClear] = useState(false);
-  const [clearValue, setIsClearValue] = useState({});
   
-
-  
-
   const handleExportSelected = () => {
     const selectedRows = table
       .getSelectedRowModel()
@@ -112,6 +181,7 @@ export default function FoodsTableView() {
   const columns: ColumnDef<membeshipsTableType>[] = [
     {
       accessorKey: "name",
+      meta:"Name",
       header: ({ table }) => <span>Name</span>,
       cell: ({ row }) => {
         return <span>any</span>;
@@ -120,7 +190,8 @@ export default function FoodsTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "visible_for",
+      accessorKey: "brand",
+      meta:"Brand",
       header: ({ table }) => <span>Brand</span>,
       cell: ({ row }) => {
 
@@ -130,7 +201,8 @@ export default function FoodsTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "carbs",
+      accessorKey: "category",
+      meta:"Category",
       header: ({ table }) => <span>Category</span>,
       cell: ({ row }) => {
         return <span>any</span>;
@@ -139,7 +211,8 @@ export default function FoodsTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "protein",
+      accessorKey: "total_nutrition",
+      meta:"Total Nutrition (g)",
       header: ({ table }) => <span>Total Nutrition (g)</span>,
       cell: ({ row }) => {
         
@@ -150,6 +223,7 @@ export default function FoodsTableView() {
     },
     {
       accessorKey: "fats",
+      meta:"Total Fat",
       header: ({ table }) => <span>Total Fat</span>,
       cell: ({ row }) => {
         return <span>any</span>;
@@ -196,13 +270,25 @@ export default function FoodsTableView() {
     setAction('add')
     setIsDialogOpen(true)
   }
+  
+  const handleEdit=()=>{
+    setAction('edit')
+    setIsDialogOpen(true)
+  }
 
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
-          <p className="font-semibold text-2xl">Food / Nutrition</p>
-        </div>
+        <div className="flex items-center  relative">
+            <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
+            <FloatingLabelInput
+              id="search"
+              placeholder="Search by food name"
+              onChange={(event) => setInputValue(event.target.value)}
+              className="w-64 pl-8 text-gray-400"
+            />
+          </div>        </div>
         <Button
           className="bg-primary m-4 text-black gap-1 font-semibold"
           onClick={handleOpen}
@@ -290,7 +376,7 @@ export default function FoodsTableView() {
       
       
 
-      <FoodForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} />
+      <FoodForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} action={action} />
     </div>
   );
 }

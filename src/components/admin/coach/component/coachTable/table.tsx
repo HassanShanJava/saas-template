@@ -58,10 +58,12 @@ import {
   useGetCoachesQuery,
   useUpdateCoachMutation,
 } from "@/services/coachApi";
-import { CoachTableTypes, ErrorType } from "@/app/types";
+import { CoachTableDataTypes, CoachTableTypes, coachUpdateInput, ErrorType } from "@/app/types";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Separator } from "@/components/ui/separator";
 import CoachFilters from "./data-table-filter";
+import CoachForm from "../../coachForm/Form"
+import { Sheet } from "@/components/ui/sheet";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -152,9 +154,6 @@ export default function CoachTableView() {
   const navigate = useNavigate();
   const [updateCoach] = useUpdateCoachMutation();
 
-  function handleRoute() {
-    navigate("/admin/coach/addcoach");
-  }
   const coachTableData = React.useMemo(() => {
     return Array.isArray(coachData?.data) ? coachData.data : [];
   }, [coachData]);
@@ -256,7 +255,7 @@ export default function CoachTableView() {
   });
 };
 
-  const columns: ColumnDef<CoachTableTypes>[] = [
+  const columns: ColumnDef<CoachTableDataTypes>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -451,12 +450,12 @@ export default function CoachTableView() {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <DataTableRowActions data={row.original} refetch={refetch} />
+        <DataTableRowActions data={row.original} refetch={refetch} handleEdit={handleOpenForm} />
       ),
     },
   ];
   const table = useReactTable({
-    data: coachTableData as CoachTableTypes[],
+    data: coachTableData as CoachTableDataTypes[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -536,7 +535,13 @@ export default function CoachTableView() {
     }
   };
 
+	const handleOpenForm = (coachData: coachUpdateInput | null = null) => {
+		setEditCoach(coachData);
+		setOpen(true);
+	}
 
+	const [open, setOpen] = useState<boolean>(false);
+	const [editCoach, setEditCoach] = useState<coachUpdateInput | null>(null);
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between gap-2 px-4 py-2 ">
@@ -551,7 +556,7 @@ export default function CoachTableView() {
             />
           </div>
         </div>
-        <Button className="bg-primary  text-black mr-1 " onClick={handleRoute}>
+        <Button className="bg-primary  text-black mr-1 " onClick={() => handleOpenForm()}>
           <PlusIcon className="size-4" />
           Create New
         </Button>
@@ -739,6 +744,7 @@ export default function CoachTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
+			<CoachForm coachData={editCoach} setCoachData={setEditCoach} setOpen={setOpen} open={open} />
     </div>
   );
 }

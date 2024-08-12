@@ -56,7 +56,7 @@ import { useGetMembershipListQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
 import MemberForm from "../../memberForm/form";
 
-const downloadCSV = (data, fileName: string) => {
+const downloadCSV = (data:MemberTableDatatypes[], fileName: string) => {
   const csvData=data.map(({coaches, ...newdata})=>newdata)
   const csv = Papa.unparse(csvData);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -214,6 +214,7 @@ export default function MemberTableView() {
       });
       return;
     }
+    console.log({selectedRows}, typeof selectedRows)
     downloadCSV(selectedRows, "members_list.csv");
   };
 

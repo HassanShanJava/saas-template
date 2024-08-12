@@ -41,12 +41,13 @@ interface membershipFormTypes {
   refetch: any;
   action: "add" | "edit";
 }
-interface LimitedAccessDay {
+interface limitedAccessDaysTypes {
   id: number;
   day: string;
   from: string;
   to: string;
 }
+
 
 interface membershipFromTypes {
   membership_name: string;
@@ -143,8 +144,23 @@ const MembershipForm = ({
   console.log(errors, "membership form");
 
   const access_type = getValues("access_type");
-  const limited_access_data = getValues("limited_access_data");
-  console.log({ access_type, limited_access_data })
+  const limited_access_data = getValues("limited_access_data") as limitedAccessDaysTypes[];
+
+  const isValidTimeRange = (from: string, to: string) => {
+    return from < to;
+  };
+
+  const isConflictingTime = (
+    day: string,
+    from: string,
+    to: string,
+    id: number | undefined = undefined
+  ) => {
+    const dayEntries =limited_access_data&& limited_access_data.filter(
+      (entry) => entry.day === day && entry.id !== id
+    );
+    return dayEntries.some((entry) => from < entry.to && to > entry.from);
+  };
 
   useEffect(() => {
     if (action == "edit" && data != undefined) {
@@ -313,19 +329,38 @@ const MembershipForm = ({
 
   const handleNext = async () => {
     const isStepValid = await trigger(undefined, { shouldFocus: true });
-
+    const accessType = getValues("access_type");
+    const limitedAccessData = getValues("limited_access_data") as limitedAccessDaysTypes[];
     if (activeStep == 1 && access_type == "limited-access") {
+      console.log("inside step 1")
+      
+      // Check for time conflicts
+    const timeConflicts = limitedAccessData.some((day: any, index: number) => {
+      const otherDays = limitedAccessData.slice(index + 1);
+      return otherDays.some((otherDay: any) => 
+        day.day === otherDay.day &&
+        isTimeOverlap(day.from, day.to, otherDay.from, otherDay.to)
+      );
+    });
 
-      const check = limited_access_data.some(
+    if (timeConflicts) {
+      toast({
+        variant: "destructive",
+        title: "Time slots overlap on the same day",
+      });
+      return;
+    }
+      
+      
+      const check = limitedAccessData.some(
         (day: any) => day?.from != "" && day?.to != ""
       );
-      const checkFrom = limited_access_data.some(
+      const checkFrom = limitedAccessData.some(
         (day: any) => day?.from != "" && day?.to == ""
       );
-      const checkTo = limited_access_data.some(
+      const checkTo = limitedAccessData.some(
         (day: any) => day?.from == "" && day?.to != ""
       );
-      console.log({ check, limited_access_data });
       
       if (checkFrom) {
         toast({
@@ -351,22 +386,7 @@ const MembershipForm = ({
         return;
       }
 
-      // Check for time conflicts
-    const timeConflicts = limited_access_data.some((day: any, index: number) => {
-      const otherDays = limited_access_data.slice(index + 1);
-      return otherDays.some((otherDay: any) => 
-        day.day === otherDay.day &&
-        isTimeOverlap(day.from, day.to, otherDay.from, otherDay.to)
-      );
-    });
-
-    if (timeConflicts) {
-      toast({
-        variant: "destructive",
-        title: "Time slots overlap on the same day",
-      });
-      return;
-    }
+      
     }
     if (isStepValid) setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -540,3 +560,5 @@ function isTimeOverlap(from1: string, to1: string, from2: string, to2: string): 
   const [f2, t2] = [new Date(`1970-01-01T${from2}:00Z`), new Date(`1970-01-01T${to2}:00Z`)];
   return (f1 < t2 && f2 < t1);
 }
+
+

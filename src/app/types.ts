@@ -478,6 +478,10 @@ export interface MemberTableDatatypes {
   membership_plan_id?: number;
   client_status: string;
   check_in?: string | null;
+  coaches:{
+    id:number,
+    name:string
+  }[],
   last_online?: string | null;
   client_since?: string | null;
   business_name?: string | null;

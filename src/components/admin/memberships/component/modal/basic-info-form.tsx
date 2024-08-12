@@ -101,32 +101,28 @@ const BasicInfoForm = () => {
         ]
   );
 
-  // useEffect(() => {
-  //   const initialData = getValues();
-  //   if (initialData) {
-  //     setValue("name", initialData.name);
-  //     setValue("group_id", initialData.group_id);
-  //     setValue("description", initialData.description);
-  //     setValue("status", initialData.status);
-  //     setValue("access_type", initialData.access_type);
-  //     setValue("limited_access_data", initialData.limited_access_data);
-  //     setLimitedAccessDays(
-  //       (initialData.limited_access_data as limitedAccessDaysTypes[]) ||
-  //         limitedAccessDays
-  //     );
-  //   }
-  // }, [getValues, setValue]);
-
-  console.log({ limitedAccessDays });
-
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
   const { data: groupData, isFetching } = useGetGroupQuery(orgId);
   const [createGroups, { isLoading: groupCreateLoading, isUninitialized }] =
-  useCreateGroupMutation();
+    useCreateGroupMutation();
 
   const handleAdd = (day: string) => {
+    const dayCount = limitedAccessDays.filter(
+      (entry) => entry.day === day
+    ).length;
+
+    // Check if there are already 3 slots for the selected day
+    if (dayCount > 2) {
+      toast({
+        variant: "destructive",
+        title: "Limit Reached",
+        description: `You cannot add more than 3 slots for ${day}.`,
+      });
+      return;
+    }
+
     setLimitedAccessDays((prev) => [
       ...prev,
       { id: Date.now(), day, from: "", to: "" },
@@ -165,8 +161,6 @@ const BasicInfoForm = () => {
     );
     return dayEntries.some((entry) => from < entry.to && to > entry.from);
   };
-
-  console.log({ access });
 
   const handleTimeChange = (id: number, type: string, value: string) => {
     setLimitedAccessDays((prev) => {
@@ -233,6 +227,8 @@ const BasicInfoForm = () => {
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
+
+  console.log({ access, limitedAccessDays });
 
   return (
     <div className="text-black h-full">
@@ -338,7 +334,6 @@ const BasicInfoForm = () => {
             field: { onChange, value, onBlur },
             fieldState: { invalid, error },
           }) => {
-            console.log({ value, error });
             const statusLabel = status.filter((r) => r.value == value)[0];
             return (
               <Select
@@ -452,7 +447,7 @@ const BasicInfoForm = () => {
             type="number"
             onInput={(e) => {
               const target = e.target as HTMLInputElement;
-              target.value = target.value.replace(/[^0-9.]/g, '');
+              target.value = target.value.replace(/[^0-9.]/g, "");
             }}
             className="w-20 "
             {...register("duration_no", { required: "Required" })}
@@ -508,8 +503,6 @@ const BasicInfoForm = () => {
 
 export default BasicInfoForm;
 
-
-
 interface comboboxType {
   list?: {
     label: string;
@@ -560,7 +553,7 @@ function Combobox({ list, setFilter, name }: comboboxType) {
                       setOpen(false);
                     }}
                   >
-                    <Check 
+                    <Check
                       className={cn(
                         "mr-2 h-4 w-4",
                         value === item.value ? "opacity-100" : "opacity-0"

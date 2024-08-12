@@ -66,7 +66,7 @@ import CoachFilters from "./data-table-filter";
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-  { value: "pending", label: "Pending", color: "bg-orange-500" },
+  { value: "pending", label: "Pending", color: "bg-orange-500" , hide: true},
 ];
 
 const downloadCSV = (data: any[], fileName: string) => {
@@ -282,6 +282,7 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "own_coach_id",
+      meta:"Gym Coach ID",
       header:  () => (<div className="flex items-center gap-2">
         <p>Gym Coach ID</p>
         <button
@@ -304,6 +305,7 @@ export default function CoachTableView() {
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
+      meta:"Coach Name",
       header:  () => (<div className="flex items-center gap-2">
         <p>Coach Name</p>
         <button
@@ -325,6 +327,7 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "coach_since",
+      meta:"Coach Since",
       header: () => (<div className="flex items-center gap-2">
         <p>Coach Since</p>
         <button
@@ -346,6 +349,7 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "coach_status",
+      meta:"Status",
       header: () => (<div className="flex items-center gap-2">
         <p>Status</p>
         <button
@@ -386,7 +390,7 @@ export default function CoachTableView() {
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {status.map((item: any) => (
+              {status.map((item: any) => !item.hide&&(
                 <SelectItem key={item.value + ""} value={item.value + ""}>
                   {item.label}
                 </SelectItem>
@@ -400,6 +404,7 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "check_in",
+      meta:"Last Check In",
       header: () => (<div className="flex items-center gap-2">
         <p>Last Check In</p>
         <button
@@ -422,6 +427,7 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "last_online",
+      meta:"Last Login",
       header: () => (<div className="flex items-center gap-2">
         <p>Last Login</p>
         <button

@@ -476,6 +476,10 @@ const FoodForm = ({ isOpen, setOpen }: FoodForm) => {
                 return (
                   <FloatingLabelInput
                     type="number"
+                    onInput={(e) => {
+                      const target = e.target as HTMLInputElement;
+                      target.value = target.value.replace(/[^0-9.]/g, '');
+                    }}
                     min={0}
                     step={0.01}
                     id={item.name}

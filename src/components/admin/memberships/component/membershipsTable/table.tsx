@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
-  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -44,13 +42,11 @@ import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import MembershipForm from "../modal/membership-form";
 import { useGetMembershipsQuery, useUpdateMembershipsMutation } from "@/services/membershipsApi";
-import { useGetIncomeCategorListQuery, useGetIncomeCategoryQuery } from "@/services/incomeCategoryApi";
-import { useGetSalesTaxListQuery, useGetSalesTaxQuery } from "@/services/salesTaxApi";
+import { useGetIncomeCategorListQuery} from "@/services/incomeCategoryApi";
+import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
 import { useGetGroupQuery } from "@/services/groupsApis";
-import { preventContextMenu } from "@fullcalendar/core/internal";
 import MembershipFilters from "./data-table-filter";
 import { Separator } from "@/components/ui/separator";
-// import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -62,6 +58,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
+  sort_key: "created_at",
 };
 
 

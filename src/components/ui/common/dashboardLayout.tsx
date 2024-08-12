@@ -130,12 +130,12 @@ const navItems: NavItem[] = [
   //   icon: IoIosFitness,
   //   dropdown: false,
   // },
-  {
-    name: "Roles & Access Management",
-    link: "/admin/roles",
-    icon: EventsIcon,
-    dropdown: false,
-  },
+  // {
+  //   name: "Roles & Access Management",
+  //   link: "/admin/roles",
+  //   icon: EventsIcon,
+  //   dropdown: false,
+  // },
   // {
   //   name: "Meal Plans",
   //   link: "/admin/mealplans",
@@ -169,8 +169,8 @@ const navItems: NavItem[] = [
     link: "",
     children: [
       {
-        name: "Credit",
-        link: "/admin/credits",
+        name: "Facilities",
+        link: "/admin/Facilities",
         icon: "fa fa-user",
       },
       {

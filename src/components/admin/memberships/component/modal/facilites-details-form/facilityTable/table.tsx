@@ -60,12 +60,12 @@ interface payloadData {
   };
 }
 
-const findIndex = (id: number, array:creditTablestypes[]) => {
-    return array?.findIndex((item) => item.id === id);
-  };
+const findIndex = (id: number, array: creditTablestypes[]) => {
+  return array?.findIndex((item) => item.id === id);
+};
 
 
-export default function CreditsTableView({
+export default function FacilityTableView({
   setFacilities,
 }: {
   setFacilities: any;
@@ -86,7 +86,7 @@ export default function CreditsTableView({
     tranformData[] | undefined
   >([]);
 
-  const [payload, setPayload] = useState<facilitiesData[]>(getValues("facilities")?getValues("facilities"):[]);
+  const [payload, setPayload] = useState<facilitiesData[]>(getValues("facilities") ? getValues("facilities") : []);
 
   useEffect(() => {
     const data = creditsData?.map((item) => ({
@@ -100,21 +100,21 @@ export default function CreditsTableView({
       },
     }));
 
-    console.log({data})
-    
+    console.log({ data })
 
-    if(payload.length>0 ){
-      const newRowSelection: Record<number,boolean> = {};
+
+    if (payload.length > 0) {
+      const newRowSelection: Record<number, boolean> = {};
       payload.forEach(item => {
-        const index = findIndex(item.id,creditsData as creditTablestypes[]);
+        const index = findIndex(item.id, creditsData as creditTablestypes[]);
         if (index !== -1) {
           newRowSelection[index] = true;
         }
       });
-      
+
       const result = data?.map((item) => {
         const updatedItem = payload.find(payloadItem => payloadItem.id === item.id);
-  
+
         if (updatedItem) {
           const count = updatedItem.total_credits as number / item.credits;
           return {
@@ -124,18 +124,18 @@ export default function CreditsTableView({
             credits: item.credits,
           };
         }
-  
+
         return item;
       }) || [];
 
       setRowSelection(newRowSelection)
-      console.log({result})
+      console.log({ result })
       setTransformedCredits(result as tranformData[]);
-    }else{
+    } else {
       setTransformedCredits(data);
     }
 
-  }, [creditsData,payload]);
+  }, [creditsData, payload]);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
@@ -172,7 +172,7 @@ export default function CreditsTableView({
     });
   };
 
-  
+
 
   useEffect(() => {
     // when ever transformCredits changes it is updated in payload
@@ -251,7 +251,7 @@ export default function CreditsTableView({
     });
   };
 
-  console.log({transformedCredits})
+  console.log({ transformedCredits })
   const columns: ColumnDef<creditDetailsTablestypes>[] = [
     {
       id: "select",
@@ -281,7 +281,7 @@ export default function CreditsTableView({
     },
     {
       accessorKey: "name",
-      header: ({ table }) => <p>Credit Name</p>,
+      header: ({ table }) => <p>Name</p>,
       cell: ({ row }) => {
         return <p>{row.original.name}</p>;
       },
@@ -335,8 +335,12 @@ export default function CreditsTableView({
 
         return row.getIsSelected() ? (
           <div className="flex items-center gap-2">
-            {creditData?.validity.duration_type !=="contract_duration" &&<Input
+            {creditData?.validity.duration_type !== "contract_duration" && <Input
               type="number"
+              onInput={(e) => {
+                const target = e.target as HTMLInputElement;
+                target.value = target.value.replace(/[^0-9.]/g, '');
+              }}
               min={1}
               max={15}
               className=" w-20"
@@ -404,7 +408,7 @@ export default function CreditsTableView({
         <div className="flex flex-1 items-center  ">
           <div className="flex flex-1 items-center gap-4 ">
             <h1 className="font-semibold text-[#2D374] text-xl">
-              Credit details
+              Facility details
             </h1>
 
             <div className="flex items-center  gap-2 px-3 py-1 rounded-md border text-sm border-gray-300 focus-within:border-primary focus-within:ring-[1] ring-primary">
@@ -426,7 +430,7 @@ export default function CreditsTableView({
       <div className="rounded-none  ">
         <ScrollArea className="w-full relative">
           <ScrollBar orientation="horizontal" />
-          <Table className="" containerClassname="h-fit max-h-80  ">
+          <Table className="" containerClassname="h-fit max-h-[27rem]  ">
             <TableHeader className="bg-gray-100 sticky top-0 z-50">
               {table?.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -442,9 +446,9 @@ export default function CreditsTableView({
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -476,7 +480,7 @@ export default function CreditsTableView({
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
-                        )}
+                        )}  
                       </TableCell>
                     ))}
                   </TableRow>

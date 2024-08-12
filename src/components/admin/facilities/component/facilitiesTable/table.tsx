@@ -98,7 +98,7 @@ interface searchCretiriaType {
   sort_key?: string;
 }
 
-export default function CreditsTableView() {
+export default function FacilitiesTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -124,7 +124,7 @@ export default function CreditsTableView() {
   }, [searchCretiria]);
 
   const {
-    data: creditsData,
+    data: facilitiesData,
     isLoading,
     refetch,
   } = useGetCreditsQuery(
@@ -218,19 +218,15 @@ export default function CreditsTableView() {
     }
   };
 
-  const creditstableData = React.useMemo(() => {
-    return Array.isArray(creditsData?.data) ? creditsData?.data : [];
-  }, [creditsData]);
+  const facilitiestableData = React.useMemo(() => {
+    return Array.isArray(facilitiesData?.data) ? facilitiesData?.data : [];
+  }, [facilitiesData]);
 
   const { toast } = useToast();
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [filterID, setFilterID] = useState({});
-  const [filters, setFilters] = useState<any>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [isClear, setIsClear] = useState(false);
-  const [clearValue, setIsClearValue] = useState({});
 
   // const displayValue = (value: any) => (value === null ? "N/A" : value);
 
@@ -351,7 +347,7 @@ export default function CreditsTableView() {
   ];
 
   const table = useReactTable({
-    data: creditstableData as creditTablestypes[],
+    data: facilitiestableData as creditTablestypes[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -369,7 +365,7 @@ export default function CreditsTableView() {
 
   function handlePagination(page: number) {
     if (page < 0) return;
-    // setFilters
+
   }
 
   const handleAddCredit = () => {
@@ -393,7 +389,7 @@ export default function CreditsTableView() {
     setIsDialogOpen(true);
   };
 
-  const totalRecords = creditsData?.total_counts || 0;
+  const totalRecords = facilitiesData?.total_counts || 0;
   const lastPageOffset = Math.max(
     0,
     Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
@@ -457,7 +453,7 @@ export default function CreditsTableView() {
               />
             </div>
           </div> */}
-          <p className="font-semibold text-2xl">Credits</p>
+          <p className="font-semibold text-2xl">Facilities</p>
         </div>
         <Button
           className="bg-primary m-4 text-black font-semibold gap-1"
@@ -527,7 +523,7 @@ export default function CreditsTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : creditstableData.length > 0 ? (
+              ) : facilitiestableData.length > 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -585,7 +581,7 @@ export default function CreditsTableView() {
           />
           <span>
             {" "}
-            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${creditsData?.filtered_counts} Items  `}
+            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${facilitiesData?.filtered_counts} Items  `}
           </span>
         </div>
 
@@ -633,7 +629,7 @@ export default function CreditsTableView() {
               <ChevronRightIcon className="h-4 w-4" />
             </Button>
 
-            <Separator
+            <Separator  
               orientation="vertical"
               className="hidden lg:flex h-11 w-[1px] bg-gray-300"
             />
@@ -709,8 +705,8 @@ const CreditForm = ({
     id: z.number().optional(),
     org_id: z.number(),
     status: z.string(),
-    name: z.string().min(1, { message: "Name is required" }),
-    min_limit: z.number().min(1, { message: "Minimum limit is required" }),
+    name: z.string().min(1, { message: "Required" }),
+    min_limit: z.number().min(1, { message: "Required" }),
   });
 
   const form = useForm<z.infer<typeof creditFormSchema>>({
@@ -805,7 +801,7 @@ const CreditForm = ({
         <SheetContent>
           <SheetHeader>
             <SheetTitle>
-              {formData.case == "add" ? "Create" : "Edit"} Credit
+              {formData.case == "add" ? "Create" : "Edit"} Facility
             </SheetTitle>
 
             <SheetDescription>
@@ -826,7 +822,7 @@ const CreditForm = ({
                             {...field}
                             id="name"
                             name="name"
-                            label="Credit Name*"
+                            label="Facility Name*"
                             value={field.value ?? ""}
                             onChange={handleOnChange}
                           />
@@ -850,6 +846,10 @@ const CreditForm = ({
                             label="Min Requred Limit*"
                             value={field.value ?? 1}
                             onChange={handleOnChange}
+                            onInput={(e) => {
+                              const target = e.target as HTMLInputElement;
+                              target.value = target.value.replace(/[^0-9.]/g, '');
+                            }}
                           />
                           {watcher.min_limit ? <></> : <FormMessage />}
                         </FormItem>

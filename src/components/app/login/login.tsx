@@ -21,7 +21,6 @@ export default function AuthenticationPage() {
   const token = localStorage.getItem("userToken");
   const navigate = useNavigate();
 
-
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   const { toast } = useToast();
@@ -54,7 +53,7 @@ export default function AuthenticationPage() {
       navigate("/admin/dashboard");
     }
   }, [token, navigate]);
-  
+
   useEffect(() => {
     if (error != null) {
       console.log("Error Login", error);

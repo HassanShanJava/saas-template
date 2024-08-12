@@ -75,6 +75,7 @@ import {
 } from "@/services/exerciseApi";
 import { UploadCognitoImage } from "@/utils/lib/s3Service";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 enum difficultyEnum {
   Novice = "Novice",
@@ -419,16 +420,12 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
 
   return (
     <Sheet open={isOpen}>
-      <SheetContent hideCloseButton className="!max-w-[1050px]">
+      <SheetContent hideCloseButton className="!max-w-[1100px]">
         <div className="p-6 bg-bgbackground">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="flex justify-between items-center">
-                <div className="flex flex-row gap-4 items-center">
-                  <p className="text-lg font-bold text-black">
-                    Exercise Details
-                  </p>
-                </div>
+                <div className="flex flex-row gap-4 items-center"></div>
                 <div className="flex gap-2">
                   <div>
                     <Button
@@ -452,533 +449,556 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
                   </div>
                 </div>
               </div>
-              <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
-                <div className="relative">
-                  <FormField
-                    control={form.control}
-                    name="exercise_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="exercise_name"
-                          label="Exercise Name*"
-                        />
-                        {watcher.exercise_name ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  />
+              <ScrollArea className="h-[600px]">
+                <ScrollBar orientation="vertical" />
+                <div>
+                  <p className="text-lg font-bold text-black">
+                    Exercise Details
+                  </p>
                 </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="visible_for"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          onValueChange={(value: VisibilityEnum) =>
-                            form.setValue("visible_for", value)
-                          }
-                          value={field.value as VisibilityEnum}
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              floatingLabel="Visible for*"
-                              className={`${watcher.visible_for ? "text-black" : "text-gray-500"}`}
-                            >
-                              <SelectValue placeholder="Select Visibility" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Only Myself">
-                              Only Myself
-                            </SelectItem>
-                            <SelectItem value="Staff of My Club">
-                              Staff of My Club
-                            </SelectItem>
-                            <SelectItem
-                              value="Members of
-                            My Club"
-                            >
-                              Members of My Club
-                            </SelectItem>
-                            <SelectItem
-                              value="Everyone in My
-                            Club"
-                            >
-                              Everyone in My Club
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {watcher.visible_for ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative">
-                  <FormField
-                    control={form.control}
-                    name="category_id"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col w-full">
-                        <Popover>
-                          <PopoverTrigger asChild>
+                <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+                  <div className="relative">
+                    <FormField
+                      control={form.control}
+                      name="exercise_name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FloatingLabelInput
+                            {...field}
+                            id="exercise_name"
+                            label="Exercise Name*"
+                          />
+                          {watcher.exercise_name ? <></> : <FormMessage />}
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="relative ">
+                    <FormField
+                      control={form.control}
+                      name="visible_for"
+                      render={({ field }) => (
+                        <FormItem>
+                          <Select
+                            onValueChange={(value: VisibilityEnum) =>
+                              form.setValue("visible_for", value)
+                            }
+                            value={field.value as VisibilityEnum}
+                          >
                             <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "justify-between font-normal",
-                                  !field.value &&
-                                    "font-medium text-gray-400 focus:border-primary "
-                                )}
+                              <SelectTrigger
+                                floatingLabel="Visible for*"
+                                className={`${watcher.visible_for ? "text-black" : "text-gray-500"}`}
                               >
-                                {field.value
-                                  ? CategoryData?.find(
-                                      (category: baseExerciseApiResponse) =>
-                                        category.id === field.value // Compare with numeric value
-                                    )?.name // Display category name if selected
-                                  : "Select Category*"}
-                                <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
+                                <SelectValue placeholder="Select Visibility" />
+                              </SelectTrigger>
                             </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="p-0">
-                            <Command>
-                              <CommandList>
-                                <CommandInput placeholder="Select Category" />
-                                <CommandEmpty>No Category found.</CommandEmpty>
-                                <CommandGroup>
-                                  {CategoryData &&
-                                    CategoryData.map(
-                                      (Category: baseExerciseApiResponse) => (
-                                        <CommandItem
-                                          value={Category.name}
-                                          key={Category.id}
-                                          onSelect={() => {
-                                            form.setValue(
-                                              "category_id",
-                                              Category.id
-                                            );
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                              Category.id === field.value
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                            )}
-                                          />
-                                          {Category.name}{" "}
-                                        </CommandItem>
-                                      )
-                                    )}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        {watcher.category_id ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  />
+                            <SelectContent>
+                              <SelectItem value="Only Myself">
+                                Only Myself
+                              </SelectItem>
+                              <SelectItem value="Staff of My Club">
+                                Staff of My Club
+                              </SelectItem>
+                              <SelectItem
+                                value="Members of
+                            My Club"
+                              >
+                                Members of My Club
+                              </SelectItem>
+                              <SelectItem
+                                value="Everyone in My
+                            Club"
+                              >
+                                Everyone in My Club
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {watcher.visible_for ? <></> : <FormMessage />}
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="relative">
+                    <FormField
+                      control={form.control}
+                      name="category_id"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col w-full">
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    "justify-between font-normal",
+                                    !field.value &&
+                                      "font-medium text-gray-400 focus:border-primary "
+                                  )}
+                                >
+                                  {field.value
+                                    ? CategoryData?.find(
+                                        (category: baseExerciseApiResponse) =>
+                                          category.id === field.value // Compare with numeric value
+                                      )?.name // Display category name if selected
+                                    : "Select Category*"}
+                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="p-0">
+                              <Command>
+                                <CommandList>
+                                  <CommandInput placeholder="Select Category" />
+                                  <CommandEmpty>
+                                    No Category found.
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    {CategoryData &&
+                                      CategoryData.map(
+                                        (Category: baseExerciseApiResponse) => (
+                                          <CommandItem
+                                            value={Category.name}
+                                            key={Category.id}
+                                            onSelect={() => {
+                                              form.setValue(
+                                                "category_id",
+                                                Category.id
+                                              );
+                                            }}
+                                          >
+                                            <Check
+                                              className={cn(
+                                                "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                                Category.id === field.value
+                                                  ? "opacity-100"
+                                                  : "opacity-0"
+                                              )}
+                                            />
+                                            {Category.name}{" "}
+                                          </CommandItem>
+                                        )
+                                      )}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          {watcher.category_id ? <></> : <FormMessage />}
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="relative ">
+                    <FormField
+                      control={form.control}
+                      name="difficulty"
+                      render={({ field }) => (
+                        <FormItem>
+                          <Select
+                            onValueChange={(value: difficultyEnum) =>
+                              form.setValue("difficulty", value)
+                            }
+                            value={field.value as difficultyEnum}
+                          >
+                            <FormControl>
+                              <SelectTrigger
+                                floatingLabel="Select difficulty*"
+                                className={`${watcher.difficulty ? "text-black" : "text-gray-500"}`}
+                              >
+                                <SelectValue placeholder="Select Difficulty" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Novice">Novice</SelectItem>
+                              <SelectItem value="Beginner">Beginner</SelectItem>
+                              <SelectItem value="Intermediate">
+                                Intermediate
+                              </SelectItem>
+                              <SelectItem value="Advance">Advance</SelectItem>
+                              <SelectItem value="Expert">Expert</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {watcher.difficulty ? <></> : <FormMessage />}
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="relative ">
+                    <FormField
+                      control={form.control}
+                      name="equipment_ids"
+                      render={({ field }) => (
+                        <FormItem className="w-full ">
+                          <MultiSelector
+                            onValuesChange={(values) => field.onChange(values)}
+                            values={field.value}
+                          >
+                            <MultiSelectorTrigger className="border-[1px] border-gray-300">
+                              <MultiSelectorInput
+                                className="font-medium"
+                                placeholder={
+                                  field.value?.length >= 1
+                                    ? ""
+                                    : "Select Equipments"
+                                }
+                              />
+                            </MultiSelectorTrigger>
+                            <MultiSelectorContent className="">
+                              <MultiSelectorList>
+                                {EquipmentData &&
+                                  EquipmentData.map((user: any) => (
+                                    <MultiSelectorItem
+                                      key={user.id}
+                                      value={user}
+                                    >
+                                      <div className="flex items-center space-x-2">
+                                        <span>{user.name}</span>
+                                      </div>
+                                    </MultiSelectorItem>
+                                  ))}
+                              </MultiSelectorList>
+                            </MultiSelectorContent>
+                          </MultiSelector>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="relative ">
+                    <FormField
+                      control={form.control}
+                      name="primary_muscle_ids"
+                      render={({ field }) => (
+                        <FormItem className="w-full ">
+                          <MultiSelector
+                            onValuesChange={(values) => field.onChange(values)}
+                            values={field.value}
+                          >
+                            <MultiSelectorTrigger className="border-[1px] border-gray-300">
+                              <MultiSelectorInput
+                                className="font-medium"
+                                placeholder={
+                                  field.value?.length >= 1
+                                    ? ""
+                                    : "Select Primary Muscles"
+                                }
+                              />
+                            </MultiSelectorTrigger>
+                            <MultiSelectorContent className="">
+                              <MultiSelectorList>
+                                {MuscleData &&
+                                  MuscleData.map((user: any) => (
+                                    <MultiSelectorItem
+                                      key={user.id}
+                                      value={user}
+                                    >
+                                      <div className="flex items-center space-x-2">
+                                        <span>{user.name}</span>
+                                      </div>
+                                    </MultiSelectorItem>
+                                  ))}
+                              </MultiSelectorList>
+                            </MultiSelectorContent>
+                          </MultiSelector>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="relative ">
+                    <FormField
+                      control={form.control}
+                      name="secondary_muscle_ids"
+                      render={({ field }) => (
+                        <FormItem className="w-full ">
+                          <MultiSelector
+                            onValuesChange={(values) => field.onChange(values)}
+                            values={field.value || []}
+                          >
+                            <MultiSelectorTrigger className="border-[1px] border-gray-300">
+                              <MultiSelectorInput
+                                className="font-medium"
+                                placeholder={
+                                  field.value?.length &&
+                                  field.value?.length >= 1
+                                    ? ""
+                                    : "Select Secondary Muscles"
+                                }
+                              />
+                            </MultiSelectorTrigger>
+                            <MultiSelectorContent className="">
+                              <MultiSelectorList>
+                                {MuscleData &&
+                                  MuscleData.map((user: any) => (
+                                    <MultiSelectorItem
+                                      key={user.id}
+                                      value={user}
+                                    >
+                                      <div className="flex items-center space-x-2">
+                                        <span>{user.name}</span>
+                                      </div>
+                                    </MultiSelectorItem>
+                                  ))}
+                              </MultiSelectorList>
+                            </MultiSelectorContent>
+                          </MultiSelector>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="relative ">
+                    <FormField
+                      control={form.control}
+                      name="primary_joint_ids"
+                      render={({ field }) => (
+                        <FormItem className="w-full ">
+                          <MultiSelector
+                            onValuesChange={(values) => field.onChange(values)}
+                            values={field.value || []}
+                          >
+                            <MultiSelectorTrigger className="border-[1px] border-gray-300">
+                              <MultiSelectorInput
+                                className="font-medium"
+                                placeholder={
+                                  field.value?.length &&
+                                  field.value?.length >= 1
+                                    ? ""
+                                    : "Select Primary Joints"
+                                }
+                              />
+                            </MultiSelectorTrigger>
+                            <MultiSelectorContent className="">
+                              <MultiSelectorList>
+                                {JointsData &&
+                                  JointsData.map((user: any) => (
+                                    <MultiSelectorItem
+                                      key={user.id}
+                                      value={user}
+                                    >
+                                      <div className="flex items-center space-x-2">
+                                        <span>{user.name}</span>
+                                      </div>
+                                    </MultiSelectorItem>
+                                  ))}
+                              </MultiSelectorList>
+                            </MultiSelectorContent>
+                          </MultiSelector>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="relative ">
+                    <FormField
+                      control={form.control}
+                      name="gif_url"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FloatingLabelInput
+                            {...field}
+                            id="gif_url"
+                            label="GIF URL"
+                          />
+                          {watcher.gif_url ? <></> : <FormMessage />}
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="relative">
+                    <FormField
+                      control={form.control}
+                      name="video_url_female"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FloatingLabelInput
+                            {...field}
+                            id="video_url_female"
+                            label="Youtube Link : Female"
+                          />
+                          {watcher.video_url_female ? <></> : <FormMessage />}
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="relative ">
+                    <FormField
+                      control={form.control}
+                      name="video_url_male"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FloatingLabelInput
+                            {...field}
+                            id="video_url_male"
+                            label="Youtube Link : Male"
+                          />
+                          {watcher.video_url_male ? <></> : <FormMessage />}
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="difficulty"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          onValueChange={(value: difficultyEnum) =>
-                            form.setValue("difficulty", value)
-                          }
-                          value={field.value as difficultyEnum}
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              floatingLabel="Select difficulty*"
-                              className={`${watcher.difficulty ? "text-black" : "text-gray-500"}`}
+                <div className="w-4/5 flex justify-start gap-4 items-start">
+                  <div className="grid grid-cols-2 gap-4 mt-6">
+                    {/* Images Section */}
+                    <div>
+                      <h3 className="text-lg font-semibold">Images</h3>
+                      <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
+                        {/* Male Image */}
+                        <div className="justify-center items-center flex flex-col">
+                          <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                            {images.image_url_male ? (
+                              <img
+                                src={previewUrls.image_url_male}
+                                alt="Male"
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <ImageIcon className="w-12 h-12 text-gray-400" />
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            className="mt-2 gap-2 border-dashed border-2 text-xs"
+                          >
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              id="male-image-upload"
+                              onChange={(e) =>
+                                handleImageChange(e, "image_url_male")
+                              }
+                            />
+                            <label
+                              htmlFor="male-image-upload"
+                              className="cursor-pointer flex items-center gap-2"
                             >
-                              <SelectValue placeholder="Select Difficulty" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Novice">Novice</SelectItem>
-                            <SelectItem value="Beginner">Beginner</SelectItem>
-                            <SelectItem value="Intermediate">
-                              Intermediate
-                            </SelectItem>
-                            <SelectItem value="Advance">Advance</SelectItem>
-                            <SelectItem value="Expert">Expert</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {watcher.difficulty ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="equipment_ids"
-                    render={({ field }) => (
-                      <FormItem className="w-full ">
-                        <MultiSelector
-                          onValuesChange={(values) => field.onChange(values)}
-                          values={field.value}
-                        >
-                          <MultiSelectorTrigger className="border-[1px] border-gray-300">
-                            <MultiSelectorInput
-                              className="font-medium"
-                              placeholder={
-                                field.value?.length >= 1
-                                  ? ""
-                                  : "Select Equipments"
-                              }
-                            />
-                          </MultiSelectorTrigger>
-                          <MultiSelectorContent className="">
-                            <MultiSelectorList>
-                              {EquipmentData &&
-                                EquipmentData.map((user: any) => (
-                                  <MultiSelectorItem key={user.id} value={user}>
-                                    <div className="flex items-center space-x-2">
-                                      <span>{user.name}</span>
-                                    </div>
-                                  </MultiSelectorItem>
-                                ))}
-                            </MultiSelectorList>
-                          </MultiSelectorContent>
-                        </MultiSelector>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="primary_muscle_ids"
-                    render={({ field }) => (
-                      <FormItem className="w-full ">
-                        <MultiSelector
-                          onValuesChange={(values) => field.onChange(values)}
-                          values={field.value}
-                        >
-                          <MultiSelectorTrigger className="border-[1px] border-gray-300">
-                            <MultiSelectorInput
-                              className="font-medium"
-                              placeholder={
-                                field.value?.length >= 1
-                                  ? ""
-                                  : "Select Primary Muscles"
-                              }
-                            />
-                          </MultiSelectorTrigger>
-                          <MultiSelectorContent className="">
-                            <MultiSelectorList>
-                              {MuscleData &&
-                                MuscleData.map((user: any) => (
-                                  <MultiSelectorItem key={user.id} value={user}>
-                                    <div className="flex items-center space-x-2">
-                                      <span>{user.name}</span>
-                                    </div>
-                                  </MultiSelectorItem>
-                                ))}
-                            </MultiSelectorList>
-                          </MultiSelectorContent>
-                        </MultiSelector>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="secondary_muscle_ids"
-                    render={({ field }) => (
-                      <FormItem className="w-full ">
-                        <MultiSelector
-                          onValuesChange={(values) => field.onChange(values)}
-                          values={field.value || []}
-                        >
-                          <MultiSelectorTrigger className="border-[1px] border-gray-300">
-                            <MultiSelectorInput
-                              className="font-medium"
-                              placeholder={
-                                field.value?.length && field.value?.length >= 1
-                                  ? ""
-                                  : "Select Secondary Muscles"
-                              }
-                            />
-                          </MultiSelectorTrigger>
-                          <MultiSelectorContent className="">
-                            <MultiSelectorList>
-                              {MuscleData &&
-                                MuscleData.map((user: any) => (
-                                  <MultiSelectorItem key={user.id} value={user}>
-                                    <div className="flex items-center space-x-2">
-                                      <span>{user.name}</span>
-                                    </div>
-                                  </MultiSelectorItem>
-                                ))}
-                            </MultiSelectorList>
-                          </MultiSelectorContent>
-                        </MultiSelector>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="primary_joint_ids"
-                    render={({ field }) => (
-                      <FormItem className="w-full ">
-                        <MultiSelector
-                          onValuesChange={(values) => field.onChange(values)}
-                          values={field.value || []}
-                        >
-                          <MultiSelectorTrigger className="border-[1px] border-gray-300">
-                            <MultiSelectorInput
-                              className="font-medium"
-                              placeholder={
-                                field.value?.length && field.value?.length >= 1
-                                  ? ""
-                                  : "Select Primary Joints"
-                              }
-                            />
-                          </MultiSelectorTrigger>
-                          <MultiSelectorContent className="">
-                            <MultiSelectorList>
-                              {JointsData &&
-                                JointsData.map((user: any) => (
-                                  <MultiSelectorItem key={user.id} value={user}>
-                                    <div className="flex items-center space-x-2">
-                                      <span>{user.name}</span>
-                                    </div>
-                                  </MultiSelectorItem>
-                                ))}
-                            </MultiSelectorList>
-                          </MultiSelectorContent>
-                        </MultiSelector>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="gif_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="gif_url"
-                          label="GIF URL"
-                        />
-                        {watcher.gif_url ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative">
-                  <FormField
-                    control={form.control}
-                    name="video_url_female"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="video_url_female"
-                          label="Youtube Link : Female"
-                        />
-                        {watcher.video_url_female ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="video_url_male"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="video_url_male"
-                          label="Youtube Link : Male"
-                        />
-                        {watcher.video_url_male ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="w-4/5 flex justify-start gap-4 items-start">
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                  {/* Images Section */}
-                  <div>
-                    <h3 className="text-lg font-semibold">Images</h3>
-                    <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
-                      {/* Male Image */}
-                      <div className="justify-center items-center flex flex-col">
-                        <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-                          {images.image_url_male ? (
-                            <img
-                              src={previewUrls.image_url_male}
-                              alt="Male"
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <ImageIcon className="w-12 h-12 text-gray-400" />
-                          )}
+                              <FiUpload className="text-primary w-5 h-5" />{" "}
+                              Image - Male
+                            </label>
+                          </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          className="mt-2 gap-2 border-dashed border-2 text-xs"
-                        >
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            id="male-image-upload"
-                            onChange={(e) =>
-                              handleImageChange(e, "image_url_male")
-                            }
-                          />
-                          <label
-                            htmlFor="male-image-upload"
-                            className="cursor-pointer flex items-center gap-2"
+                        {/* Female Image */}
+                        <div className="justify-center items-center flex flex-col">
+                          <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                            {images.image_url_female ? (
+                              <img
+                                src={previewUrls.image_url_female}
+                                alt="Female"
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <ImageIcon className="w-12 h-12 text-gray-400" />
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            className="gap-2 mt-2 text-xs border-dashed border-2"
                           >
-                            <FiUpload className="text-primary w-5 h-5" /> Image
-                            - Male
-                          </label>
-                        </Button>
-                      </div>
-                      {/* Female Image */}
-                      <div className="justify-center items-center flex flex-col">
-                        <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-                          {images.image_url_female ? (
-                            <img
-                              src={previewUrls.image_url_female}
-                              alt="Female"
-                              className="h-full w-full object-cover"
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              id="female-image-upload"
+                              onChange={(e) =>
+                                handleImageChange(e, "image_url_female")
+                              }
                             />
-                          ) : (
-                            <ImageIcon className="w-12 h-12 text-gray-400" />
-                          )}
+                            <label
+                              htmlFor="female-image-upload"
+                              className="cursor-pointer flex items-center gap-2"
+                            >
+                              <FiUpload className="text-primary w-5 h-5" />
+                              Image - Female
+                            </label>
+                          </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          className="gap-2 mt-2 text-xs border-dashed border-2"
-                        >
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            id="female-image-upload"
-                            onChange={(e) =>
-                              handleImageChange(e, "image_url_female")
-                            }
-                          />
-                          <label
-                            htmlFor="female-image-upload"
-                            className="cursor-pointer flex items-center gap-2"
-                          >
-                            <FiUpload className="text-primary w-5 h-5" />
-                            Image - Female
-                          </label>
-                        </Button>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Thumbnails Section */}
-                  <div>
-                    <h3 className="text-lg font-semibold">Thumbnail</h3>
-                    <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
-                      {/* Male Thumbnail */}
-                      <div className="justify-center items-center flex flex-col">
-                        <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-                          {images.thumbnail_male ? (
-                            <img
-                              src={previewUrls.thumbnail_male}
-                              alt="Male Thumbnail"
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <ImageIcon className="w-12 h-12 text-gray-400" />
-                          )}
-                        </div>
-                        <Button
-                          variant="ghost"
-                          className="mt-2 text-xs border-dashed gap-2 border-2"
-                        >
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            id="male-thumbnail-upload"
-                            onChange={(e) =>
-                              handleImageChange(e, "thumbnail_male")
-                            }
-                          />
-                          <label
-                            htmlFor="male-thumbnail-upload"
-                            className="cursor-pointer flex items-center gap-2"
+                    {/* Thumbnails Section */}
+                    <div>
+                      <h3 className="text-lg font-semibold">Thumbnail</h3>
+                      <div className="grid grid-cols-2 gap-4 mt-2 bg-gray-100 p-5 rounded-lg">
+                        {/* Male Thumbnail */}
+                        <div className="justify-center items-center flex flex-col">
+                          <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                            {images.thumbnail_male ? (
+                              <img
+                                src={previewUrls.thumbnail_male}
+                                alt="Male Thumbnail"
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <ImageIcon className="w-12 h-12 text-gray-400" />
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            className="mt-2 text-xs border-dashed gap-2 border-2"
                           >
-                            <FiUpload className="text-primary w-5 h-5" />
-                            Thumbnail - Male
-                          </label>
-                        </Button>
-                      </div>
-                      {/* Female Thumbnail */}
-                      <div className="justify-center items-center flex flex-col">
-                        <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-                          {images.thumbnail_female ? (
-                            <img
-                              src={previewUrls.thumbnail_female}
-                              alt="Female Thumbnail"
-                              className="h-full w-full object-cover"
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              id="male-thumbnail-upload"
+                              onChange={(e) =>
+                                handleImageChange(e, "thumbnail_male")
+                              }
                             />
-                          ) : (
-                            <ImageIcon className="w-12 h-12 text-gray-400" />
-                          )}
+                            <label
+                              htmlFor="male-thumbnail-upload"
+                              className="cursor-pointer flex items-center gap-2"
+                            >
+                              <FiUpload className="text-primary w-5 h-5" />
+                              Thumbnail - Male
+                            </label>
+                          </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          className="mt-2 text-xs gap-2 border-dashed border-2"
-                        >
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            id="female-thumbnail-upload"
-                            onChange={(e) =>
-                              handleImageChange(e, "thumbnail_female")
-                            }
-                          />
-                          <label
-                            htmlFor="female-thumbnail-upload"
-                            className="cursor-pointer flex items-center gap-2"
+                        {/* Female Thumbnail */}
+                        <div className="justify-center items-center flex flex-col">
+                          <div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+                            {images.thumbnail_female ? (
+                              <img
+                                src={previewUrls.thumbnail_female}
+                                alt="Female Thumbnail"
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <ImageIcon className="w-12 h-12 text-gray-400" />
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            className="mt-2 text-xs gap-2 border-dashed border-2"
                           >
-                            <FiUpload className="text-primary w-5 h-5" />
-                            Thumbnail - Female
-                          </label>
-                        </Button>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              id="female-thumbnail-upload"
+                              onChange={(e) =>
+                                handleImageChange(e, "thumbnail_female")
+                              }
+                            />
+                            <label
+                              htmlFor="female-thumbnail-upload"
+                              className="cursor-pointer flex items-center gap-2"
+                            >
+                              <FiUpload className="text-primary w-5 h-5" />
+                              Thumbnail - Female
+                            </label>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="w-full flex gap-3 justify-start items-center">
-                {/* <div className="relative">
+                <div className="w-full flex gap-3 justify-start items-center">
+                  {/* <div className="relative">
                   <FormField
                     control={form.control}
                     name="exercise_type"
@@ -1005,90 +1025,90 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
                     )}
                   />
                 </div> */}
-              </div>
-              <div className="relative">
-                {entries.map((entry, index) => (
-                  <div key={index} className="mb-4">
-                    <div className="flex gap-2">
-                      <label className="block font-semibold">
-                        <input
-                          type="text"
-                          value={entry.time}
-                          // watcher.exercise_type ===
-                          //   ExerciseTypeEnum.time_based
-                          placeholder={true ? "Time (s)*" : "Repetition (x)*"}
-                          onChange={(e) =>
-                            handleChange(index, "time", e.target.value)
-                          }
-                          required={watcher.gif_url ? true : false}
-                          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </label>
-                      {errors?.issues.find(
-                        (issue) =>
-                          issue.path[0] === index && issue.path[1] === "time"
-                      )?.message && (
-                        <div className="text-red-500 text-sm">
-                          {
-                            errors.issues.find(
-                              (issue) =>
-                                issue.path[0] === index &&
-                                issue.path[1] === "time"
-                            )?.message
-                          }
-                        </div>
-                      )}
-                      <label className="block font-semibold">
-                        <input
-                          type="text"
-                          value={entry.restTime}
-                          placeholder="Rest time(s)*"
-                          required={watcher.gif_url ? true : false}
-                          onChange={(e) =>
-                            handleChange(index, "restTime", e.target.value)
-                          }
-                          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </label>
-                      {errors?.issues.find(
-                        (issue) =>
-                          issue.path[0] === index &&
-                          issue.path[1] === "restTime"
-                      )?.message && (
-                        <div className="text-red-500 text-sm">
-                          {
-                            errors.issues.find(
-                              (issue) =>
-                                issue.path[0] === index &&
-                                issue.path[1] === "restTime"
-                            )?.message
-                          }
-                        </div>
-                      )}
-                      <Button
-                        type="button"
-                        variant={"outline"}
-                        onClick={addEntry}
-                        className="text-black rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-blue-500 gap-2 justify-center items-center flex"
-                      >
-                        <PlusIcon className="h-5 w-5 text-black" /> Add a Set
-                      </Button>
-                      {entries.length > 1 && (
-                        <button
+                </div>
+                <div className="relative">
+                  {entries.map((entry, index) => (
+                    <div key={index} className="mb-4">
+                      <div className="flex gap-2">
+                        <label className="block font-semibold">
+                          <input
+                            type="text"
+                            value={entry.time}
+                            // watcher.exercise_type ===
+                            //   ExerciseTypeEnum.time_based
+                            placeholder={true ? "Time (s)*" : "Repetition (x)*"}
+                            onChange={(e) =>
+                              handleChange(index, "time", e.target.value)
+                            }
+                            required={watcher.gif_url ? true : false}
+                            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </label>
+                        {errors?.issues.find(
+                          (issue) =>
+                            issue.path[0] === index && issue.path[1] === "time"
+                        )?.message && (
+                          <div className="text-red-500 text-sm">
+                            {
+                              errors.issues.find(
+                                (issue) =>
+                                  issue.path[0] === index &&
+                                  issue.path[1] === "time"
+                              )?.message
+                            }
+                          </div>
+                        )}
+                        <label className="block font-semibold">
+                          <input
+                            type="text"
+                            value={entry.restTime}
+                            placeholder="Rest time(s)*"
+                            required={watcher.gif_url ? true : false}
+                            onChange={(e) =>
+                              handleChange(index, "restTime", e.target.value)
+                            }
+                            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </label>
+                        {errors?.issues.find(
+                          (issue) =>
+                            issue.path[0] === index &&
+                            issue.path[1] === "restTime"
+                        )?.message && (
+                          <div className="text-red-500 text-sm">
+                            {
+                              errors.issues.find(
+                                (issue) =>
+                                  issue.path[0] === index &&
+                                  issue.path[1] === "restTime"
+                              )?.message
+                            }
+                          </div>
+                        )}
+                        <Button
                           type="button"
-                          onClick={() => removeEntry(index)}
-                          className="text-red-500 hover:text-red-700 focus:outline-none"
+                          variant={"outline"}
+                          onClick={addEntry}
+                          className="text-black rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-blue-500 gap-2 justify-center items-center flex"
                         >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      )}
+                          <PlusIcon className="h-5 w-5 text-black" /> Add a Set
+                        </Button>
+                        {entries.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeEntry(index)}
+                            className="text-red-500 hover:text-red-700 focus:outline-none"
+                          >
+                            <TrashIcon className="h-5 w-5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {/* watcher.exercise_type === ExerciseTypeEnum.time_based */}
-                {true ? (
-                  <>
-                    {/* <div className="relative">
+                  ))}
+                  {/* watcher.exercise_type === ExerciseTypeEnum.time_based */}
+                  {true ? (
+                    <>
+                      {/* <div className="relative">
                       {
                         <div className="flex gap-4">
                           <FormField
@@ -1172,6 +1192,11 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
                                   type="number"
                                   id="distance"
                                   label="Distance(KM)"
+                                  label="Distance"
+                                  onInput={(e) => {
+                                    const target = e.target as HTMLInputElement;
+                                    target.value = target.value.replace(/[^0-9.]/g, '');
+                                  }}
                                 />
                                 {watcher.distance ? <></> : <FormMessage />}
                               </FormItem>
@@ -1187,6 +1212,11 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
                                   id="speed"
                                   type="number"
                                   label="speed(KM/H)"
+                                  label="speed"
+                                  onInput={(e) => {
+                                    const target = e.target as HTMLInputElement;
+                                    target.value = target.value.replace(/[^0-9.]/g, '');
+                                  }}
                                 />
                                 {watcher.speed ? <></> : <FormMessage />}
                               </FormItem>
@@ -1195,10 +1225,10 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
                         </div>
                       }
                     </div> */}
-                  </>
-                ) : (
-                  <>
-                    {/* <div className="relative">
+                    </>
+                  ) : (
+                    <>
+                      {/* <div className="relative">
                       <FormField
                         control={form.control}
                         name="max_intensity"
@@ -1245,9 +1275,10 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
                         )}
                       />
                     </div> */}
-                  </>
-                )}
-              </div>
+                    </>
+                  )}
+                </div>
+              </ScrollArea>
             </form>
           </Form>
         </div>

@@ -5,7 +5,7 @@ import Dashboard from "./components/admin/dashboard";
 import SystemSettings from "./components/admin/system_settings";
 import Leads from "./components/admin/leads";
 import LeadForm from "./components/admin/leads/leadform/form";
-import Credits from "./components/admin/credits";
+import Facilities from "./components/admin/facilities";
 import SaleTaxes from "./components/admin/sales_tax";
 import Events from "./components/admin/events";
 import ProtectedRoute from "./components/admin/protectedRoute";
@@ -32,6 +32,7 @@ function App() {
       (query) => query && query.status === "pending"
     )
   );
+
   return (
     <>
       <Routes>
@@ -40,41 +41,40 @@ function App() {
           <Route path="/admin" element={<DashboardLayout />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/members" element={<MemberPage />} />
-            <Route
-              path="/admin/system_settings"
-              element={<SystemSettings />}
-            />
-            {/* <Route path="/admin/leads" element={<Leads />} />
-            <Route path="/admin/leads/addlead" element={<LeadForm />} /> */}
+            <Route path="/admin/system_settings" element={<SystemSettings />} />
+            {/* <Route path="/admin/leads"  element={<Leads />} /> */}
+            {/* <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}
             {/* <Route
               path="/admin/leads/editlead/:id"
+              
               element={<LeadForm />}
             /> */}
-            <Route path="/admin/credits" element={<Credits />} />
+            <Route path="/admin/facilities" element={<Facilities />} />
             <Route path="/admin/saleTaxes" element={<SaleTaxes />} />
-            <Route
-              path="/admin/incomeCategory"
-              element={<IncomeCategory />}
-            />
+            <Route path="/admin/incomeCategory" element={<IncomeCategory />} />
             <Route path="/admin/memberships" element={<Memberships />} />
             <Route path="/admin/events" element={<Events />} />
             <Route path="/admin/coach" element={<Coach />} />
             <Route path="/admin/coach/addcoach" element={<CoachForm />} />
-            <Route
-              path="/admin/coach/editcoach/:id"
-              element={<CoachForm />}
-            />
-            <Route path="/admin/roles" element={<RolesAndAccess />} />
+            <Route path="/admin/coach/editcoach/:id" element={<CoachForm />} />
+            {/* <Route path="/admin/roles"  element={<RolesAndAccess />} /> */}
             <Route path="/admin/staff" element={<Staff />} />
             <Route path="/admin/staff/addStaff" element={<StaffForm />} />
-            <Route
-              path="/admin/staff/editstaff/:id"
-              element={<StaffForm />}
-            />
+            <Route path="/admin/staff/editstaff/:id" element={<StaffForm />} />
             <Route path="/admin/exercise" element={<Exercise />} />
-            {/* <Route path="/admin/mealplans" element={<MealPlans />} />
-            <Route path="/admin/foods" element={<FoodsNutrition />} />
-            <Route path="/admin/workoutplans" element={<WorkoutPlan />} /> */}
+            {/* <Route
+              path="/admin/exercise/addexercise"
+              
+              element={<ExerciseForm />}
+            />
+            <Route
+              path="/admin/exercise/editexercise/:id"
+              
+              element={<ExerciseForm />}
+            /> */}
+            {/* <Route path="/admin/mealplans"  element={<MealPlans />} />
+            <Route path="/admin/foods"  element={<FoodsNutrition />} />
+            <Route path="/admin/workoutplans"  element={<WorkoutPlan />} /> */}
           </Route>
         </Route>
       </Routes>

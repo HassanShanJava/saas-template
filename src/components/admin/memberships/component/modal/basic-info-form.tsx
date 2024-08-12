@@ -9,6 +9,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
 import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -21,6 +37,9 @@ import {
   useGetGroupQuery,
 } from "@/services/groupsApis";
 import { useToast } from "@/components/ui/use-toast";
+import { Check, ChevronsDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -82,32 +101,28 @@ const BasicInfoForm = () => {
         ]
   );
 
-  // useEffect(() => {
-  //   const initialData = getValues();
-  //   if (initialData) {
-  //     setValue("name", initialData.name);
-  //     setValue("group_id", initialData.group_id);
-  //     setValue("description", initialData.description);
-  //     setValue("status", initialData.status);
-  //     setValue("access_type", initialData.access_type);
-  //     setValue("limited_access_data", initialData.limited_access_data);
-  //     setLimitedAccessDays(
-  //       (initialData.limited_access_data as limitedAccessDaysTypes[]) ||
-  //         limitedAccessDays
-  //     );
-  //   }
-  // }, [getValues, setValue]);
-
-  console.log({ limitedAccessDays });
-
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
   const { data: groupData, isFetching } = useGetGroupQuery(orgId);
   const [createGroups, { isLoading: groupCreateLoading, isUninitialized }] =
-  useCreateGroupMutation();
+    useCreateGroupMutation();
 
   const handleAdd = (day: string) => {
+    const dayCount = limitedAccessDays.filter(
+      (entry) => entry.day === day
+    ).length;
+
+    // Check if there are already 3 slots for the selected day
+    if (dayCount > 2) {
+      toast({
+        variant: "destructive",
+        title: "Limit Reached",
+        description: `You cannot add more than 3 slots for ${day}.`,
+      });
+      return;
+    }
+
     setLimitedAccessDays((prev) => [
       ...prev,
       { id: Date.now(), day, from: "", to: "" },
@@ -147,39 +162,11 @@ const BasicInfoForm = () => {
     return dayEntries.some((entry) => from < entry.to && to > entry.from);
   };
 
-  console.log({ access });
-
   const handleTimeChange = (id: number, type: string, value: string) => {
     setLimitedAccessDays((prev) => {
       const updatedEntries = prev.map((entry) => {
         if (entry.id === id) {
-          const updatedEntry = { ...entry, [type]: value };
-          if (
-            !isValidTimeRange(updatedEntry.from, updatedEntry.to) &&
-            updatedEntry.to != "" &&
-            updatedEntry.from != ""
-          ) {
-            toast({
-              variant: "destructive",
-              title: "Enter valid time range",
-            });
-            return entry;
-          } else if (
-            isConflictingTime(
-              updatedEntry.day,
-              updatedEntry.from,
-              updatedEntry.to,
-              id
-            )
-          ) {
-            toast({
-              variant: "destructive",
-              title: "Time slot conflicts on the same day.",
-            });
-            return entry;
-          } else {
-            return updatedEntry;
-          }
+          return { ...entry, [type]: value };
         }
         return entry;
       });
@@ -241,6 +228,8 @@ const BasicInfoForm = () => {
     setInputValue(e.target.value);
   };
 
+  console.log({ access, limitedAccessDays });
+
   return (
     <div className="text-black h-full">
       <h1 className="font-semibold text-[#2D374] text-xl">Basic Information</h1>
@@ -249,12 +238,12 @@ const BasicInfoForm = () => {
           <FloatingLabelInput
             id="membership_name"
             label="Name*"
-            {...register("name", { required: "Name is Required" })}
+            {...register("name", { required: "Required" })}
             error={errors.name?.message}
           />
           <Controller
             name="group_id"
-            rules={{ required: "Group Name is Required" }}
+            rules={{ required: "Required" }}
             control={control}
             render={({
               field: { onChange, value, onBlur },
@@ -331,7 +320,7 @@ const BasicInfoForm = () => {
             label="Description"
             type="textarea"
             rows={4}
-            customPercentage={[3,2]}
+            customPercentage={[14,12]}
             className="col-span-2"
             {...register("description")}
             error={errors.description?.message}
@@ -339,13 +328,12 @@ const BasicInfoForm = () => {
         </div>
         <Controller
           name="status"
-          rules={{ required: "Status is Required" }}
+          rules={{ required: "Required" }}
           control={control}
           render={({
             field: { onChange, value, onBlur },
             fieldState: { invalid, error },
           }) => {
-            console.log({ value, error });
             const statusLabel = status.filter((r) => r.value == value)[0];
             return (
               <Select
@@ -384,7 +372,7 @@ const BasicInfoForm = () => {
           <Label className="font-semibold ">Access times*</Label>
           <Controller
             name="access_type"
-            rules={{ required: "Access is Required" }}
+            rules={{ required: "Required" }}
             control={control}
             render={({
               field: { onChange, value, onBlur },
@@ -444,7 +432,7 @@ const BasicInfoForm = () => {
                     </span>
                   )}
                   <SelectContent>
-                    <SelectItem value={"weekly"}>week</SelectItem>
+                    <SelectItem value={"weekly"}>Week</SelectItem>
                     <SelectItem value={"monthly"}>Month</SelectItem>
                     <SelectItem value={"quarterly"}>Quarter</SelectItem>
                     <SelectItem value={"bi_annually"}>Bi-Annual</SelectItem>
@@ -457,6 +445,10 @@ const BasicInfoForm = () => {
           <FloatingLabelInput
             id="duration_no"
             type="number"
+            onInput={(e) => {
+              const target = e.target as HTMLInputElement;
+              target.value = target.value.replace(/[^0-9.]/g, "");
+            }}
             className="w-20 "
             {...register("duration_no", { required: "Required" })}
             error={errors.duration_no?.message}
@@ -510,3 +502,70 @@ const BasicInfoForm = () => {
 };
 
 export default BasicInfoForm;
+
+interface comboboxType {
+  list?: {
+    label: string;
+    value: string;
+  }[];
+  setFilter?: any;
+  name?: string;
+}
+
+function Combobox({ list, setFilter, name }: comboboxType) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  console.log({ value, list });
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+        >
+          {value
+            ? list && list?.find((list) => list.label === value)?.label
+            : "Select " + name + "..."}
+          <ChevronsDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[330px] p-0">
+        <Command>
+          <CommandInput placeholder={`Search ${name}`} />
+          <CommandEmpty>No list found.</CommandEmpty>
+          <CommandList>
+            <CommandGroup>
+              {list &&
+                list?.map((item) => (
+                  <CommandItem
+                    key={item.value}
+                    value={item.value}
+                    onSelect={(currentValue) => {
+                      console.log({ currentValue, value });
+                      setValue(currentValue == value ? "" : currentValue);
+                      setFilter(
+                        list &&
+                          list?.find((list) => list.label === currentValue)
+                            ?.value
+                      );
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === item.value ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {item.label}
+                  </CommandItem>
+                ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}

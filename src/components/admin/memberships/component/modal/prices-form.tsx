@@ -11,7 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useGetIncomeCategorListQuery } from "@/services/incomeCategoryApi";
-import { useGetSalesTaxListQuery} from "@/services/salesTaxApi";
+import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
 import { RootState } from "@/app/store";
 
 const PriceDiscountTaxForm = () => {
@@ -48,7 +48,7 @@ const PriceDiscountTaxForm = () => {
       setValue("discount", 99);
     }
   };
-  console.log({salesTaxData})
+  console.log({ salesTaxData });
 
   useEffect(() => {
     if (salesTaxId && salesTaxData) {
@@ -93,18 +93,28 @@ const PriceDiscountTaxForm = () => {
           id="net_price"
           label="Net Price*"
           type="number"
+          onInput={(e) => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.replace(/[^0-9.]/g, '');
+          }}
           min={0}
-          {...register("net_price", { required: "Net price is Required" })}
+          {...register("net_price", {
+            required: "Required",
+          })}
           error={errors.net_price?.message}
         />
         <FloatingLabelInput
           id="discount"
           label="Discount Percentage*"
           type="number"
+          onInput={(e) => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.replace(/[^0-9.]/g, '');
+          }}
           min={0}
           max={99}
           {...register("discount", {
-            required: "Discount percentage is Required",
+            required: "Required",
             valueAsNumber: true,
             validate: (value) =>
               (value && value <= 99) || "Value must be 99 or less",
@@ -114,7 +124,7 @@ const PriceDiscountTaxForm = () => {
         />
         <Controller
           name="income_category_id"
-          rules={{ required: "Income category is Required" }}
+          rules={{ required: "Required" }}
           control={control}
           render={({
             field: { onChange, value, onBlur },
@@ -156,7 +166,11 @@ const PriceDiscountTaxForm = () => {
           id="tax_rate"
           disabled={true}
           label="Tax/VAT Rate*"
-          value={getValues("tax_rate")?("Sales Tax "+getValues("tax_rate")+"%"):undefined}
+          value={
+            getValues("tax_rate")
+              ? "Sales Tax " + getValues("tax_rate") + "%"
+              : undefined
+          }
           error={errors.tax_rate?.message}
         />
         <FloatingLabelInput
@@ -164,9 +178,13 @@ const PriceDiscountTaxForm = () => {
           disabled={true}
           label="Tax/VAT Amount*"
           type="number"
+          onInput={(e) => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.replace(/[^0-9.]/g, '');
+          }}
           min={0}
           {...register("tax_amount", {
-            required: "Tax/VAT amount is Required",
+            required: "Required",
           })}
           error={errors.tax_amount?.message}
         />
@@ -175,15 +193,19 @@ const PriceDiscountTaxForm = () => {
           label="Total Amount*"
           disabled={true}
           type="number"
+          onInput={(e) => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.replace(/[^0-9.]/g, '');
+          }}
           min={0}
           {...register("total_price", {
-            required: "Total amount is Required",
+            required: "Required",
           })}
           error={errors.total_price?.message}
         />
         <Controller
           name="payment_method"
-          rules={{ required: "Payment cash is Required" }}
+          rules={{ required: "Required" }}
           control={control}
           render={({
             field: { onChange, value, onBlur },
@@ -219,13 +241,17 @@ const PriceDiscountTaxForm = () => {
           id="reg_fee"
           label="Registration Fee"
           type="number"
+          onInput={(e) => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.replace(/[^0-9.]/g, '');
+          }}
           min={0}
           {...register("reg_fee")}
           error={errors.reg_fee?.message}
         />
         <Controller
           name="billing_cycle"
-          rules={{ required: "Billing cycle is Required" }}
+          rules={{ required: "Required" }}
           control={control}
           render={({
             field: { onChange, value, onBlur },

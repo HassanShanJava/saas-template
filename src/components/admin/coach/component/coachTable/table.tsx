@@ -255,7 +255,7 @@ export default function CoachTableView() {
   });
 };
 
-  const columns: ColumnDef<CoachTableTypes>[] = [
+  const columns: ColumnDef<CoachTableDataTypes>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -449,7 +449,7 @@ export default function CoachTableView() {
     },
   ];
   const table = useReactTable({
-    data: coachTableData as CoachTableTypes[],
+    data: coachTableData as CoachTableDataTypes[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),

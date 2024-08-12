@@ -63,6 +63,7 @@ import {
   CoachTableDataTypes,
   CountryTypes,
   ErrorType,
+  coachUpdateInput,
   sourceTypes,
 } from "@/app/types";
 
@@ -87,7 +88,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 interface CoachFormProps {
 	setOpen: React.Dispatch<React.SetStateAction<boolean>>
 	open: boolean;
-	coachData: coachUpdateInput,
+	coachData: coachUpdateInput | null,
 	setCoachData: React.Dispatch<React.SetStateAction<coachUpdateInput | null>>
 }
 

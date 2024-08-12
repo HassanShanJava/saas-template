@@ -9,14 +9,10 @@ import {
 	deleteMemberTypes,
 } from "../app/types";
 import { apiSlice } from "@/features/api/apiSlice";
-
 interface memberInput {
 	query: string,
 	org_id: number
 }
-
-
-
 
 export const MemberAPi = apiSlice.injectEndpoints({
 	endpoints: builder => ({

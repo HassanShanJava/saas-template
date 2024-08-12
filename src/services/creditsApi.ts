@@ -68,7 +68,7 @@ export const Credits = apiSlice.injectEndpoints({
       
       getCreditsList: builder.query<any[], number>({
         query: (org_id) => ({
-          url: `/facilities /list/${org_id}`,
+          url: `/facilities/list/${org_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

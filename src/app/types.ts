@@ -133,10 +133,10 @@ export interface createMembershipType {
   prolongation_period?: number | null;
 }
 
-export interface  membeshipsTableResonseType{
-  data:membeshipsTableType[];
-  total_counts:number;
-  filtered_counts:number;
+export interface membeshipsTableResonseType {
+  data: membeshipsTableType[];
+  total_counts: number;
+  filtered_counts: number;
 }
 
 export interface membeshipsTableType extends createMembershipType {
@@ -156,6 +156,8 @@ export interface incomeCategoryTableType {
   name: string;
   org_id: number;
   sale_tax_id: number;
+  status:string;
+
 }
 
 export interface incomeCategoryTableResponseType {
@@ -168,17 +170,22 @@ export interface incomeCategoryResponseType {
   org_id: number;
   name: string;
   sale_tax_id: number;
+  status:string;
+
 }
 export interface updateIncomeCategoryType {
   id?: number | undefined;
   org_id?: number;
   name?: string;
   sale_tax_id?: number;
+  status?:string;
+
 }
 export interface createIncomeCategoryType {
   org_id: number;
   name: string;
   sale_tax_id: number;
+  status:string;
 }
 export interface deleteIncomeCategoryType {
   id: number;
@@ -189,11 +196,13 @@ export interface deleteSaleTaxesType {
 export interface updateSaleTaxesType {
   name?: string;
   percentage?: number;
+  status?: string;
   org_id: number;
 }
 export interface saleTaxesInputType {
   name: string;
   percentage: number;
+  status: string;
   org_id: number;
 }
 export interface saleTaxesTableType {
@@ -201,17 +210,19 @@ export interface saleTaxesTableType {
   name: string;
   org_id: number;
   percentage: number;
-  
+  status: string;
+
 }
 
-export interface saleTaxTableType{
-  data:saleTaxesResponseType[]
+export interface saleTaxTableType {
+  data: saleTaxesResponseType[]
   total_counts: number;
   filtered_counts: number;
 }
 export interface saleTaxesResponseType {
   name: string;
   percentage: number;
+  status: string;
   org_id: number;
   id: number;
   is_deleted: boolean;
@@ -220,7 +231,7 @@ export interface saleTaxesResponseType {
 }
 
 export interface creditsTableResponseType {
-  data:creditsResponseType[];
+  data: creditsResponseType[];
   total_counts: number;
   filtered_counts: number;
 }
@@ -376,12 +387,12 @@ enum genderEnum {
 }
 export interface MemberInputTypes {
   profile_img?: string;
-  own_member_id: string;
-  first_name: string;
-  last_name: string;
-  gender: genderEnum;
-  dob: string;
-  email: string;
+  own_member_id?: string;
+  first_name?: string;
+  last_name?: string;
+  gender?: genderEnum;
+  dob?: string;
+  email?: string;
   phone?: string;
   mobile_number?: string;
   notes?: string;
@@ -394,12 +405,13 @@ export interface MemberInputTypes {
   zipcode?: string;
   address_1?: string;
   address_2?: string;
-  client_since: string;
+  client_since?: string;
+  client_status?: string;
   created_at?: string | null;
   created_by?: number | null;
   org_id: number;
   coach_id?: any[];
-  membership_plan_id: number | undefined;
+  membership_plan_id?: number | undefined;
   send_invitation?: boolean;
   status?: string;
   auto_renewal?: boolean;
@@ -450,21 +462,22 @@ export interface MemberTabletypes {
 }
 export interface MemberTableDatatypes {
   id: number;
+  org_id:number;
   own_member_id: string;
   first_name: string;
   last_name: string;
   phone?: string | null;
   mobile_number?: string | null;
   membership_plan_id?: number;
+  client_status: string;
   check_in?: string | null;
+  coaches:{
+    id:number,
+    name:string
+  }[],
   last_online?: string | null;
   client_since?: string | null;
   business_name?: string | null;
-  coach_name?: string | null;
-  coaches?: {
-    id: number,
-    name: string
-  }[];
 }
 
 export interface CoachTableTypes {

@@ -80,7 +80,7 @@ const downloadCSV = (data: staffTypesResponseList[], fileName: string) => {
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-  { value: "pending", label: "Pending", color: "bg-orange-500" },
+  { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 enum genderEnum {
   male = "male",
@@ -101,7 +101,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key:"created_at",
+  sort_key: "created_at",
 };
 export default function StaffTableView() {
   const orgId =
@@ -145,7 +145,7 @@ export default function StaffTableView() {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(searchCretiria)) {
       console.log({ key, value });
-      if (value !== undefined && value !== null ) {
+      if (value !== undefined && value !== null) {
         params.append(key, value);
       }
     }
@@ -180,7 +180,7 @@ export default function StaffTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-  
+
 
   const handleExportSelected = () => {
     const selectedRows = table
@@ -296,6 +296,7 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "own_staff_id",
+      meta: "Gym Staff ID",
       header: () => (<div className="flex items-center gap-2">
         <p>Gym Staff ID</p>
         <button
@@ -318,6 +319,8 @@ export default function StaffTableView() {
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
+      meta: "Staff Name",
+
       header: () => (<div className="flex items-center gap-2">
         <p>Staff Name</p>
         <button
@@ -339,6 +342,7 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "activated_on",
+      meta: "Staff Since",
       header: () => (<div className="flex items-center gap-2">
         <p>Staff Since</p>
         <button
@@ -360,6 +364,7 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "role_name",
+      meta:"Role",
       header: () => (<div className="flex items-center gap-2">
         <p>Role</p>
         <button
@@ -382,6 +387,7 @@ export default function StaffTableView() {
 
     {
       accessorKey: "status",
+      meta: "Status",
       header: () => (<div className="flex items-center gap-2">
         <p>Status</p>
         <button
@@ -433,7 +439,7 @@ export default function StaffTableView() {
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {status.map((item: any) => (
+              {status.map((item: any) => !item.hide && (
                 <SelectItem key={item.value + ""} value={item.value + ""}>
                   {item.label}
                 </SelectItem>
@@ -445,6 +451,7 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "last_checkin",
+      meta: "Last Check In",
       header: () => (<div className="flex items-center gap-2">
         <p>Last Check In</p>
         <button
@@ -466,6 +473,7 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "last_online",
+      meta: "Last Login",
       header: () => (<div className="flex items-center gap-2">
         <p>Last Login</p>
         <button
@@ -521,7 +529,7 @@ export default function StaffTableView() {
       status: value,
     }));
   }
-  
+
   function handleRoleName(value: string) {
     setFilter((prev) => ({
       ...prev,
@@ -545,24 +553,24 @@ export default function StaffTableView() {
       type: "select",
       name: "role_name",
       label: "Role Name",
-      options: rolesData&&rolesData.map(role=>({id:role.name, name:role.name})),
+      options: rolesData && rolesData.map(role => ({ id: role.name, name: role.name })),
       function: handleRoleName,
     },
   ];
 
   const toggleSortOrder = (key: string) => {
-  setSearchCretiria((prev) => {
-    const newSortOrder = prev.sort_key === key 
-      ? (prev.sort_order === "desc" ? "asc" : "desc")
-      : "desc"; // Default to descending order if the key is different
+    setSearchCretiria((prev) => {
+      const newSortOrder = prev.sort_key === key
+        ? (prev.sort_order === "desc" ? "asc" : "desc")
+        : "desc"; // Default to descending order if the key is different
 
-    return {
-      ...prev,
-      sort_key: key,
-      sort_order: newSortOrder,
-    };
-  });
-};
+      return {
+        ...prev,
+        sort_key: key,
+        sort_order: newSortOrder,
+      };
+    });
+  };
   const totalRecords = staffData?.total_counts || 0
   const lastPageOffset = Math.max(0, Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit);
   const isLastPage = searchCretiria.offset >= lastPageOffset;

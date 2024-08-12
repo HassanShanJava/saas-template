@@ -430,7 +430,7 @@ export default function FacilityTableView({
       <div className="rounded-none  ">
         <ScrollArea className="w-full relative">
           <ScrollBar orientation="horizontal" />
-          <Table className="" containerClassname="h-fit max-h-80  ">
+          <Table className="" containerClassname="h-fit max-h-[27rem]  ">
             <TableHeader className="bg-gray-100 sticky top-0 z-50">
               {table?.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -480,7 +480,7 @@ export default function FacilityTableView({
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
-                        )}
+                        )}  
                       </TableCell>
                     ))}
                   </TableRow>

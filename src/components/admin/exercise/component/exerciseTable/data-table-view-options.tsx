@@ -46,6 +46,7 @@ export function DataTableViewOptions<TData>({
             )
             .map((column) => {
               const {header}:any=column.columnDef
+              
               return (
                 <DropdownMenuCheckboxItem
                   key={column.id}

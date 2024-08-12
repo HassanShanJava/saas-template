@@ -21,13 +21,14 @@ import React from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { createMembershipType, ErrorType } from "@/app/types";
 import { useDeleteMembershipsMutation } from "@/services/membershipsApi";
+import warning from "@/assets/warning.svg";
 
 export function DataTableRowActions({
   data,
   refetch,
   handleEdit,
 }: {
-  data: createMembershipType & {id:number};
+  data: createMembershipType & { id: number };
   refetch?: any;
   handleEdit?: any;
 }) {
@@ -37,7 +38,6 @@ export function DataTableRowActions({
   const { toast } = useToast();
 
   const deleteRow = async () => {
-
     try {
       const resp = await deleteMembership(data.id).unwrap();
       if (resp) {
@@ -48,7 +48,6 @@ export function DataTableRowActions({
         });
       }
       return;
-      
     } catch (error) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -102,11 +101,7 @@ export function DataTableRowActions({
               {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
-                  <img
-                    src="/public/warning.svg"
-                    alt="warning"
-                    className="w-18 h-18"
-                  />
+                  <img src={warning} alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
                     Please confirm if you want to delete this membership
                   </AlertDialogTitle>

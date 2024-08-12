@@ -92,7 +92,8 @@ const status = [
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 export default function MemberTableView() {
-  const [isOpen, setOpen] = useState(false)
+  const [open, setOpen] = useState<boolean>(false)
+  const [memberId, setMemberId] = useState<number | undefined>(undefined);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCretiria, setSearchCretiria] =
@@ -175,10 +176,11 @@ export default function MemberTableView() {
     }
   }, [isError]);
 
-  function handleOpenForm() {
-    // navigate("/admin/members/addmember");
-    setOpen(true)
+  function handleOpenForm(memberId: number | undefined = undefined) {
+		setMemberId(memberId);
+    setOpen(true);
   }
+
   const memberTableData = React.useMemo(() => {
     return Array.isArray(memberData?.data) ? memberData?.data : [];
   }, [memberData]);
@@ -219,10 +221,6 @@ export default function MemberTableView() {
   };
 
 
-  const handleEditMember = (data: MemberTableDatatypes) => {
-    setData(data as MemberTableDatatypes);
-    setOpen(true);
-  }
   const [updateMember]=useUpdateMemberMutation()
 
   const handleStatusChange = async (payload: { client_status: string, id: number, org_id: number }) => {
@@ -510,7 +508,7 @@ export default function MemberTableView() {
           row={row.original.id}
           data={row?.original}
           refetch={refetch}
-          handleEditMember={handleEditMember}
+          handleEditMember={handleOpenForm}
         />
       ),
     },
@@ -626,7 +624,7 @@ export default function MemberTableView() {
             />
           </div>
         </div>
-        <Button className="bg-primary  text-black mr-1 " onClick={handleOpenForm}>
+        <Button className="bg-primary  text-black mr-1 " onClick={() => handleOpenForm()}>
           <PlusIcon className="size-4" />
           Create New
         </Button>
@@ -830,7 +828,7 @@ export default function MemberTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
-      <MemberForm isOpen={isOpen} setOpen={setOpen} data={data} />
+      <MemberForm open={open} setOpen={setOpen} memberId={memberId} setMemberId={setMemberId} />
     </div>
   );
 }

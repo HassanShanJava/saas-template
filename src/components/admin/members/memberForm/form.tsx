@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/multiselect/multiselect";
 import { Switch } from "@/components/ui/switch";
 import "react-phone-number-input/style.css";
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
@@ -103,9 +103,13 @@ import {
 } from "@/services/memberAPi";
 
 import { useGetCoachListQuery } from "@/services/coachApi";
-import { useGetMembershipListQuery, useGetMembershipsQuery } from "@/services/membershipsApi";
+import {
+  useGetMembershipListQuery,
+  useGetMembershipsQuery,
+} from "@/services/membershipsApi";
 import { useParams } from "react-router-dom";
 import { UploadCognitoImage } from "@/utils/lib/s3Service";
+import profileimg from "@/assets/profile-image.svg";
 enum genderEnum {
   male = "male",
   female = "female",
@@ -117,15 +121,19 @@ const coachsSchema = z.object({
   name: z.string(),
 });
 
-
 interface memberFormTypes {
-  isOpen: boolean;
-  setOpen: any;
-  data?: MemberTableDatatypes;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  memberId: number | undefined;
+  setMemberId: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
-const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
-  const id  = data?.id;
+const MemberForm = ({
+  open,
+  setOpen,
+  memberId,
+  setMemberId,
+}: memberFormTypes) => {
   // const { id } = data;
   // console.log({ id });
   const orgId =
@@ -208,7 +216,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
       source_id: z.number({
         required_error: "Required",
       }),
-      is_business: z.boolean().default(false),
+      is_business: z.boolean().default(false).optional(),
       business_id: z.coerce.number().optional(),
       country_id: z
         .number({
@@ -218,7 +226,11 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
           message: "Required",
         }),
       city: z.string().trim().optional(),
-      zipcode: z.string().trim().optional(),
+      zipcode: z
+        .string()
+        .trim()
+        .max(10, "Zipcode must be 10 characters or less")
+        .optional(),
       address_1: z.string().optional(),
       address_2: z.string().optional(),
       org_id: z
@@ -268,10 +280,10 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
 
   // conditional fetching
   const { data: memberCountData } = useGetMemberCountQuery(orgId, {
-    skip: id !== undefined,
+    skip: memberId != undefined,
   });
-  const { data: memberData } = useGetMemberByIdQuery(Number(id), {
-    skip: isNaN(Number(id)),
+  const { data: memberData } = useGetMemberByIdQuery(memberId as number, {
+    skip: memberId == undefined,
   });
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
@@ -317,43 +329,47 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
   });
 
   const watcher = form.watch();
+  console.error(watcher, form.formState.errors);
   const memberError = form.formState.errors;
 
-  React.useEffect(() => {
-    console.log({ memberData }, "jh");
-    if (!memberData) {
-      if (orgName) {
-        const total = memberCountData?.total_members as number;
-        if (total >= 0) {
-          form.setValue("own_member_id", `${orgName.slice(0, 2)}-${total + 1}`);
-        }
-      }
-    } else {
-      const initialValue = { ...memberData };
-      const data = membershipPlans&&membershipPlans?.filter(
-        (item:any) => item.id == memberData.membership_plan_id
-      )[0];
-      const renewalDetails = data?.renewal_details as renewalData;
-      initialValue.auto_renewal = data?.auto_renewal ?? false;
-      if (initialValue?.auto_renewal) {
-        initialValue.prolongation_period =
-          (renewalDetails?.prolongation_period as number | undefined) ??
-          undefined;
-        initialValue.auto_renew_days =
-          (renewalDetails?.days_before as number | undefined) ?? undefined;
-        initialValue.inv_days_cycle =
-          (renewalDetails?.next_invoice as number | undefined) ?? undefined;
-      }
-      setInitialValues(initialValue as MemberInputTypes);
-      form.reset(initialValue);
-      setAvatar(initialValue.profile_img as string);
+  useEffect(() => {
+    if (!open) return;
+    const total = memberCountData?.total_members as number;
+    if (total >= 0) {
+      form.setValue("own_member_id", `${orgName?.slice(0, 2)}-${total + 1}`);
     }
-  }, [memberData, memberCountData, orgName]);
+  }, [open, memberCountData]);
+
+  useEffect(() => {
+    if (!open || memberId == undefined) return;
+    const initialValue = { ...memberData };
+    const data =
+      membershipPlans &&
+      membershipPlans?.filter(
+        (item: any) => item.id == memberData?.membership_plan_id
+      )[0];
+    const renewalDetails = data?.renewal_details as renewalData;
+    initialValue.auto_renewal = data?.auto_renewal ?? false;
+    if (initialValue?.auto_renewal) {
+      initialValue.prolongation_period =
+        (renewalDetails?.prolongation_period as number | undefined) ??
+        undefined;
+      initialValue.auto_renew_days =
+        (renewalDetails?.days_before as number | undefined) ?? undefined;
+      initialValue.inv_days_cycle =
+        (renewalDetails?.next_invoice as number | undefined) ?? undefined;
+    }
+    setInitialValues(initialValue as MemberInputTypes);
+    form.reset(initialValue);
+    setAvatar(initialValue.profile_img as string);
+  }, [open, memberData]);
 
   // set auto_renewal
   const handleMembershipPlanChange = (value: number) => {
     form.setValue("membership_plan_id", value);
-    const data = membershipPlans&&membershipPlans?.filter((item:any) => item.id == value)[0];
+    const data =
+      membershipPlans &&
+      membershipPlans?.filter((item: any) => item.id == value)[0];
     const renewalDetails = data?.renewal_details as renewalData;
     form.setValue("auto_renewal", data?.auto_renewal);
     if (data?.auto_renewal) {
@@ -371,6 +387,14 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
       );
     }
   };
+
+  function handleClose() {
+    setAvatar(null);
+    form.clearErrors();
+    form.reset(initialState);
+    setMemberId(undefined);
+    setOpen(false);
+  }
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let updatedData = {
@@ -398,7 +422,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
     }
 
     try {
-      if (id == undefined || id == null) {
+      if (memberId == undefined) {
         console.log({ updatedData }, "add");
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
@@ -406,20 +430,20 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
             variant: "success",
             title: "Member Created Successfully ",
           });
-          navigate("/admin/members");
+          handleClose();
         }
       } else {
-        console.log({ updatedData, id: +id }, "update");
+        console.log({ updatedData, id: +memberId }, "update");
         const resp = await editMember({
           ...updatedData,
-          id: Number(id),
+          id: memberId,
         }).unwrap();
         if (resp) {
           toast({
             variant: "success",
             title: "Member Updated Successfully ",
           });
-          navigate("/admin/members");
+          handleClose();
         }
       }
     } catch (error: unknown) {
@@ -441,19 +465,11 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
     }
   }
 
-  function gotoMember() {
-    navigate("/admin/members");
-  }
-
-  console.log({ watcher, memberError });
-
-  console.log("selected image", selectedImage);
   return (
-    <Sheet open={isOpen}>
+    <Sheet open={open}>
       <SheetContent hideCloseButton className="!max-w-[1050px]">
         <SheetHeader>
-          <SheetTitle>
-          </SheetTitle>
+          <SheetTitle></SheetTitle>
           <SheetDescription>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -462,8 +478,8 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                     <div className="relative flex">
                       <img
                         id="avatar"
-                        src={avatar ? String(avatar) : "/profile-image.svg"}
-                        alt="Avatar"
+                        src={avatar ? String(avatar) : profileimg}
+                        alt={profileimg}
                         className="w-20 h-20 rounded-full object-cover mb-4 relative"
                       />
                       <CameraIcon className="w-8 h-8 text-black bg-primary rounded-full p-2 absolute top-8 left-14 " />
@@ -488,7 +504,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                     <div>
                       <Button
                         type={"button"}
-                        onClick={()=>setOpen(false)}
+                        onClick={handleClose}
                         className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                       >
                         <RxCross2 className="w-4 h-4" /> Cancel
@@ -614,7 +630,8 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                                         variant={"outline"}
                                         className={cn(
                                           "w-full pl-3 text-left font-normal ",
-                                          !field.value && "text-muted-foreground"
+                                          !field.value &&
+                                            "text-muted-foreground"
                                         )}
                                       >
                                         {field.value ? (
@@ -755,14 +772,16 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                             </FormControl>
                             <SelectContent>
                               {sources && sources.length > 0 ? (
-                                sources.map((sourceval: sourceTypes, i: any) => (
-                                  <SelectItem
-                                    value={sourceval.id?.toString()}
-                                    key={i}
-                                  >
-                                    {sourceval.source}
-                                  </SelectItem>
-                                ))
+                                sources.map(
+                                  (sourceval: sourceTypes, i: any) => (
+                                    <SelectItem
+                                      value={sourceval.id?.toString()}
+                                      key={i}
+                                    >
+                                      {sourceval.source}
+                                    </SelectItem>
+                                  )
+                                )
                               ) : (
                                 <p className="p-2">No Sources Found</p>
                               )}
@@ -787,7 +806,9 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                               <MultiSelectorInput
                                 className="font-medium  "
                                 placeholder={
-                                  field.value.length == 0 ? `Select Coaches*` : ""
+                                  field?.value?.length == 0
+                                    ? `Select Coaches*`
+                                    : ""
                                 }
                               />
                             </MultiSelectorTrigger>
@@ -798,7 +819,7 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                                     <MultiSelectorItem
                                       key={user.id}
                                       value={user}
-                                    // disabled={field.value?.length >= 5}
+                                      // disabled={field.value?.length >= 5}
                                     >
                                       <div className="flex items-center space-x-2">
                                         <span>{user.name}</span>
@@ -964,14 +985,14 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                                   className={cn(
                                     "justify-between ",
                                     !field.value &&
-                                    "font-medium text-gray-400 focus:border-primary "
+                                      "font-medium text-gray-400 focus:border-primary "
                                   )}
                                 >
                                   {field.value
                                     ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === field.value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                        (country: CountryTypes) =>
+                                          country.id === field.value // Compare with numeric value
+                                      )?.country // Display country name if selected
                                     : "Select country*"}
                                   <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
@@ -1082,7 +1103,8 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {membershipPlans && membershipPlans?.length >0? (
+                              {membershipPlans &&
+                              membershipPlans?.length > 0 ? (
                                 membershipPlans.map(
                                   (sourceval: membeshipsTableType) => {
                                     console.log({ sourceval });
@@ -1145,7 +1167,10 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                                   type="number"
                                   onInput={(e) => {
                                     const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(/[^0-9.]/g, '');
+                                    target.value = target.value.replace(
+                                      /[^0-9.]/g,
+                                      ""
+                                    );
                                   }}
                                   min={1}
                                   name="min_limit"
@@ -1177,7 +1202,10 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                                   type="number"
                                   onInput={(e) => {
                                     const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(/[^0-9.]/g, '');
+                                    target.value = target.value.replace(
+                                      /[^0-9.]/g,
+                                      ""
+                                    );
                                   }}
                                   min={1}
                                   name="min_limit"
@@ -1212,13 +1240,20 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                                   type="number"
                                   onInput={(e) => {
                                     const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(/[^0-9.]/g, '');
+                                    target.value = target.value.replace(
+                                      /[^0-9.]/g,
+                                      ""
+                                    );
                                   }}
                                   min={1}
                                   name="min_limit"
                                   className="w-16"
                                 />
-                                {watcher.inv_days_cycle ? <></> : <FormMessage />}
+                                {watcher.inv_days_cycle ? (
+                                  <></>
+                                ) : (
+                                  <FormMessage />
+                                )}
                                 <Label className="text-xs text-black/60">
                                   days before contracts runs out.
                                 </Label>
@@ -1230,7 +1265,6 @@ const MemberForm = ({ isOpen, setOpen, data }: memberFormTypes) => {
                     </>
                   )}
                 </div>
-
               </form>
             </Form>
           </SheetDescription>

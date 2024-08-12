@@ -6,8 +6,18 @@ import {
   CategoryApiResponse,
   JointApiResponse,
   MetApiResponse,
+  ExerciseCreationResponse,
+  createExerciseInputTypes,
+  ExerciseResponseViewType,
+  deleteExerciseResponse,
+  deleteExerciseInput,
+  ExerciseTableTypes,
 } from "@/app/types";
 
+interface ExerciseQueryInput {
+  query: string;
+  org_id: number;
+}
 export const Exercise = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
@@ -86,6 +96,64 @@ export const Exercise = apiSlice.injectEndpoints({
           })),
         providesTags: ["Exercise"],
       }),
+      AddExercise: builder.mutation<
+        ExerciseCreationResponse,
+        createExerciseInputTypes
+      >({
+        query: (exercisedata) => ({
+          url: "/exercise",
+          method: "POST",
+          body: exercisedata,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }),
+        invalidatesTags: ["Exercise"],
+      }),
+      getAllExercises: builder.query<ExerciseTableTypes, ExerciseQueryInput>({
+        query: (SearchCriteria) => ({
+          url: `/exercise?org_id=${SearchCriteria.org_id}&${SearchCriteria.query}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        providesTags: ["Exercise"],
+      }),
+      deleteExercise: builder.mutation<deleteExerciseResponse, number>({
+        query: (ExerciseId) => ({
+          url: `/exercise/${ExerciseId}`,
+          method: "DELETE",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }),
+        invalidatesTags: ["Exercise"],
+      }),
+      updateExercise: builder.mutation<any, any>({
+        query: (ExerciseData) => ({
+          url: "/exercise",
+          method: "PUT",
+          body: ExerciseData,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }),
+        invalidatesTags: ["Exercise"],
+      }),
+      getExerciseById: builder.query<ExerciseResponseViewType, number>({
+        query: (ExerciseId) => ({
+          url: `/exercise/${ExerciseId}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        providesTags: (result, error, arg) => [{ type: "Exercise", id: arg }],
+      }),
     };
   },
 });
@@ -96,4 +164,9 @@ export const {
   useGetAllEquipmentsQuery,
   useGetAllCategoryQuery,
   useGetAllJointsQuery,
+  useAddExerciseMutation,
+  useGetAllExercisesQuery,
+  useDeleteExerciseMutation,
+  useUpdateExerciseMutation,
+  useGetExerciseByIdQuery,
 } = Exercise;

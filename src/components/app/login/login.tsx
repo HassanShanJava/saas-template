@@ -18,11 +18,7 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const { VITE_APP_SITEKEY } = import.meta.env;
 
 export default function AuthenticationPage() {
-  // const token = localStorage.getItem("userToken");
 
-  // if (token) {
-  //   return <Navigate to="/admin/dashboard" />;
-  // }
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -33,6 +29,16 @@ export default function AuthenticationPage() {
   );
   const email = localStorage.getItem("email") ?? "";
   const password = localStorage.getItem("password") ?? "";
+  // const token =
+  //   useSelector((state: RootState) => state.auth.userToken);
+  const token=localStorage.getItem("userToken")
+
+  useEffect(() => {
+    if (token) {
+      // Redirect to dashboard if already logged in
+      navigate("/admin/dashboard");
+    }
+  }, [token, navigate]);
 
   const {
     register,
@@ -49,6 +55,8 @@ export default function AuthenticationPage() {
       rememberme: false,
     },
   });
+
+
 
   useEffect(() => {
     if (error != null) {

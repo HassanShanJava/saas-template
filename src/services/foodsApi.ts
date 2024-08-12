@@ -11,7 +11,7 @@ export const Foods = apiSlice.injectEndpoints({
         return {
         getFoods: builder.query<any[], foodsInput>({
                 query: (searchCretiria) => ({
-                    url: `/foods?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
+                    url: `/food?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
                     method: "GET",
                     headers: {
                         Accept: "application/json",
@@ -21,7 +21,7 @@ export const Foods = apiSlice.injectEndpoints({
             }),
             createFoods: builder.query<any, CreateFoodTypes>({
                 query: (fooddata) => ({
-                    url: `/foods`,
+                    url: `/food`,
                     method: "POST",
                     body: fooddata,
                     headers: {
@@ -33,7 +33,7 @@ export const Foods = apiSlice.injectEndpoints({
             }),
             updateFoods: builder.query<any, CreateFoodTypes & { id: number }>({
                 query: (fooddata) => ({
-                    url: `/foods`,
+                    url: `/food`,
                     method: "PUT",
                     body: fooddata,
                     headers: {
@@ -45,7 +45,7 @@ export const Foods = apiSlice.injectEndpoints({
             }),
             deleteFoods: builder.query<any[], number>({
                 query: (food_id) => ({
-                    url: `/foods/${food_id}`,
+                    url: `/food/${food_id}`,
                     method: "DELETE",
                     headers: {
                         Accept: "application/json",
@@ -56,7 +56,7 @@ export const Foods = apiSlice.injectEndpoints({
             }),
             getFoodById: builder.query<any[], number>({
                 query: (food_id) => ({
-                    url: `/foods/${food_id}`,
+                    url: `/food/${food_id}`,
                     method: "GET",
                     headers: {
                         Accept: "application/json",
@@ -67,7 +67,7 @@ export const Foods = apiSlice.injectEndpoints({
             }),
             getFoodList: builder.query<any[], number>({
                 query: (org_id) => ({
-                    url: `/foods/list/${org_id}`,
+                    url: `/food/list/${org_id}`,
                     method: "GET",
                     headers: {
                         Accept: "application/json",

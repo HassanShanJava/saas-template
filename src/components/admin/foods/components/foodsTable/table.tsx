@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
-  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -24,7 +22,7 @@ import {
 
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { PlusIcon, Search } from "lucide-react";
+import { ChevronRightIcon, PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -32,12 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, membeshipsTableType } from "@/app/types";
+import { CreateFoodTypes, ErrorType } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
@@ -46,8 +39,11 @@ import FoodForm from "../modal/food-form";
 import { useGetFoodsQuery } from "@/services/foodsApi";
 import { useDebounce } from "@/hooks/use-debounce";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
+import { Separator } from "@/components/ui/separator";
+import { DoubleArrowLeftIcon, DoubleArrowRightIcon } from "@radix-ui/react-icons";
+import { ChevronLeftIcon } from "lucide-react";
 
-const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
+const downloadCSV = (data: CreateFoodTypes[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -150,9 +146,9 @@ export default function FoodsTableView() {
   const handleCloseDailog = () => setIsDialogOpen(false);
 
 
-  // const membershipstableData = React.useMemo(() => {
-  //   return Array.isArray(membershipsData) ? membershipsData : [];
-  // }, [membershipsData]);
+  const foodstableData = React.useMemo(() => {
+    return Array.isArray(foodData?.data) ? foodData?.data : [];
+  }, [foodData]);
 
   const { toast } = useToast();
 
@@ -175,16 +171,13 @@ export default function FoodsTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
-
-  
-
-  const columns: ColumnDef<membeshipsTableType>[] = [
+  const columns: ColumnDef<CreateFoodTypes>[] = [
     {
       accessorKey: "name",
       meta:"Name",
       header: ({ table }) => <span>Name</span>,
       cell: ({ row }) => {
-        return <span>any</span>;
+        return <span>{row.original.name}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -195,7 +188,7 @@ export default function FoodsTableView() {
       header: ({ table }) => <span>Brand</span>,
       cell: ({ row }) => {
 
-        return <span>any</span>;
+        return <span>{row.original.brand}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -205,7 +198,7 @@ export default function FoodsTableView() {
       meta:"Category",
       header: ({ table }) => <span>Category</span>,
       cell: ({ row }) => {
-        return <span>any</span>;
+        return <span>{row.original.category}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -216,17 +209,17 @@ export default function FoodsTableView() {
       header: ({ table }) => <span>Total Nutrition (g)</span>,
       cell: ({ row }) => {
         
-        return <span>any</span>;
+        return <span>{row.original.total_nutrition}</span>;
       },
       enableSorting: false,
       enableHiding: false,
     },
     {
-      accessorKey: "fats",
+      accessorKey: "fat",
       meta:"Total Fat",
       header: ({ table }) => <span>Total Fat</span>,
       cell: ({ row }) => {
-        return <span>any</span>;
+        return <span>{row.original.fat}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -235,7 +228,6 @@ export default function FoodsTableView() {
       accessorKey: "action",
       header: ({ table }) => <span>Action</span>,
       cell: ({ row }) => {
-        const { discount } = row.original;
 
         return <span>any</span>;
       },
@@ -245,7 +237,7 @@ export default function FoodsTableView() {
   ];
 
   const table = useReactTable({
-    data: [] as any[] ,
+    data: foodstableData as CreateFoodTypes[] ,
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -275,6 +267,47 @@ export default function FoodsTableView() {
     setAction('edit')
     setIsDialogOpen(true)
   }
+
+
+  
+  const totalRecords = foodData?.total_counts || 0
+  const lastPageOffset = Math.max(0, Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit);
+  const isLastPage = searchCretiria.offset >= lastPageOffset;
+
+  const nextPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria(prev => ({
+        ...prev,
+        offset: prev.offset + prev.limit
+      }));
+    }
+  };
+
+  // Function to go to the previous page
+  const prevPage = () => {
+    setSearchCretiria(prev => ({
+      ...prev,
+      offset: Math.max(0, prev.offset - prev.limit)
+    }));
+  };
+
+  // Function to go to the first page
+  const firstPage = () => {
+    setSearchCretiria(prev => ({
+      ...prev,
+      offset: 0
+    }));
+  };
+
+  // Function to go to the last page
+  const lastPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria(prev => ({
+        ...prev,
+        offset: lastPageOffset
+      }));
+    }
+  };
 
   return (
     <div className="w-full space-y-4">
@@ -321,7 +354,7 @@ export default function FoodsTableView() {
               ))}
             </TableHeader>
             <TableBody>
-              {true ? (
+              {isLoading ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -350,7 +383,7 @@ export default function FoodsTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : false ? (
+              ) : isLoading ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -374,6 +407,86 @@ export default function FoodsTableView() {
         </ScrollArea>
       </div>
       
+      {/* pagination */}
+      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+        <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium">Items per page:</p>
+            <Select
+              value={searchCretiria.limit.toString()}
+              onValueChange={(value) => {
+                const newSize = Number(value);
+                setSearchCretiria((prev) => ({
+                  ...prev,
+                  limit: newSize,
+                  offset: 0, // Reset offset when page size changes
+                }));
+              }}
+            >
+              <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+                <SelectValue>{searchCretiria.limit}</SelectValue>
+              </SelectTrigger>
+              <SelectContent side="bottom">
+                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                  <SelectItem key={pageSize} value={pageSize.toString()}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Separator orientation="vertical" className="h-11 w-[1px] bg-gray-300" />
+          <span> {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${foodData?.filtered_counts} Items  `}</span>
+        </div>
+
+        <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center space-x-2">
+            <Separator orientation="vertical" className="hidden lg:flex h-11 w-[1px] bg-gray-300" />
+
+            <Button
+              variant="outline"
+              className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+              onClick={firstPage}
+              disabled={searchCretiria.offset === 0}
+            >
+              <DoubleArrowLeftIcon className="h-4 w-4" />
+            </Button>
+
+            <Separator orientation="vertical" className="h-11 w-[0.5px] bg-gray-300" />
+
+            <Button
+              variant="outline"
+              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+              onClick={prevPage}
+              disabled={searchCretiria.offset === 0}
+            >
+              <ChevronLeftIcon className="h-4 w-4" />
+            </Button>
+
+            <Separator orientation="vertical" className="h-11 w-[1px] bg-gray-300" />
+
+            <Button
+              variant="outline"
+              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+              onClick={nextPage}
+              disabled={isLastPage}
+            >
+              <ChevronRightIcon className="h-4 w-4" />
+            </Button>
+
+            <Separator orientation="vertical" className="hidden lg:flex h-11 w-[1px] bg-gray-300" />
+
+            <Button
+              variant="outline"
+              className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+              onClick={lastPage}
+              disabled={isLastPage}
+            >
+              <DoubleArrowRightIcon className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
       
 
       <FoodForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} action={action} />

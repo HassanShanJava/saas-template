@@ -1192,10 +1192,6 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
                                   id="distance"
                                   label="Distance(KM)"
                                   label="Distance"
-                                  onInput={(e) => {
-                                    const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(/[^0-9.]/g, '');
-                                  }}
                                 />
                                 {watcher.distance ? <></> : <FormMessage />}
                               </FormItem>
@@ -1212,10 +1208,6 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ isOpen, setOpen }) => {
                                   type="number"
                                   label="speed(KM/H)"
                                   label="speed"
-                                  onInput={(e) => {
-                                    const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(/[^0-9.]/g, '');
-                                  }}
                                 />
                                 {watcher.speed ? <></> : <FormMessage />}
                               </FormItem>

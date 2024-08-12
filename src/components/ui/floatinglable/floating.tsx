@@ -61,6 +61,12 @@ const FloatingInput = React.forwardRef<
       className={cn("peer", "font-poppins",className)}
       ref={inputRef}
       {...props}
+      onInput={(e) => {
+        if(type=="number"){
+          const target = e.target as HTMLInputElement;
+          target.value = target.value.replace(/[^0-9.]/g, '');
+        }
+      }}
     />
   );
 });

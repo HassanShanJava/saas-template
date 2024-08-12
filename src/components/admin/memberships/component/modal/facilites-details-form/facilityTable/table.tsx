@@ -337,10 +337,7 @@ export default function FacilityTableView({
           <div className="flex items-center gap-2">
             {creditData?.validity.duration_type !== "contract_duration" && <Input
               type="number"
-              onInput={(e) => {
-                const target = e.target as HTMLInputElement;
-                target.value = target.value.replace(/[^0-9.]/g, '');
-              }}
+              
               min={1}
               max={15}
               className=" w-20"

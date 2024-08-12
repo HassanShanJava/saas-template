@@ -87,7 +87,7 @@ function App() {
               element={<ExerciseForm />}
             /> */}
             {/* <Route path="/admin/mealplans"  element={<MealPlans />} /> */}
-            {/* <Route path="/admin/foods"  element={<FoodsNutrition />} /> */}
+            <Route path="/admin/foods"  element={<FoodsNutrition />} />
             {/* <Route path="/admin/workoutplans"  element={<WorkoutPlan />} /> */}
           </Route>
         </Route>

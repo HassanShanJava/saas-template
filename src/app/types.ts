@@ -2,8 +2,13 @@ import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
 
-
+export interface FoodTableResponse{
+  data:CreateFoodTypes[];
+  total_counts:number;
+  filtered_counts:number;
+}
 export interface CreateFoodTypes {
+  id?: number;
   org_id?: number;
   name: string;
   brand: string;

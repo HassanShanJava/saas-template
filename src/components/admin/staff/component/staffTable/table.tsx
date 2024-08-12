@@ -571,6 +571,7 @@ export default function StaffTableView() {
       };
     });
   };
+  
   const totalRecords = staffData?.total_counts || 0
   const lastPageOffset = Math.max(0, Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit);
   const isLastPage = searchCretiria.offset >= lastPageOffset;

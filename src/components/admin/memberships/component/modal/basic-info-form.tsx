@@ -445,10 +445,6 @@ const BasicInfoForm = () => {
           <FloatingLabelInput
             id="duration_no"
             type="number"
-            onInput={(e) => {
-              const target = e.target as HTMLInputElement;
-              target.value = target.value.replace(/[^0-9.]/g, "");
-            }}
             className="w-20 "
             {...register("duration_no", { required: "Required" })}
             error={errors.duration_no?.message}

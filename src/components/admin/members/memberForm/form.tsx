@@ -1165,13 +1165,6 @@ const MemberForm = ({
                                   {...field}
                                   id="prolongation_period"
                                   type="number"
-                                  onInput={(e) => {
-                                    const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(
-                                      /[^0-9.]/g,
-                                      ""
-                                    );
-                                  }}
                                   min={1}
                                   name="min_limit"
                                   className=" w-16"
@@ -1200,13 +1193,6 @@ const MemberForm = ({
                                   {...field}
                                   id="auto_renew_days"
                                   type="number"
-                                  onInput={(e) => {
-                                    const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(
-                                      /[^0-9.]/g,
-                                      ""
-                                    );
-                                  }}
                                   min={1}
                                   name="min_limit"
                                   className="w-16"
@@ -1238,13 +1224,7 @@ const MemberForm = ({
                                   {...field}
                                   id="inv_days_cycle"
                                   type="number"
-                                  onInput={(e) => {
-                                    const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(
-                                      /[^0-9.]/g,
-                                      ""
-                                    );
-                                  }}
+                                  
                                   min={1}
                                   name="min_limit"
                                   className="w-16"

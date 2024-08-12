@@ -813,10 +813,6 @@ const IncomeCategoryForm = ({
                         <FloatingLabelInput
                           {...field}
                           type="number"
-                          onInput={(e) => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value.replace(/[^0-9.]/g, '');
-          }}
                           id="percentage"
                           name="percentage"
                           min={1}

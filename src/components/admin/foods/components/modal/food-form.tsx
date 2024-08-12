@@ -545,10 +545,6 @@ const FoodForm = ({ isOpen, setOpen, action }: FoodForm) => {
   //               return (
   //                 <FloatingLabelInput
   //                   type="number"
-  //                   onInput={(e) => {
-  //                     const target = e.target as HTMLInputElement;
-  //                     target.value = target.value.replace(/[^0-9.]/g, '');
-  //                   }}
   //                   min={0}
   //                   step={0.01}
   //                   id={item.name}
@@ -716,10 +712,6 @@ const FoodForm = ({ isOpen, setOpen, action }: FoodForm) => {
                   <div key={item.name} className="relative">
                     <FloatingLabelInput
                       type="number"
-                      onInput={(e) => {
-                        const target = e.target as HTMLInputElement;
-                        target.value = target.value.replace(/[^0-9.]/g, '');
-                      }}
                       min={0}
                       step={0.01}
                       id={item.name}
@@ -777,10 +769,7 @@ const FoodForm = ({ isOpen, setOpen, action }: FoodForm) => {
                   id={'weight_unit'}
                   label={"Provide Units"}
                   type='number'
-                  onInput={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    target.value = target.value.replace(/[^0-9.]/g, '');
-                  }}
+
                   min={0}
                   step={0.01}
                   {...register("weight_unit", { required: "Required" })}

@@ -846,10 +846,7 @@ const CreditForm = ({
                             label="Min Requred Limit*"
                             value={field.value ?? 1}
                             onChange={handleOnChange}
-                            onInput={(e) => {
-                              const target = e.target as HTMLInputElement;
-                              target.value = target.value.replace(/[^0-9.]/g, '');
-                            }}
+                            
                           />
                           {watcher.min_limit ? <></> : <FormMessage />}
                         </FormItem>

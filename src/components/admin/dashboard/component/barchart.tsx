@@ -1,20 +1,13 @@
-import {
-  BarChart,
-  Bar,
-  YAxis,
-  Tooltip,
-  XAxis,
-} from "recharts";
+import { BarChart, Bar, YAxis, Tooltip, XAxis } from "recharts";
 import { Progress } from "@/components/ui/progress";
-
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import walletimg from "@/assets/wallet.svg";
+import Rocketimg from "@/assets/rocket.svg";
+import Starimg from "@/assets/star.svg";
+import { Card, CardContent } from "@/components/ui/card";
 // Sample data array with metrics
 const data = [
-  { name: "Page A", uv: 400},
-  { name: "Page B", uv: 300},
+  { name: "Page A", uv: 400 },
+  { name: "Page B", uv: 300 },
   { name: "Page C", uv: 200 },
   { name: "Page D", uv: 278 },
   { name: "Page E", uv: 189 },
@@ -22,7 +15,7 @@ const data = [
   { name: "Page G", uv: 349 },
 ];
 
-const CustomBar = (props:any) => {
+const CustomBar = (props: any) => {
   const { x, y, width, height, fill } = props;
   const radius = 10; // Adjust this value to change rounding
 
@@ -39,12 +32,19 @@ const CustomBar = (props:any) => {
   );
 };
 // Custom Tooltip component
-const CustomTooltip = ({ active, payload }:any) => {
+const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="custom-tooltip " style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}>
+      <div
+        className="custom-tooltip "
+        style={{
+          backgroundColor: "#fff",
+          border: "1px solid #ccc",
+          padding: "10px",
+          borderRadius: "5px",
+        }}
+      >
         <p className="intro">{`UV: ${payload[0].value}`}</p>
-      
       </div>
     );
   }
@@ -53,7 +53,6 @@ const CustomTooltip = ({ active, payload }:any) => {
 };
 
 const SimpleBarChart = () => {
-  
   return (
     <Card className="p-2">
       <Card
@@ -138,7 +137,7 @@ const SimpleBarChart = () => {
         <div className="w-24 p-2">
           <div className=" flex justify-between items-center">
             <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-primary">
-              <img src="/wallet.svg" className={`w-4 h-4 items-center `}></img>
+              <img src={walletimg} className={`w-4 h-4 items-center `}></img>
             </div>
             <h2 className="font-bold text-sm text-gray-400"> Users</h2>
           </div>
@@ -157,7 +156,7 @@ const SimpleBarChart = () => {
         <div className="w-24 p-2">
           <div className=" flex justify-between items-center">
             <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-primary">
-              <img src="/rocket.svg" className={`w-4 h-4 items-center `}></img>
+              <img src={Rocketimg} className={`w-4 h-4 items-center `}></img>
             </div>
             <h2 className="font-bold text-sm text-gray-400"> Leads</h2>
           </div>
@@ -196,7 +195,7 @@ const SimpleBarChart = () => {
         <div className="w-24 p-2">
           <div className=" flex justify-between items-center">
             <div className=" flex justify-center items-center w-7 h-7 rounded-lg bg-primary">
-              <img src="/star.svg" className={`w-4 h-4 items-center `}></img>
+              <img src={Starimg} className={`w-4 h-4 items-center `}></img>
             </div>
             <h2 className="font-bold text-sm text-gray-400"> Sales</h2>
           </div>

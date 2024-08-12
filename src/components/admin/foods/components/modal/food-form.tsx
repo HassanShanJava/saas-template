@@ -31,6 +31,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Description } from "@radix-ui/react-dialog";
 import { CreateFoodTypes } from "@/app/types";
 
+import uploadimg from "@/assets/upload.svg";
 interface FoodForm {
   isOpen: boolean;
   setOpen: any;

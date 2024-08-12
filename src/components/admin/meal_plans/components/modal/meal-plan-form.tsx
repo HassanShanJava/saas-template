@@ -62,7 +62,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 // import { zodResolver } from "@hookform/resolvers/zod";
-
+import uploadimg from "@/assets/upload.svg";
 const chartData = [
   { food_component: "protein", percentage: 10, fill: "#8BB738" },
   { food_component: "fats", percentage: 0, fill: "#E8A239" },
@@ -175,7 +175,7 @@ const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
 
                     <div className="flex items-center justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
                       {/* <i className="text-gray-400 fa-regular fa-image size-5"></i> */}
-                      <img src="/src/assets/upload.svg" className="size-10" />
+                      <img src={uploadimg} className="size-10" />
                       <span className="text-sm">Upload Image</span>
                     </div>
                   </FileInput>
@@ -331,8 +331,11 @@ const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
                 <td className="p-3"></td>
                 <td className="p-3"></td>
                 <td className="p-3"></td>
-                <td className="p-3 flex justify-end " >
-                  <i className="text-primary fa fa-plus  cursor-pointer" onClick={()=>setOpenFood(true)}></i>
+                <td className="p-3 flex justify-end ">
+                  <i
+                    className="text-primary fa fa-plus  cursor-pointer"
+                    onClick={() => setOpenFood(true)}
+                  ></i>
                 </td>
               </tr>
             </table>
@@ -353,7 +356,10 @@ const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
                 <td className="p-3"></td>
                 <td className="p-3"></td>
                 <td className="p-3 flex justify-end ">
-                  <i className="text-primary fa fa-plus  cursor-pointer" onClick={()=>setOpenFood(true)}></i>
+                  <i
+                    className="text-primary fa fa-plus  cursor-pointer"
+                    onClick={() => setOpenFood(true)}
+                  ></i>
                 </td>
               </tr>
             </table>
@@ -373,8 +379,11 @@ const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
                 <td className="p-3"></td>
                 <td className="p-3"></td>
                 <td className="p-3"></td>
-                <td className="p-3 flex justify-end " >
-                  <i className="text-primary fa fa-plus cursor-pointer" onClick={()=>setOpenFood(true)}></i>
+                <td className="p-3 flex justify-end ">
+                  <i
+                    className="text-primary fa fa-plus cursor-pointer"
+                    onClick={() => setOpenFood(true)}
+                  ></i>
                 </td>
               </tr>
             </table>
@@ -394,12 +403,14 @@ const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
                 <td className="p-3"></td>
                 <td className="p-3"></td>
                 <td className="p-3"></td>
-                <td className="p-3 flex justify-end " >
-                  <i className="text-primary fa fa-plus cursor-pointer" onClick={()=>setOpenFood(true)}></i>
+                <td className="p-3 flex justify-end ">
+                  <i
+                    className="text-primary fa fa-plus cursor-pointer"
+                    onClick={() => setOpenFood(true)}
+                  ></i>
                 </td>
               </tr>
             </table>
-            
           </div>
         </FormProvider>
 

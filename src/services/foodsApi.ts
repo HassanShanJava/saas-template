@@ -9,7 +9,7 @@ interface foodsInput {
 export const Foods = apiSlice.injectEndpoints({
     endpoints(builder) {
         return {
-        getFoods: builder.query<FoodTableResponse, foodsInput>({
+            getFoods: builder.query<FoodTableResponse, foodsInput>({
                 query: (searchCretiria) => ({
                     url: `/food?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
                     method: "GET",
@@ -19,7 +19,7 @@ export const Foods = apiSlice.injectEndpoints({
                     providesTags: ["Foods"],
                 }),
             }),
-            createFoods: builder.query<any, CreateFoodTypes>({
+            createFoods: builder.mutation<any, CreateFoodTypes>({
                 query: (fooddata) => ({
                     url: `/food`,
                     method: "POST",
@@ -31,7 +31,7 @@ export const Foods = apiSlice.injectEndpoints({
 
                 }),
             }),
-            updateFoods: builder.query<any, CreateFoodTypes & { id: number }>({
+            updateFoods: builder.mutation<any, CreateFoodTypes & { id: number }>({
                 query: (fooddata) => ({
                     url: `/food`,
                     method: "PUT",
@@ -43,7 +43,7 @@ export const Foods = apiSlice.injectEndpoints({
 
                 }),
             }),
-            deleteFoods: builder.query<any[], number>({
+            deleteFoods: builder.mutation<any, number>({
                 query: (food_id) => ({
                     url: `/food/${food_id}`,
                     method: "DELETE",
@@ -54,7 +54,7 @@ export const Foods = apiSlice.injectEndpoints({
 
                 }),
             }),
-            getFoodById: builder.query<any[], number>({
+            getFoodById: builder.query<any, number>({
                 query: (food_id) => ({
                     url: `/food/${food_id}`,
                     method: "GET",
@@ -83,4 +83,9 @@ export const Foods = apiSlice.injectEndpoints({
 
 export const {
     useGetFoodsQuery,
+    useCreateFoodsMutation,
+    useUpdateFoodsMutation,
+    useDeleteFoodsMutation,
+    useGetFoodByIdQuery,
+    useGetFoodListQuery
 } = Foods;

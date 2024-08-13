@@ -25,17 +25,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DropzoneOptions } from "react-dropzone";
 import { Controller, useForm } from "react-hook-form";
 import { Description } from "@radix-ui/react-dialog";
-import { CreateFoodTypes } from "@/app/types";
+import { CreateFoodTypes, ErrorType } from "@/app/types";
 
 import uploadimg from "@/assets/upload.svg";
+import { useCreateFoodsMutation, useUpdateFoodsMutation } from "@/services/foodsApi";
+import { useToast } from "@/components/ui/use-toast";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
 interface FoodForm {
   isOpen: boolean;
   setOpen: any;
-  action: string
+  action: string;
+  refetch: any;
+  data: CreateFoodTypes | undefined;
 }
 
 const basicInfo = [
@@ -311,7 +317,7 @@ const nutrientsInfo = [
 ];
 
 
-const defaultValue = {
+const initialValue = {
   // basic
   name: "",
   brand: "",
@@ -359,9 +365,15 @@ const defaultValue = {
 
 
 
-const FoodForm = ({ isOpen, setOpen, action }: FoodForm) => {
+const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
+  // console.log({action, data})
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const { toast } = useToast();
   const [showMore, setShowMore] = useState(false);
   const [files, setFiles] = useState<File[] | null>([]);
+
+
 
   const dropzone = {
     accept: {
@@ -379,7 +391,7 @@ const FoodForm = ({ isOpen, setOpen, action }: FoodForm) => {
 
   const form = useForm<CreateFoodTypes>({
     mode: "all",
-    defaultValues: defaultValue,
+    defaultValues: initialValue
   });
 
   const {
@@ -396,15 +408,87 @@ const FoodForm = ({ isOpen, setOpen, action }: FoodForm) => {
     formState: { isSubmitting, errors },
   } = form;
 
+  const watcher = watch()
+  // console.log({action,watcher})
+
+  useEffect(() => {
+    if (action == 'add') {
+      reset(initialValue)
+    } else {
+      reset(data)
+    }
+  }, [action, data])
 
   const handleClose = () => {
     clearErrors()
+    setShowMore(false)
     setOpen(false);
   };
 
 
-  const onSubmit = async (payload: CreateFoodTypes) => {
-    console.log({ payload })
+  const [createFood] = useCreateFoodsMutation()
+  const [updateFood] = useUpdateFoodsMutation()
+
+  const onSubmit = async (data: CreateFoodTypes) => {
+    const payload = {
+      org_id: orgId,
+      ...data
+    }
+
+    try {
+      if (action == 'add') {
+        delete payload.id
+        delete payload.visible_for
+        const resp = await createFood(payload).unwrap()
+        if (resp) {
+          refetch();
+          toast({
+            variant: "success",
+            title: "Created Successfully",
+          });
+          reset(initialValue, {
+            keepIsSubmitted: false,
+            keepSubmitCount: false,
+          });
+
+          handleClose();
+        }
+      } else if (action == "edit") {
+
+        const resp = await updateFood({ ...payload, id: data?.id as number }).unwrap()
+        if (resp) {
+          refetch();
+          toast({
+            variant: "success",
+            title: "Updated Successfully",
+          });
+          reset(initialValue, {
+            keepIsSubmitted: false,
+            keepSubmitCount: false,
+          });
+
+          handleClose();
+        }
+      }
+
+    } catch (error: unknown) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: typedError.data?.detail,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+      handleClose();
+    }
   }
   // return (
   //   <Sheet open={isOpen}>
@@ -585,10 +669,10 @@ const FoodForm = ({ isOpen, setOpen, action }: FoodForm) => {
   console.log({ errors })
   return (
     <Sheet open={isOpen}>
-      <SheetContent hideCloseButton className="!max-w-[1050px]">
-        <SheetHeader>
+      <SheetContent hideCloseButton className="!max-w-[1050px] py-0 custom-scrollbar h-screen">
+        <SheetHeader className="sticky top-0 z-40 py-4 bg-white">
           <SheetTitle>
-            <div className="flex justify-between gap-5 items-start ">
+            <div className="flex justify-between gap-5 items-start  bg-white">
               <div>
                 <p className="font-semibold">Food / Nutrition</p>
                 <div className="text-sm">
@@ -626,10 +710,11 @@ const FoodForm = ({ isOpen, setOpen, action }: FoodForm) => {
               </div>
             </div>
           </SheetTitle>
-        </SheetHeader>
-        <Separator className=" h-[1px] rounded-full my-2" />
+          <Separator className=" h-[1px] rounded-full my-2" />
 
-        <div>
+        </SheetHeader>
+
+        <div className="pb-0">
           <h1 className="font-semibold text-xl py-3">Basic Information</h1>
           <div className="grid grid-cols-3 gap-3 p-1 ">
             {basicInfo.map((item) => {
@@ -664,9 +749,9 @@ const FoodForm = ({ isOpen, setOpen, action }: FoodForm) => {
                             onValueChange={(value) => {
                               onChange(value);
                             }}
-                            defaultValue={value+""}
+                            defaultValue={value as string | undefined}
                           >
-                            <SelectTrigger name={item.name}>
+                            <SelectTrigger floatingLabel={item.label} name={item.name}>
                               <SelectValue
                                 placeholder={"Select " + item.label}
                               />
@@ -705,7 +790,7 @@ const FoodForm = ({ isOpen, setOpen, action }: FoodForm) => {
               {showMore ? "Hide" : "Show"} micro nutrients
             </Button>
           </div>
-          <div className="py-2 px-1 grid grid-cols-3 gap-3 h-full max-h-[400px] custom-scrollbar">
+          <div className="py-2 px-1 grid grid-cols-3 gap-3 ">
             {filteredNutrients.map((item) => {
               if (item.type === "number") {
                 return (
@@ -733,7 +818,7 @@ const FoodForm = ({ isOpen, setOpen, action }: FoodForm) => {
               <div className="relative">
 
                 <Controller
-                  name="weight"
+                  name="weight_unit"
                   rules={{ required: "Required" }}
                   control={control}
                   render={({
@@ -747,34 +832,34 @@ const FoodForm = ({ isOpen, setOpen, action }: FoodForm) => {
                         }}
                         defaultValue={value}
                       >
-                        <SelectTrigger floatingLabel={"Weight*"}>
-                          <SelectValue placeholder={"Select weight"} />
+                        <SelectTrigger floatingLabel={"Weight Unit*"}>
+                          <SelectValue placeholder={"Select weight unit"} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value={"gram"}>Gram</SelectItem>
+                          <SelectItem value={"g"}>Gram</SelectItem>
                           <SelectItem value={"ml"}>ML</SelectItem>
-                          <SelectItem value={"gram-ml"}>Gram/ML</SelectItem>
+                          <SelectItem value={"g_ml"}>Gram/ML</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   )}
                 />
-                {errors?.weight?.message && (
-                  <p className="text-red-500 text-sm">{errors?.weight?.message}</p>
+                {errors?.weight_unit?.message && (
+                  <p className="text-red-500 text-sm">{errors?.weight_unit?.message}</p>
                 )}
               </div>
 
               <div className="relative">
                 <FloatingLabelInput
-                  id={'weight_unit'}
-                  label={"Provide Units"}
+                  id={'weight'}
+                  label={"Weight"}
                   type='number'
 
                   min={0}
                   step={0.01}
-                  {...register("weight_unit", { required: "Required" })}
+                  {...register("weight", { required: "Required" })}
                 />
-                {errors?.weight_unit?.message && (
+                {errors?.weight?.message && (
                   <p className="text-red-500 text-sm">{errors?.weight_unit?.message}</p>
                 )}
               </div>

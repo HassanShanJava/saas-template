@@ -12,10 +12,10 @@ export interface CreateFoodTypes {
   org_id?: number;
   name: string;
   brand: string;
-  category: string|undefined;
+  category: string;
   description?: string;
   other_name?: string;
-  visible_for:string|undefined;
+  visible_for?:string;
   total_nutrition: number|undefined;
   kcal: number|undefined;
   protein: number|undefined;
@@ -49,8 +49,8 @@ export interface CreateFoodTypes {
   alchohol_mono?: number;
   alchohol_poly?: number;
   trans_fat?: number;
-  weight: string|undefined;
-  weight_unit: number;
+  weight: number;
+  weight_unit: string|undefined;
   created_at?: Date;
   created_by?: number;
 }

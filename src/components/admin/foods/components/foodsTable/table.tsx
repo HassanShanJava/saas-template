@@ -42,6 +42,23 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { Separator } from "@/components/ui/separator";
 import { DoubleArrowLeftIcon, DoubleArrowRightIcon } from "@radix-ui/react-icons";
 import { ChevronLeftIcon } from "lucide-react";
+import FoodFilters from "./data-table-filter";
+
+const categories= [
+  { id: "baked_products", name: "Baked products" },
+  { id: "beverages", name: "Beverages" },
+  { id: "cheese_milk_and_eggs_product", name: "Cheese milk and eggs product" },
+  { id: "cooked_meals", name: "Cooked meals" },
+  { id: "fruits_and_vegetables", name: "Fruits and vegetables" },
+  { id: "herbs_and_spices", name: "Herbs and Spices" },
+  { id: "meatproducts", name: "Meatproducts" },
+  { id: "nuts_seeds_and_snack", name: "Nuts, seeds and snack" },
+  { id: "pasta_and_breakfast_cereals", name: "Pasta and breakfast Cereals" },
+  { id: "soups_sauces_fats_and_oil", name: "Soups, sauces, fats and oil" },
+  { id: "sweets_and_candy", name: "Sweets and candy" },
+]
+
+
 
 const downloadCSV = (data: CreateFoodTypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -61,6 +78,8 @@ interface searchCretiriaType {
   sort_order: string;
   sort_key?: string;
   search_key?: string;
+  total_nutrition?:number
+  fat?:number
 }
 
 const initialValue = {
@@ -74,8 +93,9 @@ export default function FoodsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  const [action, setAction]=useState<'add'|'edit'>('add')
-  const [isDialogOpen, setIsDialogOpen]=useState<boolean>(false)
+  const [action, setAction] = useState<'add' | 'edit'>('add')
+  const [data, setData] = useState<CreateFoodTypes | undefined>(undefined)
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
   const [searchCretiria, setSearchCretiria] =
     useState<searchCretiriaType>(initialValue);
   const [query, setQuery] = useState("");
@@ -84,7 +104,7 @@ export default function FoodsTableView() {
   const [inputValue, setInputValue] = useState("");
   const [openFilter, setOpenFilter] = useState(false);
   const debouncedInputValue = useDebounce(inputValue, 500);
-  const [filterData, setFilter] = useState({});
+  const [filterData, setFilter] = useState<Record<string,any>>({});
 
   useEffect(() => {
     setSearchCretiria((prev) => {
@@ -153,10 +173,9 @@ export default function FoodsTableView() {
   const { toast } = useToast();
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [filters, setFilters] = useState<any>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  
+
   const handleExportSelected = () => {
     const selectedRows = table
       .getSelectedRowModel()
@@ -174,8 +193,18 @@ export default function FoodsTableView() {
   const columns: ColumnDef<CreateFoodTypes>[] = [
     {
       accessorKey: "name",
-      meta:"Name",
-      header: ({ table }) => <span>Name</span>,
+      meta: "Name",
+      header:()=> (<div className="flex items-center gap-2">
+        <p>Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return <span>{row.original.name}</span>;
       },
@@ -184,8 +213,18 @@ export default function FoodsTableView() {
     },
     {
       accessorKey: "brand",
-      meta:"Brand",
-      header: ({ table }) => <span>Brand</span>,
+      meta: "Brand",
+      header: ()=> (<div className="flex items-center gap-2">
+        <p>Brand</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("brand")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
 
         return <span>{row.original.brand}</span>;
@@ -195,8 +234,18 @@ export default function FoodsTableView() {
     },
     {
       accessorKey: "category",
-      meta:"Category",
-      header: ({ table }) => <span>Category</span>,
+      meta: "Category",
+      header: ()=> (<div className="flex items-center gap-2">
+        <p>Category</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("category")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return <span>{row.original.category}</span>;
       },
@@ -205,10 +254,20 @@ export default function FoodsTableView() {
     },
     {
       accessorKey: "total_nutrition",
-      meta:"Total Nutrition (g)",
-      header: ({ table }) => <span>Total Nutrition (g)</span>,
+      meta: "Total Nutrition (g)",
+      header: ()=> (<div className="flex items-center gap-2">
+        <p>Total Nutrition (g)</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("total_nutrition")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
-        
+
         return <span>{row.original.total_nutrition}</span>;
       },
       enableSorting: false,
@@ -216,8 +275,18 @@ export default function FoodsTableView() {
     },
     {
       accessorKey: "fat",
-      meta:"Total Fat",
-      header: ({ table }) => <span>Total Fat</span>,
+      meta: "Total Fat",
+      header: ()=> (<div className="flex items-center gap-2">
+        <p>Total Fat</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("fat")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>),
       cell: ({ row }) => {
         return <span>{row.original.fat}</span>;
       },
@@ -227,17 +296,16 @@ export default function FoodsTableView() {
     {
       accessorKey: "action",
       header: ({ table }) => <span>Action</span>,
-      cell: ({ row }) => {
-
-        return <span>any</span>;
-      },
+      cell: ({ row }) => (
+        <DataTableRowActions handleEdit={handleEdit} data={row.original} refetch={refetch} />
+      ),
       enableSorting: false,
       enableHiding: false,
     }
   ];
 
   const table = useReactTable({
-    data: foodstableData as CreateFoodTypes[] ,
+    data: foodstableData as CreateFoodTypes[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -258,18 +326,19 @@ export default function FoodsTableView() {
     // setFilters
   }
 
-  const handleOpen=()=>{
+  const handleOpen = () => {
     setAction('add')
     setIsDialogOpen(true)
   }
-  
-  const handleEdit=()=>{
+
+  const handleEdit = (data: CreateFoodTypes) => {
     setAction('edit')
+    setData(data)
     setIsDialogOpen(true)
   }
 
 
-  
+
   const totalRecords = foodData?.total_counts || 0
   const lastPageOffset = Math.max(0, Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit);
   const isLastPage = searchCretiria.offset >= lastPageOffset;
@@ -309,11 +378,72 @@ export default function FoodsTableView() {
     }
   };
 
+
+  const handleTotalNutritions = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target
+    setFilter(prev => {
+      const newFilter = { ...prev };
+
+      if (value.trim() == "") {
+        delete newFilter.total_nutrition;
+      } else {
+        newFilter.total_nutrition = value;
+      }
+
+      return newFilter;
+    });
+  }
+  
+  const handleFat = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target
+    setFilter(prev => {
+      const newFilter = { ...prev };
+
+      if (value.trim() == "") {
+        delete newFilter.fat;
+      } else {
+        newFilter.fat = value;
+      }
+
+      return newFilter;
+    });
+  }
+
+  const handleCategory=(value:string) => {
+    setFilter(prev=>({
+      ...prev,
+      category: value
+    }))
+  }
+
+  const filterDisplay = [
+    {
+      type: "select",
+      name: "income_category_id",
+      label: "Income Category",
+      options: categories,
+      function: handleCategory,
+    },
+    {
+      type: "number",
+      name: "total_nutrition",
+      label: "Total Nuttrition",
+      function: handleTotalNutritions,
+    },
+    {
+      type: "number",
+      name: "fat",
+      label: "Total Fat",
+      function: handleFat,
+    },
+  ];
+
+
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
-        <div className="flex items-center  relative">
+          <div className="flex items-center  relative">
             <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
             <FloatingLabelInput
               id="search"
@@ -329,7 +459,13 @@ export default function FoodsTableView() {
           <PlusIcon className="h-4 w-4" />
           Create New
         </Button>
-        {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
+
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={() => setOpenFilter(true)}
+        >
+          <i className="fa fa-filter"></i>
+        </button>
       </div>
       <div className="rounded-none  ">
         <ScrollArea className="w-full relative">
@@ -344,9 +480,9 @@ export default function FoodsTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -406,7 +542,7 @@ export default function FoodsTableView() {
           </Table>
         </ScrollArea>
       </div>
-      
+
       {/* pagination */}
       <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
         <div className="flex items-center justify-center gap-2">
@@ -487,9 +623,19 @@ export default function FoodsTableView() {
           </div>
         </div>
       </div>
-      
 
-      <FoodForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} action={action} />
+
+      <FoodForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} action={action} data={data} refetch={refetch} />
+
+      <FoodFilters
+        isOpen={openFilter}
+        setOpen={setOpenFilter}
+        initialValue={initialValue}
+        filterData={filterData}
+        setFilter={setFilter}
+        setSearchCriteria={setSearchCretiria}
+        filterDisplay={filterDisplay}
+      />
     </div>
   );
 }

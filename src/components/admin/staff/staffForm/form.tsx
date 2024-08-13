@@ -159,12 +159,14 @@ const StaffForm: React.FC<StaffFormProps> = ({
         required_error: "Required",
       })
       .trim()
+      .max(40, "Should be 40 characters or less")
       .min(3, { message: "Required" }),
     last_name: z
       .string({
         required_error: "Required",
       })
       .trim()
+      .max(40, "Should be 40 characters or less")
       .min(3, { message: "Required" }),
     gender: z.nativeEnum(genderEnum, {
       required_error: "You need to select a gender type.",
@@ -176,7 +178,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
       .refine((value) => value.trim() !== "", {
         message: "Required",
       }),
-    email: z.string().min(1, { message: "Required" }).email("invalid email"),
+    email: z.string().min(1, { message: "Required" }).max(50, "Should be 50 characters or less").email("invalid email"),
     phone: z
       .string()
       .max(11, {
@@ -463,7 +465,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                               id="first_name"
                               label="First Name*"
                             />
-                            {watcher.first_name ? <></> : <FormMessage />}
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -479,7 +481,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                               id="last_name"
                               label="Last Name*"
                             />
-                            {watcher.last_name ? <></> : <FormMessage />}
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -593,7 +595,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                               label="Email Address*"
                               disabled={staffData != null}
                             />
-                            {watcher.email ? <></> : <FormMessage />}
+                            <FormMessage />
                           </FormItem>
                         )}
                       />

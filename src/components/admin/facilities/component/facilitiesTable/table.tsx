@@ -705,7 +705,7 @@ const CreditForm = ({
     id: z.number().optional(),
     org_id: z.number(),
     status: z.string(),
-    name: z.string().min(1, { message: "Required" }),
+    name: z.string().min(1, { message: "Required" }).max(40, "Should be 40 characters or less"),
     min_limit: z.number().min(1, { message: "Required" }),
   });
 

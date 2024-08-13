@@ -38,7 +38,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 
-interface membersfiltertypes {
+interface filtertypes {
   isOpen: boolean;
   setOpen: any;
   initialValue?: any;
@@ -48,7 +48,7 @@ interface membersfiltertypes {
   filterDisplay?: any;
 }
 
-const MembershipFilters = ({
+const TableFilters = ({
   isOpen,
   setOpen,
   initialValue,
@@ -56,7 +56,7 @@ const MembershipFilters = ({
   setFilter,
   setSearchCriteria,
   filterDisplay,
-}: membersfiltertypes) => {
+}: filtertypes) => {
   console.log({ filterData, initialValue });
   return (
     <div>
@@ -234,4 +234,4 @@ function Combobox({ list, setFilter, name }: comboboxType) {
   );
 }
 
-export default MembershipFilters;
+export default TableFilters;

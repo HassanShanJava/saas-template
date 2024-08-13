@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
-  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -23,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MoreHorizontal, PlusIcon, Rows, Search } from "lucide-react";
+import { PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -36,12 +34,11 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, MemberTableDatatypes, MemberTabletypes } from "@/app/types";
+import { ErrorType, MemberTableDatatypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { DataTableViewOptions } from "./data-table-view-options";
 import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
@@ -50,14 +47,13 @@ import {
   useGetMemberCountQuery,
   useUpdateMemberMutation,
 } from "@/services/memberAPi";
-import { useGetCoachListQuery } from "@/services/coachApi";
-import MemberFilters from "./data-table-filter";
 import { useGetMembershipListQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
 import MemberForm from "../../memberForm/form";
+import TableFilters from "@/components/ui/table/data-table-filter";
 
-const downloadCSV = (data:MemberTableDatatypes[], fileName: string) => {
-  const csvData=data.map(({coaches, ...newdata})=>newdata)
+const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
+  const csvData = data.map(({ coaches, ...newdata }) => newdata)
   const csv = Papa.unparse(csvData);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -177,7 +173,7 @@ export default function MemberTableView() {
   }, [isError]);
 
   function handleOpenForm(memberId: number | undefined = undefined) {
-		setMemberId(memberId);
+    setMemberId(memberId);
     setOpen(true);
   }
 
@@ -216,12 +212,12 @@ export default function MemberTableView() {
       });
       return;
     }
-    console.log({selectedRows}, typeof selectedRows)
+    console.log({ selectedRows }, typeof selectedRows)
     downloadCSV(selectedRows, "members_list.csv");
   };
 
 
-  const [updateMember]=useUpdateMemberMutation()
+  const [updateMember] = useUpdateMemberMutation()
 
   const handleStatusChange = async (payload: { client_status: string, id: number, org_id: number }) => {
     try {
@@ -290,7 +286,7 @@ export default function MemberTableView() {
     // },
     {
       accessorKey: "own_member_id",
-      meta:"Member Id",
+      meta: "Member Id",
       header: () => (<div className="flex items-center gap-2">
         <p>Member Id</p>
         <button
@@ -314,7 +310,7 @@ export default function MemberTableView() {
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
-      meta:"Member Name",
+      meta: "Member Name",
       header: () => (<div className="flex items-center gap-2">
         <p>Member Name</p>
         <button
@@ -337,7 +333,7 @@ export default function MemberTableView() {
     },
     {
       accessorKey: "business_name",
-      meta:"Business Name",
+      meta: "Business Name",
       header: () => (<div className="flex items-center gap-2">
         <p>Business Name</p>
         <button
@@ -361,7 +357,7 @@ export default function MemberTableView() {
     {
       accessorFn: (row) => row.membership_plan_id,
       id: "membership_plan_id",
-      meta:"Membership Plan",
+      meta: "Membership Plan",
       header: () => (<div className="flex items-center gap-2">
         <p>Membership Plan</p>
         <button
@@ -374,7 +370,7 @@ export default function MemberTableView() {
         </button>
       </div>),
       cell: ({ row }) => {
-        const mebershipName = membershipPlans&&membershipPlans.filter((plan: any) => plan.id == row.original.membership_plan_id)[0];
+        const mebershipName = membershipPlans && membershipPlans.filter((plan: any) => plan.id == row.original.membership_plan_id)[0];
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(mebershipName?.name ?? '')}
@@ -384,7 +380,7 @@ export default function MemberTableView() {
     },
     {
       accessorKey: "client_status",
-      meta:"Status",
+      meta: "Status",
       header: () => (<div className="flex items-center gap-2">
         <p>Status</p>
         <button
@@ -397,7 +393,7 @@ export default function MemberTableView() {
         </button>
       </div>),
       cell: ({ row }) => {
-        const value = row.original?.client_status  ;
+        const value = row.original?.client_status;
         const statusLabel = status.filter((r) => r.value === value)[0];
         const id = Number(row.original.id);
         const org_id = Number(row.original?.org_id);
@@ -421,7 +417,7 @@ export default function MemberTableView() {
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {status.map((item) => !item.hide &&(
+              {status.map((item) => !item.hide && (
                 <SelectItem key={item.value + ""} value={item.value + ""}>
                   {item.label}
                 </SelectItem>
@@ -435,7 +431,7 @@ export default function MemberTableView() {
     },
     {
       accessorKey: "client_since",
-      meta:"Activation Date",
+      meta: "Activation Date",
       header: () => (<div className="flex items-center gap-2">
         <p>Activation Date</p>
         <button
@@ -458,7 +454,7 @@ export default function MemberTableView() {
     },
     {
       accessorKey: "check_in",
-      meta:"Last Check In",
+      meta: "Last Check In",
       header: () => (<div className="flex items-center gap-2">
         <p>Last Check In</p>
         <button
@@ -480,8 +476,8 @@ export default function MemberTableView() {
     },
     {
       accessorKey: "last_online",
-      meta:"Last Login",
-      header:  () => (<div className="flex items-center gap-2">
+      meta: "Last Login",
+      header: () => (<div className="flex items-center gap-2">
         <p>Last Login</p>
         <button
           className=" size-5 text-gray-400 p-0 flex items-center justify-center"
@@ -552,7 +548,7 @@ export default function MemberTableView() {
       options: membershipPlans,
       function: handleMembershipplan,
     },
-    
+
     {
       type: "select",
       name: "status",
@@ -818,8 +814,8 @@ export default function MemberTableView() {
           </div>
         </div>
       </div>
-      {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
-      <MemberFilters
+
+      <TableFilters
         isOpen={openFilter}
         setOpen={setOpenFilter}
         initialValue={initialValue}

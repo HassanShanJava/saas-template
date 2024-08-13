@@ -61,9 +61,9 @@ import {
 import { CoachTableDataTypes, CoachTableTypes, coachUpdateInput, ErrorType } from "@/app/types";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Separator } from "@/components/ui/separator";
-import CoachFilters from "./data-table-filter";
 import CoachForm from "../../coachForm/Form"
 import { Sheet } from "@/components/ui/sheet";
+import TableFilters from "@/components/ui/table/data-table-filter";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -732,10 +732,8 @@ export default function CoachTableView() {
           </div>
         </div>
       </div>
-      {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
 
-
-      <CoachFilters
+      <TableFilters
         isOpen={openFilter}
         setOpen={setOpenFilter}
         initialValue={initialValue}
@@ -744,6 +742,7 @@ export default function CoachTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
+      
 			<CoachForm coachData={editCoach} setCoachData={setEditCoach} setOpen={setOpen} open={open} />
     </div>
   );

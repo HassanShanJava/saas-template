@@ -42,7 +42,7 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { Separator } from "@/components/ui/separator";
 import { DoubleArrowLeftIcon, DoubleArrowRightIcon } from "@radix-ui/react-icons";
 import { ChevronLeftIcon } from "lucide-react";
-import FoodFilters from "./data-table-filter";
+import TableFilters from "@/components/ui/table/data-table-filter";
 
 const categories= [
   { id: "baked_products", name: "Baked products" },
@@ -427,7 +427,7 @@ export default function FoodsTableView() {
     {
       type: "number",
       name: "total_nutrition",
-      label: "Total Nuttrition",
+      label: "Total Nutrition",
       function: handleTotalNutritions,
     },
     {
@@ -625,9 +625,8 @@ export default function FoodsTableView() {
       </div>
 
 
-      <FoodForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} action={action} data={data} refetch={refetch} />
 
-      <FoodFilters
+      <TableFilters
         isOpen={openFilter}
         setOpen={setOpenFilter}
         initialValue={initialValue}
@@ -636,6 +635,8 @@ export default function FoodsTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
+      
+      <FoodForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} action={action} data={data} refetch={refetch} />
     </div>
   );
 }

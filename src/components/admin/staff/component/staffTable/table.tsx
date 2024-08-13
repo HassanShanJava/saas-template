@@ -61,10 +61,10 @@ import {
 } from "@/services/staffsApi";
 import StaffForm, { statusEnum } from "../../staffForm/form";
 import { useDebounce } from "@/hooks/use-debounce";
-import StaffFilters from "./data-table-filter";
 import { Separator } from "@/components/ui/separator";
 import { useGetRolesQuery } from "@/services/rolesApi";
 import { Sheet } from "@/components/ui/sheet";
+import TableFilters from "@/components/ui/table/data-table-filter";
 
 const downloadCSV = (data: staffTypesResponseList[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -803,7 +803,7 @@ export default function StaffTableView() {
         </div>
       </div>
 
-      <StaffFilters
+      <TableFilters
         isOpen={openFilter}
         setOpen={setOpenFilter}
         initialValue={initialValue}

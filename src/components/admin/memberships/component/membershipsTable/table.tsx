@@ -45,8 +45,8 @@ import { useGetMembershipsQuery, useUpdateMembershipsMutation } from "@/services
 import { useGetIncomeCategorListQuery} from "@/services/incomeCategoryApi";
 import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
 import { useGetGroupQuery } from "@/services/groupsApis";
-import MembershipFilters from "./data-table-filter";
 import { Separator } from "@/components/ui/separator";
+import TableFilters from "@/components/ui/table/data-table-filter";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -839,8 +839,7 @@ export default function MembershipsTableView() {
         </div>
       </div>
 
-      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} data={data} setData={setData} refetch={refetch} action={action} setAction={setAction} />
-      <MembershipFilters
+      <TableFilters
         isOpen={openFilter}
         setOpen={setOpenFilter}
         initialValue={initialValue}
@@ -849,6 +848,8 @@ export default function MembershipsTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
+
+      <MembershipForm isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} data={data} setData={setData} refetch={refetch} action={action} setAction={setAction} />
     </div>
   );
 }

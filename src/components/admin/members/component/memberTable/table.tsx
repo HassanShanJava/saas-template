@@ -56,8 +56,8 @@ import { useGetMembershipListQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
 import MemberForm from "../../memberForm/form";
 
-const downloadCSV = (data:MemberTableDatatypes[], fileName: string) => {
-  const csvData=data.map(({coaches, ...newdata})=>newdata)
+const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
+  const csvData = data.map(({ coaches, ...newdata }) => newdata);
   const csv = Papa.unparse(csvData);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -92,7 +92,7 @@ const status = [
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 export default function MemberTableView() {
-  const [open, setOpen] = useState<boolean>(false)
+  const [open, setOpen] = useState<boolean>(false);
   const [memberId, setMemberId] = useState<number | undefined>(undefined);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -136,9 +136,12 @@ export default function MemberTableView() {
 
   const toggleSortOrder = (key: string) => {
     setSearchCretiria((prev) => {
-      const newSortOrder = prev.sort_key === key
-        ? (prev.sort_order === "desc" ? "asc" : "desc")
-        : "desc"; // Default to descending order if the key is different
+      const newSortOrder =
+        prev.sort_key === key
+          ? prev.sort_order === "desc"
+            ? "asc"
+            : "desc"
+          : "desc"; // Default to descending order if the key is different
 
       return {
         ...prev,
@@ -161,7 +164,6 @@ export default function MemberTableView() {
     }
   );
 
-
   const { data: count } = useGetMemberCountQuery(orgId);
   const { data: membershipPlans } = useGetMembershipListQuery(orgId);
 
@@ -177,7 +179,7 @@ export default function MemberTableView() {
   }, [isError]);
 
   function handleOpenForm(memberId: number | undefined = undefined) {
-		setMemberId(memberId);
+    setMemberId(memberId);
     setOpen(true);
   }
 
@@ -216,14 +218,17 @@ export default function MemberTableView() {
       });
       return;
     }
-    console.log({selectedRows}, typeof selectedRows)
+    console.log({ selectedRows }, typeof selectedRows);
     downloadCSV(selectedRows, "members_list.csv");
   };
 
+  const [updateMember] = useUpdateMemberMutation();
 
-  const [updateMember]=useUpdateMemberMutation()
-
-  const handleStatusChange = async (payload: { client_status: string, id: number, org_id: number }) => {
+  const handleStatusChange = async (payload: {
+    client_status: string;
+    id: number;
+    org_id: number;
+  }) => {
     try {
       const resp = await updateMember(payload).unwrap();
       if (resp) {
@@ -250,8 +255,7 @@ export default function MemberTableView() {
         });
       }
     }
-
-  }
+  };
 
   const columns: ColumnDef<MemberTableDatatypes>[] = [
     {
@@ -290,23 +294,24 @@ export default function MemberTableView() {
     // },
     {
       accessorKey: "own_member_id",
-      meta:"Member Id",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Member Id</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("own_member_id")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Member Id",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Member Id</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("own_member_id")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original?.own_member_id)}
-
           </div>
         );
       },
@@ -314,46 +319,50 @@ export default function MemberTableView() {
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
-      meta:"Member Name",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Member Name</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("first_name")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Member Name",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Member Name</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("first_name")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row.original.first_name + " " + row.original.last_name)}
-
+            {displayValue(
+              row.original.first_name + " " + row.original.last_name
+            )}
           </div>
         );
       },
     },
     {
       accessorKey: "business_name",
-      meta:"Business Name",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Business Name</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("business_name")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Business Name",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Business Name</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("business_name")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original?.business_name)}
-
           </div>
         );
       },
@@ -361,43 +370,51 @@ export default function MemberTableView() {
     {
       accessorFn: (row) => row.membership_plan_id,
       id: "membership_plan_id",
-      meta:"Membership Plan",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Membership Plan</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("membership_plan_id")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Membership Plan",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Membership Plan</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("membership_plan_id")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-        const mebershipName = membershipPlans&&membershipPlans.filter((plan: any) => plan.id == row.original.membership_plan_id)[0];
+        const mebershipName =
+          membershipPlans &&
+          membershipPlans.filter(
+            (plan: any) => plan.id == row.original.membership_plan_id
+          )[0];
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(mebershipName?.name ?? '')}
+            {displayValue(mebershipName?.name ?? "")}
           </div>
         );
       },
     },
     {
       accessorKey: "client_status",
-      meta:"Status",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Status</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("client_status")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Status",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Status</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("client_status")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-        const value = row.original?.client_status  ;
+        const value = row.original?.client_status;
         const statusLabel = status.filter((r) => r.value === value)[0];
         const id = Number(row.original.id);
         const org_id = Number(row.original?.org_id);
@@ -421,11 +438,14 @@ export default function MemberTableView() {
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {status.map((item) => !item.hide &&(
-                <SelectItem key={item.value + ""} value={item.value + ""}>
-                  {item.label}
-                </SelectItem>
-              ))}
+              {status.map(
+                (item) =>
+                  !item.hide && (
+                    <SelectItem key={item.value + ""} value={item.value + ""}>
+                      {item.label}
+                    </SelectItem>
+                  )
+              )}
             </SelectContent>
           </Select>
         );
@@ -435,41 +455,44 @@ export default function MemberTableView() {
     },
     {
       accessorKey: "client_since",
-      meta:"Activation Date",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Activation Date</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("client_since")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Activation Date",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Activation Date</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("client_since")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayDate(row?.original.client_since)}
-
           </div>
         );
       },
     },
     {
       accessorKey: "check_in",
-      meta:"Last Check In",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Last Check In</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("check_in")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Last Check In",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Last Check In</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("check_in")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden text-black">
@@ -480,18 +503,20 @@ export default function MemberTableView() {
     },
     {
       accessorKey: "last_online",
-      meta:"Last Login",
-      header:  () => (<div className="flex items-center gap-2">
-        <p>Last Login</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("last_online")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Last Login",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Last Login</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("last_online")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden text-black">
@@ -527,7 +552,7 @@ export default function MemberTableView() {
       sorting,
       columnVisibility,
       rowSelection,
-    }
+    },
   });
 
   function handleMembershipplan(value: string) {
@@ -552,7 +577,7 @@ export default function MemberTableView() {
       options: membershipPlans,
       function: handleMembershipplan,
     },
-    
+
     {
       type: "select",
       name: "status",
@@ -624,7 +649,10 @@ export default function MemberTableView() {
             />
           </div>
         </div>
-        <Button className="bg-primary  text-black mr-1 " onClick={() => handleOpenForm()}>
+        <Button
+          className="bg-primary  text-black mr-1 "
+          onClick={() => handleOpenForm()}
+        >
           <PlusIcon className="size-4" />
           Create New
         </Button>
@@ -657,9 +685,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -702,7 +730,7 @@ export default function MemberTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No data found.
+                    No Member Added yet.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -711,7 +739,7 @@ export default function MemberTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Members Added yet!.
+                    No Member Found.
                   </TableCell>
                 </TableRow>
               )}
@@ -828,7 +856,12 @@ export default function MemberTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
-      <MemberForm open={open} setOpen={setOpen} memberId={memberId} setMemberId={setMemberId} />
+      <MemberForm
+        open={open}
+        setOpen={setOpen}
+        memberId={memberId}
+        setMemberId={setMemberId}
+      />
     </div>
   );
 }

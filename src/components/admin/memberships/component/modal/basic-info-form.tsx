@@ -238,7 +238,9 @@ const BasicInfoForm = () => {
           <FloatingLabelInput
             id="membership_name"
             label="Name*"
-            {...register("name", { required: "Required" })}
+            {...register("name", { required: "Required", maxLength: {
+							value: 40, message: "Should be 40 characters or less"
+						} })}
             error={errors.name?.message}
           />
           <Controller

@@ -685,7 +685,7 @@ const IncomeCategoryForm = ({
     org_id: z.number(),
     sale_tax_id: z.number(),
     status: z.string({required_error:"Required"}).default("active"),
-    name: z.string().min(1, { message: "Required" }),
+    name: z.string().min(1, { message: "Required" }).max(40, "Should be 40 characters or less"),
   });
 
   const form = useForm<z.infer<typeof incomeCategoryFormSchema>>({
@@ -800,7 +800,7 @@ const IncomeCategoryForm = ({
                           value={field.value ?? ""}
                           onChange={handleOnChange}
                         />
-                        {watcher.name ? <></> : <FormMessage />}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />

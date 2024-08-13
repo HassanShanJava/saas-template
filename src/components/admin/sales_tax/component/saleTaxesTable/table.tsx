@@ -667,7 +667,7 @@ const SaleTaxesForm = ({
   const saleTaxFormSchema = z.object({
     id: z.number().optional(),
     org_id: z.number(),
-    name: z.string().min(1, { message: "Required" }),
+    name: z.string().min(1, { message: "Required" }).max(40, "Should be 40 characters or less"),
     status: z.string({required_error:"Required"}).default("active"),
     percentage: z.number().min(1, { message: "Required" }),
   });
@@ -786,7 +786,7 @@ const SaleTaxesForm = ({
                           value={field.value ?? ""}
                           onChange={handleOnChange}
                         />
-                        {watcher.name ? <></> : <FormMessage />}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />

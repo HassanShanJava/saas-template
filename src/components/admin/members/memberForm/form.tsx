@@ -193,25 +193,28 @@ const MemberForm = ({
           required_error: "Required",
         })
         .trim()
-        .min(3, { message: "Required" }),
+        .max(40, "Should be less than 40 characters")
+        .min(1,"Required"),
       last_name: z
         .string({
           required_error: "Required",
         })
         .trim()
+        .max(40, "Should be less than 40 characters")
         .min(3, { message: "Required" }),
       gender: z.nativeEnum(genderEnum, {
         required_error: "Required",
       }),
       dob: z.coerce.string({
         required_error: "Required",
-      }),
+      }).refine(val => val !== "", "Required"),
       email: z
         .string()
         .email({ message: "Invalid email" })
+        .max(50, "Should be 50 characters or less")
         .min(4, { message: "Required" }),
-      phone: z.string().trim().optional(),
-      mobile_number: z.string().trim().optional(),
+      phone: z.string().trim().max(11, "Landline No. must be 11 digits or less").optional(),
+      mobile_number: z.string().trim().max(11, "Mobile No. must be 11 digits or less").optional(),
       notes: z.string().optional(),
       source_id: z.number({
         required_error: "Required",
@@ -225,7 +228,7 @@ const MemberForm = ({
         .refine((val) => val !== 0, {
           message: "Required",
         }),
-      city: z.string().trim().optional(),
+      city: z.string().trim().max(255, "No Longer than 225 characters").optional(),
       zipcode: z
         .string()
         .trim()
@@ -558,7 +561,7 @@ const MemberForm = ({
                             label="First Name*"
                             className=""
                           />
-                          {watcher.first_name ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.first_name?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -575,7 +578,7 @@ const MemberForm = ({
                             label="Last Name*"
                             className=""
                           />
-                          {watcher.last_name ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.last_name?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -692,7 +695,7 @@ const MemberForm = ({
                             className=""
                             label="Email Address*"
                           />
-                          {watcher.email ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.email?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -709,7 +712,7 @@ const MemberForm = ({
                             label="Landline Number"
                             className=""
                           />
-                          {watcher.phone ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.phone?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -726,7 +729,7 @@ const MemberForm = ({
                             label="Mobile Number"
                             className=""
                           />
-                          {watcher.mobile_number ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.mobile_number?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -1050,7 +1053,7 @@ const MemberForm = ({
                             label="City"
                             className=""
                           />
-                          {watcher.city ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.city?.message}</FormMessage>
                         </FormItem>
                       )}
                     />

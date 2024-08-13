@@ -44,21 +44,33 @@ import { DoubleArrowLeftIcon, DoubleArrowRightIcon } from "@radix-ui/react-icons
 import { ChevronLeftIcon } from "lucide-react";
 import TableFilters from "@/components/ui/table/data-table-filter";
 
-const categories= [
+const categories = [
   { id: "baked_products", name: "Baked products" },
   { id: "beverages", name: "Beverages" },
-  { id: "cheese_milk_and_eggs_product", name: "Cheese milk and eggs product" },
+  { id: "cheese_eggs", name: "Cheese Milk and Eggs Products" },
   { id: "cooked_meals", name: "Cooked meals" },
-  { id: "fruits_and_vegetables", name: "Fruits and vegetables" },
-  { id: "herbs_and_spices", name: "Herbs and Spices" },
-  { id: "meatproducts", name: "Meatproducts" },
-  { id: "nuts_seeds_and_snack", name: "Nuts, seeds and snack" },
-  { id: "pasta_and_breakfast_cereals", name: "Pasta and breakfast Cereals" },
-  { id: "soups_sauces_fats_and_oil", name: "Soups, sauces, fats and oil" },
-  { id: "sweets_and_candy", name: "Sweets and candy" },
+  { id: "fish_products", name: "Fish Products" },
+  { id: "fruits_vegs", name: "Fruits and vegetables" },
+  { id: "herbs_spices", name: "Herbs and Spices" },
+  { id: "meat_products", name: "Meat Products" },
+  { id: "nuts_seeds_snacks", name: "Nuts, seeds and snack" },
+  { id: "pasta_cereals", name: "Pasta and breakfast Cereals" },
+  { id: "restaurant_meals", name: "Restaurant meals" },
+  { id: "soups_sauces", name: "Soups, sauces, fats and oil" },
+  { id: "sweets_candy", name: "Sweets and candy" },
+  { id: "other", name: "Other" },
+]
+
+const visibleFor = [
+  { id: "only_me", name: "Only me" },
+  { id: "members", name: "Members in my gym" },
+  { id: "coaches_and_staff", name: "Coaches and Staff in my gym" },
+  { id: "everyone", name: "Everyone in my gym" },
 ]
 
 
+const categoryMap = Object.fromEntries(categories.map(cat => [cat.name, cat.id]));
+const visibleForMap = Object.fromEntries(visibleFor.map(vf => [vf.name, vf.id]));
 
 const downloadCSV = (data: CreateFoodTypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -78,8 +90,8 @@ interface searchCretiriaType {
   sort_order: string;
   sort_key?: string;
   search_key?: string;
-  total_nutrition?:number
-  fat?:number
+  total_nutrition?: number
+  fat?: number
 }
 
 const initialValue = {
@@ -104,7 +116,7 @@ export default function FoodsTableView() {
   const [inputValue, setInputValue] = useState("");
   const [openFilter, setOpenFilter] = useState(false);
   const debouncedInputValue = useDebounce(inputValue, 500);
-  const [filterData, setFilter] = useState<Record<string,any>>({});
+  const [filterData, setFilter] = useState<Record<string, any>>({});
 
   useEffect(() => {
     setSearchCretiria((prev) => {
@@ -194,7 +206,7 @@ export default function FoodsTableView() {
     {
       accessorKey: "name",
       meta: "Name",
-      header:()=> (<div className="flex items-center gap-2">
+      header: () => (<div className="flex items-center gap-2">
         <p>Name</p>
         <button
           className=" size-5 text-gray-400 p-0 flex items-center justify-center"
@@ -214,7 +226,7 @@ export default function FoodsTableView() {
     {
       accessorKey: "brand",
       meta: "Brand",
-      header: ()=> (<div className="flex items-center gap-2">
+      header: () => (<div className="flex items-center gap-2">
         <p>Brand</p>
         <button
           className=" size-5 text-gray-400 p-0 flex items-center justify-center"
@@ -235,7 +247,7 @@ export default function FoodsTableView() {
     {
       accessorKey: "category",
       meta: "Category",
-      header: ()=> (<div className="flex items-center gap-2">
+      header: () => (<div className="flex items-center gap-2">
         <p>Category</p>
         <button
           className=" size-5 text-gray-400 p-0 flex items-center justify-center"
@@ -255,7 +267,7 @@ export default function FoodsTableView() {
     {
       accessorKey: "total_nutrition",
       meta: "Total Nutrition (g)",
-      header: ()=> (<div className="flex items-center gap-2">
+      header: () => (<div className="flex items-center gap-2">
         <p>Total Nutrition (g)</p>
         <button
           className=" size-5 text-gray-400 p-0 flex items-center justify-center"
@@ -276,7 +288,7 @@ export default function FoodsTableView() {
     {
       accessorKey: "fat",
       meta: "Total Fat",
-      header: ()=> (<div className="flex items-center gap-2">
+      header: () => (<div className="flex items-center gap-2">
         <p>Total Fat</p>
         <button
           className=" size-5 text-gray-400 p-0 flex items-center justify-center"
@@ -333,7 +345,13 @@ export default function FoodsTableView() {
 
   const handleEdit = (data: CreateFoodTypes) => {
     setAction('edit')
-    setData(data)
+    const payload = {
+      ...data,
+      category: categoryMap[data.category!],
+      visible_for: visibleForMap[data.visible_for!]
+    }
+    console.log({ payload }, "payload")
+    setData(payload)
     setIsDialogOpen(true)
   }
 
@@ -393,24 +411,24 @@ export default function FoodsTableView() {
       return newFilter;
     });
   }
-  
+
   const handleFat = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target
     setFilter(prev => {
       const newFilter = { ...prev };
 
       if (value.trim() == "") {
-        delete newFilter.fat;
+        delete newFilter.total_fat;
       } else {
-        newFilter.fat = value;
+        newFilter.total_fat = value;
       }
 
       return newFilter;
     });
   }
 
-  const handleCategory=(value:string) => {
-    setFilter(prev=>({
+  const handleCategory = (value: string) => {
+    setFilter(prev => ({
       ...prev,
       category: value
     }))
@@ -635,7 +653,7 @@ export default function FoodsTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
-      
+
       <FoodForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} action={action} data={data} refetch={refetch} />
     </div>
   );

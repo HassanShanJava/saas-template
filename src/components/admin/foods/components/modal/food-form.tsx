@@ -65,15 +65,18 @@ const basicInfo = [
     options: [
       { value: "baked_products", label: "Baked products" },
       { value: "beverages", label: "Beverages" },
-      { value: "cheese_milk_and_eggs_product", label: "Cheese milk and eggs product" },
+      { value: "cheese_eggs", label: "Cheese Milk and Eggs Products" },
       { value: "cooked_meals", label: "Cooked meals" },
-      { value: "fruits_and_vegetables", label: "Fruits and vegetables" },
-      { value: "herbs_and_spices", label: "Herbs and Spices" },
-      { value: "meatproducts", label: "Meatproducts" },
-      { value: "nuts_seeds_and_snack", label: "Nuts, seeds and snack" },
-      { value: "pasta_and_breakfast_cereals", label: "Pasta and breakfast Cereals" },
-      { value: "soups_sauces_fats_and_oil", label: "Soups, sauces, fats and oil" },
-      { value: "sweets_and_candy", label: "Sweets and candy" },
+      { value: "fish_products", label: "Fish Products" },
+      { value: "fruits_vegs", label: "Fruits and vegetables" },
+      { value: "herbs_spices", label: "Herbs and Spices" },
+      { value: "meat_products", label: "Meat Products" },
+      { value: "nuts_seeds_snacks", label: "Nuts, seeds and snack" },
+      { value: "pasta_cereals", label: "Pasta and breakfast Cereals" },
+      { value: "restaurant_meals", label: "Restaurant meals" },
+      { value: "soups_sauces", label: "Soups, sauces, fats and oil" },
+      { value: "sweets_candy", label: "Sweets and candy" },
+      { value: "other", label: "Other" },
     ],
   },
   {
@@ -94,10 +97,10 @@ const basicInfo = [
     label: "Visible For",
     required: false,
     options: [
-      { value: "only_myself", label: "Only myself" },
-      { value: "coaches_of_my_gym", label: "Coaches of my gym" },
-      { value: "members_of_my_gym", label: "Members of my gym" },
-      { value: "everyone_of_my_gym", label: "Everyone in my gym" },
+      { value: "only_me", label: "Only me" },
+      { value: "members", label: "Members in my gym" },
+      { value: "coaches_and_staff", label: "Coaches and Staff in my gym" },
+      { value: "everyone", label: "Everyone in my gym" },
     ],
   },
 ];
@@ -372,7 +375,7 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
   const { toast } = useToast();
   const [showMore, setShowMore] = useState(false);
   const [files, setFiles] = useState<File[] | null>([]);
-
+  const [formData, setFormData] =useState(initialValue);
 
 
   const dropzone = {
@@ -391,7 +394,7 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
 
   const form = useForm<CreateFoodTypes>({
     mode: "all",
-    defaultValues: initialValue
+    defaultValues: formData
   });
 
   const {
@@ -409,18 +412,22 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
   } = form;
 
   const watcher = watch()
-  // console.log({action,watcher})
+  console.log({action,watcher,data})
 
   useEffect(() => {
     if (action == 'add') {
       reset(initialValue)
+      // setFormData(initialValue)
     } else {
+      // setFormData(data)
       reset(data)
     }
-  }, [action, data])
+  }, [action])
 
   const handleClose = () => {
     clearErrors()
+    reset(initialValue)
+    setFormData(initialValue)
     setShowMore(false)
     setOpen(false);
   };
@@ -436,9 +443,8 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
     }
 
     try {
+      
       if (action == 'add') {
-        delete payload.id
-        delete payload.visible_for
         const resp = await createFood(payload).unwrap()
         if (resp) {
           refetch();
@@ -450,11 +456,11 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
             keepIsSubmitted: false,
             keepSubmitCount: false,
           });
-
+          setFormData(initialValue)
           handleClose();
         }
-      } else if (action == "edit") {
 
+      } else if (action == "edit") {
         const resp = await updateFood({ ...payload, id: data?.id as number }).unwrap()
         if (resp) {
           refetch();
@@ -462,17 +468,19 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
             variant: "success",
             title: "Updated Successfully",
           });
-          reset(initialValue, {
-            keepIsSubmitted: false,
-            keepSubmitCount: false,
-          });
-
-          handleClose();
         }
+        reset(initialValue, {
+          keepIsSubmitted: false,
+          keepSubmitCount: false,
+        });
+        setFormData(initialValue)
+        handleClose();
       }
 
+      
     } catch (error: unknown) {
       console.error("Error", { error });
+      
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
         toast({
@@ -487,185 +495,12 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
           description: `Something Went Wrong.`,
         });
       }
+
+      form.reset(initialValue);
       handleClose();
     }
   }
-  // return (
-  //   <Sheet open={isOpen}>
-  //     <SheetContent hideCloseButton className="!max-w-[1050px]">
-  //       <SheetHeader>
-  //         <SheetTitle>
-  //           <div className="flex justify-between gap-5 items-start ">
-  //             <div>
-  //               <p className="font-semibold">Food / Nutrition</p>
-  //               <div className="text-sm">
-  //                 <span className="text-gray-400 pr-1 font-semibold">
-  //                   Dashboard
-  //                 </span>{" "}
-  //                 <span className="text-gray-400 font-semibold">/</span>
-  //                 <span className="pl-1 text-primary font-semibold ">
-  //                   Add food
-  //                 </span>
-  //               </div>
-  //             </div>
-
-  //             <div className="flex justify-center space-x-[20px]">
-  //               <Button
-  //                 type="button"
-  //                 className="w-[100px] text-center flex items-center gap-2 border-primary"
-  //                 variant={"outline"}
-  //                 onClick={handleClose}
-  //               >
-  //                 <i className="fa fa-xmark "></i>
-  //                 Cancel
-  //               </Button>
-
-  //               <LoadingButton
-  //                 type="submit"
-  //                 className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-  //                 onClick={handleSubmit(onSubmit)}
-  //                 loading={isSubmitting}
-  //                 disabled={isSubmitting}
-  //               >
-  //                 {/* {!isSubmitting && ( */}
-  //                 <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-  //                 {/* )} */}
-  //                 Save
-  //               </LoadingButton>
-  //             </div>
-  //           </div>
-  //         </SheetTitle>
-  //       </SheetHeader>
-  //       <Separator className=" h-[1px] rounded-full my-2" />
-
-  //       <div>
-  //         <h1 className="font-semibold text-xl py-3">Basic Information</h1>
-  //         <div className="grid grid-cols-3 gap-3 p-1 ">
-  //           {basicInfo.map((item) => {
-  //             if (item.type == "text") {
-  //               return (
-  //                 <FloatingLabelInput
-  //                   id={item.name}
-  //                   name={item.name}
-  //                   label={item.label}
-  //                 />
-  //               );
-  //             }
-
-  //             if (item.type == "select") {
-  //               return (
-  //                 <Select name={item.name}>
-  //                   <SelectTrigger
-  //                     floatingLabel={item.label + (item.required ? "*" : "")}
-  //                   >
-  //                     <SelectValue
-  //                       placeholder={"Select " + item.label.toLowerCase()}
-  //                     />
-  //                   </SelectTrigger>
-  //                   <SelectContent>
-  //                     {item.options?.map((st: any, index: number) => (
-  //                       <SelectItem key={index} value={String(st.value)}>
-  //                         {st.label}
-  //                       </SelectItem>
-  //                     ))}
-  //                   </SelectContent>
-  //                 </Select>
-  //               );
-  //             }
-
-  //           })}
-  //           {/* <FileUploader
-  //             value={files}
-  //             onValueChange={setFiles}
-  //             dropzoneOptions={dropzone}
-  //           >
-  //             <FileInput className="flex flex-col gap-2">
-  //               <div className="flex items-center justify-center h-[5rem] w-full border bg-background rounded-md bg-gray-100">
-  //                 <i className="text-gray-400 fa-regular fa-image size-5"></i>
-  //               </div>
-
-  //               <div className="flex items-center justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
-  //                 <img src="/src/assets/upload.svg" className="size-10" />
-  //                 <span className="text-sm">Upload Image</span>
-  //               </div>
-  //             </FileInput>
-  //             <FileUploaderContent className="flex items-center flex-row gap-2">
-  //               {files?.map((file, i) => (
-  //                 <FileUploaderItem
-  //                   key={i}
-  //                   index={i}
-  //                   className="size-20 p-0 rounded-md overflow-hidden"
-  //                   aria-roledescription={`file ${i + 1} containing ${file.name}`}
-  //                 >
-  //                   <img
-  //                     src={URL.createObjectURL(file)}
-  //                     alt={file.name}
-  //                     height={80}
-  //                     width={80}
-  //                     className="size-20 p-0"
-  //                   />
-  //                 </FileUploaderItem>
-  //               ))}
-  //             </FileUploaderContent>
-  //           </FileUploader> */}
-  //         </div>
-
-  //         <div className="flex justify-between items-center my-4">
-  //           <h1 className="font-semibold text-xl py-4">
-  //             Nutrition Information
-  //           </h1>
-
-  //           <Button
-  //             variant={"outline"}
-  //             className="border-primary"
-  //             onClick={() => setShowMore(!showMore)}
-  //           >
-  //             {showMore ? "Hide" : "Show"} micro nutrients
-  //           </Button>
-  //         </div>
-  //         <div className="py-2 px-1    grid grid-cols-3 gap-3 h-full max-h-[400px] custom-scrollbar ">
-  //           {filteredNutrients.map((item) => {
-  //             if (item.type == "number") {
-  //               return (
-  //                 <FloatingLabelInput
-  //                   type="number"
-  //                   min={0}
-  //                   step={0.01}
-  //                   id={item.name}
-  //                   name={item.name}
-  //                   label={item.label}
-  //                 />
-  //               );
-  //             }
-  //           })}
-  //         </div>
-
-  //         <div>
-  //           <h1 className="font-semibold text-xl py-4">Units</h1>
-  //           <div className="grid grid-cols-3 gap-3">
-  //             <Select name={"weight"}>
-  //               <SelectTrigger floatingLabel={"Weight*"}>
-  //                 <SelectValue placeholder={"Select weight"} />
-  //               </SelectTrigger>
-  //               <SelectContent>
-  //                 <SelectItem value={"gram"}>Gram</SelectItem>
-  //                 <SelectItem value={"ml"}>ML</SelectItem>
-  //                 <SelectItem value={"gram-ml"}>Gram/ML</SelectItem>
-  //               </SelectContent>
-  //             </Select>
-
-  //             <FloatingLabelInput
-  //               id={'units'}
-  //               name={"units"}
-  //               label={"Provide Units"}
-  //             />
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </SheetContent>
-  //   </Sheet>
-  // );
-
+  
   console.log({ errors })
   return (
     <Sheet open={isOpen}>

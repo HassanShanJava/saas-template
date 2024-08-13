@@ -103,7 +103,10 @@ import {
 } from "@/services/memberAPi";
 
 import { useGetCoachListQuery } from "@/services/coachApi";
-import { useGetMembershipListQuery, useGetMembershipsQuery } from "@/services/membershipsApi";
+import {
+  useGetMembershipListQuery,
+  useGetMembershipsQuery,
+} from "@/services/membershipsApi";
 import { useParams } from "react-router-dom";
 import { UploadCognitoImage } from "@/utils/lib/s3Service";
 enum genderEnum {
@@ -117,15 +120,21 @@ const coachsSchema = z.object({
   name: z.string(),
 });
 
-
 interface memberFormTypes {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  memberId: number | undefined;
-  setMemberId: React.Dispatch<React.SetStateAction<number | undefined>>;
+  memberData: MemberTableDatatypes | null;
+  setMemberData: React.Dispatch<
+    React.SetStateAction<MemberTableDatatypes | null>
+  >;
 }
 
-const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) => {
+const MemberForm = ({
+  open,
+  setOpen,
+  memberData,
+  setMemberData,
+}: memberFormTypes) => {
   // const { id } = data;
   // console.log({ id });
   const orgId =
@@ -145,17 +154,17 @@ const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) =
     phone: "",
     mobile_number: "",
     notes: "",
-    source_id: undefined,
+    source_id: null,
     is_business: false,
-    business_id: undefined,
-    country_id: undefined,
+    business_id: null,
+    country_id: null,
     city: "",
     zipcode: "",
     address_1: "",
     address_2: "",
     org_id: orgId,
     coach_id: [] as z.infer<typeof coachsSchema>[],
-    membership_plan_id: undefined,
+    membership_plan_id: null,
     send_invitation: true,
     status: "pending",
     client_since: new Date().toISOString().split("T")[0],
@@ -195,9 +204,13 @@ const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) =
       gender: z.nativeEnum(genderEnum, {
         required_error: "Required",
       }),
-      dob: z.coerce.string({
-        required_error: "Required",
-      }),
+      dob: z.coerce
+        .string({
+          required_error: "Required",
+        })
+        .refine((val) => val !== "", {
+          message: "Required",
+        }),
       email: z
         .string()
         .email({ message: "Invalid email" })
@@ -205,20 +218,24 @@ const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) =
       phone: z.string().trim().optional(),
       mobile_number: z.string().trim().optional(),
       notes: z.string().optional(),
-      source_id: z.number({
-        required_error: "Required",
-      }),
+      source_id: z
+        .number({
+          required_error: "Required",
+        })
+        .nullable(),
       is_business: z.boolean().default(false).optional(),
-      business_id: z.coerce.number().optional(),
+      business_id: z.coerce.number().nullable(),
       country_id: z
         .number({
           required_error: "Required",
         })
-        .refine((val) => val !== 0, {
-          message: "Required",
-        }),
+        .nullable(),
       city: z.string().trim().optional(),
-      zipcode: z.string().trim().max(10, "Zipcode must be 10 characters or less").optional(),
+      zipcode: z
+        .string()
+        .trim()
+        .max(10, "Zipcode must be 10 characters or less")
+        .optional(),
       address_1: z.string().optional(),
       address_2: z.string().optional(),
       org_id: z
@@ -226,12 +243,12 @@ const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) =
           required_error: "Required",
         })
         .default(orgId),
-      coach_id: z.array(z.any()).nonempty({
-        message: "Required",
-      }),
-      membership_plan_id: z.number({
-        required_error: "Required",
-      }),
+      coach_id: z.array(coachsSchema).optional(),
+      membership_plan_id: z
+        .number({
+          required_error: "Required",
+        })
+        .nullable(),
       send_invitation: z.boolean().default(true).optional(),
       auto_renewal: z.boolean().default(false).optional(),
       status: z.string().default("pending"),
@@ -243,36 +260,81 @@ const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) =
       auto_renew_days: z.coerce.number().optional(),
       inv_days_cycle: z.coerce.number().optional(),
     })
-    .refine(
-      (input) => {
-        if (
-          input.auto_renewal == true &&
-          (input.prolongation_period == undefined ||
-            input.auto_renew_days == undefined ||
-            input.inv_days_cycle == undefined)
-        ) {
-          return false;
-        }
-
-        if (input.is_business == false && input.business_id == undefined) {
-          return false;
-        }
-
-        return true;
-      },
-      {
-        message: "All required fields must be filled correctly.",
-        path: ["auto_renewal", "is_business"],
+    .superRefine((data, ctx) => {
+      if (data.source_id === null) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Required",
+          path: ["source_id"],
+        });
       }
-    );
+
+      if (data.country_id === null) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Required",
+          path: ["country_id"],
+        });
+      }
+
+      if (data.membership_plan_id === null) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Required",
+          path: ["membership_plan_id"],
+        });
+      }
+
+      if (data.auto_renewal) {
+        if (!data.prolongation_period) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Required",
+            path: ["prolongation_period"],
+          });
+        }
+        if (!data.auto_renew_days) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Required",
+            path: ["auto_renew_days"],
+          });
+        }
+        if (!data.inv_days_cycle) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Required",
+            path: ["inv_days_cycle"],
+          });
+        }
+      }
+    });
+
+  // .refine(
+  //   (input) => {
+  //     if (
+  //       input.auto_renewal == true &&
+  //       (input.prolongation_period == undefined ||
+  //         input.auto_renew_days == undefined ||
+  //         input.inv_days_cycle == undefined)
+  //     ) {
+  //       return false;
+  //     }
+  //     return true;
+  //   },
+  //   {
+  //     message: "All required fields must be filled correctly.",
+  //     path: ["auto_renewal"],
+  //   }
+  // );
 
   // conditional fetching
   const { data: memberCountData } = useGetMemberCountQuery(orgId, {
-    skip: memberId != undefined,
+    skip: memberData != null,
   });
-  const { data: memberData } = useGetMemberByIdQuery(memberId as number, {
-    skip: memberId == undefined,
-  });
+  // const { data: memberData } = useGetMemberByIdQuery(memberId as number, {
+  //   skip: memberId == undefined,
+  // });
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
   const { data: coachesData } = useGetCoachListQuery(orgId);
@@ -317,44 +379,50 @@ const MemberForm = ({ open, setOpen, memberId, setMemberId }: memberFormTypes) =
   });
 
   const watcher = form.watch();
-console.error(watcher, form.formState.errors);
+  console.error(watcher, form.formState.errors);
   const memberError = form.formState.errors;
 
-
-	useEffect(() => {
-		if (!open) return;
-		const total = memberCountData?.total_members as number;
-		if (total >= 0) {
-			form.setValue("own_member_id", `${orgName?.slice(0, 2)}-${total + 1}`);
-		}
-	}, [open, memberCountData]);
+  useEffect(() => {
+    if (!open) return;
+    const total = memberCountData?.total_members as number;
+    if (total >= 0) {
+      form.setValue("own_member_id", `${orgName?.slice(0, 2)}-${total + 1}`);
+    }
+  }, [open, memberCountData]);
 
   useEffect(() => {
-		if (!open || memberId == undefined) return
-		const initialValue = { ...memberData };
-		const data = membershipPlans&&membershipPlans?.filter(
-			(item:any) => item.id == memberData?.membership_plan_id
-		)[0];
-		const renewalDetails = data?.renewal_details as renewalData;
-		initialValue.auto_renewal = data?.auto_renewal ?? false;
-		if (initialValue?.auto_renewal) {
-			initialValue.prolongation_period =
-				(renewalDetails?.prolongation_period as number | undefined) ??
-				undefined;
-			initialValue.auto_renew_days =
-				(renewalDetails?.days_before as number | undefined) ?? undefined;
-			initialValue.inv_days_cycle =
-				(renewalDetails?.next_invoice as number | undefined) ?? undefined;
-		}
-		setInitialValues(initialValue as MemberInputTypes);
-		form.reset(initialValue);
-		setAvatar(initialValue.profile_img as string);
+    if (!open || memberData == null) return;
+
+    const initialValue = { ...memberData };
+    initialValue.coach_id = memberData.coaches;
+    console.log("memberdata coach", memberData.coaches);
+    const data =
+      membershipPlans &&
+      membershipPlans?.filter(
+        (item: any) => item.id == memberData?.membership_plan_id
+      )[0];
+    const renewalDetails = data?.renewal_details as renewalData;
+    initialValue.auto_renewal = data?.auto_renewal ?? false;
+    if (initialValue?.auto_renewal) {
+      initialValue.prolongation_period =
+        (renewalDetails?.prolongation_period as number | undefined) ??
+        undefined;
+      initialValue.auto_renew_days =
+        (renewalDetails?.days_before as number | undefined) ?? undefined;
+      initialValue.inv_days_cycle =
+        (renewalDetails?.next_invoice as number | undefined) ?? undefined;
+    }
+    setInitialValues(initialValue as MemberInputTypes);
+    form.reset(initialValue);
+    setAvatar(initialValue.profile_img as string);
   }, [open, memberData]);
 
   // set auto_renewal
   const handleMembershipPlanChange = (value: number) => {
     form.setValue("membership_plan_id", value);
-    const data = membershipPlans&&membershipPlans?.filter((item:any) => item.id == value)[0];
+    const data =
+      membershipPlans &&
+      membershipPlans?.filter((item: any) => item.id == value)[0];
     const renewalDetails = data?.renewal_details as renewalData;
     form.setValue("auto_renewal", data?.auto_renewal);
     if (data?.auto_renewal) {
@@ -373,20 +441,19 @@ console.error(watcher, form.formState.errors);
     }
   };
 
-
-	function handleClose() {
-		setAvatar(null);
-		form.clearErrors();
-		form.reset(initialState);
-		setMemberId(undefined);
-		setOpen(false);
-	}
+  function handleClose() {
+    setAvatar(null);
+    form.clearErrors();
+    form.reset(initialState);
+    setMemberData(null);
+    setOpen(false);
+  }
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-      coach_id: data.coach_id.map((coach) => coach.id),
+      coach_id: data.coach_id?.map((coach) => coach.id),
     };
 
     if (selectedImage) {
@@ -408,7 +475,7 @@ console.error(watcher, form.formState.errors);
     }
 
     try {
-      if (memberId == undefined) {
+      if (memberData == null) {
         console.log({ updatedData }, "add");
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
@@ -419,10 +486,10 @@ console.error(watcher, form.formState.errors);
           handleClose();
         }
       } else {
-        console.log({ updatedData, id: +memberId }, "update");
+        console.log({ updatedData, id: +memberData.id }, "update");
         const resp = await editMember({
           ...updatedData,
-          id: memberId,
+          id: memberData.id,
         }).unwrap();
         if (resp) {
           toast({
@@ -453,14 +520,16 @@ console.error(watcher, form.formState.errors);
 
   return (
     <Sheet open={open}>
-      <SheetContent hideCloseButton className="!max-w-[1050px]">
+      <SheetContent
+        hideCloseButton
+        className="!max-w-[1050px] custom-scrollbar h-screen"
+      >
         <SheetHeader>
-          <SheetTitle>
-          </SheetTitle>
-          <SheetDescription>
+          <SheetTitle></SheetTitle>
+          <SheetDescription className="">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center sticky top-0 z-20 bg-white">
                   <div className="flex flex-row gap-4 items-center">
                     <div className="relative flex">
                       <img
@@ -525,8 +594,9 @@ console.error(watcher, form.formState.errors);
                           <FloatingLabelInput
                             {...field}
                             id="own_member_id"
-                            label="Member Id"
+                            label="Member Id*"
                             className=""
+                            disabled
                           />
                           {watcher.own_member_id ? <></> : <FormMessage />}
                         </FormItem>
@@ -617,7 +687,8 @@ console.error(watcher, form.formState.errors);
                                         variant={"outline"}
                                         className={cn(
                                           "w-full pl-3 text-left font-normal ",
-                                          !field.value && "text-muted-foreground"
+                                          !field.value &&
+                                            "text-muted-foreground"
                                         )}
                                       >
                                         {field.value ? (
@@ -678,7 +749,7 @@ console.error(watcher, form.formState.errors);
                             className=""
                             label="Email Address*"
                           />
-                          {watcher.email ? <></> : <FormMessage />}
+                          {<FormMessage />}
                         </FormItem>
                       )}
                     />
@@ -738,6 +809,7 @@ console.error(watcher, form.formState.errors);
                     <FormField
                       control={form.control}
                       name="source_id"
+                      defaultValue={undefined}
                       render={({ field }) => (
                         <FormItem>
                           <Select
@@ -747,25 +819,22 @@ console.error(watcher, form.formState.errors);
                             value={field.value?.toString()} // Set default to "0" for the placeholder
                           >
                             <FormControl>
-                              <SelectTrigger
-                                className={"font-medium text-gray-400 "}
-                              >
-                                <SelectValue
-                                  className=""
-                                  placeholder="Select Source*"
-                                />
+                              <SelectTrigger className="font-medium text-gray-400">
+                                <SelectValue placeholder="Select Source*" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               {sources && sources.length > 0 ? (
-                                sources.map((sourceval: sourceTypes, i: any) => (
-                                  <SelectItem
-                                    value={sourceval.id?.toString()}
-                                    key={i}
-                                  >
-                                    {sourceval.source}
-                                  </SelectItem>
-                                ))
+                                sources.map(
+                                  (sourceval: sourceTypes, i: any) => (
+                                    <SelectItem
+                                      value={sourceval.id?.toString()}
+                                      key={i}
+                                    >
+                                      {sourceval.source}
+                                    </SelectItem>
+                                  )
+                                )
                               ) : (
                                 <p className="p-2">No Sources Found</p>
                               )}
@@ -784,24 +853,27 @@ console.error(watcher, form.formState.errors);
                         <FormItem>
                           <MultiSelector
                             onValuesChange={(values) => field.onChange(values)}
-                            values={field.value}
+                            values={field.value || []}
                           >
                             <MultiSelectorTrigger className="border-[1px] border-gray-300">
                               <MultiSelectorInput
                                 className="font-medium  "
                                 placeholder={
-                                  field?.value?.length == 0 ? `Select Coaches*` : ""
+                                  (field?.value?.length as Number) == 0
+                                    ? `Select Coaches`
+                                    : ""
                                 }
                               />
                             </MultiSelectorTrigger>
                             <MultiSelectorContent className="">
                               <MultiSelectorList>
+                                {}
                                 {coachesData &&
                                   coachesData.map((user: any) => (
                                     <MultiSelectorItem
                                       key={user.id}
                                       value={user}
-                                    // disabled={field.value?.length >= 5}
+                                      // disabled={field.value?.length >= 5}
                                     >
                                       <div className="flex items-center space-x-2">
                                         <span>{user.name}</span>
@@ -811,7 +883,6 @@ console.error(watcher, form.formState.errors);
                               </MultiSelectorList>
                             </MultiSelectorContent>
                           </MultiSelector>
-                          {watcher.coach_id ? <></> : <FormMessage />}
                         </FormItem>
                       )}
                     />
@@ -845,12 +916,6 @@ console.error(watcher, form.formState.errors);
                     <FormField
                       control={form.control}
                       name="business_id"
-                      // rules={{
-                      //   validate: (value) => {
-                      //     // Ensure value is treated as a number for comparison
-                      //     return Number(value) !== 0;
-                      //   },
-                      // }}
                       render={({ field }) => (
                         <FormItem>
                           <Select
@@ -861,7 +926,7 @@ console.error(watcher, form.formState.errors);
                           >
                             <FormControl>
                               <SelectTrigger className="font-medium text-gray-400">
-                                <SelectValue placeholder="Select Business*" />
+                                <SelectValue placeholder="Select Business" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -967,14 +1032,14 @@ console.error(watcher, form.formState.errors);
                                   className={cn(
                                     "justify-between ",
                                     !field.value &&
-                                    "font-medium text-gray-400 focus:border-primary "
+                                      "font-medium text-gray-400 focus:border-primary "
                                   )}
                                 >
                                   {field.value
                                     ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === field.value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                        (country: CountryTypes) =>
+                                          country.id === field.value // Compare with numeric value
+                                      )?.country // Display country name if selected
                                     : "Select country*"}
                                   <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
@@ -1085,7 +1150,8 @@ console.error(watcher, form.formState.errors);
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {membershipPlans && membershipPlans?.length >0? (
+                              {membershipPlans &&
+                              membershipPlans?.length > 0 ? (
                                 membershipPlans.map(
                                   (sourceval: membeshipsTableType) => {
                                     console.log({ sourceval });
@@ -1148,7 +1214,10 @@ console.error(watcher, form.formState.errors);
                                   type="number"
                                   onInput={(e) => {
                                     const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(/[^0-9.]/g, '');
+                                    target.value = target.value.replace(
+                                      /[^0-9.]/g,
+                                      ""
+                                    );
                                   }}
                                   min={1}
                                   name="min_limit"
@@ -1180,7 +1249,10 @@ console.error(watcher, form.formState.errors);
                                   type="number"
                                   onInput={(e) => {
                                     const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(/[^0-9.]/g, '');
+                                    target.value = target.value.replace(
+                                      /[^0-9.]/g,
+                                      ""
+                                    );
                                   }}
                                   min={1}
                                   name="min_limit"
@@ -1215,13 +1287,20 @@ console.error(watcher, form.formState.errors);
                                   type="number"
                                   onInput={(e) => {
                                     const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(/[^0-9.]/g, '');
+                                    target.value = target.value.replace(
+                                      /[^0-9.]/g,
+                                      ""
+                                    );
                                   }}
                                   min={1}
                                   name="min_limit"
                                   className="w-16"
                                 />
-                                {watcher.inv_days_cycle ? <></> : <FormMessage />}
+                                {watcher.inv_days_cycle ? (
+                                  <></>
+                                ) : (
+                                  <FormMessage />
+                                )}
                                 <Label className="text-xs text-black/60">
                                   days before contracts runs out.
                                 </Label>
@@ -1233,7 +1312,6 @@ console.error(watcher, form.formState.errors);
                     </>
                   )}
                 </div>
-
               </form>
             </Form>
           </SheetDescription>

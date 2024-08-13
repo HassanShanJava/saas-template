@@ -562,7 +562,7 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
                       {...register(item.name as keyof CreateFoodTypes, { required: item.required && "Required" })}
                     />
                     {errors[item.name as keyof CreateFoodTypes]?.message && (
-                      <p className="text-red-500 text-sm">{errors[item.name as keyof CreateFoodTypes]?.message}</p>
+                      <p className="text-red-500 text-xs">{errors[item.name as keyof CreateFoodTypes]?.message}</p>
                     )}
                   </div>
                 );
@@ -604,7 +604,7 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
                       )}
                     />
                     {errors[item.name as keyof CreateFoodTypes]?.message && (
-                      <p className="text-red-500 text-sm">{errors[item.name as keyof CreateFoodTypes]?.message}</p>
+                      <p className="text-red-500 text-xs">{errors[item.name as keyof CreateFoodTypes]?.message}</p>
                     )}
                   </div>
                 );
@@ -639,7 +639,7 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
                       {...register(item.name as keyof CreateFoodTypes, { required: item.required && "Required" })}
                     />
                     {errors[item.name as keyof CreateFoodTypes]?.message && (
-                      <p className="text-red-500 text-sm">{errors[item.name as keyof CreateFoodTypes]?.message}</p>
+                      <p className="text-red-500 text-xs">{errors[item.name as keyof CreateFoodTypes]?.message}</p>
                     )}
                   </div>
                 );
@@ -680,7 +680,7 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
                   )}
                 />
                 {errors?.weight_unit?.message && (
-                  <p className="text-red-500 text-sm">{errors?.weight_unit?.message}</p>
+                  <p className="text-red-500 text-xs">{errors?.weight_unit?.message}</p>
                 )}
               </div>
 
@@ -695,7 +695,7 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
                   {...register("weight", { required: "Required" })}
                 />
                 {errors?.weight?.message && (
-                  <p className="text-red-500 text-sm">{errors?.weight_unit?.message}</p>
+                  <p className="text-red-500 text-xs">{errors?.weight_unit?.message}</p>
                 )}
               </div>
             </div>

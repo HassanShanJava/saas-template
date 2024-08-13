@@ -717,7 +717,7 @@ export default function MemberTableView() {
       </div>
 
       {/* pagination */}
-      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+      {memberTableData.length>0&&<div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
         <div className="flex items-center justify-center gap-2">
           <div className="flex items-center gap-2">
             <p className="text-sm font-medium">Items per page:</p>
@@ -813,7 +813,7 @@ export default function MemberTableView() {
             </Button>
           </div>
         </div>
-      </div>
+      </div>}
 
       <TableFilters
         isOpen={openFilter}

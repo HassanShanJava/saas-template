@@ -213,8 +213,8 @@ const MemberForm = ({
         }),
       email: z
         .string()
-        .email({ message: "Invalid email" })
-        .min(4, { message: "Required" }),
+        .min(8, { message: "Required" })
+        .email({ message: "Invalid email" }),
       phone: z.string().trim().optional(),
       mobile_number: z.string().trim().optional(),
       notes: z.string().optional(),
@@ -1208,6 +1208,7 @@ const MemberForm = ({
                                 <FormLabel className="text-base">
                                   Prolongation period*
                                 </FormLabel>
+                                <div className="relative pb-3">
                                 <FloatingLabelInput
                                   {...field}
                                   id="prolongation_period"
@@ -1228,6 +1229,7 @@ const MemberForm = ({
                                 ) : (
                                   <FormMessage />
                                 )}
+                                </div>
                               </FormItem>
                             );
                           }}
@@ -1243,6 +1245,7 @@ const MemberForm = ({
                                 <FormLabel className="text-sm">
                                   Auto renewal takes place*
                                 </FormLabel>
+                                <div className="relative pt-3">
                                 <FloatingLabelInput
                                   {...field}
                                   id="auto_renew_days"
@@ -1263,6 +1266,7 @@ const MemberForm = ({
                                 ) : (
                                   <FormMessage />
                                 )}
+                                </div>
                                 <Label className="text-xs text-black/60">
                                   days before contracts runs out.
                                 </Label>
@@ -1281,6 +1285,7 @@ const MemberForm = ({
                                 <FormLabel className="text-sm">
                                   Next invoice will be created *
                                 </FormLabel>
+                                <div className="relative pt-3">
                                 <FloatingLabelInput
                                   {...field}
                                   id="inv_days_cycle"
@@ -1301,6 +1306,8 @@ const MemberForm = ({
                                 ) : (
                                   <FormMessage />
                                 )}
+                                </div>
+                                
                                 <Label className="text-xs text-black/60">
                                   days before contracts runs out.
                                 </Label>

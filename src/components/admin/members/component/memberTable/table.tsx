@@ -56,6 +56,7 @@ import { useGetMembershipListQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
 import MemberForm from "../../memberForm/form";
 import TableFilters from "@/components/ui/table/data-table-filter";
+import MemberModalForm from "../../memberForm/member-modal";
 
 const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
   const csvData = data.map(({ coaches, ...newdata }) => newdata);
@@ -872,6 +873,11 @@ export default function MemberTableView() {
         memberData={editMember}
         setMemberData={setEditMember}
       />
+
+     {/* <MemberModalForm
+     isOpen={open}
+     setOpen={setOpen}
+     /> */}
     </div>
   );
 }

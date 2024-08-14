@@ -232,7 +232,7 @@ const MemberForm = ({
         .number({
           required_error: "Required",
         })
-        .nullable(),
+        .nullable().default(0),
       city: z.string().trim().optional(),
       zipcode: z
         .string()
@@ -251,7 +251,7 @@ const MemberForm = ({
         .number({
           required_error: "Required",
         })
-        .nullable(),
+        .nullable().default(0),
       send_invitation: z.boolean().default(true).optional(),
       auto_renewal: z.boolean().default(false).optional(),
       status: z.string().default("pending"),
@@ -264,7 +264,7 @@ const MemberForm = ({
       inv_days_cycle: z.coerce.number().optional(),
     })
     .superRefine((data, ctx) => {
-      if (data.source_id === null) {
+      if (data.source_id == null || 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Required",
@@ -521,6 +521,7 @@ const MemberForm = ({
     }
   }
 
+  console.log("form state",form.formState)
   return (
     <Sheet open={open}>
       <SheetContent

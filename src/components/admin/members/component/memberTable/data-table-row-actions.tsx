@@ -23,7 +23,7 @@ import { ErrorType, MemberTableDatatypes } from "@/app/types";
 import { toast } from "@/components/ui/use-toast";
 import { useDeleteMemberMutation } from "@/services/memberAPi";
 import { useNavigate } from "react-router-dom";
-
+import warning from "@/assets/warning.svg";
 interface DataTableRowActionsProps<TData> {
   row: number;
   data: MemberTableDatatypes;

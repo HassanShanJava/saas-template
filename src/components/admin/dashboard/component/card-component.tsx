@@ -1,7 +1,5 @@
-import {
-  Card,
-} from "@/components/ui/card";
-
+import { Card } from "@/components/ui/card";
+import walletimg from "@/assets/wallet.svg";
 const CardComponent = () => {
   return (
     <div className="px-3 gap-[0.125rem] flex flex-row justify-between items-center">
@@ -18,7 +16,7 @@ const CardComponent = () => {
               </div>
             </div>
             <div className=" flex justify-center items-center w-10 h-10 rounded-lg bg-primary">
-              <img src="/wallet.svg" className={`w-6 h-6 items-center `}></img>
+              <img src={walletimg} className={`w-6 h-6 items-center `}></img>
             </div>
           </div>
         </Card>

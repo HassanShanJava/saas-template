@@ -109,6 +109,7 @@ import {
 } from "@/services/membershipsApi";
 import { useParams } from "react-router-dom";
 import { UploadCognitoImage } from "@/utils/lib/s3Service";
+import profileimg from "@/assets/profile-image.svg";
 enum genderEnum {
   male = "male",
   female = "female",
@@ -194,12 +195,14 @@ const MemberForm = ({
           required_error: "Required",
         })
         .trim()
-        .min(3, { message: "Required" }),
+        .max(40, "Should be less than 40 characters")
+        .min(1,"Required"),
       last_name: z
         .string({
           required_error: "Required",
         })
         .trim()
+        .max(40, "Should be less than 40 characters")
         .min(3, { message: "Required" }),
       gender: z.nativeEnum(genderEnum, {
         required_error: "Required",
@@ -534,8 +537,8 @@ const MemberForm = ({
                     <div className="relative flex">
                       <img
                         id="avatar"
-                        src={avatar ? String(avatar) : "/profile-image.svg"}
-                        alt="Avatar"
+                        src={avatar ? String(avatar) : profileimg}
+                        alt={profileimg}
                         className="w-20 h-20 rounded-full object-cover mb-4 relative"
                       />
                       <CameraIcon className="w-8 h-8 text-black bg-primary rounded-full p-2 absolute top-8 left-14 " />
@@ -615,7 +618,7 @@ const MemberForm = ({
                             label="First Name*"
                             className=""
                           />
-                          {watcher.first_name ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.first_name?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -632,7 +635,7 @@ const MemberForm = ({
                             label="Last Name*"
                             className=""
                           />
-                          {watcher.last_name ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.last_name?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -766,7 +769,7 @@ const MemberForm = ({
                             label="Landline Number"
                             className=""
                           />
-                          {watcher.phone ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.phone?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -783,7 +786,7 @@ const MemberForm = ({
                             label="Mobile Number"
                             className=""
                           />
-                          {watcher.mobile_number ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.mobile_number?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -1097,7 +1100,7 @@ const MemberForm = ({
                             label="City"
                             className=""
                           />
-                          {watcher.city ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.city?.message}</FormMessage>
                         </FormItem>
                       )}
                     />

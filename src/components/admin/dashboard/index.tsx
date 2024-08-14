@@ -1,7 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-// import SplineChart from "./component/spline-chart";
-import DashboardHeader from "./component/dashboard-header";
 import SplineChart from "./component/spline-chart";
 import SimpleBarChart from "./component/barchart";
 import CardComponent from "./component/card-component";
@@ -9,7 +7,6 @@ import CardComponent from "./component/card-component";
 const Dashboard = () => {
   return (
     <div className="grid gap-6  p-3">
-      {/* <DashboardHeader /> */}
       <CardComponent />
       <div className="grid grid-cols-2 gap-6 p-4">
         <SimpleBarChart />

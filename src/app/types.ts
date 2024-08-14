@@ -1,18 +1,26 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
-export interface createFoodTypes {
-  org_id: number;
+
+export interface FoodTableResponse{
+  data:CreateFoodTypes[];
+  total_counts:number;
+  filtered_counts:number;
+}
+export interface CreateFoodTypes {
+  id?: number;
+  org_id?: number;
   name: string;
   brand: string;
   category: string;
   description?: string;
   other_name?: string;
-  total_nutrition?: number;
-  kcal?: number;
-  protein?: number;
-  fat?: number;
-  carbohydrates?: number;
+  visible_for?:string;
+  total_nutrition: number|undefined;
+  kcal: number|undefined;
+  protein: number|undefined;
+  fat: number|undefined;
+  carbohydrates: number|undefined;
   carbs_sugar?: number;
   carbs_saturated?: number;
   kilojoules?: number;
@@ -41,8 +49,8 @@ export interface createFoodTypes {
   alchohol_mono?: number;
   alchohol_poly?: number;
   trans_fat?: number;
-  weight?: number;
-  weight_unit?: string;
+  weight: number;
+  weight_unit: string|undefined;
   created_at?: Date;
   created_by?: number;
 }
@@ -941,4 +949,105 @@ export interface JointApiResponse {
 export interface MetApiResponse {
   id: number;
   met_value: string;
+}
+
+export interface ExerciseCreationResponse {
+  status_code: string;
+  id: number;
+  message: string;
+}
+enum ExerciseTypeEnum {
+  time_based = "Time Based",
+  repetition_based = "Repetition Based",
+}
+enum difficultyEnum {
+  Novice = "Novice",
+  Beginner = "Beginner",
+  Intermediate = "Intermediate",
+  Advance = "Advance",
+  Expert = "Expert",
+}
+enum IntensityEnum {
+  irm = "irm",
+  max_intensity = "Max Intensity",
+}
+enum VisibilityEnum {
+  only_myself = "Only Myself",
+  staff_of_my_club = "Staff of My Club",
+  members_of_my_club = "Members of My Club",
+  everyone_in_my_club = "Everyone in My Club",
+}
+
+export interface createExerciseInputTypes {
+  exercise_name: string;
+  visible_for: VisibilityEnum;
+  org_id: number;
+  exercise_type: ExerciseTypeEnum;
+  exercise_intensity: IntensityEnum;
+  intensity_value?: number;
+  difficulty: difficultyEnum;
+  sets?: number;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  distance?: number;
+  speed?: number;
+  met_id?: number;
+  gif_url: string;
+  video_url_male?: string;
+  video_url_female?: string;
+  thumbnail_male?: string;
+  thumbnail_female?: string;
+  image_url_female?: string;
+  image_url_male?: string;
+  category_id: number;
+  equipment_ids: number[];
+  primary_muscle_ids: number[];
+  secondary_muscle_ids?: number[];
+  primary_joint_ids: number[];
+  created_by?: number;
+  updated_by?: number;
+}
+
+export interface ExerciseResponseViewType {
+  exercise_name: string;
+  visible_for: VisibilityEnum;
+  org_id: number;
+  exercise_type: ExerciseTypeEnum;
+  exercise_intensity: IntensityEnum;
+  intensity_value?: number;
+  difficulty: difficultyEnum;
+  sets?: number;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  distance?: number;
+  speed?: number;
+  met_id?: number;
+  gif_url: string;
+  video_url_male?: string;
+  video_url_female?: string;
+  thumbnail_male?: string;
+  thumbnail_female?: string;
+  image_url_female?: string;
+  image_url_male?: string;
+  id: number;
+  category_id: number;
+  category_name: string;
+  equipments: baseExerciseApiResponse[];
+  primary_muscles: baseExerciseApiResponse[];
+  secondary_muscles?: baseExerciseApiResponse[];
+  primary_joints: baseExerciseApiResponse[];
+}
+export interface ExerciseTableTypes {
+  data: ExerciseResponseViewType[];
+  total_counts: number;
+  filtered_counts: number;
+}
+export interface deleteExerciseResponse {
+  detail: string;
+}
+
+export interface deleteExerciseInput {
+  id: number;
 }

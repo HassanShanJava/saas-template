@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
-  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -24,7 +22,7 @@ import {
 
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { PlusIcon } from "lucide-react";
+import { ChevronRightIcon, PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -32,27 +30,55 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, membeshipsTableType } from "@/app/types";
+import { CreateFoodTypes, ErrorType } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import FoodForm from "../modal/food-form";
+import { useGetFoodsQuery } from "@/services/foodsApi";
+import { useDebounce } from "@/hooks/use-debounce";
+import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
+import { Separator } from "@/components/ui/separator";
+import {
+  DoubleArrowLeftIcon,
+  DoubleArrowRightIcon,
+} from "@radix-ui/react-icons";
+import { ChevronLeftIcon } from "lucide-react";
+import TableFilters from "@/components/ui/table/data-table-filter";
 
-// import { DataTableFacetedFilter } from "./data-table-faced-filter";
-
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
+const categories = [
+  { id: "baked_products", name: "Baked products" },
+  { id: "beverages", name: "Beverages" },
+  { id: "cheese_eggs", name: "Cheese Milk and Eggs Products" },
+  { id: "cooked_meals", name: "Cooked meals" },
+  { id: "fish_products", name: "Fish Products" },
+  { id: "fruits_vegs", name: "Fruits and vegetables" },
+  { id: "herbs_spices", name: "Herbs and Spices" },
+  { id: "meat_products", name: "Meat Products" },
+  { id: "nuts_seeds_snacks", name: "Nuts, seeds and snack" },
+  { id: "pasta_cereals", name: "Pasta and breakfast Cereals" },
+  { id: "restaurant_meals", name: "Restaurant meals" },
+  { id: "soups_sauces", name: "Soups, sauces, fats and oil" },
+  { id: "sweets_candy", name: "Sweets and candy" },
+  { id: "other", name: "Other" },
 ];
 
+const visibleFor = [
+  { id: "only_me", name: "Only me" },
+  { id: "members", name: "Members in my gym" },
+  { id: "coaches_and_staff", name: "Coaches and Staff in my gym" },
+  { id: "everyone", name: "Everyone in my gym" },
+];
 
-const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
+const categoryMap = Object.fromEntries(
+  categories.map((cat) => [cat.name, cat.id])
+);
+const visibleForMap = Object.fromEntries(
+  visibleFor.map((vf) => [vf.name, vf.id])
+);
+
+const downloadCSV = (data: CreateFoodTypes[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -63,34 +89,109 @@ const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
   document.body.removeChild(link);
 };
 
+interface searchCretiriaType {
+  limit: number;
+  offset: number;
+  sort_order: string;
+  sort_key?: string;
+  search_key?: string;
+  total_nutrition?: number;
+  fat?: number;
+}
+
+const initialValue = {
+  limit: 10,
+  offset: 0,
+  sort_order: "desc",
+  sort_key: "created_at",
+};
+
 export default function FoodsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  const [action, setAction]=useState<'add'|'edit'>('add')
-  const [isDialogOpen, setIsDialogOpen]=useState<boolean>(false)
+  const [action, setAction] = useState<"add" | "edit">("add");
+  const [data, setData] = useState<CreateFoodTypes | undefined>(undefined);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [searchCretiria, setSearchCretiria] =
+    useState<searchCretiriaType>(initialValue);
+  const [query, setQuery] = useState("");
+
+  // search input
+  const [inputValue, setInputValue] = useState("");
+  const [openFilter, setOpenFilter] = useState(false);
+  const debouncedInputValue = useDebounce(inputValue, 500);
+  const [filterData, setFilter] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    setSearchCretiria((prev) => {
+      const newCriteria = { ...prev };
+
+      if (debouncedInputValue.trim() !== "") {
+        newCriteria.search_key = debouncedInputValue;
+      } else {
+        delete newCriteria.search_key;
+      }
+
+      return newCriteria;
+    });
+    console.log({ debouncedInputValue });
+  }, [debouncedInputValue, setSearchCretiria]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchCretiria)) {
+      console.log({ key, value });
+      if (value !== undefined && value !== null) {
+        params.append(key, value);
+      }
+    }
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery);
+  }, [searchCretiria]);
+
+  const toggleSortOrder = (key: string) => {
+    setSearchCretiria((prev) => {
+      const newSortOrder =
+        prev.sort_key === key
+          ? prev.sort_order === "desc"
+            ? "asc"
+            : "desc"
+          : "desc"; // Default to descending order if the key is different
+
+      return {
+        ...prev,
+        sort_key: key,
+        sort_order: newSortOrder,
+      };
+    });
+  };
+
+  const {
+    data: foodData,
+    isLoading,
+    refetch,
+    error,
+    isError,
+  } = useGetFoodsQuery(
+    { org_id: orgId, query: query },
+    {
+      skip: query == "",
+    }
+  );
 
   const handleCloseDailog = () => setIsDialogOpen(false);
 
-  const [formData, setFormData] = useState({});
-
-  // const membershipstableData = React.useMemo(() => {
-  //   return Array.isArray(membershipsData) ? membershipsData : [];
-  // }, [membershipsData]);
+  const foodstableData = React.useMemo(() => {
+    return Array.isArray(foodData?.data) ? foodData?.data : [];
+  }, [foodData]);
 
   const { toast } = useToast();
 
-  // const [data, setData] = useState<membeshipsTableType|undefined>(undefined);
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [filterID, setFilterID] = useState({});
-  const [filters, setFilters] = useState<any>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [isClear, setIsClear] = useState(false);
-  const [clearValue, setIsClearValue] = useState({});
-  
-
-  
 
   const handleExportSelected = () => {
     const selectedRows = table
@@ -106,53 +207,113 @@ export default function FoodsTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
-
-  
-
-  const columns: ColumnDef<membeshipsTableType>[] = [
+  const columns: ColumnDef<CreateFoodTypes>[] = [
     {
       accessorKey: "name",
-      header: ({ table }) => <span>Name</span>,
+      meta: "Name",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Name</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("name")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-        return <span>any</span>;
+        return <span>{row.original.name}</span>;
       },
       enableSorting: false,
       enableHiding: false,
     },
     {
-      accessorKey: "visible_for",
-      header: ({ table }) => <span>Brand</span>,
+      accessorKey: "brand",
+      meta: "Brand",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Brand</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("brand")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-
-        return <span>any</span>;
+        return <span>{row.original.brand}</span>;
       },
       enableSorting: false,
       enableHiding: false,
     },
     {
-      accessorKey: "carbs",
-      header: ({ table }) => <span>Category</span>,
+      accessorKey: "category",
+      meta: "Category",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Category</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("category")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-        return <span>any</span>;
+        return <span>{row.original.category}</span>;
       },
       enableSorting: false,
       enableHiding: false,
     },
     {
-      accessorKey: "protein",
-      header: ({ table }) => <span>Total Nutrition (g)</span>,
+      accessorKey: "total_nutrition",
+      meta: "Total Nutrition (g)",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Total Nutrition (g)</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("total_nutrition")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-        
-        return <span>any</span>;
+        return <span>{row.original.total_nutrition}</span>;
       },
       enableSorting: false,
       enableHiding: false,
     },
     {
-      accessorKey: "fats",
-      header: ({ table }) => <span>Total Fat</span>,
+      accessorKey: "fat",
+      meta: "Total Fat",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Total Fat</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("fat")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-        return <span>any</span>;
+        return <span>{row.original.fat}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -160,18 +321,20 @@ export default function FoodsTableView() {
     {
       accessorKey: "action",
       header: ({ table }) => <span>Action</span>,
-      cell: ({ row }) => {
-        const { discount } = row.original;
-
-        return <span>any</span>;
-      },
+      cell: ({ row }) => (
+        <DataTableRowActions
+          handleEdit={handleEdit}
+          data={row.original}
+          refetch={refetch}
+        />
+      ),
       enableSorting: false,
       enableHiding: false,
-    }
+    },
   ];
 
   const table = useReactTable({
-    data: [] as any[] ,
+    data: foodstableData as CreateFoodTypes[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -184,7 +347,6 @@ export default function FoodsTableView() {
       columnVisibility,
       rowSelection,
     },
-
   });
 
   function handlePagination(page: number) {
@@ -192,16 +354,137 @@ export default function FoodsTableView() {
     // setFilters
   }
 
-  const handleOpen=()=>{
-    setAction('add')
-    setIsDialogOpen(true)
-  }
+  const handleOpen = () => {
+    setAction("add");
+    setIsDialogOpen(true);
+  };
+
+  const handleEdit = (data: CreateFoodTypes) => {
+    setAction("edit");
+    const payload = {
+      ...data,
+      category: categoryMap[data.category!],
+      visible_for: visibleForMap[data.visible_for!],
+    };
+    console.log({ payload }, "payload");
+    setData(payload);
+    setIsDialogOpen(true);
+  };
+
+  const totalRecords = foodData?.total_counts || 0;
+  const lastPageOffset = Math.max(
+    0,
+    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+  );
+  const isLastPage = searchCretiria.offset >= lastPageOffset;
+
+  const nextPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria((prev) => ({
+        ...prev,
+        offset: prev.offset + prev.limit,
+      }));
+    }
+  };
+
+  // Function to go to the previous page
+  const prevPage = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      offset: Math.max(0, prev.offset - prev.limit),
+    }));
+  };
+
+  // Function to go to the first page
+  const firstPage = () => {
+    setSearchCretiria((prev) => ({
+      ...prev,
+      offset: 0,
+    }));
+  };
+
+  // Function to go to the last page
+  const lastPage = () => {
+    if (!isLastPage) {
+      setSearchCretiria((prev) => ({
+        ...prev,
+        offset: lastPageOffset,
+      }));
+    }
+  };
+
+  const handleTotalNutritions = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setFilter((prev) => {
+      const newFilter = { ...prev };
+
+      if (value.trim() == "") {
+        delete newFilter.total_nutrition;
+      } else {
+        newFilter.total_nutrition = value;
+      }
+
+      return newFilter;
+    });
+  };
+
+  const handleFat = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setFilter((prev) => {
+      const newFilter = { ...prev };
+
+      if (value.trim() == "") {
+        delete newFilter.total_fat;
+      } else {
+        newFilter.total_fat = value;
+      }
+
+      return newFilter;
+    });
+  };
+
+  const handleCategory = (value: string) => {
+    setFilter((prev) => ({
+      ...prev,
+      category: value,
+    }));
+  };
+
+  const filterDisplay = [
+    {
+      type: "select",
+      name: "income_category_id",
+      label: "Income Category",
+      options: categories,
+      function: handleCategory,
+    },
+    {
+      type: "number",
+      name: "total_nutrition",
+      label: "Total Nutrition",
+      function: handleTotalNutritions,
+    },
+    {
+      type: "number",
+      name: "fat",
+      label: "Total Fat",
+      function: handleFat,
+    },
+  ];
 
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
-          <p className="font-semibold text-2xl">Food / Nutrition</p>
+          <div className="flex items-center  relative">
+            <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
+            <FloatingLabelInput
+              id="search"
+              placeholder="Search by food name"
+              onChange={(event) => setInputValue(event.target.value)}
+              className="w-64 pl-8 text-gray-400"
+            />
+          </div>{" "}
         </div>
         <Button
           className="bg-primary m-4 text-black gap-1 font-semibold"
@@ -210,7 +493,13 @@ export default function FoodsTableView() {
           <PlusIcon className="h-4 w-4" />
           Create New
         </Button>
-        {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
+
+        <button
+          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+          onClick={() => setOpenFilter(true)}
+        >
+          <i className="fa fa-filter"></i>
+        </button>
       </div>
       <div className="rounded-none  ">
         <ScrollArea className="w-full relative">
@@ -235,7 +524,7 @@ export default function FoodsTableView() {
               ))}
             </TableHeader>
             <TableBody>
-              {true ? (
+              {isLoading ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -264,7 +553,7 @@ export default function FoodsTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : false ? (
+              ) : isLoading ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -287,10 +576,125 @@ export default function FoodsTableView() {
           </Table>
         </ScrollArea>
       </div>
-      
-      
 
-      <FoodForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} />
+      {/* pagination */}
+      {foodstableData.length>0 && (
+        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">Items per page:</p>
+              <Select
+                value={searchCretiria.limit.toString()}
+                onValueChange={(value) => {
+                  const newSize = Number(value);
+                  setSearchCretiria((prev) => ({
+                    ...prev,
+                    limit: newSize,
+                    offset: 0, // Reset offset when page size changes
+                  }));
+                }}
+              >
+                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+                  <SelectValue>{searchCretiria.limit}</SelectValue>
+                </SelectTrigger>
+                <SelectContent side="bottom">
+                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={pageSize.toString()}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Separator
+              orientation="vertical"
+              className="h-11 w-[1px] bg-gray-300"
+            />
+            <span>
+              {" "}
+              {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${foodData?.filtered_counts} Items  `}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center space-x-2">
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+                onClick={firstPage}
+                disabled={searchCretiria.offset === 0}
+              >
+                <DoubleArrowLeftIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[0.5px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={prevPage}
+                disabled={searchCretiria.offset === 0}
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={nextPage}
+                disabled={isLastPage}
+              >
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+                onClick={lastPage}
+                disabled={isLastPage}
+              >
+                <DoubleArrowRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <TableFilters
+        isOpen={openFilter}
+        setOpen={setOpenFilter}
+        initialValue={initialValue}
+        filterData={filterData}
+        setFilter={setFilter}
+        setSearchCriteria={setSearchCretiria}
+        filterDisplay={filterDisplay}
+      />
+
+      <FoodForm
+        isOpen={isDialogOpen}
+        setOpen={setIsDialogOpen}
+        action={action}
+        data={data}
+        refetch={refetch}
+      />
     </div>
   );
 }

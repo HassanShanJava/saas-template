@@ -58,17 +58,22 @@ import {
   useGetCoachesQuery,
   useUpdateCoachMutation,
 } from "@/services/coachApi";
-import { CoachTableDataTypes, CoachTableTypes, coachUpdateInput, ErrorType } from "@/app/types";
+import {
+  CoachTableDataTypes,
+  CoachTableTypes,
+  coachUpdateInput,
+  ErrorType,
+} from "@/app/types";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Separator } from "@/components/ui/separator";
-import CoachFilters from "./data-table-filter";
-import CoachForm from "../../coachForm/Form"
+import CoachForm from "../../coachForm/Form";
 import { Sheet } from "@/components/ui/sheet";
+import TableFilters from "@/components/ui/table/data-table-filter";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-  { value: "pending", label: "Pending", color: "bg-orange-500" , hide: true},
+  { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 
 const downloadCSV = (data: any[], fileName: string) => {
@@ -88,16 +93,15 @@ interface searchCretiriaType {
   sort_order: string;
   sort_key?: string;
   status?: boolean;
-  search_key?: string
+  search_key?: string;
 }
 
 const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key:"created_at",
+  sort_key: "created_at",
 };
-
 
 export default function CoachTableView() {
   const orgId =
@@ -140,16 +144,17 @@ export default function CoachTableView() {
     setQuery(newQuery);
   }, [searchCretiria]);
 
-
   const {
     data: coachData,
     isLoading,
     refetch,
     error,
-  } = useGetCoachesQuery({ org_id: orgId, query: query },
+  } = useGetCoachesQuery(
+    { org_id: orgId, query: query },
     {
       skip: query == "",
-    });
+    }
+  );
 
   const navigate = useNavigate();
   const [updateCoach] = useUpdateCoachMutation();
@@ -168,7 +173,6 @@ export default function CoachTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-
 
   const displayDate = (value: any) => {
     const date = new Date(value);
@@ -242,18 +246,21 @@ export default function CoachTableView() {
     value == null || value == "" ? "N/A" : value;
 
   const toggleSortOrder = (key: string) => {
-  setSearchCretiria((prev) => {
-    const newSortOrder = prev.sort_key === key 
-      ? (prev.sort_order === "desc" ? "asc" : "desc")
-      : "desc"; // Default to descending order if the key is different
+    setSearchCretiria((prev) => {
+      const newSortOrder =
+        prev.sort_key === key
+          ? prev.sort_order === "desc"
+            ? "asc"
+            : "desc"
+          : "desc"; // Default to descending order if the key is different
 
-    return {
-      ...prev,
-      sort_key: key,
-      sort_order: newSortOrder,
-    };
-  });
-};
+      return {
+        ...prev,
+        sort_key: key,
+        sort_order: newSortOrder,
+      };
+    });
+  };
 
   const columns: ColumnDef<CoachTableDataTypes>[] = [
     {
@@ -281,18 +288,20 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "own_coach_id",
-      meta:"Gym Coach ID",
-      header:  () => (<div className="flex items-center gap-2">
-        <p>Gym Coach ID</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("own_coach_id")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Gym Coach ID",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Gym Coach ID</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("own_coach_id")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -304,18 +313,20 @@ export default function CoachTableView() {
     {
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       id: "full_name",
-      meta:"Coach Name",
-      header:  () => (<div className="flex items-center gap-2">
-        <p>Coach Name</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("first_name")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Coach Name",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Coach Name</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("first_name")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -326,18 +337,20 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "coach_since",
-      meta:"Coach Since",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Coach Since</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("coach_since")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Coach Since",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Coach Since</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("coach_since")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -348,18 +361,20 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "coach_status",
-      meta:"Status",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Status</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("coach_status")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Status",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Status</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("coach_status")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         const value =
           row.original?.coach_status != null
@@ -389,11 +404,14 @@ export default function CoachTableView() {
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {status.map((item: any) => !item.hide&&(
-                <SelectItem key={item.value + ""} value={item.value + ""}>
-                  {item.label}
-                </SelectItem>
-              ))}
+              {status.map(
+                (item: any) =>
+                  !item.hide && (
+                    <SelectItem key={item.value + ""} value={item.value + ""}>
+                      {item.label}
+                    </SelectItem>
+                  )
+              )}
             </SelectContent>
           </Select>
         );
@@ -403,18 +421,20 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "check_in",
-      meta:"Last Check In",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Last Check In</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("check_in")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Last Check In",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Last Check In</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("check_in")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         console.log(row?.original.check_in);
         return (
@@ -426,18 +446,20 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "last_online",
-      meta:"Last Login",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Last Login</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("last_online")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      meta: "Last Login",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Last Login</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("last_online")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -450,7 +472,11 @@ export default function CoachTableView() {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <DataTableRowActions data={row.original} refetch={refetch} handleEdit={handleOpenForm} />
+        <DataTableRowActions
+          data={row.original}
+          refetch={refetch}
+          handleEdit={handleOpenForm}
+        />
       ),
     },
   ];
@@ -496,52 +522,55 @@ export default function CoachTableView() {
     },
   ];
 
-  const totalRecords = coachData?.total_counts || 0
-  const lastPageOffset = Math.max(0, Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit);
+  const totalRecords = coachData?.total_counts || 0;
+  const lastPageOffset = Math.max(
+    0,
+    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+  );
   const isLastPage = searchCretiria.offset >= lastPageOffset;
 
   const nextPage = () => {
     if (!isLastPage) {
-      setSearchCretiria(prev => ({
+      setSearchCretiria((prev) => ({
         ...prev,
-        offset: prev.offset + prev.limit
+        offset: prev.offset + prev.limit,
       }));
     }
   };
 
   // Function to go to the previous page
   const prevPage = () => {
-    setSearchCretiria(prev => ({
+    setSearchCretiria((prev) => ({
       ...prev,
-      offset: Math.max(0, prev.offset - prev.limit)
+      offset: Math.max(0, prev.offset - prev.limit),
     }));
   };
 
   // Function to go to the first page
   const firstPage = () => {
-    setSearchCretiria(prev => ({
+    setSearchCretiria((prev) => ({
       ...prev,
-      offset: 0
+      offset: 0,
     }));
   };
 
   // Function to go to the last page
   const lastPage = () => {
     if (!isLastPage) {
-      setSearchCretiria(prev => ({
+      setSearchCretiria((prev) => ({
         ...prev,
-        offset: lastPageOffset
+        offset: lastPageOffset,
       }));
     }
   };
 
-	const handleOpenForm = (coachData: coachUpdateInput | null = null) => {
-		setEditCoach(coachData);
-		setOpen(true);
-	}
+  const handleOpenForm = (coachData: coachUpdateInput | null = null) => {
+    setEditCoach(coachData);
+    setOpen(true);
+  };
 
-	const [open, setOpen] = useState<boolean>(false);
-	const [editCoach, setEditCoach] = useState<coachUpdateInput | null>(null);
+  const [open, setOpen] = useState<boolean>(false);
+  const [editCoach, setEditCoach] = useState<coachUpdateInput | null>(null);
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between gap-2 px-4 py-2 ">
@@ -556,7 +585,10 @@ export default function CoachTableView() {
             />
           </div>
         </div>
-        <Button className="bg-primary  text-black mr-1 " onClick={() => handleOpenForm()}>
+        <Button
+          className="bg-primary  text-black mr-1 "
+          onClick={() => handleOpenForm()}
+        >
           <PlusIcon className="size-4" />
           Create New
         </Button>
@@ -589,9 +621,9 @@ export default function CoachTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -653,89 +685,107 @@ export default function CoachTableView() {
       </div>
 
       {/* pagination */}
-      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium">Items per page:</p>
-            <Select
-              value={searchCretiria.limit.toString()}
-              onValueChange={(value) => {
-                const newSize = Number(value);
-                setSearchCretiria((prev) => ({
-                  ...prev,
-                  limit: newSize,
-                  offset: 0, // Reset offset when page size changes
-                }));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-                <SelectValue>{searchCretiria.limit}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="bottom">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={pageSize.toString()}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      {coachTableData.length > 0 && (
+        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">Items per page:</p>
+              <Select
+                value={searchCretiria.limit.toString()}
+                onValueChange={(value) => {
+                  const newSize = Number(value);
+                  setSearchCretiria((prev) => ({
+                    ...prev,
+                    limit: newSize,
+                    offset: 0, // Reset offset when page size changes
+                  }));
+                }}
+              >
+                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+                  <SelectValue>{searchCretiria.limit}</SelectValue>
+                </SelectTrigger>
+                <SelectContent side="bottom">
+                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={pageSize.toString()}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Separator
+              orientation="vertical"
+              className="h-11 w-[1px] bg-gray-300"
+            />
+            <span>
+              {" "}
+              {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${coachData?.filtered_counts} Items  `}
+            </span>
           </div>
-          <Separator orientation="vertical" className="h-11 w-[1px] bg-gray-300" />
-          <span> {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${coachData?.filtered_counts} Items  `}</span>
-        </div>
 
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center space-x-2">
-            <Separator orientation="vertical" className="hidden lg:flex h-11 w-[1px] bg-gray-300" />
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center space-x-2">
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
 
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
-              onClick={firstPage}
-              disabled={searchCretiria.offset === 0}
-            >
-              <DoubleArrowLeftIcon className="h-4 w-4" />
-            </Button>
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+                onClick={firstPage}
+                disabled={searchCretiria.offset === 0}
+              >
+                <DoubleArrowLeftIcon className="h-4 w-4" />
+              </Button>
 
-            <Separator orientation="vertical" className="h-11 w-[0.5px] bg-gray-300" />
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[0.5px] bg-gray-300"
+              />
 
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-              onClick={prevPage}
-              disabled={searchCretiria.offset === 0}
-            >
-              <ChevronLeftIcon className="h-4 w-4" />
-            </Button>
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={prevPage}
+                disabled={searchCretiria.offset === 0}
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
 
-            <Separator orientation="vertical" className="h-11 w-[1px] bg-gray-300" />
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[1px] bg-gray-300"
+              />
 
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-              onClick={nextPage}
-              disabled={isLastPage}
-            >
-              <ChevronRightIcon className="h-4 w-4" />
-            </Button>
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={nextPage}
+                disabled={isLastPage}
+              >
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
 
-            <Separator orientation="vertical" className="hidden lg:flex h-11 w-[1px] bg-gray-300" />
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
 
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-              onClick={lastPage}
-              disabled={isLastPage}
-            >
-              <DoubleArrowRightIcon className="h-4 w-4" />
-            </Button>
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+                onClick={lastPage}
+                disabled={isLastPage}
+              >
+                <DoubleArrowRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-      {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
+      )}
 
-
-      <CoachFilters
+      <TableFilters
         isOpen={openFilter}
         setOpen={setOpenFilter}
         initialValue={initialValue}
@@ -744,7 +794,13 @@ export default function CoachTableView() {
         setSearchCriteria={setSearchCretiria}
         filterDisplay={filterDisplay}
       />
-			<CoachForm coachData={editCoach} setCoachData={setEditCoach} setOpen={setOpen} open={open} />
+
+      <CoachForm
+        coachData={editCoach}
+        setCoachData={setEditCoach}
+        setOpen={setOpen}
+        open={open}
+      />
     </div>
   );
 }

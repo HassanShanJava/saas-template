@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "../use-toast";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-
+import userimg from "@/assets/userSvg.svg";
 const Breadcrumb = ({
   currentPath,
   targetPath,
@@ -204,7 +204,7 @@ export const Header = () => {
                 title="Add Staff"
               />
               
-              {/* <PageTitle
+              <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/mealplans"
                 title="Meal Plans"
@@ -213,7 +213,7 @@ export const Header = () => {
                 currentPath={location.pathname}
                 targetPath="/admin/foods"
                 title="Food/ Nutrition"
-              /> */}
+              />
             </h1>
 
             <Breadcrumb
@@ -331,7 +331,7 @@ export const Header = () => {
             <DropdownMenuTrigger asChild>
               <div className="justify-center cursor-pointer items-center flex gap-3">
                 <img
-                  src="/userSvg.svg"
+                  src={userimg}
                   width="32"
                   height="32"
                   className="rounded-full"

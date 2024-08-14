@@ -19,27 +19,26 @@ import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { createMembershipType, ErrorType } from "@/app/types";
-import { useDeleteMembershipsMutation } from "@/services/membershipsApi";
+import { CreateFoodTypes, createMembershipType, ErrorType } from "@/app/types";
+import warning from "@/assets/warning.svg";
+import { useDeleteFoodsMutation } from "@/services/foodsApi";
 
 export function DataTableRowActions({
   data,
   refetch,
   handleEdit,
 }: {
-  data: createMembershipType & {id:number};
+  data: CreateFoodTypes;
   refetch?: any;
   handleEdit?: any;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
-  const [deleteMembership, { isLoading: deleteLoading }] =
-    useDeleteMembershipsMutation();
+  const [deleteFoods] = useDeleteFoodsMutation();
   const { toast } = useToast();
 
   const deleteRow = async () => {
-
     try {
-      const resp = await deleteMembership(data.id).unwrap();
+      const resp = await deleteFoods(data.id as number).unwrap();
       if (resp) {
         refetch();
         toast({
@@ -48,7 +47,6 @@ export function DataTableRowActions({
         });
       }
       return;
-      
     } catch (error) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -99,16 +97,11 @@ export function DataTableRowActions({
         <AlertDialog open={isdelete} onOpenChange={() => setIsDelete(false)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
-                  <img
-                    src="/public/warning.svg"
-                    alt="warning"
-                    className="w-18 h-18"
-                  />
+                  <img src={warning} alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this membership
+                    Please confirm if you want to delete this food
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

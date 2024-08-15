@@ -873,6 +873,8 @@ export default function MemberTableView() {
         setOpen={setOpen}
         memberData={editMember}
         setMemberData={setEditMember}
+        action={action}
+        setAction={setAction}
       />
 
      {/* <MemberModalForm

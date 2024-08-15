@@ -103,7 +103,7 @@ export default function IncomeCategoryTableView() {
     limit: 10,
     offset: 0,
     sort_order: "desc",
-    sort_key:"created_at",
+    sort_key: "created_at",
   });
   const [query, setQuery] = useState("");
 
@@ -131,7 +131,8 @@ export default function IncomeCategoryTableView() {
     }
   );
 
-  const [updateIncomeCategory, { isLoading: updateLoading }] = useUpdateIncomeCategoryMutation();
+  const [updateIncomeCategory, { isLoading: updateLoading }] =
+    useUpdateIncomeCategoryMutation();
   const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -142,23 +143,25 @@ export default function IncomeCategoryTableView() {
     sale_tax_id: undefined,
     name: "",
     org_id: orgId,
-    status:"active",
+    status: "active",
   });
-
 
   const toggleSortOrder = (key: string) => {
-  setSearchCretiria((prev) => {
-    const newSortOrder = prev.sort_key === key 
-      ? (prev.sort_order === "desc" ? "asc" : "desc")
-      : "desc"; // Default to descending order if the key is different
+    setSearchCretiria((prev) => {
+      const newSortOrder =
+        prev.sort_key === key
+          ? prev.sort_order === "desc"
+            ? "asc"
+            : "desc"
+          : "desc"; // Default to descending order if the key is different
 
-    return {
-      ...prev,
-      sort_key: key,
-      sort_order: newSortOrder,
-    };
-  });
-};
+      return {
+        ...prev,
+        sort_key: key,
+        sort_order: newSortOrder,
+      };
+    });
+  };
 
   //   // table dropdown status update
   //   const handleStatusChange = async (payload: {
@@ -197,7 +200,9 @@ export default function IncomeCategoryTableView() {
   //   };
 
   const incomeCategorytableData = React.useMemo(() => {
-    return Array.isArray(incomeCategoryData?.data) ? incomeCategoryData?.data : [];
+    return Array.isArray(incomeCategoryData?.data)
+      ? incomeCategoryData?.data
+      : [];
   }, [incomeCategoryData]);
 
   const { toast } = useToast();
@@ -209,7 +214,7 @@ export default function IncomeCategoryTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-  
+
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     let finalValue: number | string = value;
@@ -240,17 +245,19 @@ export default function IncomeCategoryTableView() {
   const columns: ColumnDef<incomeCategoryTableType>[] = [
     {
       accessorKey: "name",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Category Name</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("name")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Category Name</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("name")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return <span>{row.original.name}</span>;
       },
@@ -259,17 +266,19 @@ export default function IncomeCategoryTableView() {
     },
     {
       accessorKey: "sale_tax_id",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Default Tax/VAT</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("sale_tax_id")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Default Tax/VAT</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("sale_tax_id")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         const sales: any = salesTaxData?.filter(
           (item) => item.id == row.original.sale_tax_id
@@ -357,7 +366,6 @@ export default function IncomeCategoryTableView() {
       columnVisibility,
       rowSelection,
     },
-    
   });
 
   function handlePagination(page: number) {
@@ -428,7 +436,6 @@ export default function IncomeCategoryTableView() {
     }
   };
 
-
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
@@ -443,7 +450,7 @@ export default function IncomeCategoryTableView() {
           Create New
         </Button>
 
-          {/* <button
+        {/* <button
             className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
             onClick={toggleSortOrder}
           >
@@ -451,7 +458,7 @@ export default function IncomeCategoryTableView() {
           </button> */}
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
-      <div className="rounded-none  ">
+      <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
           <ScrollBar orientation="horizontal" />
           <Table className="w-full overflow-x-scroll">
@@ -464,9 +471,9 @@ export default function IncomeCategoryTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -526,106 +533,107 @@ export default function IncomeCategoryTableView() {
           </Table>
         </ScrollArea>
       </div>
-      
+
       {/* pagination */}
-      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium">Items per page:</p>
-            <Select
-              value={searchCretiria.limit.toString()}
-              onValueChange={(value) => {
-                const newSize = Number(value);
-                setSearchCretiria((prev) => ({
-                  ...prev,
-                  limit: newSize,
-                  offset: 0, // Reset offset when page size changes
-                }));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-                <SelectValue>{searchCretiria.limit}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="bottom">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={pageSize.toString()}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Separator
-            orientation="vertical"
-            className="h-11 w-[1px] bg-gray-300"
-          />
-          <span>
-            {" "}
-            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${incomeCategoryData?.filtered_counts} Items  `}
-          </span>
-        </div>
-
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center space-x-2">
-            <Separator
-              orientation="vertical"
-              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-            />
-
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
-              onClick={firstPage}
-              disabled={searchCretiria.offset === 0}
-            >
-              <DoubleArrowLeftIcon className="h-4 w-4" />
-            </Button>
-
-            <Separator
-              orientation="vertical"
-              className="h-11 w-[0.5px] bg-gray-300"
-            />
-
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-              onClick={prevPage}
-              disabled={searchCretiria.offset === 0}
-            >
-              <ChevronLeftIcon className="h-4 w-4" />
-            </Button>
-
+      {incomeCategorytableData.length > 0 && (
+        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">Items per page:</p>
+              <Select
+                value={searchCretiria.limit.toString()}
+                onValueChange={(value) => {
+                  const newSize = Number(value);
+                  setSearchCretiria((prev) => ({
+                    ...prev,
+                    limit: newSize,
+                    offset: 0, // Reset offset when page size changes
+                  }));
+                }}
+              >
+                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+                  <SelectValue>{searchCretiria.limit}</SelectValue>
+                </SelectTrigger>
+                <SelectContent side="bottom">
+                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={pageSize.toString()}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <Separator
               orientation="vertical"
               className="h-11 w-[1px] bg-gray-300"
             />
+            <span>
+              {" "}
+              {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${incomeCategoryData?.filtered_counts} Items  `}
+            </span>
+          </div>
 
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-              onClick={nextPage}
-              disabled={isLastPage}
-            >
-              <ChevronRightIcon className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center space-x-2">
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
 
-            <Separator
-              orientation="vertical"
-              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-            />
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+                onClick={firstPage}
+                disabled={searchCretiria.offset === 0}
+              >
+                <DoubleArrowLeftIcon className="h-4 w-4" />
+              </Button>
 
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-              onClick={lastPage}
-              disabled={isLastPage}
-            >
-              <DoubleArrowRightIcon className="h-4 w-4" />
-            </Button>
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[0.5px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={prevPage}
+                disabled={searchCretiria.offset === 0}
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={nextPage}
+                disabled={isLastPage}
+              >
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+                onClick={lastPage}
+                disabled={isLastPage}
+              >
+                <DoubleArrowRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-      
+      )} 
 
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
       <IncomeCategoryForm
@@ -684,8 +692,11 @@ const IncomeCategoryForm = ({
     id: z.number().optional(),
     org_id: z.number(),
     sale_tax_id: z.number(),
-    status: z.string({required_error:"Required"}).default("active"),
-    name: z.string().min(1, { message: "Required" }),
+    status: z.string({ required_error: "Required" }).default("active"),
+    name: z
+      .string()
+      .min(1, { message: "Required" })
+      .max(40, "Should be 40 characters or less"),
   });
 
   const form = useForm<z.infer<typeof incomeCategoryFormSchema>>({
@@ -800,7 +811,7 @@ const IncomeCategoryForm = ({
                           value={field.value ?? ""}
                           onChange={handleOnChange}
                         />
-                        {watcher.name ? <></> : <FormMessage />}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -813,10 +824,6 @@ const IncomeCategoryForm = ({
                         <FloatingLabelInput
                           {...field}
                           type="number"
-                          onInput={(e) => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value.replace(/[^0-9.]/g, '');
-          }}
                           id="percentage"
                           name="percentage"
                           min={1}

@@ -28,12 +28,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 
 import * as z from "zod";
@@ -101,7 +96,7 @@ export default function SaleTaxesTableView() {
     limit: 10,
     offset: 0,
     sort_order: "desc",
-    sort_key:"created_at",
+    sort_key: "created_at",
   });
   const [query, setQuery] = useState("");
 
@@ -133,18 +128,21 @@ export default function SaleTaxesTableView() {
     useUpdateSalesTaxMutation();
 
   const toggleSortOrder = (key: string) => {
-  setSearchCretiria((prev) => {
-    const newSortOrder = prev.sort_key === key 
-      ? (prev.sort_order === "desc" ? "asc" : "desc")
-      : "desc"; // Default to descending order if the key is different
+    setSearchCretiria((prev) => {
+      const newSortOrder =
+        prev.sort_key === key
+          ? prev.sort_order === "desc"
+            ? "asc"
+            : "desc"
+          : "desc"; // Default to descending order if the key is different
 
-    return {
-      ...prev,
-      sort_key: key,
-      sort_order: newSortOrder,
-    };
-  });
-};
+      return {
+        ...prev,
+        sort_key: key,
+        sort_order: newSortOrder,
+      };
+    });
+  };
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleCloseDailog = () => setIsDialogOpen(false);
@@ -152,7 +150,7 @@ export default function SaleTaxesTableView() {
   const [formData, setFormData] = useState<saleTaxesFormData>({
     percentage: 1,
     name: "",
-    status:"active",
+    status: "active",
     org_id: orgId,
   });
 
@@ -165,7 +163,7 @@ export default function SaleTaxesTableView() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  
+
   const displayValue = (value: any) => (value === null ? "N/A" : value);
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -233,17 +231,19 @@ export default function SaleTaxesTableView() {
   const columns: ColumnDef<saleTaxesTableType>[] = [
     {
       accessorKey: "name",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Tax/VAT Name</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("name")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Tax/VAT Name</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("name")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return <span>{row.original.name}</span>;
       },
@@ -252,17 +252,19 @@ export default function SaleTaxesTableView() {
     },
     {
       accessorKey: "percentage",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Percentage</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("percentage")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Percentage</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("percentage")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return <span>{row.original.percentage + "%"}</span>;
       },
@@ -318,7 +320,7 @@ export default function SaleTaxesTableView() {
     //   enableSorting: false,
     //   enableHiding: false,
     // },
-    {  
+    {
       id: "actions",
       header: "Actions",
       maxSize: 100,
@@ -346,7 +348,6 @@ export default function SaleTaxesTableView() {
       columnVisibility,
       rowSelection,
     },
-    
   });
 
   function handlePagination(page: number) {
@@ -439,7 +440,7 @@ export default function SaleTaxesTableView() {
           ></i>
         </button> */}
       </div>
-      <div className="rounded-none  ">
+      <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
           <ScrollBar orientation="horizontal" />
           <Table className="w-full overflow-x-scroll">
@@ -516,103 +517,105 @@ export default function SaleTaxesTableView() {
       </div>
 
       {/* pagination */}
-      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium">Items per page:</p>
-            <Select
-              value={searchCretiria.limit.toString()}
-              onValueChange={(value) => {
-                const newSize = Number(value);
-                setSearchCretiria((prev) => ({
-                  ...prev,
-                  limit: newSize,
-                  offset: 0, // Reset offset when page size changes
-                }));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-                <SelectValue>{searchCretiria.limit}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="bottom">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={pageSize.toString()}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Separator
-            orientation="vertical"
-            className="h-11 w-[1px] bg-gray-300"
-          />
-          <span>
-            {" "}
-            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${saleTaxesData?.filtered_counts} Items  `}
-          </span>
-        </div>
-
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center space-x-2">
-            <Separator
-              orientation="vertical"
-              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-            />
-
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
-              onClick={firstPage}
-              disabled={searchCretiria.offset === 0}
-            >
-              <DoubleArrowLeftIcon className="h-4 w-4" />
-            </Button>
-
-            <Separator
-              orientation="vertical"
-              className="h-11 w-[0.5px] bg-gray-300"
-            />
-
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-              onClick={prevPage}
-              disabled={searchCretiria.offset === 0}
-            >
-              <ChevronLeftIcon className="h-4 w-4" />
-            </Button>
-
+      {saletaxestableData.length > 0 && (
+        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">Items per page:</p>
+              <Select
+                value={searchCretiria.limit.toString()}
+                onValueChange={(value) => {
+                  const newSize = Number(value);
+                  setSearchCretiria((prev) => ({
+                    ...prev,
+                    limit: newSize,
+                    offset: 0, // Reset offset when page size changes
+                  }));
+                }}
+              >
+                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+                  <SelectValue>{searchCretiria.limit}</SelectValue>
+                </SelectTrigger>
+                <SelectContent side="bottom">
+                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={pageSize.toString()}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <Separator
               orientation="vertical"
               className="h-11 w-[1px] bg-gray-300"
             />
+            <span>
+              {" "}
+              {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${saleTaxesData?.filtered_counts} Items  `}
+            </span>
+          </div>
 
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-              onClick={nextPage}
-              disabled={isLastPage}
-            >
-              <ChevronRightIcon className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center space-x-2">
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
 
-            <Separator
-              orientation="vertical"
-              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-            />
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+                onClick={firstPage}
+                disabled={searchCretiria.offset === 0}
+              >
+                <DoubleArrowLeftIcon className="h-4 w-4" />
+              </Button>
 
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-              onClick={lastPage}
-              disabled={isLastPage}
-            >
-              <DoubleArrowRightIcon className="h-4 w-4" />
-            </Button>
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[0.5px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={prevPage}
+                disabled={searchCretiria.offset === 0}
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={nextPage}
+                disabled={isLastPage}
+              >
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+                onClick={lastPage}
+                disabled={isLastPage}
+              >
+                <DoubleArrowRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
       <SaleTaxesForm
@@ -629,7 +632,7 @@ export default function SaleTaxesTableView() {
 
 interface saleTaxesFormData {
   percentage: number;
-  status:string;
+  status: string;
   name: string;
   org_id: number;
   id?: number;
@@ -667,8 +670,11 @@ const SaleTaxesForm = ({
   const saleTaxFormSchema = z.object({
     id: z.number().optional(),
     org_id: z.number(),
-    name: z.string().min(1, { message: "Required" }),
-    status: z.string({required_error:"Required"}).default("active"),
+    name: z
+      .string()
+      .min(1, { message: "Required" })
+      .max(40, "Should be 40 characters or less"),
+    status: z.string({ required_error: "Required" }).default("active"),
     percentage: z.number().min(1, { message: "Required" }),
   });
 
@@ -735,7 +741,7 @@ const SaleTaxesForm = ({
       ...prev,
       percentage: 1,
       name: "",
-      statu:"active"
+      statu: "active",
     }));
   };
   console.log(form.formState.errors);
@@ -749,13 +755,13 @@ const SaleTaxesForm = ({
             ...prev,
             percentage: 1,
             name: "",
-            status:"active",
+            status: "active",
           }));
           form.reset({
             org_id: formData.org_id,
             percentage: 1,
             name: "",
-            status:"active",
+            status: "active",
           });
           setIsDialogOpen();
         }}
@@ -786,7 +792,7 @@ const SaleTaxesForm = ({
                           value={field.value ?? ""}
                           onChange={handleOnChange}
                         />
-                        {watcher.name ? <></> : <FormMessage />}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -799,10 +805,6 @@ const SaleTaxesForm = ({
                         <FloatingLabelInput
                           {...field}
                           type="number"
-                          onInput={(e) => {
-                            const target = e.target as HTMLInputElement;
-                            target.value = target.value.replace(/[^0-9.]/g, '');
-                          }}
                           id="percentage"
                           name="percentage"
                           min={1}

@@ -73,10 +73,7 @@ const AutoRenewalForm = () => {
             <FloatingLabelInput
               id="prolongation_period"
               type="number"
-              onInput={(e) => {
-                const target = e.target as HTMLInputElement;
-                target.value = target.value.replace(/[^0-9.]/g, '');
-              }}
+              
               min={0}
               className="w-20 "
               {...register("prolongation_period", {
@@ -94,10 +91,7 @@ const AutoRenewalForm = () => {
             <FloatingLabelInput
               id="days_before"
               type="number"
-              onInput={(e) => {
-                const target = e.target as HTMLInputElement;
-                target.value = target.value.replace(/[^0-9.]/g, '');
-              }}
+              
               min={1}
               max={15}
               className="w-20 "
@@ -118,10 +112,7 @@ const AutoRenewalForm = () => {
             <FloatingLabelInput
               id="next_invoice"
               type="number"
-              onInput={(e) => {
-                const target = e.target as HTMLInputElement;
-                target.value = target.value.replace(/[^0-9.]/g, '');
-              }}
+              
               min={1}
               max={15}
               className="w-20 "

@@ -203,8 +203,8 @@ export const Header = () => {
                 targetPath="/admin/staff/addstaff"
                 title="Add Staff"
               />
-
-              {/* <PageTitle
+              
+              <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/mealplans"
                 title="Meal Plans"
@@ -213,7 +213,7 @@ export const Header = () => {
                 currentPath={location.pathname}
                 targetPath="/admin/foods"
                 title="Food/ Nutrition"
-              /> */}
+              />
             </h1>
 
             <Breadcrumb

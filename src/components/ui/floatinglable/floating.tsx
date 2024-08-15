@@ -61,6 +61,12 @@ const FloatingInput = React.forwardRef<
       className={cn("peer", "font-poppins",className)}
       ref={inputRef}
       {...props}
+      onInput={(e) => {
+        if(type=="number"){
+          const target = e.target as HTMLInputElement;
+          target.value = target.value.replace(/[^0-9.]/g, '');
+        }
+      }}
     />
   );
 });
@@ -81,7 +87,7 @@ const FloatingLabel = React.forwardRef<
       className={cn(
         "peer-focus:secondary font-poppins peer-focus:dark:secondary absolute start-2 z-10 origin-[0] scale-75 transform bg-background px-2 text-sm text-gray-400 duration-300",
         isTextarea
-          ? `top-2 -translate-y-4 peer-placeholder-shown:top-${customPercentage[0]} peer-placeholder-shown:-translate-y-${customPercentage[1]} peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2`
+          ? `top-2 -translate-y-${customPercentage[2]??"4"} peer-placeholder-shown:top-${customPercentage[0]} peer-placeholder-shown:-translate-y-${customPercentage[1]} peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2`
           : "top-2 -translate-y-4 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2",
         className
       )}
@@ -107,7 +113,7 @@ const FloatingLabelInput = React.forwardRef<
         </FloatingLabel>
       </div>
       {error && (
-        <span className="text-destructive font-poppins block !mt-[5px] text-[12px]">
+        <span className="text-destructive font-poppins block !mt-[5px] text-xs">
           {error}
         </span>
       )}

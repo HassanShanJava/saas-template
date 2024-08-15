@@ -93,10 +93,6 @@ const PriceDiscountTaxForm = () => {
           id="net_price"
           label="Net Price*"
           type="number"
-          onInput={(e) => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value.replace(/[^0-9.]/g, '');
-          }}
           min={0}
           {...register("net_price", {
             required: "Required",
@@ -107,10 +103,6 @@ const PriceDiscountTaxForm = () => {
           id="discount"
           label="Discount Percentage*"
           type="number"
-          onInput={(e) => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value.replace(/[^0-9.]/g, '');
-          }}
           min={0}
           max={99}
           {...register("discount", {
@@ -178,10 +170,6 @@ const PriceDiscountTaxForm = () => {
           disabled={true}
           label="Tax/VAT Amount*"
           type="number"
-          onInput={(e) => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value.replace(/[^0-9.]/g, '');
-          }}
           min={0}
           {...register("tax_amount", {
             required: "Required",
@@ -193,10 +181,6 @@ const PriceDiscountTaxForm = () => {
           label="Total Amount*"
           disabled={true}
           type="number"
-          onInput={(e) => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value.replace(/[^0-9.]/g, '');
-          }}
           min={0}
           {...register("total_price", {
             required: "Required",
@@ -241,10 +225,6 @@ const PriceDiscountTaxForm = () => {
           id="reg_fee"
           label="Registration Fee"
           type="number"
-          onInput={(e) => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value.replace(/[^0-9.]/g, '');
-          }}
           min={0}
           {...register("reg_fee")}
           error={errors.reg_fee?.message}

@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
-  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -23,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MoreHorizontal, PlusIcon, Rows, Search } from "lucide-react";
+import { PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -36,12 +34,11 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, MemberTableDatatypes, MemberTabletypes } from "@/app/types";
+import { ErrorType, MemberTableDatatypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { DataTableViewOptions } from "./data-table-view-options";
 import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
@@ -50,11 +47,10 @@ import {
   useGetMemberCountQuery,
   useUpdateMemberMutation,
 } from "@/services/memberAPi";
-import { useGetCoachListQuery } from "@/services/coachApi";
-import MemberFilters from "./data-table-filter";
 import { useGetMembershipListQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
 import MemberForm from "../../memberForm/form";
+import TableFilters from "@/components/ui/table/data-table-filter";
 
 const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
   const csvData = data.map(({ coaches, ...newdata }) => newdata);
@@ -672,7 +668,7 @@ export default function MemberTableView() {
           ></i>
         </button> */}
       </div>
-      <div className="rounded-md border border-border ">
+      <div className="rounded-none border border-border ">
         <ScrollArea className="w-full relative">
           <ScrollBar orientation="horizontal" />
           <Table className="w-full overflow-x-scroll">
@@ -749,7 +745,7 @@ export default function MemberTableView() {
       </div>
 
       {/* pagination */}
-      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+      {memberTableData.length>0&&<div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
         <div className="flex items-center justify-center gap-2">
           <div className="flex items-center gap-2">
             <p className="text-sm font-medium">Items per page:</p>
@@ -845,9 +841,9 @@ export default function MemberTableView() {
             </Button>
           </div>
         </div>
-      </div>
-      {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
-      <MemberFilters
+      </div>}
+
+      <TableFilters
         isOpen={openFilter}
         setOpen={setOpenFilter}
         initialValue={initialValue}

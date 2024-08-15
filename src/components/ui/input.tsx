@@ -16,6 +16,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
         ref={ref}
         {...props}
+        onInput={(e) => {
+          if(type=="number"){
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.replace(/[^0-9.]/g, '');
+          }
+        }}
       />
     )
   }

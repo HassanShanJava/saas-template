@@ -106,7 +106,7 @@ export default function FacilitiesTableView() {
     limit: 10,
     offset: 0,
     sort_order: "desc",
-    sort_key:"created_at",
+    sort_key: "created_at",
   });
   const [query, setQuery] = useState("");
 
@@ -135,18 +135,21 @@ export default function FacilitiesTableView() {
   );
 
   const toggleSortOrder = (key: string) => {
-  setSearchCretiria((prev) => {
-    const newSortOrder = prev.sort_key === key 
-      ? (prev.sort_order === "desc" ? "asc" : "desc")
-      : "desc"; // Default to descending order if the key is different
+    setSearchCretiria((prev) => {
+      const newSortOrder =
+        prev.sort_key === key
+          ? prev.sort_order === "desc"
+            ? "asc"
+            : "desc"
+          : "desc"; // Default to descending order if the key is different
 
-    return {
-      ...prev,
-      sort_key: key,
-      sort_order: newSortOrder,
-    };
-  });
-};
+      return {
+        ...prev,
+        sort_key: key,
+        sort_order: newSortOrder,
+      };
+    });
+  };
 
   const [updateCredits, { isLoading: creditsLoading }] =
     useUpdateCreditsMutation();
@@ -154,7 +157,7 @@ export default function FacilitiesTableView() {
   const handleCloseDailog = () => setIsDialogOpen(false);
 
   const [formData, setFormData] = useState<createFormData>({
-    status: 'active',
+    status: "active",
     name: "",
     min_limit: 1,
     org_id: orgId,
@@ -247,17 +250,19 @@ export default function FacilitiesTableView() {
   const columns: ColumnDef<creditTablestypes>[] = [
     {
       accessorKey: "name",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Name</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("name")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Name</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("name")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return <p>{row.original.name}</p>;
       },
@@ -266,17 +271,19 @@ export default function FacilitiesTableView() {
     },
     {
       accessorKey: "min_limit",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Min Required Credits</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("min_limit")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Min Required Credits</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("min_limit")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return <p>{row.original.min_limit}</p>;
       },
@@ -285,17 +292,19 @@ export default function FacilitiesTableView() {
     },
     {
       accessorKey: "status",
-      header: () => (<div className="flex items-center gap-2">
-        <p>Status</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("status")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>),
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Status</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("status")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         const value =
           row.original?.status != null ? row.original?.status + "" : "false";
@@ -360,12 +369,10 @@ export default function FacilitiesTableView() {
       columnVisibility,
       rowSelection,
     },
-
   });
 
   function handlePagination(page: number) {
     if (page < 0) return;
-
   }
 
   const handleAddCredit = () => {
@@ -462,7 +469,7 @@ export default function FacilitiesTableView() {
           <PlusIcon className="h-4 w-4 " />
           Create New
         </Button>
-        
+
         {/* <button
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={toggleSortOrder}
@@ -471,7 +478,7 @@ export default function FacilitiesTableView() {
         </button> */}
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
-      <div className="rounded-none  ">
+      <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
           <ScrollBar orientation="horizontal" />
           <Table className="w-full overflow-x-scroll">
@@ -548,106 +555,108 @@ export default function FacilitiesTableView() {
       </div>
 
       {/* pagination */}
-      <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium">Items per page:</p>
-            <Select
-              value={searchCretiria.limit.toString()}
-              onValueChange={(value) => {
-                const newSize = Number(value);
-                setSearchCretiria((prev) => ({
-                  ...prev,
-                  limit: newSize,
-                  offset: 0, // Reset offset when page size changes
-                }));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-                <SelectValue>{searchCretiria.limit}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="bottom">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={pageSize.toString()}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Separator
-            orientation="vertical"
-            className="h-11 w-[1px] bg-gray-300"
-          />
-          <span>
-            {" "}
-            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${facilitiesData?.filtered_counts} Items  `}
-          </span>
-        </div>
-
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center space-x-2">
-            <Separator
-              orientation="vertical"
-              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-            />
-
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
-              onClick={firstPage}
-              disabled={searchCretiria.offset === 0}
-            >
-              <DoubleArrowLeftIcon className="h-4 w-4" />
-            </Button>
-
-            <Separator
-              orientation="vertical"
-              className="h-11 w-[0.5px] bg-gray-300"
-            />
-
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-              onClick={prevPage}
-              disabled={searchCretiria.offset === 0}
-            >
-              <ChevronLeftIcon className="h-4 w-4" />
-            </Button>
-
+      {facilitiestableData.length > 0 && (
+        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">Items per page:</p>
+              <Select
+                value={searchCretiria.limit.toString()}
+                onValueChange={(value) => {
+                  const newSize = Number(value);
+                  setSearchCretiria((prev) => ({
+                    ...prev,
+                    limit: newSize,
+                    offset: 0, // Reset offset when page size changes
+                  }));
+                }}
+              >
+                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+                  <SelectValue>{searchCretiria.limit}</SelectValue>
+                </SelectTrigger>
+                <SelectContent side="bottom">
+                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={pageSize.toString()}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <Separator
               orientation="vertical"
               className="h-11 w-[1px] bg-gray-300"
             />
+            <span>
+              {" "}
+              {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${facilitiesData?.filtered_counts} Items  `}
+            </span>
+          </div>
 
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-              onClick={nextPage}
-              disabled={isLastPage}
-            >
-              <ChevronRightIcon className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center space-x-2">
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
 
-            <Separator  
-              orientation="vertical"
-              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-            />
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+                onClick={firstPage}
+                disabled={searchCretiria.offset === 0}
+              >
+                <DoubleArrowLeftIcon className="h-4 w-4" />
+              </Button>
 
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-              onClick={lastPage}
-              disabled={isLastPage}
-            >
-              <DoubleArrowRightIcon className="h-4 w-4" />
-            </Button>
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[0.5px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={prevPage}
+                disabled={searchCretiria.offset === 0}
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={nextPage}
+                disabled={isLastPage}
+              >
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+                onClick={lastPage}
+                disabled={isLastPage}
+              >
+                <DoubleArrowRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-      
+      )}
+
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
-      
+
       <CreditForm
         data={formData}
         isDialogOpen={isDialogOpen}
@@ -705,7 +714,10 @@ const CreditForm = ({
     id: z.number().optional(),
     org_id: z.number(),
     status: z.string(),
-    name: z.string().min(1, { message: "Required" }),
+    name: z
+      .string()
+      .min(1, { message: "Required" })
+      .max(40, "Should be 40 characters or less"),
     min_limit: z.number().min(1, { message: "Required" }),
   });
 
@@ -771,7 +783,7 @@ const CreditForm = ({
     console.log("calling close");
     setFormData((prev: createFormData) => ({
       ...prev,
-      status: 'active',
+      status: "active",
       name: "",
       min_limit: 1,
     }));
@@ -784,13 +796,13 @@ const CreditForm = ({
         onOpenChange={() => {
           setFormData((prev: createFormData) => ({
             ...prev,
-            status: 'active',
+            status: "active",
             name: "",
             min_limit: 1,
           }));
           form.reset({
             org_id: formData.org_id,
-            status: 'active',
+            status: "active",
             name: "",
             min_limit: 1,
           });
@@ -846,10 +858,6 @@ const CreditForm = ({
                             label="Min Requred Limit*"
                             value={field.value ?? 1}
                             onChange={handleOnChange}
-                            onInput={(e) => {
-                              const target = e.target as HTMLInputElement;
-                              target.value = target.value.replace(/[^0-9.]/g, '');
-                            }}
                           />
                           {watcher.min_limit ? <></> : <FormMessage />}
                         </FormItem>
@@ -875,12 +883,14 @@ const CreditForm = ({
                                   <span className="flex gap-2 items-center">
                                     <span
                                       className={`w-2 h-2 rounded-full ${
-                                        field.value =='active'
+                                        field.value == "active"
                                           ? "bg-green-500"
                                           : "bg-blue-500"
                                       }`}
                                     ></span>
-                                    {field.value =='active'? "Active" : "Inactive"}
+                                    {field.value == "active"
+                                      ? "Active"
+                                      : "Inactive"}
                                   </span>
                                 </SelectValue>
                               </SelectTrigger>

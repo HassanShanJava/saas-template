@@ -157,12 +157,14 @@ const CoachForm: React.FC<CoachFormProps> = ({
         required_error: "Required",
       })
       .trim()
+      .max(40, "Sbould be 40 characters or less")
       .min(3, { message: "Required" }),
     last_name: z
       .string({
         required_error: "Required",
       })
       .trim()
+      .max(40, "Sbould be 40 characters or less")
       .min(3, { message: "Required" }),
     gender: z
       .enum(["male", "female", "other"], {
@@ -176,7 +178,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .refine((value) => value.trim() !== "", {
         message: "Required",
       }),
-    email: z.string().min(1, { message: "Required" }).email("invalid email"),
+    email: z.string().min(1, { message: "Required" }).max(50, "Must be 50 characters or less").email("Invalid Email"),
     phone: z
       .string()
       .max(11, {
@@ -191,9 +193,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
       })
       .trim()
       .optional(),
-    member_ids: z.array(membersSchema).nonempty({
-      message: "Minimum one member must be assigned", // Custom error message
-    }),
+    member_ids: z.array(membersSchema).optional(),
     coach_status: z
       .enum(["pending", "active", "inactive"], {
         required_error: "You need to select status.",
@@ -214,10 +214,10 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .trim()
       .max(10, "Zipcode must be 10 characters or less")
       .optional(),
-    bank_name: z.string().trim().optional(),
-    iban_no: z.string().trim().optional(),
-    swift_code: z.string().trim().optional(),
-    acc_holder_name: z.string().trim().optional(),
+    bank_name: z.string().trim().max(40, "Sbould be 40 characters or less").optional(), 
+    iban_no: z.string().trim().max(34, "Sbould be 34 characters or less").optional(),
+    swift_code: z.string().trim().max(11, "Should be 11 characters or less").optional(),
+    acc_holder_name: z.string().trim().max(50, "Should be 50 characters or less").optional(),
     country_id: z.coerce
       .number({
         required_error: "Required",
@@ -491,7 +491,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                             id="first_name"
                             label="First Name*"
                           />
-                          {watcher.first_name ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.first_name?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -507,7 +507,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                             id="last_name"
                             label="Last Name*"
                           />
-                          {watcher.last_name ? <></> : <FormMessage />}
+													<FormMessage>{form.formState.errors.last_name?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -670,13 +670,13 @@ const CoachForm: React.FC<CoachFormProps> = ({
                         <FormItem className="w-full ">
                           <MultiSelector
                             onValuesChange={(values) => field.onChange(values)}
-                            values={field.value}
+                            values={field.value || []}
                           >
                             <MultiSelectorTrigger className="border-[1px] border-gray-300">
                               <MultiSelectorInput
                                 className="font-medium"
                                 placeholder={
-                                  field.value.length == 0
+                                  field.value?.length == 0
                                     ? `Assign Members*`
                                     : ""
                                 }

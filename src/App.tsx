@@ -27,6 +27,7 @@ import MealPlans from "./components/admin/meal_plans";
 import FoodsNutrition from "./components/admin/foods";
 import WorkoutPlan from "./components/admin/workoutplan";
 import withAuth from "./components/WithAuth";
+import IdleLogoutHandler from "./components/Idle-Timer";
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -36,6 +37,8 @@ function App() {
 
   return (
     <>
+      {" "}
+      <IdleLogoutHandler /> {/* Add the idle handler here */}
       <Routes>
         <Route
           path="/"
@@ -93,7 +96,6 @@ function App() {
         </Route>
       </Routes>
       <Loader open={loading} />
-
       {/* </Routes> */}
     </>
   );

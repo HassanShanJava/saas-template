@@ -400,11 +400,11 @@ export interface MemberInputTypes {
   phone?: string;
   mobile_number?: string;
   notes?: string;
-  source_id?: number;
+  source_id: number | null;
   language?: string | null;
   is_business?: boolean;
-  business_id?: number;
-  country_id?: number;
+  business_id: number | null;
+  country_id: number | null;
   city?: string;
   zipcode?: string;
   address_1?: string;
@@ -415,7 +415,7 @@ export interface MemberInputTypes {
   created_by?: number | null;
   org_id: number;
   coach_id?: any[];
-  membership_plan_id?: number | undefined;
+  membership_plan_id: number | null | undefined;
   send_invitation?: boolean;
   status?: string;
   auto_renewal?: boolean;
@@ -464,26 +464,98 @@ export interface MemberTabletypes {
   total_counts: number;
   filtered_counts: number;
 }
+
+export interface MemberTableResponsetypes {
+  data: MemberTableResponseDatatypes[];
+  total_counts: number;
+  filtered_counts: number;
+}
+
 export interface MemberTableDatatypes {
   id: number;
+  profile_img?: string;
+  own_member_id?: string;
+  first_name?: string;
+  last_name?: string;
+  gender?: genderEnum;
+  dob?: string;
+  email?: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number | null;
+  language?: string | null;
+  is_business?: boolean;
+  business_id: number | null;
+  country_id: number | null;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  client_since?: string;
+  client_status?: string;
+  created_at?: string | null;
+  created_by?: number | null;
   org_id: number;
-  own_member_id: string;
-  first_name: string;
-  last_name: string;
-  phone?: string | null;
-  mobile_number?: string | null;
-  membership_plan_id?: number;
-  client_status: string;
+  coach_id?: any[];
+  membership_plan_id: number | null;
+  send_invitation?: boolean;
+  status?: string;
+  auto_renewal?: boolean;
+  prolongation_period?: number;
+  auto_renew_days?: number;
+  inv_days_cycle?: number;
   check_in?: string | null;
   coaches: {
     id: number;
     name: string;
   }[];
   last_online?: string | null;
-  client_since?: string | null;
   business_name?: string | null;
 }
 
+export interface MemberTableResponseDatatypes {
+  id: number;
+  profile_img?: string;
+  own_member_id?: string;
+  first_name?: string;
+  last_name?: string;
+  gender?: genderEnum;
+  dob?: string;
+  email?: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number | null;
+  language?: string | null;
+  is_business?: boolean;
+  business_id: number | null;
+  country_id: number | null;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  client_since?: string;
+  client_status?: string;
+  created_at?: string | null;
+  created_by?: number | null;
+  org_id: number;
+  coach_id?: any[];
+  membership_plan_id: number | null;
+  send_invitation?: boolean;
+  status?: string;
+  auto_renewal?: boolean;
+  prolongation_period?: number;
+  auto_renew_days?: number;
+  inv_days_cycle?: number;
+  check_in?: string | null;
+  coaches: {
+    id: number;
+    coach_name: string;
+  }[];
+  last_online?: string | null;
+  business_name?: string | null;
+}
 export interface CoachTableTypes {
   id: number;
   profile_img?: string;

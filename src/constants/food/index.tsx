@@ -1,8 +1,8 @@
 export const categories = [
-    { value: "baked_products", label: "Baked products" },
+    { value: "baked_products", label: "Baked Products" },
     { value: "beverages", label: "Beverages" },
     { value: "cheese_eggs", label: "Cheese Milk and Eggs Products" },
-    { value: "cooked_meals", label: "Cooked meals" },
+    { value: "cooked_meals", label: "Cooked Meals" },
     { value: "fish_products", label: "Fish Products" },
     { value: "fruits_vegs", label: "Fruits and Vegetables" },
     { value: "herbs_spices", label: "Herbs and Spices" },

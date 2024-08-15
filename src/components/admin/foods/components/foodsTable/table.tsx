@@ -206,7 +206,7 @@ export default function FoodsTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <span>{row.original.name}</span>;
+        return <span className="capitalize">{row.original.name}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -370,7 +370,6 @@ export default function FoodsTableView() {
       visible_for: visibleForMap[data.visible_for!],
       weight_unit: weightsMap[data.weight_unit!]
     };
-    console.log({ payload }, "payload");
     setData(payload);
     setIsDialogOpen(true);
   };

@@ -50,7 +50,7 @@ export interface CreateFoodTypes {
   trans_fat?: number | null;
   weight: number | null;
   weight_unit: string | undefined;
-  img_url?:string| undefined;
+  img_url?:string| null;
   created_at?: Date;
   created_by?: number;
 }

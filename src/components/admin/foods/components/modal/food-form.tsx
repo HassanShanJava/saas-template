@@ -106,9 +106,11 @@ const FoodForm = ({
   } = form;
 
   useEffect(() => {
-    if (action === "edit" && data) {
+    if (action == "edit") {
+      console.log({data},"edit")
       reset(data);
-    } else {
+    } else if (action == "add"){
+      console.log({initialValue},"add")
       reset(initialValue, {
         keepIsSubmitted: false,
         keepSubmitCount: false,
@@ -116,12 +118,18 @@ const FoodForm = ({
         keepDirtyValues: true,
       });
     }
-  }, [action, data, reset]);
+  }, [action, reset]);
 
   const handleClose = () => {
     clearErrors();
-    reset(initialValue, { keepDirtyValues: true });
     setAction("add");
+    reset(initialValue, {
+      keepIsSubmitted: false,
+      keepSubmitCount: false,
+      keepDefaultValues: true,
+      keepDirtyValues: true,
+    });
+    setFiles([])
     setShowMore(false);
     setOpen(false);
   };
@@ -131,40 +139,52 @@ const FoodForm = ({
 
   const onSubmit = async (input: CreateFoodTypes) => {
     const payload = { org_id: orgId, ...input };
+    if (files && files?.length > 0) {
+      console.log(files[0], "food_image");
+      const getUrl = await UploadCognitoImage(files[0]);
+      payload.img_url = getUrl.location;
+    } else {
+      payload.img_url = null;
+    }
 
     try {
-      if (files && files?.length > 0) {
-        console.log(files[0], "food_image");
-        const getUrl = await UploadCognitoImage(files[0]);
-        payload.img_url = getUrl.location;
-      }
       if (action === "add") {
         await createFood(payload).unwrap();
         toast({
           variant: "success",
           title: "Created Successfully",
         });
+        refetch();
+        handleClose();
       } else if (action === "edit") {
         await updateFood({ ...payload, id: data?.id as number }).unwrap();
         toast({
           variant: "success",
           title: "Updated Successfully",
         });
+        refetch();
+        handleClose();
       }
-      refetch();
-      handleClose();
     } catch (error) {
       console.error("Error", { error });
-      toast({
-        variant: "destructive",
-        title: "Error in form Submission",
-        description:
-          (error as ErrorType)?.data?.detail || "Something Went Wrong.",
-      });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
       handleClose();
     }
   };
-  console.log({ errors });
+  // console.log({ errors });
   return (
     <Sheet open={isOpen}>
       <SheetContent
@@ -172,7 +192,7 @@ const FoodForm = ({
         className="!max-w-[1050px] py-0 custom-scrollbar h-screen"
       >
         <FormProvider {...form}>
-          <form noValidate className="pb-4" onSubmit={handleSubmit(onSubmit)}>
+          <form key={action} noValidate className="pb-4" onSubmit={handleSubmit(onSubmit)}>
             <SheetHeader className="sticky top-0 z-40 pt-4 bg-white">
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start  bg-white">
@@ -228,6 +248,7 @@ const FoodForm = ({
                         {...register(item.name as keyof CreateFoodTypes, {
                           required: item.required && "Required",
                           maxLength: 50,
+                          setValueAs: (value) => value.toLowerCase(),
                         })}
                         error={
                           errors[item.name as keyof CreateFoodTypes]?.message
@@ -301,24 +322,24 @@ const FoodForm = ({
                   dropzoneOptions={dropzone}
                 >
                   {files &&
-                      files?.map((file, i) => (
-                        <div className="h-40 ">
-                          <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
-                            <FileUploaderItem
-                              key={i}
-                              index={i}
-                              className="h-full  p-0 rounded-md overflow-hidden relative "
-                              aria-roledescription={`file ${i + 1} containing ${file.name}`}
-                            >
-                              <img
-                                src={URL.createObjectURL(file)}
-                                alt={file.name}
-                                className="object-contain max-h-40"
-                              />
-                            </FileUploaderItem>
-                          </FileUploaderContent>
-                        </div>
-                      ))}
+                    files?.map((file, i) => (
+                      <div className="h-40 ">
+                        <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
+                          <FileUploaderItem
+                            key={i}
+                            index={i}
+                            className="h-full  p-0 rounded-md overflow-hidden relative "
+                            aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                          >
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={file.name}
+                              className="object-contain max-h-40"
+                            />
+                          </FileUploaderItem>
+                        </FileUploaderContent>
+                      </div>
+                    ))}
 
                   <FileInput className="flex flex-col gap-2  ">
                     {files?.length == 0 && (
@@ -326,12 +347,12 @@ const FoodForm = ({
                         <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
                       </div>
                     )}
-                    
+
                     <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
                       <img
                         src={
                           data?.img_url
-                            ? VITE_VIEW_S3_URL+'/'+data?.img_url
+                            ? VITE_VIEW_S3_URL + "/" + data?.img_url
                             : uploadimg
                         }
                         className="size-10"

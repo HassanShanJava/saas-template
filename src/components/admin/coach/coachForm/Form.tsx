@@ -312,7 +312,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     let updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-      member_ids: data.member_ids.map((member) => member.id),
+      member_ids: data.member_ids?.map((member) => member.id)||[],
     };
 
     console.log("Updated data with only date:", updatedData);

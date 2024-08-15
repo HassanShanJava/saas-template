@@ -71,7 +71,7 @@ const authSlice = createSlice({
 interface loginParams {
   email: string;
   password: string;
-  persona:string
+  persona?:string;
   rememberme: boolean;
 }
 export const login = createAsyncThunk(
@@ -84,7 +84,7 @@ export const login = createAsyncThunk(
       if (rememberme) {
         localStorage.setItem("email", email);
         localStorage.setItem("password", password);
-        localStorage.setItem("persona", persona);
+        localStorage.setItem("persona", persona||'');
       } else {
         if (localStorage.getItem("email") != null)
           localStorage.removeItem("email");

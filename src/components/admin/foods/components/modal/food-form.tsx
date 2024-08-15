@@ -247,7 +247,7 @@ const FoodForm = ({
                         label={item.label}
                         {...register(item.name as keyof CreateFoodTypes, {
                           required: item.required && "Required",
-                          maxLength: 50,
+                          maxLength: 40,
                           setValueAs: (value) => value.toLowerCase(),
                         })}
                         error={

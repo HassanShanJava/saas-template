@@ -71,18 +71,20 @@ const authSlice = createSlice({
 interface loginParams {
   email: string;
   password: string;
+  persona:string
   rememberme: boolean;
 }
 export const login = createAsyncThunk(
   "auth/login",
-  async ({ email, password, rememberme }: loginParams, { rejectWithValue }) => {
+  async ({ email, password, rememberme, persona }: loginParams, { rejectWithValue }) => {
     try {
       const { data, }: { data: { token: { access_token: string }; user?: any } } =
-        await loginUser(email, password);
+        await loginUser(email, password, persona);
       localStorage.setItem("userToken", data.token?.access_token);
       if (rememberme) {
         localStorage.setItem("email", email);
         localStorage.setItem("password", password);
+        localStorage.setItem("persona", persona);
       } else {
         if (localStorage.getItem("email") != null)
           localStorage.removeItem("email");
@@ -92,6 +94,9 @@ export const login = createAsyncThunk(
       return data;
     } catch (e: any) {
       console.log(e);
+      localStorage.removeItem("password");
+      localStorage.removeItem("email");
+
       if (e.response?.data?.detail) {
         return rejectWithValue(e.response?.data?.detail);
       }

@@ -24,14 +24,11 @@ export default function AuthenticationPage() {
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   const { toast } = useToast();
-  const [checked, setChecked] = useState<boolean>(false);
   const { loading, userInfo, error, isLoggedIn } = useSelector(
     (state: RootState) => state.auth
   );
   const email = localStorage.getItem("email") ?? "";
   const password = localStorage.getItem("password") ?? "";
-  // const token =
-  //   useSelector((state: RootState) => state.auth.userToken);
 
   const {
     register,
@@ -39,13 +36,14 @@ export default function AuthenticationPage() {
     formState: { isSubmitted, isSubmitting, isValid, errors },
     setValue,
     reset,
-  } = useForm<{ email: string; password: string; rememberme: boolean }>({
+  } = useForm<{ email: string; password: string; rememberme: boolean, persona?:string }>({
     mode: "onChange",
     reValidateMode: "onChange",
     defaultValues: {
       email,
       password,
       rememberme: false,
+      persona: "user",
     },
   });
 
@@ -54,6 +52,8 @@ export default function AuthenticationPage() {
   useEffect(() => {
     if (error != null) {
       console.log("Error Login", error);
+      setCaptchaError(false);
+      reset();
       toast({
         variant: "destructive",
         title: "Error",
@@ -77,17 +77,22 @@ export default function AuthenticationPage() {
     });
   }, [loading]);
 
-  const handleRememberMe = (e: any) => {
+  const handleRememberMe = (e: boolean) => {
     setValue("rememberme", e);
-    setChecked(e);
+    if (e == false) {
+      localStorage.removeItem("email");
+      localStorage.removeItem("password");
+    }
   };
 
   const onSubmit: SubmitHandler<{
     email: string;
     password: string;
     rememberme: boolean;
+    persona?: string;
   }> = async (data) => {
     const recaptchaValue = recaptchaRef.current?.getValue();
+
     if (!recaptchaValue) {
       console.log("Please complete the ReCAPTCHA challenge.");
       setCaptchaError(true);
@@ -152,15 +157,21 @@ export default function AuthenticationPage() {
                       {...register("email", {
                         required: "Email is required",
                         pattern: {
-                          value: /^\S+@\S+$/i,
+                          value: /\S+@\S+\.\S+/,
                           message: "Invalid email address",
                         },
+                        maxLength: 64,
                       })}
                     />
                   </div>
                   {errors.email?.message && (
-                    <span className="text-sm text-red-400 font-poppins ">
+                    <span className="text-xs text-red-400 font-poppins ">
                       {errors.email.message as string}
+                    </span>
+                  )}
+                  {errors.email?.type == 'maxLength' && (
+                    <span className="text-xs text-red-400 font-poppins ">
+                      Max length exceeded
                     </span>
                   )}
                   <div className="flex items-center custom-box-shadow w-full gap-2 px-4 py-2 rounded-md border border-checkboxborder focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 ">
@@ -169,7 +180,11 @@ export default function AuthenticationPage() {
                       type={isPasswordVisible ? "text" : "password"}
                       placeholder="Enter your password"
                       className="w-full  bg-transparent border-checkboxborder text-textgray outline-none"
-                      {...register("password", { required: true })}
+                      {...register("password", {
+                        required: true,
+                        maxLength: 50,
+                        minLength: 8,
+                      })}
                     />
                     <FontAwesomeIcon
                       icon={isPasswordVisible ? faEyeSlash : faEye}
@@ -179,15 +194,25 @@ export default function AuthenticationPage() {
                     />
                   </div>
                   {errors.password && errors.password.type === "required" && (
-                    <span className="text-red-400 text-sm font-poppins">
+                    <span className="text-red-400 text-xs font-poppins">
                       Password is required
                     </span>
                   )}
+                  {errors.password?.type == 'maxLength' && (
+                    <span className="text-xs text-red-400 font-poppins ">
+                      Max length exceeded
+                    </span>
+                  )}
+                  {errors.password?.type=='minLength' && (
+                    <span className="text-xs text-red-400 font-poppins ">
+                      Password too small 
+                    </span>
+                  )}
+
                   <div className="flex justify-between items-center p-0 m-0">
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="rememberme"
-                        checked={checked}
                         onCheckedChange={handleRememberMe}
                         className="text-black border-checkboxborder"
                         {...register("rememberme")}
@@ -215,7 +240,7 @@ export default function AuthenticationPage() {
                     />
                     {isCaptchaError && (
                       <>
-                        <span className="text-red-400 text-sm font-poppins">
+                        <span className="text-red-400 text-xs font-poppins">
                           Fill the captcha
                         </span>
                       </>

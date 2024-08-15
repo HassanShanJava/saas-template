@@ -114,7 +114,7 @@ export default function AuthenticationPage() {
   }
 
   return (
-    <div className="loginpage-image">
+    <div className="loginpage-image" data-background-src={`../../../assets/background.png`}>
       <div className="max-w-[1800px] mx-auto">
         <div className="flex mx-16 justify-between items-center h-dvh ">
           <div className=" flex flex-col gap-2"></div>

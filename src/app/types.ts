@@ -413,15 +413,15 @@ export interface MemberInputTypes {
   client_status?: string;
   created_at?: string | null;
   created_by?: number | null;
-  org_id: number;
+  org_id?: number;
   coach_id?: any[];
-  membership_plan_id: number | null | undefined;
+  membership_plan_id: number | null ;
   send_invitation?: boolean;
   status?: string;
   auto_renewal?: boolean;
-  prolongation_period?: number;
-  auto_renew_days?: number;
-  inv_days_cycle?: number;
+  prolongation_period?: number|null;
+  auto_renew_days?: number|null;
+  inv_days_cycle?: number|null;
 }
 
 export interface MemberResponseTypes {

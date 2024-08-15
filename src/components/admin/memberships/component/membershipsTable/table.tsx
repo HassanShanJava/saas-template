@@ -686,7 +686,7 @@ export default function MembershipsTableView() {
         </button> */}
         {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
-      <div className="rounded-none  ">
+      <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
           <ScrollBar orientation="horizontal" />
           <Table className="w-full overflow-x-scroll">

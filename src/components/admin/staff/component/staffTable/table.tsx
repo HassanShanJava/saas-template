@@ -678,7 +678,7 @@ export default function StaffTableView() {
           ></i>
         </button> */}
       </div>
-      <div className="rounded-md border border-border ">
+      <div className="rounded-none border border-border ">
         <ScrollArea className="w-full relative">
           <ScrollBar orientation="horizontal" />
           <Table className="w-full overflow-x-scroll">

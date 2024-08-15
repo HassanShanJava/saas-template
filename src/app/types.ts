@@ -1,11 +1,10 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
-
-export interface FoodTableResponse{
-  data:CreateFoodTypes[];
-  total_counts:number;
-  filtered_counts:number;
+export interface FoodTableResponse {
+  data: CreateFoodTypes[];
+  total_counts: number;
+  filtered_counts: number;
 }
 export interface CreateFoodTypes {
   id?: number;
@@ -15,42 +14,43 @@ export interface CreateFoodTypes {
   category: string;
   description?: string;
   other_name?: string;
-  visible_for?:string;
-  total_nutrition: number|undefined;
-  kcal: number|undefined;
-  protein: number|undefined;
-  fat: number|undefined;
-  carbohydrates: number|undefined;
-  carbs_sugar?: number;
-  carbs_saturated?: number;
-  kilojoules?: number;
-  fiber?: number;
-  calcium?: number;
-  iron?: number;
-  magnesium?: number;
-  phosphorus?: number;
-  potassium?: number;
-  sodium?: number;
-  zinc?: number;
-  copper?: number;
-  selenium?: number;
-  vitamin_a?: number;
-  vitamin_b1?: number;
-  vitamin_b2?: number;
-  vitamin_b6?: number;
-  vitamin_b12?: number;
-  vitamin_c?: number;
-  vitamin_d?: number;
-  vitamin_e?: number;
-  folic_acid?: number;
-  fat_unsaturated?: number;
-  cholesterol?: number;
-  alcohol?: number;
-  alchohol_mono?: number;
-  alchohol_poly?: number;
-  trans_fat?: number;
-  weight: number;
-  weight_unit: string|undefined;
+  visible_for?: string;
+  total_nutrition: number | null;
+  kcal: number | null;
+  protein: number | null;
+  fat: number | null;
+  carbohydrates: number | null;
+  carbs_sugar?: number | null;
+  carbs_saturated?: number | null;
+  kilojoules?: number | null;
+  fiber?: number | null;
+  calcium?: number | null;
+  iron?: number | null;
+  magnesium?: number | null;
+  phosphorus?: number | null;
+  potassium?: number | null;
+  sodium?: number | null;
+  zinc?: number | null;
+  copper?: number | null;
+  selenium?: number | null;
+  vitamin_a?: number | null;
+  vitamin_b1?: number | null;
+  vitamin_b2?: number | null;
+  vitamin_b6?: number | null;
+  vitamin_b12?: number | null;
+  vitamin_c?: number | null;
+  vitamin_d?: number | null;
+  vitamin_e?: number | null;
+  folic_acid?: number | null;
+  fat_unsaturated?: number | null;
+  cholesterol?: number | null;
+  alcohol?: number | null;
+  alchohol_mono?: number | null;
+  alchohol_poly?: number | null;
+  trans_fat?: number | null;
+  weight: number | null;
+  weight_unit: string | undefined;
+  img_url?:string| undefined;
   created_at?: Date;
   created_by?: number;
 }
@@ -164,8 +164,7 @@ export interface incomeCategoryTableType {
   name: string;
   org_id: number;
   sale_tax_id: number;
-  status:string;
-
+  status: string;
 }
 
 export interface incomeCategoryTableResponseType {
@@ -178,22 +177,20 @@ export interface incomeCategoryResponseType {
   org_id: number;
   name: string;
   sale_tax_id: number;
-  status:string;
-
+  status: string;
 }
 export interface updateIncomeCategoryType {
   id?: number | undefined;
   org_id?: number;
   name?: string;
   sale_tax_id?: number;
-  status?:string;
-
+  status?: string;
 }
 export interface createIncomeCategoryType {
   org_id: number;
   name: string;
   sale_tax_id: number;
-  status:string;
+  status: string;
 }
 export interface deleteIncomeCategoryType {
   id: number;
@@ -219,7 +216,6 @@ export interface saleTaxesTableType {
   org_id: number;
   percentage: number;
   status: string;
-
 }
 
 export interface saleTaxTableType {
@@ -470,7 +466,7 @@ export interface MemberTabletypes {
 }
 export interface MemberTableDatatypes {
   id: number;
-  org_id:number;
+  org_id: number;
   own_member_id: string;
   first_name: string;
   last_name: string;
@@ -479,10 +475,10 @@ export interface MemberTableDatatypes {
   membership_plan_id?: number;
   client_status: string;
   check_in?: string | null;
-  coaches:{
-    id:number,
-    name:string
-  }[],
+  coaches: {
+    id: number;
+    name: string;
+  }[];
   last_online?: string | null;
   client_since?: string | null;
   business_name?: string | null;

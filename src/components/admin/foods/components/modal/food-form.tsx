@@ -27,356 +27,55 @@ import {
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 import { DropzoneOptions } from "react-dropzone";
-import { Controller, useForm } from "react-hook-form";
-import { Description } from "@radix-ui/react-dialog";
+import {
+  Controller,
+  FieldErrors,
+  FormProvider,
+  useForm,
+} from "react-hook-form";
 import { CreateFoodTypes, ErrorType } from "@/app/types";
-
 import uploadimg from "@/assets/upload.svg";
-import { useCreateFoodsMutation, useUpdateFoodsMutation } from "@/services/foodsApi";
+
+import {
+  basicInfo,
+  nutrientsInfo,
+  initialValue,
+  weights,
+} from "@/constants/food";
+
+import {
+  useCreateFoodsMutation,
+  useUpdateFoodsMutation,
+} from "@/services/foodsApi";
 import { useToast } from "@/components/ui/use-toast";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
+import { SpaceEvenlyVerticallyIcon } from "@radix-ui/react-icons";
+import { UploadCognitoImage, deleteCognitoImage } from "@/utils/lib/s3Service";
+const { VITE_VIEW_S3_URL } = import.meta.env;
 interface FoodForm {
   isOpen: boolean;
-  setOpen: any;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   action: string;
+  setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
   refetch: any;
   data: CreateFoodTypes | undefined;
 }
 
-const basicInfo = [
-  {
-    type: "text",
-    name: "name",
-    label: "Name*",
-    required: true,
-  },
-  {
-    type: "text",
-    name: "brand",
-    label: "Brand",
-    required: false,
-  },
-  {
-    type: "select",
-    label: "Category",
-    name: "category",
-    required: true,
-    options: [
-      { value: "baked_products", label: "Baked products" },
-      { value: "beverages", label: "Beverages" },
-      { value: "cheese_eggs", label: "Cheese Milk and Eggs Products" },
-      { value: "cooked_meals", label: "Cooked meals" },
-      { value: "fish_products", label: "Fish Products" },
-      { value: "fruits_vegs", label: "Fruits and vegetables" },
-      { value: "herbs_spices", label: "Herbs and Spices" },
-      { value: "meat_products", label: "Meat Products" },
-      { value: "nuts_seeds_snacks", label: "Nuts, seeds and snack" },
-      { value: "pasta_cereals", label: "Pasta and breakfast Cereals" },
-      { value: "restaurant_meals", label: "Restaurant meals" },
-      { value: "soups_sauces", label: "Soups, sauces, fats and oil" },
-      { value: "sweets_candy", label: "Sweets and candy" },
-      { value: "other", label: "Other" },
-    ],
-  },
-  {
-    type: "text",
-    label: "Description",
-    name: "description",
-    required: false,
-  },
-  {
-    type: "text",
-    label: "Other Name",
-    name: "other_name",
-    required: false,
-  },
-  {
-    type: "select",
-    name: "visible_for",
-    label: "Visible For",
-    required: false,
-    options: [
-      { value: "only_me", label: "Only me" },
-      { value: "members", label: "Members in my gym" },
-      { value: "coaches_and_staff", label: "Coaches and Staff in my gym" },
-      { value: "everyone", label: "Everyone in my gym" },
-    ],
-  },
-];
-
-
-const nutrientsInfo = [
-  {
-    name: "total_nutrition",
-    type: "number",
-    label: "Total Nutrition (g)",
-    required: true,
-  },
-  {
-    name: "kcal",
-    type: "number",
-    label: "Kcal",
-    required: true,
-  },
-  {
-    name: "protein",
-    type: "number",
-    label: "Protein (g)",
-    required: true,
-  },
-  {
-    name: "fat",
-    type: "number",
-    label: "Total Fat (g)",
-    required: true,
-  },
-  {
-    name: "carbohydrates",
-    type: "number",
-    label: "Carbohydrates (g)",
-    required: true,
-  },
-  {
-    name: "carbs_sugar",
-    type: "number",
-    label: "Of which sugars (g)",
-    required: false,
-  },
-  {
-    name: "carbs_saturated",
-    type: "number",
-    label: "Of which saturated (g)",
-    required: false,
-  },
-  {
-    name: "kilojoules",
-    type: "number",
-    label: "Kilojoules (Kj)",
-    required: false,
-  },
-  {
-    name: "fiber",
-    type: "number",
-    label: "Fiber (g)",
-    required: false,
-  },
-  {
-    name: "calcium",
-    type: "number",
-    label: "Calcium (mg)",
-    required: false,
-  },
-  {
-    name: "iron",
-    type: "number",
-    label: "Iron (mg)",
-    required: false,
-  },
-  {
-    name: "magnesium",
-    type: "number",
-    label: "Magnesium (mg)",
-    required: false,
-  },
-  {
-    name: "phosphorus",
-    type: "number",
-    label: "Phosphorus (mg)",
-    required: false,
-  },
-  {
-    name: "potassium",
-    type: "number",
-    label: "Potassium (mg)",
-    required: false,
-  },
-  {
-    name: "sodium",
-    type: "number",
-    label: "Sodium (mg)",
-    required: false,
-  },
-  {
-    name: "zinc",
-    type: "number",
-    label: "Zinc (mg)",
-    required: false,
-  },
-  {
-    name: "copper",
-    type: "number",
-    label: "Copper (mg)",
-    required: false,
-  },
-  {
-    name: "selenium",
-    type: "number",
-    label: "Selenium (mg)",
-    required: false,
-  },
-  {
-    name: "vitamin_c",
-    type: "number",
-    label: "Vitamin C (mg)",
-    required: false,
-  },
-  {
-    name: "vitamin_b1",
-    type: "number",
-    label: "Vitamin B1 (mg)",
-    required: false,
-  },
-  {
-    name: "vitamin_b2",
-    type: "number",
-    label: "Vitamin B2 (mg)",
-    required: false,
-  },
-  {
-    name: "vitamin_b6",
-    type: "number",
-    label: "Vitamin B6 (mg)",
-    required: false,
-  },
-  {
-    name: "folic_acid",
-    type: "number",
-    label: "Folic Acid (mcg)",
-    required: false,
-  },
-  {
-    name: "vitamin_b12",
-    type: "number",
-    label: "Vitamin B12 (mcg)",
-    required: false,
-  },
-  {
-    name: "vitamin_a",
-    type: "number",
-    label: "Vitamin A (mcg)",
-    required: false,
-  },
-  {
-    name: "vitamin_e",
-    type: "number",
-    label: "Vitamin E (mg)",
-    required: false,
-  },
-  {
-    name: "vitamin_d",
-    type: "number",
-    label: "Vitamin D (mcg)",
-    required: false,
-  },
-  {
-    name: "fat_unsaturated",
-    type: "number",
-    label: "Fatty acid total unsaturated (g)",
-    required: false,
-  },
-  {
-    name: "cholesterol",
-    type: "number",
-    label: "Cholesterol (mg)",
-    required: false,
-  },
-  {
-    name: "alcohol",
-    type: "number",
-    label: "Alcohol (g)",
-    required: false,
-  },
-  {
-    name: "alchohol_mono",
-    type: "number",
-    label: "Of which mono unsaturated (g)",
-    required: false,
-  },
-  {
-    name: "alchohol_poly",
-    type: "number",
-    label: "Of which poly unsaturated (g)",
-    required: false,
-  },
-  {
-    name: "trans_fat",
-    type: "number",
-    label: "Trans fat (g)",
-    required: false,
-  },
-  {
-    name: "weight",
-    type: "number",
-    label: "Weight",
-    required: false,
-  },
-  {
-    name: "weight_unit",
-    type: "text",
-    label: "Weight Unit",
-    required: false,
-  },
-];
-
-
-const initialValue = {
-  // basic
-  name: "",
-  brand: "",
-  category: undefined,
-  description: "",
-  other_name: "",
-  visible_for: undefined,
-  // nutritions
-  total_nutrition: undefined,
-  kcal: undefined,
-  protein: undefined,
-  fat: undefined,
-  carbohydrates: undefined,
-  carbs_sugar: undefined,
-  carbs_saturated: undefined,
-  kilojoules: undefined,
-  fiber: undefined,
-  calcium: undefined,
-  iron: undefined,
-  magnesium: undefined,
-  phosphorus: undefined,
-  potassium: undefined,
-  sodium: undefined,
-  zinc: undefined,
-  copper: undefined,
-  selenium: undefined,
-  vitamin_a: undefined,
-  vitamin_b1: undefined,
-  vitamin_b2: undefined,
-  vitamin_b6: undefined,
-  vitamin_b12: undefined,
-  vitamin_c: undefined,
-  vitamin_d: undefined,
-  vitamin_e: undefined,
-  folic_acid: undefined,
-  fat_unsaturated: undefined,
-  cholesterol: undefined,
-  alcohol: undefined,
-  alchohol_mono: undefined,
-  alchohol_poly: undefined,
-  trans_fat: undefined,
-  weight: undefined,
-  weight_unit: undefined,
-}
-
-
-
-const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
-  // console.log({action, data})
+const FoodForm = ({
+  isOpen,
+  setOpen,
+  action,
+  data,
+  setAction,
+  refetch,
+}: FoodForm) => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { toast } = useToast();
   const [showMore, setShowMore] = useState(false);
   const [files, setFiles] = useState<File[] | null>([]);
-  const [formData, setFormData] =useState(initialValue);
-
+  const handleShowMore = () => setShowMore((prev) => !prev);
 
   const dropzone = {
     accept: {
@@ -391,320 +90,358 @@ const FoodForm = ({ isOpen, setOpen, action, data, refetch }: FoodForm) => {
     ? nutrientsInfo
     : nutrientsInfo.filter((item) => item.required);
 
-
   const form = useForm<CreateFoodTypes>({
     mode: "all",
-    defaultValues: formData
+    defaultValues: initialValue,
   });
 
   const {
     control,
     watch,
-    setValue,
-    trigger,
-    handleSubmit,
-    setError,
-    getValues,
     register,
+    handleSubmit,
     clearErrors,
     reset,
     formState: { isSubmitting, errors },
   } = form;
 
-  const watcher = watch()
-  console.log({action,watcher,data})
-
   useEffect(() => {
-    if (action == 'add') {
-      reset(initialValue)
-      // setFormData(initialValue)
+    if (action === "edit" && data) {
+      reset(data);
     } else {
-      // setFormData(data)
-      reset(data)
+      reset(initialValue, {
+        keepIsSubmitted: false,
+        keepSubmitCount: false,
+        keepDefaultValues: true,
+        keepDirtyValues: true,
+      });
     }
-  }, [action])
+  }, [action, data, reset]);
 
   const handleClose = () => {
-    clearErrors()
-    reset(initialValue)
-    setFormData(initialValue)
-    setShowMore(false)
+    clearErrors();
+    reset(initialValue, { keepDirtyValues: true });
+    setAction("add");
+    setShowMore(false);
     setOpen(false);
   };
 
+  const [createFood] = useCreateFoodsMutation();
+  const [updateFood] = useUpdateFoodsMutation();
 
-  const [createFood] = useCreateFoodsMutation()
-  const [updateFood] = useUpdateFoodsMutation()
-
-  const onSubmit = async (data: CreateFoodTypes) => {
-    const payload = {
-      org_id: orgId,
-      ...data
-    }
+  const onSubmit = async (input: CreateFoodTypes) => {
+    const payload = { org_id: orgId, ...input };
 
     try {
-      
-      if (action == 'add') {
-        const resp = await createFood(payload).unwrap()
-        if (resp) {
-          refetch();
-          toast({
-            variant: "success",
-            title: "Created Successfully",
-          });
-          reset(initialValue, {
-            keepIsSubmitted: false,
-            keepSubmitCount: false,
-          });
-          setFormData(initialValue)
-          handleClose();
-        }
-
-      } else if (action == "edit") {
-        const resp = await updateFood({ ...payload, id: data?.id as number }).unwrap()
-        if (resp) {
-          refetch();
-          toast({
-            variant: "success",
-            title: "Updated Successfully",
-          });
-        }
-        reset(initialValue, {
-          keepIsSubmitted: false,
-          keepSubmitCount: false,
-        });
-        setFormData(initialValue)
-        handleClose();
+      if (files && files?.length > 0) {
+        console.log(files[0], "food_image");
+        const getUrl = await UploadCognitoImage(files[0]);
+        payload.img_url = getUrl.location;
       }
-
-      
-    } catch (error: unknown) {
+      if (action === "add") {
+        await createFood(payload).unwrap();
+        toast({
+          variant: "success",
+          title: "Created Successfully",
+        });
+      } else if (action === "edit") {
+        await updateFood({ ...payload, id: data?.id as number }).unwrap();
+        toast({
+          variant: "success",
+          title: "Updated Successfully",
+        });
+      }
+      refetch();
+      handleClose();
+    } catch (error) {
       console.error("Error", { error });
-      
-      if (error && typeof error === "object" && "data" in error) {
-        const typedError = error as ErrorType;
-        toast({
-          variant: "destructive",
-          title: "Error in form Submission",
-          description: typedError.data?.detail,
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error in form Submission",
-          description: `Something Went Wrong.`,
-        });
-      }
-
-      form.reset(initialValue);
+      toast({
+        variant: "destructive",
+        title: "Error in form Submission",
+        description:
+          (error as ErrorType)?.data?.detail || "Something Went Wrong.",
+      });
       handleClose();
     }
-  }
-  
-  console.log({ errors })
+  };
+  console.log({ errors });
   return (
     <Sheet open={isOpen}>
-      <SheetContent hideCloseButton className="!max-w-[1050px] py-0 custom-scrollbar h-screen">
-        <SheetHeader className="sticky top-0 z-40 py-4 bg-white">
-          <SheetTitle>
-            <div className="flex justify-between gap-5 items-start  bg-white">
-              <div>
-                <p className="font-semibold">Food / Nutrition</p>
-                <div className="text-sm">
-                  <span className="text-gray-400 pr-1 font-semibold">
-                    Dashboard
-                  </span>{" "}
-                  <span className="text-gray-400 font-semibold">/</span>
-                  <span className="pl-1 text-primary font-semibold ">
-                    Add food
-                  </span>
+      <SheetContent
+        hideCloseButton
+        className="!max-w-[1050px] py-0 custom-scrollbar h-screen"
+      >
+        <FormProvider {...form}>
+          <form noValidate className="pb-4" onSubmit={handleSubmit(onSubmit)}>
+            <SheetHeader className="sticky top-0 z-40 pt-4 bg-white">
+              <SheetTitle>
+                <div className="flex justify-between gap-5 items-start  bg-white">
+                  <div>
+                    <p className="font-semibold">Food / Nutrition</p>
+                    <div className="text-sm">
+                      <span className="text-gray-400 pr-1 font-semibold">
+                        Dashboard
+                      </span>{" "}
+                      <span className="text-gray-400 font-semibold">/</span>
+                      <span className="pl-1 text-primary font-semibold ">
+                        Add food
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-center space-x-[20px]">
+                    <Button
+                      type="button"
+                      className="w-[100px] text-center flex items-center gap-2 border-primary"
+                      variant={"outline"}
+                      onClick={handleClose}
+                    >
+                      <i className="fa fa-xmark "></i>
+                      Cancel
+                    </Button>
+
+                    <LoadingButton
+                      type="submit"
+                      className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
+                      loading={isSubmitting}
+                      disabled={isSubmitting}
+                    >
+                      {!isSubmitting && (
+                        <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                      )}
+                      Save
+                    </LoadingButton>
+                  </div>
+                </div>
+              </SheetTitle>
+              <Separator className=" h-[1px] rounded-full my-2" />
+            </SheetHeader>
+            <h1 className="font-semibold text-xl py-3">Basic Information</h1>
+            <div className="grid grid-cols-3 gap-3 p-1 ">
+              {basicInfo.map((item) => {
+                if (item.type === "text") {
+                  return (
+                    <div key={item.name} className="relative">
+                      <FloatingLabelInput
+                        id={item.name}
+                        label={item.label}
+                        {...register(item.name as keyof CreateFoodTypes, {
+                          required: item.required && "Required",
+                          maxLength: 50,
+                        })}
+                        error={
+                          errors[item.name as keyof CreateFoodTypes]?.message
+                        }
+                      />
+
+                      {errors[item.name as keyof CreateFoodTypes]?.type ===
+                        "maxLength" && (
+                        <span className="text-red-500 mt-[5px] text-xs">
+                          Max length exceeded
+                        </span>
+                      )}
+                    </div>
+                  );
+                }
+
+                if (item.type === "select") {
+                  return (
+                    <div key={item.name} className="relative">
+                      <Controller
+                        name={item.name as keyof CreateFoodTypes}
+                        rules={{ required: "Required" }}
+                        control={control}
+                        render={({
+                          field: { onChange, value, onBlur },
+                          fieldState: { invalid, error },
+                        }) => (
+                          <div>
+                            <Select
+                              onValueChange={(value) => {
+                                onChange(value);
+                              }}
+                              defaultValue={value as string | undefined}
+                            >
+                              <SelectTrigger
+                                floatingLabel={item.label}
+                                name={item.name}
+                              >
+                                <SelectValue
+                                  placeholder={"Select " + item.label}
+                                />
+                              </SelectTrigger>
+
+                              <SelectContent>
+                                {item.options?.map((st: any, index: number) => (
+                                  <SelectItem
+                                    key={index}
+                                    value={String(st.value)}
+                                  >
+                                    {st.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      />
+                      {errors[item.name as keyof CreateFoodTypes]?.message && (
+                        <span className="text-red-500 text-xs mt-[5px]">
+                          {errors[item.name as keyof CreateFoodTypes]?.message}
+                        </span>
+                      )}
+                    </div>
+                  );
+                }
+              })}
+              <div className="">
+                <FileUploader
+                  value={files}
+                  onValueChange={setFiles}
+                  dropzoneOptions={dropzone}
+                >
+                  {files &&
+                      files?.map((file, i) => (
+                        <div className="h-40 ">
+                          <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
+                            <FileUploaderItem
+                              key={i}
+                              index={i}
+                              className="h-full  p-0 rounded-md overflow-hidden relative "
+                              aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                            >
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={file.name}
+                                className="object-contain max-h-40"
+                              />
+                            </FileUploaderItem>
+                          </FileUploaderContent>
+                        </div>
+                      ))}
+
+                  <FileInput className="flex flex-col gap-2  ">
+                    {files?.length == 0 && (
+                      <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
+                        <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
+                      <img
+                        src={
+                          data?.img_url
+                            ? VITE_VIEW_S3_URL+'/'+data?.img_url
+                            : uploadimg
+                        }
+                        className="size-10"
+                      />
+                      <span className="text-sm">Upload Image</span>
+                    </div>
+                  </FileInput>
+                </FileUploader>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center my-4">
+              <h1 className="font-semibold text-xl py-4">
+                Nutrition Information
+              </h1>
+
+              <Button
+                variant={"outline"}
+                className="border-primary"
+                onClick={handleShowMore}
+              >
+                {showMore ? "Hide" : "Show"} micro nutrients
+              </Button>
+            </div>
+            <div className="py-2 px-1 grid grid-cols-3 gap-3 ">
+              {filteredNutrients.map((item) => {
+                if (item.type === "number") {
+                  return (
+                    <div key={item.name} className="relative">
+                      <FloatingLabelInput
+                        type="number"
+                        min={0}
+                        step={0.01}
+                        id={item.name}
+                        label={item.label}
+                        error={
+                          errors[item.name as keyof CreateFoodTypes]?.message
+                        }
+                        {...register(item.name as keyof CreateFoodTypes, {
+                          required: item.required && "Required",
+                          valueAsNumber: true,
+                        })}
+                      />
+                    </div>
+                  );
+                }
+              })}
+            </div>
+
+            <div>
+              <h1 className="font-semibold text-xl py-4">Units</h1>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="relative">
+                  <Controller
+                    name="weight_unit"
+                    rules={{ required: "Required" }}
+                    control={control}
+                    render={({
+                      field: { onChange, value, onBlur },
+                      fieldState: { invalid, error },
+                    }) => (
+                      <div>
+                        <Select
+                          onValueChange={(value) => {
+                            onChange(value);
+                          }}
+                          defaultValue={value}
+                        >
+                          <SelectTrigger floatingLabel={"Weight Unit*"}>
+                            <SelectValue placeholder={"Select weight unit"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {weights.map((unit, i) => (
+                              <SelectItem value={unit.value} key={i}>
+                                {unit.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  />
+                  {errors?.weight_unit?.message && (
+                    <span className="text-red-500 mt-[5px] text-xs">
+                      {errors?.weight_unit?.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <FloatingLabelInput
+                    id={"weight"}
+                    label={"Weight"}
+                    type="number"
+                    min={0}
+                    step={0.01}
+                    error={errors?.weight_unit?.message}
+                    {...register("weight", {
+                      required: "Required",
+                      valueAsNumber: true,
+                    })}
+                  />
                 </div>
               </div>
-
-              <div className="flex justify-center space-x-[20px]">
-                <Button
-                  type="button"
-                  className="w-[100px] text-center flex items-center gap-2 border-primary"
-                  variant={"outline"}
-                  onClick={handleClose}
-                >
-                  <i className="fa fa-xmark "></i>
-                  Cancel
-                </Button>
-
-                <LoadingButton
-                  type="submit"
-                  className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                  onClick={handleSubmit(onSubmit)}
-                  loading={isSubmitting}
-                  disabled={isSubmitting}
-                >
-                  <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                  Save
-                </LoadingButton>
-              </div>
             </div>
-          </SheetTitle>
-          <Separator className=" h-[1px] rounded-full my-2" />
-
-        </SheetHeader>
-
-        <div className="pb-0">
-          <h1 className="font-semibold text-xl py-3">Basic Information</h1>
-          <div className="grid grid-cols-3 gap-3 p-1 ">
-            {basicInfo.map((item) => {
-              if (item.type === "text") {
-                return (
-                  <div key={item.name} className="relative">
-                    <FloatingLabelInput
-                      id={item.name}
-                      label={item.label}
-                      {...register(item.name as keyof CreateFoodTypes, { required: item.required && "Required" })}
-                    />
-                    {errors[item.name as keyof CreateFoodTypes]?.message && (
-                      <p className="text-red-500 text-xs">{errors[item.name as keyof CreateFoodTypes]?.message}</p>
-                    )}
-                  </div>
-                );
-              }
-
-              if (item.type === "select") {
-                return (
-                  <div key={item.name} className="relative">
-                    <Controller
-                      name={item.name as keyof CreateFoodTypes}
-                      rules={{ required: "Required" }}
-                      control={control}
-                      render={({
-                        field: { onChange, value, onBlur },
-                        fieldState: { invalid, error },
-                      }) => (
-                        <div>
-                          <Select
-                            onValueChange={(value) => {
-                              onChange(value);
-                            }}
-                            defaultValue={value as string | undefined}
-                          >
-                            <SelectTrigger floatingLabel={item.label} name={item.name}>
-                              <SelectValue
-                                placeholder={"Select " + item.label}
-                              />
-                            </SelectTrigger>
-
-                            <SelectContent>
-                              {item.options?.map((st: any, index: number) => (
-                                <SelectItem key={index} value={String(st.value)}>
-                                  {st.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      )}
-                    />
-                    {errors[item.name as keyof CreateFoodTypes]?.message && (
-                      <p className="text-red-500 text-xs">{errors[item.name as keyof CreateFoodTypes]?.message}</p>
-                    )}
-                  </div>
-                );
-              }
-            })}
-          </div>
-
-          <div className="flex justify-between items-center my-4">
-            <h1 className="font-semibold text-xl py-4">
-              Nutrition Information
-            </h1>
-
-            <Button
-              variant={"outline"}
-              className="border-primary"
-              onClick={() => setShowMore(!showMore)}
-            >
-              {showMore ? "Hide" : "Show"} micro nutrients
-            </Button>
-          </div>
-          <div className="py-2 px-1 grid grid-cols-3 gap-3 ">
-            {filteredNutrients.map((item) => {
-              if (item.type === "number") {
-                return (
-                  <div key={item.name} className="relative">
-                    <FloatingLabelInput
-                      type="number"
-                      min={0}
-                      step={0.01}
-                      id={item.name}
-                      label={item.label}
-                      {...register(item.name as keyof CreateFoodTypes, { required: item.required && "Required" })}
-                    />
-                    {errors[item.name as keyof CreateFoodTypes]?.message && (
-                      <p className="text-red-500 text-xs">{errors[item.name as keyof CreateFoodTypes]?.message}</p>
-                    )}
-                  </div>
-                );
-              }
-            })}
-          </div>
-
-          <div>
-            <h1 className="font-semibold text-xl py-4">Units</h1>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="relative">
-
-                <Controller
-                  name="weight_unit"
-                  rules={{ required: "Required" }}
-                  control={control}
-                  render={({
-                    field: { onChange, value, onBlur },
-                    fieldState: { invalid, error },
-                  }) => (
-                    <div>
-                      <Select
-                        onValueChange={(value) => {
-                          onChange(value);
-                        }}
-                        defaultValue={value}
-                      >
-                        <SelectTrigger floatingLabel={"Weight Unit*"}>
-                          <SelectValue placeholder={"Select weight unit"} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={"g"}>Gram</SelectItem>
-                          <SelectItem value={"ml"}>ML</SelectItem>
-                          <SelectItem value={"g_ml"}>Gram/ML</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                />
-                {errors?.weight_unit?.message && (
-                  <p className="text-red-500 text-xs">{errors?.weight_unit?.message}</p>
-                )}
-              </div>
-
-              <div className="relative">
-                <FloatingLabelInput
-                  id={'weight'}
-                  label={"Weight"}
-                  type='number'
-
-                  min={0}
-                  step={0.01}
-                  {...register("weight", { required: "Required" })}
-                />
-                {errors?.weight?.message && (
-                  <p className="text-red-500 text-xs">{errors?.weight_unit?.message}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+          </form>
+        </FormProvider>
       </SheetContent>
     </Sheet>
   );
-
 };
 
 export default FoodForm;

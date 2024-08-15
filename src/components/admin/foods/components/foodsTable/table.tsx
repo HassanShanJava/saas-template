@@ -46,36 +46,17 @@ import {
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon } from "lucide-react";
 import TableFilters from "@/components/ui/table/data-table-filter";
-
-const categories = [
-  { id: "baked_products", name: "Baked products" },
-  { id: "beverages", name: "Beverages" },
-  { id: "cheese_eggs", name: "Cheese Milk and Eggs Products" },
-  { id: "cooked_meals", name: "Cooked meals" },
-  { id: "fish_products", name: "Fish Products" },
-  { id: "fruits_vegs", name: "Fruits and vegetables" },
-  { id: "herbs_spices", name: "Herbs and Spices" },
-  { id: "meat_products", name: "Meat Products" },
-  { id: "nuts_seeds_snacks", name: "Nuts, seeds and snack" },
-  { id: "pasta_cereals", name: "Pasta and breakfast Cereals" },
-  { id: "restaurant_meals", name: "Restaurant meals" },
-  { id: "soups_sauces", name: "Soups, sauces, fats and oil" },
-  { id: "sweets_candy", name: "Sweets and candy" },
-  { id: "other", name: "Other" },
-];
-
-const visibleFor = [
-  { id: "only_me", name: "Only me" },
-  { id: "members", name: "Members in my gym" },
-  { id: "coaches_and_staff", name: "Coaches and Staff in my gym" },
-  { id: "everyone", name: "Everyone in my gym" },
-];
+import { visibleFor, categories, weights } from "@/constants/food";
 
 const categoryMap = Object.fromEntries(
-  categories.map((cat) => [cat.name, cat.id])
+  categories.map((cat) => [cat.label, cat.value])
 );
 const visibleForMap = Object.fromEntries(
-  visibleFor.map((vf) => [vf.name, vf.id])
+  visibleFor.map((vf) => [vf.label, vf.value])
+);
+
+const weightsMap = Object.fromEntries(
+  weights.map((w) => [w.label, w.value])
 );
 
 const downloadCSV = (data: CreateFoodTypes[], fileName: string) => {
@@ -253,6 +234,28 @@ export default function FoodsTableView() {
       enableHiding: false,
     },
     {
+      accessorKey: "weight_unit",
+      meta: "weight_unit",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Weight/Unit</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("brand")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return <span>{row.original.weight_unit}</span>;
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: "category",
       meta: "Category",
       header: () => (
@@ -365,6 +368,7 @@ export default function FoodsTableView() {
       ...data,
       category: categoryMap[data.category!],
       visible_for: visibleForMap[data.visible_for!],
+      weight_unit: weightsMap[data.weight_unit!]
     };
     console.log({ payload }, "payload");
     setData(payload);
@@ -501,7 +505,7 @@ export default function FoodsTableView() {
           <i className="fa fa-filter"></i>
         </button>
       </div>
-      <div className="rounded-none  ">
+      <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
           <ScrollBar orientation="horizontal" />
           <Table className="w-full overflow-x-scroll">
@@ -578,7 +582,7 @@ export default function FoodsTableView() {
       </div>
 
       {/* pagination */}
-      {foodstableData.length>0 && (
+      {foodstableData.length > 0 && (
         <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
           <div className="flex items-center justify-center gap-2">
             <div className="flex items-center gap-2">
@@ -692,6 +696,7 @@ export default function FoodsTableView() {
         isOpen={isDialogOpen}
         setOpen={setIsDialogOpen}
         action={action}
+        setAction={setAction}
         data={data}
         refetch={refetch}
       />

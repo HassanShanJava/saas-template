@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { PlusIcon, Search } from "lucide-react";
+import { Edit, PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -94,6 +94,7 @@ const status = [
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 export default function MemberTableView() {
+  const [action, setAction] = useState<"add" | "edit">("add");
   const [open, setOpen] = useState<boolean>(false);
   const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
     null
@@ -182,8 +183,15 @@ export default function MemberTableView() {
     }
   }, [isError]);
 
-  function handleOpenForm(memberdata: MemberTableDatatypes | null = null) {
-    setEditMember(memberdata);
+  function handleOpenForm() {
+    setAction("add")
+    setEditMember(null);
+    setOpen(true);
+  }
+
+  function handleEditForm(data: MemberTableDatatypes) {
+    setAction("edit")
+    setEditMember(data);
     setOpen(true);
   }
 
@@ -293,17 +301,6 @@ export default function MemberTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    // {
-    //   id: "id",
-    //   header: () => (
-    //     <span>S No.</span>
-    //   ),
-    //   cell: ({ row }) => (
-    //     <span>{row.index + 1 + (searchCretiria.offset)}.</span>
-    //   ),
-    //   enableSorting: false,
-    //   enableHiding: false,
-    // },
     {
       accessorKey: "own_member_id",
       meta: "Member Id",
@@ -548,7 +545,7 @@ export default function MemberTableView() {
           row={row.original.id}
           data={row?.original}
           refetch={refetch}
-          handleEditMember={handleOpenForm}
+          handleEditMember={handleEditForm}
         />
       ),
     },
@@ -666,7 +663,7 @@ export default function MemberTableView() {
         </div>
         <Button
           className="bg-primary  text-black mr-1 "
-          onClick={() => handleOpenForm()}
+          onClick={() => handleEditForm()}
         >
           <PlusIcon className="size-4" />
           Create New

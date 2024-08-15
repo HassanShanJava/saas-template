@@ -47,8 +47,9 @@ function App() {
           element={withAuth(AuthenticationPage)({} as any)}
         /> */}
         <Route path="/" element={<ProtectedRoute />}>
+
           <Route path="/" index element={<AuthenticationPage />} />
-          <Route path="/" element={<DashboardLayout />}>
+          <Route element={<DashboardLayout />}>
             {" "}
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/members" element={<MemberPage />} />

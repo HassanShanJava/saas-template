@@ -24,12 +24,9 @@ export function DataTableViewOptions<TData>({
   function handleClick() {
     action();
   }
+
   return (
     <div className="flex justify-between items-center gap-3">
-      {/* <Button className="text-black" onClick={handleClick}>
-        {" "}
-        Export CSV <FaFileCsv className="h-4 w-4 text-black" />
-      </Button> */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">
@@ -45,8 +42,9 @@ export function DataTableViewOptions<TData>({
                 typeof column.accessorFn !== "undefined" && column.getCanHide()
             )
             .map((column) => {
-              const {header}:any=column.columnDef
-              
+              const { meta }: any = column.columnDef;
+              console.log("meta", column.columnDef);
+
               return (
                 <DropdownMenuCheckboxItem
                   key={column.id}
@@ -54,7 +52,7 @@ export function DataTableViewOptions<TData>({
                   checked={column.getIsVisible()}
                   onCheckedChange={(value) => column.toggleVisibility(!!value)}
                 >
-                  {(column.columnDef.header as string) ?? column.id}
+                  {(meta as string) ?? column.id}
                 </DropdownMenuCheckboxItem>
               );
             })}

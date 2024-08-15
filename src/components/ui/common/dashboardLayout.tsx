@@ -118,13 +118,13 @@ const navItems: NavItem[] = [
     dropdown: false,
     hiddenRoutes: ["/admin/coach/addcoach", "/admin/coach/editcoach"],
   },
-  // {
-  //   name: "Exercise",
-  //   link: "/admin/exercise",
-  //   icon: IoIosFitness,
-  //   dropdown: false,
-  //   hiddenRoutes: ["/admin/exercise/addexercise"],
-  // },
+  {
+    name: "Exercise",
+    link: "/admin/exercise",
+    icon: IoIosFitness,
+    dropdown: false,
+    hiddenRoutes: ["/admin/exercise/addexercise"],
+  },
   // {
   //   name: "Workout Plan",
   //   link: "/admin/workoutplans",

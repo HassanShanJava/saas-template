@@ -66,7 +66,13 @@ import {
 import ExerciseForm from "../../exerciseform/form";
 import { Separator } from "@/components/ui/separator";
 import { DataTableRowActions } from "./data-table-row-actions";
-
+import { labels } from "@/schema/taskSchema";
+import { options } from "@fullcalendar/core/preact.js";
+import {
+  difficultyTypeoptions,
+  exerciseTypeOptions,
+  visibilityOptions,
+} from "@/constants/exercise";
 const downloadCSV = (data: any[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -84,6 +90,9 @@ interface searchCretiriaType {
   sort_key?: string;
   search_key?: string;
   category?: string;
+  visible_for?: string;
+  difficulty?: string;
+  exercise_type?: string;
 }
 const initialValue = {
   limit: 10,
@@ -196,9 +205,7 @@ export default function ExerciseTableView() {
   const { toast } = useToast();
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [filterID, setFilterID] = useState({});
 
-  const [filters, setFilters] = useState<"">();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
@@ -255,11 +262,10 @@ export default function ExerciseTableView() {
           className="translate-y-[2px]"
         />
       ),
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "exercise_name",
+      meta: "Exercise Name",
       header: () => (
         <div className="flex items-center gap-2">
           <p>Exercise Name</p>
@@ -280,11 +286,10 @@ export default function ExerciseTableView() {
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "category_name",
+      meta: "Category Name",
       header: () => (
         <div className="flex items-center gap-2">
           <p>Category Name</p>
@@ -305,11 +310,10 @@ export default function ExerciseTableView() {
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "visible_for",
+      meta: "Visible For",
       header: () => (
         <div className="flex items-center gap-2">
           <p>Visible For</p>
@@ -330,12 +334,23 @@ export default function ExerciseTableView() {
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "exercise_type",
-      header: ({ table }) => <span>Exercise Type</span>,
+      meta: "Exercise Type",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Exercise Type</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("exercise_type")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -343,12 +358,23 @@ export default function ExerciseTableView() {
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "difficulty",
-      header: ({ table }) => <span>Difficulty</span>,
+      meta: "Difficulty",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Difficulty</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("difficulty")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -356,12 +382,23 @@ export default function ExerciseTableView() {
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "sets",
-      header: ({ table }) => <span>Exercise Sets</span>,
+      meta: "Exercise Sets",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Exercise Sets</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("set")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -369,8 +406,6 @@ export default function ExerciseTableView() {
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       id: "actions",
@@ -402,24 +437,41 @@ export default function ExerciseTableView() {
     },
   });
 
-  function handleCategory(value: number) {
+  function handleFilterChange(field: string, value: any) {
     setFilter((prev) => ({
       ...prev,
-      category: value,
+      [field]: value,
     }));
   }
 
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
-  }
   const filterDisplay = [
     {
       type: "select",
       name: "category",
       label: "Category",
       options: CategoryData,
-      function: handleCategory,
+      function: handleFilterChange,
+    },
+    {
+      type: "select",
+      name: "visible_for",
+      label: "Visible for",
+      options: visibilityOptions,
+      function: handleFilterChange,
+    },
+    {
+      type: "select",
+      name: "exercise_type",
+      label: "Exercise Type",
+      options: exerciseTypeOptions,
+      function: handleFilterChange,
+    },
+    {
+      type: "select",
+      name: "difficulty",
+      label: "Difficulty",
+      options: difficultyTypeoptions,
+      function: handleFilterChange,
     },
   ];
   console.log({ searchCretiria });
@@ -465,6 +517,8 @@ export default function ExerciseTableView() {
       }));
     }
   };
+
+  console.log("table of exercise", table);
   return (
     <>
       <div className="w-full space-y-4">
@@ -487,7 +541,7 @@ export default function ExerciseTableView() {
             <PlusIcon className="h-4 w-4" />
             Create New
           </Button>
-          <DataTableViewOptions table={table} action={handleExportSelected} />
+          <DataTableViewOptions table={table} />
           <div className="px-3 flex gap-2">
             <button
               className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
@@ -671,142 +725,6 @@ export default function ExerciseTableView() {
             </div>
           </div>
         </div>
-        {/* <div className="flex items-center justify-end space-x-2 px-4 py-4">
-          <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-            {/* Page {filters.first + 1} of{" "}
-          {Math.ceil((data?.count ?? 0) / filters.rows)} */}
-        {/* </div> */}
-
-        {/* <div className="flex items-center justify-center space-x-6 lg:space-x-8">
-            <div className="flex items-center space-x-2">
-              <p className="text-sm font-medium">Rows per page</p> */}
-        {/* <Select
-              // value={`${filters.rows}`}
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue defaultValue={pagination.pageSize} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pagination}`} >
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-        {/* <Select
-              value="10"
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue>{10}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-        {/* <Select
-                value={pagination.pageSize.toString()}
-                onValueChange={(value) => {
-                  const newSize = Number(value);
-                  setPagination((prevPagination) => ({
-                    ...prevPagination,
-                    pageSize: newSize,
-                  }));
-                  setFilters((prevFilters: any) => ({
-                    ...prevFilters,
-                    rows: newSize,
-                    first: 0,
-                  }));
-                  table.setPageSize(newSize);
-                }}
-              > */}
-        {/* <SelectTrigger className="h-8 w-[70px]">
-                  <SelectValue>{pagination.pageSize}</SelectValue>
-                </SelectTrigger>
-                <SelectContent side="top">
-                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={pageSize.toString()}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div> */}
-
-        {/* <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => handlePagination(0)}
-                // disabled={filters.first === 0}
-              >
-                <span className="sr-only">Go to first page</span>
-                <DoubleArrowLeftIcon className="h-4 w-4" />
-              </Button>
-
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0" */}
-        {/* // onClick={() => handlePagination(filters?.first - 1)}
-                // disabled={filters?.first === 0}
-              > */}
-        {/* <span className="sr-only">Go to previous page</span>
-                <ChevronLeftIcon className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0" */}
-        {/* // onClick={() => handlePagination(filters.first + 1)}
-                // disabled={ */}
-        {/* //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-                //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-                //     filters.first + 1
-                // }
-              >
-                <span className="sr-only">Go to next page</span>
-                <ChevronRightIcon className="h-4 w-4" />
-              </Button> */}
-
-        {/* <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
-                // onClick={() =>
-                //   handlePagination(
-                //     Math.ceil((data?.count ?? 0) / filters.rows) - 1
-                //   )
-                // }
-                // disabled={
-                //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-                //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-                //     filters.first + 1
-                // }
-              >
-                <span className="sr-only">Go to last page</span>
-                <DoubleArrowRightIcon className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div> */}
         <ExerciseFilters
           isOpen={openFilter}
           setOpen={setOpenFilter}

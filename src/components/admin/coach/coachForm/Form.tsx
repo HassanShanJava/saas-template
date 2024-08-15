@@ -178,7 +178,11 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .refine((value) => value.trim() !== "", {
         message: "Required",
       }),
-    email: z.string().min(1, { message: "Required" }).max(50, "Must be 50 characters or less").email("Invalid Email"),
+    email: z
+      .string()
+      .min(1, { message: "Required" })
+      .max(50, "Must be 50 characters or less")
+      .email("Invalid Email"),
     phone: z
       .string()
       .max(11, {
@@ -214,10 +218,26 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .trim()
       .max(10, "Zipcode must be 10 characters or less")
       .optional(),
-    bank_name: z.string().trim().max(40, "Sbould be 40 characters or less").optional(), 
-    iban_no: z.string().trim().max(34, "Sbould be 34 characters or less").optional(),
-    swift_code: z.string().trim().max(11, "Should be 11 characters or less").optional(),
-    acc_holder_name: z.string().trim().max(50, "Should be 50 characters or less").optional(),
+    bank_name: z
+      .string()
+      .trim()
+      .max(40, "Sbould be 40 characters or less")
+      .optional(),
+    iban_no: z
+      .string()
+      .trim()
+      .max(34, "Sbould be 34 characters or less")
+      .optional(),
+    swift_code: z
+      .string()
+      .trim()
+      .max(11, "Should be 11 characters or less")
+      .optional(),
+    acc_holder_name: z
+      .string()
+      .trim()
+      .max(50, "Should be 50 characters or less")
+      .optional(),
     country_id: z.coerce
       .number({
         required_error: "Required",
@@ -312,7 +332,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     let updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-      member_ids: data.member_ids.map((member) => member.id),
+      member_ids: data.member_ids?.map((member) => member.id),
     };
 
     console.log("Updated data with only date:", updatedData);
@@ -491,7 +511,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
                             id="first_name"
                             label="First Name*"
                           />
-													<FormMessage>{form.formState.errors.first_name?.message}</FormMessage>
+                          <FormMessage>
+                            {form.formState.errors.first_name?.message}
+                          </FormMessage>
                         </FormItem>
                       )}
                     />
@@ -507,7 +529,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
                             id="last_name"
                             label="Last Name*"
                           />
-													<FormMessage>{form.formState.errors.last_name?.message}</FormMessage>
+                          <FormMessage>
+                            {form.formState.errors.last_name?.message}
+                          </FormMessage>
                         </FormItem>
                       )}
                     />

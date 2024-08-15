@@ -28,6 +28,7 @@ import FoodsNutrition from "./components/admin/foods";
 import WorkoutPlan from "./components/admin/workoutplan";
 import withAuth from "./components/WithAuth";
 import IdleLogoutHandler from "./components/Idle-Timer";
+import NotFoundPage from "./components/PageNotFound";
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -40,12 +41,13 @@ function App() {
       {" "}
       <IdleLogoutHandler /> {/* Add the idle handler here */}
       <Routes>
-        <Route
+        {/* <Route
           path="/"
           index
           element={withAuth(AuthenticationPage)({} as any)}
-        />
+        /> */}
         <Route path="/" element={<ProtectedRoute />}>
+          <Route path="/" index element={<AuthenticationPage />} />
           <Route path="/" element={<DashboardLayout />}>
             {" "}
             <Route path="/admin/dashboard" element={<Dashboard />} />
@@ -78,7 +80,7 @@ function App() {
               
               element={<StaffForm />}
             />*/}
-            {/* <Route path="/admin/exercise" element={<Exercise />} /> */}
+            <Route path="/admin/exercise" element={<Exercise />} />
             {/* <Route
               path="/admin/exercise/addexercise"
               
@@ -89,9 +91,10 @@ function App() {
               
               element={<ExerciseForm />}
             /> */}
-            <Route path="/admin/mealplans"  element={<MealPlans />} />
-            <Route path="/admin/foods"  element={<FoodsNutrition />} />
+            <Route path="/admin/mealplans" element={<MealPlans />} />
+            <Route path="/admin/foods" element={<FoodsNutrition />} />
             {/* <Route path="/admin/workoutplans"  element={<WorkoutPlan />} /> */}
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
       </Routes>

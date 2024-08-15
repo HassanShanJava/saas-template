@@ -187,6 +187,10 @@ export default function MemberTableView() {
     setOpen(true);
   }
 
+  function openFormHandle(){
+     setOpen(true);
+  }
+
   const memberTableData = React.useMemo(() => {
     return Array.isArray(memberData?.data) ? memberData?.data : [];
   }, [memberData]);

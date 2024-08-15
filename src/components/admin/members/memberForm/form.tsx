@@ -196,7 +196,7 @@ const MemberForm = ({
         })
         .trim()
         .max(40, "Should be less than 40 characters")
-        .min(1,"Required"),
+        .min(1, "Required"),
       last_name: z
         .string({
           required_error: "Required",
@@ -232,7 +232,8 @@ const MemberForm = ({
         .number({
           required_error: "Required",
         })
-        .nullable().default(0),
+        .nullable()
+        .default(0),
       city: z.string().trim().optional(),
       zipcode: z
         .string()
@@ -247,11 +248,7 @@ const MemberForm = ({
         })
         .default(orgId),
       coach_id: z.array(coachsSchema).optional(),
-      membership_plan_id: z
-        .number({
-          required_error: "Required",
-        })
-        .nullable().default(0),
+      membership_plan_id: z.number({required_error:"Required"}),
       send_invitation: z.boolean().default(true).optional(),
       auto_renewal: z.boolean().default(false).optional(),
       status: z.string().default("pending"),
@@ -396,8 +393,8 @@ const MemberForm = ({
   useEffect(() => {
     if (!open || memberData == null) return;
 
-    const initialValue = { ...memberData };
-    initialValue.coach_id = memberData.coaches;
+    const memberpayload = { ...memberData };
+    memberpayload.coach_id = memberData.coaches;
     console.log("memberdata coach", memberData.coaches);
     const data =
       membershipPlans &&
@@ -405,19 +402,21 @@ const MemberForm = ({
         (item: any) => item.id == memberData?.membership_plan_id
       )[0];
     const renewalDetails = data?.renewal_details as renewalData;
-    initialValue.auto_renewal = data?.auto_renewal ?? false;
-    if (initialValue?.auto_renewal) {
-      initialValue.prolongation_period =
+    memberpayload.auto_renewal = data?.auto_renewal ?? false;
+    if (memberpayload?.auto_renewal) {
+      memberpayload.prolongation_period =
         (renewalDetails?.prolongation_period as number | undefined) ??
         undefined;
-      initialValue.auto_renew_days =
+      memberpayload.auto_renew_days =
         (renewalDetails?.days_before as number | undefined) ?? undefined;
-      initialValue.inv_days_cycle =
+      memberpayload.inv_days_cycle =
         (renewalDetails?.next_invoice as number | undefined) ?? undefined;
     }
-    setInitialValues(initialValue as MemberInputTypes);
-    form.reset(initialValue);
-    setAvatar(initialValue.profile_img as string);
+    setInitialValues(memberpayload as MemberInputTypes);
+    form.reset(memberpayload, {
+      keepDirty: true
+    });
+    setAvatar(memberpayload.profile_img as string);
   }, [open, memberData]);
 
   // set auto_renewal
@@ -447,7 +446,12 @@ const MemberForm = ({
   function handleClose() {
     setAvatar(null);
     form.clearErrors();
-    form.reset(initialState);
+    form.reset(initialState, {
+      keepIsSubmitted: false,
+      keepSubmitCount: false,
+      keepDefaultValues: true,
+      keepDirtyValues: true,
+    });
     setMemberData(null);
     setOpen(false);
   }
@@ -465,7 +469,7 @@ const MemberForm = ({
         updatedData = {
           ...updatedData,
           profile_img: getUrl?.location as string,
-        };
+        }; 
       } catch (error) {
         console.error("Upload failed:", error);
         toast({
@@ -520,8 +524,7 @@ const MemberForm = ({
       }
     }
   }
-
-  console.log("form state",form.formState)
+  console.log("form state of member plan id", {watcher});
   return (
     <Sheet open={open}>
       <SheetContent
@@ -619,7 +622,9 @@ const MemberForm = ({
                             label="First Name*"
                             className=""
                           />
-													<FormMessage>{form.formState.errors.first_name?.message}</FormMessage>
+                          <FormMessage>
+                            {form.formState.errors.first_name?.message}
+                          </FormMessage>
                         </FormItem>
                       )}
                     />
@@ -636,7 +641,9 @@ const MemberForm = ({
                             label="Last Name*"
                             className=""
                           />
-													<FormMessage>{form.formState.errors.last_name?.message}</FormMessage>
+                          <FormMessage>
+                            {form.formState.errors.last_name?.message}
+                          </FormMessage>
                         </FormItem>
                       )}
                     />
@@ -770,7 +777,9 @@ const MemberForm = ({
                             label="Landline Number"
                             className=""
                           />
-													<FormMessage>{form.formState.errors.phone?.message}</FormMessage>
+                          <FormMessage>
+                            {form.formState.errors.phone?.message}
+                          </FormMessage>
                         </FormItem>
                       )}
                     />
@@ -787,7 +796,9 @@ const MemberForm = ({
                             label="Mobile Number"
                             className=""
                           />
-													<FormMessage>{form.formState.errors.mobile_number?.message}</FormMessage>
+                          <FormMessage>
+                            {form.formState.errors.mobile_number?.message}
+                          </FormMessage>
                         </FormItem>
                       )}
                     />
@@ -1101,7 +1112,9 @@ const MemberForm = ({
                             label="City"
                             className=""
                           />
-													<FormMessage>{form.formState.errors.city?.message}</FormMessage>
+                          <FormMessage>
+                            {form.formState.errors.city?.message}
+                          </FormMessage>
                         </FormItem>
                       )}
                     />
@@ -1141,10 +1154,11 @@ const MemberForm = ({
                             onValueChange={(value) =>
                               handleMembershipPlanChange(Number(value))
                             }
-                            value={field.value?.toString()}
+                            defaultValue={field.value + ""}
                           >
                             <FormControl>
                               <SelectTrigger
+                                name="membership_plan_id"
                                 className={`font-medium text-gray-400`}
                               >
                                 <SelectValue
@@ -1213,26 +1227,27 @@ const MemberForm = ({
                                   Prolongation period*
                                 </FormLabel>
                                 <div className="relative pb-3">
-                                <FloatingLabelInput
-                                  {...field}
-                                  id="prolongation_period"
-                                  type="number"
-                                  onInput={(e) => {
-                                    const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(
-                                      /[^0-9.]/g,
-                                      ""
-                                    );
-                                  }}
-                                  min={1}
-                                  name="min_limit"
-                                  className=" w-16"
-                                />
-                                {watcher.prolongation_period ? (
-                                  <></>
-                                ) : (
-                                  <FormMessage />
-                                )}
+                                  <FloatingLabelInput
+                                    {...field}
+                                    id="prolongation_period"
+                                    type="number"
+                                    onInput={(e) => {
+                                      const target =
+                                        e.target as HTMLInputElement;
+                                      target.value = target.value.replace(
+                                        /[^0-9.]/g,
+                                        ""
+                                      );
+                                    }}
+                                    min={1}
+                                    name="min_limit"
+                                    className=" w-16"
+                                  />
+                                  {watcher.prolongation_period ? (
+                                    <></>
+                                  ) : (
+                                    <FormMessage />
+                                  )}
                                 </div>
                               </FormItem>
                             );
@@ -1250,26 +1265,27 @@ const MemberForm = ({
                                   Auto renewal takes place*
                                 </FormLabel>
                                 <div className="relative pt-3">
-                                <FloatingLabelInput
-                                  {...field}
-                                  id="auto_renew_days"
-                                  type="number"
-                                  onInput={(e) => {
-                                    const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(
-                                      /[^0-9.]/g,
-                                      ""
-                                    );
-                                  }}
-                                  min={1}
-                                  name="min_limit"
-                                  className="w-16"
-                                />
-                                {watcher.auto_renew_days ? (
-                                  <></>
-                                ) : (
-                                  <FormMessage />
-                                )}
+                                  <FloatingLabelInput
+                                    {...field}
+                                    id="auto_renew_days"
+                                    type="number"
+                                    onInput={(e) => {
+                                      const target =
+                                        e.target as HTMLInputElement;
+                                      target.value = target.value.replace(
+                                        /[^0-9.]/g,
+                                        ""
+                                      );
+                                    }}
+                                    min={1}
+                                    name="min_limit"
+                                    className="w-16"
+                                  />
+                                  {watcher.auto_renew_days ? (
+                                    <></>
+                                  ) : (
+                                    <FormMessage />
+                                  )}
                                 </div>
                                 <Label className="text-xs text-black/60">
                                   days before contracts runs out.
@@ -1290,28 +1306,29 @@ const MemberForm = ({
                                   Next invoice will be created *
                                 </FormLabel>
                                 <div className="relative pt-3">
-                                <FloatingLabelInput
-                                  {...field}
-                                  id="inv_days_cycle"
-                                  type="number"
-                                  onInput={(e) => {
-                                    const target = e.target as HTMLInputElement;
-                                    target.value = target.value.replace(
-                                      /[^0-9.]/g,
-                                      ""
-                                    );
-                                  }}
-                                  min={1}
-                                  name="min_limit"
-                                  className="w-16"
-                                />
-                                {watcher.inv_days_cycle ? (
-                                  <></>
-                                ) : (
-                                  <FormMessage />
-                                )}
+                                  <FloatingLabelInput
+                                    {...field}
+                                    id="inv_days_cycle"
+                                    type="number"
+                                    onInput={(e) => {
+                                      const target =
+                                        e.target as HTMLInputElement;
+                                      target.value = target.value.replace(
+                                        /[^0-9.]/g,
+                                        ""
+                                      );
+                                    }}
+                                    min={1}
+                                    name="min_limit"
+                                    className="w-16"
+                                  />
+                                  {watcher.inv_days_cycle ? (
+                                    <></>
+                                  ) : (
+                                    <FormMessage />
+                                  )}
                                 </div>
-                                
+
                                 <Label className="text-xs text-black/60">
                                   days before contracts runs out.
                                 </Label>

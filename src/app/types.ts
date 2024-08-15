@@ -1,11 +1,10 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
-
-export interface FoodTableResponse{
-  data:CreateFoodTypes[];
-  total_counts:number;
-  filtered_counts:number;
+export interface FoodTableResponse {
+  data: CreateFoodTypes[];
+  total_counts: number;
+  filtered_counts: number;
 }
 export interface CreateFoodTypes {
   id?: number;
@@ -15,12 +14,12 @@ export interface CreateFoodTypes {
   category: string;
   description?: string;
   other_name?: string;
-  visible_for?:string;
-  total_nutrition: number|undefined;
-  kcal: number|undefined;
-  protein: number|undefined;
-  fat: number|undefined;
-  carbohydrates: number|undefined;
+  visible_for?: string;
+  total_nutrition: number | undefined;
+  kcal: number | undefined;
+  protein: number | undefined;
+  fat: number | undefined;
+  carbohydrates: number | undefined;
   carbs_sugar?: number;
   carbs_saturated?: number;
   kilojoules?: number;
@@ -50,7 +49,7 @@ export interface CreateFoodTypes {
   alchohol_poly?: number;
   trans_fat?: number;
   weight: number;
-  weight_unit: string|undefined;
+  weight_unit: string | undefined;
   created_at?: Date;
   created_by?: number;
 }
@@ -415,7 +414,7 @@ export interface MemberInputTypes {
   created_by?: number | null;
   org_id: number;
   coach_id?: any[];
-  membership_plan_id: number | null;
+  membership_plan_id: number | null | undefined;
   send_invitation?: boolean;
   status?: string;
   auto_renewal?: boolean;

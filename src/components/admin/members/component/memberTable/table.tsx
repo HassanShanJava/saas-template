@@ -663,7 +663,7 @@ export default function MemberTableView() {
         </div>
         <Button
           className="bg-primary  text-black mr-1 "
-          onClick={() => handleEditForm()}
+          onClick={handleOpenForm}
         >
           <PlusIcon className="size-4" />
           Create New
@@ -875,6 +875,7 @@ export default function MemberTableView() {
         setMemberData={setEditMember}
         action={action}
         setAction={setAction}
+        refetch={refetch}
       />
 
      {/* <MemberModalForm

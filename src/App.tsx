@@ -27,6 +27,9 @@ import MealPlans from "./components/admin/meal_plans";
 import FoodsNutrition from "./components/admin/foods";
 import WorkoutPlan from "./components/admin/workoutplan";
 import withAuth from "./components/WithAuth";
+import ResetPassword from "./components/app/reset_password";
+
+
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -42,6 +45,8 @@ function App() {
           index
           element={withAuth(AuthenticationPage)({} as any)}
         />
+             <Route path="/reset_pasword/:token" element={<ResetPassword />}/>
+
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/" element={<DashboardLayout />}>
             {" "}

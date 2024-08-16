@@ -136,9 +136,9 @@ export interface createMembershipType {
   renewal_details: renewalData | object;
   facilities: facilitiesData[] | [];
   created_by: number | null;
-  inv_days_cycle?: number | null;
-  auto_renew_days?: number | null;
-  prolongation_period?: number | null;
+  inv_days_cycle?: number| null;
+  auto_renew_days?: number| null;
+  prolongation_period?: number| null;
 }
 
 export interface membeshipsTableResonseType {
@@ -395,7 +395,7 @@ export interface MemberInputTypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: string;
+  dob?: Date;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -415,13 +415,13 @@ export interface MemberInputTypes {
   created_by?: number | null;
   org_id?: number;
   coach_id?: any[];
-  membership_plan_id: number | null ;
+  membership_plan_id: number | undefined;
   send_invitation?: boolean;
   status?: string;
   auto_renewal?: boolean;
-  prolongation_period?: number|null;
-  auto_renew_days?: number|null;
-  inv_days_cycle?: number|null;
+  prolongation_period?: number;
+  auto_renew_days?: number;
+  inv_days_cycle?: number;
 }
 
 export interface MemberResponseTypes {
@@ -430,7 +430,7 @@ export interface MemberResponseTypes {
   first_name: string;
   last_name: string;
   gender: string;
-  dob: string;
+  dob: Date;
   email: string;
   phone?: string | null;
   mobile_number?: string | null;
@@ -451,7 +451,7 @@ export interface MemberResponseTypes {
   coach_id?: any[] | null;
   membership_plan_id: number | undefined;
   send_invitation?: boolean | null;
-  status?: string | null;
+  client_status?: string | null;
   is_deleted: boolean;
 }
 
@@ -478,7 +478,7 @@ export interface MemberTableDatatypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: string;
+  dob?: Date;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -500,7 +500,6 @@ export interface MemberTableDatatypes {
   coach_id?: any[];
   membership_plan_id: number | null;
   send_invitation?: boolean;
-  status?: string;
   auto_renewal?: boolean;
   prolongation_period?: number;
   auto_renew_days?: number;
@@ -521,7 +520,7 @@ export interface MemberTableResponseDatatypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: string;
+  dob?: Date;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -543,7 +542,6 @@ export interface MemberTableResponseDatatypes {
   coach_id?: any[];
   membership_plan_id: number | null;
   send_invitation?: boolean;
-  status?: string;
   auto_renewal?: boolean;
   prolongation_period?: number;
   auto_renew_days?: number;

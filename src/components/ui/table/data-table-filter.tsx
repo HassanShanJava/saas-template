@@ -199,7 +199,7 @@ function Combobox({ list, setFilter, name }: comboboxType) {
         <Command>
           <CommandInput placeholder={`Search ${name}`} />
           <CommandEmpty>No list found.</CommandEmpty>
-          <CommandList>
+          <CommandList className="custom-scrollbar">
             <CommandGroup>
               {list &&
                 list?.map((item) => (

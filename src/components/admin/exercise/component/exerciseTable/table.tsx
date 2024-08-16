@@ -63,7 +63,7 @@ import {
   useGetAllCategoryQuery,
   useGetAllExercisesQuery,
 } from "@/services/exerciseApi";
-import ExerciseForm from "../../exerciseform/form";
+import ExerciseForm from "../../exerciseform/exercise-modal";
 import { Separator } from "@/components/ui/separator";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { labels } from "@/schema/taskSchema";
@@ -735,7 +735,16 @@ export default function ExerciseTableView() {
           filterDisplay={filterDisplay}
         />
       </div>
-      <ExerciseForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} />
+
+      <ExerciseForm
+        isOpen={isDialogOpen}
+        setOpen={setIsDialogOpen}
+        action={action}
+        setAction={setAction}
+        data={data}
+        refetch={refetch}
+      />
+      {/* <ExerciseForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} /> */}
     </>
   );
 }

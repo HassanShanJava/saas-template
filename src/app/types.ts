@@ -50,7 +50,7 @@ export interface CreateFoodTypes {
   trans_fat?: number | null;
   weight: number | null;
   weight_unit: string | undefined;
-  img_url?:string| null;
+  img_url?: string | null;
   created_at?: Date;
   created_by?: number;
 }
@@ -855,8 +855,8 @@ export interface muscleserverResponse {
   muscle_name: string;
 }
 export interface baseExerciseApiResponse {
-  id: number;
-  name: string;
+  value: number;
+  label: string;
 }
 
 export interface EquipmentApiResponse {
@@ -908,19 +908,19 @@ enum VisibilityEnum {
 
 export interface createExerciseInputTypes {
   exercise_name: string;
-  visible_for: VisibilityEnum;
-  org_id: number;
-  exercise_type: ExerciseTypeEnum;
-  exercise_intensity: IntensityEnum;
-  intensity_value?: number;
-  difficulty: difficultyEnum;
-  sets?: number;
+  visible_for?: VisibilityEnum;
+  org_id?: number;
+  exercise_type?: ExerciseTypeEnum;
+  exercise_intensity?: IntensityEnum;
+  intensity_value?: number | null;
+  difficulty?: difficultyEnum;
+  sets?: number | null;
   seconds_per_set?: number[];
   repetitions_per_set?: number[];
   rest_between_set?: number[];
-  distance?: number;
-  speed?: number;
-  met_id?: number;
+  distance?: number | null;
+  speed?: number | null;
+  met_id?: number | null;
   gif_url: string;
   video_url_male?: string;
   video_url_female?: string;
@@ -928,30 +928,30 @@ export interface createExerciseInputTypes {
   thumbnail_female?: string;
   image_url_female?: string;
   image_url_male?: string;
-  category_id: number;
+  category_id: number | null;
   equipment_ids: number[];
   primary_muscle_ids: number[];
   secondary_muscle_ids?: number[];
   primary_joint_ids: number[];
-  created_by?: number;
-  updated_by?: number;
+  created_by?: number | null;
+  updated_by?: number | null;
 }
 
 export interface ExerciseResponseViewType {
   exercise_name: string;
-  visible_for: VisibilityEnum;
-  org_id: number;
-  exercise_type: ExerciseTypeEnum;
-  exercise_intensity: IntensityEnum;
-  intensity_value?: number;
-  difficulty: difficultyEnum;
-  sets?: number;
+  visible_for?: VisibilityEnum;
+  org_id?: number;
+  exercise_type?: ExerciseTypeEnum;
+  exercise_intensity?: IntensityEnum;
+  intensity_value?: number | null;
+  difficulty?: difficultyEnum;
+  sets?: number | null;
   seconds_per_set?: number[];
   repetitions_per_set?: number[];
   rest_between_set?: number[];
-  distance?: number;
-  speed?: number;
-  met_id?: number;
+  distance?: number | null;
+  speed?: number | null;
+  met_id?: number | null;
   gif_url: string;
   video_url_male?: string;
   video_url_female?: string;
@@ -959,8 +959,12 @@ export interface ExerciseResponseViewType {
   thumbnail_female?: string;
   image_url_female?: string;
   image_url_male?: string;
+  category_id: number | null;
+  equipment_ids: number[];
+  primary_muscle_ids: number[];
+  secondary_muscle_ids?: number[];
+  primary_joint_ids: number[];
   id: number;
-  category_id: number;
   category_name: string;
   equipments: baseExerciseApiResponse[];
   primary_muscles: baseExerciseApiResponse[];

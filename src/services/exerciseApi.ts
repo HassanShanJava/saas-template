@@ -31,8 +31,8 @@ export const Exercise = apiSlice.injectEndpoints({
         }),
         transformResponse: (resp: MetApiResponse[]) =>
           resp.map((met) => ({
-            id: met.id,
-            name: met.met_value,
+            value: met.id,
+            label: met.met_value,
           })),
         providesTags: ["Exercise"],
       }),
@@ -46,8 +46,8 @@ export const Exercise = apiSlice.injectEndpoints({
         }),
         transformResponse: (resp: muscleserverResponse[]) =>
           resp.map((muscle) => ({
-            id: muscle.id,
-            name: muscle.muscle_name,
+            value: muscle.id,
+            label: muscle.muscle_name,
           })),
         providesTags: ["Exercise"],
       }),
@@ -61,8 +61,8 @@ export const Exercise = apiSlice.injectEndpoints({
         }),
         transformResponse: (resp: EquipmentApiResponse[]) =>
           resp.map((Equipment) => ({
-            id: Equipment.id,
-            name: Equipment.equipment_name,
+            value: Equipment.id,
+            label: Equipment.equipment_name,
           })),
         providesTags: ["Exercise"],
       }),
@@ -76,8 +76,8 @@ export const Exercise = apiSlice.injectEndpoints({
         }),
         transformResponse: (resp: CategoryApiResponse[]) =>
           resp.map((category) => ({
-            id: category.id,
-            name: category.category_name,
+            value: category.id,
+            label: category.category_name,
           })),
         providesTags: ["Exercise"],
       }),
@@ -91,8 +91,8 @@ export const Exercise = apiSlice.injectEndpoints({
         }),
         transformResponse: (resp: JointApiResponse[]) =>
           resp.map((muscle) => ({
-            id: muscle.id,
-            name: muscle.joint_name,
+            value: muscle.id,
+            label: muscle.joint_name,
           })),
         providesTags: ["Exercise"],
       }),

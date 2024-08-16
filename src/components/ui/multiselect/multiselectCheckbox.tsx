@@ -20,6 +20,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+import { ScrollArea, ScrollBar } from "../scroll-area";
 
 /**
  * Variants for the multi-select component to handle different styles.
@@ -276,7 +277,7 @@ export const MultiSelect = React.forwardRef<
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="p-0 w-auto min-w-full"
+          className="p-0 w-auto min-w-full "
           align="start"
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
           style={{ width }}
@@ -286,44 +287,20 @@ export const MultiSelect = React.forwardRef<
               placeholder="Search..."
               onKeyDown={handleInputKeyDown}
             />
-            <CommandList className="custom-scrollbar">
-              <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
-                <CommandItem
-                  key="select-all"
-                  onSelect={toggleAll}
-                  className="cursor-pointer"
-                >
-                  <div
-                    className={cn(
-                      "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                      selectedValues.length === options.length
-                        ? "bg-primary text-primary-foreground"
-                        : ""
-                    )}
-                  >
-                    <CheckIcon
-                      className={cn(
-                        "h-4 w-4",
-                        selectedValues.length === options.length
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
-                    />
-                  </div>
-                  Select All
-                </CommandItem>
-                <CommandSeparator />
-                {options.map((option) => (
+            <ScrollArea>
+              <ScrollBar orientation="vertical" />
+              <CommandList className="custom-scrollbar max-h-52">
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
                   <CommandItem
-                    key={option.value}
-                    onSelect={() => toggleOption(option.value)}
+                    key="select-all"
+                    onSelect={toggleAll}
                     className="cursor-pointer"
                   >
                     <div
                       className={cn(
                         "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                        selectedValues.includes(option.value)
+                        selectedValues.length === options.length
                           ? "bg-primary text-primary-foreground"
                           : ""
                       )}
@@ -331,20 +308,47 @@ export const MultiSelect = React.forwardRef<
                       <CheckIcon
                         className={cn(
                           "h-4 w-4",
-                          selectedValues.includes(option.value)
+                          selectedValues.length === options.length
                             ? "opacity-100"
                             : "opacity-0"
                         )}
                       />
                     </div>
-                    {option.icon && (
-                      <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                    )}
-                    {option.label}
+                    Select All
                   </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
+                  <CommandSeparator />
+                  {options.map((option) => (
+                    <CommandItem
+                      key={option.value}
+                      onSelect={() => toggleOption(option.value)}
+                      className="cursor-pointer"
+                    >
+                      <div
+                        className={cn(
+                          "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                          selectedValues.includes(option.value)
+                            ? "bg-primary text-primary-foreground"
+                            : ""
+                        )}
+                      >
+                        <CheckIcon
+                          className={cn(
+                            "h-4 w-4",
+                            selectedValues.includes(option.value)
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                      </div>
+                      {option.icon && (
+                        <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                      )}
+                      {option.label}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </ScrollArea>
           </Command>
         </PopoverContent>
       </Popover>

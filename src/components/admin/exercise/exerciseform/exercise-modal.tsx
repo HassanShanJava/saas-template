@@ -83,7 +83,15 @@ const ExerciseForm = ({
     useSelector((state: RootState) => state.auth.userInfo?.user.id) || 0;
 
   const { toast } = useToast();
-  const [files, setFiles] = useState<File[] | null>([]);
+  const [gif, setGif] = useState<File[]| null>(null);
+  const [maleImage, setMaleImage] = useState<File[] | null>(null);
+const [femaleImage, setFemaleImage] = useState<File[] | null>(null);
+
+
+    const [existingGIf, setExistingGif] = useState<string | null>(null);
+  const [existingMaleImage, setExistingMaleImage] = useState<string | null>(null);
+  const [existingFemaleImage, setExistingFemaleImage] = useState<string | null>(null);
+
   const { data: CategoryData } = useGetAllCategoryQuery();
   const { data: EquipmentData } = useGetAllEquipmentsQuery();
   const { data: MuscleData } = useGetAllMuscleQuery();
@@ -92,7 +100,7 @@ const ExerciseForm = ({
 
   const dropzone = {
     accept: {
-      "image/*": [".jpg", ".jpeg", ".png"],
+      "image/": [".jpg", ".jpeg", ".png"],
     },
     multiple: true,
     maxFiles: 1,
@@ -101,7 +109,7 @@ const ExerciseForm = ({
 
   const dropzoneGif = {
     accept: {
-      "image/*": [".gif"],
+      "image/": [".gif"],
     },
     multiple: true,
     maxFiles: 1,
@@ -147,7 +155,9 @@ const ExerciseForm = ({
       keepDefaultValues: true,
       keepDirtyValues: true,
     });
-    setFiles([]);
+    setMaleImage([]);
+    setFemaleImage([]);
+    setGif([]);
     setOpen(false);
   };
 
@@ -163,7 +173,7 @@ const ExerciseForm = ({
     // } else {
     //   payload.img_url = null;
     // }
-
+console.log(input);
     try {
       if (action === "add") {
         // await createExercise(payload).unwrap();
@@ -372,6 +382,7 @@ const ExerciseForm = ({
                         }}
                         render={({ field: { onChange, value } }) => (
                           <MultiSelect
+                          floatingLabel={item.label}
                             options={
                               item.options as {
                                 label: string;
@@ -461,164 +472,195 @@ const ExerciseForm = ({
             <h1 className="font-semibold text-xl py-3">Thumbnails</h1>
             <div className="flex gap-2 w-full">
               <div className="w-[33%]">
-                <h1 className="m-2 font-semibold"> Male Image</h1>
-                <FileUploader
-                  value={files}
-                  onValueChange={setFiles}
-                  dropzoneOptions={dropzone}
-                >
-                  {files &&
-                    files?.map((file, i) => (
-                      <div className="h-40 ">
-                        <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
+                  <h1 className="m-2 font-semibold"> Male Image</h1>
+                  <FileUploader
+                    value={maleImage}
+                    onValueChange={setMaleImage}
+                    dropzoneOptions={dropzone}
+                  >
+                    {maleImage && maleImage.length > 0 ? (
+                      maleImage.map((file, i) => (
+                        <div className="h-40" key={i}>
+                          <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
+                            <FileUploaderItem
+                              key={i}
+                              index={i}
+                              className="h-full p-0 rounded-md overflow-hidden relative"
+                              aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                            >
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={file.name}
+                                className="object-contain max-h-40"
+                              />
+                            </FileUploaderItem>
+                          </FileUploaderContent>
+                        </div>
+                      ))
+                    ) : existingMaleImage ? (
+                      <div className="h-40">
+                        <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
                           <FileUploaderItem
-                            key={i}
-                            index={i}
-                            className="h-full  p-0 rounded-md overflow-hidden relative "
-                            aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                            className="h-full p-0 rounded-md overflow-hidden relative"
+                            index={Number(existingFemaleImage)+1}
                           >
                             <img
-                              src={URL.createObjectURL(file)}
-                              alt={file.name}
+                              src={existingMaleImage}
+                              alt="Existing Male Image"
                               className="object-contain max-h-40"
                             />
                           </FileUploaderItem>
                         </FileUploaderContent>
                       </div>
-                    ))}
-
-                  <FileInput className="flex flex-row gap-">
-                    {files?.length == 0 && (
-                      <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
-                        <div>
-                          <i className="text-primary fa-regular fa-image text-2xl"></i>
-                        </div>
-                        <div>
-                          <h1 className="text-sm">
-                            Drop your male image here or{" "}
-                            <span className="underline text-blue-500">
-                              Browse
+                    ) : (
+                      <FileInput className="flex flex-row gap-">
+                        <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
+                          <div>
+                            <i className="text-primary fa-regular fa-image text-2xl"></i>
+                          </div>
+                          <div>
+                            <h1 className="text-sm">
+                              Drop your male image here or{" "}
+                              <span className="underline text-blue-500">Browse</span>
+                            </h1>
+                          </div>
+                          <div>
+                            <span className="text-sm">
+                              Support JPG , PNG, and JPEG
                             </span>
-                          </h1>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-sm">
-                            Support JPG,PNG,and JPEG
-                          </span>
-                        </div>
-                      </div>
+                      </FileInput>
                     )}
+                  </FileUploader>
+                </div>
 
-                    {/* <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
+          <div className="w-[33%]">
+            <h1 className="m-2 font-semibold"> Female Image</h1>
+            <FileUploader
+              value={femaleImage}
+              onValueChange={setFemaleImage}
+              dropzoneOptions={dropzone}
+            >
+              {femaleImage && femaleImage.length > 0 ? (
+                femaleImage.map((file, i) => (
+                  <div className="h-40" key={i}>
+                    <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
+                      <FileUploaderItem
+                        key={i}
+                        index={i}
+                        className="h-full p-0 rounded-md overflow-hidden relative"
+                        aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                      >
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={file.name}
+                          className="object-contain max-h-40"
+                        />
+                      </FileUploaderItem>
+                    </FileUploaderContent>
+                  </div>
+                ))
+              ) : existingFemaleImage ? (
+                <div className="h-40">
+                  <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
+                    <FileUploaderItem
+                      className="h-full p-0 rounded-md overflow-hidden relative"
+                      index={Number(existingFemaleImage)+2}
+                    >
                       <img
-                        src={
-                          data?.thumbnail_male
-                            ? VITE_VIEW_S3_URL + "/" + data?.thumbnail_male
-                            : uploadimg
-                        }
-                        className="size-10"
+                        src={existingFemaleImage}
+                        alt="Existing Female Image"
+                        className="object-contain max-h-40"
                       />
-                      <span className="text-sm">Upload Image</span>
-                    </div> */}
-                  </FileInput>
-                </FileUploader>
-              </div>
-              <div className="w-[33%]">
-                <h1 className="m-2 font-semibold"> Female Image</h1>
-                <FileUploader
-                  value={files}
-                  onValueChange={setFiles}
-                  dropzoneOptions={dropzone}
-                >
-                  {files &&
-                    files?.map((file, i) => (
-                      <div className="h-40 ">
-                        <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
+                    </FileUploaderItem>
+                  </FileUploaderContent>
+                </div>
+              ) : (
+                <FileInput className="flex flex-col gap-2">
+                  <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
+                    <div>
+                      <i className="text-primary fa-regular fa-image text-2xl"></i>
+                    </div>
+                    <div>
+                      <h1 className="text-sm">
+                        Drop your female image here or{" "}
+                        <span className="underline text-blue-500">Browse</span>
+                      </h1>
+                    </div>
+                    <div>
+                      <span className="text-sm">
+                        Support JPG , PNG, and JPEG
+                      </span>
+                    </div>
+                  </div>
+                </FileInput>
+              )}
+            </FileUploader>
+          </div>
+               <div className="w-[33%]">
+                  <h1 className="m-2 font-semibold"> Upload Gif</h1>
+                  <FileUploader
+                    value={gif}
+                    onValueChange={setGif}
+                    dropzoneOptions={dropzone}
+                  >
+                    {gif && gif.length > 0 ? (
+                      gif.map((file, i) => (
+                        <div className="h-40" key={i}>
+                          <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
+                            <FileUploaderItem
+                              key={i}
+                              index={i}
+                              className="h-full p-0 rounded-md overflow-hidden relative"
+                              aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                            >
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={file.name}
+                                className="object-contain max-h-40"
+                              />
+                            </FileUploaderItem>
+                          </FileUploaderContent>
+                        </div>
+                      ))
+                    ) : existingGIf ? (
+                      <div className="h-40">
+                        <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
                           <FileUploaderItem
-                            key={i}
-                            index={i}
-                            className="h-full  p-0 rounded-md overflow-hidden relative "
-                            aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                            className="h-full p-0 rounded-md overflow-hidden relative"
+                            index={Number(existingGIf)+1}
                           >
                             <img
-                              src={URL.createObjectURL(file)}
-                              alt={file.name}
+                              src={existingGIf}
+                              alt="Existing Male Image"
                               className="object-contain max-h-40"
                             />
                           </FileUploaderItem>
                         </FileUploaderContent>
                       </div>
-                    ))}
-
-                  <FileInput className="flex flex-col gap-2  ">
-                    {files?.length == 0 && (
-                      <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
-                        <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
-                      </div>
+                    ) : (
+                      <FileInput className="flex flex-row gap-">
+                        <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
+                          <div>
+                            <i className="text-primary fa-regular fa-image text-2xl"></i>
+                          </div>
+                          <div>
+                            <h1 className="text-sm">
+                              Drop your male image here or{" "}
+                              <span className="underline text-blue-500">Browse</span>
+                            </h1>
+                          </div>
+                          <div>
+                            <span className="text-sm">
+                              Support GIF Only.
+                            </span>
+                          </div>
+                        </div>
+                      </FileInput>
                     )}
-
-                    {/* <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
-                      <img
-                        src={
-                          data?.thumbnail_male
-                            ? VITE_VIEW_S3_URL + "/" + data?.thumbnail_male
-                            : uploadimg
-                        }
-                        className="size-10"
-                      />
-                      <span className="text-sm">Upload Image</span>
-                    </div> */}
-                  </FileInput>
-                </FileUploader>
-              </div>
-              <div className="w-[33%]">
-                <h1 className="m-2 font-semibold"> Upload Gif</h1>
-                <FileUploader
-                  value={files}
-                  onValueChange={setFiles}
-                  dropzoneOptions={dropzone}
-                >
-                  {files &&
-                    files?.map((file, i) => (
-                      <div className="h-40 ">
-                        <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
-                          <FileUploaderItem
-                            key={i}
-                            index={i}
-                            className="h-full  p-0 rounded-md overflow-hidden relative "
-                            aria-roledescription={`file ${i + 1} containing ${file.name}`}
-                          >
-                            <img
-                              src={URL.createObjectURL(file)}
-                              alt={file.name}
-                              className="object-contain max-h-40"
-                            />
-                          </FileUploaderItem>
-                        </FileUploaderContent>
-                      </div>
-                    ))}
-
-                  <FileInput className="flex flex-col gap-2  ">
-                    {files?.length == 0 && (
-                      <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
-                        <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
-                      </div>
-                    )}
-
-                    {/* <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
-                      <img
-                        src={
-                          data?.thumbnail_male
-                            ? VITE_VIEW_S3_URL + "/" + data?.thumbnail_male
-                            : uploadimg
-                        }
-                        className="size-10"
-                      />
-                      <span className="text-sm">Upload Image</span>
-                    </div> */}
-                  </FileInput>
-                </FileUploader>
-              </div>
+                  </FileUploader>
+                </div>
             </div>
           </form>
         </FormProvider>

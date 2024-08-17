@@ -12,6 +12,8 @@ import {
   deleteExerciseResponse,
   deleteExerciseInput,
   ExerciseTableTypes,
+  ExerciseResponseServerViewType,
+  ExerciseTableServerTypes,
 } from "@/app/types";
 
 interface ExerciseQueryInput {
@@ -118,6 +120,26 @@ export const Exercise = apiSlice.injectEndpoints({
           headers: {
             Accept: "application/json",
           },
+        }),
+        // transformResponse:(resp:ExerciseTableServerTypes)=>
+        //   resp.data
+        transformResponse: (
+          response: ExerciseTableServerTypes
+        ): ExerciseTableTypes => ({
+          ...response,
+          data: response.data.map((record) => ({
+            ...record,
+            primary_joint_ids: record.primary_joints.map((coach) => 
+              coach.value,
+             ),
+            primary_muscle_ids:
+            record.primary_muscles.map((coach) => 
+              coach.value,
+             ),
+            equipment_ids:record.equipments.map((coach) => 
+             coach.value,
+            ),
+          })),
         }),
         providesTags: ["Exercise"],
       }),

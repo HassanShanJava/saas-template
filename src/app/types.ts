@@ -966,13 +966,50 @@ export interface ExerciseResponseViewType {
   primary_joint_ids: number[];
   id: number;
   category_name: string;
+}
+
+
+export interface ExerciseResponseServerViewType {
+  exercise_name: string;
+  visible_for?: VisibilityEnum;
+  org_id?: number;
+  exercise_type?: ExerciseTypeEnum;
+  exercise_intensity?: IntensityEnum;
+  intensity_value?: number | null;
+  difficulty?: difficultyEnum;
+  sets?: number | null;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  distance?: number | null;
+  speed?: number | null;
+  met_id?: number | null;
+  gif_url: string;
+  video_url_male?: string;
+  video_url_female?: string;
+  thumbnail_male?: string;
+  thumbnail_female?: string;
+  image_url_female?: string;
+  image_url_male?: string;
+  category_id: number | null;
   equipments: baseExerciseApiResponse[];
   primary_muscles: baseExerciseApiResponse[];
   secondary_muscles?: baseExerciseApiResponse[];
   primary_joints: baseExerciseApiResponse[];
+  id: number;
+  category_name: string;
 }
+
+
 export interface ExerciseTableTypes {
   data: ExerciseResponseViewType[];
+  total_counts: number;
+  filtered_counts: number;
+}
+
+
+export interface ExerciseTableServerTypes {
+  data: ExerciseResponseServerViewType[];
   total_counts: number;
   filtered_counts: number;
 }

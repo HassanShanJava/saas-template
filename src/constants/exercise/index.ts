@@ -9,7 +9,6 @@ export const exerciseTypeOptions = [
   { value: "Time Based", label: "Time Based" },
   { value: "Repetition Based", label: "Repetition Based" },
 ];
-
 export const difficultyTypeoptions = [
   { value: "Novice", label: "Novice" },
   { value: "Beginner", label: "Beginner" },

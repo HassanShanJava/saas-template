@@ -14,13 +14,6 @@ import {
 import ExerciseFilters from "./data-table-filter";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Table,
   TableBody,
   TableCell,
@@ -30,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MoreHorizontal, PlusIcon, Search } from "lucide-react";
+import { PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -43,19 +36,14 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-// import { MemberFilterSchema, MemberTabletypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Spinner } from "@/components/ui/spinner/spinner";
-import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { useGetAllMemberQuery } from "@/services/memberAPi";
 import {
   ErrorType,
   ExerciseResponseViewType,
-  ExerciseTableTypes,
 } from "@/app/types";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -66,31 +54,20 @@ import {
 import ExerciseForm from "../../exerciseform/exercise-modal";
 import { Separator } from "@/components/ui/separator";
 import { DataTableRowActions } from "./data-table-row-actions";
-import { labels } from "@/schema/taskSchema";
-import { options } from "@fullcalendar/core/preact.js";
 import {
   difficultyTypeoptions,
   exerciseTypeOptions,
   visibilityOptions,
 } from "@/constants/exercise";
-const downloadCSV = (data: any[], fileName: string) => {
-  const csv = Papa.unparse(data);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
+
 interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
   sort_key?: string;
   search_key?: string;
-  category?: string;
-  visible_for?: string;
+  category?: string[];
+  visible_for?: string[];
   difficulty?: string;
   exercise_type?: string;
 }
@@ -136,18 +113,42 @@ export default function ExerciseTableView() {
     console.log({ debouncedInputValue });
   }, [debouncedInputValue, setSearchCretiria]);
 
-  React.useEffect(() => {
-    const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(searchCretiria)) {
-      console.log({ key, value });
-      if (value !== undefined && value !== null) {
-        params.append(key, value);
-      }
-    }
-    const newQuery = params.toString();
-    console.log({ newQuery });
-    setQuery(newQuery);
-  }, [searchCretiria]);
+  // React.useEffect(() => {
+  //   const params = new URLSearchParams();
+  //   for (const [key, value] of Object.entries(searchCretiria)) {
+  //     console.log({ key, value });
+  //     if (value !== undefined && value !== null) {
+  //       params.append(key, value);
+  //     }
+  //   }
+  //   const newQuery = params.toString();
+  //   console.log({ newQuery });
+  //   setQuery(newQuery);
+  // }, [searchCretiria]);
+          React.useEffect(() => {
+            const params = new URLSearchParams();
+            // Iterate through the search criteria
+            for (const [key, value] of Object.entries(searchCretiria)) {
+              console.log("just checking here",[key, value])
+              if (value !== undefined && value !== null) {
+                // Check if the value is an array
+                if (Array.isArray(value)) {
+                  value.forEach((val) => {
+                    params.append(key, val); // Append each array element as a separate query parameter
+                  });
+                } else {
+                  params.append(key, value); // For non-array values
+                }
+              }
+            }
+          
+            // Create the final query string
+            const newQuery = params.toString();
+            console.log({ newQuery });
+            setQuery(newQuery); // Update the query state for API call
+          }, [searchCretiria]);
+  
+  
 
   const toggleSortOrder = (key: string) => {
     setSearchCretiria((prev) => {
@@ -208,30 +209,6 @@ export default function ExerciseTableView() {
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-
-  const displayDate = (value: any) => {
-    const date = new Date(value);
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    const year = date.getFullYear();
-
-    return `${day}-${month}-${year}`;
-  };
-
-  const handleExportSelected = () => {
-    const selectedRows = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original);
-    if (selectedRows.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Select atleast one row for CSV download!",
-      });
-      return;
-    }
-    downloadCSV(selectedRows, "selectedExercise.csv");
-  };
 
   const displayValue = (value: string | undefined | null) =>
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
@@ -446,30 +423,30 @@ export default function ExerciseTableView() {
 
   const filterDisplay = [
     {
-      type: "select",
+      type: "multiselect",
       name: "category",
-      label: "Category",
+      label: "category",
       options: CategoryData,
       function: handleFilterChange,
     },
     {
-      type: "select",
+      type: "multiselect",
       name: "visible_for",
-      label: "Visible for",
+      label: "visible_for",
       options: visibilityOptions,
       function: handleFilterChange,
     },
     {
       type: "select",
       name: "exercise_type",
-      label: "Exercise Type",
+      label: "exercise_type",
       options: exerciseTypeOptions,
       function: handleFilterChange,
     },
     {
       type: "select",
       name: "difficulty",
-      label: "Difficulty",
+      label: "difficulty",
       options: difficultyTypeoptions,
       function: handleFilterChange,
     },
@@ -518,7 +495,6 @@ export default function ExerciseTableView() {
     }
   };
 
-  console.log("table of exercise", table);
   return (
     <>
       <div className="w-full space-y-4">

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Button } from "@/components/ui/button";
+import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 
 interface exercisefiltertypes {
   isOpen: boolean;
@@ -58,24 +59,45 @@ const ExerciseFilters = ({
                 if (element.type == "select") {
                   return (
                     <Select
-                      key={element.name}
-                      name={element.name}
-                      value={filterData[element.name]}
+                      key={element.label}
+                      name={element.label}
+                      value={filterData[element.label]}
                       onValueChange={(value) => {
-                        handleFilterChange(element.name, value);
+                        handleFilterChange(element.label, value);
                       }}
                     >
                       <SelectTrigger floatingLabel={element.label}>
-                        <SelectValue placeholder={"Select " + element.label} />
+                        <SelectValue placeholder={"Select " + element.label.replace(/_/g, ' ') // Replace underscores with spaces
+    .toLowerCase()     // Convert to lowercase
+    .replace(/(?:^|\s)\S/g, (match:string) => match.toUpperCase())} />
                       </SelectTrigger>
                       <SelectContent>
                         {element.options?.map((st: any, index: number) => (
-                          <SelectItem key={index} value={String(st.id)}>
-                            {st.name}
+                          <SelectItem key={index} value={String(st.value)}>
+                            {st.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                  );
+                }
+
+                if (element.type === "multiselect") {
+                  return (
+                    <MultiSelect
+                      floatingLabel={element.label.replace(/_/g, ' ')}
+                      key={element.label}
+                      options={element.options}
+                      defaultValue={filterData[element.label] || []} // Ensure defaultValue is always an array
+                      onValueChange={(selectedValues) => {
+                        console.log("Selected Values: ", selectedValues); // Debugging step
+                        handleFilterChange(element.label, selectedValues); // Pass selected values to state handler
+                      }}
+                      placeholder={"Select " + element.label.replace(/_/g, ' ')}
+                      variant="inverted"
+                      maxCount={1}
+                      className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    />
                   );
                 }
               })}

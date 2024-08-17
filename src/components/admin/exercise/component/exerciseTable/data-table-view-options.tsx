@@ -43,8 +43,6 @@ export function DataTableViewOptions<TData>({
             )
             .map((column) => {
               const { meta }: any = column.columnDef;
-              console.log("meta", column.columnDef);
-
               return (
                 <DropdownMenuCheckboxItem
                   key={column.id}

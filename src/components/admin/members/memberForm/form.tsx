@@ -110,7 +110,7 @@ import {
   useGetMembershipsQuery,
 } from "@/services/membershipsApi";
 import { useParams } from "react-router-dom";
-import { UploadCognitoImage } from "@/utils/lib/s3Service";
+import { deleteCognitoImage, UploadCognitoImage } from "@/utils/lib/s3Service";
 import profileimg from "@/assets/profile-image.svg";
 import { Separator } from "@/components/ui/separator";
 const { VITE_VIEW_S3_URL } = import.meta.env;
@@ -131,7 +131,7 @@ const initialValues: MemberInputTypes = {
   first_name: "",
   last_name: "",
   gender: genderEnum.male,
-  dob: new Date(),
+  dob: format(new Date(), 'yyyy-MM-dd'),
   email: "",
   phone: "",
   mobile_number: "",
@@ -148,7 +148,6 @@ const initialValues: MemberInputTypes = {
   membership_plan_id: undefined,
   send_invitation: true,
   client_status: "pending",
-  client_since: '',
   auto_renewal: false,
   prolongation_period: undefined,
   auto_renew_days: undefined,
@@ -188,7 +187,7 @@ const MemberForm = ({
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   // conditional fetching
-  const { data: memberCountData } = useGetMemberCountQuery(orgId, {
+  const { data: memberCountData, refetch: refecthCount } = useGetMemberCountQuery(orgId, {
     skip: action == 'edit',
   });
 
@@ -241,18 +240,10 @@ const MemberForm = ({
     handleSubmit,
     clearErrors,
     reset,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting, errors, },
   } = form;
 
   const watcher = watch();
-
-  useEffect(() => {
-    if (!open) return;
-    const total = memberCountData?.total_members as number;
-    if (total >= 0 && action == 'add') {
-      setValue("own_member_id", `${orgName?.slice(0, 2)}-${total + 1}`);
-    }
-  }, [open, memberCountData,action]);
 
   useEffect(() => {
     if (action == "edit") {
@@ -261,9 +252,13 @@ const MemberForm = ({
       reset(memberpayload);
       setAvatar(memberpayload.profile_img as string);
     } else {
+      const total = memberCountData?.total_members as number;
+      if (total >= 0 && action == 'add') {
+        initialValues.own_member_id = `${orgName?.slice(0, 2)}-${total + 1}`
+      }
       reset(initialValues, { keepDefaultValues: true, keepDirtyValues: true })
     }
-  }, [open, memberData]);
+  }, [open, action, memberCountData]);
 
   // set auto_renewal
   const handleMembershipPlanChange = (value: number) => {
@@ -275,18 +270,18 @@ const MemberForm = ({
     const renewalDetails = data?.renewal_details as renewalData;
 
     setValue("auto_renewal", data?.auto_renewal);
-    if (data?.auto_renewal) {
+    if (data?.auto_renewal && renewalDetails) {
       setValue(
         "prolongation_period",
-        renewalDetails?.prolongation_period ?? undefined
+        renewalDetails?.prolongation_period as number
       );
       setValue(
         "auto_renew_days",
-        renewalDetails?.days_before ?? undefined
+        renewalDetails?.days_before as number
       );
       setValue(
         "inv_days_cycle",
-        renewalDetails?.next_invoice ?? undefined
+        renewalDetails?.next_invoice as number
       );
     }
   };
@@ -309,12 +304,23 @@ const MemberForm = ({
     let updatedData = {
       ...data,
       org_id: orgId,
-      dob: new Date(data.dob!),
+      dob: format(new Date(data.dob!), 'yyyy-MM-dd'),
       coach_id: data.coach_id?.map((coach) => coach.id),
     };
 
+    if (!updatedData.auto_renew_days) {
+      setValue("prolongation_period", undefined);
+      setValue("auto_renew_days", undefined);
+      setValue("inv_days_cycle", undefined);
+    }
+
     if (selectedImage) {
       try {
+        if (updatedData.profile_img !== '' && (updatedData?.profile_img as string).length > 0) {
+          const fileName = (updatedData?.profile_img as string).split("/images/")[1]
+          await deleteCognitoImage(fileName)
+        }
+
         const getUrl = await UploadCognitoImage(selectedImage);
         updatedData = {
           ...updatedData,
@@ -331,9 +337,6 @@ const MemberForm = ({
         return;
       }
     }
-
-    console.log({ updatedData, action }, "submit")
-
     try {
       if (action == 'add') {
         console.log({ updatedData }, "add");
@@ -344,6 +347,7 @@ const MemberForm = ({
             title: "Member Created Successfully ",
           });
           refetch()
+          refecthCount()
           handleClose();
         }
       } else {
@@ -440,7 +444,7 @@ const MemberForm = ({
                   <div className="relative flex">
                     <img
                       id="avatar"
-                      src={avatar ? String(VITE_VIEW_S3_URL + '/' + avatar) : profileimg}
+                      src={watcher.profile_img !=='' ? VITE_VIEW_S3_URL +  watcher.profile_img : avatar ? String(avatar) : profileimg}
                       alt={profileimg}
                       className="w-20 h-20 rounded-full object-cover mb-4 relative"
                     />
@@ -622,7 +626,11 @@ const MemberForm = ({
                     {...register("email", {
                       required: "Required", maxLength: {
                         value: 40, message: "Should be 40 characters or less"
-                      }
+                      },
+                      pattern: {
+                        value: /\S+@\S+\.\S+/,
+                        message: "Incorrect email format",
+                      },
                     })}
                     error={errors.email?.message}
                   />
@@ -782,7 +790,7 @@ const MemberForm = ({
                 >
                   <Controller
                     name={"business_id" as keyof MemberInputTypes}
-                    rules={{ required: !watcher.is_business&&"Required" }}
+                    rules={{ required: !watcher.is_business && "Required" }}
                     control={control}
                     render={({
                       field: { onChange, value, onBlur },
@@ -860,7 +868,7 @@ const MemberForm = ({
                   <FloatingLabelInput
                     id="zipcode"
                     label="Zip Code"
-                    {...register('zipcode', { valueAsNumber: true })}
+                    {...register('zipcode')}
                   />
 
                 </div>
@@ -970,7 +978,7 @@ const MemberForm = ({
                           onValueChange={(value) =>
                             handleMembershipPlanChange(Number(value))
                           }
-                          defaultValue={value}
+                          defaultValue={value?.toString()}
                         >
                           <FormControl>
                             <SelectTrigger
@@ -1020,7 +1028,6 @@ const MemberForm = ({
                 <div className="h-full relative col-span-2">
                   <Controller
                     name={"auto_renewal" as keyof MemberInputTypes}
-                    rules={{ required: "Required" }}
                     control={control}
                     render={({
                       field: { onChange, value, onBlur },
@@ -1031,7 +1038,7 @@ const MemberForm = ({
                           <Checkbox
                             checked={value as boolean}
                             onCheckedChange={onChange}
-                    disabled={watcher.membership_plan_id==undefined}
+                            disabled={watcher.membership_plan_id == undefined}
 
                           />
                         </>
@@ -1054,7 +1061,7 @@ const MemberForm = ({
                             type="number"
                             min={1}
                             className="w-16"
-                            {...register("prolongation_period", { valueAsNumber: true, required:watcher.auto_renewal&&'Required'} )}
+                            {...register("prolongation_period", { valueAsNumber: true, required: watcher.auto_renewal && 'Required' })}
                             error={errors.prolongation_period?.message}
                           />
                         </div>
@@ -1072,7 +1079,7 @@ const MemberForm = ({
                             type="number"
                             min={1}
                             className="w-16"
-                            {...register("auto_renew_days", { valueAsNumber: true, required:watcher.auto_renewal&&'Required' })}
+                            {...register("auto_renew_days", { valueAsNumber: true, required: watcher.auto_renewal && 'Required' })}
                             error={errors.auto_renew_days?.message}
                           />
                         </div>
@@ -1093,7 +1100,7 @@ const MemberForm = ({
                             type="number"
                             min={1}
                             className="w-16"
-                            {...register("inv_days_cycle", { valueAsNumber: true, required:watcher.auto_renewal&&'Required' })}
+                            {...register("inv_days_cycle", { valueAsNumber: true, required: watcher.auto_renewal && 'Required' })}
                             error={errors.inv_days_cycle?.message}
                           />
                         </div>

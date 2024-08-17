@@ -395,7 +395,7 @@ export interface MemberInputTypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: Date;
+  dob?: Date|string;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -409,7 +409,6 @@ export interface MemberInputTypes {
   zipcode?: string;
   address_1?: string;
   address_2?: string;
-  client_since?: string;
   client_status?: string;
   created_at?: string | null;
   created_by?: number | null;
@@ -430,7 +429,7 @@ export interface MemberResponseTypes {
   first_name: string;
   last_name: string;
   gender: string;
-  dob: Date;
+  dob: Date|string;
   email: string;
   phone?: string | null;
   mobile_number?: string | null;
@@ -444,7 +443,7 @@ export interface MemberResponseTypes {
   zipcode?: string | null;
   address_1?: string | null;
   address_2?: string | null;
-  client_since: string;
+  client_since?: Date;
   created_at?: string | null;
   created_by?: number | null;
   org_id: number;
@@ -478,7 +477,7 @@ export interface MemberTableDatatypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: Date;
+  dob?: Date|string;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -492,13 +491,13 @@ export interface MemberTableDatatypes {
   zipcode?: string;
   address_1?: string;
   address_2?: string;
-  client_since?: string;
+  client_since?: Date;
   client_status?: string;
   created_at?: string | null;
   created_by?: number | null;
   org_id: number;
   coach_id?: any[];
-  membership_plan_id: number | null;
+  membership_plan_id: number | undefined;
   send_invitation?: boolean;
   auto_renewal?: boolean;
   prolongation_period?: number;
@@ -520,7 +519,7 @@ export interface MemberTableResponseDatatypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: Date;
+  dob?: Date|string;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -534,13 +533,13 @@ export interface MemberTableResponseDatatypes {
   zipcode?: string;
   address_1?: string;
   address_2?: string;
-  client_since?: string;
+  client_since?: Date;
   client_status?: string;
   created_at?: string | null;
   created_by?: number | null;
   org_id: number;
   coach_id?: any[];
-  membership_plan_id: number | null;
+  membership_plan_id: number | undefined;
   send_invitation?: boolean;
   auto_renewal?: boolean;
   prolongation_period?: number;

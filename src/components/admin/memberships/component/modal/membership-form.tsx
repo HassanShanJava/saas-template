@@ -476,7 +476,7 @@ const MembershipForm = ({
           </div>
 
           <Separator className=" h-[1px] font-thin rounded-full" />
-          <div className="flex justify-start  px-8 pb-8">
+          <div className="max-w-[530px] flex justify-start">
             <StepperIndicator
               activeStep={activeStep}
               labels={infoLabels}

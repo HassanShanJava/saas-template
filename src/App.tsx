@@ -27,6 +27,7 @@ import MealPlans from "./components/admin/meal_plans";
 import FoodsNutrition from "./components/admin/foods";
 import WorkoutPlan from "./components/admin/workoutplan";
 import withAuth from "./components/WithAuth";
+import WorkoutPlanForm from "./components/admin/workoutplan/workoutform/workout-form";
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -88,7 +89,9 @@ function App() {
             /> */}
             {/* <Route path="/admin/mealplans"  element={<MealPlans />} /> */}
             {/* <Route path="/admin/foods"  element={<FoodsNutrition />} /> */}
-            {/* <Route path="/admin/workoutplans"  element={<WorkoutPlan />} /> */}
+            <Route path="/admin/workoutplans/" element={<WorkoutPlan />} >
+				<Route path="add" element={<WorkoutPlanForm/>}/>
+			</Route>
           </Route>
         </Route>
       </Routes>

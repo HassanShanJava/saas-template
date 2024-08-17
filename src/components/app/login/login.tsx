@@ -101,6 +101,7 @@ export default function AuthenticationPage() {
 
     console.log("Form data:", data);
     dispatch(login(data));
+		recaptchaRef.current?.reset();
   };
 
   const [isCaptchaError, setCaptchaError] = useState(false);
@@ -151,13 +152,13 @@ export default function AuthenticationPage() {
                   <div className="flex items-center custom-box-shadow w-full gap-2 px-4 py-2 rounded-md border border-checkboxborder focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 ">
                     <input
                       id="username"
-                      type="email"
+                      type="text"
                       placeholder="Enter you email"
                       className="w-full bg-transparent border-checkboxborder text-textgray outline-none"
                       {...register("email", {
                         required: "Email is required",
                         pattern: {
-                          value: /\S+@\S+\.\S+/,
+                          value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
                           message: "Invalid email address",
                         },
                         maxLength: 64,

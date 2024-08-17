@@ -148,6 +148,7 @@ const initialValues: MemberInputTypes = {
   membership_plan_id: undefined,
   send_invitation: true,
   client_status: "pending",
+  client_since: format(new Date(),'yyyy-MM-dd'),
   auto_renewal: false,
   prolongation_period: undefined,
   auto_renew_days: undefined,
@@ -158,7 +159,7 @@ const initialValues: MemberInputTypes = {
 interface memberFormTypes {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  memberData: MemberTableDatatypes;
+  memberData: MemberTableDatatypes | null;
   setMemberData: React.Dispatch<
     React.SetStateAction<MemberTableDatatypes | null>
   >;
@@ -293,7 +294,6 @@ const MemberForm = ({
       keepIsSubmitted: false,
       keepSubmitCount: false,
       keepDefaultValues: true,
-      keepDirtyValues: true,
     });
     setMemberData(null);
     setOpen(false);
@@ -351,10 +351,10 @@ const MemberForm = ({
           handleClose();
         }
       } else {
-        console.log({ ...updatedData, id: memberData.id }, "update");
+        console.log({ ...updatedData, id: memberData?.id as number }, "update");
         const resp = await editMember({
           ...updatedData,
-          id: memberData?.id,
+          id: memberData?.id as number,
         }).unwrap();
         if (resp) {
           toast({
@@ -715,13 +715,13 @@ const MemberForm = ({
 
                       <MultiSelector
                         onValuesChange={(values) => onChange(values)}
-                        values={value || []}
+                        values={value as any[] ?? []}
                       >
                         <MultiSelectorTrigger className="border-[1px] border-gray-300">
                           <MultiSelectorInput
                             className="font-medium  "
                             placeholder={
-                              value && value?.length as number == 0
+                              value && (value as any[])?.length == 0
                                 ? `Select Coaches`
                                 : ""
                             }

@@ -410,6 +410,7 @@ export interface MemberInputTypes {
   address_1?: string;
   address_2?: string;
   client_status?: string;
+  client_since?: Date|string;
   created_at?: string | null;
   created_by?: number | null;
   org_id?: number;

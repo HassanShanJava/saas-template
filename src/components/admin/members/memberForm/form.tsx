@@ -390,7 +390,7 @@ const MemberForm = ({
     <Sheet open={open}>
       <SheetContent
         hideCloseButton
-        className="!max-w-[1050px] py-0 custom-scrollbar"
+        className="!max-w-[1300px] py-0 custom-scrollbar"
       >
         <FormProvider {...form}>
           <form key={action} noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -446,7 +446,7 @@ const MemberForm = ({
                       id="avatar"
                       src={watcher.profile_img !=='' ? VITE_VIEW_S3_URL +  watcher.profile_img : avatar ? String(avatar) : profileimg}
                       alt={profileimg}
-                      className="w-20 h-20 rounded-full object-cover mb-4 relative"
+                      className="w-14 h-14 rounded-full object-cover mb-4 relative"
                     />
                     <CameraIcon className="w-8 h-8 text-black bg-primary rounded-full p-2 absolute top-8 left-14 " />
                   </div>
@@ -470,14 +470,14 @@ const MemberForm = ({
 
               </div>
               <div>
-                <h1 className="font-bold text-lg my-2"> Member Data</h1>
+                <h1 className="font-bold text-lg mb-2 text-gray-900">Basic Information</h1>
               </div>
               <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
                 <div className="relative">
                   <FloatingLabelInput
                     id="own_member_id"
                     label="Member Id*"
-                    className=""
+                    className="disabled:!opacity-100 disabled:text-gray-800 placeholder:text-gray-800"
                     disabled
                     {...register("own_member_id")}
                     error={errors?.own_member_id?.message as keyof MemberInputTypes}
@@ -530,7 +530,6 @@ const MemberForm = ({
                         >
                           <SelectValue
                             placeholder="Select Gender"
-                            className=""
                           />
                         </SelectTrigger>
                         <SelectContent className="">
@@ -682,8 +681,9 @@ const MemberForm = ({
                         }
                         value={value?.toString()}
                       >
-                        <SelectTrigger className="font-medium text-gray-400">
-                          <SelectValue placeholder="Select Source*" />
+                        <SelectTrigger className="font-medium text-gray-800">
+                          <SelectValue placeholder="Select Source*" 
+                            />
                         </SelectTrigger>
                         <SelectContent>
                           {sources && sources?.map((item => (
@@ -719,10 +719,10 @@ const MemberForm = ({
                       >
                         <MultiSelectorTrigger className="border-[1px] border-gray-300">
                           <MultiSelectorInput
-                            className="font-medium  "
+                            className="font-medium  placeholder:text-gray-800"
                             placeholder={
                               value && (value as any[])?.length == 0
-                                ? `Select Coaches`
+                                ? `Select Coaches*`
                                 : ""
                             }
                           />
@@ -803,8 +803,8 @@ const MemberForm = ({
                         }
                         value={value?.toString()}
                       >
-                        <SelectTrigger className="font-medium text-gray-400">
-                          <SelectValue placeholder="Select Business" />
+                        <SelectTrigger className="font-medium text-gray-800">
+                          <SelectValue placeholder="Select Business*" />
                         </SelectTrigger>
                         <SelectContent>
                           <Button
@@ -844,7 +844,7 @@ const MemberForm = ({
                 </div>
               </div>
               <div>
-                <h1 className="font-bold text-lg my-2"> Address data</h1>
+                <h1 className="font-bold text-lg my-2 text-gray-900">Address</h1>
               </div>
               <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
                 <div className="relative ">
@@ -892,7 +892,7 @@ const MemberForm = ({
                                 className={cn(
                                   "justify-between ",
                                   !value &&
-                                  "font-medium text-gray-400 focus:border-primary "
+                                  "font-medium text-gray-800 focus:border-primary "
                                 )}
                               >
                                 {value
@@ -959,7 +959,7 @@ const MemberForm = ({
                 </div>
               </div>
               <div>
-                <h1 className="font-bold text-lg my-2">
+                <h1 className="font-bold text-lg my-2 text-gray-900">
                   Membership and Auto Renewal
                 </h1>
               </div>
@@ -983,10 +983,9 @@ const MemberForm = ({
                           <FormControl>
                             <SelectTrigger
                               name="membership_plan_id"
-                              className={`font-medium text-gray-400`}
+                              className={`font-medium text-gray-800`}
                             >
                               <SelectValue
-                                className="text-gray-400"
                                 placeholder="Select membership plan*"
                               />
                             </SelectTrigger>

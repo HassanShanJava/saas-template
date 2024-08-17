@@ -23,7 +23,6 @@
     "@fullcalendar/core": "^6.1.14",
     "@fullcalendar/react": "^6.1.14",
     "@fullcalendar/timegrid": "^6.1.14",
-    "@hookform/error-message": "^2.0.1",
     "@hookform/resolvers": "^3.6.0",
     "@nivo/bar": "^0.87.0",
     "@nivo/line": "^0.87.0",

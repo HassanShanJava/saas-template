@@ -1,6 +1,6 @@
 import "./password-strength-indicator.css";
 
-export default function PasswordStrengthIndicator({ passwordStrength }) {
+export default function PasswordStrengthIndicator({ passwordStrength }:{passwordStrength:void}) {
   return (
     <span>
       <ul id="passwordStrength" className="list-disc pl-6">

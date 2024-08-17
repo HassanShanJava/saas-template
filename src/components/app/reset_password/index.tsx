@@ -1,11 +1,11 @@
+import { useParams } from "react-router-dom";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import logomainsvg from "@/assets/logo-main.svg";
-import PasswordStrengthIndicator from "./password-strength-indicator";
-import { isStrongPassword, ValidatePassword } from "./password-strength";
-import { useParams } from "react-router-dom";
-import { useMemo } from "react";
+import PasswordStrengthIndicator from "./password-strength-indicator.tsx";
+import { isStrongPassword, ValidatePassword } from "./password-strength.ts";
+import { useCallback, useMemo } from "react";
 
 
 
@@ -27,11 +27,10 @@ const ResetPassword = () => {
         password
     ]);
 
-    const onSubmit = async (data: { password: string; confirmPassword: string }) => {
-        console.log({ data });
-    };
+    const onSubmit = useCallback((data) => {
+        console.log("Submitted:", data);
+      }, []);
 
-    console.log({ passwordStrength })
     return (
         <>
             <div className="flex justify-center items-center h-screen bg-black/90 ">
@@ -97,6 +96,7 @@ const ResetPassword = () => {
 
 
                                 <LoadingButton
+                                    type='submit'
                                     loading={isSubmitting}
                                     className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
                                 >

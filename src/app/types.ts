@@ -919,7 +919,7 @@ export interface createExerciseInputTypes {
   repetitions_per_set?: number[];
   rest_between_set?: number[];
   distance?: number | null;
-  speed?: number | null;
+  speed?: number | ;
   met_id?: number ;
   gif_url: string;
   video_url_male?: string;

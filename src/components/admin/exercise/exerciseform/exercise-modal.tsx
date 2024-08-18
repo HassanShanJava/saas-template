@@ -80,6 +80,8 @@ enum IntensityEnum {
   irm = "irm",
   max_intensity = "Max Intensity",
 }
+
+
 const ExerciseForm = ({
   isOpen,
   setOpen,
@@ -867,8 +869,6 @@ console.log(input);
                             {mets.label}
                           </CommandItem>
                         ))}
-                      </CommandGroup>
-                    </CommandList>
                   </Command>
                 </PopoverContent>
               </Popover>

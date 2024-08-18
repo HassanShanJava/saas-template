@@ -90,9 +90,6 @@ enum difficultyEnum {
 enum ExerciseTypeEnum {
   time_based = "Time Based",
   repetition_based = "Repetition Based",
-}
-
-enum IntensityEnum {
   irm = "irm",
   max_intensity = "Max Intensity",
 }

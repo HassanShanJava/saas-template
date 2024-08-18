@@ -712,7 +712,6 @@ export default function ExerciseTableView() {
           setSearchCriteria={setSearchCretiria}
           filterDisplay={filterDisplay}
         />
-      </div>
 
       <ExerciseForm
         isOpen={isDialogOpen}

@@ -1,3 +1,6 @@
+import { difficultyEnum,ExerciseTypeEnum } from "@/app/types";
+import { Difficulty } from "@/components/admin/exercise/component/difficultySlider";
+
 export const visibilityOptions = [
   { value: "Only Myself", label: "Only Myself" },
   { value: "Staff of My Club", label: "Staff of My Club" },
@@ -20,16 +23,16 @@ export const difficultyTypeoptions = [
 export const initialValue = {
   exercise_name: "",
   visible_for: undefined,
-  exercise_type: undefined,
+  exercise_type: ExerciseTypeEnum.time_based,
   exercise_intensity: undefined,
   intensity_value: undefined,
-  difficulty: undefined,
+  difficulty: difficultyEnum.Beginner,
   sets: undefined,
   seconds_per_set: undefined,
   repetitions_per_set: undefined,
   rest_between_set: undefined,
-  distance: null,
-  speed: null,
+  distance: 0,
+  speed: 0,
   met_id: null,
   gif_url: "",
   video_url_male: "",

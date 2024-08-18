@@ -66,10 +66,10 @@ const ExerciseFilters = ({
                         handleFilterChange(element.label, value);
                       }}
                     >
-                      <SelectTrigger floatingLabel={element.label}>
+                      <SelectTrigger floatingLabel={element.label.replace(/_/g, ' ').toUpperCase()}>
                         <SelectValue placeholder={"Select " + element.label.replace(/_/g, ' ') // Replace underscores with spaces
-    .toLowerCase()     // Convert to lowercase
-    .replace(/(?:^|\s)\S/g, (match:string) => match.toUpperCase())} />
+                          .toLowerCase()     // Convert to lowercase
+                          .replace(/(?:^|\s)\S/g, (match:string) => match.toUpperCase())} />
                       </SelectTrigger>
                       <SelectContent>
                         {element.options?.map((st: any, index: number) => (

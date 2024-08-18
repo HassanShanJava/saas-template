@@ -884,11 +884,11 @@ export interface ExerciseCreationResponse {
   id: number;
   message: string;
 }
-enum ExerciseTypeEnum {
+export enum ExerciseTypeEnum {
   time_based = "Time Based",
   repetition_based = "Repetition Based",
 }
-enum difficultyEnum {
+export enum difficultyEnum {
   Novice = "Novice",
   Beginner = "Beginner",
   Intermediate = "Intermediate",
@@ -920,7 +920,7 @@ export interface createExerciseInputTypes {
   rest_between_set?: number[];
   distance?: number | null;
   speed?: number | null;
-  met_id?: number | null;
+  met_id?: number ;
   gif_url: string;
   video_url_male?: string;
   video_url_female?: string;

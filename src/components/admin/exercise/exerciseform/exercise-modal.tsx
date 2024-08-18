@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DropzoneOptions } from "react-dropzone";
 import {
   Controller,
@@ -33,7 +33,7 @@ import {
   FormProvider,
   useForm,
 } from "react-hook-form";
-import { createExerciseInputTypes, ErrorType } from "@/app/types";
+import { baseExerciseApiResponse, createExerciseInputTypes, ErrorType, ExerciseTypeEnum } from "@/app/types";
 import uploadimg from "@/assets/upload.svg";
 import {
   difficultyTypeoptions,
@@ -59,6 +59,13 @@ import {
 import { SpaceEvenlyVerticallyIcon } from "@radix-ui/react-icons";
 import { UploadCognitoImage, deleteCognitoImage } from "@/utils/lib/s3Service";
 import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { z } from "zod";
+import { Check, ChevronDownIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 interface ExerciseForm {
   isOpen: boolean;
@@ -69,6 +76,10 @@ interface ExerciseForm {
   data: createExerciseInputTypes | undefined;
 }
 
+enum IntensityEnum {
+  irm = "irm",
+  max_intensity = "Max Intensity",
+}
 const ExerciseForm = ({
   isOpen,
   setOpen,
@@ -91,7 +102,8 @@ const [femaleImage, setFemaleImage] = useState<File[] | null>(null);
     const [existingGIf, setExistingGif] = useState<string | null>(null);
   const [existingMaleImage, setExistingMaleImage] = useState<string | null>(null);
   const [existingFemaleImage, setExistingFemaleImage] = useState<string | null>(null);
-
+  const [entries, setEntries] = React.useState([{ time: "", restTime: "" }]);
+  const [error, setErrors] = React.useState<null>(null);
   const { data: CategoryData } = useGetAllCategoryQuery();
   const { data: EquipmentData } = useGetAllEquipmentsQuery();
   const { data: MuscleData } = useGetAllMuscleQuery();
@@ -131,6 +143,28 @@ const [femaleImage, setFemaleImage] = useState<File[] | null>(null);
     formState: { isSubmitting, errors },
   } = form;
 
+  const watcher=watch();
+  const validateFields = () => {
+    const fields = Object.values(watcher);
+    
+    // Check if any field is filled
+    const isAnyFieldFilled = fields.some(field => field?.trim());
+
+    // If any field is filled, make all fields required
+    if (isAnyFieldFilled) {
+      const areAllFieldsFilled = fields.every(field => field?.trim());
+
+      if (!areAllFieldsFilled) {
+        toast({
+          variant: "destructive",
+          title: "All fields are mandatory if any field is filled",
+        });
+        // toast.error("All fields are mandatory if any field is filled");
+        return false;
+      }
+    }
+    return true;
+  };
   useEffect(() => {
     if (action == "edit") {
       console.log({ data }, "edit");
@@ -165,6 +199,7 @@ const [femaleImage, setFemaleImage] = useState<File[] | null>(null);
   const [updateExercise] = useUpdateExerciseMutation();
 
   const onSubmit = async (input: createExerciseInputTypes) => {
+
     // const payload = { org_id: orgId, ...input };
     // if (files && files?.length > 0) {
     //   console.log(files[0], "food_image");
@@ -211,6 +246,25 @@ console.log(input);
       handleClose();
     }
   };
+  const handleChange = (
+    index: number,
+    field: "time" | "restTime",
+    value: string
+  ) => {
+    const newEntries = [...entries];
+    newEntries[index][field] = value;
+    setEntries(newEntries);
+  };
+
+  const addEntry = () => {
+    setEntries([...entries, { time: "", restTime: "" }]);
+  };
+
+  const removeEntry = (index: number) => {
+    const newEntries = entries.filter((_, i) => i !== index);
+    setEntries(newEntries);
+  };
+
 
   const Exercise_info: ExerciseItem[] = [
     {
@@ -242,28 +296,28 @@ console.log(input);
     },
     {
       type: "multiselect",
-      name: "equipment",
+      name: "equipment_ids",
       label: "Equipments*",
       required: true,
       options: EquipmentData,
     },
     {
       type: "multiselect",
-      name: "primaryMuscles",
+      name: "primary_muscle_ids",
       label: "Primary Muscle*",
       required: true,
       options: MuscleData,
     },
     {
       type: "multiselect",
-      name: "secondaryMuscles",
+      name: "secondary_muscle_ids",
       required: false,
       label: "Secondary Muscle",
       options: MuscleData,
     },
     {
       type: "multiselect",
-      name: "primaryJoints",
+      name: "primary_joint_ids",
       label: "Primary Joints*",
       required: true,
       options: JointsData,
@@ -280,13 +334,20 @@ console.log(input);
       label: "Youtube link-Female",
       required: false,
     },
+    {
+      type:"radio",
+      name:"exercise_type",
+      label:"Exercise Type",
+      required:true,
+      options:exerciseTypeOptions
+    }
   ];
 
   return (
     <Sheet open={isOpen}>
       <SheetContent
         hideCloseButton
-        className="!max-w-[1050px] py-0 custom-scrollbar h-screen"
+        className="!max-w-[1100px]"
       >
         <FormProvider {...form}>
           <form
@@ -338,6 +399,8 @@ console.log(input);
               </SheetTitle>
               <Separator className=" h-[1px] rounded-full my-2" />
             </SheetHeader>
+            <ScrollArea className="h-[600px] ">
+            <ScrollBar orientation="vertical" className="" />
             <h1 className="font-semibold text-xl py-3">Exercise Details</h1>
             <div className="grid grid-cols-3 gap-3 p-1 ">
               {Exercise_info.map((item) => {
@@ -467,6 +530,10 @@ console.log(input);
                     </div>
                   );
                 }
+
+
+            
+                
               })}
             </div>
             <h1 className="font-semibold text-xl py-3">Thumbnails</h1>
@@ -491,7 +558,7 @@ console.log(input);
                               <img
                                 src={URL.createObjectURL(file)}
                                 alt={file.name}
-                                className="object-contain max-h-40"
+                                className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                               />
                             </FileUploaderItem>
                           </FileUploaderContent>
@@ -507,7 +574,7 @@ console.log(input);
                             <img
                               src={existingMaleImage}
                               alt="Existing Male Image"
-                              className="object-contain max-h-40"
+                              className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                             />
                           </FileUploaderItem>
                         </FileUploaderContent>
@@ -555,7 +622,7 @@ console.log(input);
                         <img
                           src={URL.createObjectURL(file)}
                           alt={file.name}
-                          className="object-contain max-h-40"
+                          className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                         />
                       </FileUploaderItem>
                     </FileUploaderContent>
@@ -571,7 +638,7 @@ console.log(input);
                       <img
                         src={existingFemaleImage}
                         alt="Existing Female Image"
-                        className="object-contain max-h-40"
+                        className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                       />
                     </FileUploaderItem>
                   </FileUploaderContent>
@@ -603,7 +670,7 @@ console.log(input);
                   <FileUploader
                     value={gif}
                     onValueChange={setGif}
-                    dropzoneOptions={dropzone}
+                    dropzoneOptions={dropzoneGif}
                   >
                     {gif && gif.length > 0 ? (
                       gif.map((file, i) => (
@@ -618,7 +685,7 @@ console.log(input);
                               <img
                                 src={URL.createObjectURL(file)}
                                 alt={file.name}
-                                className="object-contain max-h-40"
+                                className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                               />
                             </FileUploaderItem>
                           </FileUploaderContent>
@@ -634,7 +701,7 @@ console.log(input);
                             <img
                               src={existingGIf}
                               alt="Existing Male Image"
-                              className="object-contain max-h-40"
+                              className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                             />
                           </FileUploaderItem>
                         </FileUploaderContent>
@@ -662,6 +729,224 @@ console.log(input);
                   </FileUploader>
                 </div>
             </div>
+            <div className="my-5">
+            <h1 className="font-bold text-xl">Exercise Type :</h1>
+            {Exercise_info.map((item) => {
+               
+               if (item.type === "radio") {
+                return (
+                  <div key={item.name} className="relative">
+                    <Controller
+                      name={item.name as keyof createExerciseInputTypes}
+                      rules={{ required: "Required" }}
+                      control={control}
+                      render={({
+                        field: { onChange, value },
+                        fieldState: { error },
+                      }) => (
+                        <div >
+                          <RadioGroup onValueChange={onChange} 
+                          defaultValue={value != null ? String(value) : undefined}
+                           className="flex flex-row space-x-4"
+                          >
+                            {item.options?.map((option: any, index: number) => (
+                              <div key={index} className="flex justify-start items-center space-x-3">
+                                <RadioGroupItem value={String(option.value)} />
+                                <label>{option.label}</label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        </div>
+                      )}
+                    />
+                    {errors[item.name as keyof createExerciseInputTypes]?.message && (
+                      <span className="text-red-500 text-xs mt-[5px]">
+                        {errors[item.name as keyof createExerciseInputTypes]?.message}
+                      </span>
+                    )}
+                  </div>
+                );
+              }
+              
+                
+              })}
+            <div className="relative pt-6">
+                 {entries.map((entry, index) => (
+                    <div key={index} className="mb-4">
+                      <div className="flex gap-2">
+                        <label className="block font-semibold">
+                          <input
+                            type="text"
+                            value={entry.time}
+                            placeholder={watcher.exercise_type===ExerciseTypeEnum.time_based ? "Time (s)*" : "Repetition (x)*"}
+                            onChange={(e) =>
+                              handleChange(index, "time", e.target.value)
+                            }
+                            required={true}
+                            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </label>
+                       
+                        <label className="block font-semibold">
+                          <input
+                            type="text"
+                            value={entry.restTime}
+                            placeholder="Rest time(s)*"
+                            required={true}
+                            onChange={(e) =>
+                              handleChange(index, "restTime", e.target.value)
+                            }
+                            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </label>
+                        
+                        <Button
+                          type="button"
+                          variant={"ghost"}
+                          onClick={addEntry}
+                          className="text-primary rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-blue-500 gap-2 justify-center items-center flex"
+                        >
+                          <PlusIcon className="h-5 w-5 text-primary" /> Add a Set
+                        </Button>
+                        { (
+                          <button
+                            type="button"
+                            onClick={() => removeEntry(index)}
+                            disabled={entries.length==1}
+                            className="text-red-500 hover:text-red-700 focus:outline-none disabled:text-red-300"
+                          >
+                            <TrashIcon className="h-5 w-5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {/* watcher.exercise_type === ExerciseTypeEnum.time_based */}
+                  {watcher.exercise_type === ExerciseTypeEnum.time_based ? (
+  <>
+    <div className="relative">
+      <div className="flex gap-4">
+        <Controller
+          control={form.control}
+          name="met_id"
+          render={({ field, fieldState }) => (
+              <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "justify-between font-normal",
+                        !field.value && "font-medium text-gray-400 focus:border-primary"
+                      )}
+                    >
+                      {field.value
+                        ? MetsData?.find((mets: baseExerciseApiResponse) => mets.value === field.value)?.label
+                        : "MET"}
+                      <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0">
+                  <Command>
+                    <CommandList>
+                      <CommandInput placeholder="Select Metabolism" />
+                      <CommandEmpty>No Metabolism found.</CommandEmpty>
+                      <CommandGroup>
+                        {MetsData?.map((mets: baseExerciseApiResponse) => (
+                          <CommandItem
+                            value={mets.label}
+                            key={mets.value}
+                            onSelect={() => field.onChange(mets.value)}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                mets.value === field.value ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {mets.label}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="distance"
+          render={({ field, fieldState }) => (
+              <FloatingLabelInput
+                {...field}
+                type="number"
+                id="distance"
+                label="Distance(KM)"
+              />
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="speed"
+          render={({ field, fieldState }) => (
+              <FloatingLabelInput
+                {...field}
+                id="speed"
+                type="number"
+                label="Speed(KM/H)"
+              />
+          )}
+        />
+      </div>
+    </div>
+  </>
+) : (
+  <>
+    <div className="relative">
+      <Controller
+        control={form.control}
+        name="max_intensity"
+        render={({ field }) => (
+            <div className="flex gap-4 w-full justify-start items-center">
+              Exercise Type:
+              {Object.values(IntensityEnum).map((value) => (
+                <label key={value}>
+                  <input
+                    type="radio"
+                    value={value}
+                    checked={field.value === value}
+                    onChange={field.onChange}
+                    className="mr-2 checked:bg-primary"
+                  />
+                  {value}
+                </label>
+              ))}
+              {field.value === "irm" && (
+                <Controller
+                  control={form.control}
+                  name="irmValue"
+                  render={({ field, fieldState }) => (
+                      <FloatingLabelInput
+                        {...field}
+                        id="irmValue"
+                        label="IRM*"
+                      />
+                  )}
+                />
+              )}
+            </div>
+        )}
+      />
+    </div>
+  </>
+)}
+
+                </div>
+            
+            </div>
+            </ScrollArea>
+
           </form>
         </FormProvider>
       </SheetContent>

@@ -1,24 +1,23 @@
+import { ErrorType } from "@/app/types";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
-import { Button } from "react-day-picker";
+import { toast } from "@/components/ui/use-toast";
+import { useSendResetEmailMutation } from "@/services/resetPassApi";
 import { useForm, FormProvider } from "react-hook-form";
 
 interface forgotPaswordType {
   open: boolean;
-  setOpen: any;
+  setOpen:  React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ForgotPasword = ({ open, setOpen }: forgotPaswordType) => {
+  const [sendRestEmail] = useSendResetEmailMutation();
   const form = useForm<{ email: string }>({
     mode: "all",
     defaultValues: {
@@ -35,6 +34,25 @@ const ForgotPasword = ({ open, setOpen }: forgotPaswordType) => {
   } = form;
   const onSubmit = async (data: { email: string }) => {
     console.log(data);
+    try {
+      await sendRestEmail(data).unwrap();
+    } catch (error: unknown) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
   };
   console.log({ errors });
 

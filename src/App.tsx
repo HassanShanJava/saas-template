@@ -45,7 +45,7 @@ function App() {
           index
           element={withAuth(AuthenticationPage)({} as any)}
         />
-             <Route path="/reset_pasword/:token" element={<ResetPassword />}/>
+             <Route path="/reset_password/:token" element={<ResetPassword />}/>
 
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/" element={<DashboardLayout />}>

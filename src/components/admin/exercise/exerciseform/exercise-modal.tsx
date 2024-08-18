@@ -869,6 +869,7 @@ console.log(input);
                             {mets.label}
                           </CommandItem>
                         ))}
+                    </CommandList>
                   </Command>
                 </PopoverContent>
               </Popover>

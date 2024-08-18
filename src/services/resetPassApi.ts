@@ -3,9 +3,20 @@ import { apiSlice } from "@/features/api/apiSlice";
 export const ResetPassword = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      sendResetEmail: builder.query<any, number>({
-        query: (org_id) => ({
-          url: `/role?org_id=${org_id}`,
+      sendResetEmail: builder.mutation<any, {email:string}>({
+        query: (forgotpassowordData) => ({
+          url: `/forget_password`,
+          method: "POST",
+          body:forgotpassowordData,
+          headers: {
+            Accept: "application/json",
+          },
+          invalidateTags: ["Reset"],
+        }),
+      }),
+      verifyToken: builder.query<any, string>({
+        query: (token) => ({
+          url: `/reset_password/${token}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -13,24 +24,15 @@ export const ResetPassword = apiSlice.injectEndpoints({
           providesTags: ["Reset"],
         }),
       }),
-      verifyToken: builder.query<any, number>({
-        query: (org_id) => ({
-          url: `/role?org_id=${org_id}`,
-          method: "GET",
+      resetPassword: builder.mutation<any, {id:number,org_id:number, new_password:string, confirm_password:string}>({
+        query: (resetPasswordData) => ({
+          url: `/reset_password`,
+          method: "POST",
+          bosy:resetPasswordData,
           headers: {
             Accept: "application/json",
           },
-          providesTags: ["Reset"],
-        }),
-      }),
-      confirmPassword: builder.query<any, number>({
-        query: (org_id) => ({
-          url: `/role?org_id=${org_id}`,
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-          },
-          providesTags: ["Reset"],
+          invalidateTags: ["Reset"],
         }),
       }),   
     };
@@ -38,7 +40,7 @@ export const ResetPassword = apiSlice.injectEndpoints({
 });
 
 export const {
-  useSendResetEmailQuery,
+  useSendResetEmailMutation,
   useVerifyTokenQuery,
-  useConfirmPasswordQuery,
+  useResetPasswordMutation,
 } = ResetPassword;

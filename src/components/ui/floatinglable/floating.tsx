@@ -21,6 +21,7 @@ export interface FloatingLabelInputProps extends CommonProps {
   label?: string;
   error?: string;
   autoComplete?: string;
+  labelClassname?: string;
   customPercentage?:Array<number>
 }
 
@@ -75,7 +76,8 @@ FloatingInput.displayName = "FloatingInput";
 interface FloatingLabelProps
   extends React.ComponentPropsWithoutRef<typeof Label> {
   isTextarea?: boolean;
-  customPercentage?:Array<number>
+  customPercentage?:Array<number>,
+  labelClassname?:string
 }
 
 const FloatingLabel = React.forwardRef<
@@ -101,14 +103,14 @@ FloatingLabel.displayName = "FloatingLabel";
 const FloatingLabelInput = React.forwardRef<
   React.ElementRef<typeof FloatingInput>,
   React.PropsWithoutRef<FloatingLabelInputProps>
->(({ id, label, error, type, rows, customPercentage = [],...props }, ref) => {
+>(({ id, label, error, type, rows, customPercentage = [], labelClassname='',...props }, ref) => {
   const isTextarea = type === "textarea";
 
   return (
     <div className="font-poppins ">
       <div className="relative">
         <FloatingInput ref={ref} id={id} type={type} rows={rows} {...props} />
-        <FloatingLabel htmlFor={id} isTextarea={isTextarea} customPercentage={customPercentage}>
+        <FloatingLabel htmlFor={id} isTextarea={isTextarea} customPercentage={customPercentage} className={labelClassname}>
           {label}
         </FloatingLabel>
       </div>

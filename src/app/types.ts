@@ -978,3 +978,9 @@ export interface deleteExerciseResponse {
 export interface deleteExerciseInput {
   id: number;
 }
+
+export interface Workout {
+	name: string;
+	description?: string;
+	visiblefor: string|undefined;
+}

@@ -186,7 +186,7 @@ export default function WorkoutPlansTableView() {
   }
 
   const handleOpen = () => {
-	navigate("/admin/workoutplans/add")
+		navigate("/admin/workoutplans/add/step/1")
   };
 
   return (

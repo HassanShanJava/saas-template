@@ -59,7 +59,7 @@ import { FiUpload } from "react-icons/fi";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "@/components/ui/use-toast";
-import { CountryTypes, ErrorType } from "@/app/types";
+import { CountryTypes, ErrorType, Workout } from "@/app/types";
 import { AutosizeTextarea } from "@/components/ui/autosizetextarea/autosizetextarea";
 import { membersSchema } from "@/schema/formSchema";
 

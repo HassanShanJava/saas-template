@@ -919,8 +919,8 @@ export interface createExerciseInputTypes {
   repetitions_per_set?: number[];
   rest_between_set?: number[];
   distance?: number | null;
-  speed?: number | ;
-  met_id?: number ;
+  speed?: number | null;
+  met_id?: number | null;
   gif_url: string;
   video_url_male?: string;
   video_url_female?: string;
@@ -968,7 +968,6 @@ export interface ExerciseResponseViewType {
   category_name: string;
 }
 
-
 export interface ExerciseResponseServerViewType {
   exercise_name: string;
   visible_for?: VisibilityEnum;
@@ -1000,13 +999,11 @@ export interface ExerciseResponseServerViewType {
   category_name: string;
 }
 
-
 export interface ExerciseTableTypes {
   data: ExerciseResponseViewType[];
   total_counts: number;
   filtered_counts: number;
 }
-
 
 export interface ExerciseTableServerTypes {
   data: ExerciseResponseServerViewType[];

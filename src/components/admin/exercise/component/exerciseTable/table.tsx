@@ -41,10 +41,7 @@ import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import {
-  ErrorType,
-  ExerciseResponseViewType,
-} from "@/app/types";
+import { ErrorType, ExerciseResponseViewType } from "@/app/types";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
@@ -115,42 +112,28 @@ export default function ExerciseTableView() {
     console.log({ debouncedInputValue });
   }, [debouncedInputValue, setSearchCretiria]);
 
-  // React.useEffect(() => {
-  //   const params = new URLSearchParams();
-  //   for (const [key, value] of Object.entries(searchCretiria)) {
-  //     console.log({ key, value });
-  //     if (value !== undefined && value !== null) {
-  //       params.append(key, value);
-  //     }
-  //   }
-  //   const newQuery = params.toString();
-  //   console.log({ newQuery });
-  //   setQuery(newQuery);
-  // }, [searchCretiria]);
-          React.useEffect(() => {
-            const params = new URLSearchParams();
-            // Iterate through the search criteria
-            for (const [key, value] of Object.entries(searchCretiria)) {
-              console.log("just checking here",[key, value])
-              if (value !== undefined && value !== null) {
-                // Check if the value is an array
-                if (Array.isArray(value)) {
-                  value.forEach((val) => {
-                    params.append(key, val); // Append each array element as a separate query parameter
-                  });
-                } else {
-                  params.append(key, value); // For non-array values
-                }
-              }
-            }
-          
-            // Create the final query string
-            const newQuery = params.toString();
-            console.log({ newQuery });
-            setQuery(newQuery); // Update the query state for API call
-          }, [searchCretiria]);
-  
-  
+  React.useEffect(() => {
+    const params = new URLSearchParams();
+    // Iterate through the search criteria
+    for (const [key, value] of Object.entries(searchCretiria)) {
+      console.log("just checking here", [key, value]);
+      if (value !== undefined && value !== null) {
+        // Check if the value is an array
+        if (Array.isArray(value)) {
+          value.forEach((val) => {
+            params.append(key, val); // Append each array element as a separate query parameter
+          });
+        } else {
+          params.append(key, value); // For non-array values
+        }
+      }
+    }
+
+    // Create the final query string
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery); // Update the query state for API call
+  }, [searchCretiria]);
 
   const toggleSortOrder = (key: string) => {
     setSearchCretiria((prev) => {
@@ -529,7 +512,7 @@ export default function ExerciseTableView() {
             </button>
           </div>
         </div>
-        <div className="rounded-none  ">
+        <div className="rounded-none border border-border ">
           <ScrollArea className="w-full relative">
             <ScrollBar orientation="horizontal" />
             <Table className="w-full overflow-x-scroll">
@@ -596,7 +579,7 @@ export default function ExerciseTableView() {
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      No records found.
+                      No records for the criteria.
                     </TableCell>
                   </TableRow>
                 )}
@@ -606,103 +589,105 @@ export default function ExerciseTableView() {
         </div>
 
         {/* pagination */}
-        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium">Items per page:</p>
-              <Select
-                value={searchCretiria.limit.toString()}
-                onValueChange={(value) => {
-                  const newSize = Number(value);
-                  setSearchCretiria((prev) => ({
-                    ...prev,
-                    limit: newSize,
-                    offset: 0, // Reset offset when page size changes
-                  }));
-                }}
-              >
-                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-                  <SelectValue>{searchCretiria.limit}</SelectValue>
-                </SelectTrigger>
-                <SelectContent side="bottom">
-                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={pageSize.toString()}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Separator
-              orientation="vertical"
-              className="h-11 w-[1px] bg-gray-300"
-            />
-            <span>
-              {" "}
-              {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${exercisedata?.filtered_counts} Items  `}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center space-x-2">
-              <Separator
-                orientation="vertical"
-                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
-                onClick={firstPage}
-                disabled={searchCretiria.offset === 0}
-              >
-                <DoubleArrowLeftIcon className="h-4 w-4" />
-              </Button>
-
-              <Separator
-                orientation="vertical"
-                className="h-11 w-[0.5px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-                onClick={prevPage}
-                disabled={searchCretiria.offset === 0}
-              >
-                <ChevronLeftIcon className="h-4 w-4" />
-              </Button>
-
+        {ExerciseTableData.length > 0 && (
+          <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+            <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium">Items per page:</p>
+                <Select
+                  value={searchCretiria.limit.toString()}
+                  onValueChange={(value) => {
+                    const newSize = Number(value);
+                    setSearchCretiria((prev) => ({
+                      ...prev,
+                      limit: newSize,
+                      offset: 0, // Reset offset when page size changes
+                    }));
+                  }}
+                >
+                  <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+                    <SelectValue>{searchCretiria.limit}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent side="bottom">
+                    {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                      <SelectItem key={pageSize} value={pageSize.toString()}>
+                        {pageSize}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <Separator
                 orientation="vertical"
                 className="h-11 w-[1px] bg-gray-300"
               />
+              <span>
+                {" "}
+                {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${exercisedata?.filtered_counts} Items  `}
+              </span>
+            </div>
 
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-                onClick={nextPage}
-                disabled={isLastPage}
-              >
-                <ChevronRightIcon className="h-4 w-4" />
-              </Button>
+            <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center space-x-2">
+                <Separator
+                  orientation="vertical"
+                  className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+                />
 
-              <Separator
-                orientation="vertical"
-                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-              />
+                <Button
+                  variant="outline"
+                  className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+                  onClick={firstPage}
+                  disabled={searchCretiria.offset === 0}
+                >
+                  <DoubleArrowLeftIcon className="h-4 w-4" />
+                </Button>
 
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-                onClick={lastPage}
-                disabled={isLastPage}
-              >
-                <DoubleArrowRightIcon className="h-4 w-4" />
-              </Button>
+                <Separator
+                  orientation="vertical"
+                  className="h-11 w-[0.5px] bg-gray-300"
+                />
+
+                <Button
+                  variant="outline"
+                  className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                  onClick={prevPage}
+                  disabled={searchCretiria.offset === 0}
+                >
+                  <ChevronLeftIcon className="h-4 w-4" />
+                </Button>
+
+                <Separator
+                  orientation="vertical"
+                  className="h-11 w-[1px] bg-gray-300"
+                />
+
+                <Button
+                  variant="outline"
+                  className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                  onClick={nextPage}
+                  disabled={isLastPage}
+                >
+                  <ChevronRightIcon className="h-4 w-4" />
+                </Button>
+
+                <Separator
+                  orientation="vertical"
+                  className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+                />
+
+                <Button
+                  variant="outline"
+                  className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+                  onClick={lastPage}
+                  disabled={isLastPage}
+                >
+                  <DoubleArrowRightIcon className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
         <ExerciseFilters
           isOpen={openFilter}
           setOpen={setOpenFilter}
@@ -713,16 +698,16 @@ export default function ExerciseTableView() {
           filterDisplay={filterDisplay}
         />
 
-      <ExerciseForm
-        isOpen={isDialogOpen}
-        setOpen={setIsDialogOpen}
-        action={action}
-        setAction={setAction}
-        data={data}
-        refetch={refetch}
-      />
+        <ExerciseForm
+          isOpen={isDialogOpen}
+          setOpen={setIsDialogOpen}
+          action={action}
+          setAction={setAction}
+          data={data}
+          refetch={refetch}
+        />
 
-       {/* <ExerciseForm
+        {/* <ExerciseForm
         isOpen={isDialogOpen}
         setOpen={setIsDialogOpen}
         // action={action}
@@ -730,7 +715,8 @@ export default function ExerciseTableView() {
         // data={data}
         // refetch={refetch}
       /> */}
-      {/* <ExerciseForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} /> */}
+        {/* <ExerciseForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} /> */}
+      </div>
     </>
   );
 }

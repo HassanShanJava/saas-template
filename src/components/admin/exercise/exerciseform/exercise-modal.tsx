@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { DropzoneOptions } from "react-dropzone";
 import {
   Controller,
@@ -33,7 +33,12 @@ import {
   FormProvider,
   useForm,
 } from "react-hook-form";
-import { baseExerciseApiResponse, createExerciseInputTypes, ErrorType, ExerciseTypeEnum } from "@/app/types";
+import {
+  baseExerciseApiResponse,
+  createExerciseInputTypes,
+  ErrorType,
+  ExerciseTypeEnum,
+} from "@/app/types";
 import uploadimg from "@/assets/upload.svg";
 import {
   difficultyTypeoptions,
@@ -63,8 +68,19 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { z } from "zod";
 import { Check, ChevronDownIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 interface ExerciseForm {
@@ -81,7 +97,6 @@ enum IntensityEnum {
   max_intensity = "Max Intensity",
 }
 
-
 const ExerciseForm = ({
   isOpen,
   setOpen,
@@ -96,14 +111,17 @@ const ExerciseForm = ({
     useSelector((state: RootState) => state.auth.userInfo?.user.id) || 0;
 
   const { toast } = useToast();
-  const [gif, setGif] = useState<File[]| null>(null);
+  const [gif, setGif] = useState<File[] | null>(null);
   const [maleImage, setMaleImage] = useState<File[] | null>(null);
-const [femaleImage, setFemaleImage] = useState<File[] | null>(null);
+  const [femaleImage, setFemaleImage] = useState<File[] | null>(null);
 
-
-    const [existingGIf, setExistingGif] = useState<string | null>(null);
-  const [existingMaleImage, setExistingMaleImage] = useState<string | null>(null);
-  const [existingFemaleImage, setExistingFemaleImage] = useState<string | null>(null);
+  const [existingGIf, setExistingGif] = useState<string | null>(null);
+  const [existingMaleImage, setExistingMaleImage] = useState<string | null>(
+    null
+  );
+  const [existingFemaleImage, setExistingFemaleImage] = useState<string | null>(
+    null
+  );
   const [entries, setEntries] = React.useState([{ time: "", restTime: "" }]);
   const [error, setErrors] = React.useState<null>(null);
   const { data: CategoryData } = useGetAllCategoryQuery();
@@ -111,7 +129,9 @@ const [femaleImage, setFemaleImage] = useState<File[] | null>(null);
   const { data: MuscleData } = useGetAllMuscleQuery();
   const { data: JointsData } = useGetAllJointsQuery();
   const { data: MetsData } = useGetAllMetQuery();
+  // const reftext = useRef();
 
+  // console.log(reftext.current);
   const dropzone = {
     accept: {
       "image/": [".jpg", ".jpeg", ".png"],
@@ -145,16 +165,16 @@ const [femaleImage, setFemaleImage] = useState<File[] | null>(null);
     formState: { isSubmitting, errors },
   } = form;
 
-  const watcher=watch();
+  const watcher = watch();
   const validateFields = () => {
     const fields = Object.values(watcher);
-    
+
     // Check if any field is filled
-    const isAnyFieldFilled = fields.some(field => field?.trim());
+    const isAnyFieldFilled = fields.some((field) => field?.trim());
 
     // If any field is filled, make all fields required
     if (isAnyFieldFilled) {
-      const areAllFieldsFilled = fields.every(field => field?.trim());
+      const areAllFieldsFilled = fields.every((field) => field?.trim());
 
       if (!areAllFieldsFilled) {
         toast({
@@ -199,9 +219,8 @@ const [femaleImage, setFemaleImage] = useState<File[] | null>(null);
 
   const [createExercise] = useAddExerciseMutation();
   const [updateExercise] = useUpdateExerciseMutation();
-
+  console.log({ watcher, errors });
   const onSubmit = async (input: createExerciseInputTypes) => {
-
     // const payload = { org_id: orgId, ...input };
     // if (files && files?.length > 0) {
     //   console.log(files[0], "food_image");
@@ -210,7 +229,7 @@ const [femaleImage, setFemaleImage] = useState<File[] | null>(null);
     // } else {
     //   payload.img_url = null;
     // }
-console.log(input);
+    console.log(input);
     try {
       if (action === "add") {
         // await createExercise(payload).unwrap();
@@ -266,7 +285,6 @@ console.log(input);
     const newEntries = entries.filter((_, i) => i !== index);
     setEntries(newEntries);
   };
-
 
   const Exercise_info: ExerciseItem[] = [
     {
@@ -337,20 +355,17 @@ console.log(input);
       required: false,
     },
     {
-      type:"radio",
-      name:"exercise_type",
-      label:"Exercise Type",
-      required:true,
-      options:exerciseTypeOptions
-    }
+      type: "radio",
+      name: "exercise_type",
+      label: "Exercise Type",
+      required: true,
+      options: exerciseTypeOptions,
+    },
   ];
 
   return (
     <Sheet open={isOpen}>
-      <SheetContent
-        hideCloseButton
-        className="!max-w-[1100px]"
-      >
+      <SheetContent hideCloseButton className="!max-w-[1100px]">
         <FormProvider {...form}>
           <form
             key={action}
@@ -402,145 +417,145 @@ console.log(input);
               <Separator className=" h-[1px] rounded-full my-2" />
             </SheetHeader>
             <ScrollArea className="h-[600px] ">
-            <ScrollBar orientation="vertical" className="" />
-            <h1 className="font-semibold text-xl py-3">Exercise Details</h1>
-            <div className="grid grid-cols-3 gap-3 p-1 ">
-              {Exercise_info.map((item) => {
-                if (item.type === "text") {
-                  return (
-                    <div key={item.name} className="relative">
-                      <FloatingLabelInput
-                        id={item.name}
-                        label={item.label}
-                        {...register(
-                          item.name as keyof createExerciseInputTypes,
-                          {
-                            required: item.required && "Required",
-                            maxLength: 40,
-                            setValueAs: (value) => value.toLowerCase(),
-                          }
-                        )}
-                        error={
-                          errors[item.name as keyof createExerciseInputTypes]
-                            ?.message
-                        }
-                      />
-
-                      {errors[item.name as keyof createExerciseInputTypes]
-                        ?.type === "maxLength" && (
-                        <span className="text-red-500 mt-[5px] text-xs">
-                          Max length exceeded
-                        </span>
-                      )}
-                    </div>
-                  );
-                }
-
-                if (item.type === "multiselect") {
-                  return (
-                    <div key={item.name} className="relative">
-                      <Controller
-                        name={item.name as keyof createExerciseInputTypes}
-                        control={control}
-                        rules={{
-                          ...(item.required ? { required: "Required" } : {}),
-                        }}
-                        render={({ field: { onChange, value } }) => (
-                          <MultiSelect
-                          floatingLabel={item.label}
-                            options={
-                              item.options as {
-                                label: string;
-                                value: string | number;
-                              }[]
+              <ScrollBar orientation="vertical" className="" />
+              <h1 className="font-semibold text-xl py-3">Exercise Details</h1>
+              <div className="grid grid-cols-3 gap-3 p-1 ">
+                {Exercise_info.map((item) => {
+                  if (item.type === "text") {
+                    return (
+                      <div key={item.name} className="relative">
+                        <FloatingLabelInput
+                          id={item.name}
+                          label={item.label}
+                          {...register(
+                            item.name as keyof createExerciseInputTypes,
+                            {
+                              required: item.required && "Required",
+                              maxLength: 40,
+                              setValueAs: (value) => value.toLowerCase(),
                             }
-                            onValueChange={(selectedValues) => {
-                              onChange(selectedValues); // Update form state on value change
-                            }}
-                            // Initialize the multi-select with default values
-                            defaultValue={Array.isArray(value) ? value : []} // Ensure defaultValue is always an array
-                            placeholder={"Select " + item.label}
-                            variant="inverted"
-                            maxCount={1}
-                            className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                          />
-                        )}
-                      />
-                      {errors[item.name as keyof createExerciseInputTypes]
-                        ?.message && (
-                        <span className="text-red-500 text-xs mt-[5px]">
-                          {
+                          )}
+                          error={
                             errors[item.name as keyof createExerciseInputTypes]
                               ?.message
                           }
-                        </span>
-                      )}
-                    </div>
-                  );
-                }
+                        />
 
-                if (item.type === "select") {
-                  return (
-                    <div key={item.name} className="relative">
-                      <Controller
-                        name={item.name as keyof createExerciseInputTypes}
-                        rules={{ required: "Required" }}
-                        control={control}
-                        render={({
-                          field: { onChange, value, onBlur },
-                          fieldState: { invalid, error },
-                        }) => (
-                          <div>
-                            <Select
-                              onValueChange={(value) => {
-                                onChange(value);
+                        {errors[item.name as keyof createExerciseInputTypes]
+                          ?.type === "maxLength" && (
+                          <span className="text-red-500 mt-[5px] text-xs">
+                            Max length exceeded
+                          </span>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  if (item.type === "multiselect") {
+                    return (
+                      <div key={item.name} className="relative">
+                        <Controller
+                          name={item.name as keyof createExerciseInputTypes}
+                          control={control}
+                          rules={{
+                            ...(item.required ? { required: "Required" } : {}),
+                          }}
+                          render={({ field: { onChange, value } }) => (
+                            <MultiSelect
+                              floatingLabel={item.label}
+                              options={
+                                item.options as {
+                                  label: string;
+                                  value: string | number;
+                                }[]
+                              }
+                              onValueChange={(selectedValues) => {
+                                onChange(selectedValues); // Update form state on value change
                               }}
-                              defaultValue={value as string | undefined}
-                            >
-                              <SelectTrigger
-                                floatingLabel={item.label}
-                                name={item.name}
-                              >
-                                <SelectValue
-                                  placeholder={"Select " + item.label}
-                                />
-                              </SelectTrigger>
-
-                              <SelectContent>
-                                {item.options?.map((st: any, index: number) => (
-                                  <SelectItem
-                                    key={index}
-                                    value={String(st.value)}
-                                  >
-                                    {st.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
+                              // Initialize the multi-select with default values
+                              defaultValue={Array.isArray(value) ? value : []} // Ensure defaultValue is always an array
+                              placeholder={"Select " + item.label}
+                              variant="inverted"
+                              maxCount={1}
+                              className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                            />
+                          )}
+                        />
+                        {errors[item.name as keyof createExerciseInputTypes]
+                          ?.message && (
+                          <span className="text-red-500 text-xs mt-[5px]">
+                            {
+                              errors[
+                                item.name as keyof createExerciseInputTypes
+                              ]?.message
+                            }
+                          </span>
                         )}
-                      />
-                      {errors[item.name as keyof createExerciseInputTypes]
-                        ?.message && (
-                        <span className="text-red-500 text-xs mt-[5px]">
-                          {
-                            errors[item.name as keyof createExerciseInputTypes]
-                              ?.message
-                          }
-                        </span>
-                      )}
-                    </div>
-                  );
-                }
+                      </div>
+                    );
+                  }
 
+                  if (item.type === "select") {
+                    return (
+                      <div key={item.name} className="relative">
+                        <Controller
+                          name={item.name as keyof createExerciseInputTypes}
+                          rules={{ required: "Required" }}
+                          control={control}
+                          render={({
+                            field: { onChange, value, onBlur },
+                            fieldState: { invalid, error },
+                          }) => (
+                            <div>
+                              <Select
+                                onValueChange={(value) => {
+                                  onChange(value);
+                                }}
+                                defaultValue={value as string | undefined}
+                              >
+                                <SelectTrigger
+                                  floatingLabel={item.label}
+                                  name={item.name}
+                                >
+                                  <SelectValue
+                                    placeholder={"Select " + item.label}
+                                  />
+                                </SelectTrigger>
 
-            
-                
-              })}
-            </div>
-            <h1 className="font-semibold text-xl py-3">Thumbnails</h1>
-            <div className="flex gap-2 w-full">
-              <div className="w-[33%]">
+                                <SelectContent>
+                                  {item.options?.map(
+                                    (st: any, index: number) => (
+                                      <SelectItem
+                                        key={index}
+                                        value={String(st.value)}
+                                      >
+                                        {st.label}
+                                      </SelectItem>
+                                    )
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                        />
+                        {errors[item.name as keyof createExerciseInputTypes]
+                          ?.message && (
+                          <span className="text-red-500 text-xs mt-[5px]">
+                            {
+                              errors[
+                                item.name as keyof createExerciseInputTypes
+                              ]?.message
+                            }
+                          </span>
+                        )}
+                      </div>
+                    );
+                  }
+                })}
+              </div>
+              <h1 className="font-semibold text-xl py-3">Thumbnails</h1>
+              <div className="flex gap-2 w-full">
+                <div className="w-[33%]">
                   <h1 className="m-2 font-semibold"> Male Image</h1>
                   <FileUploader
                     value={maleImage}
@@ -571,7 +586,7 @@ console.log(input);
                         <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
                           <FileUploaderItem
                             className="h-full p-0 rounded-md overflow-hidden relative"
-                            index={Number(existingFemaleImage)+1}
+                            index={Number(existingFemaleImage) + 1}
                           >
                             <img
                               src={existingMaleImage}
@@ -590,7 +605,9 @@ console.log(input);
                           <div>
                             <h1 className="text-sm">
                               Drop your male image here or{" "}
-                              <span className="underline text-blue-500">Browse</span>
+                              <span className="underline text-blue-500">
+                                Browse
+                              </span>
                             </h1>
                           </div>
                           <div>
@@ -604,71 +621,140 @@ console.log(input);
                   </FileUploader>
                 </div>
 
-          <div className="w-[33%]">
-            <h1 className="m-2 font-semibold"> Female Image</h1>
-            <FileUploader
-              value={femaleImage}
-              onValueChange={setFemaleImage}
-              dropzoneOptions={dropzone}
-            >
-              {femaleImage && femaleImage.length > 0 ? (
-                femaleImage.map((file, i) => (
-                  <div className="h-40" key={i}>
-                    <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
-                      <FileUploaderItem
-                        key={i}
-                        index={i}
-                        className="h-full p-0 rounded-md overflow-hidden relative"
-                        aria-roledescription={`file ${i + 1} containing ${file.name}`}
-                      >
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={file.name}
-                          className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
-                        />
-                      </FileUploaderItem>
-                    </FileUploaderContent>
-                  </div>
-                ))
-              ) : existingFemaleImage ? (
-                <div className="h-40">
-                  <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
-                    <FileUploaderItem
-                      className="h-full p-0 rounded-md overflow-hidden relative"
-                      index={Number(existingFemaleImage)+2}
-                    >
-                      <img
-                        src={existingFemaleImage}
-                        alt="Existing Female Image"
-                        className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
-                      />
-                    </FileUploaderItem>
-                  </FileUploaderContent>
+                <div className="w-[33%]">
+                  <h1 className="m-2 font-semibold"> Female Image</h1>
+                  <FileUploader
+                    value={femaleImage}
+                    onValueChange={setFemaleImage}
+                    dropzoneOptions={dropzone}
+                  >
+                    {femaleImage && femaleImage.length > 0 ? (
+                      femaleImage.map((file, i) => (
+                        <div className="h-40" key={i}>
+                          <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
+                            <FileUploaderItem
+                              key={i}
+                              index={i}
+                              className="h-full p-0 rounded-md overflow-hidden relative"
+                              aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                            >
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={file.name}
+                                className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
+                              />
+                            </FileUploaderItem>
+                          </FileUploaderContent>
+                        </div>
+                      ))
+                    ) : existingFemaleImage ? (
+                      <div className="h-40">
+                        <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
+                          <FileUploaderItem
+                            className="h-full p-0 rounded-md overflow-hidden relative"
+                            index={Number(existingFemaleImage) + 2}
+                          >
+                            <img
+                              src={existingFemaleImage}
+                              alt="Existing Female Image"
+                              className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
+                            />
+                          </FileUploaderItem>
+                        </FileUploaderContent>
+                      </div>
+                    ) : (
+                      <FileInput className="flex flex-col gap-2">
+                        <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
+                          <div>
+                            <i className="text-primary fa-regular fa-image text-2xl"></i>
+                          </div>
+                          <div>
+                            <h1 className="text-sm">
+                              Drop your female image here or{" "}
+                              <span className="underline text-blue-500">
+                                Browse
+                              </span>
+                            </h1>
+                          </div>
+                          <div>
+                            <span className="text-sm">
+                              Support JPG , PNG, and JPEG
+                            </span>
+                          </div>
+                        </div>
+                      </FileInput>
+                    )}
+                  </FileUploader>
                 </div>
-              ) : (
-                <FileInput className="flex flex-col gap-2">
-                  <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
-                    <div>
-                      <i className="text-primary fa-regular fa-image text-2xl"></i>
-                    </div>
-                    <div>
-                      <h1 className="text-sm">
-                        Drop your female image here or{" "}
-                        <span className="underline text-blue-500">Browse</span>
-                      </h1>
-                    </div>
-                    <div>
-                      <span className="text-sm">
-                        Support JPG , PNG, and JPEG
-                      </span>
-                    </div>
-                  </div>
-                </FileInput>
-              )}
-            </FileUploader>
-          </div>
-               <div className="w-[33%]">
+                <div className="w-[33%]">
                   <h1 className="m-2 font-semibold"> Upload Gif</h1>
+                  {/* <Controller
+                    name="gif_url"
+                    control={control}
+                    defaultValue={existingGIf ? existingGIf : ""}
+                    render={({ field: { onChange, value } }) => (
+                      <FileUploader
+                        value={value}
+                        onValueChange={onChange}
+                        dropzoneOptions={dropzoneGif}
+                      >
+                        {value && value.length > 0 ? (
+                          value.map((file, i) => (
+                            <div className="h-40" key={i}>
+                              <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
+                                <FileUploaderItem
+                                  key={i}
+                                  index={i}
+                                  className="h-full p-0 rounded-md overflow-hidden relative"
+                                  aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                                >
+                                  <img
+                                    src={URL.createObjectURL(file)}
+                                    alt={file.name}
+                                    className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
+                                  />
+                                </FileUploaderItem>
+                              </FileUploaderContent>
+                            </div>
+                          ))
+                        ) : existingGif ? (
+                          <div className="h-40">
+                            <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
+                              <FileUploaderItem className="h-full p-0 rounded-md overflow-hidden relative">
+                                <img
+                                  src={existingGif}
+                                  alt="Existing GIF"
+                                  className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
+                                />
+                              </FileUploaderItem>
+                            </FileUploaderContent>
+                          </div>
+                        ) : (
+                          <FileInput className="flex flex-row gap-">
+                            <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
+                              <div>
+                                <i className="text-primary fa-regular fa-image text-2xl"></i>
+                              </div>
+                              <div>
+                                <h1 className="text-sm">
+                                  Drop your GIF here or{" "}
+                                  <span className="underline text-blue-500">
+                                    Browse
+                                  </span>
+                                </h1>
+                              </div>
+                              <div>
+                                <span className="text-sm">
+                                  Support GIF Only.
+                                </span>
+                              </div>
+                            </div>
+                          </FileInput>
+                        )}
+                      </FileUploader>
+                    )}
+                  /> */}
+
                   <FileUploader
                     value={gif}
                     onValueChange={setGif}
@@ -698,7 +784,7 @@ console.log(input);
                         <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
                           <FileUploaderItem
                             className="h-full p-0 rounded-md overflow-hidden relative"
-                            index={Number(existingGIf)+1}
+                            index={Number(existingGIf) + 1}
                           >
                             <img
                               src={existingGIf}
@@ -717,70 +803,88 @@ console.log(input);
                           <div>
                             <h1 className="text-sm">
                               Drop your male image here or{" "}
-                              <span className="underline text-blue-500">Browse</span>
+                              <span className="underline text-blue-500">
+                                Browse
+                              </span>
                             </h1>
                           </div>
                           <div>
-                            <span className="text-sm">
-                              Support GIF Only.
-                            </span>
+                            <span className="text-sm">Support GIF Only.</span>
                           </div>
                         </div>
                       </FileInput>
                     )}
                   </FileUploader>
                 </div>
-            </div>
-            <div className="my-5">
-            <h1 className="font-bold text-xl">Exercise Type :</h1>
-            {Exercise_info.map((item) => {
-               
-               if (item.type === "radio") {
-                return (
-                  <div key={item.name} className="relative">
-                    <Controller
-                      name={item.name as keyof createExerciseInputTypes}
-                      rules={{ required: "Required" }}
-                      control={control}
-                      render={({
-                        field: { onChange, value },
-                        fieldState: { error },
-                      }) => (
-                        <div >
-                          <RadioGroup onValueChange={onChange} 
-                          defaultValue={value != null ? String(value) : undefined}
-                           className="flex flex-row space-x-4"
-                          >
-                            {item.options?.map((option: any, index: number) => (
-                              <div key={index} className="flex justify-start items-center space-x-3">
-                                <RadioGroupItem value={String(option.value)} />
-                                <label>{option.label}</label>
-                              </div>
-                            ))}
-                          </RadioGroup>
-                        </div>
-                      )}
-                    />
-                    {errors[item.name as keyof createExerciseInputTypes]?.message && (
-                      <span className="text-red-500 text-xs mt-[5px]">
-                        {errors[item.name as keyof createExerciseInputTypes]?.message}
-                      </span>
-                    )}
-                  </div>
-                );
-              }
-              
-                
-              })}
-            <div className="relative pt-6">
-                 {entries.map((entry, index) => (
+              </div>
+              <div className="my-5">
+                <h1 className="font-bold text-xl">Exercise Type :</h1>
+                {Exercise_info.map((item) => {
+                  if (item.type === "radio") {
+                    return (
+                      <div key={item.name} className="relative">
+                        <Controller
+                          name={item.name as keyof createExerciseInputTypes}
+                          rules={{ required: "Required" }}
+                          control={control}
+                          render={({
+                            field: { onChange, value },
+                            fieldState: { error },
+                          }) => (
+                            <div>
+                              <RadioGroup
+                                onValueChange={onChange}
+                                defaultValue={
+                                  value != null ? String(value) : undefined
+                                }
+                                className="flex flex-row space-x-4"
+                              >
+                                {item.options?.map(
+                                  (option: any, index: number) => (
+                                    <div
+                                      key={index}
+                                      className="flex justify-start items-center space-x-3"
+                                    >
+                                      <RadioGroupItem
+                                        value={String(option.value)}
+                                      />
+                                      <label>{option.label}</label>
+                                    </div>
+                                  )
+                                )}
+                              </RadioGroup>
+                            </div>
+                          )}
+                        />
+                        {errors[item.name as keyof createExerciseInputTypes]
+                          ?.message && (
+                          <span className="text-red-500 text-xs mt-[5px]">
+                            {
+                              errors[
+                                item.name as keyof createExerciseInputTypes
+                              ]?.message
+                            }
+                          </span>
+                        )}
+                      </div>
+                    );
+                  }
+                })}
+                <div className="relative pt-6">
+                  {entries.map((entry, index) => (
                     <div key={index} className="mb-4">
                       <div className="flex gap-2">
                         <label className="block font-semibold">
                           <input
                             type="text"
+                            // ref={reftext}
                             value={entry.time}
-                            placeholder={watcher.exercise_type===ExerciseTypeEnum.time_based ? "Time (s)*" : "Repetition (x)*"}
+                            placeholder={
+                              watcher.exercise_type ===
+                              ExerciseTypeEnum.time_based
+                                ? "Time (s)*"
+                                : "Repetition (x)*"
+                            }
                             onChange={(e) =>
                               handleChange(index, "time", e.target.value)
                             }
@@ -788,7 +892,7 @@ console.log(input);
                             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </label>
-                       
+
                         <label className="block font-semibold">
                           <input
                             type="text"
@@ -801,153 +905,164 @@ console.log(input);
                             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </label>
-                        
+
                         <Button
                           type="button"
                           variant={"ghost"}
                           onClick={addEntry}
                           className="text-primary rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-blue-500 gap-2 justify-center items-center flex"
                         >
-                          <PlusIcon className="h-5 w-5 text-primary" /> Add a Set
+                          <PlusIcon className="h-5 w-5 text-primary" /> Add a
+                          Set
                         </Button>
-                        { (
+                        {
                           <button
                             type="button"
                             onClick={() => removeEntry(index)}
-                            disabled={entries.length==1}
+                            disabled={entries.length == 1}
                             className="text-red-500 hover:text-red-700 focus:outline-none disabled:text-red-300"
                           >
                             <TrashIcon className="h-5 w-5" />
                           </button>
-                        )}
+                        }
                       </div>
                     </div>
                   ))}
                   {/* watcher.exercise_type === ExerciseTypeEnum.time_based */}
                   {watcher.exercise_type === ExerciseTypeEnum.time_based ? (
-  <>
-    <div className="relative">
-      <div className="flex gap-4">
-        <Controller
-          control={form.control}
-          name="met_id"
-          render={({ field, fieldState }) => (
-              <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn(
-                        "justify-between font-normal",
-                        !field.value && "font-medium text-gray-400 focus:border-primary"
-                      )}
-                    >
-                      {field.value
-                        ? MetsData?.find((mets: baseExerciseApiResponse) => mets.value === field.value)?.label
-                        : "MET"}
-                      <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="p-0">
-                  <Command>
-                    <CommandList>
-                      <CommandInput placeholder="Select Metabolism" />
-                      <CommandEmpty>No Metabolism found.</CommandEmpty>
-                      <CommandGroup>
-                        {MetsData?.map((mets: baseExerciseApiResponse) => (
-                          <CommandItem
-                            value={mets.label}
-                            key={mets.value}
-                            onSelect={() => field.onChange(mets.value)}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                mets.value === field.value ? "opacity-100" : "opacity-0"
+                    <>
+                      <div className="relative">
+                        <div className="flex gap-4">
+                          <Controller
+                            control={form.control}
+                            name="met_id"
+                            render={({ field, fieldState }) => (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className={cn(
+                                      "justify-between font-normal",
+                                      !field.value &&
+                                        "font-medium text-gray-400 focus:border-primary"
+                                    )}
+                                  >
+                                    {field.value
+                                      ? MetsData?.find(
+                                          (mets: baseExerciseApiResponse) =>
+                                            mets.value === field.value
+                                        )?.label
+                                      : "MET"}
+                                    <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="p-0">
+                                  <Command>
+                                    <CommandList>
+                                      <CommandInput placeholder="Select Metabolism" />
+                                      <CommandEmpty>
+                                        No Metabolism found.
+                                      </CommandEmpty>
+                                      <CommandGroup>
+                                        {MetsData?.map(
+                                          (mets: baseExerciseApiResponse) => (
+                                            <CommandItem
+                                              value={mets.label}
+                                              key={mets.value}
+                                              onSelect={() =>
+                                                field.onChange(mets.value)
+                                              }
+                                            >
+                                              <Check
+                                                className={cn(
+                                                  "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                                  mets.value === field.value
+                                                    ? "opacity-100"
+                                                    : "opacity-0"
+                                                )}
+                                              />
+                                              {mets.label}
+                                            </CommandItem>
+                                          )
+                                        )}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+                            )}
+                          />
+                          {/* <Controller
+                            control={form.control}
+                            name="distance"
+                            render={({ field, fieldState }) => (
+                              <FloatingLabelInput
+                                {...field}
+                                type="number"
+                                id="distance"
+                                label="Distance(KM)"
+                              />
+                            )}
+                          /> */}
+                          {/* <Controller
+                            control={form.control}
+                            name="speed"
+                            render={({ field, fieldState }) => (
+                              <FloatingLabelInput
+                                {...field}
+                                id="speed"
+                                type="number"
+                                label="Speed(KM/H)"
+                              />
+                            )}
+                          /> */}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* <div className="relative">
+                        <Controller
+                          control={form.control}
+                          name="max_intensity"
+                          render={({ field }) => (
+                            <div className="flex gap-4 w-full justify-start items-center">
+                              Exercise Type:
+                              {Object.values(IntensityEnum).map((value) => (
+                                <label key={value}>
+                                  <input
+                                    type="radio"
+                                    value={value}
+                                    checked={field.value === value}
+                                    onChange={field.onChange}
+                                    className="mr-2 checked:bg-primary"
+                                  />
+                                  {value}
+                                </label>
+                              ))}
+                              {field.value === "irm" && (
+                                <Controller
+                                  control={form.control}
+                                  name="irmValue"
+                                  render={({ field, fieldState }) => (
+                                    <FloatingLabelInput
+                                      {...field}
+                                      id="irmValue"
+                                      label="IRM*"
+                                    />
+                                  )}
+                                />
                               )}
-                            />
-                            {mets.label}
-                          </CommandItem>
-                        ))}
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="distance"
-          render={({ field, fieldState }) => (
-              <FloatingLabelInput
-                {...field}
-                type="number"
-                id="distance"
-                label="Distance(KM)"
-              />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="speed"
-          render={({ field, fieldState }) => (
-              <FloatingLabelInput
-                {...field}
-                id="speed"
-                type="number"
-                label="Speed(KM/H)"
-              />
-          )}
-        />
-      </div>
-    </div>
-  </>
-) : (
-  <>
-    <div className="relative">
-      <Controller
-        control={form.control}
-        name="max_intensity"
-        render={({ field }) => (
-            <div className="flex gap-4 w-full justify-start items-center">
-              Exercise Type:
-              {Object.values(IntensityEnum).map((value) => (
-                <label key={value}>
-                  <input
-                    type="radio"
-                    value={value}
-                    checked={field.value === value}
-                    onChange={field.onChange}
-                    className="mr-2 checked:bg-primary"
-                  />
-                  {value}
-                </label>
-              ))}
-              {field.value === "irm" && (
-                <Controller
-                  control={form.control}
-                  name="irmValue"
-                  render={({ field, fieldState }) => (
-                      <FloatingLabelInput
-                        {...field}
-                        id="irmValue"
-                        label="IRM*"
-                      />
+                            </div>
+                          )}
+                        />
+                      </div> */}
+                    </>
                   )}
-                />
-              )}
-            </div>
-        )}
-      />
-    </div>
-  </>
-)}
-
                 </div>
-            
-            </div>
+              </div>
             </ScrollArea>
-
           </form>
         </FormProvider>
       </SheetContent>

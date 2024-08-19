@@ -274,7 +274,7 @@ export default function AuthenticationPage() {
           </div>
         </div>
       </div>
-      <ForgotPasword open={open} setOpen={setOpen}/>
+      {/* <ForgotPasword open={open} setOpen={setOpen}/> */}
     </div>
   );
 }

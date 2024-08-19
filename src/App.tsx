@@ -29,7 +29,6 @@ import IdleLogoutHandler from "./components/Idle-Timer";
 import NotFoundPage from "./components/PageNotFound";
 import ResetPassword from "./components/app/reset_password";
 
-
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -83,7 +82,7 @@ function App() {
               
               element={<StaffForm />}
             />*/}
-            <Route path="/admin/exercise" element={<Exercise />} />
+            {/* <Route path="/admin/exercise" element={<Exercise />} /> */}
             {/* <Route
               path="/admin/exercise/addexercise"
               

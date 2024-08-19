@@ -278,7 +278,7 @@ const MembershipForm = ({
           refetch();
           toast({
             variant: "success",
-            title: "Created Successfully",
+            title: "Membership added successfully.",
           });
           reset(defaultValue, {
             keepIsSubmitted: false,
@@ -296,7 +296,7 @@ const MembershipForm = ({
           refetch();
           toast({
             variant: "success",
-            title: "Updated Successfully",
+            title: "Membership updated successfully.",
           });
           reset(defaultValue, {
             keepIsSubmitted: false,
@@ -417,7 +417,6 @@ const MembershipForm = ({
         onOpenAutoFocus={(e: Event) => e.preventDefault()}
       >
         <SheetHeader className="sticky top-0 z-40 py-4  bg-white">
-
           <div className="flex justify-between gap-5 items-start  ">
             <div>
               <p className="font-semibold">Membership</p>

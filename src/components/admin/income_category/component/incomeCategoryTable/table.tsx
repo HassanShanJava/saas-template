@@ -633,7 +633,7 @@ export default function IncomeCategoryTableView() {
             </div>
           </div>
         </div>
-      )} 
+      )}
 
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}
       <IncomeCategoryForm
@@ -718,7 +718,7 @@ const IncomeCategoryForm = ({
           refetch();
           toast({
             variant: "success",
-            title: "Income Category Created Successfully",
+            title: "Income category added successfully.",
           });
           resetFormAndCloseDialog();
           setIsDialogOpen(false);
@@ -730,7 +730,7 @@ const IncomeCategoryForm = ({
           refetch();
           toast({
             variant: "success",
-            title: "Updated Successfully",
+            title: "Income category updated successfully.",
           });
           resetFormAndCloseDialog();
           setIsDialogOpen(false);

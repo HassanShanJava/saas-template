@@ -92,6 +92,7 @@ interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
+  role_id?: string[];
   sort_key?: string;
   status?: boolean;
   search_key?: string;
@@ -145,7 +146,13 @@ export default function StaffTableView() {
     for (const [key, value] of Object.entries(searchCretiria)) {
       console.log({ key, value });
       if (value !== undefined && value !== null) {
-        params.append(key, value);
+        if (Array.isArray(value)) {
+          value.forEach((val) => {
+            params.append(key, val); // Append each array element as a separate query parameter
+          });
+        } else {
+          params.append(key, value); // For non-array values
+        }
       }
     }
     const newQuery = params.toString();
@@ -346,10 +353,10 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "activated_on",
-      meta: "Staff Since",
+      meta: "Activation Date",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Staff Since</p>
+          <p>Activation Date</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("activated_on")}
@@ -554,7 +561,7 @@ export default function StaffTableView() {
   function handleRoleName(value: string) {
     setFilter((prev) => ({
       ...prev,
-      role_name: value,
+      role_id: value,
     }));
   }
 
@@ -571,12 +578,12 @@ export default function StaffTableView() {
       function: handleStaffStatus,
     },
     {
-      type: "select",
-      name: "role_name",
+      type: "multiselect",
+      name: "role_id",
       label: "Role Name",
       options:
         rolesData &&
-        rolesData.map((role) => ({ id: role.name, name: role.name })),
+        rolesData.map((role) => ({ value: role.id, label: role.name })),
       function: handleRoleName,
     },
   ];
@@ -736,7 +743,7 @@ export default function StaffTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No data found.
+                    No staffs added yet.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -745,7 +752,7 @@ export default function StaffTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Staff Added yet!.
+                    No staffs found.
                   </TableCell>
                 </TableRow>
               )}

@@ -22,7 +22,7 @@ const IdleLogoutHandler = () => {
     navigate("/");
   };
   const idleTimer = useIdleTimer({
-    timeout: VITE_MAX_IDLE_TIME * 60 * 1000, // 15 minutes in milliseconds
+    timeout: VITE_MAX_IDLE_TIME ?? 15 * 60 * 1000, // 15 minutes in milliseconds
     onIdle: handleOnIdle,
     debounce: 500, // Debounce the idle state to prevent flickering
   });

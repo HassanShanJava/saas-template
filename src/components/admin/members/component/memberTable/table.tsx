@@ -184,19 +184,19 @@ export default function MemberTableView() {
   }, [isError]);
 
   function handleOpenForm() {
-    setAction("add")
+    setAction("add");
     setEditMember(null);
     setOpen(true);
   }
 
   function handleEditForm(data: MemberTableDatatypes) {
-    setAction("edit")
+    setAction("edit");
     setEditMember(data);
     setOpen(true);
   }
 
-  function openFormHandle(){
-     setOpen(true);
+  function openFormHandle() {
+    setOpen(true);
   }
 
   const memberTableData = React.useMemo(() => {
@@ -244,10 +244,10 @@ export default function MemberTableView() {
     client_status: string;
     id: number;
     org_id: number;
-    source_id:number;
-    country_id:number;
-    business_id:number;
-    membership_plan_id:number;
+    source_id: number;
+    country_id: number;
+    business_id: number;
+    membership_plan_id: number;
   }) => {
     try {
       const resp = await updateMember(payload).unwrap();
@@ -427,15 +427,23 @@ export default function MemberTableView() {
         const statusLabel = status.filter((r) => r.value === value)[0];
         const id = Number(row.original.id);
         const org_id = Number(row.original?.org_id);
-        const source_id=Number(row.original.source_id);
-        const country_id=Number(row.original.country_id);
-        const business_id=Number(row.original?.business_id);
-        const membership_plan_id=Number(row.original?.membership_plan_id);
+        const source_id = Number(row.original.source_id);
+        const country_id = Number(row.original.country_id);
+        const business_id = Number(row.original?.business_id);
+        const membership_plan_id = Number(row.original?.membership_plan_id);
         return (
           <Select
             defaultValue={value}
             onValueChange={(e) =>
-              handleStatusChange({ client_status: e, id: id, org_id: org_id ,source_id:source_id,country_id:country_id,business_id:business_id,membership_plan_id:membership_plan_id})
+              handleStatusChange({
+                client_status: e,
+                id: id,
+                org_id: org_id,
+                source_id: source_id,
+                country_id: country_id,
+                business_id: business_id,
+                membership_plan_id: membership_plan_id,
+              })
             }
             disabled={statusLabel.hide}
           >
@@ -742,7 +750,7 @@ export default function MemberTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Member Added yet.
+                    No members added yet.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -751,7 +759,7 @@ export default function MemberTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Member Found.
+                    No members found.
                   </TableCell>
                 </TableRow>
               )}
@@ -761,103 +769,105 @@ export default function MemberTableView() {
       </div>
 
       {/* pagination */}
-      {memberTableData.length>0&&<div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium">Items per page:</p>
-            <Select
-              value={searchCretiria.limit.toString()}
-              onValueChange={(value) => {
-                const newSize = Number(value);
-                setSearchCretiria((prev) => ({
-                  ...prev,
-                  limit: newSize,
-                  offset: 0, // Reset offset when page size changes
-                }));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-                <SelectValue>{searchCretiria.limit}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="bottom">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={pageSize.toString()}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Separator
-            orientation="vertical"
-            className="h-11 w-[1px] bg-gray-300"
-          />
-          <span>
-            {" "}
-            {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${memberData?.filtered_counts} Items  `}
-          </span>
-        </div>
-
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex items-center space-x-2">
-            <Separator
-              orientation="vertical"
-              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-            />
-
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
-              onClick={firstPage}
-              disabled={searchCretiria.offset === 0}
-            >
-              <DoubleArrowLeftIcon className="h-4 w-4" />
-            </Button>
-
-            <Separator
-              orientation="vertical"
-              className="h-11 w-[0.5px] bg-gray-300"
-            />
-
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-              onClick={prevPage}
-              disabled={searchCretiria.offset === 0}
-            >
-              <ChevronLeftIcon className="h-4 w-4" />
-            </Button>
-
+      {memberTableData.length > 0 && (
+        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">Items per page:</p>
+              <Select
+                value={searchCretiria.limit.toString()}
+                onValueChange={(value) => {
+                  const newSize = Number(value);
+                  setSearchCretiria((prev) => ({
+                    ...prev,
+                    limit: newSize,
+                    offset: 0, // Reset offset when page size changes
+                  }));
+                }}
+              >
+                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+                  <SelectValue>{searchCretiria.limit}</SelectValue>
+                </SelectTrigger>
+                <SelectContent side="bottom">
+                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={pageSize.toString()}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <Separator
               orientation="vertical"
               className="h-11 w-[1px] bg-gray-300"
             />
+            <span>
+              {" "}
+              {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${memberData?.filtered_counts} Items  `}
+            </span>
+          </div>
 
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-              onClick={nextPage}
-              disabled={isLastPage}
-            >
-              <ChevronRightIcon className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center space-x-2">
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
 
-            <Separator
-              orientation="vertical"
-              className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-            />
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+                onClick={firstPage}
+                disabled={searchCretiria.offset === 0}
+              >
+                <DoubleArrowLeftIcon className="h-4 w-4" />
+              </Button>
 
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-              onClick={lastPage}
-              disabled={isLastPage}
-            >
-              <DoubleArrowRightIcon className="h-4 w-4" />
-            </Button>
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[0.5px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={prevPage}
+                disabled={searchCretiria.offset === 0}
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={nextPage}
+                disabled={isLastPage}
+              >
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+                onClick={lastPage}
+                disabled={isLastPage}
+              >
+                <DoubleArrowRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
-      </div>}
+      )}
 
       <TableFilters
         isOpen={openFilter}
@@ -877,11 +887,6 @@ export default function MemberTableView() {
         setAction={setAction}
         refetch={refetch}
       />
-
-     {/* <MemberModalForm
-     isOpen={open}
-     setOpen={setOpen}
-     /> */}
     </div>
   );
 }

@@ -37,6 +37,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
+import { MultiSelect } from "../multiselect/multiselectCheckbox";
 
 interface filtertypes {
   isOpen: boolean;
@@ -127,6 +128,25 @@ const TableFilters = ({
                       name={element.name}
                       label={element.label}
                       onChange={element.function}
+                    />
+                  );
+                }
+
+                if (element.type === "multiselect") {
+                  return (
+                    <MultiSelect
+                      floatingLabel={element.label.replace(/_/g, " ")}
+                      key={element.label}
+                      options={element.options}
+                      defaultValue={filterData[element.name] || []} // Ensure defaultValue is always an array
+                      onValueChange={(selectedValues) => {
+                        console.log("Selected Values: ", selectedValues); // Debugging step
+                        element.function(selectedValues); // Pass selected values to state handler
+                      }}
+                      placeholder={"Select " + element.label.replace(/_/g, " ")}
+                      variant="inverted"
+                      maxCount={1}
+                      className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                     />
                   );
                 }

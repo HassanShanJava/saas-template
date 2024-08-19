@@ -697,7 +697,7 @@ const SaleTaxesForm = ({
           refetch();
           toast({
             variant: "success",
-            title: "Sale Tax Created Successfully",
+            title: "Tax/VAT added successfully.",
           });
           resetFormAndCloseDialog();
           setIsDialogOpen(false);
@@ -709,7 +709,7 @@ const SaleTaxesForm = ({
           refetch();
           toast({
             variant: "success",
-            title: "Updated Successfully",
+            title: "Tax/VAT updated successfully",
           });
           resetFormAndCloseDialog();
           setIsDialogOpen(false);

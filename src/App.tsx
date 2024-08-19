@@ -28,6 +28,7 @@ import WorkoutPlan from "./components/admin/workoutplan";
 import IdleLogoutHandler from "./components/Idle-Timer";
 import NotFoundPage from "./components/PageNotFound";
 import ResetPassword from "./components/app/reset_password";
+import MyForm from "./components/admin/test/Testcomponent";
 
 function App() {
   const loading = useSelector((state: RootState) =>
@@ -41,6 +42,7 @@ function App() {
       {" "}
       <IdleLogoutHandler /> {/* Add the idle handler here */}
       <Routes>
+        <Route path="/testingpath" element={<MyForm />} />
         {/* <Route
           path="/"
           index
@@ -82,7 +84,7 @@ function App() {
               
               element={<StaffForm />}
             />*/}
-            {/* <Route path="/admin/exercise" element={<Exercise />} /> */}
+            <Route path="/admin/exercise" element={<Exercise />} />
             {/* <Route
               path="/admin/exercise/addexercise"
               

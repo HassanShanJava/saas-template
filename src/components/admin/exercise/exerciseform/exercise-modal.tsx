@@ -470,10 +470,16 @@ const ExerciseForm = ({
                                 }[]
                               }
                               onValueChange={(selectedValues) => {
-                                onChange(selectedValues); // Update form state on value change
+                                onChange(selectedValues as (string | number)[]); // Update form state on value change
+                                // Update form state on value change
                               }}
                               // Initialize the multi-select with default values
-                              defaultValue={Array.isArray(value) ? value : []} // Ensure defaultValue is always an array
+                              defaultValue={
+                                Array.isArray(value)
+                                  ? (value as (string | number)[])
+                                  : []
+                              } // Ensure defaultValue is always an array of the expected type
+                              // Ensure defaultValue is always an array
                               placeholder={"Select " + item.label}
                               variant="inverted"
                               maxCount={1}

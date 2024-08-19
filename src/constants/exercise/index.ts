@@ -1,4 +1,4 @@
-import { difficultyEnum,ExerciseTypeEnum } from "@/app/types";
+import { difficultyEnum, ExerciseTypeEnum } from "@/app/types";
 import { Difficulty } from "@/components/admin/exercise/component/difficultySlider";
 
 export const visibilityOptions = [
@@ -28,9 +28,9 @@ export const initialValue = {
   intensity_value: undefined,
   difficulty: difficultyEnum.Beginner,
   sets: undefined,
-  seconds_per_set: undefined,
-  repetitions_per_set: undefined,
-  rest_between_set: undefined,
+  seconds_per_set: [],
+  repetitions_per_set: [],
+  rest_between_set: [],
   distance: 0,
   speed: 0,
   met_id: null,

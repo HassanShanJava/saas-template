@@ -27,6 +27,9 @@ import FoodsNutrition from "./components/admin/foods";
 import WorkoutPlan from "./components/admin/workoutplan";
 import IdleLogoutHandler from "./components/Idle-Timer";
 import NotFoundPage from "./components/PageNotFound";
+import ResetPassword from "./components/app/reset_password";
+
+
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -43,7 +46,9 @@ function App() {
           path="/"
           index
           element={withAuth(AuthenticationPage)({} as any)}
-        /> */}
+        />
+        {/* <Route path="/reset_pasword/:token" element={<ResetPassword />}/> */}
+
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/" index element={<AuthenticationPage />} />
           <Route element={<DashboardLayout />}>
@@ -89,8 +94,8 @@ function App() {
               
               element={<ExerciseForm />}
             /> */}
-            <Route path="/admin/mealplans" element={<MealPlans />} />
-            <Route path="/admin/foods" element={<FoodsNutrition />} />
+            {/* <Route path="/admin/mealplans" element={<MealPlans />} />
+            <Route path="/admin/foods" element={<FoodsNutrition />} /> */}
             {/* <Route path="/admin/workoutplans"  element={<WorkoutPlan />} /> */}
             <Route path="*" element={<NotFoundPage />} />
           </Route>

@@ -2,20 +2,23 @@ import * as React from "react";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import { cn } from "@/lib/utils";
 import { ArrowUp } from "lucide-react";
+
 const ScrollArea = React.forwardRef<
   HTMLDivElement,
-  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
->(({ className, children, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> & {
+    hideScrollToTop?: boolean; // Add this optional prop
+  }
+>(({ className, children, hideScrollToTop = false, ...props }, ref) => {
   const [showBackToTop, setShowBackToTop] = React.useState(false);
-
   const innerRef = React.useRef<HTMLDivElement | null>(null);
 
-  // Merge refs if `ref` is provided
   React.useImperativeHandle(ref, () => innerRef.current as HTMLDivElement);
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = event.currentTarget;
-    setShowBackToTop(scrollTop > 100); // Show the icon after scrolling 100px
+    if (!hideScrollToTop) {
+      setShowBackToTop(scrollTop > 100);
+    }
   };
 
   const scrollToTop = () => {
@@ -37,7 +40,7 @@ const ScrollArea = React.forwardRef<
       <ScrollBar />
       <ScrollAreaPrimitive.Corner />
 
-      {showBackToTop && (
+      {!hideScrollToTop && showBackToTop && (
         <button
           onClick={scrollToTop}
           className="fixed bottom-4 right-16 z-10 p-2 rounded-full bg-primary text-white"

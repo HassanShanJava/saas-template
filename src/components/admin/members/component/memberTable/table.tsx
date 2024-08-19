@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { PlusIcon, Search } from "lucide-react";
+import { Edit, PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -34,7 +34,12 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, MemberTableDatatypes } from "@/app/types";
+import {
+  ErrorType,
+  MemberInputTypes,
+  MemberTableDatatypes,
+  MemberTabletypes,
+} from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
@@ -51,6 +56,7 @@ import { useGetMembershipListQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
 import MemberForm from "../../memberForm/form";
 import TableFilters from "@/components/ui/table/data-table-filter";
+import MemberModalForm from "../../memberForm/member-modal";
 
 const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
   const csvData = data.map(({ coaches, ...newdata }) => newdata);
@@ -88,8 +94,11 @@ const status = [
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 export default function MemberTableView() {
+  const [action, setAction] = useState<"add" | "edit">("add");
   const [open, setOpen] = useState<boolean>(false);
-  const [memberId, setMemberId] = useState<number | undefined>(undefined);
+  const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
+    null
+  );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCretiria, setSearchCretiria] =
@@ -174,9 +183,20 @@ export default function MemberTableView() {
     }
   }, [isError]);
 
-  function handleOpenForm(memberId: number | undefined = undefined) {
-    setMemberId(memberId);
+  function handleOpenForm() {
+    setAction("add")
+    setEditMember(null);
     setOpen(true);
+  }
+
+  function handleEditForm(data: MemberTableDatatypes) {
+    setAction("edit")
+    setEditMember(data);
+    setOpen(true);
+  }
+
+  function openFormHandle(){
+     setOpen(true);
   }
 
   const memberTableData = React.useMemo(() => {
@@ -224,6 +244,10 @@ export default function MemberTableView() {
     client_status: string;
     id: number;
     org_id: number;
+    source_id:number;
+    country_id:number;
+    business_id:number;
+    membership_plan_id:number;
   }) => {
     try {
       const resp = await updateMember(payload).unwrap();
@@ -277,17 +301,6 @@ export default function MemberTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    // {
-    //   id: "id",
-    //   header: () => (
-    //     <span>S No.</span>
-    //   ),
-    //   cell: ({ row }) => (
-    //     <span>{row.index + 1 + (searchCretiria.offset)}.</span>
-    //   ),
-    //   enableSorting: false,
-    //   enableHiding: false,
-    // },
     {
       accessorKey: "own_member_id",
       meta: "Member Id",
@@ -414,12 +427,15 @@ export default function MemberTableView() {
         const statusLabel = status.filter((r) => r.value === value)[0];
         const id = Number(row.original.id);
         const org_id = Number(row.original?.org_id);
-
+        const source_id=Number(row.original.source_id);
+        const country_id=Number(row.original.country_id);
+        const business_id=Number(row.original?.business_id);
+        const membership_plan_id=Number(row.original?.membership_plan_id);
         return (
           <Select
             defaultValue={value}
             onValueChange={(e) =>
-              handleStatusChange({ client_status: e, id: id, org_id: org_id })
+              handleStatusChange({ client_status: e, id: id, org_id: org_id ,source_id:source_id,country_id:country_id,business_id:business_id,membership_plan_id:membership_plan_id})
             }
             disabled={statusLabel.hide}
           >
@@ -529,7 +545,7 @@ export default function MemberTableView() {
           row={row.original.id}
           data={row?.original}
           refetch={refetch}
-          handleEditMember={handleOpenForm}
+          handleEditMember={handleEditForm}
         />
       ),
     },
@@ -647,7 +663,7 @@ export default function MemberTableView() {
         </div>
         <Button
           className="bg-primary  text-black mr-1 "
-          onClick={() => handleOpenForm()}
+          onClick={handleOpenForm}
         >
           <PlusIcon className="size-4" />
           Create New
@@ -855,9 +871,17 @@ export default function MemberTableView() {
       <MemberForm
         open={open}
         setOpen={setOpen}
-        memberId={memberId}
-        setMemberId={setMemberId}
+        memberData={editMember}
+        setMemberData={setEditMember}
+        action={action}
+        setAction={setAction}
+        refetch={refetch}
       />
+
+     {/* <MemberModalForm
+     isOpen={open}
+     setOpen={setOpen}
+     /> */}
     </div>
   );
 }

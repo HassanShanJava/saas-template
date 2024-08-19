@@ -81,7 +81,7 @@ import {
 } from "@/services/coachApi";
 
 import { useGetMembersListQuery } from "@/services/memberAPi";
-import { UploadCognitoImage } from "@/utils/lib/s3Service";
+import { UploadCognitoImage, deleteCognitoImage } from "@/utils/lib/s3Service";
 import {
   Sheet,
   SheetContent,
@@ -218,26 +218,10 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .trim()
       .max(10, "Zipcode must be 10 characters or less")
       .optional(),
-    bank_name: z
-      .string()
-      .trim()
-      .max(40, "Sbould be 40 characters or less")
-      .optional(),
-    iban_no: z
-      .string()
-      .trim()
-      .max(34, "Sbould be 34 characters or less")
-      .optional(),
-    swift_code: z
-      .string()
-      .trim()
-      .max(11, "Should be 11 characters or less")
-      .optional(),
-    acc_holder_name: z
-      .string()
-      .trim()
-      .max(50, "Should be 50 characters or less")
-      .optional(),
+    bank_name: z.string().trim().max(40, "Sbould be 40 characters or less").optional(),
+    iban_no: z.string().trim().max(34, "Sbould be 34 characters or less").optional(),
+    swift_code: z.string().trim().max(11, "Should be 11 characters or less").optional(),
+    acc_holder_name: z.string().trim().max(50, "Should be 50 characters or less").optional(),
     country_id: z.coerce
       .number({
         required_error: "Required",
@@ -332,13 +316,17 @@ const CoachForm: React.FC<CoachFormProps> = ({
     let updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-      member_ids: data.member_ids?.map((member) => member.id),
+      member_ids: data.member_ids && data?.member_ids.map((member) => member.id),
     };
 
     console.log("Updated data with only date:", updatedData);
     console.log("only once", data);
     if (selectedImage) {
       try {
+        if (updatedData.profile_img !== '' && (updatedData?.profile_img as string).length > 0) {
+          const fileName = (updatedData?.profile_img as string).split("/images/")[1]
+          await deleteCognitoImage(fileName)
+        }
         const getUrl = await UploadCognitoImage(selectedImage);
         updatedData = {
           ...updatedData,
@@ -511,9 +499,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                             id="first_name"
                             label="First Name*"
                           />
-                          <FormMessage>
-                            {form.formState.errors.first_name?.message}
-                          </FormMessage>
+                          <FormMessage>{form.formState.errors.first_name?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -529,9 +515,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                             id="last_name"
                             label="Last Name*"
                           />
-                          <FormMessage>
-                            {form.formState.errors.last_name?.message}
-                          </FormMessage>
+                          <FormMessage>{form.formState.errors.last_name?.message}</FormMessage>
                         </FormItem>
                       )}
                     />
@@ -585,7 +569,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                         className={cn(
                                           "w-full pl-3 text-left font-normal",
                                           !field.value &&
-                                            "text-muted-foreground"
+                                          "text-muted-foreground"
                                         )}
                                       >
                                         {field.value ? (
@@ -713,7 +697,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                     <MultiSelectorItem
                                       key={user.id}
                                       value={user}
-                                      // disabled={field.value?.length >= 5}
+                                    // disabled={field.value?.length >= 5}
                                     >
                                       <div className="flex items-center space-x-2">
                                         <span>{user.name}</span>
@@ -798,8 +782,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                   {field.value === 0
                                     ? "Source*"
                                     : sources?.find(
-                                        (source) => source.id === field.value
-                                      )?.source || "Source*"}
+                                      (source) => source.id === field.value
+                                    )?.source || "Source*"}
                                 </SelectValue>
                               </SelectTrigger>
                             </FormControl>
@@ -899,14 +883,14 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                   className={cn(
                                     "justify-between font-normal",
                                     !field.value &&
-                                      "font-medium text-gray-400 focus:border-primary "
+                                    "font-medium text-gray-400 focus:border-primary "
                                   )}
                                 >
                                   {field.value
                                     ? countries?.find(
-                                        (country: CountryTypes) =>
-                                          country.id === field.value // Compare with numeric value
-                                      )?.country // Display country name if selected
+                                      (country: CountryTypes) =>
+                                        country.id === field.value // Compare with numeric value
+                                    )?.country // Display country name if selected
                                     : "Select country*"}
                                   <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>

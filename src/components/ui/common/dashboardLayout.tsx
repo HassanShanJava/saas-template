@@ -143,12 +143,12 @@ const navItems: NavItem[] = [
   //   icon: EventsIcon,
   //   dropdown: false,
   // },
-  {
-    name: "Food/ Nutrition",
-    link: "/admin/foods",
-    icon: EventsIcon,
-    dropdown: false,
-  },
+  // {
+  //   name: "Food/ Nutrition",
+  //   link: "/admin/foods",
+  //   icon: EventsIcon,
+  //   dropdown: false,
+  // },
   {
     name: "Manage",
     dropdown: true,
@@ -228,7 +228,7 @@ const DashboardLayout: React.FC = () => {
               className={`${!isSidebarOpen && "hidden"} text-2xl text-center font-extrabold`}
               style={{ fontFamily: "Jockey One" }}
             >
-              Let's Move
+              FitnFi
             </span>
           </Link>
           {/* Uncomment the button if needed */}

@@ -17,7 +17,9 @@ import { cn } from "@/lib/utils";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const { VITE_APP_SITEKEY } = import.meta.env;
 import logomainsvg from "@/assets/logo-main.svg";
+import ForgotPasword from "./forgot_password";
 export default function AuthenticationPage() {
+  const [open,setOpen]=useState(false)
   const token = localStorage.getItem("userToken");
   const navigate = useNavigate();
 
@@ -101,6 +103,7 @@ export default function AuthenticationPage() {
 
     console.log("Form data:", data);
     dispatch(login(data));
+		recaptchaRef.current?.reset();
   };
 
   const [isCaptchaError, setCaptchaError] = useState(false);
@@ -114,7 +117,7 @@ export default function AuthenticationPage() {
   }
 
   return (
-    <div className="loginpage-image">
+    <div className="loginpage-image" data-background-src={`../../../assets/background.png`}>
       <div className="max-w-[1800px] mx-auto">
         <div className="flex mx-16 justify-between items-center h-dvh ">
           <div className=" flex flex-col gap-2"></div>
@@ -151,14 +154,14 @@ export default function AuthenticationPage() {
                   <div className="flex items-center custom-box-shadow w-full gap-2 px-4 py-2 rounded-md border border-checkboxborder focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 ">
                     <input
                       id="username"
-                      type="email"
+                      type="text"
                       placeholder="Enter you email"
                       className="w-full bg-transparent border-checkboxborder text-textgray outline-none"
                       {...register("email", {
-                        required: "Email is required",
+                        required: "Email is required.",
                         pattern: {
-                          value: /\S+@\S+\.\S+/,
-                          message: "Invalid email address",
+                          value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                          message: "Invalid email format.",
                         },
                         maxLength: 64,
                       })}
@@ -181,7 +184,7 @@ export default function AuthenticationPage() {
                       placeholder="Enter your password"
                       className="w-full  bg-transparent border-checkboxborder text-textgray outline-none"
                       {...register("password", {
-                        required: true,
+                        required: 'Password is required.',
                         maxLength: 50,
                         minLength: 8,
                       })}
@@ -224,9 +227,9 @@ export default function AuthenticationPage() {
                         Remember Me
                       </label>
                     </div>
-                    <div>
+                    <div onClick={()=>setOpen(true)} className="cursor-pointer">
                       <span className="text-[0.8rem] underline font-semibold text-textprimary">
-                        Forget Password?
+                        Forgot Password?
                       </span>
                     </div>
                   </div>
@@ -241,7 +244,7 @@ export default function AuthenticationPage() {
                     {isCaptchaError && (
                       <>
                         <span className="text-red-400 text-xs font-poppins">
-                          Fill the captcha
+                          Please complete the reCaptcha
                         </span>
                       </>
                     )}
@@ -271,6 +274,7 @@ export default function AuthenticationPage() {
           </div>
         </div>
       </div>
+      {/* <ForgotPasword open={open} setOpen={setOpen}/> */}
     </div>
   );
 }

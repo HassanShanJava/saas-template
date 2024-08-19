@@ -121,7 +121,7 @@ const WorkoutPlanForm = () => {
 
   //const watcher = form.watch();
 
-  async function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: any) {
     try {
     } catch (error: unknown) {
       console.error("Error", { error });
@@ -219,282 +219,216 @@ const WorkoutPlanForm = () => {
 									{" "}
 									Plan information and Details
 								</p>
-								<div className="grid grid-cols-3 grid-rows-4 grid-flow-col p-4">
+								<div className="grid grid-cols-3 grid-rows-4 grid-flow-col gap-4 p-4">
 									{/* <!-- Column 1: Name and Description --> \*/}
-									{/*<div className="p-4">*/}
-										<div className="">
-											<div className="relative">
-												{/*<FormField
-													control={form.control}
-													name="name"
-													render={({ field }) => (
-														<FormItem>*/}
-															<FloatingLabelInput
-																id="name"
-																label="Name*"
-															/>
-															{/*watcher.name ? <></> : <FormMessage />*/}
-														{/*</FormItem>
-													)}
-												/>*/}
-											</div>
+										<div className="h-min">
+											<FloatingLabelInput
+												id="name"
+												label="Name*"
+											/>
 										</div>
 										<div className="row-span-2">
-											{/*<FormField
-												control={form.control}
-												name="description"
-												render={({ field }) => (
-													<FormItem>
-														<FormControl>*/}
-															<AutosizeTextarea
-																placeholder="description"
-																id="description"
-																maxHeight={600}
-															/>
-														{/*</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>*/}
+											<AutosizeTextarea
+												placeholder="description"
+												id="description"
+												minHeight={94}
+												maxHeight={600}
+												className="h-full"
+											/>
 										</div>
-										<div>
-											{/*<FormField
-												control={form.control}
-												name="members_id"
-												render={({ field }) => (
-													<FormItem className="w-full ">*/}
-														<MultiSelector
-															onValuesChange={(values) => values}
-															values={[]}
-														>
-															<MultiSelectorTrigger className="border-[1px] border-gray-300">
-																<MultiSelectorInput
-																	className="font-medium"
-																	placeholder="Assign Members*"
-																/>
-																<ChevronDownIcon className="h-5 w-5 text-gray-500" />
-															</MultiSelectorTrigger>
-															<MultiSelectorContent className="">
-																<MultiSelectorList>
-																	{transformedData &&
-																		transformedData.map((user: any) => (
-																			<MultiSelectorItem
-																				key={user.id}
-																				value={user}
-																				// disabled={field.value?.length >= 5}
-																			>
-																				<div className="flex items-center space-x-2">
-																					<span>{user.name}</span>
-																				</div>
-																			</MultiSelectorItem>
-																		))}
-																</MultiSelectorList>
-															</MultiSelectorContent>
-														</MultiSelector>
-														{/*<FormMessage />
-													</FormItem>
-												)}
-											/>*/}
+										<div className="h-min">
+											<MultiSelector
+												onValuesChange={(values) => values}
+												values={[]}
+												className="space-y-0"
+											>
+												<MultiSelectorTrigger className="border-[1px] border-gray-300">
+													<MultiSelectorInput
+														className="font-medium"
+														placeholder="Assign Members*"
+													/>
+													<ChevronDownIcon className="h-5 w-5 text-gray-500" />
+												</MultiSelectorTrigger>
+												<MultiSelectorContent className="">
+													<MultiSelectorList>
+														{transformedData &&
+															transformedData.map((user: any) => (
+																<MultiSelectorItem
+																	key={user.id}
+																	value={user}
+																	// disabled={field.value?.length >= 5}
+																>
+																	<div className="flex items-center space-x-2">
+																		<span>{user.name}</span>
+																	</div>
+																</MultiSelectorItem>
+															))}
+													</MultiSelectorList>
+												</MultiSelectorContent>
+											</MultiSelector>
 										</div>
-									{/*</div>*/}
-
 									{/* <!-- Column 2: Visibility and Repetition --> */}
-									{/*<div className="p-4 flex flex-col gap-6">*/}
-										<div className="">
-										{/*<FormField
-												control={form.control}
-												name="country_id"
-												render={({ field }) => (
-													<FormItem className="flex flex-col w-full">*/}
-																			{/*!field.value &&
-																				" "*/}
-														<Popover>
-															<PopoverTrigger asChild>
-																{/*<FormControl>*/}
-																	<Button
-																		variant="outline"
-																		role="combobox"
-																		className={"justify-between font-normal font-medium text-gray-400 focus:border-primary w-full"}
-																	>
-																		Select Goals*
-																		<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-																	</Button>
-																{/*</FormControl>*/}
-															</PopoverTrigger>
-															<PopoverContent className="p-0">
-																<Command>
-																	<CommandList>
-																		<CommandInput placeholder="Goals*" />
-																		<CommandEmpty>No country found.</CommandEmpty>
-																		<CommandGroup>
-																			{countries &&
-																				countries.map((country: CountryTypes) => (
-																					<CommandItem
-																						value={country.country}
-																						key={country.id}
-																						onSelect={() => {
-																							form.setValue(
-																								"country_id",
-																								country.id // Set country_id to country.id as number
-																							);
-																						}}
-																					>
-																					{/*
-																								country.id === field.value
-																									? "opacity-100"
-																									: "opacity-0"*/}
-																						<Check
-																							className={cn(
-																								"mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-																							)}
-																						/>
-																						{country.country}{" "}
-																						{/* Display the country name */}
-																					</CommandItem>
-																				))}
-																		</CommandGroup>
-																	</CommandList>
-																</Command>
-															</PopoverContent>
-														</Popover>
-														{/*watcher.country_id ? <></> : <FormMessage />}
-													</FormItem>
-												)}
-											/>*/}
-										</div>
-										<div className="">
-										{/*<FormField
-												control={form.control}
-												name="country_id"
-												render={({ field }) => (
-													<FormItem className="flex flex-col w-full">*/}
-															{/*!field.value &&
-																				"font-medium text-gray-400 focus:border-primary "*/}
-														<Popover>
-															<PopoverTrigger asChild>
-																{/*<FormControl>*/}
-																	<Button
-																		variant="outline"
-																		role="combobox"
-																		className="justify-between font-normal font-medium text-gray-400 focus:border-primary w-full"
-																	>
-																		Select Levels*
-																		<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-																	</Button>
-																{/*</FormControl>*/}
-															</PopoverTrigger>
-															<PopoverContent className="p-0">
-																<Command>
-																	<CommandList>
-																		<CommandInput placeholder="Goals*" />
-																		<CommandEmpty>No country found.</CommandEmpty>
-																		<CommandGroup>
-																			{countries &&
-																				countries.map((country: CountryTypes) => (
-																					<CommandItem
-																						value={country.country}
-																						key={country.id}
-																						onSelect={() => {
-																							form.setValue(
-																								"country_id",
-																								country.id // Set country_id to country.id as number
-																							);
-																						}}
-																					>
-																						{/*
-																								country.id === field.value
-																									? "opacity-100"
-																									: "opacity-0"*/}
-																						<Check
-																							className={cn(
-																								"mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-																							)}
-																						/>
-																						{country.country}{" "}
-																						{/* Display the country name */}
-																					</CommandItem>
-																				))}
-																		</CommandGroup>
-																	</CommandList>
-																</Command>
-															</PopoverContent>
-														</Popover>
-														{/*watcher.country_id ? <></> : <FormMessage />}
-													</FormItem>
-												)}
-											/>*/}
-										</div>
-										<div className="">
-										{/*<FormField
-												control={form.control}
-												name="country_id"
-												render={({ field }) => (
-													<FormItem className="flex flex-col w-full">*/}
-														{/*
-																			!field.value &&
-																				"font-medium text-gray-400 focus:border-primary "
+										<div className="h-min">
+											<Popover>
+												<PopoverTrigger asChild>
+													{/*<FormControl>*/}
+														<Button
+															variant="outline"
+															role="combobox"
+															className={"justify-between font-normal font-medium text-gray-400 focus:border-primary w-full"}
+														>
+															Select Goals*
+															<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+														</Button>
+													{/*</FormControl>*/}
+												</PopoverTrigger>
+												<PopoverContent className="p-0">
+													<Command>
+														<CommandList>
+															<CommandInput placeholder="Goals*" />
+															<CommandEmpty>No country found.</CommandEmpty>
+																		{/*
+																				form.setValue(
+																					"country_id",
+																					country.id // Set country_id to country.id as number
+																				);
 																				*/}
-														<Popover>
-															<PopoverTrigger asChild>
-																{/*<FormControl>*/}
-																	<Button
-																		variant="outline"
-																		role="combobox"
-																		className="justify-between font-normal font-medium text-gray-400 focus:border-primary w-full"
-																	>
-																	{/*field.value
-																			? countries?.find(
-																					(country: CountryTypes) =>
-																						country.id === field.value // Compare with numeric value
-																				)?.country // Display country name if selected
-																			: */}
-																		Visible for*
-																		<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-																	</Button>
-																{/*</FormControl>*/}
-															</PopoverTrigger>
-															<PopoverContent className="p-0">
-																<Command>
-																	<CommandList>
-																		<CommandInput placeholder="Goals*" />
-																		<CommandEmpty>No country found.</CommandEmpty>
-																		<CommandGroup>
-																			{countries &&
-																				countries.map((country: CountryTypes) => (
-																					<CommandItem
-																						value={country.country}
-																						key={country.id}
-																						onSelect={() => {
-																							form.setValue(
-																								"country_id",
-																								country.id // Set country_id to country.id as number
-																							);
-																						}}
-																					>
-																					{/*
-																								country.id === field.value
-																									? "opacity-100"
-																									: "opacity-0"*/}
-																						<Check
-																							className={cn(
-																								"mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-																							)}
-																						/>
-																						{country.country}{" "}
-																						{/* Display the country name */}
-																					</CommandItem>
-																				))}
-																		</CommandGroup>
-																	</CommandList>
-																</Command>
-															</PopoverContent>
-														</Popover>
-														{/*watcher.country_id ? <></> : <FormMessage />}
-													</FormItem>
-												)}
-											/>*/}
+															<CommandGroup>
+																{countries &&
+																	countries.map((country: CountryTypes) => (
+																		<CommandItem
+																			value={country.country}
+																			key={country.id}
+																			onSelect={() => {return}}
+																		>
+																		{/*
+																					country.id === field.value
+																						? "opacity-100"
+																						: "opacity-0"*/}
+																			<Check
+																				className={cn(
+																					"mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+																				)}
+																			/>
+																			{country.country}{" "}
+																			{/* Display the country name */}
+																		</CommandItem>
+																	))}
+															</CommandGroup>
+														</CommandList>
+													</Command>
+												</PopoverContent>
+											</Popover>
 										</div>
-										<div className="">
+										<div className="h-min">
+											<Popover>
+												<PopoverTrigger asChild>
+													{/*<FormControl>*/}
+														<Button
+															variant="outline"
+															role="combobox"
+															className="justify-between font-normal font-medium text-gray-400 focus:border-primary w-full"
+														>
+															Select Levels*
+															<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+														</Button>
+													{/*</FormControl>*/}
+												</PopoverTrigger>
+												<PopoverContent className="p-0">
+													<Command>
+														<CommandList>
+															<CommandInput placeholder="Goals*" />
+															<CommandEmpty>No country found.</CommandEmpty>
+															{/*
+																				form.setValue(
+																					"country_id",
+																					country.id // Set country_id to country.id as number
+																				);
+																				*/}
+															<CommandGroup>
+																{countries &&
+																	countries.map((country: CountryTypes) => (
+																		<CommandItem
+																			value={country.country}
+																			key={country.id}
+																			onSelect={() => {return}}
+																		>
+																			{/*
+																					country.id === field.value
+																						? "opacity-100"
+																						: "opacity-0"*/}
+																			<Check
+																				className={cn(
+																					"mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+																				)}
+																			/>
+																			{country.country}{" "}
+																			{/* Display the country name */}
+																		</CommandItem>
+																	))}
+															</CommandGroup>
+														</CommandList>
+													</Command>
+												</PopoverContent>
+											</Popover>
+										</div>
+										<div className="h-min">
+											<Popover>
+												<PopoverTrigger asChild>
+													<Button
+														variant="outline"
+														role="combobox"
+														className="justify-between font-normal font-medium text-gray-400 focus:border-primary w-full"
+													>
+													{/*field.value
+															? countries?.find(
+																	(country: CountryTypes) =>
+																		country.id === field.value // Compare with numeric value
+																)?.country // Display country name if selected
+															: */}
+														Visible for*
+														<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+													</Button>
+												</PopoverTrigger>
+												<PopoverContent className="p-0">
+													<Command>
+														<CommandList>
+															<CommandInput placeholder="Goals*" />
+															<CommandEmpty>No country found.</CommandEmpty>
+															{/*
+																				form.setValue(
+																					"country_id",
+																					country.id // Set country_id to country.id as number
+																				);
+																				*/}
+															<CommandGroup>
+																{countries &&
+																	countries.map((country: CountryTypes) => (
+																		<CommandItem
+																			value={country.country}
+																			key={country.id}
+																			onSelect={() => {return}}
+																		>
+																		{/*
+																					country.id === field.value
+																						? "opacity-100"
+																						: "opacity-0"*/}
+																			<Check
+																				className={cn(
+																					"mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+																				)}
+																			/>
+																			{country.country}{" "}
+																			{/* Display the country name */}
+																		</CommandItem>
+																	))}
+															</CommandGroup>
+														</CommandList>
+													</Command>
+												</PopoverContent>
+											</Popover>
+										</div>
+										<div className="h-min">
 										{/*<FormField
 												control={form.control}
 												name="country_id"
@@ -527,19 +461,19 @@ const WorkoutPlanForm = () => {
 																	<CommandList>
 																		<CommandInput placeholder="Goals*" />
 																		<CommandEmpty>No country found.</CommandEmpty>
+																		{/*
+																							form.setValue(
+																								"country_id",
+																								country.id // Set country_id to country.id as number
+																							);
+																							*/}
 																		<CommandGroup>
 																			{countries &&
 																				countries.map((country: CountryTypes) => (
 																					<CommandItem
 																						value={country.country}
 																						key={country.id}
-																						onSelect={() => {
-																							form.setValue(
-																								"country_id",
-																								country.id // Set country_id to country.id as number
-																							);
-																						}}
-																					>
+																						onSelect={() => {return}} >
 																						{/*
 																								country.id === field.value
 																									? "opacity-100"
@@ -564,11 +498,7 @@ const WorkoutPlanForm = () => {
 												)}
 											/>*/}
 										</div>
-									
-									{/*</div>*/}
-
 									{/* <!-- Column 3: Image Upload --> */}
-
 									{/*<div className="p-4">
 										<div className="mb-4">
 											<div className="justify-center items-center flex flex-col">
@@ -601,10 +531,10 @@ const WorkoutPlanForm = () => {
 											</div>
 										</div>
 									</div>*/}
-									<div className="p-4 row-span-4">
-										<div className="mb-4">
+									<div className="row-span-4 h-min">
+										<div>
 											<div className="justify-center items-center flex flex-col">
-												<div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
+												<div className="flex flex-col items-center justify-center p-4 border rounded h-32 w-32">
 													{selectedImage ? (
 														<img
 															src={URL.createObjectURL(selectedImage)}
@@ -624,7 +554,7 @@ const WorkoutPlanForm = () => {
 												/>
 												<Button
 													variant="ghost"
-													className="mt-2 gap-2 border-dashed border-2 text-xs hover:bg-green-100"
+													className="px-2 mt-2 gap-1 border-dashed border-2 font-normal text-xs hover:bg-green-100"
 													onClick={handleButtonClick}
 												>
 													<FiUpload className="text-primary w-5 h-5" /> Upload

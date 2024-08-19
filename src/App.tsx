@@ -45,7 +45,7 @@ function App() {
           index
           element={withAuth(AuthenticationPage)({} as any)}
         />
-             <Route path="/reset_pasword/:token" element={<ResetPassword />}/>
+        {/* <Route path="/reset_pasword/:token" element={<ResetPassword />}/> */}
 
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/" element={<DashboardLayout />}>
@@ -91,8 +91,8 @@ function App() {
               
               element={<ExerciseForm />}
             /> */}
-            <Route path="/admin/mealplans"  element={<MealPlans />} />
-            <Route path="/admin/foods"  element={<FoodsNutrition />} />
+            <Route path="/admin/mealplans" element={<MealPlans />} />
+            <Route path="/admin/foods" element={<FoodsNutrition />} />
             {/* <Route path="/admin/workoutplans"  element={<WorkoutPlan />} /> */}
           </Route>
         </Route>

@@ -27,7 +27,8 @@ const ResetPassword = () => {
         password
     ]);
 
-    const onSubmit = useCallback((data) => {
+    const onSubmit = useCallback((data:{ password: string; confirmPassword: string }) => {
+        
         console.log("Submitted:", data);
       }, []);
 

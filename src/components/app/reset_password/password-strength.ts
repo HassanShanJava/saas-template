@@ -10,10 +10,10 @@ export const StrengthLevels = {
   const specialCharacterRegex = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/;
   
   const minLength = 8;
-  let analysis = "";
+  let analysis:Record<string,number>  = {};
   
-  const countChars = (str) => {
-    const result = {};
+  const countChars = (str:string) => {
+    const result:Record<string,number> = {};
     Array.from(str).forEach((char) => {
       const curVal = result[char];
       if (curVal) {
@@ -24,7 +24,7 @@ export const StrengthLevels = {
     });
     return result;
   };
-  const analyzePassword = (password) => {
+  const analyzePassword = (password:string) => {
     const charMap = countChars(password);
     analysis = {
       length: password.length,
@@ -48,7 +48,7 @@ export const StrengthLevels = {
     return analysis;
   };
   
-  export const isStrongPassword = (str) => {
+  export const isStrongPassword = (str:string) => {
     analysis = analyzePassword(str);
   
     return (
@@ -59,12 +59,12 @@ export const StrengthLevels = {
       analysis.symbolCount >= 1
     );
   };
-  export const superToggle = (element, class0, class1) => {
+  export const superToggle = (element:any, class0:any, class1:any) => {
     /* eslint-disable no-unused-expressions */
     element?.classList.add(class0);
     element?.classList.remove(class1);
   };
-  export function ValidatePassword(password) {
+  export function ValidatePassword(password:string) {
     /*Array of rules and the information target*/
     var rules = [
       {

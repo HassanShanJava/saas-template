@@ -156,10 +156,10 @@ export default function AuthenticationPage() {
                       placeholder="Enter you email"
                       className="w-full bg-transparent border-checkboxborder text-textgray outline-none"
                       {...register("email", {
-                        required: "Email is required",
+                        required: "Email is required.",
                         pattern: {
                           value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                          message: "Invalid email address",
+                          message: "Invalid email format.",
                         },
                         maxLength: 64,
                       })}
@@ -182,7 +182,7 @@ export default function AuthenticationPage() {
                       placeholder="Enter your password"
                       className="w-full  bg-transparent border-checkboxborder text-textgray outline-none"
                       {...register("password", {
-                        required: true,
+                        required: 'Password is required.',
                         maxLength: 50,
                         minLength: 8,
                       })}
@@ -242,7 +242,7 @@ export default function AuthenticationPage() {
                     {isCaptchaError && (
                       <>
                         <span className="text-red-400 text-xs font-poppins">
-                          Fill the captcha
+                          Please complete the reCaptcha
                         </span>
                       </>
                     )}

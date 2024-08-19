@@ -238,7 +238,9 @@ const BasicInfoForm = () => {
           <FloatingLabelInput
             id="membership_name"
             label="Name*"
-            {...register("name", { required: "Required" })}
+            {...register("name", { required: "Required", maxLength: {
+							value: 40, message: "Should be 40 characters or less"
+						} })}
             error={errors.name?.message}
           />
           <Controller
@@ -320,7 +322,7 @@ const BasicInfoForm = () => {
             label="Description"
             type="textarea"
             rows={4}
-            customPercentage={[14,12]}
+            customPercentage={[14,12,10]}
             className="col-span-2"
             {...register("description")}
             error={errors.description?.message}
@@ -445,10 +447,6 @@ const BasicInfoForm = () => {
           <FloatingLabelInput
             id="duration_no"
             type="number"
-            onInput={(e) => {
-              const target = e.target as HTMLInputElement;
-              target.value = target.value.replace(/[^0-9.]/g, "");
-            }}
             className="w-20 "
             {...register("duration_no", { required: "Required" })}
             error={errors.duration_no?.message}
@@ -456,7 +454,7 @@ const BasicInfoForm = () => {
         </div>
       </div>
       {access == "limited-access" && (
-        <div className="bg-gray-200 px-3 py-2 w-fit h-full text-sm rounded-lg max-h-[264px]  custom-scrollbar ">
+        <div className="bg-gray-200 px-3 py-2 w-fit  text-sm rounded-lg  ">
           <p className="font-semibold text-base">Limited Access</p>
           {sortedDays.map(({ id, day, from, to }) => (
             <div

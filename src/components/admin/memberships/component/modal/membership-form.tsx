@@ -48,7 +48,6 @@ interface limitedAccessDaysTypes {
   to: string;
 }
 
-
 interface membershipFromTypes {
   membership_name: string;
   membership_group: string;
@@ -144,7 +143,9 @@ const MembershipForm = ({
   console.log(errors, "membership form");
 
   const access_type = getValues("access_type");
-  const limited_access_data = getValues("limited_access_data") as limitedAccessDaysTypes[];
+  const limited_access_data = getValues(
+    "limited_access_data"
+  ) as limitedAccessDaysTypes[];
 
   const isValidTimeRange = (from: string, to: string) => {
     return from < to;
@@ -156,9 +157,11 @@ const MembershipForm = ({
     to: string,
     id: number | undefined = undefined
   ) => {
-    const dayEntries =limited_access_data&& limited_access_data.filter(
-      (entry) => entry.day === day && entry.id !== id
-    );
+    const dayEntries =
+      limited_access_data &&
+      limited_access_data.filter(
+        (entry) => entry.day === day && entry.id !== id
+      );
     return dayEntries.some((entry) => from < entry.to && to > entry.from);
   };
 
@@ -275,7 +278,7 @@ const MembershipForm = ({
           refetch();
           toast({
             variant: "success",
-            title: "Created Successfully",
+            title: "Membership added successfully.",
           });
           reset(defaultValue, {
             keepIsSubmitted: false,
@@ -293,7 +296,7 @@ const MembershipForm = ({
           refetch();
           toast({
             variant: "success",
-            title: "Updated Successfully",
+            title: "Membership updated successfully.",
           });
           reset(defaultValue, {
             keepIsSubmitted: false,
@@ -330,28 +333,32 @@ const MembershipForm = ({
   const handleNext = async () => {
     const isStepValid = await trigger(undefined, { shouldFocus: true });
     const accessType = getValues("access_type");
-    const limitedAccessData = getValues("limited_access_data") as limitedAccessDaysTypes[];
+    const limitedAccessData = getValues(
+      "limited_access_data"
+    ) as limitedAccessDaysTypes[];
     if (activeStep == 1 && access_type == "limited-access") {
-      console.log("inside step 1")
-      
-      // Check for time conflicts
-    const timeConflicts = limitedAccessData.some((day: any, index: number) => {
-      const otherDays = limitedAccessData.slice(index + 1);
-      return otherDays.some((otherDay: any) => 
-        day.day === otherDay.day &&
-        isTimeOverlap(day.from, day.to, otherDay.from, otherDay.to)
-      );
-    });
+      console.log("inside step 1");
 
-    if (timeConflicts) {
-      toast({
-        variant: "destructive",
-        title: "Time slots overlap on the same day",
-      });
-      return;
-    }
-      
-      
+      // Check for time conflicts
+      const timeConflicts = limitedAccessData.some(
+        (day: any, index: number) => {
+          const otherDays = limitedAccessData.slice(index + 1);
+          return otherDays.some(
+            (otherDay: any) =>
+              day.day === otherDay.day &&
+              isTimeOverlap(day.from, day.to, otherDay.from, otherDay.to)
+          );
+        }
+      );
+
+      if (timeConflicts) {
+        toast({
+          variant: "destructive",
+          title: "Time slots overlap on the same day",
+        });
+        return;
+      }
+
       const check = limitedAccessData.some(
         (day: any) => day?.from != "" && day?.to != ""
       );
@@ -361,7 +368,7 @@ const MembershipForm = ({
       const checkTo = limitedAccessData.some(
         (day: any) => day?.from == "" && day?.to != ""
       );
-      
+
       if (checkFrom) {
         toast({
           variant: "destructive",
@@ -385,8 +392,6 @@ const MembershipForm = ({
         });
         return;
       }
-
-      
     }
     if (isStepValid) setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -407,12 +412,11 @@ const MembershipForm = ({
   return (
     <Sheet open={isOpen}>
       <SheetContent
-        className={`w-full !max-w-[1050px] flex flex-col `}
+        className={`w-full !max-w-[1050px] flex flex-col custom-scrollbar py-0`}
         hideCloseButton
         onOpenAutoFocus={(e: Event) => e.preventDefault()}
       >
-        <SheetTitle className="absolute  !display-none"></SheetTitle>
-        <FormProvider {...methods}>
+        <SheetHeader className="sticky top-0 z-40 py-4  bg-white">
           <div className="flex justify-between gap-5 items-start  ">
             <div>
               <p className="font-semibold">Membership</p>
@@ -476,6 +480,9 @@ const MembershipForm = ({
           </div>
 
           <Separator className=" h-[1px] font-thin rounded-full" />
+        </SheetHeader>
+
+        <FormProvider {...methods}>
           <div className="flex justify-start  px-8 pb-8">
             <StepperIndicator
               activeStep={activeStep}
@@ -483,7 +490,7 @@ const MembershipForm = ({
               lastKey={4}
             />
           </div>
-          <form noValidate className="">
+          <form noValidate className="pb-4">
             {/* <AnimatePresence>
               <motion.div
                 key={activeStep}
@@ -553,12 +560,19 @@ function getDaysCheck(
   return memberShipDays < creditsDays;
 }
 
-
-
-function isTimeOverlap(from1: string, to1: string, from2: string, to2: string): boolean {
-  const [f1, t1] = [new Date(`1970-01-01T${from1}:00Z`), new Date(`1970-01-01T${to1}:00Z`)];
-  const [f2, t2] = [new Date(`1970-01-01T${from2}:00Z`), new Date(`1970-01-01T${to2}:00Z`)];
-  return (f1 < t2 && f2 < t1);
+function isTimeOverlap(
+  from1: string,
+  to1: string,
+  from2: string,
+  to2: string
+): boolean {
+  const [f1, t1] = [
+    new Date(`1970-01-01T${from1}:00Z`),
+    new Date(`1970-01-01T${to1}:00Z`),
+  ];
+  const [f2, t2] = [
+    new Date(`1970-01-01T${from2}:00Z`),
+    new Date(`1970-01-01T${to2}:00Z`),
+  ];
+  return f1 < t2 && f2 < t1;
 }
-
-

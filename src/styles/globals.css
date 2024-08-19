@@ -128,3 +128,19 @@
 /* } */ 
 
 
+
+
+.form__error {
+  display: inline-block;
+  margin: 0.25rem 0 1rem;
+  color: palevioletred;
+}
+
+
+.glyphicon-remove {
+  color: red;
+}
+
+.glyphicon-ok {
+  color: green;
+}

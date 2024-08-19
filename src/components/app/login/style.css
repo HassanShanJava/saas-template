@@ -1,52 +1,56 @@
-.loginpage-image{
-  background-image: url("../../../assets/background.png");
+.loginpage-image {
+  background-image: url("https://uploads.fitnfi.com/images/background.png");
   background-position: center;
   background-repeat: no-repeat;
-  width: 100vw;
-  height: 100%;
+  /* width: 100vw;
+  height: 100%; */
   margin: 0px;
   padding: 0px;
   background-size: cover;
 }
 
-.font-poppins{
+.font-poppins {
   font-family: "Poppins";
 }
+
 @font-face {
   font-family: RaceSports;
   src: url("../../../utils/fonts/RacingSansOne.ttf");
 }
 
-.hero-topHeading{
- font-family: RaceSports;
+.hero-topHeading {
+  font-family: RaceSports;
 }
 
 .custom-gradient-bg {
-  background: linear-gradient(164.2deg, #5D5D5D 9.85%, rgba(115, 115, 115, 0) 98.72%);
+  background: linear-gradient(
+    164.2deg,
+    #5d5d5d 9.85%,
+    rgba(115, 115, 115, 0) 98.72%
+  );
 }
 
 .custom-box-shadow {
   box-shadow: 0px 4px 4px 0px hsla(0, 0%, 0%, 0.25) inset;
 }
 
-
-.g-recaptcha-outer{
-    text-align: center;
-    border-radius: 2px;
-    background: #f9f9f9;
-    border-style: solid;
-    border-color: #37474f;
-    border-width: 1px;
-    border-bottom-width: 2px;
+.g-recaptcha-outer {
+  text-align: center;
+  border-radius: 2px;
+  background: #f9f9f9;
+  border-style: solid;
+  border-color: #37474f;
+  border-width: 1px;
+  border-bottom-width: 2px;
 }
-.g-recaptcha-inner{
-    width: 154px;
-    height: 82px;
-    overflow: hidden;
-    margin: 0 auto;
+.g-recaptcha-inner {
+  width: 154px;
+  height: 82px;
+  overflow: hidden;
+  margin: 0 auto;
 }
-.g-recaptcha{
-    position:relative;
-    left: -2px;
-    top: -1px;
+.g-recaptcha {
+  position: relative;
+  left: -2px;
+  top: -1px;
 }

@@ -9,9 +9,10 @@ import { logout } from "@/features/auth/authSlice";
 const IdleLogoutHandler = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const isAuthenticated = Boolean(localStorage.getItem("userToken"));
 
   const handleOnIdle = () => {
+    const isAuthenticated = Boolean(localStorage.getItem("userToken"));
+
     if (!isAuthenticated) return; // Do nothing if the user is not logged in
     dispatch(logout());
     // Clear session (e.g., remove token from localStorage)
@@ -23,8 +24,10 @@ const IdleLogoutHandler = () => {
     });
     navigate("/");
   };
+  const timer = VITE_MAX_IDLE_TIME * 60 * 1000;
+  console.log("timer", timer / 1000);
   const idleTimer = useIdleTimer({
-    timeout: VITE_MAX_IDLE_TIME ?? 15 * 60 * 1000, // 15 minutes in milliseconds
+    timeout: timer, // 15 minutes in milliseconds
     onIdle: handleOnIdle,
     debounce: 500, // Debounce the idle state to prevent flickering
     events: ["mousemove", "keydown", "wheel", "scroll", "touchstart"], // Common idle detection events

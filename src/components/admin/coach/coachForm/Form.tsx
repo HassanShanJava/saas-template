@@ -81,7 +81,7 @@ import {
 } from "@/services/coachApi";
 
 import { useGetMembersListQuery } from "@/services/memberAPi";
-import { UploadCognitoImage } from "@/utils/lib/s3Service";
+import { UploadCognitoImage, deleteCognitoImage } from "@/utils/lib/s3Service";
 import {
   Sheet,
   SheetContent,
@@ -319,6 +319,10 @@ const CoachForm: React.FC<CoachFormProps> = ({
     console.log("only once", data);
     if (selectedImage) {
       try {
+        if (updatedData.profile_img !== '' && (updatedData?.profile_img as string).length > 0) {
+          const fileName = (updatedData?.profile_img as string).split("/images/")[1]
+          await deleteCognitoImage(fileName)
+        }
         const getUrl = await UploadCognitoImage(selectedImage);
         updatedData = {
           ...updatedData,

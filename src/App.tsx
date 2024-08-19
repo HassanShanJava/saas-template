@@ -41,13 +41,9 @@ function App() {
       {" "}
       <IdleLogoutHandler /> {/* Add the idle handler here */}
       <Routes>
-        {/* <Route
-          path="/"
-          index
-          element={withAuth(AuthenticationPage)({} as any)}
-        />
-        {/* <Route path="/reset_pasword/:token" element={<ResetPassword />}/> */}
 
+
+        {/* <Route path="/reset_password/:token" element={<ResetPassword />} /> */}
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/" index element={<AuthenticationPage />} />
           <Route element={<DashboardLayout />}>

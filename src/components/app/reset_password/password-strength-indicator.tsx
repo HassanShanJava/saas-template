@@ -3,7 +3,7 @@ import "./password-strength-indicator.css";
 export default function PasswordStrengthIndicator({ passwordStrength }:{passwordStrength:void}) {
   return (
     <span>
-      <ul id="passwordStrength" className="list-disc pl-6">
+      <ul id="passwordStrength" className="list-disc pl-6 text-sm mt-3">
         <li id="Length" className="glyphicon glyphicon-remove">
           Must be at least 7 charcters
         </li>

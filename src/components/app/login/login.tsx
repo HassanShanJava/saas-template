@@ -17,7 +17,9 @@ import { cn } from "@/lib/utils";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const { VITE_APP_SITEKEY } = import.meta.env;
 import logomainsvg from "@/assets/logo-main.svg";
+import ForgotPasword from "./forgot_password";
 export default function AuthenticationPage() {
+  const [open,setOpen]=useState(false)
   const token = localStorage.getItem("userToken");
   const navigate = useNavigate();
 
@@ -225,9 +227,9 @@ export default function AuthenticationPage() {
                         Remember Me
                       </label>
                     </div>
-                    <div>
+                    <div onClick={()=>setOpen(true)} className="cursor-pointer">
                       <span className="text-[0.8rem] underline font-semibold text-textprimary">
-                        Forget Password?
+                        Forgot Password?
                       </span>
                     </div>
                   </div>
@@ -272,6 +274,7 @@ export default function AuthenticationPage() {
           </div>
         </div>
       </div>
+      <ForgotPasword open={open} setOpen={setOpen}/>
     </div>
   );
 }

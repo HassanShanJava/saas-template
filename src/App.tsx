@@ -62,7 +62,7 @@ function App() {
             <Route path="/admin/saleTaxes" element={<SaleTaxes />} />
             <Route path="/admin/incomeCategory" element={<IncomeCategory />} />
             <Route path="/admin/memberships" element={<Memberships />} />
-            <Route path="/admin/events" element={<Events />} />
+            {/* <Route path="/admin/events" element={<Events />} /> */}
             <Route path="/admin/coach" element={<Coach />} />
             {/*<Route path="/admin/coach/addcoach"  element={<CoachForm />} />*/}
             {/*<Route
@@ -78,7 +78,7 @@ function App() {
               
               element={<StaffForm />}
             />*/}
-            <Route path="/admin/exercise" element={<Exercise />} />
+            {/* <Route path="/admin/exercise" element={<Exercise />} /> */}
             {/* <Route
               path="/admin/exercise/addexercise"
               

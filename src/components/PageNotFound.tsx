@@ -1,6 +1,7 @@
 import React from "react";
 import { FaHome, FaFrown } from "react-icons/fa";
 import { GiRollingDices } from "react-icons/gi";
+import { Link } from "react-router-dom";
 
 const NotFoundPage = () => {
   return (
@@ -13,9 +14,10 @@ const NotFoundPage = () => {
       <p style={messageStyle}>
         It seems like the page you're looking for doesn't exist.
       </p>
-      <a href="/admin/dashboard" style={linkStyle}>
-        <FaHome style={homeIconStyle} /> Go back to Home
-      </a>
+      <Link to="/admin/dashboard" style={linkStyle} className="text-primar">
+        <FaHome style={homeIconStyle} className="text-primary" />{" "}
+        <span className="text-primary">Go back to Home</span>
+      </Link>
     </div>
   );
 };

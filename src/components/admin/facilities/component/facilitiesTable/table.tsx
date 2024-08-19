@@ -740,7 +740,7 @@ const CreditForm = ({
           refetch();
           toast({
             variant: "success",
-            title: "Credit Created Successfully",
+            title: "Facility added successfully.",
           });
           resetFormAndCloseDialog();
           setIsDialogOpen(false);
@@ -752,7 +752,7 @@ const CreditForm = ({
           refetch();
           toast({
             variant: "success",
-            title: "Updated Successfully",
+            title: "Facility updated successfully.",
           });
           resetFormAndCloseDialog();
           setIsDialogOpen(false);

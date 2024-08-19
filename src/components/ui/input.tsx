@@ -1,6 +1,6 @@
-import * as React from "react"
+import * as React from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {}
@@ -17,15 +17,15 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         {...props}
         onInput={(e) => {
-          if(type=="number"){
+          if (type == "number") {
             const target = e.target as HTMLInputElement;
-            target.value = target.value.replace(/[^0-9.]/g, '');
+            target.value = target.value.replace(/[^0-9.]/g, "");
           }
         }}
       />
-    )
+    );
   }
-)
-Input.displayName = "Input"
+);
+Input.displayName = "Input";
 
-export { Input }
+export { Input };

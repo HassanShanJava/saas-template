@@ -666,7 +666,7 @@ export default function CoachTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No data found.
+                    No coaches added yet.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -675,7 +675,7 @@ export default function CoachTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No Coach Added yet!.
+                    No coaches found.
                   </TableCell>
                 </TableRow>
               )}
@@ -800,6 +800,7 @@ export default function CoachTableView() {
         setCoachData={setEditCoach}
         setOpen={setOpen}
         open={open}
+        refetch={refetch}
       />
     </div>
   );

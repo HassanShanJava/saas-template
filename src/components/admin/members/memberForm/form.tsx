@@ -131,7 +131,7 @@ const initialValues: MemberInputTypes = {
   first_name: "",
   last_name: "",
   gender: genderEnum.male,
-  dob: format(new Date(), 'yyyy-MM-dd'),
+  dob: format(new Date(), "yyyy-MM-dd"),
   email: "",
   phone: "",
   mobile_number: "",
@@ -148,13 +148,12 @@ const initialValues: MemberInputTypes = {
   membership_plan_id: undefined,
   send_invitation: true,
   client_status: "pending",
-  client_since: format(new Date(),'yyyy-MM-dd'),
+  client_since: format(new Date(), "yyyy-MM-dd"),
   auto_renewal: false,
   prolongation_period: undefined,
   auto_renew_days: undefined,
   inv_days_cycle: undefined,
 };
-
 
 interface memberFormTypes {
   open: boolean;
@@ -164,8 +163,8 @@ interface memberFormTypes {
     React.SetStateAction<MemberTableDatatypes | null>
   >;
   action: string;
-  setAction: React.Dispatch<React.SetStateAction<'add' | 'edit'>>;
-  refetch: any
+  setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
+  refetch: any;
 }
 
 const MemberForm = ({
@@ -175,7 +174,7 @@ const MemberForm = ({
   setMemberData,
   action,
   setAction,
-  refetch
+  refetch,
 }: memberFormTypes) => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -188,9 +187,10 @@ const MemberForm = ({
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   // conditional fetching
-  const { data: memberCountData, refetch: refecthCount } = useGetMemberCountQuery(orgId, {
-    skip: action == 'edit',
-  });
+  const { data: memberCountData, refetch: refecthCount } =
+    useGetMemberCountQuery(orgId, {
+      skip: action == "edit",
+    });
 
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
@@ -241,7 +241,7 @@ const MemberForm = ({
     handleSubmit,
     clearErrors,
     reset,
-    formState: { isSubmitting, errors, },
+    formState: { isSubmitting, errors },
   } = form;
 
   const watcher = watch();
@@ -254,10 +254,10 @@ const MemberForm = ({
       setAvatar(memberpayload.profile_img as string);
     } else {
       const total = memberCountData?.total_members as number;
-      if (total >= 0 && action == 'add') {
-        initialValues.own_member_id = `${orgName?.slice(0, 2)}-${total + 1}`
+      if (total >= 0 && action == "add") {
+        initialValues.own_member_id = `${orgName?.slice(0, 2)}-${total + 1}`;
       }
-      reset(initialValues, { keepDefaultValues: true, keepDirtyValues: true })
+      reset(initialValues, { keepDefaultValues: true, keepDirtyValues: true });
     }
   }, [open, action, memberCountData]);
 
@@ -276,14 +276,8 @@ const MemberForm = ({
         "prolongation_period",
         renewalDetails?.prolongation_period as number
       );
-      setValue(
-        "auto_renew_days",
-        renewalDetails?.days_before as number
-      );
-      setValue(
-        "inv_days_cycle",
-        renewalDetails?.next_invoice as number
-      );
+      setValue("auto_renew_days", renewalDetails?.days_before as number);
+      setValue("inv_days_cycle", renewalDetails?.next_invoice as number);
     }
   };
 
@@ -297,14 +291,14 @@ const MemberForm = ({
     });
     setMemberData(null);
     setOpen(false);
-    setAction('add')
+    setAction("add");
   }
 
   async function onSubmit(data: MemberInputTypes) {
     let updatedData = {
       ...data,
       org_id: orgId,
-      dob: format(new Date(data.dob!), 'yyyy-MM-dd'),
+      dob: format(new Date(data.dob!), "yyyy-MM-dd"),
       coach_id: data.coach_id?.map((coach) => coach.id),
     };
 
@@ -316,9 +310,14 @@ const MemberForm = ({
 
     if (selectedImage) {
       try {
-        if (updatedData.profile_img !== '' && (updatedData?.profile_img as string).length > 0) {
-          const fileName = (updatedData?.profile_img as string).split("/images/")[1]
-          await deleteCognitoImage(fileName)
+        if (
+          updatedData.profile_img !== "" &&
+          (updatedData?.profile_img as string).length > 0
+        ) {
+          const fileName = (updatedData?.profile_img as string).split(
+            "/images/"
+          )[1];
+          await deleteCognitoImage(fileName);
         }
 
         const getUrl = await UploadCognitoImage(selectedImage);
@@ -326,7 +325,6 @@ const MemberForm = ({
           ...updatedData,
           profile_img: getUrl?.location as string,
         };
-
       } catch (error) {
         console.error("Upload failed:", error);
         toast({
@@ -338,7 +336,7 @@ const MemberForm = ({
       }
     }
     try {
-      if (action == 'add') {
+      if (action == "add") {
         console.log({ updatedData }, "add");
         const resp = await addMember(updatedData).unwrap();
         if (resp) {
@@ -346,8 +344,8 @@ const MemberForm = ({
             variant: "success",
             title: "Member Created Successfully ",
           });
-          refetch()
-          refecthCount()
+          refetch();
+          refecthCount();
           handleClose();
         }
       } else {
@@ -361,7 +359,7 @@ const MemberForm = ({
             variant: "success",
             title: "Member Updated Successfully ",
           });
-          refetch()
+          refetch();
           handleClose();
         }
       }
@@ -444,18 +442,23 @@ const MemberForm = ({
                   <div className="relative flex">
                     <img
                       id="avatar"
-                      src={watcher.profile_img !=='' ? VITE_VIEW_S3_URL +  watcher.profile_img : avatar ? String(avatar) : profileimg}
+                      src={
+                        watcher.profile_img !== ""
+                          ? VITE_VIEW_S3_URL +'/'+watcher.profile_img
+                          : avatar
+                            ? String(avatar)
+                            : profileimg
+                      }
                       alt={profileimg}
                       className="w-14 h-14 rounded-full object-cover mb-4 relative"
                     />
-                    <CameraIcon className="w-8 h-8 text-black bg-primary rounded-full p-2 absolute top-8 left-14 " />
+                    {/* <CameraIcon className="w-8 h-8 text-black bg-primary rounded-full p-2 absolute top-8 left-14 " /> */}
                   </div>
                   <input
                     type="file"
                     id="fileInput"
                     className="hidden"
                     onChange={handleImageChange}
-
                   />
                   <Button
                     onClick={handleSetAvatarClick}
@@ -467,10 +470,11 @@ const MemberForm = ({
                     Profile Snapshot
                   </Button>
                 </div>
-
               </div>
               <div>
-                <h1 className="font-bold text-lg mb-2 text-gray-900">Basic Information</h1>
+                <h1 className="font-bold text-lg mb-2 text-gray-900">
+                  Basic Information
+                </h1>
               </div>
               <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
                 <div className="relative">
@@ -480,31 +484,37 @@ const MemberForm = ({
                     className="disabled:!opacity-100 disabled:text-gray-800 placeholder:text-gray-800"
                     disabled
                     {...register("own_member_id")}
-                    error={errors?.own_member_id?.message as keyof MemberInputTypes}
+                    error={
+                      errors?.own_member_id?.message as keyof MemberInputTypes
+                    }
                   />
                 </div>
                 <div className="relative ">
-
                   <FloatingLabelInput
                     id="first_name"
                     label="First Name*"
                     {...register("first_name", {
-                      required: "Required", maxLength: {
-                        value: 40, message: "Should be 40 characters or less"
-                      }
+                      required: "Required",
+                      maxLength: {
+                        value: 40,
+                        message: "Should be 40 characters or less",
+                      },
                     })}
-                    error={errors?.first_name?.message as keyof MemberInputTypes}
+                    error={
+                      errors?.first_name?.message as keyof MemberInputTypes
+                    }
                   />
-
                 </div>
                 <div className="relative ">
                   <FloatingLabelInput
                     id="last_name"
                     label="Last Name*"
                     {...register("last_name", {
-                      required: "Required", maxLength: {
-                        value: 40, message: "Should be 40 characters or less"
-                      }
+                      required: "Required",
+                      maxLength: {
+                        value: 40,
+                        message: "Should be 40 characters or less",
+                      },
                     })}
                     error={errors?.last_name?.message as keyof MemberInputTypes}
                   />
@@ -528,9 +538,7 @@ const MemberForm = ({
                           floatingLabel="Gender*"
                           className={`text-black`}
                         >
-                          <SelectValue
-                            placeholder="Select Gender"
-                          />
+                          <SelectValue placeholder="Select Gender" />
                         </SelectTrigger>
                         <SelectContent className="">
                           <SelectItem value="male">Male</SelectItem>
@@ -538,7 +546,6 @@ const MemberForm = ({
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
-
                     )}
                   />
                   {errors.gender?.message && (
@@ -550,7 +557,6 @@ const MemberForm = ({
                 <div className="relative ">
                   <TooltipProvider>
                     <Tooltip>
-
                       <Controller
                         name={"dob" as keyof MemberInputTypes}
                         rules={{ required: "Required" }}
@@ -567,11 +573,10 @@ const MemberForm = ({
                                     variant={"outline"}
                                     className={cn(
                                       "w-full pl-3 text-left font-normal ",
-                                      !value &&
-                                      "text-muted-foreground"
+                                      !value && "text-muted-foreground"
                                     )}
                                   >
-                                    {value as Date ? (
+                                    {(value as Date) ? (
                                       format(value as Date, "dd-MM-yyyy")
                                     ) : (
                                       <span className="font-medium text-gray-400">
@@ -592,9 +597,7 @@ const MemberForm = ({
                                 captionLayout="dropdown-buttons"
                                 selected={value as Date}
                                 defaultMonth={
-                                  value as Date
-                                    ? value as Date
-                                    : undefined
+                                  (value as Date) ? (value as Date) : undefined
                                 }
                                 onSelect={onChange}
                                 fromYear={1960}
@@ -616,15 +619,16 @@ const MemberForm = ({
                   </TooltipProvider>
                 </div>
                 <div className="relative ">
-
                   <FloatingLabelInput
                     id="email"
                     className=""
-                    type='email'
+                    type="email"
                     label="Email Address*"
                     {...register("email", {
-                      required: "Required", maxLength: {
-                        value: 40, message: "Should be 40 characters or less"
+                      required: "Required",
+                      maxLength: {
+                        value: 40,
+                        message: "Should be 40 characters or less",
                       },
                       pattern: {
                         value: /\S+@\S+\.\S+/,
@@ -637,25 +641,22 @@ const MemberForm = ({
 
                 <div className="relative ">
                   <FloatingLabelInput
-                    type='tel'
+                    type="tel"
                     id="phone"
                     label="Landline Number"
                     className=""
                     {...register("phone")}
                     error={errors.phone?.message}
                   />
-
                 </div>
                 <div className="relative ">
-
                   <FloatingLabelInput
-                    type='tel'
+                    type="tel"
                     id="mobile_number"
                     label="Mobile Number"
                     {...register("mobile_number")}
                     error={errors.mobile_number?.message}
                   />
-
                 </div>
                 <div className="relative ">
                   <FloatingLabelInput
@@ -664,7 +665,6 @@ const MemberForm = ({
                     {...register("notes")}
                     error={errors.notes?.message}
                   />
-
                 </div>
                 <div className="relative ">
                   <Controller
@@ -682,17 +682,15 @@ const MemberForm = ({
                         value={value?.toString()}
                       >
                         <SelectTrigger className="font-medium text-gray-800">
-                          <SelectValue placeholder="Select Source*" 
-                            />
+                          <SelectValue placeholder="Select Source*" />
                         </SelectTrigger>
                         <SelectContent>
-                          {sources && sources?.map((item => (
-                            <SelectItem
-                              value={item.id.toString()}
-                            >
-                              {item.source}
-                            </SelectItem>
-                          )))}
+                          {sources &&
+                            sources?.map((item) => (
+                              <SelectItem value={item.id.toString()}>
+                                {item.source}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                     )}
@@ -706,23 +704,22 @@ const MemberForm = ({
                 <div className="relative ">
                   <Controller
                     name={"coach_id" as keyof MemberInputTypes}
-                    rules={{ required: "Required" }}
+                    // rules={{ required: "Required" }}
                     control={control}
                     render={({
                       field: { onChange, value, onBlur },
                       fieldState: { invalid, error },
                     }) => (
-
                       <MultiSelector
                         onValuesChange={(values) => onChange(values)}
-                        values={value as any[] ?? []}
+                        values={(value as any[]) ?? []}
                       >
                         <MultiSelectorTrigger className="border-[1px] border-gray-300">
                           <MultiSelectorInput
                             className="font-medium  placeholder:text-gray-800"
                             placeholder={
                               value && (value as any[])?.length == 0
-                                ? `Select Coaches*`
+                                ? `Select Coaches`
                                 : ""
                             }
                           />
@@ -731,10 +728,7 @@ const MemberForm = ({
                           <MultiSelectorList>
                             {coachesData &&
                               coachesData.map((user: any) => (
-                                <MultiSelectorItem
-                                  key={user.id}
-                                  value={user}
-                                >
+                                <MultiSelectorItem key={user.id} value={user}>
                                   <div className="flex items-center space-x-2">
                                     <span>{user.name}</span>
                                   </div>
@@ -750,7 +744,6 @@ const MemberForm = ({
                       {errors.coach_id?.message}
                     </span>
                   )}
-
                 </div>
                 <div className="relative ">
                   <div className="justify-start items-center flex">
@@ -761,7 +754,6 @@ const MemberForm = ({
                         field: { onChange, value, onBlur },
                         fieldState: { invalid, error },
                       }) => (
-
                         <div className="flex flex-row gap-3 items-center justify-between ">
                           <div className="space-y-0.5">
                             <FormLabel className="text-base">
@@ -782,7 +774,6 @@ const MemberForm = ({
                         {errors.is_business?.message}
                       </span>
                     )}
-
                   </div>
                 </div>
                 <div
@@ -790,13 +781,12 @@ const MemberForm = ({
                 >
                   <Controller
                     name={"business_id" as keyof MemberInputTypes}
-                    rules={{ required: !watcher.is_business && "Required" }}
+                    // rules={{ required: !watcher.is_business && "Required" }}
                     control={control}
                     render={({
                       field: { onChange, value, onBlur },
                       fieldState: { invalid, error },
                     }) => (
-
                       <Select
                         onValueChange={(value) =>
                           setValue("business_id", Number(value))
@@ -804,16 +794,13 @@ const MemberForm = ({
                         value={value?.toString()}
                       >
                         <SelectTrigger className="font-medium text-gray-800">
-                          <SelectValue placeholder="Select Business*" />
+                          <SelectValue placeholder="Select Business" />
                         </SelectTrigger>
                         <SelectContent>
-                          <Button
-                            variant={"link"}
-                            className="gap-2 text-black"
-                          >
-                            <PlusIcon className="text-black w-5 h-5" /> Add
-                            New business
-                          </Button>
+                          {/* <Button variant={"link"} className="gap-2 text-black">
+                            <PlusIcon className="text-black w-5 h-5" /> Add New
+                            business
+                          </Button> */}
                           {business && business?.length ? (
                             business.map((sourceval: BusinessTypes) => {
                               // console.log(business.length);
@@ -840,37 +827,34 @@ const MemberForm = ({
                       {errors.business_id?.message}
                     </span>
                   )}
-
                 </div>
               </div>
               <div>
-                <h1 className="font-bold text-lg my-2 text-gray-900">Address</h1>
+                <h1 className="font-bold text-lg my-2 text-gray-900">
+                  Address
+                </h1>
               </div>
               <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
                 <div className="relative ">
-
                   <FloatingLabelInput
                     id="address_1"
                     label="Street Address"
-                    {...register('address_1')}
+                    {...register("address_1")}
                   />
-
                 </div>
                 <div className="relative ">
                   <FloatingLabelInput
                     id="address_2"
                     label="Extra Address"
-                    {...register('address_2')}
+                    {...register("address_2")}
                   />
-
                 </div>
                 <div className="relative ">
                   <FloatingLabelInput
                     id="zipcode"
                     label="Zip Code"
-                    {...register('zipcode')}
+                    {...register("zipcode")}
                   />
-
                 </div>
                 <div className="relative">
                   <Controller
@@ -881,7 +865,6 @@ const MemberForm = ({
                       field: { onChange, value, onBlur },
                       fieldState: { invalid, error },
                     }) => (
-
                       <div className="flex flex-col w-full">
                         <Popover>
                           <PopoverTrigger asChild>
@@ -892,14 +875,14 @@ const MemberForm = ({
                                 className={cn(
                                   "justify-between ",
                                   !value &&
-                                  "font-medium text-gray-800 focus:border-primary "
+                                    "font-medium text-gray-800 focus:border-primary "
                                 )}
                               >
                                 {value
                                   ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === value // Compare with numeric value
-                                  )?.country // Display country name if selected
+                                      (country: CountryTypes) =>
+                                        country.id === value // Compare with numeric value
+                                    )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -948,7 +931,6 @@ const MemberForm = ({
                       {errors.country_id?.message}
                     </span>
                   )}
-
                 </div>
                 <div className="relative ">
                   <FloatingLabelInput
@@ -985,14 +967,11 @@ const MemberForm = ({
                               name="membership_plan_id"
                               className={`font-medium text-gray-800`}
                             >
-                              <SelectValue
-                                placeholder="Select membership plan*"
-                              />
+                              <SelectValue placeholder="Select membership plan*" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {membershipPlans &&
-                              membershipPlans?.length > 0 ? (
+                            {membershipPlans && membershipPlans?.length > 0 ? (
                               membershipPlans.map(
                                 (sourceval: membeshipsTableType) => {
                                   console.log({ sourceval });
@@ -1038,7 +1017,6 @@ const MemberForm = ({
                             checked={value as boolean}
                             onCheckedChange={onChange}
                             disabled={watcher.membership_plan_id == undefined}
-
                           />
                         </>
                         <Label className="!mt-0">Auto renewal</Label>
@@ -1060,7 +1038,10 @@ const MemberForm = ({
                             type="number"
                             min={1}
                             className="w-16"
-                            {...register("prolongation_period", { valueAsNumber: true, required: watcher.auto_renewal && 'Required' })}
+                            {...register("prolongation_period", {
+                              valueAsNumber: true,
+                              required: watcher.auto_renewal && "Required",
+                            })}
                             error={errors.prolongation_period?.message}
                           />
                         </div>
@@ -1078,7 +1059,10 @@ const MemberForm = ({
                             type="number"
                             min={1}
                             className="w-16"
-                            {...register("auto_renew_days", { valueAsNumber: true, required: watcher.auto_renewal && 'Required' })}
+                            {...register("auto_renew_days", {
+                              valueAsNumber: true,
+                              required: watcher.auto_renewal && "Required",
+                            })}
                             error={errors.auto_renew_days?.message}
                           />
                         </div>
@@ -1099,7 +1083,10 @@ const MemberForm = ({
                             type="number"
                             min={1}
                             className="w-16"
-                            {...register("inv_days_cycle", { valueAsNumber: true, required: watcher.auto_renewal && 'Required' })}
+                            {...register("inv_days_cycle", {
+                              valueAsNumber: true,
+                              required: watcher.auto_renewal && "Required",
+                            })}
                             error={errors.inv_days_cycle?.message}
                           />
                         </div>

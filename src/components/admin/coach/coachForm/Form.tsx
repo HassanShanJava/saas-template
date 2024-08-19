@@ -89,12 +89,15 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
+const { VITE_VIEW_S3_URL } = import.meta.env;
 
 interface CoachFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   open: boolean;
   coachData: coachUpdateInput | null;
   setCoachData: React.Dispatch<React.SetStateAction<coachUpdateInput | null>>;
+  refetch?: any;
 }
 
 const CoachForm: React.FC<CoachFormProps> = ({
@@ -102,6 +105,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
   setCoachData,
   setOpen,
   open,
+  refetch,
 }) => {
   //const { id } = useParams();
   //const {
@@ -178,7 +182,11 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .refine((value) => value.trim() !== "", {
         message: "Required",
       }),
-    email: z.string().min(1, { message: "Required" }).max(50, "Must be 50 characters or less").email("Invalid Email"),
+    email: z
+      .string()
+      .min(1, { message: "Required" })
+      .max(50, "Must be 50 characters or less")
+      .email("Invalid Email"),
     phone: z
       .string()
       .max(11, {
@@ -214,10 +222,26 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .trim()
       .max(10, "Zipcode must be 10 characters or less")
       .optional(),
-    bank_name: z.string().trim().max(40, "Sbould be 40 characters or less").optional(),
-    iban_no: z.string().trim().max(34, "Sbould be 34 characters or less").optional(),
-    swift_code: z.string().trim().max(11, "Should be 11 characters or less").optional(),
-    acc_holder_name: z.string().trim().max(50, "Should be 50 characters or less").optional(),
+    bank_name: z
+      .string()
+      .trim()
+      .max(40, "Sbould be 40 characters or less")
+      .optional(),
+    iban_no: z
+      .string()
+      .trim()
+      .max(34, "Sbould be 34 characters or less")
+      .optional(),
+    swift_code: z
+      .string()
+      .trim()
+      .max(11, "Should be 11 characters or less")
+      .optional(),
+    acc_holder_name: z
+      .string()
+      .trim()
+      .max(50, "Should be 50 characters or less")
+      .optional(),
     country_id: z.coerce
       .number({
         required_error: "Required",
@@ -312,16 +336,22 @@ const CoachForm: React.FC<CoachFormProps> = ({
     let updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-      member_ids: data.member_ids && data?.member_ids.map((member) => member.id),
+      member_ids:
+        data.member_ids && data?.member_ids.map((member) => member.id),
     };
 
     console.log("Updated data with only date:", updatedData);
     console.log("only once", data);
     if (selectedImage) {
       try {
-        if (updatedData.profile_img !== '' && (updatedData?.profile_img as string).length > 0) {
-          const fileName = (updatedData?.profile_img as string).split("/images/")[1]
-          await deleteCognitoImage(fileName)
+        if (
+          updatedData.profile_img !== "" &&
+          (updatedData?.profile_img as string).length > 0
+        ) {
+          const fileName = (updatedData?.profile_img as string).split(
+            "/images/"
+          )[1];
+          await deleteCognitoImage(fileName);
         }
         const getUrl = await UploadCognitoImage(selectedImage);
         updatedData = {
@@ -346,6 +376,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
             variant: "success",
             title: "Coach Created Successfully ",
           });
+          refetch();
           handleClose();
         }
       } else {
@@ -358,6 +389,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
             variant: "success",
             title: "Coach Updated Successfully ",
           });
+          refetch();
           handleClose();
         }
       }
@@ -402,47 +434,33 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
   return (
     <Sheet open={open}>
-      <SheetContent hideCloseButton className="overflow-y-auto !max-w-[1050px]">
-        <SheetHeader>
-          <SheetTitle></SheetTitle>
-          <SheetDescription>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                {/*<Card className="py-7 px-4">
-										<CardContent className="space-y-3">*/}
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-row gap-4 items-center">
-                    <div className="relative flex">
-                      <img
-                        id="avatar"
-                        src={avatar ? String(avatar) : profileimg}
-                        alt={profileimg}
-                        className="w-20 h-20 rounded-full object-cover mb-4 relative"
-                      />
-                      <CameraIcon className="w-8 h-8 text-black bg-primary rounded-full p-2 absolute top-8 left-14 " />
+      <SheetContent
+        hideCloseButton
+        className="!max-w-[1300px] py-0 custom-scrollbar"
+      >
+        <Form {...form}>
+          <form noValidate onSubmit={form.handleSubmit(onSubmit)}>
+            <SheetHeader className="sticky !top-0 z-40 py-4 bg-white">
+              <SheetTitle>
+                <div className="flex justify-between gap-5 items-start  bg-white">
+                  <div>
+                    <p className="font-semibold">Add Coach</p>
+                    <div className="text-sm">
+                      <span className="text-gray-400 pr-1 font-semibold">
+                        Dashboard
+                      </span>{" "}
+                      <span className="text-gray-400 font-semibold">/</span>
+                      <span className="pl-1 text-primary font-semibold ">
+                        Add Coach
+                      </span>
                     </div>
-                    <input
-                      type="file"
-                      id="fileInput"
-                      className="hidden"
-                      onChange={handleImageChange}
-                    />
-                    <Button
-                      onClick={handleSetAvatarClick}
-                      variant={"outline"}
-                      type="button"
-                      className="px-4 py-2 bg-transparent gap-2 text-black rounded hover:bg-primary hover:text-white"
-                    >
-                      <Webcam className="h-4 w-4" />
-                      Profile Snapshot
-                    </Button>
                   </div>
+
                   <div className="flex gap-2">
                     <div>
                       <Button
                         type={"button"}
                         onClick={handleClose}
-                        disabled={memberLoading || editcoachLoading}
                         className="gap-2 bg-transparent border border-primary text-black hover:border-primary hover:bg-muted"
                       >
                         <RxCross2 className="w-4 h-4" /> Cancel
@@ -452,10 +470,10 @@ const CoachForm: React.FC<CoachFormProps> = ({
                       <LoadingButton
                         type="submit"
                         className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                        loading={memberLoading || editcoachLoading}
-                        disabled={memberLoading || editcoachLoading}
+                        loading={form.formState.isSubmitting}
+                        disabled={form.formState.isSubmitting}
                       >
-                        {!(memberLoading || editcoachLoading) && (
+                        {!form.formState.isSubmitting && (
                           <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                         )}
                         Save
@@ -463,567 +481,609 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     </div>
                   </div>
                 </div>
-                <div>
-                  <h1 className="font-bold text-base"> Basic Information</h1>
+              </SheetTitle>
+              <Separator className=" h-[1px] rounded-full my-2" />
+            </SheetHeader>
+            <SheetDescription className="pb-4">
+              {/*<Card className="py-7 px-4">
+										<CardContent className="space-y-3">*/}
+              <div className="flex justify-between items-center">
+                <div className="flex flex-row gap-4 items-center">
+                  <div className="relative flex">
+                    <img
+                      id="avatar"
+                      src={
+                        watcher.profile_img !== ""
+                          ? VITE_VIEW_S3_URL + "/" + watcher.profile_img
+                          : avatar
+                            ? String(avatar)
+                            : profileimg
+                      }
+                      alt={profileimg}
+                      className="w-14 h-14 rounded-full object-cover mb-4 relative"
+                    />
+                    {/* <CameraIcon className="w-8 h-8 text-black bg-primary rounded-full p-2 absolute top-8 left-14 " /> */}
+                  </div>
+                  <input
+                    type="file"
+                    id="fileInput"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                  <Button
+                    onClick={handleSetAvatarClick}
+                    variant={"outline"}
+                    type="button"
+                    className="px-4 py-2 bg-transparent gap-2 text-black rounded hover:bg-primary hover:text-white"
+                  >
+                    <Webcam className="h-4 w-4" />
+                    Profile Snapshot
+                  </Button>
                 </div>
-                <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
-                  <div className="relative">
-                    <FormField
-                      control={form.control}
-                      name="own_coach_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="own_coach_id"
-                            label="Gym Coach Id*"
-                            disabled
-                          />
-                          {watcher.own_coach_id ? <></> : <FormMessage />}
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="first_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="first_name"
-                            label="First Name*"
-                          />
-                          <FormMessage>{form.formState.errors.first_name?.message}</FormMessage>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="last_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="last_name"
-                            label="Last Name*"
-                          />
-                          <FormMessage>{form.formState.errors.last_name?.message}</FormMessage>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="gender"
-                      defaultValue="male"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select
-                            onValueChange={(
-                              value: "male" | "female" | "other"
-                            ) => form.setValue("gender", value)}
-                            defaultValue="male"
-                          >
-                            <FormControl>
-                              <SelectTrigger
-                                floatingLabel="Gender*"
-                                className={`${watcher.gender ? "text-black" : ""}`}
-                              >
-                                <SelectValue placeholder="Select Gender" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="male">Male</SelectItem>
-                              <SelectItem value="female">Female</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          {watcher.gender ? <></> : <FormMessage />}
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <FormField
-                          control={form.control}
-                          name="dob"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                          "w-full pl-3 text-left font-normal",
-                                          !field.value &&
-                                          "text-muted-foreground"
-                                        )}
-                                      >
-                                        {field.value ? (
-                                          format(field.value, "dd-MM-yyyy")
-                                        ) : (
-                                          <span className="font-medium text-gray-400">
-                                            Date of Birth*
-                                          </span>
-                                        )}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                  className="w-auto p-2"
-                                  align="center"
-                                >
-                                  <Calendar
-                                    mode="single"
-                                    captionLayout="dropdown-buttons"
-                                    selected={new Date(field.value)}
-                                    onSelect={field.onChange}
-                                    fromYear={1960}
-                                    toYear={2030}
-                                    defaultMonth={
-                                      new Date(
-                                        field && field.value
-                                          ? field.value
-                                          : Date.now()
-                                      )
-                                    }
-                                    disabled={(date: any) =>
-                                      date > new Date() ||
-                                      date < new Date("1900-01-01")
-                                    }
-                                    initialFocus
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                              {watcher.dob ? <></> : <FormMessage />}
-                            </FormItem>
-                          )}
+              </div>
+              <div>
+                <h1 className="font-bold text-lg mb-2 text-gray-900">
+                  Basic Information
+                </h1>
+              </div>
+              <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+                <div className="relative">
+                  <FormField
+                    control={form.control}
+                    name="own_coach_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="own_coach_id"
+                          label="Gym Coach Id*"
+                          disabled
                         />
-                        <TooltipContent>
-                          <p>Date of Birth*</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="email"
-                            label="Email Address*"
-                            disabled={coachData != null}
-                          />
-                          {<FormMessage />}
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="phone"
-                            label="Landline Number"
-                          />
-                          {<FormMessage />}
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="mobile_number"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="mobile_number"
-                            label="Mobile Number"
-                          />
-                          {watcher.mobile_number ? <></> : <FormMessage />}
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="member_ids"
-                      render={({ field }) => (
-                        <FormItem className="w-full ">
-                          <MultiSelector
-                            onValuesChange={(values) => field.onChange(values)}
-                            values={field.value || []}
-                          >
-                            <MultiSelectorTrigger className="border-[1px] border-gray-300">
-                              <MultiSelectorInput
-                                className="font-medium"
-                                placeholder={
-                                  field.value?.length == 0
-                                    ? `Assign Members*`
-                                    : ""
-                                }
-                              />
-                            </MultiSelectorTrigger>
-                            <MultiSelectorContent className="">
-                              <MultiSelectorList>
-                                {transformedData &&
-                                  transformedData.map((user: any) => (
-                                    <MultiSelectorItem
-                                      key={user.id}
-                                      value={user}
-                                    // disabled={field.value?.length >= 5}
+                        {watcher.own_coach_id ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="first_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="first_name"
+                          label="First Name*"
+                        />
+                        <FormMessage>
+                          {form.formState.errors.first_name?.message}
+                        </FormMessage>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="last_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="last_name"
+                          label="Last Name*"
+                        />
+                        <FormMessage>
+                          {form.formState.errors.last_name?.message}
+                        </FormMessage>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="gender"
+                    defaultValue="male"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={(value: "male" | "female" | "other") =>
+                            form.setValue("gender", value)
+                          }
+                          defaultValue="male"
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              floatingLabel="Gender*"
+                              className={`${watcher.gender ? "text-black" : ""}`}
+                            >
+                              <SelectValue placeholder="Select Gender" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {watcher.gender ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <FormField
+                        control={form.control}
+                        name="dob"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant={"outline"}
+                                      className={cn(
+                                        "w-full pl-3 text-left font-normal",
+                                        !field.value && "text-muted-foreground"
+                                      )}
                                     >
-                                      <div className="flex items-center space-x-2">
-                                        <span>{user.name}</span>
-                                      </div>
-                                    </MultiSelectorItem>
-                                  ))}
-                              </MultiSelectorList>
-                            </MultiSelectorContent>
-                          </MultiSelector>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative">
-                    <FormField
-                      control={form.control}
-                      name="coach_status"
-                      defaultValue="pending"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select
-                            disabled={field.value == "pending"}
-                            onValueChange={(
-                              value: "pending" | "active" | "inactive"
-                            ) => form.setValue("coach_status", value)}
-                            defaultValue="pending"
-                          >
-                            <FormControl>
-                              <SelectTrigger
-                                floatingLabel="Status*"
-                                className={"font-medium text-gray-400"}
+                                      {field.value ? (
+                                        format(field.value, "dd-MM-yyyy")
+                                      ) : (
+                                        <span className="font-medium text-gray-400">
+                                          Date of Birth*
+                                        </span>
+                                      )}
+                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-auto p-2"
+                                align="center"
                               >
-                                <SelectValue placeholder="Select Coach status" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="active">Active</SelectItem>
-                              <SelectItem value="inactive">Inactive</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          {watcher.coach_status ? <></> : <FormMessage />}
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="notes"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="notes"
-                            label="Notes"
-                          />
-                          {watcher.notes ? <></> : <FormMessage />}
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="source_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select
-                            onValueChange={(value) =>
-                              field.onChange(Number(value))
-                            }
-                            value={field.value?.toString() || "0"} // Set default to "0" for the placeholder
-                          >
-                            <FormControl>
-                              <SelectTrigger
-                                floatingLabel="Source*"
-                                className={"font-medium text-gray-400"}
-                              >
-                                <SelectValue>
-                                  {field.value === 0
-                                    ? "Source*"
-                                    : sources?.find(
+                                <Calendar
+                                  mode="single"
+                                  captionLayout="dropdown-buttons"
+                                  selected={new Date(field.value)}
+                                  onSelect={field.onChange}
+                                  fromYear={1960}
+                                  toYear={2030}
+                                  defaultMonth={
+                                    new Date(
+                                      field && field.value
+                                        ? field.value
+                                        : Date.now()
+                                    )
+                                  }
+                                  disabled={(date: any) =>
+                                    date > new Date() ||
+                                    date < new Date("1900-01-01")
+                                  }
+                                  initialFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            {watcher.dob ? <></> : <FormMessage />}
+                          </FormItem>
+                        )}
+                      />
+                      <TooltipContent>
+                        <p>Date of Birth*</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="email"
+                          label="Email Address*"
+                          disabled={coachData != null}
+                        />
+                        {<FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="phone"
+                          label="Landline Number"
+                        />
+                        {<FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="mobile_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="mobile_number"
+                          label="Mobile Number"
+                        />
+                        {watcher.mobile_number ? <></> : <FormMessage />}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="member_ids"
+                    render={({ field }) => (
+                      <FormItem className="w-full ">
+                        <MultiSelector
+                          onValuesChange={(values) => field.onChange(values)}
+                          values={field.value || []}
+                        >
+                          <MultiSelectorTrigger className="border-[1px] border-gray-300">
+                            <MultiSelectorInput
+                              className="font-medium"
+                              placeholder={
+                                field.value?.length == 0
+                                  ? `Assign Members*`
+                                  : ""
+                              }
+                            />
+                          </MultiSelectorTrigger>
+                          <MultiSelectorContent className="">
+                            <MultiSelectorList>
+                              {transformedData &&
+                                transformedData.map((user: any) => (
+                                  <MultiSelectorItem
+                                    key={user.id}
+                                    value={user}
+                                    // disabled={field.value?.length >= 5}
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <span>{user.name}</span>
+                                    </div>
+                                  </MultiSelectorItem>
+                                ))}
+                            </MultiSelectorList>
+                          </MultiSelectorContent>
+                        </MultiSelector>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative">
+                  <FormField
+                    control={form.control}
+                    name="coach_status"
+                    defaultValue="pending"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          disabled={field.value == "pending"}
+                          onValueChange={(
+                            value: "pending" | "active" | "inactive"
+                          ) => form.setValue("coach_status", value)}
+                          defaultValue="pending"
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              floatingLabel="Status*"
+                              className={"font-medium text-gray-400"}
+                            >
+                              <SelectValue placeholder="Select Coach status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {watcher.coach_status ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="notes"
+                          label="Notes"
+                        />
+                        {watcher.notes ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="source_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          value={field.value?.toString() || "0"} // Set default to "0" for the placeholder
+                        >
+                          <FormControl>
+                            <SelectTrigger
+                              floatingLabel="Source*"
+                              className={"font-medium text-gray-400"}
+                            >
+                              <SelectValue>
+                                {field.value === 0
+                                  ? "Source*"
+                                  : sources?.find(
                                       (source) => source.id === field.value
                                     )?.source || "Source*"}
-                                </SelectValue>
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {/* <SelectItem value="0">Select Source*</SelectItem>{" "} */}
-                              {/* Placeholder option */}
-                              {sources && sources.length ? (
-                                sources.map(
-                                  (sourceval: sourceTypes, i: any) => (
-                                    <SelectItem
-                                      value={sourceval.id?.toString()}
-                                      key={i}
-                                    >
-                                      {sourceval.source}
-                                    </SelectItem>
-                                  )
-                                )
-                              ) : (
-                                <p className="p-2">No Sources Found</p>
-                              )}
-                            </SelectContent>
-                          </Select>
-                          {watcher.source_id ? <></> : <FormMessage />}
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative "></div>
-                  <div className="relative ">
-                    <div className="justify-start items-center flex"></div>
-                  </div>
-                </div>
-                <div>
-                  <h1 className="font-bold text-base"> Address</h1>
-                </div>
-                <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="address_1"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="address_1"
-                            label="Street Address"
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="address_2"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="address_2"
-                            label="Extra Address"
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="zipcode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="zipcode"
-                            label="Zip Code"
-                          />
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative">
-                    <FormField
-                      control={form.control}
-                      name="country_id"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col w-full">
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  className={cn(
-                                    "justify-between font-normal",
-                                    !field.value &&
-                                    "font-medium text-gray-400 focus:border-primary "
-                                  )}
+                              </SelectValue>
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {/* <SelectItem value="0">Select Source*</SelectItem>{" "} */}
+                            {/* Placeholder option */}
+                            {sources && sources.length ? (
+                              sources.map((sourceval: sourceTypes, i: any) => (
+                                <SelectItem
+                                  value={sourceval.id?.toString()}
+                                  key={i}
                                 >
-                                  {field.value
-                                    ? countries?.find(
+                                  {sourceval.source}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <p className="p-2">No Sources Found</p>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        {watcher.source_id ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative "></div>
+                <div className="relative ">
+                  <div className="justify-start items-center flex"></div>
+                </div>
+              </div>
+              <div>
+                <h1 className="font-bold text-lg text-gray-900 my-2">
+                  Address
+                </h1>
+              </div>
+              <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="address_1"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="address_1"
+                          label="Street Address"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="address_2"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="address_2"
+                          label="Extra Address"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="zipcode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="zipcode"
+                          label="Zip Code"
+                        />
+                        <FormMessage className="" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative">
+                  <FormField
+                    control={form.control}
+                    name="country_id"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col w-full">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "justify-between font-normal",
+                                  !field.value &&
+                                    "font-medium text-gray-400 focus:border-primary "
+                                )}
+                              >
+                                {field.value
+                                  ? countries?.find(
                                       (country: CountryTypes) =>
                                         country.id === field.value // Compare with numeric value
                                     )?.country // Display country name if selected
-                                    : "Select country*"}
-                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="p-0">
-                              <Command>
-                                <CommandList>
-                                  <CommandInput placeholder="Select Country" />
-                                  <CommandEmpty>No country found.</CommandEmpty>
-                                  <CommandGroup>
-                                    {countries &&
-                                      countries.map((country: CountryTypes) => (
-                                        <CommandItem
-                                          value={country.country}
-                                          key={country.id}
-                                          onSelect={() => {
-                                            form.setValue(
-                                              "country_id",
-                                              country.id // Set country_id to country.id as number
-                                            );
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                              country.id === field.value
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                            )}
-                                          />
-                                          {country.country}{" "}
-                                          {/* Display the country name */}
-                                        </CommandItem>
-                                      ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-                          {watcher.country_id ? <></> : <FormMessage />}
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="city"
-                            label="City"
-                          />
-                          {watcher.city ? <></> : <FormMessage />}
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                                  : "Select country*"}
+                                <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="p-0">
+                            <Command>
+                              <CommandList>
+                                <CommandInput placeholder="Select Country" />
+                                <CommandEmpty>No country found.</CommandEmpty>
+                                <CommandGroup>
+                                  {countries &&
+                                    countries.map((country: CountryTypes) => (
+                                      <CommandItem
+                                        value={country.country}
+                                        key={country.id}
+                                        onSelect={() => {
+                                          form.setValue(
+                                            "country_id",
+                                            country.id // Set country_id to country.id as number
+                                          );
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                            country.id === field.value
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                        {country.country}{" "}
+                                        {/* Display the country name */}
+                                      </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        {watcher.country_id ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <div>
-                  <h1 className="font-bold text-base">Bank Details</h1>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput {...field} id="city" label="City" />
+                        {watcher.city ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="bank_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="bank_name"
-                            label="Bank Name"
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="iban_no"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="iban_no"
-                            label="IBAN Number"
-                          />
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="swift_code"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="swift_code"
-                            label="BIC/Swift Code"
-                          />
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="relative ">
-                    <FormField
-                      control={form.control}
-                      name="acc_holder_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FloatingLabelInput
-                            {...field}
-                            id="acc_holder_name"
-                            label="Account Holder Name"
-                          />
-                          <FormMessage className="" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+              </div>
+              <div>
+                <h1 className="font-bold text-lg text-gray-900 my-2">
+                  Bank Details
+                </h1>
+              </div>
+              <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="bank_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="bank_name"
+                          label="Bank Name"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                {/*</CardContent>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="iban_no"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="iban_no"
+                          label="IBAN Number"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="swift_code"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="swift_code"
+                          label="BIC/Swift Code"
+                        />
+                        <FormMessage className="" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="acc_holder_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="acc_holder_name"
+                          label="Account Holder Name"
+                        />
+                        <FormMessage className="" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              {/*</CardContent>
 									</Card>*/}
-              </form>
-            </Form>
-          </SheetDescription>
-        </SheetHeader>
+            </SheetDescription>
+          </form>
+        </Form>
       </SheetContent>
     </Sheet>
   );

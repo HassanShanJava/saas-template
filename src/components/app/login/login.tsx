@@ -19,7 +19,7 @@ const { VITE_APP_SITEKEY } = import.meta.env;
 import logomainsvg from "@/assets/logo-main.svg";
 import ForgotPasword from "./forgot_password";
 export default function AuthenticationPage() {
-  const [open,setOpen]=useState(false)
+  const [open, setOpen] = useState(false);
   const token = localStorage.getItem("userToken");
   const navigate = useNavigate();
 
@@ -38,7 +38,12 @@ export default function AuthenticationPage() {
     formState: { isSubmitted, isSubmitting, isValid, errors },
     setValue,
     reset,
-  } = useForm<{ email: string; password: string; rememberme: boolean, persona?:string }>({
+  } = useForm<{
+    email: string;
+    password: string;
+    rememberme: boolean;
+    persona?: string;
+  }>({
     mode: "onChange",
     reValidateMode: "onChange",
     defaultValues: {
@@ -48,8 +53,6 @@ export default function AuthenticationPage() {
       persona: "user",
     },
   });
-
-
 
   useEffect(() => {
     if (error != null) {
@@ -103,7 +106,7 @@ export default function AuthenticationPage() {
 
     console.log("Form data:", data);
     dispatch(login(data));
-		recaptchaRef.current?.reset();
+    recaptchaRef.current?.reset();
   };
 
   const [isCaptchaError, setCaptchaError] = useState(false);
@@ -117,7 +120,10 @@ export default function AuthenticationPage() {
   }
 
   return (
-    <div className="loginpage-image" data-background-src={`../../../assets/background.png`}>
+    <div
+      className="loginpage-image"
+      data-background-src={`https://uploads.fitnfi.com/images/background.png`}
+    >
       <div className="max-w-[1800px] mx-auto">
         <div className="flex mx-16 justify-between items-center h-dvh ">
           <div className=" flex flex-col gap-2"></div>
@@ -160,7 +166,8 @@ export default function AuthenticationPage() {
                       {...register("email", {
                         required: "Email is required.",
                         pattern: {
-                          value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                          value:
+                            /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
                           message: "Invalid email format.",
                         },
                         maxLength: 64,
@@ -172,7 +179,7 @@ export default function AuthenticationPage() {
                       {errors.email.message as string}
                     </span>
                   )}
-                  {errors.email?.type == 'maxLength' && (
+                  {errors.email?.type == "maxLength" && (
                     <span className="text-xs text-red-400 font-poppins ">
                       Max length exceeded
                     </span>
@@ -184,7 +191,7 @@ export default function AuthenticationPage() {
                       placeholder="Enter your password"
                       className="w-full  bg-transparent border-checkboxborder text-textgray outline-none"
                       {...register("password", {
-                        required: 'Password is required.',
+                        required: "Password is required.",
                         maxLength: 50,
                         minLength: 8,
                       })}
@@ -201,14 +208,14 @@ export default function AuthenticationPage() {
                       Password is required
                     </span>
                   )}
-                  {errors.password?.type == 'maxLength' && (
+                  {errors.password?.type == "maxLength" && (
                     <span className="text-xs text-red-400 font-poppins ">
                       Max length exceeded
                     </span>
                   )}
-                  {errors.password?.type=='minLength' && (
+                  {errors.password?.type == "minLength" && (
                     <span className="text-xs text-red-400 font-poppins ">
-                      Password too small 
+                      Password too small
                     </span>
                   )}
 
@@ -227,7 +234,10 @@ export default function AuthenticationPage() {
                         Remember Me
                       </label>
                     </div>
-                    <div onClick={()=>setOpen(true)} className="cursor-pointer">
+                    <div
+                      onClick={() => setOpen(true)}
+                      className="cursor-pointer"
+                    >
                       <span className="text-[0.8rem] underline font-semibold text-textprimary">
                         Forgot Password?
                       </span>

@@ -1,51 +1,56 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
-
-
+export interface FoodTableResponse {
+  data: CreateFoodTypes[];
+  total_counts: number;
+  filtered_counts: number;
+}
 export interface CreateFoodTypes {
+  id?: number;
   org_id?: number;
   name: string;
   brand: string;
-  category: string|undefined;
+  category: string;
   description?: string;
   other_name?: string;
-  visible_for:string|undefined;
-  total_nutrition: number|undefined;
-  kcal: number|undefined;
-  protein: number|undefined;
-  fat: number|undefined;
-  carbohydrates: number|undefined;
-  carbs_sugar?: number;
-  carbs_saturated?: number;
-  kilojoules?: number;
-  fiber?: number;
-  calcium?: number;
-  iron?: number;
-  magnesium?: number;
-  phosphorus?: number;
-  potassium?: number;
-  sodium?: number;
-  zinc?: number;
-  copper?: number;
-  selenium?: number;
-  vitamin_a?: number;
-  vitamin_b1?: number;
-  vitamin_b2?: number;
-  vitamin_b6?: number;
-  vitamin_b12?: number;
-  vitamin_c?: number;
-  vitamin_d?: number;
-  vitamin_e?: number;
-  folic_acid?: number;
-  fat_unsaturated?: number;
-  cholesterol?: number;
-  alcohol?: number;
-  alchohol_mono?: number;
-  alchohol_poly?: number;
-  trans_fat?: number;
-  weight: string|undefined;
-  weight_unit: number;
+  visible_for?: string;
+  total_nutrition: number | null;
+  kcal: number | null;
+  protein: number | null;
+  fat: number | null;
+  carbohydrates: number | null;
+  carbs_sugar?: number | null;
+  carbs_saturated?: number | null;
+  kilojoules?: number | null;
+  fiber?: number | null;
+  calcium?: number | null;
+  iron?: number | null;
+  magnesium?: number | null;
+  phosphorus?: number | null;
+  potassium?: number | null;
+  sodium?: number | null;
+  zinc?: number | null;
+  copper?: number | null;
+  selenium?: number | null;
+  vitamin_a?: number | null;
+  vitamin_b1?: number | null;
+  vitamin_b2?: number | null;
+  vitamin_b6?: number | null;
+  vitamin_b12?: number | null;
+  vitamin_c?: number | null;
+  vitamin_d?: number | null;
+  vitamin_e?: number | null;
+  folic_acid?: number | null;
+  fat_unsaturated?: number | null;
+  cholesterol?: number | null;
+  alcohol?: number | null;
+  alchohol_mono?: number | null;
+  alchohol_poly?: number | null;
+  trans_fat?: number | null;
+  weight: number | null;
+  weight_unit: string | undefined;
+  img_url?: string | null;
   created_at?: Date;
   created_by?: number;
 }
@@ -131,9 +136,9 @@ export interface createMembershipType {
   renewal_details: renewalData | object;
   facilities: facilitiesData[] | [];
   created_by: number | null;
-  inv_days_cycle?: number | null;
-  auto_renew_days?: number | null;
-  prolongation_period?: number | null;
+  inv_days_cycle?: number| null;
+  auto_renew_days?: number| null;
+  prolongation_period?: number| null;
 }
 
 export interface membeshipsTableResonseType {
@@ -159,8 +164,7 @@ export interface incomeCategoryTableType {
   name: string;
   org_id: number;
   sale_tax_id: number;
-  status:string;
-
+  status: string;
 }
 
 export interface incomeCategoryTableResponseType {
@@ -173,22 +177,20 @@ export interface incomeCategoryResponseType {
   org_id: number;
   name: string;
   sale_tax_id: number;
-  status:string;
-
+  status: string;
 }
 export interface updateIncomeCategoryType {
   id?: number | undefined;
   org_id?: number;
   name?: string;
   sale_tax_id?: number;
-  status?:string;
-
+  status?: string;
 }
 export interface createIncomeCategoryType {
   org_id: number;
   name: string;
   sale_tax_id: number;
-  status:string;
+  status: string;
 }
 export interface deleteIncomeCategoryType {
   id: number;
@@ -214,7 +216,6 @@ export interface saleTaxesTableType {
   org_id: number;
   percentage: number;
   status: string;
-
 }
 
 export interface saleTaxTableType {
@@ -394,27 +395,27 @@ export interface MemberInputTypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: string;
+  dob?: Date|string;
   email?: string;
   phone?: string;
   mobile_number?: string;
   notes?: string;
-  source_id?: number;
+  source_id: number | null;
   language?: string | null;
   is_business?: boolean;
-  business_id?: number;
-  country_id?: number;
+  business_id: number | null;
+  country_id: number | null;
   city?: string;
   zipcode?: string;
   address_1?: string;
   address_2?: string;
-  client_since?: string;
   client_status?: string;
+  client_since?: Date|string;
   created_at?: string | null;
   created_by?: number | null;
-  org_id: number;
+  org_id?: number;
   coach_id?: any[];
-  membership_plan_id?: number | undefined;
+  membership_plan_id: number | undefined;
   send_invitation?: boolean;
   status?: string;
   auto_renewal?: boolean;
@@ -429,7 +430,7 @@ export interface MemberResponseTypes {
   first_name: string;
   last_name: string;
   gender: string;
-  dob: string;
+  dob: Date|string;
   email: string;
   phone?: string | null;
   mobile_number?: string | null;
@@ -443,14 +444,14 @@ export interface MemberResponseTypes {
   zipcode?: string | null;
   address_1?: string | null;
   address_2?: string | null;
-  client_since: string;
+  client_since?: Date;
   created_at?: string | null;
   created_by?: number | null;
   org_id: number;
   coach_id?: any[] | null;
   membership_plan_id: number | undefined;
   send_invitation?: boolean | null;
-  status?: string | null;
+  client_status?: string | null;
   is_deleted: boolean;
 }
 
@@ -463,26 +464,96 @@ export interface MemberTabletypes {
   total_counts: number;
   filtered_counts: number;
 }
+
+export interface MemberTableResponsetypes {
+  data: MemberTableResponseDatatypes[];
+  total_counts: number;
+  filtered_counts: number;
+}
+
 export interface MemberTableDatatypes {
   id: number;
-  org_id:number;
-  own_member_id: string;
-  first_name: string;
-  last_name: string;
-  phone?: string | null;
-  mobile_number?: string | null;
-  membership_plan_id?: number;
-  client_status: string;
+  profile_img?: string;
+  own_member_id?: string;
+  first_name?: string;
+  last_name?: string;
+  gender?: genderEnum;
+  dob?: Date|string;
+  email?: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number | null;
+  language?: string | null;
+  is_business?: boolean;
+  business_id: number | null;
+  country_id: number | null;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  client_since?: Date;
+  client_status?: string;
+  created_at?: string | null;
+  created_by?: number | null;
+  org_id: number;
+  coach_id?: any[];
+  membership_plan_id: number | undefined;
+  send_invitation?: boolean;
+  auto_renewal?: boolean;
+  prolongation_period?: number;
+  auto_renew_days?: number;
+  inv_days_cycle?: number;
   check_in?: string | null;
-  coaches:{
-    id:number,
-    name:string
-  }[],
+  coaches: {
+    id: number;
+    name: string;
+  }[];
   last_online?: string | null;
-  client_since?: string | null;
   business_name?: string | null;
 }
 
+export interface MemberTableResponseDatatypes {
+  id: number;
+  profile_img?: string;
+  own_member_id?: string;
+  first_name?: string;
+  last_name?: string;
+  gender?: genderEnum;
+  dob?: Date|string;
+  email?: string;
+  phone?: string;
+  mobile_number?: string;
+  notes?: string;
+  source_id: number | null;
+  language?: string | null;
+  is_business?: boolean;
+  business_id: number | null;
+  country_id: number | null;
+  city?: string;
+  zipcode?: string;
+  address_1?: string;
+  address_2?: string;
+  client_since?: Date;
+  client_status?: string;
+  created_at?: string | null;
+  created_by?: number | null;
+  org_id: number;
+  coach_id?: any[];
+  membership_plan_id: number | undefined;
+  send_invitation?: boolean;
+  auto_renewal?: boolean;
+  prolongation_period?: number;
+  auto_renew_days?: number;
+  inv_days_cycle?: number;
+  check_in?: string | null;
+  coaches: {
+    id: number;
+    coach_name: string;
+  }[];
+  last_online?: string | null;
+  business_name?: string | null;
+}
 export interface CoachTableTypes {
   id: number;
   profile_img?: string;
@@ -854,8 +925,8 @@ export interface muscleserverResponse {
   muscle_name: string;
 }
 export interface baseExerciseApiResponse {
-  id: number;
-  name: string;
+  value: number;
+  label: string;
 }
 
 export interface EquipmentApiResponse {
@@ -883,11 +954,11 @@ export interface ExerciseCreationResponse {
   id: number;
   message: string;
 }
-enum ExerciseTypeEnum {
+export enum ExerciseTypeEnum {
   time_based = "Time Based",
   repetition_based = "Repetition Based",
 }
-enum difficultyEnum {
+export enum difficultyEnum {
   Novice = "Novice",
   Beginner = "Beginner",
   Intermediate = "Intermediate",
@@ -907,19 +978,19 @@ enum VisibilityEnum {
 
 export interface createExerciseInputTypes {
   exercise_name: string;
-  visible_for: VisibilityEnum;
-  org_id: number;
-  exercise_type: ExerciseTypeEnum;
-  exercise_intensity: IntensityEnum;
-  intensity_value?: number;
-  difficulty: difficultyEnum;
-  sets?: number;
+  visible_for?: VisibilityEnum;
+  org_id?: number;
+  exercise_type?: ExerciseTypeEnum;
+  exercise_intensity?: IntensityEnum;
+  intensity_value?: number | null;
+  difficulty?: difficultyEnum;
+  sets?: number | null;
   seconds_per_set?: number[];
   repetitions_per_set?: number[];
   rest_between_set?: number[];
-  distance?: number;
-  speed?: number;
-  met_id?: number;
+  distance?: number | null;
+  speed?: number | null;
+  met_id?: number | null;
   gif_url: string;
   video_url_male?: string;
   video_url_female?: string;
@@ -927,30 +998,30 @@ export interface createExerciseInputTypes {
   thumbnail_female?: string;
   image_url_female?: string;
   image_url_male?: string;
-  category_id: number;
+  category_id: number | null;
   equipment_ids: number[];
   primary_muscle_ids: number[];
   secondary_muscle_ids?: number[];
   primary_joint_ids: number[];
-  created_by?: number;
-  updated_by?: number;
+  created_by?: number | null;
+  updated_by?: number | null;
 }
 
 export interface ExerciseResponseViewType {
   exercise_name: string;
-  visible_for: VisibilityEnum;
-  org_id: number;
-  exercise_type: ExerciseTypeEnum;
-  exercise_intensity: IntensityEnum;
-  intensity_value?: number;
-  difficulty: difficultyEnum;
-  sets?: number;
+  visible_for?: VisibilityEnum;
+  org_id?: number;
+  exercise_type?: ExerciseTypeEnum;
+  exercise_intensity?: IntensityEnum;
+  intensity_value?: number | null;
+  difficulty?: difficultyEnum;
+  sets?: number | null;
   seconds_per_set?: number[];
   repetitions_per_set?: number[];
   rest_between_set?: number[];
-  distance?: number;
-  speed?: number;
-  met_id?: number;
+  distance?: number | null;
+  speed?: number | null;
+  met_id?: number | null;
   gif_url: string;
   video_url_male?: string;
   video_url_female?: string;
@@ -958,16 +1029,54 @@ export interface ExerciseResponseViewType {
   thumbnail_female?: string;
   image_url_female?: string;
   image_url_male?: string;
+  category_id: number | null;
+  equipment_ids: number[];
+  primary_muscle_ids: number[];
+  secondary_muscle_ids?: number[];
+  primary_joint_ids: number[];
   id: number;
-  category_id: number;
   category_name: string;
+}
+
+export interface ExerciseResponseServerViewType {
+  exercise_name: string;
+  visible_for?: VisibilityEnum;
+  org_id?: number;
+  exercise_type?: ExerciseTypeEnum;
+  exercise_intensity?: IntensityEnum;
+  intensity_value?: number | null;
+  difficulty?: difficultyEnum;
+  sets?: number | null;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  distance?: number | null;
+  speed?: number | null;
+  met_id?: number | null;
+  gif_url: string;
+  video_url_male?: string;
+  video_url_female?: string;
+  thumbnail_male?: string;
+  thumbnail_female?: string;
+  image_url_female?: string;
+  image_url_male?: string;
+  category_id: number | null;
   equipments: baseExerciseApiResponse[];
   primary_muscles: baseExerciseApiResponse[];
   secondary_muscles?: baseExerciseApiResponse[];
   primary_joints: baseExerciseApiResponse[];
+  id: number;
+  category_name: string;
 }
+
 export interface ExerciseTableTypes {
   data: ExerciseResponseViewType[];
+  total_counts: number;
+  filtered_counts: number;
+}
+
+export interface ExerciseTableServerTypes {
+  data: ExerciseResponseServerViewType[];
   total_counts: number;
   filtered_counts: number;
 }

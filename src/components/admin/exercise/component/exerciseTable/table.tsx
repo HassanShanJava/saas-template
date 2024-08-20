@@ -14,13 +14,6 @@ import {
 import ExerciseFilters from "./data-table-filter";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Table,
   TableBody,
   TableCell,
@@ -30,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MoreHorizontal, PlusIcon, Search } from "lucide-react";
+import { PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -43,47 +36,39 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-// import { MemberFilterSchema, MemberTabletypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Spinner } from "@/components/ui/spinner/spinner";
-import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { useGetAllMemberQuery } from "@/services/memberAPi";
-import {
-  ErrorType,
-  ExerciseResponseViewType,
-  ExerciseTableTypes,
-} from "@/app/types";
+import { ErrorType, ExerciseResponseViewType } from "@/app/types";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
   useGetAllCategoryQuery,
   useGetAllExercisesQuery,
 } from "@/services/exerciseApi";
-import ExerciseForm from "../../exerciseform/form";
+// import ExerciseForm from "../../exerciseform/form";
+import ExerciseForm from "../../exerciseform/exercise-modal";
+
 import { Separator } from "@/components/ui/separator";
 import { DataTableRowActions } from "./data-table-row-actions";
+import {
+  difficultyTypeoptions,
+  exerciseTypeOptions,
+  visibilityOptions,
+} from "@/constants/exercise";
 
-const downloadCSV = (data: any[], fileName: string) => {
-  const csv = Papa.unparse(data);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
 interface searchCretiriaType {
   limit: number;
   offset: number;
   sort_order: string;
   sort_key?: string;
   search_key?: string;
-  category?: string;
+  category?: string[];
+  visible_for?: string[];
+  difficulty?: string;
+  exercise_type?: string;
 }
 const initialValue = {
   limit: 10,
@@ -129,15 +114,25 @@ export default function ExerciseTableView() {
 
   React.useEffect(() => {
     const params = new URLSearchParams();
+    // Iterate through the search criteria
     for (const [key, value] of Object.entries(searchCretiria)) {
-      console.log({ key, value });
+      console.log("just checking here", [key, value]);
       if (value !== undefined && value !== null) {
-        params.append(key, value);
+        // Check if the value is an array
+        if (Array.isArray(value)) {
+          value.forEach((val) => {
+            params.append(key, val); // Append each array element as a separate query parameter
+          });
+        } else {
+          params.append(key, value); // For non-array values
+        }
       }
     }
+
+    // Create the final query string
     const newQuery = params.toString();
     console.log({ newQuery });
-    setQuery(newQuery);
+    setQuery(newQuery); // Update the query state for API call
   }, [searchCretiria]);
 
   const toggleSortOrder = (key: string) => {
@@ -196,35 +191,9 @@ export default function ExerciseTableView() {
   const { toast } = useToast();
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [filterID, setFilterID] = useState({});
 
-  const [filters, setFilters] = useState<"">();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-
-  const displayDate = (value: any) => {
-    const date = new Date(value);
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    const year = date.getFullYear();
-
-    return `${day}-${month}-${year}`;
-  };
-
-  const handleExportSelected = () => {
-    const selectedRows = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original);
-    if (selectedRows.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Select atleast one row for CSV download!",
-      });
-      return;
-    }
-    downloadCSV(selectedRows, "selectedExercise.csv");
-  };
 
   const displayValue = (value: string | undefined | null) =>
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
@@ -255,11 +224,10 @@ export default function ExerciseTableView() {
           className="translate-y-[2px]"
         />
       ),
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "exercise_name",
+      meta: "Exercise Name",
       header: () => (
         <div className="flex items-center gap-2">
           <p>Exercise Name</p>
@@ -280,11 +248,10 @@ export default function ExerciseTableView() {
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "category_name",
+      meta: "Category Name",
       header: () => (
         <div className="flex items-center gap-2">
           <p>Category Name</p>
@@ -305,11 +272,10 @@ export default function ExerciseTableView() {
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "visible_for",
+      meta: "Visible For",
       header: () => (
         <div className="flex items-center gap-2">
           <p>Visible For</p>
@@ -330,12 +296,23 @@ export default function ExerciseTableView() {
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "exercise_type",
-      header: ({ table }) => <span>Exercise Type</span>,
+      meta: "Exercise Type",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Exercise Type</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("exercise_type")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -343,12 +320,23 @@ export default function ExerciseTableView() {
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "difficulty",
-      header: ({ table }) => <span>Difficulty</span>,
+      meta: "Difficulty",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Difficulty</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("difficulty")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -356,12 +344,23 @@ export default function ExerciseTableView() {
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "sets",
-      header: ({ table }) => <span>Exercise Sets</span>,
+      meta: "Exercise Sets",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Exercise Sets</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("set")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
@@ -369,8 +368,6 @@ export default function ExerciseTableView() {
           </div>
         );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       id: "actions",
@@ -402,24 +399,41 @@ export default function ExerciseTableView() {
     },
   });
 
-  function handleCategory(value: number) {
+  function handleFilterChange(field: string, value: any) {
     setFilter((prev) => ({
       ...prev,
-      category: value,
+      [field]: value,
     }));
   }
 
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
-  }
   const filterDisplay = [
     {
-      type: "select",
+      type: "multiselect",
       name: "category",
-      label: "Category",
+      label: "category",
       options: CategoryData,
-      function: handleCategory,
+      function: handleFilterChange,
+    },
+    {
+      type: "multiselect",
+      name: "visible_for",
+      label: "visible_for",
+      options: visibilityOptions,
+      function: handleFilterChange,
+    },
+    {
+      type: "select",
+      name: "exercise_type",
+      label: "exercise_type",
+      options: exerciseTypeOptions,
+      function: handleFilterChange,
+    },
+    {
+      type: "select",
+      name: "difficulty",
+      label: "difficulty",
+      options: difficultyTypeoptions,
+      function: handleFilterChange,
     },
   ];
   console.log({ searchCretiria });
@@ -465,6 +479,7 @@ export default function ExerciseTableView() {
       }));
     }
   };
+
   return (
     <>
       <div className="w-full space-y-4">
@@ -487,7 +502,7 @@ export default function ExerciseTableView() {
             <PlusIcon className="h-4 w-4" />
             Create New
           </Button>
-          <DataTableViewOptions table={table} action={handleExportSelected} />
+          <DataTableViewOptions table={table} />
           <div className="px-3 flex gap-2">
             <button
               className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
@@ -497,7 +512,7 @@ export default function ExerciseTableView() {
             </button>
           </div>
         </div>
-        <div className="rounded-none  ">
+        <div className="rounded-none border border-border ">
           <ScrollArea className="w-full relative">
             <ScrollBar orientation="horizontal" />
             <Table className="w-full overflow-x-scroll">
@@ -564,7 +579,7 @@ export default function ExerciseTableView() {
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      No records found.
+                      No records for the criteria.
                     </TableCell>
                   </TableRow>
                 )}
@@ -574,239 +589,105 @@ export default function ExerciseTableView() {
         </div>
 
         {/* pagination */}
-        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium">Items per page:</p>
-              <Select
-                value={searchCretiria.limit.toString()}
-                onValueChange={(value) => {
-                  const newSize = Number(value);
-                  setSearchCretiria((prev) => ({
-                    ...prev,
-                    limit: newSize,
-                    offset: 0, // Reset offset when page size changes
-                  }));
-                }}
-              >
-                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-                  <SelectValue>{searchCretiria.limit}</SelectValue>
-                </SelectTrigger>
-                <SelectContent side="bottom">
-                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={pageSize.toString()}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Separator
-              orientation="vertical"
-              className="h-11 w-[1px] bg-gray-300"
-            />
-            <span>
-              {" "}
-              {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${exercisedata?.filtered_counts} Items  `}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center space-x-2">
-              <Separator
-                orientation="vertical"
-                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
-                onClick={firstPage}
-                disabled={searchCretiria.offset === 0}
-              >
-                <DoubleArrowLeftIcon className="h-4 w-4" />
-              </Button>
-
-              <Separator
-                orientation="vertical"
-                className="h-11 w-[0.5px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-                onClick={prevPage}
-                disabled={searchCretiria.offset === 0}
-              >
-                <ChevronLeftIcon className="h-4 w-4" />
-              </Button>
-
+        {ExerciseTableData.length > 0 && (
+          <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+            <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium">Items per page:</p>
+                <Select
+                  value={searchCretiria.limit.toString()}
+                  onValueChange={(value) => {
+                    const newSize = Number(value);
+                    setSearchCretiria((prev) => ({
+                      ...prev,
+                      limit: newSize,
+                      offset: 0, // Reset offset when page size changes
+                    }));
+                  }}
+                >
+                  <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+                    <SelectValue>{searchCretiria.limit}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent side="bottom">
+                    {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                      <SelectItem key={pageSize} value={pageSize.toString()}>
+                        {pageSize}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <Separator
                 orientation="vertical"
                 className="h-11 w-[1px] bg-gray-300"
               />
+              <span>
+                {" "}
+                {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${exercisedata?.filtered_counts} Items  `}
+              </span>
+            </div>
 
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-                onClick={nextPage}
-                disabled={isLastPage}
-              >
-                <ChevronRightIcon className="h-4 w-4" />
-              </Button>
+            <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center space-x-2">
+                <Separator
+                  orientation="vertical"
+                  className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+                />
 
-              <Separator
-                orientation="vertical"
-                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-              />
+                <Button
+                  variant="outline"
+                  className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+                  onClick={firstPage}
+                  disabled={searchCretiria.offset === 0}
+                >
+                  <DoubleArrowLeftIcon className="h-4 w-4" />
+                </Button>
 
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-                onClick={lastPage}
-                disabled={isLastPage}
-              >
-                <DoubleArrowRightIcon className="h-4 w-4" />
-              </Button>
+                <Separator
+                  orientation="vertical"
+                  className="h-11 w-[0.5px] bg-gray-300"
+                />
+
+                <Button
+                  variant="outline"
+                  className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                  onClick={prevPage}
+                  disabled={searchCretiria.offset === 0}
+                >
+                  <ChevronLeftIcon className="h-4 w-4" />
+                </Button>
+
+                <Separator
+                  orientation="vertical"
+                  className="h-11 w-[1px] bg-gray-300"
+                />
+
+                <Button
+                  variant="outline"
+                  className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                  onClick={nextPage}
+                  disabled={isLastPage}
+                >
+                  <ChevronRightIcon className="h-4 w-4" />
+                </Button>
+
+                <Separator
+                  orientation="vertical"
+                  className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+                />
+
+                <Button
+                  variant="outline"
+                  className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+                  onClick={lastPage}
+                  disabled={isLastPage}
+                >
+                  <DoubleArrowRightIcon className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-        {/* <div className="flex items-center justify-end space-x-2 px-4 py-4">
-          <div className="flex-1 flex w-[100px] items-center justify-start text-sm font-medium">
-            {/* Page {filters.first + 1} of{" "}
-          {Math.ceil((data?.count ?? 0) / filters.rows)} */}
-        {/* </div> */}
-
-        {/* <div className="flex items-center justify-center space-x-6 lg:space-x-8">
-            <div className="flex items-center space-x-2">
-              <p className="text-sm font-medium">Rows per page</p> */}
-        {/* <Select
-              // value={`${filters.rows}`}
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue defaultValue={pagination.pageSize} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pagination}`} >
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-        {/* <Select
-              value="10"
-              onValueChange={(value) => {
-                setFilters((prevFilters: any) => ({
-                  ...prevFilters,
-                  rows: Number(value),
-                  first: 0,
-                }));
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue>{10}</SelectValue>
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-        {/* <Select
-                value={pagination.pageSize.toString()}
-                onValueChange={(value) => {
-                  const newSize = Number(value);
-                  setPagination((prevPagination) => ({
-                    ...prevPagination,
-                    pageSize: newSize,
-                  }));
-                  setFilters((prevFilters: any) => ({
-                    ...prevFilters,
-                    rows: newSize,
-                    first: 0,
-                  }));
-                  table.setPageSize(newSize);
-                }}
-              > */}
-        {/* <SelectTrigger className="h-8 w-[70px]">
-                  <SelectValue>{pagination.pageSize}</SelectValue>
-                </SelectTrigger>
-                <SelectContent side="top">
-                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={pageSize.toString()}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div> */}
-
-        {/* <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => handlePagination(0)}
-                // disabled={filters.first === 0}
-              >
-                <span className="sr-only">Go to first page</span>
-                <DoubleArrowLeftIcon className="h-4 w-4" />
-              </Button>
-
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0" */}
-        {/* // onClick={() => handlePagination(filters?.first - 1)}
-                // disabled={filters?.first === 0}
-              > */}
-        {/* <span className="sr-only">Go to previous page</span>
-                <ChevronLeftIcon className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0" */}
-        {/* // onClick={() => handlePagination(filters.first + 1)}
-                // disabled={ */}
-        {/* //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-                //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-                //     filters.first + 1
-                // }
-              >
-                <span className="sr-only">Go to next page</span>
-                <ChevronRightIcon className="h-4 w-4" />
-              </Button> */}
-
-        {/* <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
-                // onClick={() =>
-                //   handlePagination(
-                //     Math.ceil((data?.count ?? 0) / filters.rows) - 1
-                //   )
-                // }
-                // disabled={
-                //   (filters.first + 1) * filters.rows > (data?.count ?? 0) ||
-                //   Math.ceil((data?.count ?? 0) / filters.rows) ==
-                //     filters.first + 1
-                // }
-              >
-                <span className="sr-only">Go to last page</span>
-                <DoubleArrowRightIcon className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div> */}
+        )}
         <ExerciseFilters
           isOpen={openFilter}
           setOpen={setOpenFilter}
@@ -816,8 +697,26 @@ export default function ExerciseTableView() {
           setSearchCriteria={setSearchCretiria}
           filterDisplay={filterDisplay}
         />
+
+        <ExerciseForm
+          isOpen={isDialogOpen}
+          setOpen={setIsDialogOpen}
+          action={action}
+          setAction={setAction}
+          data={data}
+          refetch={refetch}
+        />
+
+        {/* <ExerciseForm
+        isOpen={isDialogOpen}
+        setOpen={setIsDialogOpen}
+        // action={action}
+        // setAction={setAction}
+        // data={data}
+        // refetch={refetch}
+      /> */}
+        {/* <ExerciseForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} /> */}
       </div>
-      <ExerciseForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} />
     </>
   );
 }

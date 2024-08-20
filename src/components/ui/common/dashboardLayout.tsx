@@ -228,7 +228,7 @@ const DashboardLayout: React.FC = () => {
               className={`${!isSidebarOpen && "hidden"} text-2xl text-center font-extrabold`}
               style={{ fontFamily: "Jockey One" }}
             >
-              Let's Move
+              FitnFi
             </span>
           </Link>
           {/* Uncomment the button if needed */}

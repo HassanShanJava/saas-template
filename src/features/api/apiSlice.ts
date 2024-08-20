@@ -23,8 +23,12 @@ const baseQueryWithReauth: BaseQueryFn<
     const refreshResult = await baseQuery(
       {
         url: `/refresh_token`,
-        body: { refresh_token: refresh_token },
+        body: { token: refresh_token },
         method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-type": "application/json",
+        },
       },
       api,
       extraOptions
@@ -71,6 +75,7 @@ export const apiSlice = createApi({
     "Exercise",
     "Foods",
     "MealPlans",
-		'Members',
+    "Members",
+    "Reset",
   ],
 });

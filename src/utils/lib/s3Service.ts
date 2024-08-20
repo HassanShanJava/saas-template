@@ -61,7 +61,7 @@ export const UploadCognitoImage = async (file: File) => {
     return {
       success: true,
       data: fileName,
-      location: `${VITE_VIEW_S3_URL}/${fileName}`,
+      location: `${fileName}`,
     };
   } catch (error: any) {
     console.log({ error });

@@ -233,7 +233,7 @@ const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
                   label="Description"
                   type="textarea"
                   rows={10}
-                  customPercentage={[14, 12]}
+                  customPercentage={[14, 8, 10]}
                   // {...register("description")}
                   // error={errors.description?.message}
                 />

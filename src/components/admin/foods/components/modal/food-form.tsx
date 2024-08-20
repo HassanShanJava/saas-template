@@ -104,13 +104,14 @@ const FoodForm = ({
     reset,
     formState: { isSubmitting, errors },
   } = form;
+  const watcher = watch();
 
   useEffect(() => {
     if (action == "edit") {
-      console.log({data},"edit")
+      console.log({ data }, "edit")
       reset(data);
-    } else if (action == "add"){
-      console.log({initialValue},"add")
+    } else if (action == "add") {
+      console.log({ initialValue }, "add")
       reset(initialValue, {
         keepIsSubmitted: false,
         keepSubmitCount: false,
@@ -140,6 +141,10 @@ const FoodForm = ({
   const onSubmit = async (input: CreateFoodTypes) => {
     const payload = { org_id: orgId, ...input };
     if (files && files?.length > 0) {
+      if (watcher.img_url !== '' && watcher.img_url) {
+
+        await deleteCognitoImage(watcher.img_url as string)
+      }
       console.log(files[0], "food_image");
       const getUrl = await UploadCognitoImage(files[0]);
       payload.img_url = getUrl.location;
@@ -257,10 +262,10 @@ const FoodForm = ({
 
                       {errors[item.name as keyof CreateFoodTypes]?.type ===
                         "maxLength" && (
-                        <span className="text-red-500 mt-[5px] text-xs">
-                          Max length exceeded
-                        </span>
-                      )}
+                          <span className="text-red-500 mt-[5px] text-xs">
+                            Max length exceeded
+                          </span>
+                        )}
                     </div>
                   );
                 }
@@ -342,19 +347,25 @@ const FoodForm = ({
                     ))}
 
                   <FileInput className="flex flex-col gap-2  ">
-                    {files?.length == 0 && (
+                    {files?.length == 0 && data?.img_url == null ? (
                       <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
                         <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
+                      </div>
+                    ) : files?.length == 0 && data?.img_url && (
+                      <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
+                        {/* <i className="text-gray-400 fa-regular fa-image text-2xl"></i> */}
+                        <img
+                          src={(data?.img_url !== '' && data?.img_url) ?
+                            VITE_VIEW_S3_URL + "/" + data?.img_url : ""
+                          }
+                          className="object-contain max-h-40"
+                        />
                       </div>
                     )}
 
                     <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
                       <img
-                        src={
-                          data?.img_url
-                            ? VITE_VIEW_S3_URL + "/" + data?.img_url
-                            : uploadimg
-                        }
+                        src={uploadimg}
                         className="size-10"
                       />
                       <span className="text-sm">Upload Image</span>

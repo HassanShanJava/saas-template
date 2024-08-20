@@ -1,20 +1,26 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import logomainsvg from "@/assets/logo-main.svg";
 import PasswordStrengthIndicator from "./password-strength-indicator.tsx";
 import { isStrongPassword, ValidatePassword } from "./password-strength.ts";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 import {
     useResetPasswordMutation,
     useVerifyTokenQuery,
 } from "@/services/resetPassApi.ts";
 import { toast } from "@/components/ui/use-toast.ts";
 import { ErrorType } from "@/app/types.ts";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const ResetPassword = () => {
     const { token } = useParams();
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+    const toggleVisibility = (setState: React.Dispatch<SetStateAction<boolean>>) => setState(prev => !prev)
+    const navigate = useNavigate();
     const [userData, setUserData] = useState<Record<string, any>>({})
     const { data: verifyToken, error } = useVerifyTokenQuery(token as string, {
         skip: token == undefined
@@ -22,7 +28,7 @@ const ResetPassword = () => {
     const [resetPassword] = useResetPasswordMutation();
 
     const form = useForm<{ new_password: string; confirm_password: string }>({
-        mode: "all",
+        mode: "onBlur",
         criteriaMode: "all",
         defaultValues: {
             new_password: "",
@@ -35,11 +41,12 @@ const ResetPassword = () => {
             setUserData(verifyToken)
         } else if (error && typeof error === "object" && "data" in error) {
             const typedError = error as ErrorType;
-
             toast({
                 variant: "destructive",
                 title: typedError.data?.detail,
             });
+            navigate('/');
+
         }
     }, [verifyToken, error]);
 
@@ -47,7 +54,7 @@ const ResetPassword = () => {
         handleSubmit,
         register,
         watch,
-        formState: { isSubmitting, errors },
+        formState: { isSubmitting, errors, isSubmitSuccessful },
     } = form;
 
     const password = watch("new_password");
@@ -57,14 +64,25 @@ const ResetPassword = () => {
     );
 
     const onSubmit = useCallback(async (data: { new_password: string; confirm_password: string }) => {
-        console.log("Submitted:", data);
         try {
-            const payload = {
-                id: userData?.id as number,
-                org_id: userData?.org_id as number,
-                ...data
+            if (userData) {
+
+                const payload = {
+                    token: token as string,
+                    id: userData?.id as number,
+                    org_id: userData?.org_id as number,
+                    ...data
+                }
+                console.log({ payload })
+                await resetPassword(payload).unwrap();
+                if (isSubmitSuccessful) {
+                    toast({
+                        variant: "success",
+                        title: "Password Reset Successfully",
+                    });
+                    navigate('/');
+                }
             }
-            await resetPassword(payload).unwrap();
         } catch (error: unknown) {
             console.error("Error", { error });
             if (error && typeof error === "object" && "data" in error) {
@@ -117,30 +135,36 @@ const ResetPassword = () => {
                                 onSubmit={handleSubmit(onSubmit)}
                                 className="space-y-4"
                             >
-                                <div className="flex items-center custom-box-shadow w-full gap-2 px-4 py-2 rounded-md border border-checkboxborder focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500">
+                                <div className="flex items-center custom-box-shadow w-full gap-2 px-4 py-2 rounded-md border border-checkboxborder focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 ">
                                     <input
                                         id="new_password"
-                                        type="text"
+                                        type={isPasswordVisible ? "text" : "password"}
                                         placeholder="New Password"
-                                        className="w-full bg-transparent border-checkboxborder text-textgray outline-none"
+                                        className="w-full  bg-transparent border-checkboxborder text-textgray outline-none"
                                         {...register("new_password", {
                                             required: "Required",
                                             pattern: {
                                                 value:
-                                                    /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{8,15}$/,
+                                                    /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{8,50}$/,
                                                 message: "Follow the password structure.",
                                             },
                                         })}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={isPasswordVisible ? faEyeSlash : faEye}
+                                        color="gray"
+                                        className="pr-2"
+                                        onClick={() => toggleVisibility(setIsPasswordVisible)}
                                     />
                                 </div>
                                 <PasswordStrengthIndicator
                                     passwordStrength={passwordStrength}
                                 />
 
-                                <div className="flex items-center custom-box-shadow w-full gap-2 px-4 py-2 rounded-md border border-checkboxborder focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500">
+                                <div className="flex items-center custom-box-shadow w-full gap-2 px-4 py-2 rounded-md border border-checkboxborder focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 ">
                                     <input
                                         id="confirm_password"
-                                        type="text"
+                                        type={isConfirmPasswordVisible   ? "text" : "password"}
                                         placeholder="Confirm Password"
                                         className="w-full bg-transparent border-checkboxborder text-textgray outline-none"
                                         {...register("confirm_password", {
@@ -149,9 +173,27 @@ const ResetPassword = () => {
                                                 value: 50,
                                                 message: "Max length exceeded",
                                             },
+                                            validate: (val: string) => {
+                                                if (watch('new_password') != val && val !== '') {
+                                                    return "Your passwords do no match";
+                                                }
+                                            }
                                         })}
                                     />
+                                    <FontAwesomeIcon
+                                        icon={isConfirmPasswordVisible ? faEyeSlash : faEye}
+                                        color="gray"
+                                        className="pr-2"
+                                        onClick={() => toggleVisibility(setIsConfirmPasswordVisible)}
+                                    />
                                 </div>
+
+
+                                {errors.confirm_password?.message && (
+                                    <span className="text-red-500 text-xs mt-[5px]">
+                                        {errors.confirm_password?.message}
+                                    </span>
+                                )}
 
                                 <LoadingButton
                                     type="submit"

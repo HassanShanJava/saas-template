@@ -9,7 +9,9 @@ import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { toast } from "@/components/ui/use-toast";
 import { useSendResetEmailMutation } from "@/services/resetPassApi";
+import { SetStateAction, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 interface forgotPaswordType {
   open: boolean;
@@ -17,6 +19,7 @@ interface forgotPaswordType {
 }
 
 const ForgotPasword = ({ open, setOpen }: forgotPaswordType) => {
+  const navigate=useNavigate()
   const [sendRestEmail] = useSendResetEmailMutation();
   const form = useForm<{ email: string }>({
     mode: "all",
@@ -30,12 +33,20 @@ const ForgotPasword = ({ open, setOpen }: forgotPaswordType) => {
     watch,
     reset,
     clearErrors,
-    formState: { isSubmitting, isSubmitted, errors },
+    formState: { isSubmitting, isSubmitted, errors, isSubmitSuccessful },
   } = form;
   const onSubmit = async (data: { email: string }) => {
     console.log(data);
     try {
-      await sendRestEmail(data).unwrap();
+      const resp=await sendRestEmail(data).unwrap();
+      if(resp){
+        toast({
+          variant: "success",
+          title: "Please check your email",
+        });
+        setOpen(false);
+        reset();
+      }
     } catch (error: unknown) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -67,7 +78,7 @@ const ForgotPasword = ({ open, setOpen }: forgotPaswordType) => {
     >
       <DialogContent
         whiteClose
-        className="bg-transparent bg-opacity-10 backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg px-4 py-4"
+        className="bg-transparent bg-opacity-30  custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg px-4 py-4"
       >
         <DialogHeader>
           <DialogTitle className="text-gray-100">Forgot Password</DialogTitle>

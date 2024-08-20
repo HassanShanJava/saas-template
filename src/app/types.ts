@@ -636,7 +636,7 @@ export interface CoachInputTypes {
   acc_holder_name?: string;
   swift_code?: string;
   created_by?: number;
-  member_ids: any;
+  member_ids?: any;
   org_id: number;
 }
 export interface addCoachResponseType {

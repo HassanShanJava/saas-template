@@ -90,6 +90,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 interface CoachFormProps {
@@ -121,10 +122,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
   const creator_id =
     useSelector((state: RootState) => state.auth.userInfo?.user?.id) || 0;
 
-  const membersSchema = z.object({
-    id: z.number(),
-    name: z.string(),
-  });
+  const membersSchema = z.number();
 
   const initialState: CoachInputTypes = {
     profile_img: "",
@@ -272,14 +270,11 @@ const CoachForm: React.FC<CoachFormProps> = ({
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
 
-  const [addCoach, { isLoading: memberLoading }] = useAddCoachMutation();
-  const [editCoach, { isLoading: editcoachLoading }] = useUpdateCoachMutation();
+  const [addCoach] = useAddCoachMutation();
+  const [editCoach] = useUpdateCoachMutation();
 
   const { data: transformedData } = useGetMembersListQuery(orgId);
   const navigate = useNavigate();
-  //const [initialValues, setInitialValues] =
-  //  useState<CoachInputTypes>(initialState);
-
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   console.log({ transformedData });
@@ -316,9 +311,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      ...initialState,
-    },
+    defaultValues: initialState,
     mode: "onChange",
   });
 
@@ -336,8 +329,6 @@ const CoachForm: React.FC<CoachFormProps> = ({
     let updatedData = {
       ...data,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-      member_ids:
-        data.member_ids && data?.member_ids.map((member) => member.id),
     };
 
     console.log("Updated data with only date:", updatedData);
@@ -423,14 +414,12 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
   useEffect(() => {
     if (!open || coachData == null) return;
-    coachData.member_ids = transformedData?.filter((e) =>
-      coachData.member_ids.includes(e.id)
-    );
+
     form.reset(coachData);
     setAvatar(coachData?.profile_img as string);
   }, [open, coachData]);
 
-  console.log("user list create", form.getValues);
+  console.log("watcher", form.watch());
 
   return (
     <Sheet open={open}>
@@ -493,7 +482,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     <img
                       id="avatar"
                       src={
-                        watcher.profile_img !== ""
+                        watcher.profile_img !== "" && watcher.profile_img
                           ? VITE_VIEW_S3_URL + "/" + watcher.profile_img
                           : avatar
                             ? String(avatar)
@@ -733,39 +722,22 @@ const CoachForm: React.FC<CoachFormProps> = ({
                   <FormField
                     control={form.control}
                     name="member_ids"
-                    render={({ field }) => (
+                    render={({ field: { onChange } }) => (
                       <FormItem className="w-full ">
-                        <MultiSelector
-                          onValuesChange={(values) => field.onChange(values)}
-                          values={field.value || []}
-                        >
-                          <MultiSelectorTrigger className="border-[1px] border-gray-300">
-                            <MultiSelectorInput
-                              className="font-medium"
-                              placeholder={
-                                field.value?.length == 0
-                                  ? `Assign Members*`
-                                  : ""
-                              }
-                            />
-                          </MultiSelectorTrigger>
-                          <MultiSelectorContent className="">
-                            <MultiSelectorList>
-                              {transformedData &&
-                                transformedData.map((user: any) => (
-                                  <MultiSelectorItem
-                                    key={user.id}
-                                    value={user}
-                                    // disabled={field.value?.length >= 5}
-                                  >
-                                    <div className="flex items-center space-x-2">
-                                      <span>{user.name}</span>
-                                    </div>
-                                  </MultiSelectorItem>
-                                ))}
-                            </MultiSelectorList>
-                          </MultiSelectorContent>
-                        </MultiSelector>
+                        <MultiSelect
+                          floatingLabel={"Members"}
+                          options={transformedData as { value: number, label: string }[]}
+                          defaultValue={form.watch("member_ids") || []} // Ensure defaultValue is always an array
+                          onValueChange={(selectedValues) => {
+                            console.log("Selected Values: ", selectedValues); // Debugging step
+                            onChange(selectedValues); // Pass selected values to state handler
+                          }}
+                          placeholder={"Select members"}
+                          variant="inverted"
+                          maxCount={1}
+                          className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 "
+                        />
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -841,8 +813,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 {field.value === 0
                                   ? "Source*"
                                   : sources?.find(
-                                      (source) => source.id === field.value
-                                    )?.source || "Source*"}
+                                    (source) => source.id === field.value
+                                  )?.source || "Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -942,14 +914,14 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 className={cn(
                                   "justify-between font-normal",
                                   !field.value &&
-                                    "font-medium text-gray-400 focus:border-primary "
+                                  "font-medium text-gray-400 focus:border-primary "
                                 )}
                               >
                                 {field.value
                                   ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === field.value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                    (country: CountryTypes) =>
+                                      country.id === field.value // Compare with numeric value
+                                  )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

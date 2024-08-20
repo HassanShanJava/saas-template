@@ -137,18 +137,18 @@ const navItems: NavItem[] = [
   //   icon: EventsIcon,
   //   dropdown: false,
   // },
-  // {
-  //   name: "Meal Plans",
-  //   link: "/admin/mealplans",
-  //   icon: EventsIcon,
-  //   dropdown: false,
-  // },
-  // {
-  //   name: "Food/ Nutrition",
-  //   link: "/admin/foods",
-  //   icon: EventsIcon,
-  //   dropdown: false,
-  // },
+  {
+    name: "Meal Plans",
+    link: "/admin/mealplans",
+    icon: EventsIcon,
+    dropdown: false,
+  },
+  {
+    name: "Food/ Nutrition",
+    link: "/admin/foods",
+    icon: EventsIcon,
+    dropdown: false,
+  },
   {
     name: "Manage",
     dropdown: true,

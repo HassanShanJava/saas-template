@@ -147,8 +147,8 @@ export const MultiSelect = React.forwardRef<
       <div className="relative">
         {floatingLabel && (
           <label
-            className={cn("absolute top-1 left-2 text-sm", {
-              "text-gray-500 -top-2 text-xs bg-white": !false,
+            className={cn("absolute top-1 left-2 ", {
+              "-top-2  px-1 mx-1 text-xs text-gray-800   bg-white": !false,
             })}
           >
             {floatingLabel}
@@ -230,7 +230,7 @@ export const MultiSelect = React.forwardRef<
                 </div>
               ) : (
                 <div className="flex items-center justify-between w-full mx-auto">
-                  <span className="text-sm text-muted-foreground mx-3">
+                  <span className="text-sm text-gray-800 font-medium mx-3">
                     {placeholder}
                   </span>
                   <ChevronDown className="h-4 cursor-pointer text-muted-foreground mx-2" />

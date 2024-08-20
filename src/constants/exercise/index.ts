@@ -1,4 +1,4 @@
-import { difficultyEnum,ExerciseTypeEnum } from "@/app/types";
+import { difficultyEnum, ExerciseTypeEnum, IntensityEnum } from "@/app/types";
 import { Difficulty } from "@/components/admin/exercise/component/difficultySlider";
 
 export const visibilityOptions = [
@@ -19,18 +19,16 @@ export const difficultyTypeoptions = [
   { value: "Advance", label: "Advance" },
   { value: "Expert", label: "Expert" },
 ];
+const existingGif: File[] = []; // Initialize this with your existing files if any.
 
 export const initialValue = {
   exercise_name: "",
   visible_for: undefined,
   exercise_type: ExerciseTypeEnum.time_based,
-  exercise_intensity: undefined,
-  intensity_value: undefined,
-  difficulty: difficultyEnum.Beginner,
+  exercise_intensity: IntensityEnum.max_intensity,
+  intensity_value: 10,
+  difficulty: difficultyTypeoptions[Difficulty.Novice].value,
   sets: undefined,
-  seconds_per_set: undefined,
-  repetitions_per_set: undefined,
-  rest_between_set: undefined,
   distance: 0,
   speed: 0,
   met_id: null,
@@ -39,11 +37,18 @@ export const initialValue = {
   video_url_female: "",
   thumbnail_male: "",
   thumbnail_female: "",
-  category_id: null,
+  category_id: undefined,
   equipment_ids: [],
   primary_muscle_ids: [],
   secondary_muscle_ids: [],
   primary_joint_ids: [],
+  timePerSet: [{ value: null }],
+  restPerSet: [{ value: null }],
+  restPerSetrep: [{ value: null }],
+  repetitionPerSet: [{ value: null }],
+  gif: existingGif,
+  imagemale: existingGif,
+  imagefemale: existingGif,
 };
 
 export type ExerciseItem = {

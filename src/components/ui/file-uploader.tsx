@@ -190,7 +190,11 @@ export const FileUploader = forwardRef<
             if (rejectedFiles[i].errors[0]?.message) {
               toast({
                 variant: "destructive",
-                title: rejectedFiles[i].errors[0].message,
+                title: rejectedFiles[i].errors[0].message.includes(
+                  "File type must be .gif"
+                )
+                  ? "Invalid file format. Please upload a .gif file."
+                  : rejectedFiles[i].errors[0].message,
               });
               break;
             }

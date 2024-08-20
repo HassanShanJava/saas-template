@@ -104,7 +104,7 @@ const WorkoutPlanForm = () => {
     mode: "all",
   });
 
-	const {trigger, handleSubmit} = form;
+	const {trigger, handleSubmit, getValues} = form;
   const [workoutPlan, setworkoutPlan] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -146,10 +146,10 @@ const WorkoutPlanForm = () => {
   };
   return (
     <Sheet open={true}>
-      <SheetContent className="!max-w-[1200px]" hideCloseButton>
+      <SheetContent className="!max-w-[1200px] custom-scrollbar py-0" hideCloseButton>
 				<FormProvider {...form}>
 					<form noValidate onSubmit={handleSubmit(onSubmit)}>
-						<SheetHeader>
+						<SheetHeader className="sticky z-40 top-0 py-4 bg-white">
 							<SheetTitle>
 								<div className="flex justify-between gap-5 items-start ">
 									<div>
@@ -200,6 +200,7 @@ const WorkoutPlanForm = () => {
 											className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
 											onClick={async () => {
 													if (await trigger(undefined, {shouldFocus:true})) {
+														console.log("form values", getValues());
 														const newActive = activeStep + 1;
 														setActiveStep(newActive)
 														navigate(`/admin/workoutplans/add/step/${newActive}`);
@@ -213,9 +214,9 @@ const WorkoutPlanForm = () => {
 									</div>
 								</div>
 							</SheetTitle>
+							<Separator className="h-[1px] rounded-full my-2" />
 						</SheetHeader>
-						<Separator className="h-[1px] rounded-full my-2" />
-						<div className="flex justify-center mt-10">
+						<div className="flex justify-center mt-5">
 							<div className="w-1/2 flex justify-center">
 								<StepperIndicator
 									activeStep={activeStep}

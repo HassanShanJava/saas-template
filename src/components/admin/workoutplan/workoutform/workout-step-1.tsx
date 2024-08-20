@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { MultiSelector, MultiSelectorContent, MultiSelectorInput, MultiSelectorItem, MultiSelectorList, MultiSelectorTrigger } from "@/components/ui/multiselect/multiselect";
+import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { visibleFor } from "@/lib/constants/workout";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { visibleFor, workoutGoals, workoutLevels } from "@/lib/constants/workout";
 import { cn } from "@/lib/utils";
 import { useGetCountriesQuery, useGetMembersListQuery } from "@/services/memberAPi";
 import { Check, ChevronDownIcon, ImageIcon } from "lucide-react";
@@ -21,7 +23,7 @@ const WorkoutStep1: React.FC = () => {
   const { data: countries } = useGetCountriesQuery();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const { data: transformedData } = useGetMembersListQuery(orgId);
+  const { data: memberList } = useGetMembersListQuery(orgId);
 	const {control, formState: {errors}, register} = useFormContext<Workout>();
 	return (
 		<div className="mt-4 space-y-4">
@@ -59,142 +61,100 @@ const WorkoutStep1: React.FC = () => {
 						/>*/}
 					</div>
 					<div className="h-min">
-						<MultiSelector
-							onValuesChange={(values) => values}
-							values={[]}
-							className="space-y-0"
-						>
-							<MultiSelectorTrigger className="border-[1px] border-gray-300">
-								<MultiSelectorInput
-									className="font-medium"
+						<Controller
+							name="member_ids"
+							control={control}
+							render={({
+								field: {onChange, value, onBlur},
+								fieldState: {invalid, error}
+							}) => (
+								<MultiSelect
+									floatingLabel="Assign Members*"
+									key="Assign Members*"
+									options={memberList?.map((st:{ id: number; name: string }, idx: number) => ({value:st.id,label:st.name})) || []}
+									defaultValue={value||[]} // Ensure defaultValue is always an array
+									onValueChange={(selectedValues) => onChange(selectedValues)}
 									placeholder="Assign Members*"
+									variant="inverted"
+									maxCount={1}
+									className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
 								/>
-								<ChevronDownIcon className="h-5 w-5 text-gray-500" />
-							</MultiSelectorTrigger>
-							<MultiSelectorContent className="">
-								<MultiSelectorList>
-									{transformedData &&
-										transformedData.map((user: any) => (
-											<MultiSelectorItem
-												key={user.id}
-												value={user}
-												// disabled={field.value?.length >= 5}
-											>
-												<div className="flex items-center space-x-2">
-													<span>{user.name}</span>
-												</div>
-											</MultiSelectorItem>
-										))}
-								</MultiSelectorList>
-							</MultiSelectorContent>
-						</MultiSelector>
+							)}
+						/>
 					</div>
 				{/* <!-- Column 2: Visibility and Repetition --> */}
 					<div className="h-min">
-						<Popover>
-							<PopoverTrigger asChild>
-								{/*<FormControl>*/}
-									<Button
-										variant="outline"
-										role="combobox"
-										className={"justify-between font-normal font-medium text-gray-400 focus:border-primary w-full"}
-									>
-										Select Goals*
-										<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-									</Button>
-								{/*</FormControl>*/}
-							</PopoverTrigger>
-							<PopoverContent className="p-0">
-								<Command>
-									<CommandList>
-										<CommandInput placeholder="Goals*" />
-										<CommandEmpty>No country found.</CommandEmpty>
-													{/*
-															form.setValue(
-																"country_id",
-																country.id // Set country_id to country.id as number
-															);
-															*/}
-										<CommandGroup>
-											{countries &&
-												countries.map((country: CountryTypes) => (
-													<CommandItem
-														value={country.country}
-														key={country.id}
-														onSelect={() => {return}}
-													>
-													{/*
-																country.id === field.value
-																	? "opacity-100"
-																	: "opacity-0"*/}
-														<Check
-															className={cn(
-																"mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-															)}
-														/>
-														{country.country}{" "}
-														{/* Display the country name */}
-													</CommandItem>
-												))}
-										</CommandGroup>
-									</CommandList>
-								</Command>
-							</PopoverContent>
-						</Popover>
+						<Controller
+							name="goal"
+							rules={{required: "Required"}}
+							control={control}
+							render={({
+								field: {onChange, value, onBlur},
+								fieldState: {invalid, error} 
+							}) => (
+								<Select
+									onValueChange={(value) => onChange(value)}
+									defaultValue={value}
+								>
+									<SelectTrigger
+										floatingLabel="Goal"
+										name="goals"
+										>
+										<SelectValue
+											placeholder="Select Goal"
+										/>
+									</SelectTrigger>
+									<SelectContent>
+									{workoutGoals.map((st: any, index: number) =>
+										<SelectItem
+											key={index}
+											value={st.value}
+											>
+											{st.label}
+										</SelectItem>
+									)}
+									</SelectContent>
+								</Select>
+							)}
+						/>
+						{errors.goal?.message && <span className="text-red-500 text-xs mt-[5px]">{errors.goal?.message}</span>}
 					</div>
 					<div className="h-min">
-						<Popover>
-							<PopoverTrigger asChild>
-								{/*<FormControl>*/}
-									<Button
-										variant="outline"
-										role="combobox"
-										className="justify-between font-normal font-medium text-gray-400 focus:border-primary w-full"
-									>
-										Select Levels*
-										<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-									</Button>
-								{/*</FormControl>*/}
-							</PopoverTrigger>
-							<PopoverContent className="p-0">
-								<Command>
-									<CommandList>
-										<CommandInput placeholder="Goals*" />
-										<CommandEmpty>No country found.</CommandEmpty>
-										{/*
-															form.setValue(
-																"country_id",
-																country.id // Set country_id to country.id as number
-															);
-															*/}
-										<CommandGroup>
-											{countries &&
-												countries.map((country: CountryTypes) => (
-													<CommandItem
-														value={country.country}
-														key={country.id}
-														onSelect={() => {return}}
-													>
-														{/*
-																country.id === field.value
-																	? "opacity-100"
-																	: "opacity-0"*/}
-														<Check
-															className={cn(
-																"mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-															)}
-														/>
-														{country.country}{" "}
-														{/* Display the country name */}
-													</CommandItem>
-												))}
-										</CommandGroup>
-									</CommandList>
-								</Command>
-							</PopoverContent>
-						</Popover>
+						<Controller
+							name="level"
+							rules={{required: "Required"}}
+							control={control}
+							render={({
+								field: {onChange, value, onBlur},
+								fieldState: {invalid, error}
+							}) => (
+								<Select
+									onValueChange={(value) => onChange(value)}
+									defaultValue={value}
+								>
+									<SelectTrigger
+										floatingLabel="Level"
+										name="level"
+										>
+										<SelectValue
+											placeholder="Select Level"/>
+									</SelectTrigger>
+									<SelectContent>
+										{workoutLevels.map((st: any, index: number) => (
+											<SelectItem
+												key={index}
+												value={st.value}>
+												{st.label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							)}
+						/>
+						{errors.level?.message && 
+						<span className="text-red-500 text-xs mt-[5px]">{errors.level?.message}</span>}
 					</div>
-					{/*<div className="h-min">
+					<div className="h-min">
 						<Controller
 							name="visiblefor"
 							rules={{ required: "Required" }}
@@ -202,174 +162,71 @@ const WorkoutStep1: React.FC = () => {
 							render={({
 								field: {onChange, value, onBlur},
 								fieldState: { invalid, error }
-							}) => {
-								<Select 
+							}) => (
+								<Select
 									onValueChange={(value) => onChange(value)}
 									defaultValue={value}
 									>
-									<SelectTrigger>
-									</SelectTrigger>
-								
-							}}
-						<Popover>
-							<PopoverTrigger asChild>
-								<Button
-									variant="outline"
-									role="combobox"
-									className="justify-between font-normal font-medium text-gray-400 focus:border-primary w-full"
-								>
-								{/*field.value
-										? countries?.find(
-												(country: CountryTypes) =>
-													country.id === field.value // Compare with numeric value
-											)?.country // Display country name if selected
-										: *\/}
-									Visible for*
-									<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className="p-0">
-								<Command>
-									<CommandList>
-										<CommandInput placeholder="Goals*" />
-										<CommandEmpty>No country found.</CommandEmpty>
-										{/*
-															form.setValue(
-																"country_id",
-																country.id // Set country_id to country.id as number
-															);
-															*\/}
-										<CommandGroup>
-											{visibleFor &&
-												visibleFor.map((st: any, idx: number) => (
-													<CommandItem
-														value={st.value}
-														key={idx}
-														onSelect={() => {return}}
-													>
-													{/*
-																*\/}
-														<Check
-															className={cn(
-																"mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-																st.value === field.value
-																	? "opacity-100"
-																	: "opacity-0"
-															)}
-														/>
-														{st.label}{" "}
-														{/* Display the country name *\/}
-													</CommandItem>
-												))}
-										</CommandGroup>
-									</CommandList>
-								</Command>
-							</PopoverContent>
-						</Popover>
-					</div>*/}
-					{/*<Controller
-							name={item.name as keyof CreateFoodTypes}
-							rules={{ required: "Required" }}
-							control={control}
-							render={({
-								field: { onChange, value, onBlur },
-								fieldState: { invalid, error },
-							}) => (
-								<div>
-									<Select
-										onValueChange={(value) => {
-											onChange(value);
-										}}
-										defaultValue={value as string | undefined}
+									<SelectTrigger
+										floatingLabel="Visible For"
+										name="visiblefor"
 									>
-										<SelectTrigger
-											floatingLabel={item.label}
-											name={item.name}
-										>
-											<SelectValue
-												placeholder={"Select " + item.label}
-											/>
-										</SelectTrigger>
-
-										<SelectContent>
-											{item.options?.map((st: any, index: number) => (
-												<SelectItem
-													key={index}
-													value={String(st.value)}
-												>
-													{st.label}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</div>
+										<SelectValue
+											placeholder="Select Visible For"
+										/>
+									</SelectTrigger>
+									<SelectContent>
+										{visibleFor.map((st: any, index: number) => (
+											<SelectItem
+												key={index}
+												value={st.value}
+											>
+												{st.label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
 							)}
 						/>
-						{errors[item.name as keyof CreateFoodTypes]?.message && (
-							<span className="text-red-500 text-xs mt-[5px]">
-								{errors[item.name as keyof CreateFoodTypes]?.message}
-							</span>
-						)}*/}
+						{errors.visiblefor?.message &&
+						<span className="text-red-500 text-xs mt-[5px]">{errors.visiblefor?.message}</span>
+						}
+					</div>
 					<div className="h-min">
-						<Popover>
-							<PopoverTrigger asChild>
-								{/*<FormControl>*/}
-									{/*
-											!field.value &&
-												"font-medium text-gray-400 focus:border-primary "
-												*/}
-									<Button
-										variant="outline"
-										role="combobox"
-										className="justify-between font-normal font-medium text-gray-400 focus:border-primary w-full"
+						<Controller
+							name="weeks"
+							rules={{required: "Required"}}
+							control={control}
+							render={({
+								field: {onChange, value, onBlur},
+								fieldState: {invalid, error}
+							}) => (
+								<Select
+									onValueChange={(value) => onChange(Number(value))}
+									defaultValue={(value?String(value):value) as string | undefined}
 									>
-										{/*field.value
-											? countries?.find(
-													(country: CountryTypes) =>
-														country.id === field.value // Compare with numeric value
-												)?.country // Display country name if selected
-											:*/ "Week (x) *"}
-										<ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-									</Button>
-								{/*</FormControl>*/}
-							</PopoverTrigger>
-							<PopoverContent className="p-0">
-								<Command>
-									<CommandList>
-										<CommandInput placeholder="Goals*" />
-										<CommandEmpty>No country found.</CommandEmpty>
-										{/*
-															form.setValue(
-																"country_id",
-																country.id // Set country_id to country.id as number
-															);
-															*/}
-										<CommandGroup>
-											{countries &&
-												countries.map((country: CountryTypes) => (
-													<CommandItem
-														value={country.country}
-														key={country.id}
-														onSelect={() => {return}} >
-														{/*
-																country.id === field.value
-																	? "opacity-100"
-																	: "opacity-0"
-																	*/}
-														<Check
-															className={cn(
-																"mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-															)}
-														/>
-														{country.country}{" "}
-														{/* Display the country name */}
-													</CommandItem>
-												))}
-										</CommandGroup>
-									</CommandList>
-								</Command>
-							</PopoverContent>
-						</Popover>
+									<SelectTrigger
+										floatingLabel="Weeks"
+										name="weeks"
+									>
+										<SelectValue placeholder="Weeks" />
+									</SelectTrigger>
+									<SelectContent>
+									{Array
+										.from({length: 20}, (_, i) => ({label: String(i+1), value: String(i+1)}))
+										.map((st: any, index: number) => (
+											<SelectItem
+												key={index}
+												value={st.value}
+											>
+												{st.label}
+											</SelectItem>
+									))}
+									</SelectContent>
+								</Select>
+							)}
+						/>
+						{errors.weeks?.message && <span className="text-red-500 text-xs mt-[5px]">{errors.weeks?.message}</span>}
 					</div>
 				{/* <!-- Column 3: Image Upload --> */}
 				{/*<div className="p-4">

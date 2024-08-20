@@ -28,6 +28,9 @@ import WorkoutPlan from "./components/admin/workoutplan";
 import IdleLogoutHandler from "./components/Idle-Timer";
 import NotFoundPage from "./components/PageNotFound";
 import ResetPassword from "./components/app/reset_password";
+import WorkoutPlanForm from "./components/admin/workoutplan/workoutform/workout-form";
+import WorkoutStep1 from "./components/admin/workoutplan/workoutform/workout-step-1";
+import WorkoutStep2 from "./components/admin/workoutplan/workoutform/workout-step-2";
 
 function App() {
   const loading = useSelector((state: RootState) =>

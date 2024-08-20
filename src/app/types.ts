@@ -1092,4 +1092,8 @@ export interface Workout {
 	name: string;
 	description?: string;
 	visiblefor: string|undefined;
+	goal: string;
+	level: string;
+	weeks: number;
+	member_ids: number[];
 }

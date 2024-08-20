@@ -973,9 +973,9 @@ export enum difficultyEnum {
   Advance = "Advance",
   Expert = "Expert",
 }
-enum IntensityEnum {
-  irm = "irm",
+export enum IntensityEnum {
   max_intensity = "Max Intensity",
+  irm = "irm",
 }
 enum VisibilityEnum {
   only_myself = "Only Myself",
@@ -990,14 +990,14 @@ export interface createExerciseInputTypes {
   org_id?: number;
   exercise_type?: ExerciseTypeEnum;
   exercise_intensity?: IntensityEnum;
-  intensity_value?: number | null;
+  intensity_value: number;
   difficulty?: difficultyEnum;
   sets?: number | null;
   seconds_per_set?: number[];
   repetitions_per_set?: number[];
   rest_between_set?: number[];
-  distance?: number | null;
-  speed?: number | null;
+  distance?: number;
+  speed?: number;
   met_id?: number | null;
   gif_url: string;
   video_url_male?: string;
@@ -1013,6 +1013,10 @@ export interface createExerciseInputTypes {
   primary_joint_ids: number[];
   created_by?: number | null;
   updated_by?: number | null;
+  timePerSet?: { value: number | null }[];
+  restPerSet?: { value: number | null }[];
+  repetitionPerSet?: { value: number | null }[];
+  gif: File[];
 }
 
 export interface ExerciseResponseViewType {

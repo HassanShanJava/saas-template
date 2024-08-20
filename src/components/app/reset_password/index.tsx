@@ -21,24 +21,21 @@ const ResetPassword = () => {
     const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
     const toggleVisibility = (setState: React.Dispatch<SetStateAction<boolean>>) => setState(prev => !prev)
     const navigate = useNavigate();
-    const [userData, setUserData] = useState<Record<string, any>>({})
-    const { data: verifyToken, error } = useVerifyTokenQuery(token as string, {
-        skip: token == undefined
-    });
+    const { data: verifyToken, error } = useVerifyTokenQuery(token as string);
     const [resetPassword] = useResetPasswordMutation();
 
-    const form = useForm<{ new_password: string; confirm_password: string }>({
+    const form = useForm<{ new_password: string; confirm_password: string, id: number, org_id: number }>({
         mode: "onBlur",
         criteriaMode: "all",
         defaultValues: {
-            new_password: "",
-            confirm_password: "",
+            new_password: undefined,
+            confirm_password: undefined,
         },
     });
 
     useEffect(() => {
         if (verifyToken !== undefined && !error) {
-            setUserData(verifyToken)
+            form.reset({ id: verifyToken.id, org_id: verifyToken.org_id, new_password: '', confirm_password: '', })
         } else if (error && typeof error === "object" && "data" in error) {
             const typedError = error as ErrorType;
             toast({
@@ -56,32 +53,30 @@ const ResetPassword = () => {
         watch,
         formState: { isSubmitting, errors, isSubmitSuccessful },
     } = form;
-
+    const watcher = watch()
     const password = watch("new_password");
     const passwordStrength = useMemo(
         () => ValidatePassword(password),
         [password]
     );
 
-    const onSubmit = useCallback(async (data: { new_password: string; confirm_password: string }) => {
-        try {
-            if (userData) {
 
-                const payload = {
-                    token: token as string,
-                    id: userData?.id as number,
-                    org_id: userData?.org_id as number,
-                    ...data
-                }
-                console.log({ payload })
-                await resetPassword(payload).unwrap();
-                if (isSubmitSuccessful) {
-                    toast({
-                        variant: "success",
-                        title: "Password Reset Successfully",
-                    });
-                    navigate('/');
-                }
+    console.log({ watcher })
+
+    const onSubmit = useCallback(async (data: { new_password: string; confirm_password: string, id: number, org_id: number }) => {
+        try {
+            const payload = {
+                token: token as string,
+                ...data
+            }
+            console.log({ payload })
+            const resp = await resetPassword(payload).unwrap();
+            if (resp) {
+                toast({
+                    variant: "success",
+                    title: "Password Reset Successfully",
+                });
+                navigate('/');
             }
         } catch (error: unknown) {
             console.error("Error", { error });
@@ -164,7 +159,7 @@ const ResetPassword = () => {
                                 <div className="flex items-center custom-box-shadow w-full gap-2 px-4 py-2 rounded-md border border-checkboxborder focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 ">
                                     <input
                                         id="confirm_password"
-                                        type={isConfirmPasswordVisible   ? "text" : "password"}
+                                        type={isConfirmPasswordVisible ? "text" : "password"}
                                         placeholder="Confirm Password"
                                         className="w-full bg-transparent border-checkboxborder text-textgray outline-none"
                                         {...register("confirm_password", {

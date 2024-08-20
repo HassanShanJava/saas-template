@@ -136,9 +136,9 @@ export interface createMembershipType {
   renewal_details: renewalData | object;
   facilities: facilitiesData[] | [];
   created_by: number | null;
-  inv_days_cycle?: number| null;
-  auto_renew_days?: number| null;
-  prolongation_period?: number| null;
+  inv_days_cycle?: number | null;
+  auto_renew_days?: number | null;
+  prolongation_period?: number | null;
 }
 
 export interface membeshipsTableResonseType {
@@ -395,7 +395,7 @@ export interface MemberInputTypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: Date|string;
+  dob?: Date | string;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -410,7 +410,7 @@ export interface MemberInputTypes {
   address_1?: string;
   address_2?: string;
   client_status?: string;
-  client_since?: Date|string;
+  client_since?: Date | string;
   created_at?: string | null;
   created_by?: number | null;
   org_id?: number;
@@ -430,7 +430,7 @@ export interface MemberResponseTypes {
   first_name: string;
   last_name: string;
   gender: string;
-  dob: Date|string;
+  dob: Date | string;
   email: string;
   phone?: string | null;
   mobile_number?: string | null;
@@ -478,7 +478,7 @@ export interface MemberTableDatatypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: Date|string;
+  dob?: Date | string;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -520,7 +520,7 @@ export interface MemberTableResponseDatatypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: Date|string;
+  dob?: Date | string;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -965,9 +965,9 @@ export enum difficultyEnum {
   Advance = "Advance",
   Expert = "Expert",
 }
-enum IntensityEnum {
-  irm = "irm",
+export enum IntensityEnum {
   max_intensity = "Max Intensity",
+  irm = "irm",
 }
 enum VisibilityEnum {
   only_myself = "Only Myself",
@@ -982,14 +982,14 @@ export interface createExerciseInputTypes {
   org_id?: number;
   exercise_type?: ExerciseTypeEnum;
   exercise_intensity?: IntensityEnum;
-  intensity_value?: number | null;
+  intensity_value: number;
   difficulty?: difficultyEnum;
   sets?: number | null;
   seconds_per_set?: number[];
   repetitions_per_set?: number[];
   rest_between_set?: number[];
-  distance?: number | null;
-  speed?: number | null;
+  distance?: number;
+  speed?: number;
   met_id?: number | null;
   gif_url: string;
   video_url_male?: string;
@@ -1005,6 +1005,10 @@ export interface createExerciseInputTypes {
   primary_joint_ids: number[];
   created_by?: number | null;
   updated_by?: number | null;
+  timePerSet?: { value: number | null }[];
+  restPerSet?: { value: number | null }[];
+  repetitionPerSet?: { value: number | null }[];
+  gif: File[];
 }
 
 export interface ExerciseResponseViewType {

@@ -169,7 +169,7 @@ const ResetPassword = () => {
                                                 message: "Max length exceeded",
                                             },
                                             validate: (val: string) => {
-                                                if (watch('new_password') != val && val !== '') {
+                                                if (watch('new_password').trim() != val.trim() && val !== '') {
                                                     return "Your passwords do no match";
                                                 }
                                             }

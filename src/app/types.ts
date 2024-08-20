@@ -615,19 +615,19 @@ export interface createRole {
 
 export interface CoachInputTypes {
   profile_img?: string;
-  own_coach_id: string;
-  first_name: string;
-  last_name: string;
+  own_coach_id?: string;
+  first_name?: string;
+  last_name?: string;
   gender?: "male" | "female" | "other";
-  dob: string;
-  email: string;
+  dob?: string;
+  email?: string;
   phone?: string;
   mobile_number?: string;
   notes?: string;
-  source_id: number;
-  country_id: number;
+  source_id?: number;
+  country_id?: number;
   city?: string;
-  coach_status: "pending" | "active" | "inactive" | undefined;
+  coach_status?: "pending" | "active" | "inactive" | undefined;
   zipcode?: string;
   address_1?: string;
   address_2?: string;

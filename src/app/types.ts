@@ -1,6 +1,14 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
+export interface ResetPasswordType {
+  id: number;
+  org_id: number;
+  new_password: string;
+  confirm_password: string;
+  token: string;
+}
+
 export interface FoodTableResponse {
   data: CreateFoodTypes[];
   total_counts: number;
@@ -136,9 +144,9 @@ export interface createMembershipType {
   renewal_details: renewalData | object;
   facilities: facilitiesData[] | [];
   created_by: number | null;
-  inv_days_cycle?: number| null;
-  auto_renew_days?: number| null;
-  prolongation_period?: number| null;
+  inv_days_cycle?: number | null;
+  auto_renew_days?: number | null;
+  prolongation_period?: number | null;
 }
 
 export interface membeshipsTableResonseType {
@@ -395,7 +403,7 @@ export interface MemberInputTypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: Date|string;
+  dob?: Date | string;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -410,7 +418,7 @@ export interface MemberInputTypes {
   address_1?: string;
   address_2?: string;
   client_status?: string;
-  client_since?: Date|string;
+  client_since?: Date | string;
   created_at?: string | null;
   created_by?: number | null;
   org_id?: number;
@@ -430,7 +438,7 @@ export interface MemberResponseTypes {
   first_name: string;
   last_name: string;
   gender: string;
-  dob: Date|string;
+  dob: Date | string;
   email: string;
   phone?: string | null;
   mobile_number?: string | null;
@@ -478,7 +486,7 @@ export interface MemberTableDatatypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: Date|string;
+  dob?: Date | string;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -520,7 +528,7 @@ export interface MemberTableResponseDatatypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: Date|string;
+  dob?: Date | string;
   email?: string;
   phone?: string;
   mobile_number?: string;

@@ -18,11 +18,10 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const { VITE_APP_SITEKEY } = import.meta.env;
 import logomainsvg from "@/assets/logo-main.svg";
 import ForgotPasword from "./forgot_password";
+
 export default function AuthenticationPage() {
   const [open, setOpen] = useState(false);
-  const token = localStorage.getItem("userToken");
   const navigate = useNavigate();
-
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   const { toast } = useToast();
@@ -42,7 +41,6 @@ export default function AuthenticationPage() {
     email: string;
     password: string;
     rememberme: boolean;
-    persona?: string;
   }>({
     mode: "onChange",
     reValidateMode: "onChange",
@@ -50,7 +48,6 @@ export default function AuthenticationPage() {
       email,
       password,
       rememberme: false,
-      persona: "user",
     },
   });
 
@@ -58,7 +55,10 @@ export default function AuthenticationPage() {
     if (error != null) {
       console.log("Error Login", error);
       setCaptchaError(false);
-      reset();
+      // reset(initalValue);
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+      }
       toast({
         variant: "destructive",
         title: "Error",
@@ -70,7 +70,6 @@ export default function AuthenticationPage() {
   useEffect(() => {
     if (loading || !isLoggedIn) return;
     setCaptchaError(false);
-    reset();
     if (recaptchaRef.current) {
       recaptchaRef.current.reset();
     }
@@ -106,7 +105,7 @@ export default function AuthenticationPage() {
 
     console.log("Form data:", data);
     dispatch(login(data));
-    recaptchaRef.current?.reset();
+    // recaptchaRef.current?.reset();
   };
 
   const [isCaptchaError, setCaptchaError] = useState(false);
@@ -122,7 +121,8 @@ export default function AuthenticationPage() {
   return (
     <div
       className="loginpage-image"
-      data-background-src={`https://uploads.fitnfi.com/images/background.png`}
+      data-background-src={`../../../assets/background.webp`}
+    // data-background-src={`https://uploads.fitnfi.com/images/background.png`}
     >
       <div className="max-w-[1800px] mx-auto">
         <div className="flex mx-16 justify-between items-center h-dvh ">
@@ -284,7 +284,7 @@ export default function AuthenticationPage() {
           </div>
         </div>
       </div>
-      {/* <ForgotPasword open={open} setOpen={setOpen}/> */}
+      <ForgotPasword open={open} setOpen={setOpen} />
     </div>
   );
 }

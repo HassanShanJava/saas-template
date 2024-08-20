@@ -14,6 +14,7 @@ import {
   ExerciseTableTypes,
   ExerciseResponseServerViewType,
   ExerciseTableServerTypes,
+  ExerciseCreationInputTypes,
 } from "@/app/types";
 
 interface ExerciseQueryInput {
@@ -100,7 +101,7 @@ export const Exercise = apiSlice.injectEndpoints({
       }),
       AddExercise: builder.mutation<
         ExerciseCreationResponse,
-        createExerciseInputTypes
+        ExerciseCreationInputTypes
       >({
         query: (exercisedata) => ({
           url: "/exercise",
@@ -129,16 +130,13 @@ export const Exercise = apiSlice.injectEndpoints({
           ...response,
           data: response.data.map((record) => ({
             ...record,
-            primary_joint_ids: record.primary_joints.map((coach) => 
-              coach.value,
-             ),
-            primary_muscle_ids:
-            record.primary_muscles.map((coach) => 
-              coach.value,
-             ),
-            equipment_ids:record.equipments.map((coach) => 
-             coach.value,
+            primary_joint_ids: record.primary_joints.map(
+              (coach) => coach.value
             ),
+            primary_muscle_ids: record.primary_muscles.map(
+              (coach) => coach.value
+            ),
+            equipment_ids: record.equipments.map((coach) => coach.value),
           })),
         }),
         providesTags: ["Exercise"],

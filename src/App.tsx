@@ -42,7 +42,6 @@ function App() {
       {" "}
       <IdleLogoutHandler /> {/* Add the idle handler here */}
       <Routes>
-
         <Route path="/reset_password/:token" element={<ResetPassword />} />
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/" index element={<AuthenticationPage />} />
@@ -78,7 +77,7 @@ function App() {
               
               element={<StaffForm />}
             />*/}
-            {/* <Route path="/admin/exercise" element={<Exercise />} /> */}
+            <Route path="/admin/exercise" element={<Exercise />} />
             {/* <Route
               path="/admin/exercise/addexercise"
               

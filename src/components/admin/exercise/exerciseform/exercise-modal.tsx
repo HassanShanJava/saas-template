@@ -41,10 +41,12 @@ import {
 } from "@/app/types";
 import uploadimg from "@/assets/upload.svg";
 import {
+  combinePayload,
   difficultyTypeoptions,
   ExerciseItem,
   exerciseTypeOptions,
   initialValue,
+  processAndUploadImages,
   visibilityOptions,
 } from "@/constants/exercise";
 import {
@@ -113,10 +115,6 @@ const ExerciseForm = ({
     Difficulty.Novice
   );
   const { toast } = useToast();
-  const [gif, setGif] = useState<File[] | null>(null);
-  const [maleImage, setMaleImage] = useState<File[] | null>(null);
-  const [femaleImage, setFemaleImage] = useState<File[] | null>(null);
-
   const [existingGIf, setExistingGif] = useState<string | null>(null);
   const [existingMaleImage, setExistingMaleImage] = useState<string | null>(
     null
@@ -163,7 +161,8 @@ const ExerciseForm = ({
     setValue,
     formState: { isSubmitting, errors },
   } = form;
-  const [currentValue, setCurrentValue] = useState<number>(
+
+  const [currentValue, setCurrentValue] = useState<number | undefined>(
     form.getValues("intensity_value")
   );
 
@@ -175,11 +174,18 @@ const ExerciseForm = ({
       reset(data);
     } else if (action == "add") {
       console.log({ initialValue }, "add");
+      // reset(initialValue, {
+      //   keepIsSubmitted: false,
+      //   keepSubmitCount: false,
+      //   keepDefaultValues: false,
+      //   keepDirtyValues: true,
+      // });
+
       reset(initialValue, {
-        keepIsSubmitted: false,
-        keepSubmitCount: false,
-        keepDefaultValues: true,
-        keepDirtyValues: true,
+        keepIsSubmitted: false, // Reset the form's submission state
+        keepSubmitCount: false, // Reset the count of submissions
+        keepDirtyValues: false, // Clear any dirty values (set to false to reset all fields)
+        keepDefaultValues: true, // Keep default values as provided by initialValue
       });
     }
   }, [action, reset]);
@@ -188,14 +194,13 @@ const ExerciseForm = ({
     clearErrors();
     setAction("add");
     reset(initialValue, {
-      keepIsSubmitted: false,
-      keepSubmitCount: false,
-      keepDefaultValues: true,
-      keepDirtyValues: true,
+      keepIsSubmitted: false, // Reset the form's submission state
+      keepSubmitCount: false, // Reset the count of submissions
+      keepDirtyValues: false, // Clear any dirty values (set to false to reset all fields)
+      keepDefaultValues: true, // Keep default values as provided by initialValue
     });
-    setMaleImage([]);
-    setFemaleImage([]);
-    setGif([]);
+    setValueofDifficulty(Difficulty.Novice);
+    console.log("called");
     setOpen(false);
   };
 
@@ -203,27 +208,52 @@ const ExerciseForm = ({
   const [updateExercise] = useUpdateExerciseMutation();
   console.log({ watcher, errors });
   const onSubmit = async (input: createExerciseInputTypes) => {
-    // const payload = { org_id: orgId, ...input };
-    // if (files && files?.length > 0) {
-    //   console.log(files[0], "food_image");
-    //   const getUrl = await UploadCognitoImage(files[0]);
-    //   payload.img_url = getUrl.location;
-    // } else {
-    //   payload.img_url = null;
-    // }
     console.log("input payload", { input });
 
-    console.log("FIle infor", input.imagemale);
+    console.log("FIle infor", input.gif[0]);
+    console.log("Male image", input.imagemale[0]);
+    console.log("Female image", input.imagefemale[0]);
+    const fileInputObject = {
+      gif: input.gif,
+      imagemale: input.imagemale,
+      imagefemale: input.imagefemale,
+    };
+    const result = await processAndUploadImages(fileInputObject);
 
+    console.log("Resulting urls", result);
+    const responsePayload = combinePayload(input, result);
+    // let payload;
+    // if (input.exercise_type === ExerciseTypeEnum.repetition_based) {
+    //   payload = {
+    //     ...responsePayload,
+    //     seconds_per_set: responsePayload.timePerSet,
+    //     rest_between_set: responsePayload.restPerSet,
+    //   };
+    // } else {
+    //   payload = {
+    //     ...responsePayload,
+    //     repetitions_per_set: responsePayload.repetitionPerSet,
+    //     rest_between_set: responsePayload.restPerSetrep,
+    //   };
+    // }
+
+    // console.log("Final final Payload", payload);
+    // let payload;
+    // console.log("checking condition",
+    //   input.exercise_type === ExerciseTypeEnum.repetition_based,
+    //   input.exercise_type === ExerciseTypeEnum.time_based);
+
+    // console.log("Final Payload:", payload);
+    console.log("Dead final response", responsePayload);
     try {
       if (action === "add") {
-        // await createExercise(payload).unwrap();
-        // toast({
-        //   variant: "success",
-        //   title: "Created Successfully",
-        // });
-        // refetch();
-        // handleClose();
+        await createExercise(responsePayload).unwrap();
+        toast({
+          variant: "success",
+          title: "Created Successfully",
+        });
+        refetch();
+        handleClose();
       } else if (action === "edit") {
         // await updateExercise({ ...payload, id: data?.id as number }).unwrap();
         // toast({
@@ -348,15 +378,17 @@ const ExerciseForm = ({
     },
     {
       type: "text",
-      name: "youtube_link_male",
+      name: "video_url_male",
       label: "Youtube link-Male",
       required: false,
+      maxlength: 150,
     },
     {
       type: "text",
-      name: "youtube_link_female",
+      name: "video_url_female",
       label: "Youtube link-Female",
       required: false,
+      maxlength: 150,
     },
     {
       type: "radio",
@@ -406,6 +438,7 @@ const ExerciseForm = ({
                       type="button"
                       className="w-[100px] text-center flex items-center gap-2 border-primary"
                       variant={"outline"}
+                      disabled={isSubmitting}
                       onClick={handleClose}
                     >
                       <i className="fa fa-xmark "></i>
@@ -421,7 +454,7 @@ const ExerciseForm = ({
                       {!isSubmitting && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
-                      {action === "edit" ? "Save" : "Update"}
+                      Save
                     </LoadingButton>
                   </div>
                 </div>
@@ -453,7 +486,7 @@ const ExerciseForm = ({
                           item.name as keyof createExerciseInputTypes,
                           {
                             required: item.required && "Required",
-                            maxLength: 40,
+                            maxLength: item.maxlength || 40,
                             setValueAs: (value) => value.toLowerCase(),
                           }
                         )}
@@ -538,7 +571,6 @@ const ExerciseForm = ({
                               onValueChange={(value) => {
                                 onChange(value);
                               }}
-                              defaultValue={value as string | undefined}
                             >
                               <SelectTrigger
                                 floatingLabel={item.label}
@@ -607,6 +639,7 @@ const ExerciseForm = ({
                                 >
                                   <img
                                     src={URL.createObjectURL(file)}
+                                    // src="https://uploads.fitnfi.com/images/background.png"
                                     alt={file.name}
                                     className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                                   />
@@ -1195,7 +1228,7 @@ const ExerciseForm = ({
                                 render={({ field, fieldState }) => (
                                   <>
                                     <Slider
-                                      value={[field.value]} // Slider expects an array for the value
+                                      value={[field.value as number]} // Slider expects an array for the value
                                       onValueChange={(val) => {
                                         field.onChange(val[0]);
                                         setCurrentValue(val[0]);

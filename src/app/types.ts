@@ -993,11 +993,11 @@ export enum Difficulty {
 
 export interface createExerciseInputTypes {
   exercise_name: string;
-  visible_for?: VisibilityEnum;
+  visible_for?: VisibilityEnum | null;
   org_id?: number;
   exercise_type?: ExerciseTypeEnum;
   exercise_intensity?: IntensityEnum;
-  intensity_value: number;
+  intensity_value?: number;
   difficulty: string;
   sets?: number | null;
   distance?: number;
@@ -1022,6 +1022,35 @@ export interface createExerciseInputTypes {
   gif: File[];
   imagemale: File[];
   imagefemale: File[];
+}
+
+export interface ExerciseCreationInputTypes {
+  exercise_name: string;
+  visible_for: string;
+  org_id: number;
+  exercise_type: string;
+  exercise_intensity: string;
+  intensity_value?: number;
+  difficulty: string;
+  sets: number;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  distance?: number;
+  speed?: number;
+  met_id?: number;
+  gif_url: string;
+  video_url_male?: string;
+  video_url_female?: string;
+  thumbnail_male?: string;
+  thumbnail_female?: string;
+  image_url_female?: string;
+  image_url_male?: string;
+  category_id: number;
+  equipment_ids: number[];
+  primary_muscle_ids: number[];
+  secondary_muscle_ids?: number[];
+  primary_joint_ids: number[];
 }
 
 export interface ExerciseResponseViewType {

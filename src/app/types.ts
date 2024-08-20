@@ -1,6 +1,14 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
+export interface ResetPasswordType {
+  id: number;
+  org_id: number;
+  new_password: string;
+  confirm_password: string;
+  token: string;
+}
+
 export interface FoodTableResponse {
   data: CreateFoodTypes[];
   total_counts: number;

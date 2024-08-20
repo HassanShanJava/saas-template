@@ -712,34 +712,6 @@ const MemberForm = ({
                       field: { onChange, value, onBlur },
                       fieldState: { invalid, error },
                     }) => (
-                      // <MultiSelector
-                      //   onValuesChange={(values) => onChange(values)}
-                      //   values={(value as any[]) ?? []}
-                      // >
-                      //   <MultiSelectorTrigger className="border-[1px] border-gray-300">
-                      //     <MultiSelectorInput
-                      //       className="font-medium  placeholder:text-gray-800"
-                      //       placeholder={
-                      //         value && (value as any[])?.length == 0
-                      //           ? `Select Coaches`
-                      //           : ""
-                      //       }
-                      //     />
-                      //   </MultiSelectorTrigger>
-                      //   <MultiSelectorContent className="">
-                      //     <MultiSelectorList>
-                      //       {coachesData &&
-                      //         coachesData.map((user: any) => (
-                      //           <MultiSelectorItem key={user.id} value={user}>
-                      //             <div className="flex items-center space-x-2">
-                      //               <span>{user.name}</span>
-                      //             </div>
-                      //           </MultiSelectorItem>
-                      //         ))}
-                      //     </MultiSelectorList>
-                      //   </MultiSelectorContent>
-                      // </MultiSelector>
-
                       <MultiSelect
                         floatingLabel={"Coaches"}
                         options={coachesData as {value: number, label: string}[]}

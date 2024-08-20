@@ -9,7 +9,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
-import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox"; 
+import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import {
   Sheet,
   SheetContent,
@@ -250,7 +250,7 @@ const MemberForm = ({
   useEffect(() => {
     if (action == "edit") {
       const memberpayload = { ...memberData };
-      memberpayload.coach_id = memberData?.coaches;
+      memberpayload.coach_id = memberData?.coaches.map((item)=>item.id);
       reset(memberpayload);
       setAvatar(memberpayload.profile_img as string);
     } else {
@@ -444,8 +444,8 @@ const MemberForm = ({
                     <img
                       id="avatar"
                       src={
-                        watcher.profile_img !== ""
-                          ? VITE_VIEW_S3_URL +'/'+watcher.profile_img
+                        watcher.profile_img !== "" && watcher.profile_img
+                          ? VITE_VIEW_S3_URL + '/' + watcher.profile_img
                           : avatar
                             ? String(avatar)
                             : profileimg
@@ -624,6 +624,7 @@ const MemberForm = ({
                     id="email"
                     className=""
                     type="email"
+                    disabled={action=='edit'}
                     label="Email Address*"
                     {...register("email", {
                       required: "Required",
@@ -711,33 +712,19 @@ const MemberForm = ({
                       field: { onChange, value, onBlur },
                       fieldState: { invalid, error },
                     }) => (
-                      <MultiSelector
-                        onValuesChange={(values) => onChange(values)}
-                        values={(value as any[]) ?? []}
-                      >
-                        <MultiSelectorTrigger className="border-[1px] border-gray-300">
-                          <MultiSelectorInput
-                            className="font-medium  placeholder:text-gray-800"
-                            placeholder={
-                              value && (value as any[])?.length == 0
-                                ? `Select Coaches`
-                                : ""
-                            }
-                          />
-                        </MultiSelectorTrigger>
-                        <MultiSelectorContent className="">
-                          <MultiSelectorList>
-                            {coachesData &&
-                              coachesData.map((user: any) => (
-                                <MultiSelectorItem key={user.id} value={user}>
-                                  <div className="flex items-center space-x-2">
-                                    <span>{user.name}</span>
-                                  </div>
-                                </MultiSelectorItem>
-                              ))}
-                          </MultiSelectorList>
-                        </MultiSelectorContent>
-                      </MultiSelector>
+                      <MultiSelect
+                        floatingLabel={"Coaches"}
+                        options={coachesData as {value: number, label: string}[]}
+                        defaultValue={watch("coach_id") || []} // Ensure defaultValue is always an array
+                        onValueChange={(selectedValues) => {
+                          console.log("Selected Values: ", selectedValues); // Debugging step
+                          onChange(selectedValues); // Pass selected values to state handler
+                        }}
+                        placeholder={"Select coaches"}
+                        variant="inverted"
+                        maxCount={1}
+                        className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 "
+                      />
                     )}
                   />
                   {errors.coach_id?.message && (
@@ -876,14 +863,14 @@ const MemberForm = ({
                                 className={cn(
                                   "justify-between ",
                                   !value &&
-                                    "font-medium text-gray-800 focus:border-primary "
+                                  "font-medium text-gray-800 focus:border-primary "
                                 )}
                               >
                                 {value
                                   ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                    (country: CountryTypes) =>
+                                      country.id === value // Compare with numeric value
+                                  )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

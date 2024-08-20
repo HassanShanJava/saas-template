@@ -51,7 +51,6 @@ const status = [
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
 ];
 
-
 const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -67,8 +66,8 @@ export default function MealPlansTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  const [action, setAction]=useState<'add'|'edit'>('add')
-  const [isDialogOpen, setIsDialogOpen]=useState<boolean>(false)
+  const [action, setAction] = useState<"add" | "edit">("add");
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const handleCloseDailog = () => setIsDialogOpen(false);
 
@@ -85,9 +84,6 @@ export default function MealPlansTableView() {
   const [filters, setFilters] = useState<any>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  
-
-  
 
   const handleExportSelected = () => {
     const selectedRows = table
@@ -103,9 +99,6 @@ export default function MealPlansTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
-
-  
-
   const columns: ColumnDef<membeshipsTableType>[] = [
     {
       accessorKey: "name",
@@ -120,7 +113,6 @@ export default function MealPlansTableView() {
       accessorKey: "visible_for",
       header: ({ table }) => <span>Visible For</span>,
       cell: ({ row }) => {
-
         return <span>any</span>;
       },
       enableSorting: false,
@@ -139,7 +131,6 @@ export default function MealPlansTableView() {
       accessorKey: "protein",
       header: ({ table }) => <span>Protein</span>,
       cell: ({ row }) => {
-        
         return <span>any</span>;
       },
       enableSorting: false,
@@ -164,11 +155,11 @@ export default function MealPlansTableView() {
       },
       enableSorting: false,
       enableHiding: false,
-    }
+    },
   ];
 
   const table = useReactTable({
-    data: [] as any[] ,
+    data: [] as any[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -181,7 +172,6 @@ export default function MealPlansTableView() {
       columnVisibility,
       rowSelection,
     },
-    
   });
 
   function handlePagination(page: number) {
@@ -189,10 +179,10 @@ export default function MealPlansTableView() {
     // setFilters
   }
 
-  const handleOpen=()=>{
-    setAction('add')
-    setIsDialogOpen(true)
-  }
+  const handleOpen = () => {
+    setAction("add");
+    setIsDialogOpen(true);
+  };
 
   return (
     <div className="w-full space-y-4">
@@ -211,7 +201,10 @@ export default function MealPlansTableView() {
       </div>
       <div className="rounded-none  ">
         <ScrollArea className="w-full relative">
-          <ScrollBar orientation="horizontal" />
+          <ScrollBar
+            orientation="horizontal"
+            className="relative z-30 cursor-grab"
+          />
           <Table className="w-full overflow-x-scroll">
             <TableHeader className="bg-secondary/80">
               {table?.getHeaderGroups().map((headerGroup) => (
@@ -284,8 +277,6 @@ export default function MealPlansTableView() {
           </Table>
         </ScrollArea>
       </div>
-
-      
 
       <MealPlanForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} />
     </div>

@@ -457,7 +457,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     <img
                       id="avatar"
                       src={
-                        watcher.profile_img !== ""
+                        watcher.profile_img !== "" && watcher.profile_img
                           ? VITE_VIEW_S3_URL + "/" + watcher.profile_img
                           : avatar
                             ? String(avatar)

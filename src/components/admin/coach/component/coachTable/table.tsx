@@ -199,7 +199,7 @@ export default function CoachTableView() {
   };
 
   const handleStatusChange = async (payload: {
-    coach_status: string;
+    coach_status: "pending" | "active" | "inactive" | undefined;
     id: number;
     org_id: number;
   }) => {
@@ -388,7 +388,7 @@ export default function CoachTableView() {
         return (
           <Select
             defaultValue={value}
-            onValueChange={(e) =>
+            onValueChange={(e:any) =>
               handleStatusChange({ coach_status: e, id: id, org_id: org_id })
             }
             disabled={value == "pending"}
@@ -610,7 +610,10 @@ export default function CoachTableView() {
       </div>
       <div className="rounded-none border border-border ">
         <ScrollArea className="w-full relative">
-          <ScrollBar orientation="horizontal" />
+          <ScrollBar
+            orientation="horizontal"
+            className="relative z-30 cursor-grab"
+          />
           <Table className="w-full overflow-x-scroll">
             <TableHeader className="bg-secondary/80">
               {table?.getHeaderGroups().map((headerGroup) => (

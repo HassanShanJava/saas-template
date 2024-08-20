@@ -615,19 +615,19 @@ export interface createRole {
 
 export interface CoachInputTypes {
   profile_img?: string;
-  own_coach_id: string;
-  first_name: string;
-  last_name: string;
+  own_coach_id?: string;
+  first_name?: string;
+  last_name?: string;
   gender?: "male" | "female" | "other";
-  dob: string;
-  email: string;
+  dob?: string;
+  email?: string;
   phone?: string;
   mobile_number?: string;
   notes?: string;
-  source_id: number;
-  country_id: number;
+  source_id?: number;
+  country_id?: number;
   city?: string;
-  coach_status: "pending" | "active" | "inactive" | undefined;
+  coach_status?: "pending" | "active" | "inactive" | undefined;
   zipcode?: string;
   address_1?: string;
   address_2?: string;
@@ -636,7 +636,7 @@ export interface CoachInputTypes {
   acc_holder_name?: string;
   swift_code?: string;
   created_by?: number;
-  member_ids: any;
+  member_ids?: any;
   org_id: number;
 }
 export interface addCoachResponseType {
@@ -973,15 +973,22 @@ export enum difficultyEnum {
   Advance = "Advance",
   Expert = "Expert",
 }
-enum IntensityEnum {
-  irm = "irm",
+export enum IntensityEnum {
   max_intensity = "Max Intensity",
+  irm = "irm",
 }
 enum VisibilityEnum {
   only_myself = "Only Myself",
   staff_of_my_club = "Staff of My Club",
   members_of_my_club = "Members of My Club",
   everyone_in_my_club = "Everyone in My Club",
+}
+export enum Difficulty {
+  Novice = 0,
+  Beginner,
+  Intermediate,
+  Advance,
+  Expert,
 }
 
 export interface createExerciseInputTypes {
@@ -990,14 +997,11 @@ export interface createExerciseInputTypes {
   org_id?: number;
   exercise_type?: ExerciseTypeEnum;
   exercise_intensity?: IntensityEnum;
-  intensity_value?: number | null;
-  difficulty?: difficultyEnum;
+  intensity_value: number;
+  difficulty: string;
   sets?: number | null;
-  seconds_per_set?: number[];
-  repetitions_per_set?: number[];
-  rest_between_set?: number[];
-  distance?: number | null;
-  speed?: number | null;
+  distance?: number;
+  speed?: number;
   met_id?: number | null;
   gif_url: string;
   video_url_male?: string;
@@ -1011,8 +1015,13 @@ export interface createExerciseInputTypes {
   primary_muscle_ids: number[];
   secondary_muscle_ids?: number[];
   primary_joint_ids: number[];
-  created_by?: number | null;
-  updated_by?: number | null;
+  timePerSet?: { value: number | null }[];
+  restPerSet?: { value: number | null }[];
+  restPerSetrep?: { value: number | null }[];
+  repetitionPerSet?: { value: number | null }[];
+  gif: File[];
+  imagemale: File[];
+  imagefemale: File[];
 }
 
 export interface ExerciseResponseViewType {

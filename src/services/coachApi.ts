@@ -62,7 +62,7 @@ export const Roles = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Coaches"],
       }),
-      updateCoach: builder.mutation<any, any>({
+      updateCoach: builder.mutation<any, CoachInputTypes & {id:number}>({
         query: (coachdata) => ({
           url: "/coach",
           method: "PUT",
@@ -91,7 +91,7 @@ export const Roles = apiSlice.injectEndpoints({
         },
         providesTags: (result, error, arg) => [{ type: "Coaches", id: arg }],
       }),
-      getCoachList: builder.query<{id:number, name:string}[], number>({
+      getCoachList: builder.query<{value:number, label:string}[], number>({
         query: (org_id) => ({
           url: `/coach/list/${org_id}`,
           method: "GET",
@@ -99,7 +99,9 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
           providesTags:["Coaches"],
+
         }),
+        transformResponse: (response: {id:number, name:string}[]) => response.map((item: any) => ({value: item.id, label: item.name})),
       }),
     };
   },

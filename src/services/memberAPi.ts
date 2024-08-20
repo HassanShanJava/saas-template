@@ -123,14 +123,15 @@ export const MemberAPi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Members"],
     }),
-    getMembersList: builder.query<{ id: number; name: string }[], number>({
+    getMembersList: builder.query<{ value: number; label: string }[], number>({
       query: (org_id) => ({
         url: `/member/list/${org_id}`,
           headers: {
           Accept: "application/json",
         },
+        providesTags: ["Members"],
+        transformResponse: (response: {id:number, name:string}[]) => response.map((item: any) => ({value: item.id, label: item.name})),
       }),
-      providesTags: ["Members"],
     }),
   }),
 });

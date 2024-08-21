@@ -59,6 +59,7 @@ interface FoodForm {
   setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
   refetch: any;
   data: CreateFoodTypes | undefined;
+  setData?: React.Dispatch<React.SetStateAction<CreateFoodTypes | undefined>>;
 }
 
 const FoodForm = ({
@@ -68,6 +69,7 @@ const FoodForm = ({
   data,
   setAction,
   refetch,
+  setData,
 }: FoodForm) => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -130,6 +132,7 @@ const FoodForm = ({
       keepDirtyValues: true,
     });
     setFiles([])
+    setData(undefined)
     setShowMore(false);
     setOpen(false);
   };
@@ -138,32 +141,32 @@ const FoodForm = ({
   const [updateFood] = useUpdateFoodsMutation();
 
   const onSubmit = async (input: CreateFoodTypes) => {
-    if(data ==watcher){
-      toast({
-        variant: "destructive",
-        title: "No changes detected",
-      });
-      return;
-    }
-    const payload = { org_id: orgId, ...input };
-    if (files && files?.length > 0) {
-      if (watcher.img_url !== '' && watcher.img_url) {
+    // if(areObjectsIdentical(data,watcher)){
+    //   toast({
+    //     variant: "destructive",
+    //     title: "No changes detected",
+    //   });
+    //   return;
+    // }
 
-        await deleteCognitoImage(watcher.img_url as string)
+    const payload = { org_id: orgId, ...input };
+    if (files && files.length > 0) {
+      if (watcher.img_url !== '' && watcher.img_url) {
+        const deleteimage = await deleteCognitoImage(watcher.img_url as string)
+        console.log({ deleteimage })
       }
       console.log(files[0], "food_image");
       const getUrl = await UploadCognitoImage(files[0]);
       payload.img_url = getUrl.location;
-    } else {
-      payload.img_url = null;
     }
+
 
     try {
       if (action === "add") {
         await createFood(payload).unwrap();
         toast({
           variant: "success",
-          title: "Created Successfully",
+          title: "Food created successfully",
         });
         refetch();
         handleClose();
@@ -171,7 +174,7 @@ const FoodForm = ({
         await updateFood({ ...payload, id: data?.id as number }).unwrap();
         toast({
           variant: "success",
-          title: "Updated Successfully",
+          title: "Food updated Successfully",
         });
         refetch();
         handleClose();
@@ -196,7 +199,7 @@ const FoodForm = ({
     }
   };
   // console.log({ files,watcher,errors });
-  console.log({ data,watcher },'edit');
+  console.log({ data, watcher }, areObjectsIdentical(data, watcher), 'edit');
   return (
     <Sheet open={isOpen}>
       <SheetContent
@@ -236,7 +239,7 @@ const FoodForm = ({
                       type="submit"
                       className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
                       loading={isSubmitting}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || areObjectsIdentical(data, watcher)}
                     >
                       {!isSubmitting && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
@@ -330,7 +333,7 @@ const FoodForm = ({
 
               <Controller
                 name={'img_url'}
-                // rules={{ required: files?.length==0&&"Required" }}
+                rules={{ required: files?.length == 0 && "Required" }}
                 control={control}
                 render={({
                   field: { onChange, value, onBlur },
@@ -392,7 +395,7 @@ const FoodForm = ({
                       </FileInput>
                     </FileUploader>
 
-                    {errors.img_url?.message && files?.length==0&& (
+                    {errors.img_url?.message && files?.length == 0 && (
                       <span className="text-red-500 text-xs mt-[5px]">
                         {errors.img_url?.message}
                       </span>
@@ -512,3 +515,39 @@ export default FoodForm;
 
 
 
+type AnyObject = { [key: string]: any };
+
+function areObjectsIdentical(obj1: AnyObject | null | undefined, obj2: AnyObject | null | undefined): boolean {
+  // If both objects are null or undefined, they are considered identical
+  if (obj1 == null && obj2 == null) {
+    return true;
+  }
+
+  // If one is null/undefined and the other is not, they are not identical
+  if (obj1 == null || obj2 == null) {
+    return false;
+  }
+
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  // Combine keys from both objects to ensure all keys are checked
+  const allKeys = new Set([...keys1, ...keys2]);
+
+  for (const key of allKeys) {
+    const val1 = obj1[key];
+    const val2 = obj2[key];
+
+    // Skip if both values are null or undefined
+    if ((val1 === undefined || val1 === null) && (val2 === undefined || val2 === null)) {
+      continue;
+    }
+
+    // Compare values
+    if (val1 !== val2) {
+      return false;
+    }
+  }
+
+  return true;
+}

@@ -700,6 +700,7 @@ export default function FoodsTableView() {
         action={action}
         setAction={setAction}
         data={data}
+        setData={setData}
         refetch={refetch}
       />
     </div>

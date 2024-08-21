@@ -1,15 +1,5 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
-export interface mealPlanTableType {
-  data: mealPlanDataType & { id: number }[];
-  total_counts: number;
-  filtered_counts: number;
-}
-
-export interface mealPlanDataType {
-  org_id: number
-}
-
 
 export interface ResetPasswordType {
   id: number;
@@ -647,7 +637,7 @@ export interface CoachInputTypes {
   swift_code?: string;
   created_by?: number;
   member_ids?: any;
-  org_id?: number;
+  org_id: number;
 }
 export interface addCoachResponseType {
   wallet_address?: string;

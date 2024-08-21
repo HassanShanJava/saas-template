@@ -41,7 +41,11 @@ import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { ErrorType, ExerciseResponseViewType } from "@/app/types";
+import {
+  ErrorType,
+  ExerciseResponseServerViewType,
+  ExerciseResponseViewType,
+} from "@/app/types";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
@@ -82,7 +86,7 @@ export default function ExerciseTableView() {
   const [isOpen, setOpen] = useState(false);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const [data, setData] = useState<ExerciseResponseViewType | undefined>(
+  const [data, setData] = useState<ExerciseResponseServerViewType | undefined>(
     undefined
   );
 
@@ -199,11 +203,16 @@ export default function ExerciseTableView() {
   const displayValue = (value: string | undefined | null) =>
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
-  const handleEditExercise = (data: ExerciseResponseViewType) => {
+  const handleEditExercise = (data: ExerciseResponseServerViewType) => {
     console.log("Edit is called");
-    setData(data as ExerciseResponseViewType);
+    setData(data as ExerciseResponseServerViewType);
     setOpen(true);
     console.log("Data from api", data);
+    const payload = {
+      ...data,
+      // equipment_ids: data.equipments?.map((equipment) => equipment.id),
+    };
+    console.log("payload ", payload);
   };
 
   const columns: ColumnDef<ExerciseResponseViewType>[] = [

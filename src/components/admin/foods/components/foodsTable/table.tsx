@@ -47,6 +47,7 @@ import {
 import { ChevronLeftIcon } from "lucide-react";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { visibleFor, categories, weights } from "@/constants/food";
+const { VITE_VIEW_S3_URL } = import.meta.env;
 
 const categoryMap = Object.fromEntries(
   categories.map((cat) => [cat.label, cat.value])
@@ -206,7 +207,12 @@ export default function FoodsTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <span className="capitalize">{row.original.name}</span>;
+        return (
+          <div className='flex gap-2 items-center justify-between w-fit'>
+            <img src={VITE_VIEW_S3_URL+"/"+row.original.img_url} alt={row.original.name} className="size-14 object-contain rounded-sm "/>
+            <span className="capitalize">{row.original.name}</span>
+          </div>
+        );
       },
       enableSorting: false,
       enableHiding: false,
@@ -700,6 +706,7 @@ export default function FoodsTableView() {
         action={action}
         setAction={setAction}
         data={data}
+        setData={setData}
         refetch={refetch}
       />
     </div>

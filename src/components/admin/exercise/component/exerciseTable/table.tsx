@@ -42,9 +42,11 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
+  createExerciseInputTypes,
   ErrorType,
   ExerciseResponseServerViewType,
   ExerciseResponseViewType,
+  ExerciseTypeEnum,
 } from "@/app/types";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -86,7 +88,7 @@ export default function ExerciseTableView() {
   const [isOpen, setOpen] = useState(false);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const [data, setData] = useState<ExerciseResponseServerViewType | undefined>(
+  const [data, setData] = useState<createExerciseInputTypes | undefined>(
     undefined
   );
 
@@ -205,14 +207,45 @@ export default function ExerciseTableView() {
 
   const handleEditExercise = (data: ExerciseResponseServerViewType) => {
     console.log("Edit is called");
-    setData(data as ExerciseResponseServerViewType);
-    setOpen(true);
+    // setData(data as ExerciseResponseServerViewType);
+
+    const existingGif: File[] = [];
     console.log("Data from api", data);
+    const transformToValueArray = (arr: number[] = []) =>
+      arr.length > 0 ? arr.map((value) => ({ value })) : [{ value: null }];
     const payload = {
       ...data,
-      // equipment_ids: data.equipments?.map((equipment) => equipment.id),
+      equipment_ids: data.equipments?.map((equipment) => equipment.id),
+      primary_muscle_ids: data.primary_muscles?.map((muscle) => muscle.id),
+      secondary_muscle_ids: data.secondary_muscles
+        ? data.secondary_muscles.map((muscle) => muscle.id)
+        : [],
+      primary_joint_ids: data.primary_joints?.map((joints) => joints.id),
+      timePerSet:
+        data.exercise_type === ExerciseTypeEnum.time_based
+          ? transformToValueArray(data.seconds_per_set)
+          : [{ value: null }],
+      restPerSet:
+        data.exercise_type === ExerciseTypeEnum.time_based
+          ? transformToValueArray(data.rest_between_set)
+          : [{ value: null }],
+      restPerSetrep:
+        data.exercise_type === ExerciseTypeEnum.repetition_based
+          ? transformToValueArray(data.rest_between_set)
+          : [{ value: null }],
+      repetitionPerSet:
+        data.exercise_type === ExerciseTypeEnum.repetition_based
+          ? transformToValueArray(data.repetitions_per_set)
+          : [{ value: null }],
+      gif: existingGif,
+      imagemale: existingGif,
+      imagefemale: existingGif,
     };
     console.log("payload ", payload);
+
+    setData(payload as createExerciseInputTypes);
+    setAction("edit");
+    setIsDialogOpen(true);
   };
 
   const columns: ColumnDef<ExerciseResponseViewType>[] = [

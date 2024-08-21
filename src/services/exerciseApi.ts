@@ -185,7 +185,10 @@ export const Exercise = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Exercise"],
       }),
-      updateExercise: builder.mutation<any, any>({
+      updateExercise: builder.mutation<
+        ExerciseCreationResponse,
+        ExerciseCreationInputTypes
+      >({
         query: (ExerciseData) => ({
           url: "/exercise",
           method: "PUT",

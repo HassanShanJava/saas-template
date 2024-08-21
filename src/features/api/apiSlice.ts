@@ -6,24 +6,15 @@ import {
   FetchArgs,
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
-import { logout, tokenReceived, updateLastRefetch } from "../auth/authSlice";
+import { logout, tokenReceived } from "../auth/authSlice";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-const THIRTY_MINUTES = 30 * 60 * 1000;
 
 const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  const state = api.getState() as RootState;
-  const now = Date.now();
-
-  if (state.auth.lastRefetch && now - state.auth.lastRefetch < THIRTY_MINUTES) {
-    // If last refetch was within the last 30 minutes, skip the API call
-    return { error: { status: 304, data: "Not modified" } };
-  }
-
   let result = await baseQuery(args, api, extraOptions);
 
   // refresh token
@@ -54,10 +45,6 @@ const baseQueryWithReauth: BaseQueryFn<
     } else {
       api.dispatch(logout());
     }
-  }
-
-  if (result.data) {
-    api.dispatch(updateLastRefetch());
   }
   return result;
 };

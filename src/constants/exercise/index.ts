@@ -40,53 +40,129 @@ type UploadResponse = {
   message?: string;
 };
 
-export const processAndUploadImages = async (input: Input) => {
+// export const processAndUploadImages = async (input: Input) => {
+//   const result: {
+//     gif_url?: string;
+//     thumbnail_male?: string;
+//     image_url_male?: string;
+//     thumbnail_female?: string;
+//     image_url_female?: string;
+//   } = {
+//     gif_url: "",
+//   };
+
+//   const uploadFile = async (file: File): Promise<UploadResponse> => {
+//     return await UploadCognitoImage(file);
+//   };
+
+//   if (input.gif && input.gif.length > 0) {
+//     const gifResponse = await uploadFile(input.gif[0]);
+//     if (gifResponse.success) {
+//       result.gif_url = gifResponse.location ?? "";
+//     }
+//   }
+
+//   if (input.imagemale && input.imagemale.length > 0) {
+//     const maleImageResponse = await uploadFile(input.imagemale[0]);
+//     if (maleImageResponse.success) {
+//       result.thumbnail_male = maleImageResponse.location ?? "";
+//       result.image_url_male = maleImageResponse.location ?? "";
+//     }
+//   } else {
+//     result.thumbnail_male = "";
+//     result.image_url_male = "";
+//   }
+
+//   if (input.imagefemale && input.imagefemale.length > 0) {
+//     const femaleImageResponse = await uploadFile(input.imagefemale[0]);
+//     if (femaleImageResponse.success) {
+//       result.thumbnail_female = femaleImageResponse.location ?? "";
+//       result.image_url_female = femaleImageResponse.location ?? "";
+//     }
+//   } else {
+//     result.thumbnail_female = "";
+//     result.image_url_female = "";
+//   }
+
+//   console.log("Result:", result);
+//   return result;
+// };
+
+export const processAndUploadImages = async (
+  input: {
+    gif?: File[];
+    imagemale?: File[];
+    imagefemale?: File[];
+  },
+  existingImages: {
+    gif?: string | null;
+    thumbnail_male?: string | null;
+    image_url_male?: string | null;
+    thumbnail_female?: string | null;
+    image_url_female?: string | null;
+  }
+) => {
   const result: {
-    gif_url: string;
+    gif_url?: string;
     thumbnail_male?: string;
     image_url_male?: string;
     thumbnail_female?: string;
     image_url_female?: string;
-  } = {
-    gif_url: "",
-  };
+  } = {};
 
   const uploadFile = async (file: File): Promise<UploadResponse> => {
     return await UploadCognitoImage(file);
   };
 
-  if (input.gif && input.gif.length > 0) {
+  if (!existingImages.gif && input.gif && input.gif.length > 0) {
     const gifResponse = await uploadFile(input.gif[0]);
     if (gifResponse.success) {
       result.gif_url = gifResponse.location ?? "";
     }
+  } else {
+    result.gif_url = existingImages.gif ?? "";
   }
 
-  if (input.imagemale && input.imagemale.length > 0) {
+  if (
+    !existingImages.thumbnail_male &&
+    input.imagemale &&
+    input.imagemale.length > 0
+  ) {
     const maleImageResponse = await uploadFile(input.imagemale[0]);
     if (maleImageResponse.success) {
       result.thumbnail_male = maleImageResponse.location ?? "";
       result.image_url_male = maleImageResponse.location ?? "";
     }
   } else {
-    result.thumbnail_male = "";
-    result.image_url_male = "";
+    result.thumbnail_male = existingImages.thumbnail_male ?? "";
+    result.image_url_male = existingImages.image_url_male ?? "";
   }
 
-  if (input.imagefemale && input.imagefemale.length > 0) {
+  if (
+    !existingImages.thumbnail_female &&
+    input.imagefemale &&
+    input.imagefemale.length > 0
+  ) {
     const femaleImageResponse = await uploadFile(input.imagefemale[0]);
     if (femaleImageResponse.success) {
       result.thumbnail_female = femaleImageResponse.location ?? "";
       result.image_url_female = femaleImageResponse.location ?? "";
     }
   } else {
-    result.thumbnail_female = "";
-    result.image_url_female = "";
+    result.thumbnail_female = existingImages.thumbnail_female ?? "";
+    result.image_url_female = existingImages.image_url_female ?? "";
   }
 
   console.log("Result:", result);
   return result;
 };
+
+export enum VisibilityEnum {
+  OnlyMyself = "Only Myself",
+  StaffOfMyClub = "Staff of My Club",
+  MembersOfMyClub = "Members of My Club",
+  EveryoneInMyClub = "Everyone in My Club",
+}
 
 export const initialValue = {
   exercise_name: "",
@@ -95,7 +171,7 @@ export const initialValue = {
   exercise_intensity: IntensityEnum.max_intensity,
   intensity_value: 10,
   difficulty: difficultyTypeoptions[Difficulty.Novice].value,
-  sets: undefined,
+  sets: null,
   distance: 0,
   speed: 0,
   met_id: null,

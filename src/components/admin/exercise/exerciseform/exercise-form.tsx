@@ -91,7 +91,7 @@ interface ExerciseForm {
   action: string;
   setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
   refetch: any;
-  data: any;
+  data: createExerciseInputTypes;
 }
 
 enum IntensityEnum {
@@ -172,6 +172,16 @@ const ExerciseForm = ({
     if (action == "edit") {
       console.log({ data }, "edit");
       reset(data);
+      setExistingFemaleImage(data.thumbnail_male ?? null);
+      setExistingGif(data.gif_url);
+
+      setExistingMaleImage(data?.thumbnail_male ?? null);
+      setCurrentValue(data?.intensity_value);
+      setValueofDifficulty(
+        Difficulty[data?.difficulty as keyof typeof Difficulty]
+      );
+      // setValue("category_id", data?.category_id as number);
+      // setValue("visible_for", data?.visible_for);
     } else if (action == "add") {
       console.log({ initialValue }, "add");
       // reset(initialValue, {
@@ -180,12 +190,12 @@ const ExerciseForm = ({
       //   keepDefaultValues: false,
       //   keepDirtyValues: true,
       // });
-      setExistingGif(
-        `${VITE_VIEW_S3_URL}/82230015-5c3c-482f-a20c-448cf8e97ce0-new.gif`
-      );
-      setExistingMaleImage(
-        `${VITE_VIEW_S3_URL}/82230015-5c3c-482f-a20c-448cf8e97ce0-new.gif`
-      );
+      // setExistingGif(
+      //   `${VITE_VIEW_S3_URL}/82230015-5c3c-482f-a20c-448cf8e97ce0-new.gif`
+      // );
+      // setExistingMaleImage(
+      //   `${VITE_VIEW_S3_URL}/82230015-5c3c-482f-a20c-448cf8e97ce0-new.gif`
+      // );
       reset(initialValue, {
         keepIsSubmitted: false, // Reset the form's submission state
         keepSubmitCount: false, // Reset the count of submissions
@@ -205,6 +215,11 @@ const ExerciseForm = ({
       keepDefaultValues: true, // Keep default values as provided by initialValue
     });
     setValueofDifficulty(Difficulty.Novice);
+    setCurrentValue(10);
+    setExistingGif(null);
+    setExistingFemaleImage(null);
+    setExistingMaleImage(null);
+
     console.log("called");
     setOpen(false);
   };
@@ -218,12 +233,25 @@ const ExerciseForm = ({
     console.log("FIle infor", input.gif[0]);
     console.log("Male image", input.imagemale[0]);
     console.log("Female image", input.imagefemale[0]);
+    // Example usage
     const fileInputObject = {
       gif: input.gif,
       imagemale: input.imagemale,
       imagefemale: input.imagefemale,
     };
-    const result = await processAndUploadImages(fileInputObject);
+
+    const existingImages = {
+      gif: existingGIf,
+      thumbnail_male: existingMaleImage,
+      image_url_male: existingMaleImage,
+      thumbnail_female: existingFemaleImage,
+      image_url_female: existingFemaleImage,
+    };
+
+    const result = await processAndUploadImages(
+      fileInputObject,
+      existingImages
+    );
 
     console.log("Resulting urls", result);
     const responsePayload = combinePayload(input, result);
@@ -264,13 +292,13 @@ const ExerciseForm = ({
         refetch();
         handleClose();
       } else if (action === "edit") {
-        // await updateExercise({ ...payload, id: data?.id as number }).unwrap();
-        // toast({
-        //   variant: "success",
-        //   title: "Updated Successfully",
-        // });
-        // refetch();
-        // handleClose();
+        await updateExercise({ ...payload, id: data?.id as number }).unwrap();
+        toast({
+          variant: "success",
+          title: "Updated Successfully",
+        });
+        refetch();
+        handleClose();
       }
     } catch (error) {
       console.error("Error", { error });
@@ -596,6 +624,11 @@ const ExerciseForm = ({
                               onValueChange={(value) => {
                                 onChange(value);
                               }}
+                              defaultValue={
+                                typeof value === "number"
+                                  ? value.toString()
+                                  : (value as string | undefined)
+                              }
                             >
                               <SelectTrigger
                                 floatingLabel={item.label}
@@ -684,7 +717,11 @@ const ExerciseForm = ({
                                 )}
                               >
                                 <img
-                                  src={existingMaleImage}
+                                  src={
+                                    existingMaleImage
+                                      ? `${VITE_VIEW_S3_URL}/${existingMaleImage}`
+                                      : ""
+                                  }
                                   alt="Existing Male Image"
                                   className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                                 />
@@ -771,7 +808,11 @@ const ExerciseForm = ({
                                 )}
                               >
                                 <img
-                                  src={existingFemaleImage}
+                                  src={
+                                    existingFemaleImage
+                                      ? `${VITE_VIEW_S3_URL}/${existingFemaleImage}`
+                                      : ""
+                                  }
                                   alt="Existing Female Image"
                                   className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                                 />
@@ -856,7 +897,11 @@ const ExerciseForm = ({
                                 onRemove={handleRemoveImage(setExistingGif)}
                               >
                                 <img
-                                  src={existingGIf}
+                                  src={
+                                    existingGIf
+                                      ? `${VITE_VIEW_S3_URL}/${existingGIf}`
+                                      : ""
+                                  }
                                   alt="Existing GIF"
                                   className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                                 />

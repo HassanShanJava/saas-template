@@ -81,6 +81,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
+import DifficultySlider, { Difficulty } from "../component/difficultySlider";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 interface ExerciseForm {
   isOpen: boolean;
@@ -88,7 +89,7 @@ interface ExerciseForm {
   action: string;
   setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
   refetch: any;
-  data: createExerciseInputTypes | undefined;
+  data: any;
 }
 
 enum IntensityEnum {
@@ -108,7 +109,9 @@ const ExerciseForm = ({
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const userid =
     useSelector((state: RootState) => state.auth.userInfo?.user.id) || 0;
-
+  const [valueofDifficulty, setValueofDifficulty] = useState<Difficulty>(
+    Difficulty.Novice
+  );
   const { toast } = useToast();
   const [gif, setGif] = useState<File[] | null>(null);
   const [maleImage, setMaleImage] = useState<File[] | null>(null);
@@ -208,7 +211,10 @@ const ExerciseForm = ({
     // } else {
     //   payload.img_url = null;
     // }
-    console.log(input);
+    console.log("input payload", { input });
+
+    console.log("FIle infor", input.imagemale);
+
     try {
       if (action === "add") {
         // await createExercise(payload).unwrap();
@@ -266,6 +272,14 @@ const ExerciseForm = ({
   });
 
   const {
+    fields: restFieldsrep,
+    append: appendRestrep,
+    remove: removeRestrep,
+  } = useFieldArray({
+    control,
+    name: "restPerSetrep",
+  });
+  const {
     fields: repetitionFields,
     append: appendRepetition,
     remove: removeRepetition,
@@ -275,36 +289,6 @@ const ExerciseForm = ({
   });
 
   const mode = watch("exercise_type");
-
-  // React.useEffect(() => {
-  //   if (mode === ExerciseTypeEnum.time_based) {
-  //     setValue("timePerSet", [{ value: null }]);
-  //     setValue("restPerSet", [{ value: null }]);
-  //     setValue("repetitionPerSet", []);
-  //   } else {
-  //     setValue("repetitionPerSet", [{ value: null }]);
-  //     setValue("restPerSet", [{ value: null }]);
-  //     setValue("timePerSet", []);
-  //   }
-  // }, [mode, setValue]);
-
-  // React.useEffect(() => {
-  //   if (mode === ExerciseTypeEnum.time_based) {
-  //     reset({
-  //       timePerSet: [{ value: null }],
-  //       restPerSet: [{ value: null }],
-  //       repetitionPerSet: [],
-  //       exercise_type: ExerciseTypeEnum.time_based,
-  //     });
-  //   } else {
-  //     reset({
-  //       timePerSet: [],
-  //       restPerSet: [{ value: null }],
-  //       repetitionPerSet: [{ value: null }],
-  //       exercise_type: ExerciseTypeEnum.repetition_based,
-  //     });
-  //   }
-  // }, [mode, reset]);
 
   const Exercise_info: ExerciseItem[] = [
     {
@@ -322,13 +306,13 @@ const ExerciseForm = ({
     },
     {
       type: "select",
-      name: "exercise_category",
+      name: "category_id",
       label: "Category*",
       required: true,
       options: CategoryData,
     },
     {
-      type: "select",
+      type: "slider",
       name: "difficulty",
       label: "Difficulty*",
       required: true,
@@ -382,6 +366,11 @@ const ExerciseForm = ({
       options: exerciseTypeOptions,
     },
   ];
+
+  function handleChange(data: any) {
+    setValueofDifficulty(data);
+    setValue("difficulty", Difficulty[data]);
+  }
 
   return (
     <Sheet open={isOpen}>
@@ -443,6 +432,17 @@ const ExerciseForm = ({
             <h1 className="font-semibold text-xl py-3">Exercise Details</h1>
             <div className="grid grid-cols-3 gap-3 p-1 ">
               {Exercise_info.map((item) => {
+                if (item.type === "slider") {
+                  return (
+                    <DifficultySlider
+                      id="difficulty"
+                      value={valueofDifficulty} // Use the Difficulty enum directly
+                      onChange={(value) => {
+                        handleChange(value); // Ensure the field's onChange is called
+                      }}
+                    />
+                  );
+                }
                 if (item.type === "text") {
                   return (
                     <div key={item.name} className="relative">
@@ -580,268 +580,174 @@ const ExerciseForm = ({
             <h1 className="font-semibold text-xl py-3">Thumbnails</h1>
             <div className="flex gap-2 w-full">
               <div className="w-[33%]">
-                <h1 className="m-2 font-semibold"> Male Image</h1>
-                <FileUploader
-                  value={maleImage}
-                  onValueChange={setMaleImage}
-                  dropzoneOptions={dropzone}
-                >
-                  {maleImage && maleImage.length > 0 ? (
-                    maleImage.map((file, i) => (
-                      <div className="h-40" key={i}>
-                        <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
-                          <FileUploaderItem
-                            key={i}
-                            index={i}
-                            className="h-full p-0 rounded-md overflow-hidden relative"
-                            aria-roledescription={`file ${i + 1} containing ${file.name}`}
-                          >
-                            <img
-                              src={URL.createObjectURL(file)}
-                              alt={file.name}
-                              className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
-                            />
-                          </FileUploaderItem>
-                        </FileUploaderContent>
-                      </div>
-                    ))
-                  ) : existingMaleImage ? (
-                    <div className="h-40">
-                      <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
-                        <FileUploaderItem
-                          className="h-full p-0 rounded-md overflow-hidden relative"
-                          index={Number(existingFemaleImage) + 1}
-                        >
-                          <img
-                            src={existingMaleImage}
-                            alt="Existing Male Image"
-                            className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
-                          />
-                        </FileUploaderItem>
-                      </FileUploaderContent>
-                    </div>
-                  ) : (
-                    <FileInput className="flex flex-row gap-">
-                      <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
-                        <div>
-                          <i className="text-primary fa-regular fa-image text-2xl"></i>
-                        </div>
-                        <div>
-                          <h1 className="text-sm">
-                            Drop your male image here or{" "}
-                            <span className="underline text-blue-500">
-                              Browse
-                            </span>
-                          </h1>
-                        </div>
-                        <div>
-                          <span className="text-sm">
-                            Support JPG , PNG, and JPEG
-                          </span>
-                        </div>
-                      </div>
-                    </FileInput>
-                  )}
-                </FileUploader>
-              </div>
-
-              <div className="w-[33%]">
-                <h1 className="m-2 font-semibold"> Female Image</h1>
-                <FileUploader
-                  value={femaleImage}
-                  onValueChange={setFemaleImage}
-                  dropzoneOptions={dropzone}
-                >
-                  {femaleImage && femaleImage.length > 0 ? (
-                    femaleImage.map((file, i) => (
-                      <div className="h-40" key={i}>
-                        <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
-                          <FileUploaderItem
-                            key={i}
-                            index={i}
-                            className="h-full p-0 rounded-md overflow-hidden relative"
-                            aria-roledescription={`file ${i + 1} containing ${file.name}`}
-                          >
-                            <img
-                              src={URL.createObjectURL(file)}
-                              alt={file.name}
-                              className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
-                            />
-                          </FileUploaderItem>
-                        </FileUploaderContent>
-                      </div>
-                    ))
-                  ) : existingFemaleImage ? (
-                    <div className="h-40">
-                      <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
-                        <FileUploaderItem
-                          className="h-full p-0 rounded-md overflow-hidden relative"
-                          index={Number(existingFemaleImage) + 2}
-                        >
-                          <img
-                            src={existingFemaleImage}
-                            alt="Existing Female Image"
-                            className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
-                          />
-                        </FileUploaderItem>
-                      </FileUploaderContent>
-                    </div>
-                  ) : (
-                    <FileInput className="flex flex-col gap-2">
-                      <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
-                        <div>
-                          <i className="text-primary fa-regular fa-image text-2xl"></i>
-                        </div>
-                        <div>
-                          <h1 className="text-sm">
-                            Drop your female image here or{" "}
-                            <span className="underline text-blue-500">
-                              Browse
-                            </span>
-                          </h1>
-                        </div>
-                        <div>
-                          <span className="text-sm">
-                            Support JPG , PNG, and JPEG
-                          </span>
-                        </div>
-                      </div>
-                    </FileInput>
-                  )}
-                </FileUploader>
-              </div>
-              <div className="w-[33%]">
-                <h1 className="m-2 font-semibold"> Upload Gif</h1>
-                {/* <FileUploader
-                  value={gif}
-                  onValueChange={setGif}
-                  dropzoneOptions={dropzoneGif}
-                >
-                  {gif && gif.length > 0 ? (
-                    gif.map((file, i) => (
-                      <div className="h-40" key={i}>
-                        <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
-                          <FileUploaderItem
-                            key={i}
-                            index={i}
-                            className="h-full p-0 rounded-md overflow-hidden relative"
-                            aria-roledescription={`file ${i + 1} containing ${file.name}`}
-                          >
-                            <img
-                              src={URL.createObjectURL(file)}
-                              alt={file.name}
-                              className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
-                            />
-                          </FileUploaderItem>
-                        </FileUploaderContent>
-                      </div>
-                    ))
-                  ) : existingGIf ? (
-                    <div className="h-40">
-                      <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
-                        <FileUploaderItem
-                          className="h-full p-0 rounded-md overflow-hidden relative"
-                          index={Number(existingGIf) + 1}
-                        >
-                          <img
-                            src={existingGIf}
-                            alt="Existing Male Image"
-                            className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
-                          />
-                        </FileUploaderItem>
-                      </FileUploaderContent>
-                    </div>
-                  ) : (
-                    <FileInput className="flex flex-row gap-">
-                      <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
-                        <div>
-                          <i className="text-primary fa-regular fa-image text-2xl"></i>
-                        </div>
-                        <div>
-                          <h1 className="text-sm">
-                            Drop your male image here or{" "}
-                            <span className="underline text-blue-500">
-                              Browse
-                            </span>
-                          </h1>
-                        </div>
-                        <div>
-                          <span className="text-sm">Support GIF Only.</span>
-                        </div>
-                      </div>
-                    </FileInput>
-                  )}
-                </FileUploader> */}
-                {/* <Controller
-                  name="gif"
+                <h1 className="m-2 font-semibold"> Male Image Thumbnails</h1>
+                <Controller
+                  name="imagemale"
                   control={control}
-                  render={({ field }) => (
-                    <FileUploader
-                      value={field.value}
-                      defaultValue={[]}
-                      onValueChange={(files: File[]) => {
-                        // Ensure that null is handled appropriately
-                        field.onChange(files.length > 0 ? files : null);
-                      }}
-                      dropzoneOptions={dropzoneGif}
-                    >
-                      {field.value && field.value.length > 0 ? (
-                        field.value.map((file, i) => (
-                          <div className="h-40" key={i}>
+                  defaultValue={[]}
+                  render={({ field, fieldState: { error } }) => (
+                    <div>
+                      <FileUploader
+                        value={field.value}
+                        onValueChange={(files: File[] | null) => {
+                          // Pass files or null depending on whether files exist
+                          field.onChange(files ?? null);
+                        }}
+                        dropzoneOptions={dropzone}
+                      >
+                        {field.value && field.value.length > 0 ? (
+                          field.value.map((file, i) => (
+                            <div className="h-40" key={i}>
+                              <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
+                                <FileUploaderItem
+                                  key={i}
+                                  index={i}
+                                  className="h-full p-0 rounded-md overflow-hidden relative"
+                                  aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                                >
+                                  <img
+                                    src={URL.createObjectURL(file)}
+                                    alt={file.name}
+                                    className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
+                                  />
+                                </FileUploaderItem>
+                              </FileUploaderContent>
+                            </div>
+                          ))
+                        ) : existingMaleImage &&
+                          existingMaleImage.length > 0 ? (
+                          <div className="h-40">
                             <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
                               <FileUploaderItem
-                                key={i}
-                                index={i}
                                 className="h-full p-0 rounded-md overflow-hidden relative"
-                                aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                                index={1}
                               >
                                 <img
-                                  src={URL.createObjectURL(file)}
-                                  alt={file.name}
+                                  src={existingMaleImage}
+                                  alt="Existing GIF"
                                   className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                                 />
                               </FileUploaderItem>
                             </FileUploaderContent>
                           </div>
-                        ))
-                      ) : existingGIf && existingGIf.length > 0 ? (
-                        <div className="h-40">
-                          <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
-                            <FileUploaderItem
-                              className="h-full p-0 rounded-md overflow-hidden relative"
-                              index={1}
-                            >
-                              <img
-                                src={existingGIf}
-                                alt="Existing Male Image"
-                                className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
-                              />
-                            </FileUploaderItem>
-                          </FileUploaderContent>
-                        </div>
-                      ) : (
-                        <FileInput className="flex flex-row gap-">
-                          <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
-                            <div>
-                              <i className="text-primary fa-regular fa-image text-2xl"></i>
-                            </div>
-                            <div>
-                              <h1 className="text-sm">
-                                Drop your male image here or{" "}
-                                <span className="underline text-blue-500">
-                                  Browse
+                        ) : (
+                          <FileInput className="flex flex-row gap-">
+                            <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
+                              <div>
+                                <i className="text-primary fa-regular fa-image text-2xl"></i>
+                              </div>
+                              <div>
+                                <h1 className="text-sm">
+                                  Drop your Male image here or{" "}
+                                  <span className="underline text-blue-500">
+                                    Browse
+                                  </span>
+                                </h1>
+                              </div>
+                              <div>
+                                <span className="text-sm">
+                                  Support JPG , PNG, and JPEG
                                 </span>
-                              </h1>
+                              </div>
                             </div>
-                            <div>
-                              <span className="text-sm">Support GIF Only.</span>
-                            </div>
-                          </div>
-                        </FileInput>
+                          </FileInput>
+                        )}
+                      </FileUploader>
+                      {error && (
+                        <p className="text-red-500 text-sm mt-2">
+                          {error.message}
+                        </p>
                       )}
-                    </FileUploader>
+                    </div>
                   )}
-                /> */}
+                />
+              </div>
+
+              <div className="w-[33%]">
+                <h1 className="m-2 font-semibold"> Female Image Thumbnails</h1>
+                <Controller
+                  name="imagefemale"
+                  control={control}
+                  defaultValue={[]}
+                  render={({ field, fieldState: { error } }) => (
+                    <div>
+                      <FileUploader
+                        value={field.value}
+                        onValueChange={(files: File[] | null) => {
+                          // Pass files or null depending on whether files exist
+                          field.onChange(files ?? null);
+                        }}
+                        dropzoneOptions={dropzone}
+                      >
+                        {field.value && field.value.length > 0 ? (
+                          field.value.map((file, i) => (
+                            <div className="h-40" key={i}>
+                              <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
+                                <FileUploaderItem
+                                  key={i}
+                                  index={i}
+                                  className="h-full p-0 rounded-md overflow-hidden relative"
+                                  aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                                >
+                                  <img
+                                    src={URL.createObjectURL(file)}
+                                    alt={file.name}
+                                    className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
+                                  />
+                                </FileUploaderItem>
+                              </FileUploaderContent>
+                            </div>
+                          ))
+                        ) : existingFemaleImage &&
+                          existingFemaleImage.length > 0 ? (
+                          <div className="h-40">
+                            <FileUploaderContent className="flex items-center justify-center flex-row gap-2 bg-gray-100">
+                              <FileUploaderItem
+                                className="h-full p-0 rounded-md overflow-hidden relative"
+                                index={1}
+                              >
+                                <img
+                                  src={existingFemaleImage}
+                                  alt="Existing GIF"
+                                  className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
+                                />
+                              </FileUploaderItem>
+                            </FileUploaderContent>
+                          </div>
+                        ) : (
+                          <FileInput className="flex flex-row gap-">
+                            <div className="flex gap-2 items-center bg-white flex-col justify-center h-40 w-full bg-background rounded-md border-dashed border-2 border-primary">
+                              <div>
+                                <i className="text-primary fa-regular fa-image text-2xl"></i>
+                              </div>
+                              <div>
+                                <h1 className="text-sm">
+                                  Drop your female image here or{" "}
+                                  <span className="underline text-blue-500">
+                                    Browse
+                                  </span>
+                                </h1>
+                              </div>
+                              <div>
+                                <span className="text-sm">
+                                  Support JPG , PNG, and JPEG
+                                </span>
+                              </div>
+                            </div>
+                          </FileInput>
+                        )}
+                      </FileUploader>
+                      {error && (
+                        <p className="text-red-500 text-sm mt-2">
+                          {error.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
+              </div>
+              <div className="w-[33%]">
+                <h1 className="m-2 font-semibold"> Upload Gif</h1>
                 <Controller
                   name="gif"
                   control={control}
@@ -853,11 +759,7 @@ const ExerciseForm = ({
                         value={field.value}
                         onValueChange={(files: File[] | null) => {
                           // Pass files or null depending on whether files exist
-                          if (files && files.length > 0) {
-                            field.onChange(files);
-                          } else {
-                            field.onChange(null);
-                          }
+                          field.onChange(files ?? null);
                         }}
                         dropzoneOptions={dropzoneGif}
                       >
@@ -889,7 +791,7 @@ const ExerciseForm = ({
                               >
                                 <img
                                   src={existingGIf}
-                                  alt="Existing Male Image"
+                                  alt="Existing GIF"
                                   className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                                 />
                               </FileUploaderItem>
@@ -1116,7 +1018,7 @@ const ExerciseForm = ({
                         />
 
                         <Controller
-                          name={`restPerSet.${index}.value` as const}
+                          name={`restPerSetrep.${index}.value` as const}
                           control={control}
                           rules={{ required: "Required" }}
                           render={({ field }) => (
@@ -1126,16 +1028,16 @@ const ExerciseForm = ({
                                 type="number"
                                 {...field}
                                 className={`border ${
-                                  errors?.restPerSet?.[index]
+                                  errors?.restPerSetrep?.[index]
                                     ? "border-red-500"
                                     : ""
                                 }`}
                                 min="0"
                                 value={field.value ?? ""}
                               />
-                              {errors?.restPerSet?.[index] && (
+                              {errors?.restPerSetrep?.[index] && (
                                 <span className="text-red-500 mr-4">
-                                  {errors.restPerSet[index]?.value?.message}
+                                  {errors.restPerSetrep[index]?.value?.message}
                                 </span>
                               )}
                             </div>
@@ -1146,7 +1048,7 @@ const ExerciseForm = ({
                           type="button"
                           onClick={() => {
                             appendRepetition({ value: null });
-                            appendRest({ value: null });
+                            appendRestrep({ value: null });
                           }}
                           className="text-primary gap-2 items-center justify-center px-4 py-2 rounded hover:bg-primary"
                         >
@@ -1157,7 +1059,7 @@ const ExerciseForm = ({
                             type="button"
                             onClick={() => {
                               removeRepetition(index);
-                              removeRest(index);
+                              removeRestrep(index);
                             }}
                             className="text-red-500 hover:text-red-700"
                           >

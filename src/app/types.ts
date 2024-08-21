@@ -625,9 +625,9 @@ export interface createRole {
 
 export interface CoachInputTypes {
   profile_img?: string;
-  own_coach_id: string;
-  first_name: string;
-  last_name: string;
+  own_coach_id?: string;
+  first_name?: string;
+  last_name?: string;
   gender?: "male" | "female" | "other";
   dob?: string;
   email?: string;
@@ -993,6 +993,13 @@ enum VisibilityEnum {
   members_of_my_club = "Members of My Club",
   everyone_in_my_club = "Everyone in My Club",
 }
+export enum Difficulty {
+  Novice = 0,
+  Beginner,
+  Intermediate,
+  Advance,
+  Expert,
+}
 
 export interface createExerciseInputTypes {
   exercise_name: string;
@@ -1001,11 +1008,8 @@ export interface createExerciseInputTypes {
   exercise_type?: ExerciseTypeEnum;
   exercise_intensity?: IntensityEnum;
   intensity_value: number;
-  difficulty?: difficultyEnum;
+  difficulty: string;
   sets?: number | null;
-  seconds_per_set?: number[];
-  repetitions_per_set?: number[];
-  rest_between_set?: number[];
   distance?: number;
   speed?: number;
   met_id?: number | null;
@@ -1021,12 +1025,13 @@ export interface createExerciseInputTypes {
   primary_muscle_ids: number[];
   secondary_muscle_ids?: number[];
   primary_joint_ids: number[];
-  created_by?: number | null;
-  updated_by?: number | null;
   timePerSet?: { value: number | null }[];
   restPerSet?: { value: number | null }[];
+  restPerSetrep?: { value: number | null }[];
   repetitionPerSet?: { value: number | null }[];
   gif: File[];
+  imagemale: File[];
+  imagefemale: File[];
 }
 
 export interface ExerciseResponseViewType {

@@ -180,7 +180,12 @@ const ExerciseForm = ({
       //   keepDefaultValues: false,
       //   keepDirtyValues: true,
       // });
-
+      setExistingGif(
+        `${VITE_VIEW_S3_URL}/82230015-5c3c-482f-a20c-448cf8e97ce0-new.gif`
+      );
+      setExistingMaleImage(
+        `${VITE_VIEW_S3_URL}/82230015-5c3c-482f-a20c-448cf8e97ce0-new.gif`
+      );
       reset(initialValue, {
         keepIsSubmitted: false, // Reset the form's submission state
         keepSubmitCount: false, // Reset the count of submissions
@@ -245,9 +250,13 @@ const ExerciseForm = ({
 
     // console.log("Final Payload:", payload);
     console.log("Dead final response", responsePayload);
+    const payload = {
+      ...responsePayload,
+      org_id: orgId,
+    };
     try {
       if (action === "add") {
-        await createExercise(responsePayload).unwrap();
+        await createExercise(payload).unwrap();
         toast({
           variant: "success",
           title: "Created Successfully",
@@ -382,6 +391,7 @@ const ExerciseForm = ({
       label: "Youtube link-Male",
       required: false,
       maxlength: 150,
+      pattern: "https?://.+",
     },
     {
       type: "text",
@@ -389,6 +399,7 @@ const ExerciseForm = ({
       label: "Youtube link-Female",
       required: false,
       maxlength: 150,
+      pattern: "https?://.+",
     },
     {
       type: "radio",
@@ -402,6 +413,14 @@ const ExerciseForm = ({
   function handleChange(data: any) {
     setValueofDifficulty(data);
     setValue("difficulty", Difficulty[data]);
+  }
+
+  function handleRemoveImage(
+    setState: React.Dispatch<React.SetStateAction<string | null>>
+  ) {
+    return () => {
+      setState(null);
+    };
   }
 
   return (
@@ -488,6 +507,12 @@ const ExerciseForm = ({
                             required: item.required && "Required",
                             maxLength: item.maxlength || 40,
                             setValueAs: (value) => value.toLowerCase(),
+                            pattern: item.pattern
+                              ? {
+                                  value: new RegExp(item.pattern),
+                                  message: "Invalid format",
+                                }
+                              : undefined,
                           }
                         )}
                         error={
@@ -654,10 +679,13 @@ const ExerciseForm = ({
                               <FileUploaderItem
                                 className="h-full p-0 rounded-md overflow-hidden relative"
                                 index={1}
+                                onRemove={handleRemoveImage(
+                                  setExistingMaleImage
+                                )}
                               >
                                 <img
                                   src={existingMaleImage}
-                                  alt="Existing GIF"
+                                  alt="Existing Male Image"
                                   className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                                 />
                               </FileUploaderItem>
@@ -738,10 +766,13 @@ const ExerciseForm = ({
                               <FileUploaderItem
                                 className="h-full p-0 rounded-md overflow-hidden relative"
                                 index={1}
+                                onRemove={handleRemoveImage(
+                                  setExistingFemaleImage
+                                )}
                               >
                                 <img
                                   src={existingFemaleImage}
-                                  alt="Existing GIF"
+                                  alt="Existing Female Image"
                                   className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                                 />
                               </FileUploaderItem>
@@ -785,7 +816,8 @@ const ExerciseForm = ({
                   name="gif"
                   control={control}
                   defaultValue={[]}
-                  rules={{ required: "Required" }}
+                  rules={{ required: existingGIf ? false : "Required" }}
+                  // rules={{ required: "Required" }}
                   render={({ field, fieldState: { error } }) => (
                     <div>
                       <FileUploader
@@ -821,6 +853,7 @@ const ExerciseForm = ({
                               <FileUploaderItem
                                 className="h-full p-0 rounded-md overflow-hidden relative"
                                 index={1}
+                                onRemove={handleRemoveImage(setExistingGif)}
                               >
                                 <img
                                   src={existingGIf}

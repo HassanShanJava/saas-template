@@ -114,6 +114,33 @@ export const Exercise = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Exercise"],
       }),
+      // getAllExercises: builder.query<ExerciseTableTypes, ExerciseQueryInput>({
+      //   query: (SearchCriteria) => ({
+      //     url: `/exercise?org_id=${SearchCriteria.org_id}&${SearchCriteria.query}`,
+      //     method: "GET",
+      //     headers: {
+      //       Accept: "application/json",
+      //     },
+      //   }),
+      //   transformResponse: (
+      //     response: ExerciseTableServerTypes
+      //   ): ExerciseTableTypes => ({
+      //     ...response,
+      //     data: response.data.map((record) => ({
+      //       ...record,
+      //       primary_joint_ids: record.primary_joints.map(
+      //         (primary) => primary.value
+      //       ),
+      //       primary_muscle_ids: record.primary_muscles.map(
+      //         (muscle) => muscle.value
+      //       ),
+      //       equipment_ids: record.equipments.map(
+      //         (equipment) => equipment.value
+      //       ),
+      //     })),
+      //   }),
+      //   providesTags: ["Exercise"],
+      // }),
       getAllExercises: builder.query<ExerciseTableTypes, ExerciseQueryInput>({
         query: (SearchCriteria) => ({
           url: `/exercise?org_id=${SearchCriteria.org_id}&${SearchCriteria.query}`,
@@ -122,25 +149,31 @@ export const Exercise = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
-        // transformResponse:(resp:ExerciseTableServerTypes)=>
-        //   resp.data
         transformResponse: (
           response: ExerciseTableServerTypes
-        ): ExerciseTableTypes => ({
-          ...response,
-          data: response.data.map((record) => ({
+        ): ExerciseTableTypes => {
+          console.log("API Response:", response); // Log the response to see the structure
+
+          const transformedData = response.data.map((record) => ({
             ...record,
-            primary_joint_ids: record.primary_joints.map(
-              (coach) => coach.value
-            ),
-            primary_muscle_ids: record.primary_muscles.map(
-              (coach) => coach.value
-            ),
-            equipment_ids: record.equipments.map((coach) => coach.value),
-          })),
-        }),
+            primary_joint_ids:
+              record.primary_joints?.map((primary) => primary.value) || [], // Ensure it's an array and handle potential undefined
+            primary_muscle_ids:
+              record.primary_muscles?.map((muscle) => muscle.value) || [],
+            equipment_ids:
+              record.equipments?.map((equipment) => equipment.value) || [],
+          }));
+
+          console.log("Transformed Data:", transformedData); // Log the transformed data
+
+          return {
+            ...response,
+            data: transformedData,
+          };
+        },
         providesTags: ["Exercise"],
       }),
+
       deleteExercise: builder.mutation<deleteExerciseResponse, number>({
         query: (ExerciseId) => ({
           url: `/exercise/${ExerciseId}`,

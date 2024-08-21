@@ -49,7 +49,7 @@ import {
   useGetAllExercisesQuery,
 } from "@/services/exerciseApi";
 // import ExerciseForm from "../../exerciseform/form";
-import ExerciseForm from "../../exerciseform/exercise-modal";
+import ExerciseForm from "../../exerciseform/exercise-form";
 
 import { Separator } from "@/components/ui/separator";
 import { DataTableRowActions } from "./data-table-row-actions";
@@ -97,6 +97,7 @@ export default function ExerciseTableView() {
   const [action, setAction] = useState<"add" | "edit">("add");
 
   const { data: CategoryData } = useGetAllCategoryQuery();
+
   React.useEffect(() => {
     setSearchCretiria((prev) => {
       const newCriteria = { ...prev };
@@ -199,8 +200,10 @@ export default function ExerciseTableView() {
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
   const handleEditExercise = (data: ExerciseResponseViewType) => {
+    console.log("Edit is called");
     setData(data as ExerciseResponseViewType);
     setOpen(true);
+    console.log("Data from api", data);
   };
 
   const columns: ColumnDef<ExerciseResponseViewType>[] = [
@@ -399,7 +402,7 @@ export default function ExerciseTableView() {
     },
   });
 
-  function handleFilterChange(field: string, value: any) {
+  function handleFilterChange(field: string, value: string | number) {
     setFilter((prev) => ({
       ...prev,
       [field]: value,

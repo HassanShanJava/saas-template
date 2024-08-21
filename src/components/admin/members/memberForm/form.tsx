@@ -299,7 +299,6 @@ const MemberForm = ({
       ...data,
       org_id: orgId,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-      coach_id: data.coach_id?.map((coach) => coach.id),
     };
 
     if (!updatedData.auto_renew_days) {

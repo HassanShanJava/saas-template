@@ -17,10 +17,8 @@ import { cn } from "@/lib/utils";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const { VITE_APP_SITEKEY } = import.meta.env;
 import logomainsvg from "@/assets/logo-main.svg";
-import ForgotPasword from "./forgot_password";
 
 export default function AuthenticationPage() {
-  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const dispatch = useDispatch<AppDispatch>();
@@ -121,8 +119,6 @@ export default function AuthenticationPage() {
   return (
     <div
       className="loginpage-image"
-      data-background-src={`../../../assets/background.webp`}
-    // data-background-src={`https://uploads.fitnfi.com/images/background.png`}
     >
       <div className="max-w-[1800px] mx-auto">
         <div className="flex mx-16 justify-between items-center h-dvh ">
@@ -167,7 +163,7 @@ export default function AuthenticationPage() {
                         required: "Email is required.",
                         pattern: {
                           value:
-                            /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                          /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
                           message: "Invalid email format.",
                         },
                         maxLength: 64,
@@ -235,7 +231,7 @@ export default function AuthenticationPage() {
                       </label>
                     </div>
                     <div
-                      onClick={() => setOpen(true)}
+                      onClick={() => navigate("/forgot_password")}
                       className="cursor-pointer"
                     >
                       <span className="text-[0.8rem] underline font-semibold text-textprimary">
@@ -284,7 +280,6 @@ export default function AuthenticationPage() {
           </div>
         </div>
       </div>
-      <ForgotPasword open={open} setOpen={setOpen} />
     </div>
   );
 }

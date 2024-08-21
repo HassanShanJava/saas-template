@@ -50,7 +50,6 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { SpaceEvenlyVerticallyIcon } from "@radix-ui/react-icons";
 import { UploadCognitoImage, deleteCognitoImage } from "@/utils/lib/s3Service";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 interface FoodForm {
@@ -139,6 +138,13 @@ const FoodForm = ({
   const [updateFood] = useUpdateFoodsMutation();
 
   const onSubmit = async (input: CreateFoodTypes) => {
+    if(data ==watcher){
+      toast({
+        variant: "destructive",
+        title: "No changes detected",
+      });
+      return;
+    }
     const payload = { org_id: orgId, ...input };
     if (files && files?.length > 0) {
       if (watcher.img_url !== '' && watcher.img_url) {
@@ -189,7 +195,8 @@ const FoodForm = ({
       handleClose();
     }
   };
-  // console.log({ errors });
+  // console.log({ files,watcher,errors });
+  console.log({ data,watcher },'edit');
   return (
     <Sheet open={isOpen}>
       <SheetContent
@@ -253,7 +260,7 @@ const FoodForm = ({
                         {...register(item.name as keyof CreateFoodTypes, {
                           required: item.required && "Required",
                           maxLength: 40,
-                          setValueAs: (value) => value.toLowerCase(),
+                          // setValueAs: (value) => value.toLowerCase(),
                         })}
                         error={
                           errors[item.name as keyof CreateFoodTypes]?.message
@@ -320,59 +327,82 @@ const FoodForm = ({
                   );
                 }
               })}
-              <div className="">
-                <FileUploader
-                  value={files}
-                  onValueChange={setFiles}
-                  dropzoneOptions={dropzone}
-                >
-                  {files &&
-                    files?.map((file, i) => (
-                      <div className="h-40 ">
-                        <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
-                          <FileUploaderItem
-                            key={i}
-                            index={i}
-                            className="h-full  p-0 rounded-md overflow-hidden relative "
-                            aria-roledescription={`file ${i + 1} containing ${file.name}`}
-                          >
+
+              <Controller
+                name={'img_url'}
+                rules={{ required: files?.length==0&&"Required" }}
+                control={control}
+                render={({
+                  field: { onChange, value, onBlur },
+                  fieldState: { invalid, error },
+                }) => (
+                  <div className="">
+                    <FileUploader
+                      value={files}
+                      onValueChange={setFiles}
+                      dropzoneOptions={dropzone}
+                    >
+                      {files &&
+                        files?.map((file, i) => (
+                          <div className="h-40 ">
+                            <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
+                              <FileUploaderItem
+                                key={i}
+                                index={i}
+                                className="h-full  p-0 rounded-md overflow-hidden relative "
+                                aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                              >
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt={file.name}
+                                  className="object-contain max-h-40"
+                                />
+                              </FileUploaderItem>
+                            </FileUploaderContent>
+                          </div>
+                        ))}
+
+                      <FileInput className="flex flex-col gap-2  ">
+                        {files?.length == 0 && watcher?.img_url == null ? (
+                          <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
+                            <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
+                          </div>
+                        ) : files?.length == 0 && watcher?.img_url && (
+                          <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
+                            {/* <i className="text-gray-400 fa-regular fa-image text-2xl"></i> */}
                             <img
-                              src={URL.createObjectURL(file)}
-                              alt={file.name}
-                              className="object-contain max-h-40"
+                              src={(watcher?.img_url !== '' && watcher?.img_url) ?
+                                VITE_VIEW_S3_URL + "/" + watcher?.img_url : ""
+                              }
+                              loading="lazy"
+
+                              className="object-contain max-h-40 "
+
                             />
-                          </FileUploaderItem>
-                        </FileUploaderContent>
-                      </div>
-                    ))}
+                          </div>
+                        )}
 
-                  <FileInput className="flex flex-col gap-2  ">
-                    {files?.length == 0 && data?.img_url == null ? (
-                      <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
-                        <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
-                      </div>
-                    ) : files?.length == 0 && data?.img_url && (
-                      <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
-                        {/* <i className="text-gray-400 fa-regular fa-image text-2xl"></i> */}
-                        <img
-                          src={(data?.img_url !== '' && data?.img_url) ?
-                            VITE_VIEW_S3_URL + "/" + data?.img_url : ""
-                          }
-                          className="object-contain max-h-40"
-                        />
-                      </div>
+                        <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
+                          <img
+                            src={uploadimg}
+                            className="size-10"
+                          />
+                          <span className="text-sm">{watcher.img_url ? "Change Image" : "Upload Image"}</span>
+                        </div>
+                      </FileInput>
+                    </FileUploader>
+
+                    {errors.img_url?.message && files?.length==0&& (
+                      <span className="text-red-500 text-xs mt-[5px]">
+                        {errors.img_url?.message}
+                      </span>
                     )}
+                  </div>
 
-                    <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
-                      <img
-                        src={uploadimg}
-                        className="size-10"
-                      />
-                      <span className="text-sm">Upload Image</span>
-                    </div>
-                  </FileInput>
-                </FileUploader>
-              </div>
+
+                )} />
+
+
             </div>
 
             <div className="flex justify-between items-center my-4">
@@ -477,3 +507,8 @@ const FoodForm = ({
 };
 
 export default FoodForm;
+
+
+
+
+

@@ -29,6 +29,7 @@ import IdleLogoutHandler from "./components/Idle-Timer";
 import NotFoundPage from "./components/PageNotFound";
 import ResetPassword from "./components/app/reset_password";
 import MyForm from "./components/admin/test/Testcomponent";
+import ForgotPasword from "./components/app/login/forgot_password";
 
 function App() {
   const loading = useSelector((state: RootState) =>
@@ -39,66 +40,36 @@ function App() {
 
   return (
     <>
-      {" "}
-      <IdleLogoutHandler /> {/* Add the idle handler here */}
+      <IdleLogoutHandler />
       <Routes>
-
-
         <Route path="/reset_password/:token" element={<ResetPassword />} />
+        <Route path="/forgot_password" element={<ForgotPasword />} />
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/" index element={<AuthenticationPage />} />
           <Route element={<DashboardLayout />}>
-            {" "}
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/members" element={<MemberPage />} />
             <Route path="/admin/system_settings" element={<SystemSettings />} />
             {/* <Route path="/admin/leads"  element={<Leads />} /> */}
             {/* <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}
-            {/* <Route
-              path="/admin/leads/editlead/:id"
-              
-              element={<LeadForm />}
-            /> */}
             <Route path="/admin/facilities" element={<Facilities />} />
             <Route path="/admin/saleTaxes" element={<SaleTaxes />} />
             <Route path="/admin/incomeCategory" element={<IncomeCategory />} />
             <Route path="/admin/memberships" element={<Memberships />} />
             {/* <Route path="/admin/events" element={<Events />} /> */}
             <Route path="/admin/coach" element={<Coach />} />
-            {/*<Route path="/admin/coach/addcoach"  element={<CoachForm />} />*/}
-            {/*<Route
-              path="/admin/coach/editcoach/:id"
-              
-              element={<CoachForm />}
-            />*/}
+
             {/* <Route path="/admin/roles"  element={<RolesAndAccess />} /> */}
             <Route path="/admin/staff" element={<Staff />} />
-            {/*<Route path="/admin/staff/addStaff"  element={<StaffForm />} />*/}
-            {/*<Route
-              path="/admin/staff/editstaff/:id"
-              
-              element={<StaffForm />}
-            />*/}
             <Route path="/admin/exercise" element={<Exercise />} />
-            {/* <Route
-              path="/admin/exercise/addexercise"
-              
-              element={<ExerciseForm />}
-            />
-            <Route
-              path="/admin/exercise/editexercise/:id"
-              
-              element={<ExerciseForm />}
-            /> */}
-            {/* <Route path="/admin/mealplans" element={<MealPlans />} /> */}
-            {/* <Route path="/admin/foods" element={<FoodsNutrition />} /> */}
+            <Route path="/admin/mealplans" element={<MealPlans />} />
+            <Route path="/admin/foods" element={<FoodsNutrition />} />
             {/* <Route path="/admin/workoutplans"  element={<WorkoutPlan />} /> */}
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>
       </Routes>
       <Loader open={loading} />
-      {/* </Routes> */}
     </>
   );
 }

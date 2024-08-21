@@ -1,5 +1,15 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
+export interface mealPlanTableType {
+  data: mealPlanDataType & { id: number }[];
+  total_counts: number;
+  filtered_counts: number;
+}
+
+export interface mealPlanDataType {
+  org_id: number
+}
+
 
 export interface ResetPasswordType {
   id: number;
@@ -619,15 +629,15 @@ export interface CoachInputTypes {
   first_name: string;
   last_name: string;
   gender?: "male" | "female" | "other";
-  dob: string;
-  email: string;
+  dob?: string;
+  email?: string;
   phone?: string;
   mobile_number?: string;
   notes?: string;
-  source_id: number;
-  country_id: number;
+  source_id?: number;
+  country_id?: number;
   city?: string;
-  coach_status: "pending" | "active" | "inactive" | undefined;
+  coach_status?: "pending" | "active" | "inactive" | undefined;
   zipcode?: string;
   address_1?: string;
   address_2?: string;
@@ -637,7 +647,7 @@ export interface CoachInputTypes {
   swift_code?: string;
   created_by?: number;
   member_ids?: any;
-  org_id: number;
+  org_id?: number;
 }
 export interface addCoachResponseType {
   wallet_address?: string;

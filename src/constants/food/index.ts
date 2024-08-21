@@ -15,7 +15,7 @@ export const categories = [
   { value: "other", label: "Other" },
 ];
 
-export const visibleFor = [
+export const visibleFor = [ 
   { value: "only_me", label: "Only me" },
   { value: "members", label: "Members in my gym" },
   { value: "coaches_and_staff", label: "Coaches and Staff in my gym" },

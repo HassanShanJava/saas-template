@@ -148,7 +148,6 @@ const initialValues: MemberInputTypes = {
   coach_id: [] as z.infer<typeof coachsSchema>[],
   membership_plan_id: undefined,
   send_invitation: true,
-  client_status: "pending",
   client_since: format(new Date(), "yyyy-MM-dd"),
   auto_renewal: false,
   prolongation_period: undefined,
@@ -250,7 +249,7 @@ const MemberForm = ({
   useEffect(() => {
     if (action == "edit") {
       const memberpayload = { ...memberData };
-      memberpayload.coach_id = memberData?.coaches.map((item)=>item.id);
+      memberpayload.coach_id = memberData?.coaches.map((item) => item.id);
       reset(memberpayload);
       setAvatar(memberpayload.profile_img as string);
     } else {
@@ -624,7 +623,7 @@ const MemberForm = ({
                     id="email"
                     className=""
                     type="email"
-                    disabled={action=='edit'}
+                    disabled={action == 'edit'}
                     label="Email Address*"
                     {...register("email", {
                       required: "Required",
@@ -633,7 +632,7 @@ const MemberForm = ({
                         message: "Should be 40 characters or less",
                       },
                       pattern: {
-                        value: /\S+@\S+\.\S+/,
+                        value: /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
                         message: "Incorrect email format",
                       },
                     })}
@@ -742,7 +741,7 @@ const MemberForm = ({
 
                       <MultiSelect
                         floatingLabel={"Coaches"}
-                        options={coachesData as {value: number, label: string}[]}
+                        options={coachesData as { value: number, label: string }[]}
                         defaultValue={watch("coach_id") || []} // Ensure defaultValue is always an array
                         onValueChange={(selectedValues) => {
                           console.log("Selected Values: ", selectedValues); // Debugging step

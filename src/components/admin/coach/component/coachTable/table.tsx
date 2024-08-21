@@ -389,7 +389,7 @@ export default function CoachTableView() {
           <Select
             defaultValue={value}
             onValueChange={(e) =>
-              handleStatusChange({ coach_status: e, id: id, org_id: org_id })
+              handleStatusChange({ coach_status: e as any, id: id, org_id: org_id })
             }
             disabled={value == "pending"}
           >

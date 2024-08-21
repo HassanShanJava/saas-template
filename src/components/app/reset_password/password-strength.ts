@@ -80,7 +80,7 @@ export const StrengthLevels = {
         Target: "Numbers"
       },
       {
-        Pattern: "[!@@#$%^&*]",
+        Pattern: `[!@@#$%^&*+:;'{}.,~=\"\(\)\\\\/\_\`\-]`,
         Target: "Symbols"
       }
     ];

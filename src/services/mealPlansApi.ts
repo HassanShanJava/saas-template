@@ -1,3 +1,4 @@
+import { mealPlanDataType, mealPlanTableType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
 interface mealPlansInput {
@@ -8,7 +9,7 @@ interface mealPlansInput {
 export const MealPlans = apiSlice.injectEndpoints({
     endpoints(builder) {
         return {
-            getMealPlans: builder.query<any[], mealPlansInput>({
+            getMealPlans: builder.query<mealPlanTableType, mealPlansInput>({
                 query: (searchCretiria) => ({
                     url: `/meal_plans?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
                     method: "GET",
@@ -18,7 +19,7 @@ export const MealPlans = apiSlice.injectEndpoints({
                     providesTags: ["MealPlans"],
                 }),
             }),
-            createMealPlans: builder.query<any, any>({
+            createMealPlans: builder.query<any, mealPlanDataType>({
                 query: (fooddata) => ({
                     url: `/meal_plans`,
                     method: "POST",
@@ -30,7 +31,7 @@ export const MealPlans = apiSlice.injectEndpoints({
 
                 }),
             }),
-            updateMealPlans: builder.query<any, any & { id: number }>({
+            updateMealPlans: builder.query<any, mealPlanDataType & { id: number }>({
                 query: (fooddata) => ({
                     url: `/meal_plans`,
                     method: "PUT",

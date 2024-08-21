@@ -5,7 +5,7 @@ export default function PasswordStrengthIndicator({ passwordStrength }:{password
     <span>
       <ul id="passwordStrength" className="list-disc pl-6 text-sm mt-3">
         <li id="Length" className="glyphicon glyphicon-remove">
-          Must be at least 8 charcters
+          Must be at least 7 charcters
         </li>
         <li id="UpperCase" className="glyphicon glyphicon-remove">
           Must have atleast 1 upper case character

@@ -143,7 +143,7 @@ const ResetPassword = () => {
                                                 required: "Required",
                                                 pattern: {
                                                     value:
-                                                        /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{8,50}$/,
+                                                        /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{9,50}$/,
                                                     message: "Follow the password structure.",
                                                 },
                                                 maxLength: 50
@@ -156,6 +156,12 @@ const ResetPassword = () => {
                                             onClick={() => toggleVisibility(setIsPasswordVisible)}
                                         />
                                     </div>
+                                    {errors.new_password?.type=="required" && (
+                                        <span className="text-xs text-red-400 font-poppins ">
+                                            {errors.new_password?.message}
+                                        </span>
+                                    )}
+
                                     {errors.new_password?.type == "maxLength" && (
                                         <span className="text-xs text-red-400 font-poppins ">
                                             Max length exceeded

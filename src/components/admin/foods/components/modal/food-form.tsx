@@ -330,7 +330,7 @@ const FoodForm = ({
 
               <Controller
                 name={'img_url'}
-                rules={{ required: files?.length==0&&"Required" }}
+                // rules={{ required: files?.length==0&&"Required" }}
                 control={control}
                 render={({
                   field: { onChange, value, onBlur },

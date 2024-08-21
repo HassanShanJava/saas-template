@@ -42,7 +42,7 @@ const ResetPassword = () => {
                 variant: "destructive",
                 title: typedError.data?.detail,
             });
-            navigate('/');  
+            // navigate('/');
         }
     }, [verifyToken, error]);
 
@@ -63,17 +63,17 @@ const ResetPassword = () => {
     console.log({ watcher })
 
     const onSubmit = useCallback(async (data: { new_password: string; confirm_password: string, id: number, org_id: number }) => {
+        const payload = {
+            token: token as string,
+            ...data
+        }
         try {
-            const payload = {
-                token: token as string,
-                ...data
-            }
             console.log({ payload })
             const resp = await resetPassword(payload).unwrap();
             if (resp) {
                 toast({
                     variant: "success",
-                    title: "Password Reset Successfully",
+                    title: "Your password has been reset successfully. You can now log in with your new password",
                 });
                 navigate('/');
             }
@@ -116,11 +116,8 @@ const ResetPassword = () => {
                                         />
                                     </div>
                                     <div className="flex flex-col gap-2">
-                                        <h1 className="hero-topHeading italic tracking-wider leading-5 text-[1.3rem] text-textprimary">
-                                            Account Recovery
-                                        </h1>
-                                        <p className="text-textwhite leading-5 italic font-semibold text-[1.8rem]">
-                                            Reset password
+                                        <p className="text-textwhite leading-5 italic font-semibold text-[1.43rem]">
+                                            Reset Your Password.
                                         </p>
                                     </div>
                                 </div>
@@ -140,7 +137,7 @@ const ResetPassword = () => {
                                             placeholder="New Password"
                                             className="w-full  bg-transparent border-checkboxborder text-textgray outline-none"
                                             {...register("new_password", {
-                                                required: "Required",
+                                                required: "New Password is required.",
                                                 pattern: {
                                                     value:
                                                         /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{9,50}$/,
@@ -156,7 +153,7 @@ const ResetPassword = () => {
                                             onClick={() => toggleVisibility(setIsPasswordVisible)}
                                         />
                                     </div>
-                                    {errors.new_password?.type=="required" && (
+                                    {errors.new_password?.type == "required" && (
                                         <span className="text-xs text-red-400 font-poppins ">
                                             {errors.new_password?.message}
                                         </span>
@@ -179,7 +176,7 @@ const ResetPassword = () => {
                                             placeholder="Confirm Password"
                                             className="w-full bg-transparent border-checkboxborder text-textgray outline-none"
                                             {...register("confirm_password", {
-                                                required: "Required",
+                                                required: "Confirm Password is required.",
                                                 maxLength: 50,
                                                 validate: (val: string) => {
                                                     if (watch('new_password') != val && val !== '') {
@@ -195,7 +192,6 @@ const ResetPassword = () => {
                                             onClick={() => toggleVisibility(setIsConfirmPasswordVisible)}
                                         />
                                     </div>
-
 
                                     {errors.confirm_password?.message && (
                                         <span className="text-red-500 text-xs mt-[5px]">
@@ -221,10 +217,7 @@ const ResetPassword = () => {
                         </CardContent>
                     </Card>
                 </div>
-
             </div>
-
-
         </div>
     );
 };

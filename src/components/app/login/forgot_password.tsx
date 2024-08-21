@@ -63,7 +63,7 @@ const ForgotPasword = () => {
       if (resp) {
         toast({
           variant: "success",
-          title: "Please check your email",
+          title: `An e-mail with a password reset link has been sent to ${data.email}. If you did not receive the email, please check your spam/junk mail folder`,
         });
         setCaptchaError(false);
         reset();

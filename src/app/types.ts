@@ -787,7 +787,7 @@ export interface CoachResponseTypeById {
   acc_holder_name?: string;
   swift_code?: string;
   created_at?: string;
-  member_ids: Member[];
+  member_ids: number[];
 }
 
 export interface ServerResponseById {

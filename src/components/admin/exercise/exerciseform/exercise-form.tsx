@@ -91,7 +91,7 @@ interface ExerciseForm {
   action: string;
   setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
   refetch: any;
-  data: createExerciseInputTypes;
+  data: createExerciseInputTypes | undefined;
 }
 
 enum IntensityEnum {
@@ -172,8 +172,10 @@ const ExerciseForm = ({
     if (action == "edit") {
       console.log({ data }, "edit");
       reset(data);
-      setExistingFemaleImage(data.thumbnail_male ?? null);
-      setExistingGif(data.gif_url);
+      const imagemale = data && data.thumbnail_male;
+      setExistingFemaleImage(imagemale ?? null);
+      const gifimage = data && data.gif_url;
+      setExistingGif(gifimage as string);
 
       setExistingMaleImage(data?.thumbnail_male ?? null);
       setCurrentValue(data?.intensity_value);

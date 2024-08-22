@@ -58,6 +58,7 @@ interface FoodForm {
   action: string;
   setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
   refetch: any;
+  setData: any;
   data: CreateFoodTypes | undefined;
 }
 
@@ -68,6 +69,7 @@ const FoodForm = ({
   data,
   setAction,
   refetch,
+  setData,
 }: FoodForm) => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -106,30 +108,20 @@ const FoodForm = ({
   const watcher = watch();
 
   useEffect(() => {
-    if (action == "edit") {
-      console.log({ data }, "edit")
-      reset(data);
-    } else if (action == "add") {
-      console.log({ initialValue }, "add")
-      reset(initialValue, {
-        keepIsSubmitted: false,
-        keepSubmitCount: false,
-        keepDefaultValues: true,
-        keepDirtyValues: true,
-      });
+    if (action == "edit" && data) {
+      console.log({ data }, "edit");
+      reset(data as CreateFoodTypes);
+    } else if (action == "add" && data == undefined) {
+      console.log({ initialValue }, "add");
+      reset(initialValue,{ keepIsSubmitted: false, keepSubmitCount: false });
     }
-  }, [action, reset]);
+  }, [action, data, reset]);
 
   const handleClose = () => {
+    setFiles([]);
     clearErrors();
-    setAction("add");
-    reset(initialValue, {
-      keepIsSubmitted: false,
-      keepSubmitCount: false,
-      keepDefaultValues: true,
-      keepDirtyValues: true,
-    });
-    setFiles([])
+    reset()
+    setData(undefined);
     setShowMore(false);
     setOpen(false);
   };
@@ -138,24 +130,14 @@ const FoodForm = ({
   const [updateFood] = useUpdateFoodsMutation();
 
   const onSubmit = async (input: CreateFoodTypes) => {
-    if(data ==watcher){
-      toast({
-        variant: "destructive",
-        title: "No changes detected",
-      });
-      return;
-    }
     const payload = { org_id: orgId, ...input };
     if (files && files?.length > 0) {
-      if (watcher.img_url !== '' && watcher.img_url) {
-
-        await deleteCognitoImage(watcher.img_url as string)
+      if (watcher.img_url !== "" && watcher.img_url) {
+        await deleteCognitoImage(watcher.img_url as string);
       }
       console.log(files[0], "food_image");
       const getUrl = await UploadCognitoImage(files[0]);
       payload.img_url = getUrl.location;
-    } else {
-      payload.img_url = null;
     }
 
     try {
@@ -166,7 +148,6 @@ const FoodForm = ({
           title: "Created Successfully",
         });
         refetch();
-        handleClose();
       } else if (action === "edit") {
         await updateFood({ ...payload, id: data?.id as number }).unwrap();
         toast({
@@ -174,7 +155,6 @@ const FoodForm = ({
           title: "Updated Successfully",
         });
         refetch();
-        handleClose();
       }
     } catch (error) {
       console.error("Error", { error });
@@ -192,11 +172,11 @@ const FoodForm = ({
           description: `Something Went Wrong.`,
         });
       }
-      handleClose();
     }
+    handleClose();
   };
   // console.log({ files,watcher,errors });
-  console.log({ data,watcher },'edit');
+  console.log({ data, watcher }, "edit");
   return (
     <Sheet open={isOpen}>
       <SheetContent
@@ -204,7 +184,12 @@ const FoodForm = ({
         className="!max-w-[1050px] py-0 custom-scrollbar h-screen"
       >
         <FormProvider {...form}>
-          <form key={action} noValidate className="pb-4" onSubmit={handleSubmit(onSubmit)}>
+          <form
+            key={action}
+            noValidate
+            className="pb-4"
+            onSubmit={handleSubmit(onSubmit)}
+          >
             <SheetHeader className="sticky top-0 z-40 pt-4 bg-white">
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start  bg-white">
@@ -269,10 +254,10 @@ const FoodForm = ({
 
                       {errors[item.name as keyof CreateFoodTypes]?.type ===
                         "maxLength" && (
-                          <span className="text-red-500 mt-[5px] text-xs">
-                            Max length exceeded
-                          </span>
-                        )}
+                        <span className="text-red-500 mt-[5px] text-xs">
+                          Max length exceeded
+                        </span>
+                      )}
                     </div>
                   );
                 }
@@ -329,8 +314,8 @@ const FoodForm = ({
               })}
 
               <Controller
-                name={'img_url'}
-                // rules={{ required: files?.length==0&&"Required" }}
+                name={"img_url"}
+                rules={{ required: files?.length == 0 && "Required" }}
                 control={control}
                 render={({
                   field: { onChange, value, onBlur },
@@ -367,42 +352,41 @@ const FoodForm = ({
                           <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
                             <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
                           </div>
-                        ) : files?.length == 0 && watcher?.img_url && (
-                          <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
-                            {/* <i className="text-gray-400 fa-regular fa-image text-2xl"></i> */}
-                            <img
-                              src={(watcher?.img_url !== '' && watcher?.img_url) ?
-                                VITE_VIEW_S3_URL + "/" + watcher?.img_url : ""
-                              }
-                              loading="lazy"
-
-                              className="object-contain max-h-40 "
-
-                            />
-                          </div>
+                        ) : (
+                          files?.length == 0 &&
+                          watcher?.img_url && (
+                            <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
+                              {/* <i className="text-gray-400 fa-regular fa-image text-2xl"></i> */}
+                              <img
+                                src={
+                                  watcher?.img_url !== "" && watcher?.img_url
+                                    ? VITE_VIEW_S3_URL + "/" + watcher?.img_url
+                                    : ""
+                                }
+                                loading="lazy"
+                                className="object-contain max-h-40 "
+                              />
+                            </div>
+                          )
                         )}
 
                         <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
-                          <img
-                            src={uploadimg}
-                            className="size-10"
-                          />
-                          <span className="text-sm">{watcher.img_url ? "Change Image" : "Upload Image"}</span>
+                          <img src={uploadimg} className="size-10" />
+                          <span className="text-sm">
+                            {watcher.img_url ? "Change Image" : "Upload Image"}
+                          </span>
                         </div>
                       </FileInput>
                     </FileUploader>
 
-                    {errors.img_url?.message && files?.length==0&& (
+                    {errors.img_url?.message && files?.length == 0 && (
                       <span className="text-red-500 text-xs mt-[5px]">
                         {errors.img_url?.message}
                       </span>
                     )}
                   </div>
-
-
-                )} />
-
-
+                )}
+              />
             </div>
 
             <div className="flex justify-between items-center my-4">
@@ -507,8 +491,3 @@ const FoodForm = ({
 };
 
 export default FoodForm;
-
-
-
-
-

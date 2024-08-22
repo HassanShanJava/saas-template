@@ -462,9 +462,9 @@ export default function FoodsTableView() {
   const filterDisplay = [
     {
       type: "select",
-      name: "income_category_id",
-      label: "Income Category",
-      options: categories,
+      name: "category",
+      label: "Food Category",
+      options: categories.map((item)=>({id:item.value,name:item.label})),
       function: handleCategory,
     },
     {

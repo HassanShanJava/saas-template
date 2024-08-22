@@ -28,7 +28,7 @@ import { ErrorType } from "@/app/types";
 // { open, setOpen }: forgotPaswordType
 const ForgotPasword = () => {
   const { toast } = useToast();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const [isCaptchaError, setCaptchaError] = useState(false);
 
@@ -100,15 +100,11 @@ const ForgotPasword = () => {
   }
 
   return (
-    <div
-      className="loginpage-image"
-    >
+    <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">
         <div className="flex mx-16 justify-between items-center h-dvh ">
           <div className=" flex flex-col gap-2"></div>
           <div>
-
-
             <Card className="mx-auto max-w-md bg-transparent bg-opacity-10 backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg p-2">
               <CardHeader>
                 <CardTitle>
@@ -129,7 +125,8 @@ const ForgotPasword = () => {
                         New Password
                       </p>
                       <p className="text-textgray leading-5 text-[0.9rem]">
-                        We will send password recovery instructions to the email if an account exists with us.
+                        We will send password recovery instructions to the email
+                        if an account exists with us.
                       </p>
                     </div>
                   </div>
@@ -148,7 +145,7 @@ const ForgotPasword = () => {
                           required: "Email is required.",
                           pattern: {
                             value:
-                              /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
+                              /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
                             message: "Invalid email format.",
                           },
                           maxLength: 50,
@@ -183,7 +180,7 @@ const ForgotPasword = () => {
                       )}
                     </div>
                     <LoadingButton
-                      type='submit'
+                      type="submit"
                       loading={isSubmitting}
                       className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
                     >
@@ -206,12 +203,10 @@ const ForgotPasword = () => {
                 </p>
               </div>
             </div>
-
-
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 

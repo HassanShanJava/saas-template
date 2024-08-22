@@ -249,7 +249,11 @@ const MemberForm = ({
   useEffect(() => {
     if (action == "edit") {
       const memberpayload = { ...memberData };
-      memberpayload.coach_id = memberData?.coaches.map((item) => item.id);
+      memberpayload.coach_id = memberData?.coaches.every(
+        (item) => item.id === 0 && item.name.trim() === ""
+      )
+        ? []
+        : memberData?.coaches.map((item) => item.id);
       reset(memberpayload);
       setAvatar(memberpayload.profile_img as string);
     } else {
@@ -443,7 +447,7 @@ const MemberForm = ({
                       id="avatar"
                       src={
                         watcher.profile_img !== "" && watcher.profile_img
-                          ? VITE_VIEW_S3_URL + '/' + watcher.profile_img
+                          ? VITE_VIEW_S3_URL + "/" + watcher.profile_img
                           : avatar
                             ? String(avatar)
                             : profileimg
@@ -622,7 +626,7 @@ const MemberForm = ({
                     id="email"
                     className=""
                     type="email"
-                    disabled={action == 'edit'}
+                    disabled={action == "edit"}
                     label="Email Address*"
                     {...register("email", {
                       required: "Required",
@@ -631,7 +635,8 @@ const MemberForm = ({
                         message: "Should be 40 characters or less",
                       },
                       pattern: {
-                        value: /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
+                        value:
+                          /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
                         message: "Incorrect email format",
                       },
                     })}
@@ -712,7 +717,9 @@ const MemberForm = ({
                     }) => (
                       <MultiSelect
                         floatingLabel={"Coaches"}
-                        options={coachesData as { value: number, label: string }[]}
+                        options={
+                          coachesData as { value: number; label: string }[]
+                        }
                         defaultValue={watch("coach_id") || []} // Ensure defaultValue is always an array
                         onValueChange={(selectedValues) => {
                           console.log("Selected Values: ", selectedValues); // Debugging step
@@ -861,14 +868,14 @@ const MemberForm = ({
                                 className={cn(
                                   "justify-between ",
                                   !value &&
-                                  "font-medium text-gray-800 focus:border-primary "
+                                    "font-medium text-gray-800 focus:border-primary "
                                 )}
                               >
                                 {value
                                   ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === value // Compare with numeric value
-                                  )?.country // Display country name if selected
+                                      (country: CountryTypes) =>
+                                        country.id === value // Compare with numeric value
+                                    )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

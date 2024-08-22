@@ -117,9 +117,7 @@ export default function AuthenticationPage() {
   }
 
   return (
-    <div
-      className="loginpage-image"
-    >
+    <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">
         <div className="flex mx-16 justify-between items-center h-dvh ">
           <div className=" flex flex-col gap-2"></div>
@@ -138,7 +136,7 @@ export default function AuthenticationPage() {
                     </div>
                     <div className="flex flex-col gap-2">
                       <h1 className="hero-topHeading italic tracking-wider leading-5 text-[1.3rem] text-textprimary">
-                        Login
+                        Log In
                       </h1>
                       <p className="text-textwhite leading-5 italic font-semibold text-[1.8rem]">
                         Your Account
@@ -155,6 +153,7 @@ export default function AuthenticationPage() {
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                   <div className="flex items-center custom-box-shadow w-full gap-2 px-4 py-2 rounded-md border border-checkboxborder focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 ">
                     <input
+                      maxLength={50}
                       id="username"
                       type="text"
                       placeholder="Enter you email"
@@ -163,10 +162,10 @@ export default function AuthenticationPage() {
                         required: "Email is required.",
                         pattern: {
                           value:
-                          /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
+                            /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
                           message: "Invalid email format.",
                         },
-                        maxLength: 64,
+                        maxLength: 50,
                       })}
                     />
                   </div>
@@ -182,6 +181,8 @@ export default function AuthenticationPage() {
                   )}
                   <div className="flex items-center custom-box-shadow w-full gap-2 px-4 py-2 rounded-md border border-checkboxborder focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 ">
                     <input
+                      maxLength={50}
+                      minLength={8}
                       id="password"
                       type={isPasswordVisible ? "text" : "password"}
                       placeholder="Enter your password"
@@ -259,7 +260,7 @@ export default function AuthenticationPage() {
                     loading={loading}
                     className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
                   >
-                    {loading ? "Logging In" : "Login"}
+                    {loading ? "Logging In" : "Sign In"}
                   </LoadingButton>
                 </form>
               </CardContent>

@@ -19,14 +19,14 @@ import {
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
-import { ErrorType, ExerciseResponseViewType } from "@/app/types";
+import { ErrorType, createExerciseInputTypes } from "@/app/types";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useDeleteExerciseMutation } from "@/services/exerciseApi";
 import warning from "@/assets/warning.svg";
 interface DataTableRowActionsProps<TData> {
   row: number;
-  data: ExerciseResponseViewType;
+  data: createExerciseInputTypes;
   refetch: any;
   hanleEditExercise: any;
 }
@@ -43,7 +43,7 @@ export function DataTableRowActions<TData>({
 
   const deleteRow = async () => {
     try {
-      const resp = await deleteExercise(data.id).unwrap();
+      const resp = await deleteExercise(data.id as number).unwrap();
       if (resp) {
         console.log({ resp });
         refetch();

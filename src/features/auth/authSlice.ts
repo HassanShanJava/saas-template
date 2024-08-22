@@ -18,6 +18,7 @@ interface AuthState {
   error: string | null;
   loading: boolean;
   isLoggedIn: boolean;
+  lastRefetch: number | null;
 }
 
 const userToken = localStorage.getItem("userToken");
@@ -29,6 +30,7 @@ const initialState: AuthState = {
   error: null,
   loading: false,
   isLoggedIn: userToken ? true : false,
+  lastRefetch: null,
 };
 
 const authSlice = createSlice({
@@ -46,6 +48,10 @@ const authSlice = createSlice({
       state.error = null;
       state.loading = false;
       state.isLoggedIn = false;
+      state.lastRefetch = null;
+    },
+    updateLastRefetch: (state) => {
+      state.lastRefetch = Date.now();
     },
   },
   extraReducers: (builder) => {
@@ -78,7 +84,9 @@ export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password, rememberme }: loginParams, { rejectWithValue }) => {
     try {
-      const { data, }: { data: { token: { access_token: string }; user?: any } } =
+      const {
+        data,
+      }: { data: { token: { access_token: string }; user?: any } } =
         await loginUser(email, password);
       localStorage.setItem("userToken", data.token?.access_token);
       if (rememberme) {
@@ -104,5 +112,5 @@ export const login = createAsyncThunk(
   }
 );
 
-export const { logout, tokenReceived } = authSlice.actions;
+export const { logout, tokenReceived, updateLastRefetch } = authSlice.actions;
 export default authSlice.reducer;

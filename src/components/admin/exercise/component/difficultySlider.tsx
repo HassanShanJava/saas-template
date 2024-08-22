@@ -37,7 +37,7 @@ const DifficultySlider: React.FC<DifficultySliderProps> = ({
   return (
     <div className="relative">
       <label htmlFor={id} className="block text-sm font-medium">
-        Difficulty:
+        Difficulty*:
       </label>
       <div className="relative w-full max-w-lg mt-1">
         <Slider.Root

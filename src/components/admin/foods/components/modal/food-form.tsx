@@ -113,14 +113,14 @@ const FoodForm = ({
       reset(data as CreateFoodTypes);
     } else if (action == "add" && data == undefined) {
       console.log({ initialValue }, "add");
-      reset(initialValue,{ keepIsSubmitted: false, keepSubmitCount: false });
+      reset(initialValue, { keepIsSubmitted: false, keepSubmitCount: false });
     }
   }, [action, data, reset]);
 
   const handleClose = () => {
     setFiles([]);
     clearErrors();
-    reset()
+    reset();
     setData(undefined);
     setShowMore(false);
     setOpen(false);
@@ -393,10 +393,10 @@ const FoodForm = ({
               <h1 className="font-semibold text-xl py-4">
                 Nutrition Information
               </h1>
-
               <Button
                 variant={"outline"}
                 className="border-primary"
+                type="button"
                 onClick={handleShowMore}
               >
                 {showMore ? "Hide" : "Show"} micro nutrients

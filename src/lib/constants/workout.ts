@@ -61,3 +61,146 @@ export const workout_day_data = [
 		]
 	}
 ]
+
+export const workout_day_exercise_data = [
+  {
+      "exercise_name": "Exercise Sample",
+      "visible_for": "Staff of My Club",
+      "org_id": 9,
+      "exercise_type": "Time Based",
+      "exercise_intensity": "Max Intensity",
+      "intensity_value": 0,
+      "difficulty": "Beginner",
+      "sets": 1,
+      "seconds_per_set": [
+        120
+      ],
+      "repetitions_per_set": [],
+      "rest_between_set": [
+        60
+      ],
+      "distance": 0,
+      "speed": 0,
+      "met_id": 1,
+      "gif_url": "abc",
+      "video_url_male": "abc",
+      "video_url_female": "acb",
+      "thumbnail_male": "https://uploads.fitnfi.com/images/6f1cbec8-58bf-497a-8e9e-4c4a043ad968-image%2067.png",
+      "thumbnail_female": "",
+      "image_url_female": "",
+      "image_url_male": "",
+      "id": 51,
+      "category_id": 2,
+      "created_at": "2024-08-08T11:52:59.029068",
+      "category_name": "cardio_new",
+      "equipments": [
+        {
+          "id": 60,
+          "name": "airpad"
+        },
+        {
+          "id": 61,
+          "name": "aquabag"
+        }
+      ],
+      "primary_muscles": [
+        {
+          "id": 2,
+          "name": "Abs"
+        },
+        {
+          "id": 3,
+          "name": "Abs - Straight Abs"
+        }
+      ],
+      "secondary_muscles": [
+        {
+          "id": 3,
+          "name": "Abs - Straight Abs"
+        }
+      ],
+      "primary_joints": [
+        {
+          "id": 2,
+          "name": "combination"
+        },
+        {
+          "id": 3,
+          "name": "core"
+        }
+      ]
+    },
+    {
+      "exercise_name": "testing exercise",
+      "visible_for": "Members of My Club",
+      "org_id": 9,
+      "exercise_type": "Time Based",
+      "exercise_intensity": null,
+      "intensity_value": 10,
+      "difficulty": "Advance",
+      "sets": 2,
+      "seconds_per_set": [
+        10,
+        15
+      ],
+      "repetitions_per_set": [],
+      "rest_between_set": [
+        10,
+        40
+      ],
+      "distance": 12,
+      "speed": 12,
+      "met_id": 3,
+      "gif_url": "c5fbc469-ff0c-401f-ac1c-61ff247fa38f-new.gif",
+      "video_url_male": "https://calendar.q-sols.com/qrcodegenerator",
+      "video_url_female": "https://calendar.q-sols.com/qrcodegenerator",
+      "thumbnail_male": "https://uploads.fitnfi.com/images/f6f30a26-56c7-4189-8a43-0a65edd1f84b-VLAArrayNiteClouds_RGB.jpg",
+      "thumbnail_female": "",
+      "image_url_female": null,
+      "image_url_male": null,
+      "id": 57,
+      "category_id": 4,
+      "created_at": "2024-08-21T18:45:26.159561",
+      "category_name": "cardio_interval",
+      "equipments": [
+        {
+          "id": 59,
+          "name": "aerial_hoop"
+        },
+        {
+          "id": 60,
+          "name": "airpad"
+        }
+      ],
+      "primary_muscles": [
+        {
+          "id": 1,
+          "name": "Abs - Obliques"
+        },
+        {
+          "id": 2,
+          "name": "Abs"
+        }
+      ],
+      "secondary_muscles": [
+        {
+          "id": 1,
+          "name": "Abs - Obliques"
+        },
+        {
+          "id": 2,
+          "name": "Abs"
+        }
+      ],
+      "primary_joints": [
+        {
+          "id": 2,
+          "name": "combination"
+        },
+        {
+          "id": 1,
+          "name": "ankle"
+        }
+      ]
+    },
+	]

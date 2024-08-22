@@ -146,7 +146,7 @@ const WorkoutPlanForm = () => {
   };
   return (
     <Sheet open={true}>
-      <SheetContent className="!max-w-[1200px] custom-scrollbar py-0" hideCloseButton>
+      <SheetContent className="!max-w-[1500px] min-w-[1150px] custom-scrollbar py-0" hideCloseButton>
 				<FormProvider {...form}>
 					<form noValidate onSubmit={handleSubmit(onSubmit)}>
 						<SheetHeader className="sticky z-40 top-0 py-4 bg-white">

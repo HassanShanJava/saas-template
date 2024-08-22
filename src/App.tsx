@@ -31,6 +31,7 @@ import ResetPassword from "./components/app/reset_password";
 import WorkoutPlanForm from "./components/admin/workoutplan/workoutform/workout-form";
 import WorkoutStep1 from "./components/admin/workoutplan/workoutform/workout-step-1";
 import WorkoutStep2 from "./components/admin/workoutplan/workoutform/workout-step-2";
+import Test from "./components/Test";
 
 function App() {
   const loading = useSelector((state: RootState) =>
@@ -81,7 +82,7 @@ function App() {
               
               element={<StaffForm />}
             />*/}
-            {/* <Route path="/admin/exercise" element={<Exercise />} /> */}
+            <Route path="/admin/exercise" element={<Exercise />} />
             {/* <Route
               path="/admin/exercise/addexercise"
               
@@ -100,6 +101,7 @@ function App() {
 									<Route path="step/2" element={<WorkoutStep2/>}/>
 							</Route>
 						</Route>
+            {/*<Route path="/test" element={<Test />} />*/}
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

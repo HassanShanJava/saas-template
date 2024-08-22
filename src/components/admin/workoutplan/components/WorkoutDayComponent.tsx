@@ -23,7 +23,7 @@ interface WorkoutDayProps {
 	onDelete: (id: number) => void;
 	onUpdate: (id: number, updatedDay: WorkoutDayOptional) => void;
 }
-export default function WorkoutDayComponent({day, setDay, dayNo, add, onDelete, onUpdate}: WorkoutDayProps) {
+export default function WorkoutDayComponent({day, dayNo, add, onDelete, onUpdate}: WorkoutDayProps) {
 	const [edit, setEdit] = useState<boolean>(false);
 	const [isFocused, setIsFocused] = useState<boolean>(false);
 	const [name, setName] = useState<string>(day.day_name);
@@ -31,9 +31,9 @@ export default function WorkoutDayComponent({day, setDay, dayNo, add, onDelete, 
 		<div className={cn("border border-black/25 rounded-lg p-2",isFocused && "outline-none ring-2 ring-primary ring-offset-2 ring-offset-[#EEE]")}>
 			<div className="flex justify-between items-center relative space-x-1">
 				<div className="flex gap-1 w-4/5">
-					<span className="max-w-[30%] truncate">Day {day.day}: </span>
+					<span className="max-w-[30%] text-sm truncate">Day {day.day}: </span>
 					{!edit ? 
-						<span className="max-w-[70%] truncate">{name}</span>
+						<span className="max-w-[70%] text-sm truncate">{name}</span>
 						:
 						<input
 							id="search"
@@ -41,7 +41,7 @@ export default function WorkoutDayComponent({day, setDay, dayNo, add, onDelete, 
 							onChange={(event) => {onUpdate(day.id, {day_name: event.target.value});setName(event.target.value)}}
 							onFocus={() => setIsFocused(true)}
 							onBlur={() => setIsFocused(false)}
-							className="bg-transparent outline-none max-w-[70%]"
+							className="bg-transparent text-sm outline-none max-w-[70%]"
 							value={name}
 						/>
 					}

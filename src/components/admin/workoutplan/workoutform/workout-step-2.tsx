@@ -1,8 +1,8 @@
 import { Workout, createExerciseInputTypes } from "@/app/types";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { workout_day_data } from "@/lib/constants/workout";
-import { useState } from "react";
+import { workout_day_data, workout_day_exercise_data } from "@/lib/constants/workout";
+import React, { useState } from "react";
 import WorkoutDayComponent, { WorkoutDay, WorkoutDayOptional } from "../components/WorkoutDayComponent";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
@@ -10,19 +10,91 @@ import { toast } from "@/components/ui/use-toast";
 import { useGetAllCategoryQuery, useGetAllEquipmentsQuery, useGetAllJointsQuery, useGetAllMuscleQuery } from "@/services/exerciseApi";
 import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ExerciseItem } from "@/constants/exercise";
+import { ExerciseItem, exerciseTypeOptions } from "@/constants/exercise";
+import WorkoutDayExerciseComponent, { Exercise } from "../components/WorkoutDayExerciseComponent";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
+export interface WorkoutWeek {
+	week: number;
+	days: WorkoutDay[];
+}
+
+export interface ExerciseForm {
+	exercise_type: string;
+	timePerSet: number;
+	restPerSet: number;
+	seconds_per_set: {value: number}[];
+	rest_between_set_time_based: {value: number}[];
+	rest_between_set_rep_based: {value: number}[];
+	repititions_per_set: {value: number}[];
+}
+
+export interface RepBased {
+	repititions_per_set: number[];
+	rest_between_set: number[];
+	intensity_type: "Max" | "% of 1RM";
+	intensity_value: number;
+}
+
+export interface TimeBased {
+	seconds_per_set: number[];
+	rest_between_set: number[];
+	distance: number;
+	speed: number;
+}
 const WorkoutStep2: React.FC = () => {
-	const {getValues} = useFormContext<Workout>();
 	const [weeks, setWeeks] = useState<any>(workout_day_data);
+	const [exercises, setExercises] = useState<Exercise[]>(workout_day_exercise_data as Exercise[]);
+	const [repBasedData, setRepBasedData] = useState<RepBased>();
+	const [timeBasedData, setTimeBasedData] = useState<TimeBased>();
 	const { data: CategoryData } = useGetAllCategoryQuery();
 	const { data: EquipmentData } = useGetAllEquipmentsQuery();
 	const { data: MuscleData } = useGetAllMuscleQuery();
 	const { data: JointsData } = useGetAllJointsQuery();
-	console.log(CategoryData, EquipmentData, MuscleData, JointsData);
+	
+  const form = useForm<ExerciseForm>({
+    defaultValues: {},
+    mode: "all",
+  });
+	const {control, formState: {errors}} = form;
+
+  const {
+    fields: repititionsPerSet,
+    append: appendRepetition,
+    remove: removeRepetition,
+  } = useFieldArray({
+    control,
+    name: "repititions_per_set",
+  });
+
+  const {
+    fields: restBetweenSetrepBased,
+    append: appendRestSetBased,
+    remove: removeRestSetBased,
+  } = useFieldArray({
+    control,
+    name: "rest_between_set_rep_based",
+  });
+
+  const {
+    fields: secondsPerSet,
+    append: appendTime,
+    remove: removeTime,
+  } = useFieldArray({
+    control,
+    name: "seconds_per_set",
+  });
+  const {
+    fields: restBetweenSetTimeBased,
+    append: appendRestTimeBased,
+    remove: removeRestTimeBased,
+  } = useFieldArray({
+    control,
+    name: "rest_between_set_time_based",
+  });
 
 	function handleAddDay(week: number) {
-		const thisWeek = weeks.find(w => w.week === week);
+		const thisWeek = weeks.find((w: WorkoutWeek) => w.week === week);
 		if (thisWeek.days.length === 7) {
 			toast({
 				variant: "destructive",
@@ -31,8 +103,8 @@ const WorkoutStep2: React.FC = () => {
 			});
 			return
 		}
-		setWeeks(weeks => 
-			weeks.map(week => {
+		setWeeks((weeks: WorkoutWeek[]) => 
+			weeks.map((week: WorkoutWeek) => {
 				if(week.week === thisWeek.week) {
 				const lastDay = week.days[week.days.length-1];
 						return {...week, days: [...week.days,
@@ -53,7 +125,7 @@ const WorkoutStep2: React.FC = () => {
 	function handleAddWeek() {
 		const lastWeek = weeks[weeks.length-1];
 		const lastDay = lastWeek.days[lastWeek.days.length-1];
-		setWeeks(weeks => [...weeks, {
+		setWeeks((weeks: WorkoutWeek[]) => [...weeks, {
 			week: lastWeek.week + 1,
 			days: [
 					{
@@ -69,7 +141,7 @@ const WorkoutStep2: React.FC = () => {
 	function handleDelete(id: number) {
 		setWeeks((weeks: any) => {
 			
-			return weeks.map(week => ({...week, days: week.days.filter(day => day.id !== id)}))
+			return weeks.map((week: WorkoutWeek) => ({...week, days: week.days.filter(day => day.id !== id)}))
 		}
 		);
 	}
@@ -84,7 +156,25 @@ const WorkoutStep2: React.FC = () => {
 			))
 		) 
 	}
-  const [filterData, setFilter] = useState({});
+
+	function handleExerciseDuplicate(id: number) {
+		const exercise = exercises.find(e => e.id === id);
+		if (exercise)
+			setExercises(exercises => [...exercises, exercise]);
+	}
+
+	function handleExerciseDelete(index: number, id: number) {
+		setExercises(exercises => exercises.filter((_, i) => i !== index));
+	}
+
+	interface ExerciseFilter {
+		primary_muscle_ids?: number[]
+		exercise_category?: number;
+		primary_joint_ids?: number[];
+		equipment_ids?: number[];
+	}
+		
+  const [filterData, setFilter] = useState<ExerciseFilter>({});
 
   const Exercise_info: ExerciseItem[] = [
     {
@@ -116,6 +206,7 @@ const WorkoutStep2: React.FC = () => {
       options: EquipmentData,
     },
   ];
+  
 
   function handleFilterChange(field: string, value: any) {
     setFilter((prev: any) => ({
@@ -130,7 +221,7 @@ const WorkoutStep2: React.FC = () => {
 				Training & Exercise Details
 			</p>
 			<div className="w-full flex gap-5">
-				<div className="flex-1 h-[26rem] bg-[#EEE] rounded-xl p-3 space-y-3 custom-scrollbar">
+				<div className="w-[29.75%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 custom-scrollbar">
 					{weeks.map((week: any, index: number) => (
 						<Accordion type="single" defaultValue="item-1" collapsible>
 						<AccordionItem value="item-1" className="!border-none">
@@ -166,7 +257,7 @@ const WorkoutStep2: React.FC = () => {
 					</Accordion>
 					))}
 				</div>
-				<div className="flex-1 h-[26rem] bg-[#EEE] rounded-xl p-3">
+				<div className="w-[36.15%] h-[32rem] bg-[#EEE] rounded-xl p-3 custom-scrollbar">
 					<div className="flex justify-between">
 						<span className="font-semibold">Exercise</span>
 					</div>
@@ -177,7 +268,7 @@ const WorkoutStep2: React.FC = () => {
                     <Select
                       key={element.label}
                       name={element.label}
-                      value={filterData[element.label]}
+                      value={String(filterData[element.label as 'exercise_category'])}
                       onValueChange={(value) => {
                         handleFilterChange(element.label, value);
                       }}
@@ -203,8 +294,8 @@ const WorkoutStep2: React.FC = () => {
                     <MultiSelect
                       floatingLabel={element.label.replace(/_/g, ' ')}
                       key={element.label}
-                      options={element.options}
-                      defaultValue={filterData[element.label] || []} // Ensure defaultValue is always an array
+                      options={element.options ?? []}
+                      defaultValue={filterData[element.label as "primary_muscle_ids" | "primary_joint_ids" | "equipment_ids"] || []} // Ensure defaultValue is always an array
                       onValueChange={(selectedValues) => {
                         console.log("Selected Values: ", selectedValues); // Debugging step
                         handleFilterChange(element.label, selectedValues); // Pass selected values to state handler
@@ -217,8 +308,149 @@ const WorkoutStep2: React.FC = () => {
                   );
                 }
 							})}
+							<div className="space-y-2">
+								{exercises.map((exercise, i)=> (
+									<WorkoutDayExerciseComponent
+										key={i}
+										exercise={exercise}
+										onDuplicate={handleExerciseDuplicate}
+										onDelete={(id) => handleExerciseDelete(i, id)}
+									/>
+								))}
+							</div>
 				</div>
-				<div className="flex-1 h-[26rem] bg-[#EEE] rounded-xl p-3"></div>
+				<div className="w-[34.1%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 custom-scrollbar">
+					<div className="flex justify-between">
+						<span className="font-semibold">Exercise Details</span>
+					</div>
+					<FormProvider {...form}>
+						<div className="flex justify-center">
+								<img
+									id="avatar"
+									src={workout_day_exercise_data[0].thumbnail_male}
+									alt="Exercise Image"
+									className="w-4/5 object-contain relative"
+								/>
+						</div>
+						<div className="relative">
+							<Controller
+								name="exercise_type"
+								rules={{ required: "Required" }}
+								control={control}
+								render={({
+									field: { onChange, value },
+									fieldState: { error },
+								}) => (
+									<div className="flex justify-center">
+										<RadioGroup
+											onValueChange={onChange}
+											defaultValue={
+												value != null ? String(value) : undefined
+											}
+											className="flex flex-row space-x-4"
+										>
+											{exerciseTypeOptions?.map((option: any, index: number) => (
+													<div
+														key={index}
+														className="flex justify-start items-center space-x-3"
+													>
+														<RadioGroupItem
+															value={String(option.value)}
+														/>
+														<label>{option.label}</label>
+													</div>
+												)
+											)}
+										</RadioGroup>
+									</div>
+								)}
+							/>
+							{errors["exercise_type"]?.message && (
+								<span className="text-red-500 text-xs mt-[5px]">
+									{
+										errors["exercise_type"]?.message
+									}
+								</span>
+							)}
+						</div>
+						<div className="mb-4 gap-2 grid grid-cols-[repeat(20,1fr)] flex items-center">
+							<span className="col-span-9">Rep({workout_day_exercise_data[0].exercise_type === "Time Based" ? 's' : 'x'})</span>	
+							<span className="col-span-9">Rest(s)</span>	
+						</div>
+						<div className="mb-4 gap-2 grid grid-cols-[repeat(20,1fr)] items-center">
+							{(workout_day_exercise_data[0].repetitions_per_set.length >= workout_day_exercise_data[0].rest_between_set.length 
+							? workout_day_exercise_data[0].repetitions_per_set 
+							: workout_day_exercise_data[0].rest_between_set).map((_, i) => (
+								<React.Fragment key={i}>
+									<Controller
+										name="timePerSet"
+										control={control}
+										rules={{ required: "Required" }}
+										render={({ field }) => (
+											<div className="col-span-9">
+												<FloatingLabelInput
+													type="number"
+													{...field}
+													className="bg-transparent border border-black/25"
+													min="0"
+													value={field.value ?? ""}
+												/>
+												{errors?.timePerSet && (
+													<span className="text-red-500 mr-4">
+														{errors.timePerSet?.message}
+													</span>
+												)}
+											</div>
+										)}
+									/>
+
+									<Controller
+										name="restPerSet"
+										control={control}
+										rules={{ required: "Required" }}
+										render={({ field }) => (
+											<div className="col-span-9">
+												<FloatingLabelInput
+													type="number"
+													{...field}
+													className={`bg-transparent border border-black/25 ${
+														errors?.restPerSet
+															? "border-red-500"
+															: ""
+													}`}
+													min="0"
+													value={field.value ?? ""}
+												/>
+												{errors?.restPerSet && (
+													<span className="text-red-500 mr-4">
+														{errors.restPerSet?.message}
+													</span>
+												)}
+											</div>
+										)}
+									/>
+									<button
+										type="button"
+										onClick={() => {return}}
+										className="text-red-500 hover:text-red-700"
+									>
+										<i
+											className="fa-regular fa-trash-can text-red-500"
+										/>
+									</button>
+								</React.Fragment>
+							))}
+						</div>
+						<Button
+							variant={"ghost"}
+							type="button"
+							onClick={() => {return}}
+							className="gap-2 items-center justify-center px-4 py-2 rounded hover:bg-primary"
+						>
+							<i className="fa-solid fa-plus"></i> Add 
+						</Button>
+					</FormProvider>
+				</div>
 			</div>
 		</div>
 	);

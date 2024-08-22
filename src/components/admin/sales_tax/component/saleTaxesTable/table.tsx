@@ -738,7 +738,12 @@ const SaleTaxesForm = ({
       setIsDialogOpen(false);
     }
   };
-
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all the mandatory fields",
+    });
+  };
   const resetFormAndCloseDialog = () => {
     setFormData((prev: saleTaxesFormData) => ({
       ...prev,
@@ -779,7 +784,7 @@ const SaleTaxesForm = ({
 
               <Form {...form}>
                 <form
-                  onSubmit={form.handleSubmit(onSubmit)}
+                  onSubmit={form.handleSubmit(onSubmit, onError)}
                   className="flex flex-col py-4 gap-4"
                 >
                   <FormField

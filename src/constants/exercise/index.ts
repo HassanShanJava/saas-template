@@ -6,7 +6,7 @@ import {
   IntensityEnum,
 } from "@/app/types";
 import { Difficulty } from "@/components/admin/exercise/component/difficultySlider";
-import { UploadCognitoImage } from "@/utils/lib/s3Service";
+import { deleteCognitoImage, UploadCognitoImage } from "@/utils/lib/s3Service";
 
 export const visibilityOptions = [
   { value: "Only Myself", label: "Only Myself" },
@@ -62,11 +62,25 @@ export const processAndUploadImages = async (
     image_url_female?: string;
   } = {};
 
+  // Define the upload function
   const uploadFile = async (file: File): Promise<UploadResponse> => {
     return await UploadCognitoImage(file);
   };
 
-  if (!existingImages.gif && input.gif && input.gif.length > 0) {
+  // Define the delete function
+  const deleteExistingImage = async (url?: string | null) => {
+    if (url) {
+      const fileName = url.split("/").pop() ?? ""; // Extract file name from URL
+      return await deleteCognitoImage(fileName);
+    }
+    return { success: true }; // No image to delete
+  };
+
+  // Handle GIF image
+  if (input.gif && input.gif.length > 0) {
+    if (existingImages.gif) {
+      await deleteExistingImage(existingImages.gif);
+    }
     const gifResponse = await uploadFile(input.gif[0]);
     if (gifResponse.success) {
       result.gif_url = gifResponse.location ?? "";
@@ -75,11 +89,12 @@ export const processAndUploadImages = async (
     result.gif_url = existingImages.gif ?? "";
   }
 
-  if (
-    !existingImages.thumbnail_male &&
-    input.imagemale &&
-    input.imagemale.length > 0
-  ) {
+  // Handle male images
+  if (input.imagemale && input.imagemale.length > 0) {
+    if (existingImages.thumbnail_male || existingImages.image_url_male) {
+      await deleteExistingImage(existingImages.thumbnail_male);
+      await deleteExistingImage(existingImages.image_url_male);
+    }
     const maleImageResponse = await uploadFile(input.imagemale[0]);
     if (maleImageResponse.success) {
       result.thumbnail_male = maleImageResponse.location ?? "";
@@ -90,11 +105,12 @@ export const processAndUploadImages = async (
     result.image_url_male = existingImages.image_url_male ?? "";
   }
 
-  if (
-    !existingImages.thumbnail_female &&
-    input.imagefemale &&
-    input.imagefemale.length > 0
-  ) {
+  // Handle female images
+  if (input.imagefemale && input.imagefemale.length > 0) {
+    if (existingImages.thumbnail_female || existingImages.image_url_female) {
+      await deleteExistingImage(existingImages.thumbnail_female);
+      await deleteExistingImage(existingImages.image_url_female);
+    }
     const femaleImageResponse = await uploadFile(input.imagefemale[0]);
     if (femaleImageResponse.success) {
       result.thumbnail_female = femaleImageResponse.location ?? "";
@@ -310,3 +326,4 @@ export const transformExerciseData = (
     imagefemale: [],
   };
 };
+

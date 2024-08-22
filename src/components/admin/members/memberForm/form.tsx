@@ -385,7 +385,12 @@ const MemberForm = ({
       handleClose();
     }
   }
-
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all the mandatory fields",
+    });
+  };
   console.log({ watcher, errors, action });
   return (
     <Sheet open={open}>
@@ -394,7 +399,11 @@ const MemberForm = ({
         className="!max-w-[1300px] py-0 custom-scrollbar"
       >
         <FormProvider {...form}>
-          <form key={action} noValidate onSubmit={handleSubmit(onSubmit)}>
+          <form
+            key={action}
+            noValidate
+            onSubmit={handleSubmit(onSubmit, onError)}
+          >
             <SheetHeader className="sticky top-0 z-40 py-4 bg-white">
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start  bg-white">

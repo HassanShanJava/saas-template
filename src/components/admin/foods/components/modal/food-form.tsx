@@ -129,6 +129,13 @@ const FoodForm = ({
   const [createFood] = useCreateFoodsMutation();
   const [updateFood] = useUpdateFoodsMutation();
 
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all the mandatory fields",
+    });
+  };
+
   const onSubmit = async (input: CreateFoodTypes) => {
     const payload = { org_id: orgId, ...input };
     if (files && files?.length > 0) {
@@ -188,7 +195,7 @@ const FoodForm = ({
             key={action}
             noValidate
             className="pb-4"
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onError)}
           >
             <SheetHeader className="sticky top-0 z-40 pt-4 bg-white">
               <SheetTitle>

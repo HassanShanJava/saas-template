@@ -781,7 +781,12 @@ const CreditForm = ({
       setIsDialogOpen(false);
     }
   };
-
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all the mandatory fields",
+    });
+  };
   const resetFormAndCloseDialog = () => {
     console.log("calling close");
     setFormData((prev: createFormData) => ({
@@ -825,7 +830,7 @@ const CreditForm = ({
 
                 <Form {...form}>
                   <form
-                    onSubmit={form.handleSubmit(onSubmit)}
+                    onSubmit={form.handleSubmit(onSubmit, onError)}
                     className="flex flex-col py-4 gap-4"
                   >
                     <FormField

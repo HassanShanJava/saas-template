@@ -1,15 +1,5 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
-export interface mealPlanTableType {
-  data: mealPlanDataType & { id: number }[];
-  total_counts: number;
-  filtered_counts: number;
-}
-
-export interface mealPlanDataType {
-  org_id: number
-}
-
 
 export interface ResetPasswordType {
   id: number;
@@ -647,7 +637,7 @@ export interface CoachInputTypes {
   swift_code?: string;
   created_by?: number;
   member_ids?: any;
-  org_id?: number;
+  org_id: number;
 }
 export interface addCoachResponseType {
   wallet_address?: string;
@@ -1002,12 +992,13 @@ export enum Difficulty {
 }
 
 export interface createExerciseInputTypes {
+  id?: number;
   exercise_name: string;
-  visible_for?: VisibilityEnum;
+  visible_for?: VisibilityEnum | null;
   org_id?: number;
   exercise_type?: ExerciseTypeEnum;
   exercise_intensity?: IntensityEnum;
-  intensity_value: number;
+  intensity_value?: number;
   difficulty: string;
   sets?: number | null;
   distance?: number;
@@ -1034,20 +1025,50 @@ export interface createExerciseInputTypes {
   imagefemale: File[];
 }
 
+export interface ExerciseCreationInputTypes {
+  id?: number;
+  exercise_name: string;
+  visible_for: string;
+  org_id: number;
+  exercise_type: string;
+  exercise_intensity: string;
+  intensity_value?: number;
+  difficulty: string;
+  sets: number;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  distance?: number;
+  speed?: number;
+  met_id?: number;
+  gif_url: string;
+  video_url_male?: string;
+  video_url_female?: string;
+  thumbnail_male?: string;
+  thumbnail_female?: string;
+  image_url_female?: string;
+  image_url_male?: string;
+  category_id: number;
+  equipment_ids: number[];
+  primary_muscle_ids: number[];
+  secondary_muscle_ids?: number[];
+  primary_joint_ids: number[];
+}
+
 export interface ExerciseResponseViewType {
   exercise_name: string;
   visible_for?: VisibilityEnum;
   org_id?: number;
   exercise_type?: ExerciseTypeEnum;
   exercise_intensity?: IntensityEnum;
-  intensity_value?: number | null;
-  difficulty?: difficultyEnum;
+  intensity_value?: number;
+  difficulty: string;
   sets?: number | null;
   seconds_per_set?: number[];
   repetitions_per_set?: number[];
   rest_between_set?: number[];
-  distance?: number | null;
-  speed?: number | null;
+  distance?: number;
+  speed?: number;
   met_id?: number | null;
   gif_url: string;
   video_url_male?: string;
@@ -1063,6 +1084,9 @@ export interface ExerciseResponseViewType {
   primary_joint_ids: number[];
   id: number;
   category_name: string;
+  gif: File[];
+  imagemale: File[];
+  imagefemale: File[];
 }
 
 export interface ExerciseResponseServerViewType {
@@ -1088,10 +1112,10 @@ export interface ExerciseResponseServerViewType {
   image_url_female?: string;
   image_url_male?: string;
   category_id: number | null;
-  equipments: baseExerciseApiResponse[];
-  primary_muscles: baseExerciseApiResponse[];
-  secondary_muscles?: baseExerciseApiResponse[];
-  primary_joints: baseExerciseApiResponse[];
+  equipments: EquipmentApiResponse[];
+  primary_muscles: muscleserverResponse[];
+  secondary_muscles?: muscleserverResponse[];
+  primary_joints: JointApiResponse[];
   id: number;
   category_name: string;
 }

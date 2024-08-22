@@ -1,5 +1,3 @@
-"use client";
-
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
@@ -292,10 +290,21 @@ FileUploaderContent.displayName = "FileUploaderContent";
 
 export const FileUploaderItem = forwardRef<
   HTMLDivElement,
-  { index: number } & React.HTMLAttributes<HTMLDivElement>
->(({ className, index, children, ...props }, ref) => {
+  {
+    index: number;
+    onRemove?: () => void;
+  } & React.HTMLAttributes<HTMLDivElement>
+>(({ className, index, onRemove, children, ...props }, ref) => {
   const { removeFileFromSet, activeIndex, direction } = useFileUpload();
   const isSelected = index === activeIndex;
+
+  const handleRemoveClick = (index: number) => {
+    removeFileFromSet(index);
+    if (onRemove) {
+      onRemove();
+    }
+  };
+
   return (
     <div
       ref={ref}
@@ -316,7 +325,8 @@ export const FileUploaderItem = forwardRef<
           "absolute",
           direction === "rtl" ? "top-1 left-1" : "top-1 right-1"
         )}
-        onClick={() => removeFileFromSet(index)}
+        // onClick={() => removeFileFromSet(index)}
+        onClick={() => handleRemoveClick(index)}
       >
         <span className="sr-only">remove item {index}</span>
         <RemoveIcon className="w-4 h-4 hover:stroke-destructive duration-200 ease-in-out" />

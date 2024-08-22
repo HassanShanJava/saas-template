@@ -414,8 +414,25 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
   useEffect(() => {
     if (!open || coachData == null) return;
+    let payloadCoach = { ...coachData };
+    console.log("Member_ids before that", payloadCoach.member_ids);
 
-    form.reset(coachData);
+    payloadCoach.member_ids = Array.isArray(coachData?.member_ids)
+      ? coachData.member_ids.every(
+          (item: any) =>
+            (typeof item === "object" &&
+              item.id === 0 &&
+              item.name.trim() === "") ||
+            (typeof item === "number" && item === 0)
+        )
+        ? []
+        : coachData.member_ids.map((item: any) =>
+            typeof item === "object" ? item.id : item
+          )
+      : [];
+
+    form.reset(payloadCoach);
+    console.log("Member_ids", payloadCoach.member_ids);
     setAvatar(coachData?.profile_img as string);
   }, [open, coachData]);
 
@@ -726,7 +743,12 @@ const CoachForm: React.FC<CoachFormProps> = ({
                       <FormItem className="w-full ">
                         <MultiSelect
                           floatingLabel={"Members"}
-                          options={transformedData as { value: number, label: string }[]}
+                          options={
+                            transformedData as {
+                              value: number;
+                              label: string;
+                            }[]
+                          }
                           defaultValue={form.watch("member_ids") || []} // Ensure defaultValue is always an array
                           onValueChange={(selectedValues) => {
                             console.log("Selected Values: ", selectedValues); // Debugging step
@@ -813,8 +835,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 {field.value === 0
                                   ? "Source*"
                                   : sources?.find(
-                                    (source) => source.id === field.value
-                                  )?.source || "Source*"}
+                                      (source) => source.id === field.value
+                                    )?.source || "Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -914,14 +936,14 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 className={cn(
                                   "justify-between font-normal",
                                   !field.value &&
-                                  "font-medium text-gray-400 focus:border-primary "
+                                    "font-medium text-gray-400 focus:border-primary "
                                 )}
                               >
                                 {field.value
                                   ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === field.value // Compare with numeric value
-                                  )?.country // Display country name if selected
+                                      (country: CountryTypes) =>
+                                        country.id === field.value // Compare with numeric value
+                                    )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

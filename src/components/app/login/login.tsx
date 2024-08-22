@@ -117,9 +117,7 @@ export default function AuthenticationPage() {
   }
 
   return (
-    <div
-      className="loginpage-image"
-    >
+    <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">
         <div className="flex mx-16 justify-between items-center h-dvh ">
           <div className=" flex flex-col gap-2"></div>
@@ -138,7 +136,7 @@ export default function AuthenticationPage() {
                     </div>
                     <div className="flex flex-col gap-2">
                       <h1 className="hero-topHeading italic tracking-wider leading-5 text-[1.3rem] text-textprimary">
-                        Login
+                        Sign In
                       </h1>
                       <p className="text-textwhite leading-5 italic font-semibold text-[1.8rem]">
                         Your Account
@@ -163,7 +161,7 @@ export default function AuthenticationPage() {
                         required: "Email is required.",
                         pattern: {
                           value:
-                          /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
+                            /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
                           message: "Invalid email format.",
                         },
                         maxLength: 64,
@@ -259,7 +257,7 @@ export default function AuthenticationPage() {
                     loading={loading}
                     className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
                   >
-                    {loading ? "Logging In" : "Login"}
+                    {loading ? "Logging In" : "Sign In"}
                   </LoadingButton>
                 </form>
               </CardContent>

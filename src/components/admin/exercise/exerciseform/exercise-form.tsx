@@ -621,38 +621,47 @@ const ExerciseForm = ({
                           field: { onChange, value, onBlur },
                           fieldState: { invalid, error },
                         }) => (
-                          <div>
-                            <Select
-                              onValueChange={(value) => {
-                                onChange(value);
-                              }}
-                              defaultValue={
-                                typeof value === "number"
-                                  ? value.toString()
-                                  : (value as string | undefined)
-                              }
-                            >
-                              <SelectTrigger
-                                floatingLabel={item.label}
-                                name={item.name}
+                          <>
+                            <div>
+                              <Select
+                                onValueChange={(value) => {
+                                  onChange(value);
+                                }}
+                                defaultValue={
+                                  typeof value === "number"
+                                    ? value.toString() // Convert numbers to strings
+                                    : (value as string | undefined) // Ensure it's a string or undefined
+                                }
+                                // defaultValue={
+                                //   typeof value === "number"
+                                //     ? value.toString()
+                                //     : (value as string | undefined)
+                                // }
                               >
-                                <SelectValue
-                                  placeholder={"Select " + item.label}
-                                />
-                              </SelectTrigger>
+                                <SelectTrigger
+                                  floatingLabel={item.label}
+                                  name={item.name}
+                                >
+                                  <SelectValue
+                                    placeholder={"Select " + item.label}
+                                  />
+                                </SelectTrigger>
 
-                              <SelectContent>
-                                {item.options?.map((st: any, index: number) => (
-                                  <SelectItem
-                                    key={index}
-                                    value={String(st.value)}
-                                  >
-                                    {st.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
+                                <SelectContent>
+                                  {item.options?.map(
+                                    (st: any, index: number) => (
+                                      <SelectItem
+                                        key={index}
+                                        value={String(st.value)}
+                                      >
+                                        {st.label}
+                                      </SelectItem>
+                                    )
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </>
                         )}
                       />
                       {errors[item.name as keyof createExerciseInputTypes]

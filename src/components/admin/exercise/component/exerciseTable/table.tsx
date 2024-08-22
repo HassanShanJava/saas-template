@@ -240,6 +240,7 @@ export default function ExerciseTableView() {
       gif: existingGif,
       imagemale: existingGif,
       imagefemale: existingGif,
+      category_id: data.category_id.toString(),
     };
     console.log("payload ", payload);
 

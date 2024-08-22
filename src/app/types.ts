@@ -994,7 +994,7 @@ export enum Difficulty {
 export interface createExerciseInputTypes {
   id?: number;
   exercise_name: string;
-  visible_for?: VisibilityEnum | null;
+  visible_for?: string;
   org_id?: number;
   exercise_type?: ExerciseTypeEnum;
   exercise_intensity?: IntensityEnum;
@@ -1011,7 +1011,7 @@ export interface createExerciseInputTypes {
   thumbnail_female?: string;
   image_url_female?: string;
   image_url_male?: string;
-  category_id: number | null;
+  category_id?: string;
   equipment_ids: number[];
   primary_muscle_ids: number[];
   secondary_muscle_ids?: number[];
@@ -1057,7 +1057,7 @@ export interface ExerciseCreationInputTypes {
 
 export interface ExerciseResponseViewType {
   exercise_name: string;
-  visible_for?: VisibilityEnum;
+  visible_for?: string;
   org_id?: number;
   exercise_type?: ExerciseTypeEnum;
   exercise_intensity?: IntensityEnum;
@@ -1077,7 +1077,7 @@ export interface ExerciseResponseViewType {
   thumbnail_female?: string;
   image_url_female?: string;
   image_url_male?: string;
-  category_id: number | null;
+  category_id?: string;
   equipment_ids: number[];
   primary_muscle_ids: number[];
   secondary_muscle_ids?: number[];
@@ -1111,7 +1111,7 @@ export interface ExerciseResponseServerViewType {
   thumbnail_female?: string;
   image_url_female?: string;
   image_url_male?: string;
-  category_id: number | null;
+  category_id: number;
   equipments: EquipmentApiResponse[];
   primary_muscles: muscleserverResponse[];
   secondary_muscles?: muscleserverResponse[];

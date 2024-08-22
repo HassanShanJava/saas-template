@@ -65,7 +65,7 @@ export const Header = () => {
   const handleLogout = () => {
     dispatch(logout());
     toast({
-      variant: "destructive",
+      variant: "success",
       title: "Logout",
       description: "You are Successfully Logged Out",
     });
@@ -203,7 +203,7 @@ export const Header = () => {
                 targetPath="/admin/staff/addstaff"
                 title="Add Staff"
               />
-              
+
               <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/mealplans"

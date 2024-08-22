@@ -100,7 +100,10 @@ export const MemberAPi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Members"],
     }),
-    updateMember: builder.mutation<MemberResponseTypes, MemberInputTypes & { id: number }>({
+    updateMember: builder.mutation<
+      MemberResponseTypes,
+      MemberInputTypes & { id: number }
+    >({
       query: (memberdata) => ({
         url: `/member`,
         method: "PUT",
@@ -126,12 +129,13 @@ export const MemberAPi = apiSlice.injectEndpoints({
     getMembersList: builder.query<{ value: number; label: string }[], number>({
       query: (org_id) => ({
         url: `/member/list/${org_id}`,
-          headers: {
+        headers: {
           Accept: "application/json",
         },
         providesTags: ["Members"],
-        transformResponse: (response: {id:number, name:string}[]) => response.map((item: any) => ({value: item.id, label: item.name})),
       }),
+      transformResponse: (response: { id: number; name: string }[]) =>
+        response.map((item: any) => ({ value: item.id, label: item.name })),
     }),
   }),
 });

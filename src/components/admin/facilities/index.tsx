@@ -3,7 +3,7 @@ import FacilitiesTableView from "./component/facilitiesTable/table";
 
 const Facilities = () => {
   return (
-    <div className="w-full py-12 px-8">
+    <div className="w-full p-5">
       <Card className="py-3">
         <FacilitiesTableView />
       </Card>

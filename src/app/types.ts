@@ -4,25 +4,25 @@ import { JSONObject } from "@/types/hook-stepper";
 export interface mealPlanTableType {
   data: mealPlanDataType[];
   total_counts: number;
-  filtered_counts:number
+  filtered_counts: number
 }
 
 export interface mealPlanDataType {
-  meal_plan_id?:number;
-  org_id?:number;
-  visible_for?:number;
-  carbs?:number;
-  protein?:number;
-  fats?:number;
-  name?:string;
-  profile_img?:string;
-  description?:string;
-  member_id?:number[];
-  meals?:{
-    id:number;
-    meal_time:string;
-    food_id:number;
-    quantity:number;
+  meal_plan_id?: number;
+  org_id?: number;
+  visible_for?: string;
+  carbs?: number | null;
+  protein?: number | null;
+  fats?: number | null;
+  name?: string;
+  profile_img?: string | null;
+  description?: string;
+  member_id?: number[];
+  meals?: {
+    id: number;
+    meal_time: string;
+    food_id: number;
+    quantity: number;
   }[];
 }
 export interface ResetPasswordType {

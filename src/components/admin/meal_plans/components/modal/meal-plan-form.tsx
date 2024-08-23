@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/chart";
 
 import FoodForm from "./add-meal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
@@ -66,14 +66,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import { zodResolver } from "@hookform/resolvers/zod";
 import uploadimg from "@/assets/upload.svg";
 import { mealPlanDataType } from "@/app/types";
+import { useToast } from "@/components/ui/use-toast";
+const { VITE_VIEW_S3_URL } = import.meta.env;
+
 const chartData = [
   { food_component: "protein", percentage: 10, fill: "#8BB738" },
   { food_component: "fats", percentage: 0, fill: "#E8A239" },
   { food_component: "carbs", percentage: 0, fill: "#DD4664" },
 ];
+
+const initialValue = {
+  name: "",
+  protein: null,
+  fats: null,
+  carbs: null,
+  visible_for: "",
+  profile_img: null,
+  description: "",
+  member_id: [],
+  meals: [],
+}
 
 const MealPlanForm = ({
   isOpen,
@@ -84,9 +98,19 @@ const MealPlanForm = ({
   data,
   setData,
 }: MealPlanForm) => {
+  const { toast } = useToast();
   const [openFood, setOpenFood] = useState(false);
   const [pieChartData, setPieChart] = useState(chartData);
   const [files, setFiles] = useState<File[] | null>([]);
+
+  const dropzone = {
+    accept: {
+      "image/*": [".jpg", ".jpeg", ".png"],
+    },
+    multiple: true,
+    maxFiles: 1,
+    maxSize: 1 * 1024 * 1024,
+  } satisfies DropzoneOptions;
 
   const chartConfig = {
     percentage: {
@@ -106,24 +130,48 @@ const MealPlanForm = ({
     },
   } satisfies ChartConfig;
 
-  const form = useForm({
-    // resolver: zodResolver(),
-    // defaultValues: formData,
+  const form = useForm<mealPlanDataType>({
     mode: "all",
+    defaultValues: initialValue,
   });
 
-  const dropzone = {
-    accept: {
-      "image/*": [".jpg", ".jpeg", ".png"],
-    },
-    multiple: true,
-    maxFiles: 4,
-    maxSize: 1 * 1024 * 1024,
-  } satisfies DropzoneOptions;
+  const {
+    control,
+    watch,
+    register,
+    handleSubmit,
+    clearErrors,
+    reset,
+    formState: { isSubmitting, errors },
+  } = form;
+  const watcher = watch();
+
+  useEffect(() => {
+    if (action == "edit" && data) {
+      console.log({ data }, "edit");
+      reset(data as mealPlanDataType);
+    } else if (action == "add" && data == undefined) {
+      console.log({ initialValue }, "add");
+      reset(initialValue, { keepIsSubmitted: false, keepSubmitCount: false });
+    }
+  }, [action, data, reset]);
+
+  const onSubmit = async (data: mealPlanDataType) => {
+    console.log({ data })
+  }
+
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all mandatory fields",
+    })
+  }
 
   const handleClose = () => {
     setOpen(false);
   };
+
+  console.log({ watcher, errors }, action)
   return (
     <Sheet open={isOpen} onOpenChange={() => setOpen(false)}>
       <SheetContent className="!max-w-[1200px]" hideCloseButton>
@@ -156,13 +204,13 @@ const MealPlanForm = ({
                 <LoadingButton
                   type="submit"
                   className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                  // onClick={handleSubmit(onSubmit)}
-                  // loading={isSubmitting}
-                  // disabled={isSubmitting}
+                  onClick={handleSubmit(onSubmit, onError)}
+                  loading={isSubmitting}
+                  disabled={isSubmitting}
                 >
-                  {/* {!isSubmitting && ( */}
-                  <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                  {/* )} */}
+                  {!isSubmitting && (
+                    <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                  )}
                   Save
                 </LoadingButton>
               </div>
@@ -182,36 +230,58 @@ const MealPlanForm = ({
                   onValueChange={setFiles}
                   dropzoneOptions={dropzone}
                 >
-                  <FileInput className="flex flex-col gap-2">
-                    <div className="flex items-center justify-center h-[10rem] w-full border bg-background rounded-md bg-gray-100">
-                      <i className="text-gray-400 fa-regular fa-image size-5"></i>
-                    </div>
+                  {files &&
+                        files?.map((file, i) => (
+                          <div className="h-40 ">
+                            <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
+                              <FileUploaderItem
+                                key={i}
+                                index={i}
+                                className="h-full  p-0 rounded-md overflow-hidden relative "
+                                aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                              >
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt={file.name}
+                                  className="object-contain max-h-40"
+                                />
+                              </FileUploaderItem>
+                            </FileUploaderContent>
+                          </div>
+                        ))}
 
-                    <div className="flex items-center justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
-                      {/* <i className="text-gray-400 fa-regular fa-image size-5"></i> */}
-                      <img src={uploadimg} className="size-10" />
-                      <span className="text-sm">Upload Image</span>
-                    </div>
-                  </FileInput>
-                  <FileUploaderContent className="flex items-center flex-row gap-2">
-                    {files?.map((file, i) => (
-                      <FileUploaderItem
-                        key={i}
-                        index={i}
-                        className="size-20 p-0 rounded-md overflow-hidden"
-                        aria-roledescription={`file ${i + 1} containing ${file.name}`}
-                      >
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={file.name}
-                          height={80}
-                          width={80}
-                          className="size-20 p-0"
-                        />
-                      </FileUploaderItem>
-                    ))}
-                  </FileUploaderContent>
+                      <FileInput className="flex flex-col gap-2  ">
+                        {files?.length == 0 && watcher?.profile_img == null ? (
+                          <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
+                            <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
+                          </div>
+                        ) : (
+                          files?.length == 0 &&
+                          watcher?.profile_img && (
+                            <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
+                              {/* <i className="text-gray-400 fa-regular fa-image text-2xl"></i> */}
+                              <img
+                                src={
+                                  watcher?.profile_img !== "" && watcher?.profile_img
+                                    ? VITE_VIEW_S3_URL + "/" + watcher?.profile_img
+                                    : ""
+                                }
+                                loading="lazy"
+                                className="object-contain max-h-40 "
+                              />
+                            </div>
+                          )
+                        )}
+
+                        <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
+                          <img src={uploadimg} className="size-10" />
+                          <span className="text-sm">
+                            {watcher.img_url ? "Change Image" : "Upload Image"}
+                          </span>
+                        </div>
+                      </FileInput>
                 </FileUploader>
+
               </div>
               <div className="flex flex-col gap-2">
                 <FormField
@@ -248,8 +318,8 @@ const MealPlanForm = ({
                   type="textarea"
                   rows={10}
                   customPercentage={[14, 8, 10]}
-                  // {...register("description")}
-                  // error={errors.description?.message}
+                // {...register("description")}
+                // error={errors.description?.message}
                 />
               </div>
               <div className="flex flex-col gap-2">

@@ -48,7 +48,14 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { Separator } from "@/components/ui/separator";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { visibleFor } from "@/constants/food";
+
+export const visibleFor = [ 
+  { value: "only_myself", label: "Only myself" },
+  { value: "staff", label: "Staff of my gym" },
+  { value: "members", label: "Members of my gym" },
+  { value: "everyone", label: "Everyone in my gym" },
+];
+
 const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -115,13 +122,20 @@ export default function MealPlansTableView() {
     for (const [key, value] of Object.entries(searchCretiria)) {
       console.log({ key, value });
       if (value !== undefined && value !== null) {
-        params.append(key, value);
+        if (Array.isArray(value)) {
+          value.forEach((val) => {
+            params.append(key, val); // Append each array element as a separate query parameter
+          });
+        } else {
+          params.append(key, value); // For non-array values
+        }
       }
     }
     const newQuery = params.toString();
     console.log({ newQuery });
     setQuery(newQuery);
   }, [searchCretiria]);
+
 
   const toggleSortOrder = (key: string) => {
     setSearchCretiria((prev) => {
@@ -263,14 +277,17 @@ export default function MealPlansTableView() {
       type: "select",
       name: "visible_for",
       label: "Visible For",
-      options: visibleFor.map((item) => ({ id: item.value, name: item.label })),
+      options: visibleFor.map((item) => ({ id: item.label, name: item.label })),
       function: handleVisiblity,
     },
     // {
     //   type: "multiselect",
-    //   name: "food_id",
-    //   label: "Food Includes",
-    //   // function: handleTotalNutritions,
+    //   name: "member_id",
+    //   label: "Members",
+    //   options:
+    //     rolesData &&
+    //     rolesData.map((role) => ({ value: role.id, label: role.name })),
+    //   function: handleMembers,
     // },
     // {
     //   type: "number",

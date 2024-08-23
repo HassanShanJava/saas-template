@@ -276,7 +276,7 @@ const MealPlanForm = ({
                         <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
                           <img src={uploadimg} className="size-10" />
                           <span className="text-sm">
-                            {watcher.img_url ? "Change Image" : "Upload Image"}
+                            {watcher.profile_img ? "Change Image" : "Upload Image"}
                           </span>
                         </div>
                       </FileInput>
@@ -325,25 +325,15 @@ const MealPlanForm = ({
               <div className="flex flex-col gap-2">
                 <FormField
                   control={form.control}
-                  name="asign_members"
+                  name="member_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Select value={field.value}>
+                        {/* <Select value={field.value+""}>
                           <SelectTrigger floatingLabel="Assign Member*">
                             <SelectValue placeholder="Select members" />
                           </SelectTrigger>
-                          {/* <SelectContent>
-                                {status.map((st, index) => (
-                                  <SelectItem
-                                    key={index}
-                                    value={String(st.value)}
-                                  >
-                                    {st.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent> */}
-                        </Select>
+                        </Select> */}
                       </FormControl>
                       <FormMessage />
                     </FormItem>

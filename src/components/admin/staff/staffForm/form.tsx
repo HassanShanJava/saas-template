@@ -251,7 +251,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
   const { data: roleData } = useGetRolesQuery(orgId);
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
-  const { data: staffCount } = useGetStaffCountQuery(orgId, {
+  const { data: staffCount, refetch: countRefetch } = useGetStaffCountQuery(orgId, {
     skip: staffData != null,
   });
 
@@ -342,6 +342,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
             title: "Staff Created Successfully",
           });
           refetch();
+          if(staffData==null) {
+            countRefetch();
+            } 
           handleClose();
         }
       } else {
@@ -355,7 +358,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
             title: "Staff Updated Successfully",
           });
           refetch();
-
+          if(staffData==null) {
+          countRefetch();
+          }
           handleClose();
         }
       }
@@ -390,11 +395,11 @@ const StaffForm: React.FC<StaffFormProps> = ({
   useEffect(() => {
     if (!open) return;
     const total = staffCount?.total_staffs as number;
-    if (total >= 0) {
+    if (total >= 0 && staffData==null) {
       form.setValue("own_staff_id", `${orgName?.slice(0, 2)}-S${total + 1}`);
       form.clearErrors();
     }
-  }, [open, staffCount]);
+  }, [open, staffCount, staffData]);
 
   console.log({ watcher });
   return (

@@ -48,6 +48,11 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 interface MealPlanForm {
   isOpen: boolean;
   setOpen: any;
+  action: string;
+  setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
+  refetch?: any;
+  setData?: any;
+  data?: mealPlanDataType | undefined;
 }
 
 import { DropzoneOptions } from "react-dropzone";
@@ -63,13 +68,22 @@ import {
 } from "@/components/ui/select";
 // import { zodResolver } from "@hookform/resolvers/zod";
 import uploadimg from "@/assets/upload.svg";
+import { mealPlanDataType } from "@/app/types";
 const chartData = [
   { food_component: "protein", percentage: 10, fill: "#8BB738" },
   { food_component: "fats", percentage: 0, fill: "#E8A239" },
   { food_component: "carbs", percentage: 0, fill: "#DD4664" },
 ];
 
-const MealPlanForm = ({ isOpen, setOpen }: MealPlanForm) => {
+const MealPlanForm = ({
+  isOpen,
+  setOpen,
+  action,
+  setAction,
+  refetch,
+  data,
+  setData,
+}: MealPlanForm) => {
   const [openFood, setOpenFood] = useState(false);
   const [pieChartData, setPieChart] = useState(chartData);
   const [files, setFiles] = useState<File[] | null>([]);

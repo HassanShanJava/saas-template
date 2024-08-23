@@ -58,7 +58,7 @@ interface FoodForm {
   action: string;
   setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
   refetch: any;
-  setData: any;
+  setData?: any;
   data: CreateFoodTypes | undefined;
 }
 
@@ -147,19 +147,20 @@ const FoodForm = ({
       payload.img_url = getUrl.location;
     }
 
+
     try {
       if (action === "add") {
         await createFood(payload).unwrap();
         toast({
           variant: "success",
-          title: "Created Successfully",
+          title: "Food created successfully",
         });
         refetch();
       } else if (action === "edit") {
         await updateFood({ ...payload, id: data?.id as number }).unwrap();
         toast({
           variant: "success",
-          title: "Updated Successfully",
+          title: "Food updated Successfully",
         });
         refetch();
       }

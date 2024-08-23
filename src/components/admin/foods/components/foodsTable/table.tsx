@@ -56,9 +56,7 @@ const visibleForMap = Object.fromEntries(
   visibleFor.map((vf) => [vf.label, vf.value])
 );
 
-const weightsMap = Object.fromEntries(
-  weights.map((w) => [w.label, w.value])
-);
+const weightsMap = Object.fromEntries(weights.map((w) => [w.label, w.value]));
 
 const downloadCSV = (data: CreateFoodTypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -208,8 +206,13 @@ export default function FoodsTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className='flex gap-2 items-center justify-between w-fit'>
-            <img src={VITE_VIEW_S3_URL+"/"+row.original.img_url} alt={row.original.name} className="size-14 object-contain rounded-sm "/>
+          <div className="flex gap-2 items-center justify-between w-fit">
+            <img
+              src={VITE_VIEW_S3_URL + "/" + row.original.img_url}
+              alt={row.original.name}
+              loading="lazy"
+              className="size-14 object-contain rounded-sm "
+            />
             <span className="capitalize">{row.original.name}</span>
           </div>
         );
@@ -374,7 +377,7 @@ export default function FoodsTableView() {
       ...data,
       category: categoryMap[data.category!],
       visible_for: visibleForMap[data.visible_for!],
-      weight_unit: weightsMap[data.weight_unit!]
+      weight_unit: weightsMap[data.weight_unit!],
     };
     setData(payload);
     setIsDialogOpen(true);
@@ -464,7 +467,7 @@ export default function FoodsTableView() {
       type: "select",
       name: "category",
       label: "Food Category",
-      options: categories.map((item)=>({id:item.value,name:item.label})),
+      options: categories.map((item) => ({ id: item.value, name: item.label })),
       function: handleCategory,
     },
     {

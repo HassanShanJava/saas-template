@@ -101,10 +101,15 @@ export const Roles = apiSlice.injectEndpoints({
           headers: {
             Accept: "application/json",
           },
-
         }),
-        transformResponse: (response: {id:number, name:string}[]) => response.map((item: {id:number, name:string}) => ({value: item.id, label: item.name})),
-        providesTags: (result, error, arg) => [{ type: "Coaches", id: arg }],
+        transformResponse: (response: {id:number, name:string}[]) => {
+          console.log("Original Response:", response);
+          return response.map((item) => ({
+            value: item.id,
+            label: item.name,
+          }));
+        },
+        providesTags: ["Coaches"],
       }),
     };
   },

@@ -113,7 +113,6 @@ export default function MembershipsTableView() {
   useEffect(() => {
     setSearchCretiria((prev) => {
       const newCriteria = { ...prev };
-
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
       } else {
@@ -130,13 +129,20 @@ export default function MembershipsTableView() {
     for (const [key, value] of Object.entries(searchCretiria)) {
       console.log({ key, value });
       if (value !== undefined && value !== null) {
-        params.append(key, value);
+        if (Array.isArray(value)) {
+          value.forEach((val) => {
+            params.append(key, val); // Append each array element as a separate query parameter
+          });
+        } else {
+          params.append(key, value); // For non-array values
+        }
       }
     }
     const newQuery = params.toString();
     console.log({ newQuery });
     setQuery(newQuery);
   }, [searchCretiria]);
+
   const {
     data: membershipsData,
     isLoading,

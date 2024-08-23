@@ -67,17 +67,17 @@ export const workout_day_exercise_data = [
       "exercise_name": "Exercise Sample",
       "visible_for": "Staff of My Club",
       "org_id": 9,
-      "exercise_type": "Time Based",
+      "exercise_type": "Repetition Based",
       "exercise_intensity": "Max Intensity",
       "intensity_value": 0,
       "difficulty": "Beginner",
       "sets": 1,
       "seconds_per_set": [
-        120
+        120, 105
       ],
       "repetitions_per_set": [],
       "rest_between_set": [
-        60
+        60, 45
       ],
       "distance": 0,
       "speed": 0,
@@ -85,7 +85,7 @@ export const workout_day_exercise_data = [
       "gif_url": "abc",
       "video_url_male": "abc",
       "video_url_female": "acb",
-      "thumbnail_male": "https://uploads.fitnfi.com/images/6f1cbec8-58bf-497a-8e9e-4c4a043ad968-image%2067.png",
+      "thumbnail_male":"",/// "https://uploads.fitnfi.com/images/6f1cbec8-58bf-497a-8e9e-4c4a043ad968-image%2067.png",
       "thumbnail_female": "",
       "image_url_female": "",
       "image_url_male": "",

@@ -11,8 +11,10 @@ import { useGetAllCategoryQuery, useGetAllEquipmentsQuery, useGetAllJointsQuery,
 import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ExerciseItem, exerciseTypeOptions } from "@/constants/exercise";
-import WorkoutDayExerciseComponent, { Exercise } from "../components/WorkoutDayExerciseComponent";
+//import WorkoutDayExerciseComponent, { Exercise } from "../components/WorkoutDayExerciseComponent";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
+import { current } from "@reduxjs/toolkit";
 
 export interface WorkoutWeek {
 	week: number;
@@ -21,12 +23,9 @@ export interface WorkoutWeek {
 
 export interface ExerciseForm {
 	exercise_type: string;
-	timePerSet: number;
-	restPerSet: number;
-	seconds_per_set: {value: number}[];
-	rest_between_set_time_based: {value: number}[];
-	rest_between_set_rep_based: {value: number}[];
-	repititions_per_set: {value: number}[];
+	seconds_per_set: number[];
+	rest_between_set: number[];
+	repititions_per_set: number[];
 }
 
 export interface RepBased {
@@ -45,53 +44,20 @@ export interface TimeBased {
 const WorkoutStep2: React.FC = () => {
 	const [weeks, setWeeks] = useState<any>(workout_day_data);
 	const [exercises, setExercises] = useState<Exercise[]>(workout_day_exercise_data as Exercise[]);
-	const [repBasedData, setRepBasedData] = useState<RepBased>();
-	const [timeBasedData, setTimeBasedData] = useState<TimeBased>();
+	//const [repBasedData, setRepBasedData] = useState<RepBased>();
+	//const [timeBasedData, setTimeBasedData] = useState<TimeBased>();
+	const [currExercise, serCurrExercise] = useState<Exercise>(workout_day_exercise_data[0]);
 	const { data: CategoryData } = useGetAllCategoryQuery();
 	const { data: EquipmentData } = useGetAllEquipmentsQuery();
 	const { data: MuscleData } = useGetAllMuscleQuery();
 	const { data: JointsData } = useGetAllJointsQuery();
 	
   const form = useForm<ExerciseForm>({
-    defaultValues: {},
+    defaultValues: (()=>{console.log(currExercise);return currExercise})(),
     mode: "all",
   });
 	const {control, formState: {errors}} = form;
 
-  const {
-    fields: repititionsPerSet,
-    append: appendRepetition,
-    remove: removeRepetition,
-  } = useFieldArray({
-    control,
-    name: "repititions_per_set",
-  });
-
-  const {
-    fields: restBetweenSetrepBased,
-    append: appendRestSetBased,
-    remove: removeRestSetBased,
-  } = useFieldArray({
-    control,
-    name: "rest_between_set_rep_based",
-  });
-
-  const {
-    fields: secondsPerSet,
-    append: appendTime,
-    remove: removeTime,
-  } = useFieldArray({
-    control,
-    name: "seconds_per_set",
-  });
-  const {
-    fields: restBetweenSetTimeBased,
-    append: appendRestTimeBased,
-    remove: removeRestTimeBased,
-  } = useFieldArray({
-    control,
-    name: "rest_between_set_time_based",
-  });
 
 	function handleAddDay(week: number) {
 		const thisWeek = weeks.find((w: WorkoutWeek) => w.week === week);
@@ -309,14 +275,14 @@ const WorkoutStep2: React.FC = () => {
                 }
 							})}
 							<div className="space-y-2">
-								{exercises.map((exercise, i)=> (
+								{/*exercises.map((exercise, i)=> (
 									<WorkoutDayExerciseComponent
 										key={i}
 										exercise={exercise}
 										onDuplicate={handleExerciseDuplicate}
 										onDelete={(id) => handleExerciseDelete(i, id)}
 									/>
-								))}
+								))*/}
 							</div>
 				</div>
 				<div className="w-[34.1%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 custom-scrollbar">
@@ -327,7 +293,7 @@ const WorkoutStep2: React.FC = () => {
 						<div className="flex justify-center">
 								<img
 									id="avatar"
-									src={workout_day_exercise_data[0].thumbnail_male}
+									src={currExercise.thumbnail_male}
 									alt="Exercise Image"
 									className="w-4/5 object-contain relative"
 								/>
@@ -343,9 +309,13 @@ const WorkoutStep2: React.FC = () => {
 								}) => (
 									<div className="flex justify-center">
 										<RadioGroup
-											onValueChange={onChange}
+											onValueChange={(e) => {
+												console.log(e);
+												onChange(e);
+												setTimeout(() => console.log(form.getValues()), 1000);
+											}}
 											defaultValue={
-												value != null ? String(value) : undefined
+												(() => {console.log(value != null ? String(value) : undefined);return value != null ? String(value) : undefined})()
 											}
 											className="flex flex-row space-x-4"
 										>
@@ -374,16 +344,21 @@ const WorkoutStep2: React.FC = () => {
 							)}
 						</div>
 						<div className="mb-4 gap-2 grid grid-cols-[repeat(20,1fr)] flex items-center">
-							<span className="col-span-9">Rep({workout_day_exercise_data[0].exercise_type === "Time Based" ? 's' : 'x'})</span>	
+							<span className="col-span-9">Rep({currExercise.exercise_type === "Time Based" ? 's' : 'x'})</span>	
 							<span className="col-span-9">Rest(s)</span>	
 						</div>
 						<div className="mb-4 gap-2 grid grid-cols-[repeat(20,1fr)] items-center">
-							{(workout_day_exercise_data[0].repetitions_per_set.length >= workout_day_exercise_data[0].rest_between_set.length 
-							? workout_day_exercise_data[0].repetitions_per_set 
-							: workout_day_exercise_data[0].rest_between_set).map((_, i) => (
+							{[...Array(
+									Math.max(
+										currExercise.repetitions_per_set.length,
+										currExercise.seconds_per_set.length,
+										currExercise.rest_between_set.length
+									))
+								.keys()].map((_, i) => (
 								<React.Fragment key={i}>
+									{currExercise.exercise_type === "Time Based" ?
 									<Controller
-										name="timePerSet"
+										name={`seconds_per_set.${i}`}
 										control={control}
 										rules={{ required: "Required" }}
 										render={({ field }) => (
@@ -391,21 +366,47 @@ const WorkoutStep2: React.FC = () => {
 												<FloatingLabelInput
 													type="number"
 													{...field}
-													className="bg-transparent border border-black/25"
+													className={cn("bg-transparent border border-black/25",errors?.rest_between_set?.[i]
+															? "border-red-500"
+															: "")}
 													min="0"
-													value={field.value ?? ""}
+													value={(()=>{console.log(field);return field.value ?? ""})()}
 												/>
-												{errors?.timePerSet && (
+												{errors?.seconds_per_set?.[i] && (
 													<span className="text-red-500 mr-4">
-														{errors.timePerSet?.message}
+														{errors.seconds_per_set?.[i].message}
 													</span>
 												)}
 											</div>
 										)}
-									/>
+									/> :
+									<Controller
+										name={`repititions_per_set.${i}`}
+										control={control}
+										rules={{ required: "Required" }}
+										render={({ field }) => (
+											<div className="col-span-9">
+												<FloatingLabelInput
+													type="number"
+													{...field}
+													className={cn("bg-transparent border border-black/25",errors?.repititions_per_set?.[i]
+															? "border-red-500"
+															: "")}
+													min="0"
+													value={(()=>{console.log(field);return field.value ?? ""})()}
+												/>
+												{errors?.repititions_per_set?.[i] && (
+													<span className="text-red-500 mr-4">
+														{errors.repititions_per_set?.[i].message}
+													</span>
+												)}
+											</div>
+										)}
+									/> 
+									}
 
 									<Controller
-										name="restPerSet"
+										name={`rest_between_set.${i}`}
 										control={control}
 										rules={{ required: "Required" }}
 										render={({ field }) => (
@@ -414,16 +415,16 @@ const WorkoutStep2: React.FC = () => {
 													type="number"
 													{...field}
 													className={`bg-transparent border border-black/25 ${
-														errors?.restPerSet
+														errors?.rest_between_set?.[i]
 															? "border-red-500"
 															: ""
 													}`}
 													min="0"
-													value={field.value ?? ""}
+													value={(()=>{console.log(field);return field.value ?? ""})()}
 												/>
-												{errors?.restPerSet && (
+												{errors?.rest_between_set?.[i] && (
 													<span className="text-red-500 mr-4">
-														{errors.restPerSet?.message}
+														{errors.rest_between_set?.[i].message}
 													</span>
 												)}
 											</div>
@@ -445,7 +446,7 @@ const WorkoutStep2: React.FC = () => {
 							variant={"ghost"}
 							type="button"
 							onClick={() => {return}}
-							className="gap-2 items-center justify-center px-4 py-2 rounded hover:bg-primary"
+							className="gap-2 items-center justify-center px-4 py-2 rounded hover:bg-transparent"
 						>
 							<i className="fa-solid fa-plus"></i> Add 
 						</Button>

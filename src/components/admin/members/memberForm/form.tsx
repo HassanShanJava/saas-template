@@ -128,6 +128,7 @@ const coachsSchema = z.object({
 });
 
 const initialValues: MemberInputTypes = {
+  own_member_id: "",
   profile_img: "",
   first_name: "",
   last_name: "",
@@ -261,8 +262,8 @@ const MemberForm = ({
       if (total >= 0 && action == "add") {
         initialValues.own_member_id = `${orgName?.slice(0, 2)}-${total + 1}`;
       }
-      reset(initialValues, { keepDefaultValues: true, keepDirtyValues: true });
     }
+    reset(initialValues);
   }, [open, action, memberCountData]);
 
   // set auto_renewal

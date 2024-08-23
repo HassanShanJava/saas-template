@@ -230,7 +230,7 @@ export default function MemberTableView() {
     if (selectedRows.length === 0) {
       toast({
         variant: "destructive",
-        title: "Select atleast one row for CSV download!",
+        title: "Please select one or more record(s) to perform this action",
       });
       return;
     }
@@ -281,14 +281,16 @@ export default function MemberTableView() {
     {
       id: "select",
       header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value: any) =>
-            table.toggleAllPageRowsSelected(!!value)
-          }
-          aria-label="Select all"
-          className="translate-y-[2px]"
-        />
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected()}
+            onCheckedChange={(value: any) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+            className="translate-y-[2px]"
+          />
+        </div>
       ),
       cell: ({ row }) => (
         <Checkbox

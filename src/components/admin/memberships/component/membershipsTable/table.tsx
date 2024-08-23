@@ -50,6 +50,9 @@ import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
 import { useGetGroupQuery } from "@/services/groupsApis";
 import { Separator } from "@/components/ui/separator";
 import TableFilters from "@/components/ui/table/data-table-filter";
+import { Search } from "lucide-react";
+import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -89,6 +92,7 @@ interface searchCretiriaType {
   offset: number;
   sort_order: string;
   sort_key?: string;
+  search_key?: string;
 }
 
 export default function MembershipsTableView() {
@@ -103,6 +107,23 @@ export default function MembershipsTableView() {
   const [query, setQuery] = useState("");
   const [openFilter, setOpenFilter] = useState(false);
   const [filterData, setFilter] = useState<Record<string, any>>({});
+  const [inputValue, setInputValue] = useState("");
+  const debouncedInputValue = useDebounce(inputValue, 500);
+
+  useEffect(() => {
+    setSearchCretiria((prev) => {
+      const newCriteria = { ...prev };
+
+      if (debouncedInputValue.trim() !== "") {
+        newCriteria.search_key = debouncedInputValue;
+      } else {
+        delete newCriteria.search_key;
+      }
+
+      return newCriteria;
+    });
+    console.log({ debouncedInputValue });
+  }, [debouncedInputValue, setSearchCretiria]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -520,6 +541,7 @@ export default function MembershipsTableView() {
   };
 
   const handleStatus = (value: string) => {
+    console.log("value of status", value);
     setFilter((prev) => ({
       ...prev,
       status: value,
@@ -663,7 +685,15 @@ export default function MembershipsTableView() {
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
-          <p className="font-semibold text-2xl">Memberships</p>
+          <div className="flex items-center  relative">
+            <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
+            <FloatingLabelInput
+              id="search"
+              placeholder="Search by membership name"
+              onChange={(event) => setInputValue(event.target.value)}
+              className="w-64 pl-8 text-gray-400"
+            />
+          </div>{" "}
         </div>
         <Button
           className="bg-primary m-4 text-black gap-1 font-semibold"
@@ -672,19 +702,13 @@ export default function MembershipsTableView() {
           <PlusIcon className="h-4 w-4" />
           Create New
         </Button>
+
         <button
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={() => setOpenFilter(true)}
         >
           <i className="fa fa-filter"></i>
         </button>
-        {/* {/* <button
-          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
-          onClick={toggleSortOrder}
-        >
-          <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order=='desc'?"rotate-180":"-rotate-180"}`}></i>
-        </button> */}
-        {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
       <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">

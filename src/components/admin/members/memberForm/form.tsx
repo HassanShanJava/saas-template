@@ -262,8 +262,8 @@ const MemberForm = ({
       if (total >= 0 && action == "add") {
         initialValues.own_member_id = `${orgName?.slice(0, 2)}-${total + 1}`;
       }
+      reset(initialValues);
     }
-    reset(initialValues);
   }, [open, action, memberCountData]);
 
   // set auto_renewal
@@ -361,7 +361,7 @@ const MemberForm = ({
         if (resp) {
           toast({
             variant: "success",
-            title: "Member Updated Successfully ",
+            title: "Record updated successfully ",
           });
           refetch();
           handleClose();
@@ -441,7 +441,7 @@ const MemberForm = ({
                         {!isSubmitting && (
                           <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                         )}
-                        Save
+                        {action === "edit" ? "Update" : "Save"}
                       </LoadingButton>
                     </div>
                   </div>

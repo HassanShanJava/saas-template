@@ -645,7 +645,7 @@ const ExerciseForm = ({
             <h1 className="font-semibold text-xl py-3">Thumbnails</h1>
             <div className="flex gap-2 w-full">
               <div className="w-[33%]">
-                <h1 className="m-2 font-semibold"> Male Image Thumbnails</h1>
+                <h1 className="m-2 font-semibold"> Male Image</h1>
                 <Controller
                   name="imagemale"
                   control={control}
@@ -711,7 +711,7 @@ const ExerciseForm = ({
                               </div>
                               <div>
                                 <h1 className="text-sm">
-                                  Drop your Male image here or{" "}
+                                  Drop your image here or{" "}
                                   <span className="underline text-blue-500">
                                     Browse
                                   </span>
@@ -737,7 +737,7 @@ const ExerciseForm = ({
               </div>
 
               <div className="w-[33%]">
-                <h1 className="m-2 font-semibold"> Female Image Thumbnails</h1>
+                <h1 className="m-2 font-semibold"> Female Image</h1>
                 <Controller
                   name="imagefemale"
                   control={control}
@@ -802,7 +802,7 @@ const ExerciseForm = ({
                               </div>
                               <div>
                                 <h1 className="text-sm">
-                                  Drop your female image here or{" "}
+                                  Drop your image here or{" "}
                                   <span className="underline text-blue-500">
                                     Browse
                                   </span>
@@ -891,7 +891,7 @@ const ExerciseForm = ({
                               </div>
                               <div>
                                 <h1 className="text-sm">
-                                  Drop your image here or{" "}
+                                  Drop your Gif here or{" "}
                                   <span className="underline text-blue-500">
                                     Browse
                                   </span>

@@ -191,7 +191,7 @@ export default function CoachTableView() {
     if (selectedRows.length === 0) {
       toast({
         variant: "destructive",
-        title: "Select atleast one row for CSV download!",
+        title: "Please select one or more record(s) to perform this action",
       });
       return;
     }
@@ -388,7 +388,7 @@ export default function CoachTableView() {
         return (
           <Select
             defaultValue={value}
-            onValueChange={(e:any) =>
+            onValueChange={(e: any) =>
               handleStatusChange({ coach_status: e, id: id, org_id: org_id })
             }
             disabled={value == "pending"}

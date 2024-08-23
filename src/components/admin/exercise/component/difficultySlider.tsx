@@ -36,9 +36,14 @@ const DifficultySlider: React.FC<DifficultySliderProps> = ({
 
   return (
     <div className="relative">
-      <label htmlFor={id} className="block text-sm font-medium">
-        Difficulty*:
-      </label>
+      <div className="flex justify-between items-center">
+        <label htmlFor={id} className="block text-sm font-medium">
+          Difficulty*:
+        </label>
+        <span className="text-sm font-medium text-green-600">
+          {difficultyLabels[value]}
+        </span>
+      </div>
       <div className="relative w-full max-w-lg mt-1">
         <Slider.Root
           className="relative flex items-center select-none touch-none h-4"
@@ -67,22 +72,6 @@ const DifficultySlider: React.FC<DifficultySliderProps> = ({
           </Slider.Track>
           <Slider.Thumb className="block w-5 h-5 cursor-grab bg-green-600 ring-primary ring-2 rounded-full border-2 border-white shadow-md focus:outline-none" />
         </Slider.Root>
-
-        <div className="mt-2 flex justify-between text-xs">
-          {difficultyLabels.map((label, index) => (
-            <span
-              key={index}
-              onClick={() => handleLabelClick(index)}
-              className={`cursor-pointer ${
-                index === value
-                  ? "font-semibold text-green-600"
-                  : "text-gray-400"
-              }`}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
 
         {error && (
           <span className="text-red-500 mt-[5px] text-xs">{error}</span>

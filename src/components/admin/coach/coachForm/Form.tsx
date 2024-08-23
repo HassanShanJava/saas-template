@@ -489,7 +489,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                         {!form.formState.isSubmitting && (
                           <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                         )}
-                        Save
+                        {coachData ? "Update" : "Save"}
                       </LoadingButton>
                     </div>
                   </div>

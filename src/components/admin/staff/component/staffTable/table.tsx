@@ -194,7 +194,7 @@ export default function StaffTableView() {
     if (selectedRows.length === 0) {
       toast({
         variant: "destructive",
-        title: "Select atleast one row for CSV download!",
+        title: "Please select one or more record(s) to perform this action",
       });
       return;
     }

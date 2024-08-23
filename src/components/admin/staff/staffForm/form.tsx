@@ -251,7 +251,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
   const { data: roleData } = useGetRolesQuery(orgId);
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
-  const { data: staffCount } = useGetStaffCountQuery(orgId, {
+  const { data: staffCount, refetch: countRefetch } = useGetStaffCountQuery(orgId, {
     skip: staffData != null,
   });
 
@@ -314,10 +314,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
           updatedData.profile_img !== "" &&
           (updatedData?.profile_img as string).length > 0
         ) {
-          const fileName = (updatedData?.profile_img as string).split(
-            "/images/"
-          )[1];
-          await deleteCognitoImage(fileName);
+
+          await deleteCognitoImage(updatedData.profile_img as string);
         }
         const getUrl = await UploadCognitoImage(selectedImage);
         updatedData = {
@@ -334,6 +332,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         return;
       }
     }
+
     try {
       if (!staffData) {
         const resp = await addStaff(updatedData).unwrap();
@@ -343,6 +342,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
             title: "Staff Created Successfully",
           });
           refetch();
+          if(staffData==null) {
+            countRefetch();
+            } 
           handleClose();
         }
       } else {
@@ -356,7 +358,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
             title: "Staff Updated Successfully",
           });
           refetch();
-
+          if(staffData==null) {
+          countRefetch();
+          }
           handleClose();
         }
       }
@@ -391,11 +395,11 @@ const StaffForm: React.FC<StaffFormProps> = ({
   useEffect(() => {
     if (!open) return;
     const total = staffCount?.total_staffs as number;
-    if (total >= 0) {
+    if (total >= 0 && staffData==null) {
       form.setValue("own_staff_id", `${orgName?.slice(0, 2)}-S${total + 1}`);
       form.clearErrors();
     }
-  }, [open, staffCount]);
+  }, [open, staffCount, staffData]);
 
   console.log({ watcher });
   return (
@@ -457,12 +461,13 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     <img
                       id="avatar"
                       src={
-                        watcher.profile_img !== "" && watcher.profile_img
+                        watcher.profile_img !== "" && watcher.profile_img && !avatar
                           ? VITE_VIEW_S3_URL + "/" + watcher.profile_img
                           : avatar
                             ? String(avatar)
                             : profileimg
                       }
+                      loading="lazy"
                       alt={profileimg}
                       className="w-14 h-14 rounded-full object-cover mb-4 relative"
                     />
@@ -721,8 +726,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                 {field.value === 0
                                   ? "Select Source*"
                                   : sources?.find(
-                                      (source) => source.id === field.value
-                                    )?.source || "Select Source*"}
+                                    (source) => source.id === field.value
+                                  )?.source || "Select Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -768,8 +773,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                 {field.value === 0
                                   ? "Select Role*"
                                   : roleData?.find(
-                                      (role) => role.id === field.value
-                                    )?.name || "Select Role*"}
+                                    (role) => role.id === field.value
+                                  )?.name || "Select Role*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -819,9 +824,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="pending">pending</SelectItem>
-                            <SelectItem value="active">active</SelectItem>
-                            <SelectItem value="inactive">inactive</SelectItem>
+                            <SelectItem value="pending" className={`${field.value != "pending" && 'hidden'}`}>Pending</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -900,14 +905,14 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                 className={cn(
                                   "justify-between !font-normal",
                                   !field.value &&
-                                    "text-muted-foreground focus:border-primary "
+                                  "text-muted-foreground focus:border-primary "
                                 )}
                               >
                                 {field.value
                                   ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === field.value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                    (country: CountryTypes) =>
+                                      country.id === field.value // Compare with numeric value
+                                  )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

@@ -571,7 +571,7 @@ export default function StaffTableView() {
       name: "status",
       label: "Status",
       options: [
-        { id: "pending", name: "Pending" },
+        // { id: "pending", name: "Pending" },
         { id: "inactive", name: "Inactive" },
         { id: "active", name: "Active" },
       ],
@@ -879,6 +879,7 @@ export default function StaffTableView() {
         staffData={editStaff}
         setStaffData={setEditStaff}
         open={open}
+        refetch={refetch}
       />
     </div>
   );

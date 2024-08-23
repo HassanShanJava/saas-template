@@ -40,6 +40,8 @@ const FloatingInput = React.forwardRef<
     }
   });
 
+  
+
   if (type === "textarea") {
     return (
       <Textarea
@@ -55,19 +57,35 @@ const FloatingInput = React.forwardRef<
     );
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (type === "number" && (e.key === '-' || e.key === '+')) {
+      e.preventDefault();
+    }
+  };
+
+  const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
+    if (type === "number") {
+      const target = e.target as HTMLInputElement;
+      const value = target.value;
+
+      // Regex to match numbers with up to 2 decimal places
+      const regex = /^\d*\.?\d{0,2}$/;
+
+      if (!regex.test(value)) {
+        target.value = value.slice(0, value.length - 1);
+      }
+    }
+  };
+
   return (
     <Input
       placeholder=" "
       type={type}
       className={cn("peer", "font-poppins",className)}
       ref={inputRef}
+      onKeyDown={handleKeyDown}
+      onInput={handleInput}
       {...props}
-      onInput={(e) => {
-        if(type=="number"){
-          const target = e.target as HTMLInputElement;
-          target.value = target.value.replace(/[^0-9.]/g, '');
-        }
-      }}
     />
   );
 });

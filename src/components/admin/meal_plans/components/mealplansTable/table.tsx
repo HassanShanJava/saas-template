@@ -48,8 +48,10 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { Separator } from "@/components/ui/separator";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
+import { useGetFoodsQuery } from "@/services/foodsApi";
+import { useGetMembersListQuery } from "@/services/memberAPi";
 
-export const visibleFor = [ 
+export const visibleFor = [
   { value: "only_myself", label: "Only myself" },
   { value: "staff", label: "Staff of my gym" },
   { value: "members", label: "Members of my gym" },
@@ -167,6 +169,17 @@ export default function MealPlansTableView() {
     }
   );
 
+  const {
+    data: foodData,
+  } = useGetFoodsQuery(
+    { org_id: orgId, query: `sort_order=desc&sort_key=created_at` },
+    {
+      skip: query == "",
+    }
+  );
+
+  const { data: membersData } = useGetMembersListQuery(orgId);
+
   const mealstableData = React.useMemo(() => {
     return Array.isArray(mealsData?.data) ? mealsData?.data : [];
   }, [mealsData]);
@@ -271,6 +284,18 @@ export default function MealPlansTableView() {
       visible_for: value,
     }));
   };
+  const handleFoods = (value: any) => {
+    setFilter((prev) => ({
+      ...prev,
+      food_id: value,
+    }));
+  };
+  const handleMembers = (value: any) => {
+    setFilter((prev) => ({
+      ...prev,
+      member_id: value,
+    }));
+  };
 
   const filterDisplay = [
     {
@@ -280,21 +305,22 @@ export default function MealPlansTableView() {
       options: visibleFor.map((item) => ({ id: item.label, name: item.label })),
       function: handleVisiblity,
     },
-    // {
-    //   type: "multiselect",
-    //   name: "member_id",
-    //   label: "Members",
-    //   options:
-    //     rolesData &&
-    //     rolesData.map((role) => ({ value: role.id, label: role.name })),
-    //   function: handleMembers,
-    // },
-    // {
-    //   type: "number",
-    //   name: "fat",
-    //   label: "Total Fat",
-    //   // function: handleFat,
-    // },
+    {
+      type: "multiselect",
+      name: "food_id",
+      label: "Food",
+      options:
+        foodData?.data &&
+        foodData?.data.map((food) => ({ value: food.id, label: food.name })),
+      function: handleFoods,
+    },
+    {
+      type: "multiselect",
+      name: "member_id",
+      label: "Members",
+      options: membersData,
+      function: handleMembers,
+    },
   ];
 
 
@@ -385,9 +411,9 @@ export default function MealPlansTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

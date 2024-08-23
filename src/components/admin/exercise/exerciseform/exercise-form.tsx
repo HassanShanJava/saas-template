@@ -5,10 +5,8 @@ import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -39,7 +37,6 @@ import {
   ErrorType,
   ExerciseTypeEnum,
 } from "@/app/types";
-import uploadimg from "@/assets/upload.svg";
 import {
   combinePayload,
   difficultyTypeoptions,
@@ -63,11 +60,8 @@ import {
   useGetAllMetQuery,
   useGetAllMuscleQuery,
 } from "@/services/exerciseApi";
-import { SpaceEvenlyVerticallyIcon } from "@radix-ui/react-icons";
-import { UploadCognitoImage, deleteCognitoImage } from "@/utils/lib/s3Service";
 import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Check, ChevronDownIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { Check, ChevronDownIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Popover,
@@ -167,7 +161,6 @@ const ExerciseForm = ({
   );
 
   const watcher = watch();
-
   useEffect(() => {
     if (action == "edit") {
       console.log({ data }, "edit");
@@ -182,22 +175,9 @@ const ExerciseForm = ({
       setValueofDifficulty(
         Difficulty[data?.difficulty as keyof typeof Difficulty]
       );
-      // setValue("category_id", data?.category_id as number);
-      // setValue("visible_for", data?.visible_for);
     } else if (action == "add") {
       console.log({ initialValue }, "add");
-      // reset(initialValue, {
-      //   keepIsSubmitted: false,
-      //   keepSubmitCount: false,
-      //   keepDefaultValues: false,
-      //   keepDirtyValues: true,
-      // });
-      // setExistingGif(
-      //   `${VITE_VIEW_S3_URL}/82230015-5c3c-482f-a20c-448cf8e97ce0-new.gif`
-      // );
-      // setExistingMaleImage(
-      //   `${VITE_VIEW_S3_URL}/82230015-5c3c-482f-a20c-448cf8e97ce0-new.gif`
-      // );
+
       reset(initialValue, {
         keepIsSubmitted: false, // Reset the form's submission state
         keepSubmitCount: false, // Reset the count of submissions
@@ -230,11 +210,10 @@ const ExerciseForm = ({
   const [updateExercise] = useUpdateExerciseMutation();
   console.log({ watcher, errors });
   const onSubmit = async (input: createExerciseInputTypes) => {
-    console.log("input payload", { input });
-
-    console.log("FIle infor", input.gif[0]);
-    console.log("Male image", input.imagemale[0]);
-    console.log("Female image", input.imagefemale[0]);
+    // console.log("input payload", { input });
+    // console.log("FIle infor", input.gif[0]);
+    // console.log("Male image", input.imagemale[0]);
+    // console.log("Female image", input.imagefemale[0]);
     // Example usage
     const fileInputObject = {
       gif: input.gif,
@@ -255,30 +234,8 @@ const ExerciseForm = ({
       existingImages
     );
 
-    console.log("Resulting urls", result);
+    // console.log("Resulting urls", result);
     const responsePayload = combinePayload(input, result);
-    // let payload;
-    // if (input.exercise_type === ExerciseTypeEnum.repetition_based) {
-    //   payload = {
-    //     ...responsePayload,
-    //     seconds_per_set: responsePayload.timePerSet,
-    //     rest_between_set: responsePayload.restPerSet,
-    //   };
-    // } else {
-    //   payload = {
-    //     ...responsePayload,
-    //     repetitions_per_set: responsePayload.repetitionPerSet,
-    //     rest_between_set: responsePayload.restPerSetrep,
-    //   };
-    // }
-
-    // console.log("Final final Payload", payload);
-    // let payload;
-    // console.log("checking condition",
-    //   input.exercise_type === ExerciseTypeEnum.repetition_based,
-    //   input.exercise_type === ExerciseTypeEnum.time_based);
-
-    // console.log("Final Payload:", payload);
     console.log("Dead final response", responsePayload);
     const payload = {
       ...responsePayload,
@@ -289,7 +246,7 @@ const ExerciseForm = ({
         await createExercise(payload).unwrap();
         toast({
           variant: "success",
-          title: "Created Successfully",
+          title: "Exercise saved successfully",
         });
         refetch();
         handleClose();
@@ -297,7 +254,7 @@ const ExerciseForm = ({
         await updateExercise({ ...payload, id: data?.id as number }).unwrap();
         toast({
           variant: "success",
-          title: "Updated Successfully",
+          title: "Exercise updated successfully",
         });
         refetch();
         handleClose();
@@ -358,6 +315,13 @@ const ExerciseForm = ({
   });
 
   const mode = watch("exercise_type");
+
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all the mandatory fields",
+    });
+  };
 
   const Exercise_info: ExerciseItem[] = [
     {
@@ -464,7 +428,7 @@ const ExerciseForm = ({
             key={action}
             noValidate
             className="pb-4"
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onError)}
           >
             <SheetHeader className="sticky top-0 z-40 pt-4 bg-white">
               <SheetTitle>
@@ -503,7 +467,7 @@ const ExerciseForm = ({
                       {!isSubmitting && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
-                      Save
+                      {action === "edit" ? "Update" : "Save"}
                     </LoadingButton>
                   </div>
                 </div>
@@ -621,38 +585,47 @@ const ExerciseForm = ({
                           field: { onChange, value, onBlur },
                           fieldState: { invalid, error },
                         }) => (
-                          <div>
-                            <Select
-                              onValueChange={(value) => {
-                                onChange(value);
-                              }}
-                              defaultValue={
-                                typeof value === "number"
-                                  ? value.toString()
-                                  : (value as string | undefined)
-                              }
-                            >
-                              <SelectTrigger
-                                floatingLabel={item.label}
-                                name={item.name}
+                          <>
+                            <div>
+                              <Select
+                                onValueChange={(value) => {
+                                  onChange(value);
+                                }}
+                                defaultValue={
+                                  typeof value === "number"
+                                    ? value.toString() // Convert numbers to strings
+                                    : (value as string | undefined) // Ensure it's a string or undefined
+                                }
+                                // defaultValue={
+                                //   typeof value === "number"
+                                //     ? value.toString()
+                                //     : (value as string | undefined)
+                                // }
                               >
-                                <SelectValue
-                                  placeholder={"Select " + item.label}
-                                />
-                              </SelectTrigger>
+                                <SelectTrigger
+                                  floatingLabel={item.label}
+                                  name={item.name}
+                                >
+                                  <SelectValue
+                                    placeholder={"Select " + item.label}
+                                  />
+                                </SelectTrigger>
 
-                              <SelectContent>
-                                {item.options?.map((st: any, index: number) => (
-                                  <SelectItem
-                                    key={index}
-                                    value={String(st.value)}
-                                  >
-                                    {st.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
+                                <SelectContent>
+                                  {item.options?.map(
+                                    (st: any, index: number) => (
+                                      <SelectItem
+                                        key={index}
+                                        value={String(st.value)}
+                                      >
+                                        {st.label}
+                                      </SelectItem>
+                                    )
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </>
                         )}
                       />
                       {errors[item.name as keyof createExerciseInputTypes]
@@ -672,7 +645,7 @@ const ExerciseForm = ({
             <h1 className="font-semibold text-xl py-3">Thumbnails</h1>
             <div className="flex gap-2 w-full">
               <div className="w-[33%]">
-                <h1 className="m-2 font-semibold"> Male Image Thumbnails</h1>
+                <h1 className="m-2 font-semibold"> Male Image</h1>
                 <Controller
                   name="imagemale"
                   control={control}
@@ -738,7 +711,7 @@ const ExerciseForm = ({
                               </div>
                               <div>
                                 <h1 className="text-sm">
-                                  Drop your Male image here or{" "}
+                                  Drop your image here or{" "}
                                   <span className="underline text-blue-500">
                                     Browse
                                   </span>
@@ -764,7 +737,7 @@ const ExerciseForm = ({
               </div>
 
               <div className="w-[33%]">
-                <h1 className="m-2 font-semibold"> Female Image Thumbnails</h1>
+                <h1 className="m-2 font-semibold"> Female Image</h1>
                 <Controller
                   name="imagefemale"
                   control={control}
@@ -829,7 +802,7 @@ const ExerciseForm = ({
                               </div>
                               <div>
                                 <h1 className="text-sm">
-                                  Drop your female image here or{" "}
+                                  Drop your image here or{" "}
                                   <span className="underline text-blue-500">
                                     Browse
                                   </span>
@@ -918,7 +891,7 @@ const ExerciseForm = ({
                               </div>
                               <div>
                                 <h1 className="text-sm">
-                                  Drop your image here or{" "}
+                                  Drop your Gif here or{" "}
                                   <span className="underline text-blue-500">
                                     Browse
                                   </span>

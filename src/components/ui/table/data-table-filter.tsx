@@ -122,6 +122,7 @@ const TableFilters = ({
                 if (element.type == "number") {
                   return (
                     <FloatingLabelInput
+                      defaultValue={filterData[element.name]}
                       type={"number"}
                       min={0}
                       id={element.name}
@@ -173,6 +174,7 @@ const TableFilters = ({
                     ...filterData,
                   }));
                   setOpen(false);
+                  console.log("FIltered Data", filterData);
                 }}
                 className="bg-primary  text-black space-x-2 font-semibold w-full"
               >
@@ -201,7 +203,7 @@ function Combobox({ list, setFilter, name }: comboboxType) {
   const [value, setValue] = useState("");
   console.log({ value, list });
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"

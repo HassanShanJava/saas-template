@@ -171,7 +171,7 @@ const navItems: NavItem[] = [
     children: [
       {
         name: "Facilities",
-        link: "/admin/Facilities",
+        link: "/admin/facilities",
         icon: "fa fa-user",
       },
       {

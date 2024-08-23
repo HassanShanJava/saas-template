@@ -22,13 +22,14 @@ export interface FloatingLabelInputProps extends CommonProps {
   error?: string;
   autoComplete?: string;
   labelClassname?: string;
-  customPercentage?:Array<number>
+  customPercentage?:Array<number>;
+	noFilterInput?: boolean;
 }
 
 const FloatingInput = React.forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   FloatingLabelInputProps
->(({ className, type, ...props }, ref) => {
+>(({ className, type, noFilterInput = false, ...props }, ref) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -61,15 +62,16 @@ const FloatingInput = React.forwardRef<
       type={type}
       className={cn("peer", "font-poppins",className)}
       ref={inputRef}
+			noFilterInput={noFilterInput}
       {...props}
-      onInput={(e) => {
+    />
+  );
+      {/*onInput={(e) => {
         if(type=="number"){
           const target = e.target as HTMLInputElement;
           target.value = target.value.replace(/[^0-9.]/g, '');
         }
-      }}
-    />
-  );
+      }}*/}
 });
 FloatingInput.displayName = "FloatingInput";
 

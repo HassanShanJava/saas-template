@@ -3,10 +3,12 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+	noFilterInput?: boolean;
+}
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
+  ({ className, type, noFilterInput = false, ...props }, ref) => {
     return (
       <input
         type={type}
@@ -15,13 +17,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           className
         )}
         ref={ref}
-        {...props}
         onInput={(e) => {
-          if (type == "number") {
+          if (type == "number" && !noFilterInput) {
             const target = e.target as HTMLInputElement;
             target.value = target.value.replace(/[^0-9.]/g, "");
           }
         }}
+        {...props}
       />
     );
   }

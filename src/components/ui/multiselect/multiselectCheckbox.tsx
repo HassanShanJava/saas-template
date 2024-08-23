@@ -57,6 +57,7 @@ interface MultiSelectProps extends VariantProps<typeof multiSelectVariants> {
   className?: string;
   width?: string | number;
   floatingLabel?: string;  // Add this line
+  labelClassname?: string;  // Add this line
 }
 
 export const MultiSelect = React.forwardRef<
@@ -77,6 +78,7 @@ export const MultiSelect = React.forwardRef<
       className,
       width,
       floatingLabel, 
+			labelClassname,
       ...props
     },
     ref
@@ -149,7 +151,8 @@ export const MultiSelect = React.forwardRef<
  
                 "text-gray-500 -top-2 text-xs bg-white": 
                 !false,
-              }
+              },
+							labelClassname
             )}
           >
             {floatingLabel}
@@ -160,7 +163,7 @@ export const MultiSelect = React.forwardRef<
           onOpenChange={setIsPopoverOpen}
           modal={modalPopover}
         >
-          <PopoverTrigger asChild>
+          <PopoverTrigger asChild className="whitespace-nowrap ">
             <Button
               ref={ref}
               {...props}
@@ -230,7 +233,7 @@ export const MultiSelect = React.forwardRef<
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-between w-full mx-auto">
+                <div className="flex items-center justify-between w-full mx-auto [&>span]:line-clamp-1">
                   <span className="text-sm text-muted-foreground mx-3">
                     {placeholder}
                   </span>

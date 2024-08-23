@@ -24,8 +24,9 @@ const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & {
     floatingLabel?: string;
+		labelClassname?: string;
   }
->(({ className, children, floatingLabel, ...props }, ref) => (
+>(({ className, children, floatingLabel, labelClassname, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
@@ -38,7 +39,7 @@ const SelectTrigger = React.forwardRef<
     <SelectPrimitive.Icon asChild>
       <ChevronDown className="h-4 w-4 opacity-50" />
     </SelectPrimitive.Icon>
-    {floatingLabel && <FloatingLabel className="text-gray-800">{floatingLabel}</FloatingLabel>}
+    {floatingLabel && <FloatingLabel className={cn("text-gray-800", labelClassname)}>{floatingLabel}</FloatingLabel>}
   </SelectPrimitive.Trigger>
 ));
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;

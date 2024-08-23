@@ -85,7 +85,7 @@ export const workout_day_exercise_data = [
       "gif_url": "abc",
       "video_url_male": "abc",
       "video_url_female": "acb",
-      "thumbnail_male":"",/// "https://uploads.fitnfi.com/images/6f1cbec8-58bf-497a-8e9e-4c4a043ad968-image%2067.png",
+      "thumbnail_male": "https://uploads.fitnfi.com/images/6f1cbec8-58bf-497a-8e9e-4c4a043ad968-image%2067.png",
       "thumbnail_female": "",
       "image_url_female": "",
       "image_url_male": "",

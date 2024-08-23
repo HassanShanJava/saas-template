@@ -6,7 +6,7 @@ const WorkoutPlan = () => {
     <div className="w-full p-5">
       <Card className="py-3">
         <WorkoutPlansTableView />
-		<Outlet/>
+				<Outlet/>
       </Card>
     </div>
   );

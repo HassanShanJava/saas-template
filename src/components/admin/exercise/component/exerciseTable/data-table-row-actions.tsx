@@ -49,7 +49,7 @@ export function DataTableRowActions<TData>({
         refetch();
         toast({
           variant: "success",
-          title: "Deleted Successfully",
+          title: "Deleted successfully",
         });
       }
     } catch (error) {
@@ -106,7 +106,7 @@ export function DataTableRowActions<TData>({
                   <div className="flex flex-col items-center  justify-center gap-4">
                     <img src={warning} alt="warning" className="w-18 h-18" />
                     <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                      Please confirm if you want to delete this Exercise
+                      Are you sure you want to delete the exercise?
                     </AlertDialogTitle>
                   </div>
                   <div className="w-full flex justify-between items-center gap-3 mt-4">
@@ -115,14 +115,14 @@ export function DataTableRowActions<TData>({
                       className="w-full border border-primary font-semibold"
                     >
                       <i className="fa fa-xmark text-base px-1 "></i>
-                      Cancel
+                      No
                     </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={deleteRow}
                       className="w-full bg-primary !text-black font-semibold"
                     >
                       <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                      Delete
+                      Yes
                     </AlertDialogAction>
                   </div>
                 </AlertDialogDescription>

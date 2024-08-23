@@ -240,6 +240,7 @@ export default function ExerciseTableView() {
       gif: existingGif,
       imagemale: existingGif,
       imagefemale: existingGif,
+      category_id: data.category_id.toString(),
     };
     console.log("payload ", payload);
 
@@ -249,27 +250,6 @@ export default function ExerciseTableView() {
   };
 
   const columns: ColumnDef<ExerciseResponseViewType>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value: any) =>
-            table.toggleAllPageRowsSelected(!!value)
-          }
-          aria-label="Select all"
-          className="translate-y-[2px]"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value: any) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-          className="translate-y-[2px]"
-        />
-      ),
-    },
     {
       accessorKey: "exercise_name",
       meta: "Exercise Name",
@@ -288,7 +268,7 @@ export default function ExerciseTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original?.exercise_name)}
           </div>
         );
@@ -296,10 +276,10 @@ export default function ExerciseTableView() {
     },
     {
       accessorKey: "category_name",
-      meta: "Category Name",
+      meta: "Exercise Category",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Category Name</p>
+          <p>Exercise Category</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("category_name")}
@@ -312,7 +292,7 @@ export default function ExerciseTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             {row.original.category_name}
           </div>
         );
@@ -336,7 +316,7 @@ export default function ExerciseTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             {row.original.visible_for}
           </div>
         );
@@ -346,7 +326,7 @@ export default function ExerciseTableView() {
       accessorKey: "exercise_type",
       meta: "Exercise Type",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex  gap-2">
           <p>Exercise Type</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
@@ -360,7 +340,7 @@ export default function ExerciseTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             {row.original.exercise_type}{" "}
           </div>
         );
@@ -384,7 +364,7 @@ export default function ExerciseTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex  px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             {row.original.difficulty}{" "}
           </div>
         );
@@ -392,10 +372,10 @@ export default function ExerciseTableView() {
     },
     {
       accessorKey: "sets",
-      meta: "Exercise Sets",
+      meta: "Sets",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Exercise Sets</p>
+          <p>Sets</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("set")}
@@ -408,7 +388,7 @@ export default function ExerciseTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex  px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             {row.original.sets}{" "}
           </div>
         );

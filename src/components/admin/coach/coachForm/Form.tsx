@@ -438,6 +438,13 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
   console.log("watcher", form.watch());
 
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all the mandatory fields",
+    });
+  };
+
   return (
     <Sheet open={open}>
       <SheetContent
@@ -445,7 +452,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
         className="!max-w-[1300px] py-0 custom-scrollbar"
       >
         <Form {...form}>
-          <form noValidate onSubmit={form.handleSubmit(onSubmit)}>
+          <form noValidate onSubmit={form.handleSubmit(onSubmit, onError)}>
             <SheetHeader className="sticky !top-0 z-40 py-4 bg-white">
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start  bg-white">
@@ -482,7 +489,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                         {!form.formState.isSubmitting && (
                           <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                         )}
-                        Save
+                        {coachData ? "Update" : "Save"}
                       </LoadingButton>
                     </div>
                   </div>

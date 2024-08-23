@@ -709,7 +709,12 @@ const IncomeCategoryForm = ({
   });
 
   const watcher = form.watch();
-
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all the mandatory fields",
+    });
+  };
   const onSubmit = async (data: z.infer<typeof incomeCategoryFormSchema>) => {
     console.log({ data });
 
@@ -798,7 +803,7 @@ const IncomeCategoryForm = ({
 
               <Form {...form}>
                 <form
-                  onSubmit={form.handleSubmit(onSubmit)}
+                  onSubmit={form.handleSubmit(onSubmit, onError)}
                   className="flex flex-col py-4 gap-4"
                 >
                   <FormField

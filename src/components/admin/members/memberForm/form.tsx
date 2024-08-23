@@ -128,6 +128,7 @@ const coachsSchema = z.object({
 });
 
 const initialValues: MemberInputTypes = {
+  own_member_id: "",
   profile_img: "",
   first_name: "",
   last_name: "",
@@ -261,7 +262,7 @@ const MemberForm = ({
       if (total >= 0 && action == "add") {
         initialValues.own_member_id = `${orgName?.slice(0, 2)}-${total + 1}`;
       }
-      reset(initialValues, { keepDefaultValues: true, keepDirtyValues: true });
+      reset(initialValues);
     }
   }, [open, action, memberCountData]);
 
@@ -360,7 +361,7 @@ const MemberForm = ({
         if (resp) {
           toast({
             variant: "success",
-            title: "Member Updated Successfully ",
+            title: "Record updated successfully ",
           });
           refetch();
           handleClose();
@@ -385,7 +386,12 @@ const MemberForm = ({
       handleClose();
     }
   }
-
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all the mandatory fields",
+    });
+  };
   console.log({ watcher, errors, action });
   return (
     <Sheet open={open}>
@@ -394,7 +400,11 @@ const MemberForm = ({
         className="!max-w-[1300px] py-0 custom-scrollbar"
       >
         <FormProvider {...form}>
-          <form key={action} noValidate onSubmit={handleSubmit(onSubmit)}>
+          <form
+            key={action}
+            noValidate
+            onSubmit={handleSubmit(onSubmit, onError)}
+          >
             <SheetHeader className="sticky top-0 z-40 py-4 bg-white">
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start  bg-white">
@@ -431,7 +441,7 @@ const MemberForm = ({
                         {!isSubmitting && (
                           <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                         )}
-                        Save
+                        {action === "edit" ? "Update" : "Save"}
                       </LoadingButton>
                     </div>
                   </div>

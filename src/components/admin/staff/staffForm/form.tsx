@@ -467,6 +467,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                             ? String(avatar)
                             : profileimg
                       }
+                      loading="lazy"
                       alt={profileimg}
                       className="w-14 h-14 rounded-full object-cover mb-4 relative"
                     />

@@ -297,10 +297,10 @@ export default function ExerciseTableView() {
     },
     {
       accessorKey: "category_name",
-      meta: "Category Name",
+      meta: "Exercise Category",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Category Name</p>
+          <p>Exercise Category</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("category_name")}
@@ -393,10 +393,10 @@ export default function ExerciseTableView() {
     },
     {
       accessorKey: "sets",
-      meta: "Exercise Sets",
+      meta: "Sets",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Exercise Sets</p>
+          <p>Sets</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("set")}

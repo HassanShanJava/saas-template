@@ -284,9 +284,30 @@ const CoachForm: React.FC<CoachFormProps> = ({
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
-    const validTypes = ["image/png", "image/jpg", "image/jpeg", "image/gif"];
+    const validTypes = ["image/png", "image/jpg", "image/jpeg"];
+    const maxSizeMB = 1;
+    const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
-    if (file && validTypes.includes(file.type)) {
+    if (file) {
+      if (!validTypes.includes(file.type)) {
+        toast({
+          variant: "destructive",
+          title: "Error Uploading Image",
+          description:
+            "Unsupported image type. Only PNG, JPG, and JPEG are supported.",
+        });
+        return;
+      }
+
+      if (file.size > maxSizeBytes) {
+        toast({
+          variant: "destructive",
+          title: "Error Uploading Image",
+          description: `Image size exceeds ${maxSizeMB} MB limit.`,
+        });
+        return;
+      }
+
       const reader = new FileReader();
 
       setSelectedImage(file);
@@ -296,12 +317,6 @@ const CoachForm: React.FC<CoachFormProps> = ({
       };
 
       reader.readAsDataURL(file);
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Error Uploading image",
-        description: "Unsupported image only Support (png/jpg/jpeg/gif)",
-      });
     }
   };
 
@@ -335,14 +350,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
     console.log("only once", data);
     if (selectedImage) {
       try {
-        if (
-          updatedData.profile_img !== "" &&
-          (updatedData?.profile_img as string).length > 0
-        ) {
-          const fileName = (updatedData?.profile_img as string).split(
-            "/images/"
-          )[1];
-          await deleteCognitoImage(fileName);
+        if (updatedData.profile_img !== "" && selectedImage) {
+          await deleteCognitoImage(updatedData.profile_img as string);
         }
         const getUrl = await UploadCognitoImage(selectedImage);
         updatedData = {
@@ -433,7 +442,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
     form.reset(payloadCoach);
     console.log("Member_ids", payloadCoach.member_ids);
-    setAvatar(coachData?.profile_img as string);
+    // setAvatar(coachData?.profile_img as string);
   }, [open, coachData]);
 
   console.log("watcher", form.watch());
@@ -498,24 +507,21 @@ const CoachForm: React.FC<CoachFormProps> = ({
               <Separator className=" h-[1px] rounded-full my-2" />
             </SheetHeader>
             <SheetDescription className="pb-4">
-              {/*<Card className="py-7 px-4">
-										<CardContent className="space-y-3">*/}
               <div className="flex justify-between items-center">
                 <div className="flex flex-row gap-4 items-center">
                   <div className="relative flex">
                     <img
                       id="avatar"
                       src={
-                        watcher.profile_img !== "" && watcher.profile_img
-                          ? VITE_VIEW_S3_URL + "/" + watcher.profile_img
-                          : avatar
-                            ? String(avatar)
+                        avatar
+                          ? String(avatar)
+                          : watcher.profile_img
+                            ? `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
                             : profileimg
                       }
                       alt={profileimg}
                       className="w-14 h-14 rounded-full object-cover mb-4 relative"
                     />
-                    {/* <CameraIcon className="w-8 h-8 text-black bg-primary rounded-full p-2 absolute top-8 left-14 " /> */}
                   </div>
                   <input
                     type="file"

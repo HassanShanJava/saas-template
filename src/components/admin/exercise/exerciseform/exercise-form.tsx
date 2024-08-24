@@ -596,11 +596,6 @@ const ExerciseForm = ({
                                     ? value.toString() // Convert numbers to strings
                                     : (value as string | undefined) // Ensure it's a string or undefined
                                 }
-                                // defaultValue={
-                                //   typeof value === "number"
-                                //     ? value.toString()
-                                //     : (value as string | undefined)
-                                // }
                               >
                                 <SelectTrigger
                                   floatingLabel={item.label}

@@ -56,7 +56,7 @@ import { useGetMembershipListQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
 import MemberForm from "../../memberForm/form";
 import TableFilters from "@/components/ui/table/data-table-filter";
-import MemberModalForm from "../../memberForm/member-modal";
+const { VITE_VIEW_S3_URL } = import.meta.env;
 
 const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
   const csvData = data.map(({ coaches, ...newdata }) => newdata);
@@ -347,9 +347,22 @@ export default function MemberTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(
-              row.original.first_name + " " + row.original.last_name
-            )}
+
+            <div className="flex gap-2 items-center justify-between">
+              {row.original.profile_img ? <img
+                src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
+                loading="lazy"
+                className="size-14 bg-gray-100 object-contain rounded-sm "
+              /> : (
+                <div className="size-14 bg-gray-100 rounded-sm"></div>
+              )}
+            </div>
+            <div className="">
+              <p className="capitalize">{displayValue(
+                row.original.first_name + " " + row.original.last_name
+              )}</p>
+              {/* <p className=" text-xs text-gray-400 ">{row.original.email}</p>   */}
+            </div>
           </div>
         );
       },
@@ -710,9 +723,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

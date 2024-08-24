@@ -312,7 +312,7 @@ const MealPlanForm = ({
 
                 <Controller
                   name={"profile_img"}
-                  rules={{ required: files?.length == 0 && "Required" }}
+                  // rules={{ required: files?.length == 0 && "Required" }}
                   control={control}
                   render={({
                     field: { onChange, value, onBlur },
@@ -414,7 +414,7 @@ const MealPlanForm = ({
                         </SelectContent>
                       </Select>
 
-                      {errors.visible_for?.message && files?.length == 0 && (
+                      {errors.visible_for?.message && (
                         <span className="text-red-500 text-xs mt-[5px]">
                           {errors.visible_for?.message}
                         </span>
@@ -434,6 +434,7 @@ const MealPlanForm = ({
                 />
               </div>
               <div className="flex flex-col gap-2">
+
                 <Controller
                   name={'member_id' as keyof mealPlanDataType}
                   rules={{ required: "Required" }}
@@ -461,7 +462,8 @@ const MealPlanForm = ({
                         maxCount={1}
                         className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 placeholder:font-normal "
                       />
-                      {errors.member_id?.message && files?.length == 0 && (
+
+                      {errors.member_id?.message && (
                         <span className="text-red-500 text-xs mt-[5px]">
                           {errors.member_id?.message}
                         </span>

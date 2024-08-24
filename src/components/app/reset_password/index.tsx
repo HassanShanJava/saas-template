@@ -57,7 +57,7 @@ const ResetPassword = () => {
     const passwordStrength = useMemo(
         () => ValidatePassword(password),
         [password]
-    );
+    );  
 
 
     console.log({ watcher, errors })

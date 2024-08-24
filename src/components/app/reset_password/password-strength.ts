@@ -7,7 +7,7 @@ export const StrengthLevels = {
   const lowerCaseRegex = /[a-z]/g;
   const upperCaseRegex = /[A-Z]/g;
   const numbersRegex = /[0-9]/g;
-  const specialCharacterRegex = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/;
+  const specialCharacterRegex = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~|\[\]\|?]/; 
   
   const minLength = 7
   let analysis:Record<string,number>  = {};
@@ -80,7 +80,7 @@ export const StrengthLevels = {
         Target: "Numbers"
       },
       {
-        Pattern: `[!@@#$%^&*+:;'{}.,~=<>\"\(\)\\\\/\_\`\-]`,
+        Pattern: `[!@@#$%^&*+:;'{}.,~=<>\"\(\)\\\\/\\[\\]|?_\\\-\`]`,
         Target: "Symbols"
       }
     ];

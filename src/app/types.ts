@@ -1001,6 +1001,10 @@ export enum IntensityEnum {
   max_intensity = "Max Intensity",
   irm = "irm",
 }
+export enum WorkoutIntensityEnum {
+  "Max Intensity" = "Max Intensity",
+  "irm" = "%1RM",
+}
 enum VisibilityEnum {
   only_myself = "Only Myself",
   staff_of_my_club = "Staff of My Club",

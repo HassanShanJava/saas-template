@@ -4,11 +4,30 @@ import { cn } from "@/lib/utils";
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
-	noFilterInput?: boolean;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, noFilterInput = false, ...props }, ref) => {
+  ({ className, type, ...props }, ref) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (type === "number" && (e.key === '-' || e.key === '+')) {
+        e.preventDefault();
+      }
+    };
+
+    const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
+      if (type === "number") {
+        const target = e.target as HTMLInputElement;
+        const value = target.value;
+  
+        // Regex to match numbers with up to 2 decimal places
+        const regex = /^\d*\.?\d{0,2}$/;
+  
+        if (!regex.test(value)) {
+          target.value = value.slice(0, value.length - 1);
+        }
+      }
+    };
+
     return (
       <input
         type={type}
@@ -17,12 +36,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           className
         )}
         ref={ref}
-        onInput={(e) => {
-          if (type == "number" && !noFilterInput) {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value.replace(/[^0-9.]/g, "");
-          }
-        }}
+        onKeyDown={handleKeyDown}
+        onInput={handleInput}
         {...props}
       />
     );

@@ -68,15 +68,16 @@ import { useGetCountriesQuery, useGetMembersListQuery } from "@/services/memberA
 import { cn } from "@/lib/utils";
 import { Outlet, useNavigate } from "react-router-dom";
 import StepperIndicator from "@/components/ui/stepper-indicator";
+import { UseFormHandleSubmit } from "react-hook-form";
 //{ isOpen, setOpen }: WorkOutPlanForm
+export type ContextProps = {setHandleSubmit: React.Dispatch<React.SetStateAction<UseFormHandleSubmit<Workout> | null>>}
 const WorkoutPlanForm = () => {
   const navigate = useNavigate();
 	const LAST_STEP = 2;
 	const [activeStep, setActiveStep] = useState<number>(1);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-	const formRef = useRef<HTMLFormElement>(null);
-	const [handleSubmit, setHandleSubmit] = useState(null);
+	const [handleSubmit, setHandleSubmit] = useState<UseFormHandleSubmit<Workout> | null>(null);
 
   async function onSubmit(data: any) {
     try {
@@ -191,7 +192,8 @@ const WorkoutPlanForm = () => {
 									type="button"
 									className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
 									onClick={async () => {
-											console.log(handleSubmit(onSubmit)())//.dispatchEvent(new Event('submit', { cancelable: true })));
+											if (handleSubmit !== null)
+												console.log(handleSubmit(onSubmit)())
 											//if (await trigger(undefined, {shouldFocus:true})) {
 											//	console.log("form values", getValues());
 											//	const newActive = activeStep + 1;
@@ -218,7 +220,7 @@ const WorkoutPlanForm = () => {
 						/>
 					</div>
 				</div>
-				<Outlet context={{formRef, setHandleSubmit}}/>
+				<Outlet context={{setHandleSubmit} satisfies ContextProps}/>
       </SheetContent>
     </Sheet>
   );

@@ -18,9 +18,10 @@ import { Controller, FormProvider, useForm, useFormContext } from "react-hook-fo
 import { FiUpload } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { useOutletContext } from "react-router-dom";
+import { ContextProps } from "./workout-form";
 
 const WorkoutStep1: React.FC = () => {
-	const {formRef, setHandleSubmit} = useOutletContext();
+	const {setHandleSubmit} = useOutletContext<ContextProps>();
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: countries } = useGetCountriesQuery();
@@ -40,7 +41,7 @@ const WorkoutStep1: React.FC = () => {
   }, []);
 	return (
 			<FormProvider {...form}>
-				<form ref={formRef} noValidate>
+				<form noValidate>
 					<div className="mt-4 space-y-4">
 						<p className="text-black/80 text-[1.37em] font-bold">
 							{" "}
@@ -86,7 +87,7 @@ const WorkoutStep1: React.FC = () => {
 											<MultiSelect
 												floatingLabel="Assign Members*"
 												key="Assign Members*"
-												options={memberList?.map((st:{ id: number; name: string }, idx: number) => ({value:st.id,label:st.name})) || []}
+												options={memberList||[]}
 												defaultValue={value||[]} // Ensure defaultValue is always an array
 												onValueChange={(selectedValues) => onChange(selectedValues)}
 												placeholder="Assign Members*"

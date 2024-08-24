@@ -11,6 +11,18 @@ export const visibleFor = [
 //  { value: "Members of my gym", label: "Members of my gym" },
 //  { value: "Everyone in my gym (Coaches+  Members)", label: "Everyone in my gym (Coaches+  Members)" },
 //];
+export const difficultyOptions = [
+	{value: "Novice", label: "Novice"},
+	{value: "Beginner", label: "Beginner"},
+	{value: "Intermediate", label: "Intermediate"},
+	{value: "Advance", label: "Advance"},
+	{value: "Expert", label: "Expert"},
+]
+
+export const createdByOptions = [
+	{value: "Created by me", label: "Created by me"},
+	{value: "Created by anyone", label: "Created by anyone"},
+]
 
 export const workoutGoals = [
 	{ value: "lose_weight", label: "Lose Weight" },

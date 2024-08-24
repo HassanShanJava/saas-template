@@ -9,6 +9,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 interface FoodForm {
@@ -16,10 +23,11 @@ interface FoodForm {
   setOpen: any;
   foodList: CreateFoodTypes[] | [];
   setInputValue: any;
+  setSearchCretiria: any;
   categories: Record<string, string>[]
 }
 
-const FoodForm = ({ isOpen, setOpen, foodList, setInputValue, categories }: FoodForm) => {
+const FoodForm = ({ isOpen, setOpen, foodList, setInputValue, categories, setSearchCretiria }: FoodForm) => {
   console.log({ categories })
   return (
     <Sheet open={isOpen} onOpenChange={() => setOpen(false)}>
@@ -30,12 +38,43 @@ const FoodForm = ({ isOpen, setOpen, foodList, setInputValue, categories }: Food
           <Separator className=" h-[1px] rounded-full my-2" />
         </SheetHeader>
         <SheetDescription className="px-4 pb-4">
-          <div>
+          <div className="flex justify-between items-center gap-2">
             <Input id='food_search'
               placeholder="Search for food"
               className="bg-gray-100 rounded-xl px-3 h-7 py-1 placeholder:text-xs text-xs "
               onChange={(event) => setInputValue(event.target.value)}
             />
+            <Select
+              onValueChange={(value) => {
+                setSearchCretiria((prev:any) => ({ ...prev, category: value }));
+              }}
+              defaultValue={'all'}
+            >
+              <SelectTrigger
+                name={'categopry'}
+                className="h-7 w-fit rounded-xl px-3 text-xs bg-gray-100"
+              >
+                <SelectValue
+                />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem
+                  key={0}
+                  value={'all'}
+                > 
+                  All
+                </SelectItem>
+                {categories?.map((st: any, index: number) => (
+                  <SelectItem
+                    key={index}
+                    value={String(st.value)}
+                  >
+                    {st.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex flex-col gap-2 py-2 ">
             {foodList.length > 0 ? foodList.map(food => (
@@ -64,7 +103,7 @@ const FoodForm = ({ isOpen, setOpen, foodList, setInputValue, categories }: Food
 
         </SheetDescription>
       </SheetContent>
-    </Sheet>
+    </Sheet >
   )
 }
 

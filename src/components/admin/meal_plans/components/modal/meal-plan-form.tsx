@@ -398,7 +398,7 @@ const MealPlanForm = ({
                   }) => (
                     <div>
 
-                      <Select value={value}>
+                      <Select value={value} onValueChange={(value)=>onChange(value)}>
                         <SelectTrigger floatingLabel="Visible for*">
                           <SelectValue placeholder="Select visiblity for" />
                         </SelectTrigger>

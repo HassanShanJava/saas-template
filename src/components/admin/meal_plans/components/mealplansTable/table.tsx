@@ -51,6 +51,7 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetFoodsQuery } from "@/services/foodsApi";
 import { useGetMembersListQuery } from "@/services/memberAPi";
 import { visibleFor } from "@/constants/meal_plans";
+const { VITE_VIEW_S3_URL } = import.meta.env;
 
 const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -187,7 +188,19 @@ export default function MealPlansTableView() {
       accessorKey: "name",
       header: ({ table }) => <span>Name</span>,
       cell: ({ row }) => {
-        return <span>{row.original.name}</span>;
+        return (
+          <div className="flex gap-2 items-center justify-between w-fit">
+            {row.original.profile_img ? <img
+              src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
+              alt={row.original.name}
+              loading="lazy"
+              className="size-14 bg-gray-100 object-contain rounded-sm "
+            /> : (
+              <div className="size-14 bg-gray-100 rounded-sm"></div>
+            )}
+            <span className="capitalize">{row.original.name}</span>
+          </div>
+        );
       },
       enableSorting: false,
       enableHiding: false,

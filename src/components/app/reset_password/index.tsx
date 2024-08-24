@@ -60,13 +60,14 @@ const ResetPassword = () => {
     );
 
 
-    console.log({ watcher })
+    console.log({ watcher, errors })
 
     const onSubmit = useCallback(async (data: { new_password: string; confirm_password: string, id: number, org_id: number }) => {
         const payload = {
             token: token as string,
             ...data
         }
+        console.log("input payload", { data });
         try {
             console.log({ payload })
             const resp = await resetPassword(payload).unwrap();
@@ -140,7 +141,7 @@ const ResetPassword = () => {
                                                 required: "New Password is required.",
                                                 pattern: {
                                                     value:
-                                                        /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{9,50}$/,
+                                                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~\[\]\|?]).{8,}$/,
                                                     message: "Follow the password structure.",
                                                 },
                                                 maxLength: 50
@@ -208,7 +209,8 @@ const ResetPassword = () => {
                                     <LoadingButton
                                         type="submit"
                                         loading={isSubmitting}
-                                        className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500"
+                                        disabled={isSubmitting}
+                                        className={`w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500 disabled:cursor-not-allowed `}
                                     >
                                         Submit
                                     </LoadingButton>

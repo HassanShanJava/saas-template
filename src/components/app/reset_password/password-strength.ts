@@ -9,7 +9,7 @@ export const StrengthLevels = {
   const numbersRegex = /[0-9]/g;
   const specialCharacterRegex = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/;
   
-  const minLength = 8;
+  const minLength = 7
   let analysis:Record<string,number>  = {};
   
   const countChars = (str:string) => {
@@ -80,7 +80,7 @@ export const StrengthLevels = {
         Target: "Numbers"
       },
       {
-        Pattern: "[!@@#$%^&*]",
+        Pattern: `[!@@#$%^&*+:;'{}.,~=<>\"\(\)\\\\/\_\`\-]`,
         Target: "Symbols"
       }
     ];

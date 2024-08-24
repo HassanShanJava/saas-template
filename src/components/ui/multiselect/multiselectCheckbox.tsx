@@ -20,6 +20,7 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { ScrollArea, ScrollBar } from "../scroll-area";
+import { toast } from "@/components/ui/use-toast";
 
 const multiSelectVariants = cva(
   "m-1 transition ease-in-out delay-150 duration-300",
@@ -132,10 +133,13 @@ export const MultiSelect = React.forwardRef<
     };
 
     const toggleAll = () => {
-      if (selectedValues.length === options.length) {
+      if (!options?.length) {
+        return; // Return early if there are no options available
+      }
+      if (selectedValues?.length === options?.length) {
         handleClear();
       } else {
-        const allValues = options.map((option) => option.value);
+        const allValues = options?.map((option) => option.value);
         setSelectedValues(allValues);
         onValueChange(allValues);
       }
@@ -145,14 +149,9 @@ export const MultiSelect = React.forwardRef<
       <div className="relative">
         {floatingLabel && (
           <label
-            className={cn(
-              "absolute top-1 left-2 text-sm",
-              {
- 
-                "text-gray-500 -top-2 text-xs bg-white": 
-                !false,
-              },
-							labelClassname
+            className={cn("absolute top-1 left-2", {
+              "-top-2  px-1 mx-1 text-xs text-gray-800   bg-white": !false,
+							}, labelClassname
             )}
           >
             {floatingLabel}
@@ -161,7 +160,7 @@ export const MultiSelect = React.forwardRef<
         <Popover
           open={isPopoverOpen}
           onOpenChange={setIsPopoverOpen}
-          modal={modalPopover}
+          modal={true}
         >
           <PopoverTrigger asChild className="whitespace-nowrap ">
             <Button
@@ -179,8 +178,8 @@ export const MultiSelect = React.forwardRef<
               {selectedValues.length > 0 ? (
                 <div className="flex justify-between items-center w-full">
                   <div className="flex flex-wrap items-center">
-                    {selectedValues.slice(0, maxCount).map((value) => {
-                      const option = options.find((o) => o.value === value);
+                    {selectedValues?.slice(0, maxCount).map((value) => {
+                      const option = options?.find((o) => o.value === value);
                       const IconComponent = option?.icon;
                       return (
                         <Badge
@@ -234,7 +233,7 @@ export const MultiSelect = React.forwardRef<
                 </div>
               ) : (
                 <div className="flex items-center justify-between w-full mx-auto [&>span]:line-clamp-1">
-                  <span className="text-sm text-muted-foreground mx-3">
+                  <span className="text-sm text-gray-800 font-medium mx-3">
                     {placeholder}
                   </span>
                   <ChevronDown className="h-4 cursor-pointer text-muted-foreground mx-2" />
@@ -266,7 +265,7 @@ export const MultiSelect = React.forwardRef<
                       <div
                         className={cn(
                           "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                          selectedValues.length === options.length
+                          selectedValues?.length === options?.length
                             ? "bg-primary text-primary-foreground"
                             : ""
                         )}
@@ -274,46 +273,52 @@ export const MultiSelect = React.forwardRef<
                         <CheckIcon
                           className={cn(
                             "h-4 w-4",
-                            selectedValues.length === options.length
+                            selectedValues?.length === options?.length
                               ? "opacity-100"
                               : "opacity-0"
                           )}
                         />
                       </div>
-                      {selectedValues.length === options.length
+                      {selectedValues?.length === options?.length
                         ? "Deselect all"
                         : "Select all"}
                     </CommandItem>
                     <CommandSeparator />
-                    {options.map((option) => (
-                      <CommandItem
-                        key={option.value}
-                        onSelect={() => toggleOption(option.value)}
-                        className="cursor-pointer"
-                      >
-                        <div
-                          className={cn(
-                            "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                            selectedValues.includes(option.value)
-                              ? "bg-primary text-primary-foreground"
-                              : ""
-                          )}
+                    {options && options.length ? (
+                      options?.map((option) => (
+                        <CommandItem
+                          key={option.value}
+                          onSelect={() => toggleOption(option.value)}
+                          className="cursor-pointer"
                         >
-                          <CheckIcon
+                          <div
                             className={cn(
-                              "h-4 w-4",
+                              "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
                               selectedValues.includes(option.value)
-                                ? "opacity-100"
-                                : "opacity-0"
+                                ? "bg-primary text-primary-foreground"
+                                : ""
                             )}
-                          />
-                        </div>
-                        {option.icon && (
-                          <option.icon className="h-4 w-4 mr-2" />
-                        )}
-                        {option.label}
-                      </CommandItem>
-                    ))}
+                          >
+                            <CheckIcon
+                              className={cn(
+                                "h-4 w-4",
+                                selectedValues.includes(option.value)
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                          </div>
+                          {option.icon && (
+                            <option.icon className="h-4 w-4 mr-2" />
+                          )}
+                          {option.label}
+                        </CommandItem>
+                      ))
+                    ) : (
+                      <div className="flex justify-center items-center">
+                        <p className="text-sm ">No available options</p>
+                      </div>
+                    )}
                   </CommandGroup>
                 </CommandList>
               </ScrollArea>

@@ -442,7 +442,10 @@ export default function SaleTaxesTableView() {
       </div>
       <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
-          <ScrollBar orientation="horizontal" />
+          <ScrollBar
+            orientation="horizontal"
+            className="relative z-30 cursor-grab"
+          />
           <Table className="w-full overflow-x-scroll">
             <TableHeader className="bg-secondary/80">
               {table?.getHeaderGroups().map((headerGroup) => (
@@ -735,7 +738,12 @@ const SaleTaxesForm = ({
       setIsDialogOpen(false);
     }
   };
-
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all the mandatory fields",
+    });
+  };
   const resetFormAndCloseDialog = () => {
     setFormData((prev: saleTaxesFormData) => ({
       ...prev,
@@ -776,7 +784,7 @@ const SaleTaxesForm = ({
 
               <Form {...form}>
                 <form
-                  onSubmit={form.handleSubmit(onSubmit)}
+                  onSubmit={form.handleSubmit(onSubmit, onError)}
                   className="flex flex-col py-4 gap-4"
                 >
                   <FormField

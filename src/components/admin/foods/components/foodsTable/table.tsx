@@ -47,6 +47,7 @@ import {
 import { ChevronLeftIcon } from "lucide-react";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { visibleFor, categories, weights } from "@/constants/food";
+const { VITE_VIEW_S3_URL } = import.meta.env;
 
 const categoryMap = Object.fromEntries(
   categories.map((cat) => [cat.label, cat.value])
@@ -55,9 +56,7 @@ const visibleForMap = Object.fromEntries(
   visibleFor.map((vf) => [vf.label, vf.value])
 );
 
-const weightsMap = Object.fromEntries(
-  weights.map((w) => [w.label, w.value])
-);
+const weightsMap = Object.fromEntries(weights.map((w) => [w.label, w.value]));
 
 const downloadCSV = (data: CreateFoodTypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -206,7 +205,17 @@ export default function FoodsTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <span className="capitalize">{row.original.name}</span>;
+        return (
+          <div className="flex gap-2 items-center justify-between w-fit">
+            <img
+              src={VITE_VIEW_S3_URL + "/" + row.original.img_url}
+              alt={row.original.name}
+              loading="lazy"
+              className="size-14 object-contain rounded-sm "
+            />
+            <span className="capitalize">{row.original.name}</span>
+          </div>
+        );
       },
       enableSorting: false,
       enableHiding: false,
@@ -368,7 +377,7 @@ export default function FoodsTableView() {
       ...data,
       category: categoryMap[data.category!],
       visible_for: visibleForMap[data.visible_for!],
-      weight_unit: weightsMap[data.weight_unit!]
+      weight_unit: weightsMap[data.weight_unit!],
     };
     setData(payload);
     setIsDialogOpen(true);
@@ -456,9 +465,9 @@ export default function FoodsTableView() {
   const filterDisplay = [
     {
       type: "select",
-      name: "income_category_id",
-      label: "Income Category",
-      options: categories,
+      name: "category",
+      label: "Food Category",
+      options: categories.map((item) => ({ id: item.value, name: item.label })),
       function: handleCategory,
     },
     {
@@ -506,7 +515,10 @@ export default function FoodsTableView() {
       </div>
       <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
-          <ScrollBar orientation="horizontal" />
+          <ScrollBar
+            orientation="horizontal"
+            className="relative z-30 cursor-grab"
+          />
           <Table className="w-full overflow-x-scroll">
             <TableHeader className="bg-secondary/80">
               {table?.getHeaderGroups().map((headerGroup) => (
@@ -697,6 +709,7 @@ export default function FoodsTableView() {
         action={action}
         setAction={setAction}
         data={data}
+        setData={setData}
         refetch={refetch}
       />
     </div>

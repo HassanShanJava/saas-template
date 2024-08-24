@@ -19,27 +19,26 @@ import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { createMembershipType, ErrorType } from "@/app/types";
-import { useDeleteMembershipsMutation } from "@/services/membershipsApi";
+import { ErrorType, mealPlanDataType } from "@/app/types";
 import warning from "@/assets/warning.svg";
+import { useDeleteMealPlansMutation } from "@/services/mealPlansApi";
 
 export function DataTableRowActions({
   data,
   refetch,
   handleEdit,
 }: {
-  data: createMembershipType & { id: number };
+  data: mealPlanDataType;
   refetch?: any;
   handleEdit?: any;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
-  const [deleteMembership, { isLoading: deleteLoading }] =
-    useDeleteMembershipsMutation();
+  const [deleteMealPlans] = useDeleteMealPlansMutation();
   const { toast } = useToast();
 
   const deleteRow = async () => {
     try {
-      const resp = await deleteMembership(data.id).unwrap();
+      const resp = await deleteMealPlans(data.meal_plan_id as number).unwrap();
       if (resp) {
         refetch();
         toast({
@@ -103,7 +102,7 @@ export function DataTableRowActions({
                 <div className="flex flex-col items-center  justify-center gap-4">
                   <img src={warning} alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this membership
+                    Please confirm if you want to delete this meal plan
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

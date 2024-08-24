@@ -9,6 +9,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
+import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import {
   Sheet,
   SheetContent,
@@ -127,6 +128,7 @@ const coachsSchema = z.object({
 });
 
 const initialValues: MemberInputTypes = {
+  own_member_id: "",
   profile_img: "",
   first_name: "",
   last_name: "",
@@ -147,7 +149,6 @@ const initialValues: MemberInputTypes = {
   coach_id: [] as z.infer<typeof coachsSchema>[],
   membership_plan_id: undefined,
   send_invitation: true,
-  client_status: "pending",
   client_since: format(new Date(), "yyyy-MM-dd"),
   auto_renewal: false,
   prolongation_period: undefined,
@@ -249,7 +250,11 @@ const MemberForm = ({
   useEffect(() => {
     if (action == "edit") {
       const memberpayload = { ...memberData };
-      memberpayload.coach_id = memberData?.coaches;
+      memberpayload.coach_id = memberData?.coaches.every(
+        (item) => item.id === 0 && item.name.trim() === ""
+      )
+        ? []
+        : memberData?.coaches.map((item) => item.id);
       reset(memberpayload);
       setAvatar(memberpayload.profile_img as string);
     } else {
@@ -257,7 +262,7 @@ const MemberForm = ({
       if (total >= 0 && action == "add") {
         initialValues.own_member_id = `${orgName?.slice(0, 2)}-${total + 1}`;
       }
-      reset(initialValues, { keepDefaultValues: true, keepDirtyValues: true });
+      reset(initialValues);
     }
   }, [open, action, memberCountData]);
 
@@ -299,7 +304,6 @@ const MemberForm = ({
       ...data,
       org_id: orgId,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
-      coach_id: data.coach_id?.map((coach) => coach.id),
     };
 
     if (!updatedData.auto_renew_days) {
@@ -357,7 +361,7 @@ const MemberForm = ({
         if (resp) {
           toast({
             variant: "success",
-            title: "Member Updated Successfully ",
+            title: "Record updated successfully ",
           });
           refetch();
           handleClose();
@@ -382,7 +386,12 @@ const MemberForm = ({
       handleClose();
     }
   }
-
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all the mandatory fields",
+    });
+  };
   console.log({ watcher, errors, action });
   return (
     <Sheet open={open}>
@@ -391,7 +400,11 @@ const MemberForm = ({
         className="!max-w-[1300px] py-0 custom-scrollbar"
       >
         <FormProvider {...form}>
-          <form key={action} noValidate onSubmit={handleSubmit(onSubmit)}>
+          <form
+            key={action}
+            noValidate
+            onSubmit={handleSubmit(onSubmit, onError)}
+          >
             <SheetHeader className="sticky top-0 z-40 py-4 bg-white">
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start  bg-white">
@@ -428,7 +441,7 @@ const MemberForm = ({
                         {!isSubmitting && (
                           <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                         )}
-                        Save
+                        {action === "edit" ? "Update" : "Save"}
                       </LoadingButton>
                     </div>
                   </div>
@@ -443,8 +456,8 @@ const MemberForm = ({
                     <img
                       id="avatar"
                       src={
-                        watcher.profile_img !== ""
-                          ? VITE_VIEW_S3_URL +'/'+watcher.profile_img
+                        watcher.profile_img !== "" && watcher.profile_img
+                          ? VITE_VIEW_S3_URL + "/" + watcher.profile_img
                           : avatar
                             ? String(avatar)
                             : profileimg
@@ -623,6 +636,7 @@ const MemberForm = ({
                     id="email"
                     className=""
                     type="email"
+                    disabled={action == "edit"}
                     label="Email Address*"
                     {...register("email", {
                       required: "Required",
@@ -631,7 +645,8 @@ const MemberForm = ({
                         message: "Should be 40 characters or less",
                       },
                       pattern: {
-                        value: /\S+@\S+\.\S+/,
+                        value:
+                          /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
                         message: "Incorrect email format",
                       },
                     })}
@@ -710,33 +725,21 @@ const MemberForm = ({
                       field: { onChange, value, onBlur },
                       fieldState: { invalid, error },
                     }) => (
-                      <MultiSelector
-                        onValuesChange={(values) => onChange(values)}
-                        values={(value as any[]) ?? []}
-                      >
-                        <MultiSelectorTrigger className="border-[1px] border-gray-300">
-                          <MultiSelectorInput
-                            className="font-medium  placeholder:text-gray-800"
-                            placeholder={
-                              value && (value as any[])?.length == 0
-                                ? `Select Coaches`
-                                : ""
-                            }
-                          />
-                        </MultiSelectorTrigger>
-                        <MultiSelectorContent className="">
-                          <MultiSelectorList>
-                            {coachesData &&
-                              coachesData.map((user: any) => (
-                                <MultiSelectorItem key={user.id} value={user}>
-                                  <div className="flex items-center space-x-2">
-                                    <span>{user.name}</span>
-                                  </div>
-                                </MultiSelectorItem>
-                              ))}
-                          </MultiSelectorList>
-                        </MultiSelectorContent>
-                      </MultiSelector>
+                      <MultiSelect
+                        floatingLabel={"Coaches"}
+                        options={
+                          coachesData as { value: number; label: string }[]
+                        }
+                        defaultValue={watch("coach_id") || []} // Ensure defaultValue is always an array
+                        onValueChange={(selectedValues) => {
+                          console.log("Selected Values: ", selectedValues); // Debugging step
+                          onChange(selectedValues); // Pass selected values to state handler
+                        }}
+                        placeholder={"Select coaches"}
+                        variant="inverted"
+                        maxCount={1}
+                        className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 "
+                      />
                     )}
                   />
                   {errors.coach_id?.message && (

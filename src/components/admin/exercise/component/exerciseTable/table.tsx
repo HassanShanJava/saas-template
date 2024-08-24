@@ -41,7 +41,13 @@ import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { ErrorType, ExerciseResponseViewType } from "@/app/types";
+import {
+  createExerciseInputTypes,
+  ErrorType,
+  ExerciseResponseServerViewType,
+  ExerciseResponseViewType,
+  ExerciseTypeEnum,
+} from "@/app/types";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
@@ -49,7 +55,7 @@ import {
   useGetAllExercisesQuery,
 } from "@/services/exerciseApi";
 // import ExerciseForm from "../../exerciseform/form";
-import ExerciseForm from "../../exerciseform/exercise-modal";
+import ExerciseForm from "../../exerciseform/exercise-form";
 
 import { Separator } from "@/components/ui/separator";
 import { DataTableRowActions } from "./data-table-row-actions";
@@ -82,7 +88,7 @@ export default function ExerciseTableView() {
   const [isOpen, setOpen] = useState(false);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const [data, setData] = useState<ExerciseResponseViewType | undefined>(
+  const [data, setData] = useState<createExerciseInputTypes | undefined>(
     undefined
   );
 
@@ -97,6 +103,7 @@ export default function ExerciseTableView() {
   const [action, setAction] = useState<"add" | "edit">("add");
 
   const { data: CategoryData } = useGetAllCategoryQuery();
+
   React.useEffect(() => {
     setSearchCretiria((prev) => {
       const newCriteria = { ...prev };
@@ -198,33 +205,51 @@ export default function ExerciseTableView() {
   const displayValue = (value: string | undefined | null) =>
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
-  const handleEditExercise = (data: ExerciseResponseViewType) => {
-    setData(data as ExerciseResponseViewType);
-    setOpen(true);
+  const handleEditExercise = (data: ExerciseResponseServerViewType) => {
+    console.log("Edit is called");
+    // setData(data as ExerciseResponseServerViewType);
+
+    const existingGif: File[] = [];
+    console.log("Data from api", data);
+    const transformToValueArray = (arr: number[] = []) =>
+      arr.length > 0 ? arr.map((value) => ({ value })) : [{ value: null }];
+    const payload = {
+      ...data,
+      equipment_ids: data.equipments?.map((equipment) => equipment.id),
+      primary_muscle_ids: data.primary_muscles?.map((muscle) => muscle.id),
+      secondary_muscle_ids: data.secondary_muscles
+        ? data.secondary_muscles.map((muscle) => muscle.id)
+        : [],
+      primary_joint_ids: data.primary_joints?.map((joints) => joints.id),
+      timePerSet:
+        data.exercise_type === ExerciseTypeEnum.time_based
+          ? transformToValueArray(data.seconds_per_set)
+          : [{ value: null }],
+      restPerSet:
+        data.exercise_type === ExerciseTypeEnum.time_based
+          ? transformToValueArray(data.rest_between_set)
+          : [{ value: null }],
+      restPerSetrep:
+        data.exercise_type === ExerciseTypeEnum.repetition_based
+          ? transformToValueArray(data.rest_between_set)
+          : [{ value: null }],
+      repetitionPerSet:
+        data.exercise_type === ExerciseTypeEnum.repetition_based
+          ? transformToValueArray(data.repetitions_per_set)
+          : [{ value: null }],
+      gif: existingGif,
+      imagemale: existingGif,
+      imagefemale: existingGif,
+      category_id: data.category_id.toString(),
+    };
+    console.log("payload ", payload);
+
+    setData(payload as createExerciseInputTypes);
+    setAction("edit");
+    setIsDialogOpen(true);
   };
 
   const columns: ColumnDef<ExerciseResponseViewType>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value: any) =>
-            table.toggleAllPageRowsSelected(!!value)
-          }
-          aria-label="Select all"
-          className="translate-y-[2px]"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value: any) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-          className="translate-y-[2px]"
-        />
-      ),
-    },
     {
       accessorKey: "exercise_name",
       meta: "Exercise Name",
@@ -243,7 +268,7 @@ export default function ExerciseTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original?.exercise_name)}
           </div>
         );
@@ -251,10 +276,10 @@ export default function ExerciseTableView() {
     },
     {
       accessorKey: "category_name",
-      meta: "Category Name",
+      meta: "Exercise Category",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Category Name</p>
+          <p>Exercise Category</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("category_name")}
@@ -267,7 +292,7 @@ export default function ExerciseTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             {row.original.category_name}
           </div>
         );
@@ -291,7 +316,7 @@ export default function ExerciseTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             {row.original.visible_for}
           </div>
         );
@@ -301,7 +326,7 @@ export default function ExerciseTableView() {
       accessorKey: "exercise_type",
       meta: "Exercise Type",
       header: () => (
-        <div className="flex items-center gap-2">
+        <div className="flex  gap-2">
           <p>Exercise Type</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
@@ -315,7 +340,7 @@ export default function ExerciseTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             {row.original.exercise_type}{" "}
           </div>
         );
@@ -339,7 +364,7 @@ export default function ExerciseTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex  px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             {row.original.difficulty}{" "}
           </div>
         );
@@ -347,10 +372,10 @@ export default function ExerciseTableView() {
     },
     {
       accessorKey: "sets",
-      meta: "Exercise Sets",
+      meta: "Sets",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Exercise Sets</p>
+          <p>Sets</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("set")}
@@ -363,7 +388,7 @@ export default function ExerciseTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex  px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             {row.original.sets}{" "}
           </div>
         );
@@ -399,7 +424,7 @@ export default function ExerciseTableView() {
     },
   });
 
-  function handleFilterChange(field: string, value: any) {
+  function handleFilterChange(field: string, value: string | number) {
     setFilter((prev) => ({
       ...prev,
       [field]: value,
@@ -514,7 +539,10 @@ export default function ExerciseTableView() {
         </div>
         <div className="rounded-none border border-border ">
           <ScrollArea className="w-full relative">
-            <ScrollBar orientation="horizontal" />
+            <ScrollBar
+              orientation="horizontal"
+              className="relative z-30 cursor-grab"
+            />
             <Table className="w-full overflow-x-scroll">
               <TableHeader className="bg-secondary/80">
                 {table?.getHeaderGroups().map((headerGroup) => (

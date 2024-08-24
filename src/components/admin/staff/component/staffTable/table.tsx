@@ -194,7 +194,7 @@ export default function StaffTableView() {
     if (selectedRows.length === 0) {
       toast({
         variant: "destructive",
-        title: "Select atleast one row for CSV download!",
+        title: "Please select one or more record(s) to perform this action",
       });
       return;
     }
@@ -571,7 +571,7 @@ export default function StaffTableView() {
       name: "status",
       label: "Status",
       options: [
-        { id: "pending", name: "Pending" },
+        // { id: "pending", name: "Pending" },
         { id: "inactive", name: "Inactive" },
         { id: "active", name: "Active" },
       ],
@@ -687,7 +687,10 @@ export default function StaffTableView() {
       </div>
       <div className="rounded-none border border-border ">
         <ScrollArea className="w-full relative">
-          <ScrollBar orientation="horizontal" />
+          <ScrollBar
+            orientation="horizontal"
+            className="relative z-30 cursor-grab"
+          />
           <Table className="w-full overflow-x-scroll">
             <TableHeader className="bg-secondary/80">
               {table?.getHeaderGroups().map((headerGroup) => (
@@ -876,6 +879,7 @@ export default function StaffTableView() {
         staffData={editStaff}
         setStaffData={setEditStaff}
         open={open}
+        refetch={refetch}
       />
     </div>
   );

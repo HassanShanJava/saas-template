@@ -144,3 +144,15 @@
 .glyphicon-ok {
   color: green;
 }
+
+
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
+}
+
+
+.loading{
+  opacity: 20;
+  transition: opacity 0.5s ease-in-out;
+}

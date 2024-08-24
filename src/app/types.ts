@@ -1,6 +1,38 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
+export interface mealPlanTableType {
+  data: mealPlanDataType[];
+  total_counts: number;
+  filtered_counts: number
+}
+
+export interface mealPlanDataType {
+  meal_plan_id?: number;
+  org_id?: number;
+  visible_for?: string;
+  carbs?: number | null;
+  protein?: number | null;
+  fats?: number | null;
+  name?: string;
+  profile_img?: string | null;
+  description?: string;
+  member_id?: number[];
+  meals?: {
+    id: number;
+    meal_time: string;
+    food_id: number;
+    quantity: number;
+  }[];
+}
+export interface ResetPasswordType {
+  id: number;
+  org_id: number;
+  new_password: string;
+  confirm_password: string;
+  token: string;
+}
+
 export interface FoodTableResponse {
   data: CreateFoodTypes[];
   total_counts: number;
@@ -136,9 +168,9 @@ export interface createMembershipType {
   renewal_details: renewalData | object;
   facilities: facilitiesData[] | [];
   created_by: number | null;
-  inv_days_cycle?: number| null;
-  auto_renew_days?: number| null;
-  prolongation_period?: number| null;
+  inv_days_cycle?: number | null;
+  auto_renew_days?: number | null;
+  prolongation_period?: number | null;
 }
 
 export interface membeshipsTableResonseType {
@@ -395,7 +427,7 @@ export interface MemberInputTypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: Date|string;
+  dob?: Date | string;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -410,7 +442,7 @@ export interface MemberInputTypes {
   address_1?: string;
   address_2?: string;
   client_status?: string;
-  client_since?: Date|string;
+  client_since?: Date | string;
   created_at?: string | null;
   created_by?: number | null;
   org_id?: number;
@@ -430,7 +462,7 @@ export interface MemberResponseTypes {
   first_name: string;
   last_name: string;
   gender: string;
-  dob: Date|string;
+  dob: Date | string;
   email: string;
   phone?: string | null;
   mobile_number?: string | null;
@@ -478,7 +510,7 @@ export interface MemberTableDatatypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: Date|string;
+  dob?: Date | string;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -520,7 +552,7 @@ export interface MemberTableResponseDatatypes {
   first_name?: string;
   last_name?: string;
   gender?: genderEnum;
-  dob?: Date|string;
+  dob?: Date | string;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -607,19 +639,19 @@ export interface createRole {
 
 export interface CoachInputTypes {
   profile_img?: string;
-  own_coach_id: string;
-  first_name: string;
-  last_name: string;
+  own_coach_id?: string;
+  first_name?: string;
+  last_name?: string;
   gender?: "male" | "female" | "other";
-  dob: string;
-  email: string;
+  dob?: string;
+  email?: string;
   phone?: string;
   mobile_number?: string;
   notes?: string;
-  source_id: number;
-  country_id: number;
+  source_id?: number;
+  country_id?: number;
   city?: string;
-  coach_status: "pending" | "active" | "inactive" | undefined;
+  coach_status?: "pending" | "active" | "inactive" | undefined;
   zipcode?: string;
   address_1?: string;
   address_2?: string;
@@ -628,7 +660,7 @@ export interface CoachInputTypes {
   acc_holder_name?: string;
   swift_code?: string;
   created_by?: number;
-  member_ids: any;
+  member_ids?: any;
   org_id: number;
 }
 export interface addCoachResponseType {
@@ -769,7 +801,7 @@ export interface CoachResponseTypeById {
   acc_holder_name?: string;
   swift_code?: string;
   created_at?: string;
-  member_ids: Member[];
+  member_ids: number[];
 }
 
 export interface ServerResponseById {
@@ -965,9 +997,9 @@ export enum difficultyEnum {
   Advance = "Advance",
   Expert = "Expert",
 }
-enum IntensityEnum {
-  irm = "irm",
+export enum IntensityEnum {
   max_intensity = "Max Intensity",
+  irm = "irm",
 }
 enum VisibilityEnum {
   only_myself = "Only Myself",
@@ -975,21 +1007,26 @@ enum VisibilityEnum {
   members_of_my_club = "Members of My Club",
   everyone_in_my_club = "Everyone in My Club",
 }
+export enum Difficulty {
+  Novice = 0,
+  Beginner,
+  Intermediate,
+  Advance,
+  Expert,
+}
 
 export interface createExerciseInputTypes {
+  id?: number;
   exercise_name: string;
-  visible_for?: VisibilityEnum;
+  visible_for?: string;
   org_id?: number;
   exercise_type?: ExerciseTypeEnum;
   exercise_intensity?: IntensityEnum;
-  intensity_value?: number | null;
-  difficulty?: difficultyEnum;
+  intensity_value?: number;
+  difficulty: string;
   sets?: number | null;
-  seconds_per_set?: number[];
-  repetitions_per_set?: number[];
-  rest_between_set?: number[];
-  distance?: number | null;
-  speed?: number | null;
+  distance?: number;
+  speed?: number;
   met_id?: number | null;
   gif_url: string;
   video_url_male?: string;
@@ -998,29 +1035,64 @@ export interface createExerciseInputTypes {
   thumbnail_female?: string;
   image_url_female?: string;
   image_url_male?: string;
-  category_id: number | null;
+  category_id?: string;
   equipment_ids: number[];
   primary_muscle_ids: number[];
   secondary_muscle_ids?: number[];
   primary_joint_ids: number[];
-  created_by?: number | null;
-  updated_by?: number | null;
+  timePerSet?: { value: number | null }[];
+  restPerSet?: { value: number | null }[];
+  restPerSetrep?: { value: number | null }[];
+  repetitionPerSet?: { value: number | null }[];
+  gif: File[];
+  imagemale: File[];
+  imagefemale: File[];
+}
+
+export interface ExerciseCreationInputTypes {
+  id?: number;
+  exercise_name: string;
+  visible_for: string;
+  org_id: number;
+  exercise_type: string;
+  exercise_intensity: string;
+  intensity_value?: number;
+  difficulty: string;
+  sets: number;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  distance?: number;
+  speed?: number;
+  met_id?: number;
+  gif_url: string;
+  video_url_male?: string;
+  video_url_female?: string;
+  thumbnail_male?: string;
+  thumbnail_female?: string;
+  image_url_female?: string;
+  image_url_male?: string;
+  category_id: number;
+  equipment_ids: number[];
+  primary_muscle_ids: number[];
+  secondary_muscle_ids?: number[];
+  primary_joint_ids: number[];
 }
 
 export interface ExerciseResponseViewType {
   exercise_name: string;
-  visible_for?: VisibilityEnum;
+  visible_for?: string;
   org_id?: number;
   exercise_type?: ExerciseTypeEnum;
   exercise_intensity?: IntensityEnum;
-  intensity_value?: number | null;
-  difficulty?: difficultyEnum;
+  intensity_value?: number;
+  difficulty: string;
   sets?: number | null;
   seconds_per_set?: number[];
   repetitions_per_set?: number[];
   rest_between_set?: number[];
-  distance?: number | null;
-  speed?: number | null;
+  distance?: number;
+  speed?: number;
   met_id?: number | null;
   gif_url: string;
   video_url_male?: string;
@@ -1029,13 +1101,16 @@ export interface ExerciseResponseViewType {
   thumbnail_female?: string;
   image_url_female?: string;
   image_url_male?: string;
-  category_id: number | null;
+  category_id?: string;
   equipment_ids: number[];
   primary_muscle_ids: number[];
   secondary_muscle_ids?: number[];
   primary_joint_ids: number[];
   id: number;
   category_name: string;
+  gif: File[];
+  imagemale: File[];
+  imagefemale: File[];
 }
 
 export interface ExerciseResponseServerViewType {
@@ -1060,11 +1135,11 @@ export interface ExerciseResponseServerViewType {
   thumbnail_female?: string;
   image_url_female?: string;
   image_url_male?: string;
-  category_id: number | null;
-  equipments: baseExerciseApiResponse[];
-  primary_muscles: baseExerciseApiResponse[];
-  secondary_muscles?: baseExerciseApiResponse[];
-  primary_joints: baseExerciseApiResponse[];
+  category_id: number;
+  equipments: EquipmentApiResponse[];
+  primary_muscles: muscleserverResponse[];
+  secondary_muscles?: muscleserverResponse[];
+  primary_joints: JointApiResponse[];
   id: number;
   category_name: string;
 }

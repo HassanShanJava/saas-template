@@ -120,7 +120,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
   );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-
+  const [action, setAction] = useState<"add" | "edit">();
   //const {
   //  data: EditStaffData,
   //  isLoading: editLoading,
@@ -251,9 +251,12 @@ const StaffForm: React.FC<StaffFormProps> = ({
   const { data: roleData } = useGetRolesQuery(orgId);
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
-  const { data: staffCount } = useGetStaffCountQuery(orgId, {
-    skip: staffData != null,
-  });
+  const { data: staffCount, refetch: countRefetch } = useGetStaffCountQuery(
+    orgId,
+    {
+      skip: staffData != null,
+    }
+  );
 
   const [addStaff, { isLoading: staffLoading }] = useAddStaffMutation();
   const [editStaff, { isLoading: editStaffLoading }] = useUpdateStaffMutation();
@@ -314,10 +317,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
           updatedData.profile_img !== "" &&
           (updatedData?.profile_img as string).length > 0
         ) {
-          const fileName = (updatedData?.profile_img as string).split(
-            "/images/"
-          )[1];
-          await deleteCognitoImage(fileName);
+          await deleteCognitoImage(updatedData.profile_img as string);
         }
         const getUrl = await UploadCognitoImage(selectedImage);
         updatedData = {
@@ -334,6 +334,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         return;
       }
     }
+
     try {
       if (!staffData) {
         const resp = await addStaff(updatedData).unwrap();
@@ -343,6 +344,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
             title: "Staff Created Successfully",
           });
           refetch();
+          if (staffData == null) {
+            countRefetch();
+          }
           handleClose();
         }
       } else {
@@ -356,7 +360,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
             title: "Staff Updated Successfully",
           });
           refetch();
-
+          if (staffData == null) {
+            countRefetch();
+          }
           handleClose();
         }
       }
@@ -383,7 +389,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
     if (!open || staffData == null) return;
 
     const updatedStaffData = replaceNullWithEmptyString(staffData);
-
+    setAction("edit");
     form.reset(updatedStaffData);
     // setAvatar(staffData?.profile_img as string);
   }, [open, staffData]);
@@ -391,13 +397,20 @@ const StaffForm: React.FC<StaffFormProps> = ({
   useEffect(() => {
     if (!open) return;
     const total = staffCount?.total_staffs as number;
-    if (total >= 0) {
+    if (total >= 0 && staffData == null) {
       form.setValue("own_staff_id", `${orgName?.slice(0, 2)}-S${total + 1}`);
       form.clearErrors();
     }
-  }, [open, staffCount]);
+  }, [open, staffCount, staffData]);
 
   console.log({ watcher });
+
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all the mandatory fields",
+    });
+  };
   return (
     <Sheet open={open}>
       <SheetContent
@@ -405,7 +418,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         className="!max-w-[1300px] py-0 custom-scrollbar"
       >
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form onSubmit={form.handleSubmit(onSubmit, onError)}>
             <SheetHeader className="sticky top-0 z-40 py-4 bg-white">
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start  bg-white">
@@ -442,7 +455,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                         {!form.formState.isSubmitting && (
                           <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                         )}
-                        Save
+                        {action === "edit" ? "Update" : "Save"}
                       </LoadingButton>
                     </div>
                   </div>
@@ -457,12 +470,15 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     <img
                       id="avatar"
                       src={
-                        watcher.profile_img !== ""
+                        watcher.profile_img !== "" &&
+                        watcher.profile_img &&
+                        !avatar
                           ? VITE_VIEW_S3_URL + "/" + watcher.profile_img
                           : avatar
                             ? String(avatar)
                             : profileimg
                       }
+                      loading="lazy"
                       alt={profileimg}
                       className="w-14 h-14 rounded-full object-cover mb-4 relative"
                     />
@@ -819,9 +835,14 @@ const StaffForm: React.FC<StaffFormProps> = ({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="pending">pending</SelectItem>
-                            <SelectItem value="active">active</SelectItem>
-                            <SelectItem value="inactive">inactive</SelectItem>
+                            <SelectItem
+                              value="pending"
+                              className={`${field.value != "pending" && "hidden"}`}
+                            >
+                              Pending
+                            </SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

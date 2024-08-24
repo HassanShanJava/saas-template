@@ -66,10 +66,22 @@ const ExerciseFilters = ({
                         handleFilterChange(element.label, value);
                       }}
                     >
-                      <SelectTrigger floatingLabel={element.label.replace(/_/g, ' ').toUpperCase()}>
-                        <SelectValue placeholder={"Select " + element.label.replace(/_/g, ' ') // Replace underscores with spaces
-                          .toLowerCase()     // Convert to lowercase
-                          .replace(/(?:^|\s)\S/g, (match:string) => match.toUpperCase())} />
+                      <SelectTrigger
+                        floatingLabel={element.label
+                          .replace(/_/g, " ")
+                          .toUpperCase()}
+                      >
+                        <SelectValue
+                          placeholder={
+                            "Select " +
+                            element.label
+                              .replace(/_/g, " ") // Replace underscores with spaces
+                              .toLowerCase() // Convert to lowercase
+                              .replace(/(?:^|\s)\S/g, (match: string) =>
+                                match.toUpperCase()
+                              )
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {element.options?.map((st: any, index: number) => (
@@ -85,7 +97,9 @@ const ExerciseFilters = ({
                 if (element.type === "multiselect") {
                   return (
                     <MultiSelect
-                      floatingLabel={element.label.replace(/_/g, ' ')}
+                      floatingLabel={element.label
+                        .replace(/_/g, " ")
+                        .toUpperCase()}
                       key={element.label}
                       options={element.options}
                       defaultValue={filterData[element.label] || []} // Ensure defaultValue is always an array
@@ -93,7 +107,15 @@ const ExerciseFilters = ({
                         console.log("Selected Values: ", selectedValues); // Debugging step
                         handleFilterChange(element.label, selectedValues); // Pass selected values to state handler
                       }}
-                      placeholder={"Select " + element.label.replace(/_/g, ' ')}
+                      placeholder={
+                        "Select " +
+                        element.label
+                          .replace(/_/g, " ")
+                          .toLowerCase() // Convert to lowercase
+                          .replace(/(?:^|\s)\S/g, (match: string) =>
+                            match.toUpperCase()
+                          )
+                      }
                       variant="inverted"
                       maxCount={1}
                       className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"

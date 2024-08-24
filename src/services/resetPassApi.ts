@@ -1,3 +1,4 @@
+import { ResetPasswordType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
 export const ResetPassword = apiSlice.injectEndpoints({
@@ -24,11 +25,11 @@ export const ResetPassword = apiSlice.injectEndpoints({
           providesTags: ["Reset"],
         }),
       }),
-      resetPassword: builder.mutation<any, {id:number,org_id:number, new_password:string, confirm_password:string}>({
+      resetPassword: builder.mutation<any, ResetPasswordType>({
         query: (resetPasswordData) => ({
           url: `/reset_password`,
           method: "POST",
-          bosy:resetPasswordData,
+          body:resetPasswordData,
           headers: {
             Accept: "application/json",
           },

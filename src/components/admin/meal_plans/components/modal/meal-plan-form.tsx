@@ -6,6 +6,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { visibleFor } from "@/constants/meal_plans";
 
 import {
   Form,
@@ -42,7 +43,7 @@ import {
 
 import FoodForm from "./add-meal";
 import { useEffect, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 interface MealPlanForm {
@@ -67,12 +68,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import uploadimg from "@/assets/upload.svg";
-import { mealPlanDataType } from "@/app/types";
+import { CreateFoodTypes, mealPlanDataType } from "@/app/types";
 import { useToast } from "@/components/ui/use-toast";
+import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
+import { RootState } from "@/app/store";
+import { useSelector } from "react-redux";
+import { useGetMembersListQuery } from "@/services/memberAPi";
+import { useGetFoodsQuery } from "@/services/foodsApi";
+import { useDebounce } from "@/hooks/use-debounce";
+import { categories } from "@/constants/food";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 const chartData = [
-  { food_component: "protein", percentage: 10, fill: "#8BB738" },
+  { food_component: "protein", percentage: 0, fill: "#8BB738" },
   { food_component: "fats", percentage: 0, fill: "#E8A239" },
   { food_component: "carbs", percentage: 0, fill: "#DD4664" },
 ];
@@ -89,6 +97,19 @@ const initialValue = {
   meals: [],
 }
 
+interface searchCretiriaType {
+  sort_order: string;
+  sort_key?: string;
+  search_key?: string;
+  category?: string
+}
+
+const initialFoodValue = {
+  sort_order: "desc",
+  sort_key: "created_at",
+};
+
+
 const MealPlanForm = ({
   isOpen,
   setOpen,
@@ -98,10 +119,63 @@ const MealPlanForm = ({
   data,
   setData,
 }: MealPlanForm) => {
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { toast } = useToast();
   const [openFood, setOpenFood] = useState(false);
   const [pieChartData, setPieChart] = useState(chartData);
   const [files, setFiles] = useState<File[] | null>([]);
+  const { data: membersData } = useGetMembersListQuery(orgId)
+  const [foodList, setFoodList] = useState<CreateFoodTypes[] | []>([])
+  const [searchCretiria, setSearchCretiria] =
+    useState<searchCretiriaType>(initialFoodValue);
+  const [query, setQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const debouncedInputValue = useDebounce(inputValue, 500);
+  // const [filterData, setFilter] = useState<Record<string, any>>({});
+
+  // search input 
+  useEffect(() => {
+    setSearchCretiria((prev) => {
+      const newCriteria = { ...prev };
+
+      if (debouncedInputValue.trim() !== "") {
+        newCriteria.search_key = debouncedInputValue;
+      } else {
+        delete newCriteria.search_key;
+      }
+
+      return newCriteria;
+    });
+    console.log({ debouncedInputValue });
+  }, [debouncedInputValue, setSearchCretiria]);
+
+  // select category
+  useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchCretiria)) {
+      console.log({ key, value });
+      if (value !== undefined && value !== null) {
+        params.append(key, value);
+      }
+    }
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery);
+  }, [searchCretiria]);
+
+  const { data: foodData } = useGetFoodsQuery({ org_id: orgId, query: query },
+    {
+      skip: query == "",
+    })
+
+
+
+  useEffect(() => {
+    if (foodData?.data) {
+      setFoodList(foodData?.data)
+    }
+  }, [foodData])
 
   const dropzone = {
     accept: {
@@ -168,6 +242,11 @@ const MealPlanForm = ({
   }
 
   const handleClose = () => {
+    clearErrors();
+    setAction("add");
+    setSearchCretiria(initialFoodValue)
+    setInputValue('')
+    setPieChart(chartData)
     setOpen(false);
   };
 
@@ -223,92 +302,124 @@ const MealPlanForm = ({
             <p className="font-semibold pb-4 pt-2">General Information</p>
             <div className="grid grid-cols-3 items-start gap-4">
               <div className="flex flex-col gap-2">
-                <FloatingLabelInput id="male_name" label="Name*" />
+                <FloatingLabelInput
+                  id="male_name"
+                  label="Name*"
+                  {...register("name", { required: "  Required" })}
+                  error={errors.name?.message}
+                />
 
-                <FileUploader
-                  value={files}
-                  onValueChange={setFiles}
-                  dropzoneOptions={dropzone}
-                >
-                  {files &&
-                        files?.map((file, i) => (
-                          <div className="h-40 ">
-                            <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
-                              <FileUploaderItem
-                                key={i}
-                                index={i}
-                                className="h-full  p-0 rounded-md overflow-hidden relative "
-                                aria-roledescription={`file ${i + 1} containing ${file.name}`}
-                              >
-                                <img
-                                  src={URL.createObjectURL(file)}
-                                  alt={file.name}
-                                  className="object-contain max-h-40"
-                                />
-                              </FileUploaderItem>
-                            </FileUploaderContent>
-                          </div>
-                        ))}
 
-                      <FileInput className="flex flex-col gap-2  ">
-                        {files?.length == 0 && watcher?.profile_img == null ? (
-                          <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
-                            <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
-                          </div>
-                        ) : (
-                          files?.length == 0 &&
-                          watcher?.profile_img && (
-                            <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
-                              {/* <i className="text-gray-400 fa-regular fa-image text-2xl"></i> */}
-                              <img
-                                src={
-                                  watcher?.profile_img !== "" && watcher?.profile_img
-                                    ? VITE_VIEW_S3_URL + "/" + watcher?.profile_img
-                                    : ""
-                                }
-                                loading="lazy"
-                                className="object-contain max-h-40 "
-                              />
+                <Controller
+                  name={"profile_img"}
+                  rules={{ required: files?.length == 0 && "Required" }}
+                  control={control}
+                  render={({
+                    field: { onChange, value, onBlur },
+                    fieldState: { invalid, error },
+                  }) => (
+                    <div className="">
+                      <FileUploader
+                        value={files}
+                        onValueChange={setFiles}
+                        dropzoneOptions={dropzone}
+                      >
+                        {files &&
+                          files?.map((file, i) => (
+                            <div className="h-40 ">
+                              <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
+                                <FileUploaderItem
+                                  key={i}
+                                  index={i}
+                                  className="h-full  p-0 rounded-md overflow-hidden relative "
+                                  aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                                >
+                                  <img
+                                    src={URL.createObjectURL(file)}
+                                    alt={file.name}
+                                    className="object-contain max-h-40"
+                                  />
+                                </FileUploaderItem>
+                              </FileUploaderContent>
                             </div>
-                          )
-                        )}
+                          ))}
 
-                        <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
-                          <img src={uploadimg} className="size-10" />
-                          <span className="text-sm">
-                            {watcher.profile_img ? "Change Image" : "Upload Image"}
-                          </span>
-                        </div>
-                      </FileInput>
-                </FileUploader>
+                        <FileInput className="flex flex-col gap-2  ">
+                          {files?.length == 0 && watcher?.profile_img == null ? (
+                            <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
+                              <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
+                            </div>
+                          ) : (
+                            files?.length == 0 &&
+                            watcher?.profile_img && (
+                              <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
+                                {/* <i className="text-gray-400 fa-regular fa-image text-2xl"></i> */}
+                                <img
+                                  src={
+                                    watcher?.profile_img !== "" && watcher?.profile_img
+                                      ? VITE_VIEW_S3_URL + "/" + watcher?.profile_img
+                                      : ""
+                                  }
+                                  loading="lazy"
+                                  className="object-contain max-h-40 "
+                                />
+                              </div>
+                            )
+                          )}
+
+                          <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
+                            <img src={uploadimg} className="size-10" />
+                            <span className="text-sm">
+                              {watcher.profile_img ? "Change Image" : "Upload Image"}
+                            </span>
+                          </div>
+                        </FileInput>
+                      </FileUploader>
+
+                      {errors.profile_img?.message && files?.length == 0 && (
+                        <span className="text-red-500 text-xs mt-[5px]">
+                          {errors.profile_img?.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+
 
               </div>
               <div className="flex flex-col gap-2">
-                <FormField
-                  control={form.control}
-                  name="visible_for"
-                  render={({ field }) => (
-                    <FormItem>
-                      {/* <FormLabel>Status</FormLabel> */}
-                      <FormControl>
-                        <Select value={field.value}>
-                          <SelectTrigger floatingLabel="Visible for*">
-                            <SelectValue placeholder="Select visiblity for" />
-                          </SelectTrigger>
-                          {/* <SelectContent>
-                                {status.map((st, index) => (
-                                  <SelectItem
-                                    key={index}
-                                    value={String(st.value)}
-                                  >
-                                    {st.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent> */}
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                <Controller
+                  name={'visible_for'}
+                  rules={{ required: "Required" }}
+                  control={control}
+                  render={({
+                    field: { onChange, value, onBlur },
+                    fieldState: { invalid, error },
+                  }) => (
+                    <div>
+
+                      <Select value={value}>
+                        <SelectTrigger floatingLabel="Visible for*">
+                          <SelectValue placeholder="Select visiblity for" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {visibleFor.map((visiblity, index) => (
+                            <SelectItem
+                              key={index}
+                              value={visiblity.label}
+                            >
+                              {visiblity.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {errors.visible_for?.message && files?.length == 0 && (
+                        <span className="text-red-500 text-xs mt-[5px]">
+                          {errors.visible_for?.message}
+                        </span>
+                      )}
+                    </div>
                   )}
                 />
 
@@ -318,25 +429,44 @@ const MealPlanForm = ({
                   type="textarea"
                   rows={10}
                   customPercentage={[14, 8, 10]}
-                // {...register("description")}
-                // error={errors.description?.message}
+                  {...register("description")}
+                  error={errors.description?.message}
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <FormField
-                  control={form.control}
-                  name="member_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        {/* <Select value={field.value+""}>
-                          <SelectTrigger floatingLabel="Assign Member*">
-                            <SelectValue placeholder="Select members" />
-                          </SelectTrigger>
-                        </Select> */}
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                <Controller
+                  name={'member_id' as keyof mealPlanDataType}
+                  rules={{ required: "Required" }}
+                  control={control}
+                  render={({
+                    field: { onChange, value, onBlur },
+                    fieldState: { invalid, error },
+                  }) => (
+                    <div>
+                      <MultiSelect
+                        floatingLabel={"Members"}
+                        options={
+                          membersData as {
+                            value: number;
+                            label: string;
+                          }[]
+                        }
+                        defaultValue={watch("member_id") || []} // Ensure defaultValue is always an array
+                        onValueChange={(selectedValues) => {
+                          console.log("Selected Values: ", selectedValues); // Debugging step
+                          onChange(selectedValues); // Pass selected values to state handler
+                        }}
+                        placeholder={"Select members"}
+                        variant="inverted"
+                        maxCount={1}
+                        className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 placeholder:font-normal "
+                      />
+                      {errors.member_id?.message && files?.length == 0 && (
+                        <span className="text-red-500 text-xs mt-[5px]">
+                          {errors.member_id?.message}
+                        </span>
+                      )}
+                    </div>
                   )}
                 />
 
@@ -488,7 +618,7 @@ const MealPlanForm = ({
           </div>
         </FormProvider>
 
-        <FoodForm isOpen={openFood} setOpen={setOpenFood} />
+        <FoodForm isOpen={openFood} setOpen={setOpenFood} foodList={foodList} categories={categories} setInputValue={setInputValue} />
       </SheetContent>
     </Sheet>
   );

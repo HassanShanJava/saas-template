@@ -85,6 +85,8 @@ export interface CreateFoodTypes {
   img_url?: string | null;
   created_at?: Date;
   created_by?: number;
+  is_deleted?: boolean;
+  is_validated?: boolean;
 }
 
 export interface createRoleTypes {

@@ -63,7 +63,7 @@ function App() {
             <Route path="/admin/staff" element={<Staff />} />
             {/* <Route path="/admin/exercise" element={<Exercise />} /> */}
 
-            {/* <Route path="/admin/mealplans" element={<MealPlans />} /> */}
+          <Route path="/admin/mealplans" element={<MealPlans />} />
             <Route path="/admin/foods" element={<FoodsNutrition />} />
             {/* <Route path="/admin/workoutplans"  element={<WorkoutPlan />} /> */}
             <Route path="*" element={<NotFoundPage />} />

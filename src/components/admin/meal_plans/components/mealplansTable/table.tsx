@@ -50,13 +50,7 @@ import TableFilters from "@/components/ui/table/data-table-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetFoodsQuery } from "@/services/foodsApi";
 import { useGetMembersListQuery } from "@/services/memberAPi";
-
-export const visibleFor = [
-  { value: "only_myself", label: "Only myself" },
-  { value: "staff", label: "Staff of my gym" },
-  { value: "members", label: "Members of my gym" },
-  { value: "everyone", label: "Everyone in my gym" },
-];
+import { visibleFor } from "@/constants/meal_plans";
 
 const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
   const csv = Papa.unparse(data);

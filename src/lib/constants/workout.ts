@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 export const visibleFor = [
 	{ value: "only_me", label: "Only me" },
 	{ value: "members", label: "Members in my gym" },
@@ -44,35 +46,46 @@ export const workoutLevels = [
 
 export const workout_day_data = [
 	{
-		week: 1,
-		days: [
-			{
-				"workout_id": 12,
-				"day_name": "chest day",
-				"week": 1,
-				"day": 1,
-				"id": 8,
-				"created_at": "2024-08-04T20:06:11.532553",
-				"updated_at": "2024-08-04T22:05:21.318784",
-				"created_by": 2,
-				"updated_by": 2,
-				"is_deleted": false
-			},
-			{
-				"workout_id": 12,
-				"day_name": "Push Day",
-				"week": 1,
-				"day": 2,
-				"id": 9,
-				"created_at": "2024-08-06T08:18:56.349085",
-				"updated_at": "2024-08-06T08:18:56.349085",
-				"created_by": 2,
-				"updated_by": null,
-				"is_deleted": false
-			}
-		]
+		"workout_id": 12,
+		"day_name": "chest day",
+		"week": 1,
+		"day": 1,
+		"id": 8,
+		"created_at": "2024-08-04T20:06:11.532553",
+		"updated_at": "2024-08-04T22:05:21.318784",
+		"created_by": 2,
+		"updated_by": 2,
+		"is_deleted": false
+	},
+	{
+		"workout_id": 12,
+		"day_name": "Push Day",
+		"week": 1,
+		"day": 2,
+		"id": 9,
+		"created_at": "2024-08-06T08:18:56.349085",
+		"updated_at": "2024-08-06T08:18:56.349085",
+		"created_by": 2,
+		"updated_by": null,
+		"is_deleted": false
 	}
 ]
+
+export function useGetAllWorkoutDayQuery() {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setData(workout_day_data);
+      setIsLoading(false);
+    }, 6000); 
+
+    return () => clearTimeout(timer); 
+  }, []);
+
+  return { data, isLoading };
+}
 
 export const workout_day_exercise_data = [
   {

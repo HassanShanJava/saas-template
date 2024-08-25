@@ -1,23 +1,27 @@
 import { IntensityEnum, Workout, WorkoutIntensityEnum, createExerciseInputTypes, difficultyEnum } from "@/app/types";
 import { Controller, FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { createdByOptions, difficultyOptions, workout_day_data, workout_day_exercise_data } from "@/lib/constants/workout";
+import { createdByOptions, difficultyOptions, useGetAllWorkoutDayQuery, workout_day_data, workout_day_exercise_data } from "@/lib/constants/workout";
 import React, { useEffect, useState } from "react";
 import WorkoutDayComponent, { WorkoutDay, WorkoutDayOptional } from "../components/WorkoutDayComponent";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import { useGetAllCategoryQuery, useGetAllEquipmentsQuery, useGetAllJointsQuery, useGetAllMetQuery, useGetAllMuscleQuery } from "@/services/exerciseApi";
+import { useGetAllCategoryQuery, useGetAllEquipmentsQuery, useGetAllExercisesQuery, useGetAllJointsQuery, useGetAllMetQuery, useGetAllMuscleQuery } from "@/services/exerciseApi";
 import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ExerciseItem, exerciseTypeOptions } from "@/constants/exercise";
-//import WorkoutDayExerciseComponent, { Exercise } from "../components/WorkoutDayExerciseComponent";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 import { current } from "@reduxjs/toolkit";
 import WorkoutDayExerciseComponent, { Exercise } from "../components/WorkoutDayExerciseComponent";
 import { Label } from "@/components/ui/label";
 import expandTop from "@/assets/expand-top.svg";
+import filterRemove from "@/assets/filter-remove.svg";
+import { useOutletContext } from "react-router-dom";
+import { ContextProps } from "./workout-form";
+import { useSelector } from "react-redux";
+import { Spinner } from "@/components/ui/spinner/spinner";
 
 export interface WorkoutWeek {
 	week: number;
@@ -37,10 +41,18 @@ export interface ExerciseForm {
 }
 
 const WorkoutStep2: React.FC = () => {
-	const [weeks, setWeeks] = useState<any>(workout_day_data);
+	const {form: form1} = useOutletContext<ContextProps>();
+	const noOfWeeks = form1.getValues("weeks");
+	const [days, setDays] = useState(() => (
+		[...Array(noOfWeeks*7).keys()].map((_, i) => ({
+			week: Math.floor(i/7) + 1,
+			day: i%7 + 1,
+		}))
+	))
 	const [exercises, setExercises] = useState<Exercise[]>(workout_day_exercise_data as Exercise[]);
 	const [exerciseFilterOpen, setExerciseFilterOpen] = useState<boolean>(true);
-	const [currExercise, serCurrExercise] = useState<Exercise>(workout_day_exercise_data[0] as Exercise);
+	const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<number>();
+	const [currExercise, setCurrExercise] = useState<Exercise | null>(null);
 	const { data: CategoryData } = useGetAllCategoryQuery();
 	const { data: EquipmentData } = useGetAllEquipmentsQuery();
 	const { data: MuscleData } = useGetAllMuscleQuery();
@@ -48,6 +60,26 @@ const WorkoutStep2: React.FC = () => {
 	const { data: MetsData } = useGetAllMetQuery();
 	const [inputRef, setInputRef] = useState<HTMLDivElement | null>(null);
 	const [showSearchResults, setShowSearchResults] = useState<boolean>(true);
+  const { data: WorkoutDays } = useGetAllWorkoutDayQuery();
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+	const [query, setQuery] = useState<string>("");
+  const { data: Exercises, isLoading } = useGetAllExercisesQuery(
+    {
+      org_id: orgId,
+      query: query,
+    },
+	);
+
+  useEffect(() => {
+    if (WorkoutDays) {
+      console.log('eGetAllWorkoutDayQueryetsData:', WorkoutDays);
+			WorkoutDays.map(dbDay => {
+				const idx = (dbDay.week - 1)*7 + (dbDay.day - 1)
+				setDays(days => days.map((day, i) => i == idx ? {...day, ...dbDay} : day));
+			})
+    }
+  }, [WorkoutDays]);
 
 const Exercise_info: ExerciseItem[] = [
 	{
@@ -59,7 +91,7 @@ const Exercise_info: ExerciseItem[] = [
 	},
 	{
 		type: "select",
-		name: "exercise_category",
+		name: "category",
 		label: "Category",
 		required: true,
 		options: CategoryData,
@@ -94,81 +126,35 @@ const Exercise_info: ExerciseItem[] = [
 	},
 ];
 	
+	const [uid, setUid] = useState<number>(1e4);
   const form = useForm<ExerciseForm>({
-    defaultValues: (()=>{console.log(currExercise);return currExercise})(),
+    defaultValues: currExercise,
     mode: "all",
   });
-	const {register, control, formState: {errors}, watch, handleSubmit} = form;
+	const {register, control, formState: {errors, isDirty}, watch, handleSubmit} = form;
 	const formValues = watch();
 
-
-	function handleAddDay(week: number) {
-		const thisWeek = weeks.find((w: WorkoutWeek) => w.week === week);
-		if (thisWeek.days.length === 7) {
-			toast({
-				variant: "destructive",
-				title: "Max Days In a Week Reached",
-				description: "A week can only have 7 days. Add another week.",
-			});
-			return
-		}
-		setWeeks((weeks: WorkoutWeek[]) => 
-			weeks.map((week: WorkoutWeek) => {
-				if(week.week === thisWeek.week) {
-				const lastDay = week.days[week.days.length-1];
-						return {...week, days: [...week.days,
-							{
-									day_name: "",
-									week: week.week,
-									day: lastDay?lastDay.day+1:1,
-									id: lastDay.id + 1,
-							}
-					]}
-				} else {
-					return week
-				}
-			}
-		));
+	function handleAddDay(idx: number, day_name: string) {
+		console.log("onSave", day_name);
+		setDays(days => days.map((day,i) => i === idx ? {...day, day_name: day_name, id: uid} : day))
+		setUid(uid => uid + 1);
 	}
 
-	function handleAddWeek() {
-		const lastWeek = weeks[weeks.length-1];
-		const lastDay = lastWeek.days[lastWeek.days.length-1];
-		setWeeks((weeks: WorkoutWeek[]) => [...weeks, {
-			week: lastWeek.week + 1,
-			days: [
-					{
-						day_name: "",
-						week: lastWeek.week + 1,
-						day: 1,
-						id: lastDay.id + 1,
-					}
-			]
-		}]);
+	function handleDelete(idx: number) {
+		setDays(days => days.map((day, i) => i === idx ? {week: Math.floor(i/7) + 1, day: i%7 + 1} : day));
 	}
 
-	function handleDelete(id: number) {
-		setWeeks((weeks: any) => {
-			
-			return weeks.map((week: WorkoutWeek) => ({...week, days: week.days.filter(day => day.id !== id)}))
-		}
-		);
-	}
-
-	function handleUpdate(id: number, updatedDay: WorkoutDayOptional) {
-		setWeeks((weeks: any) => 
-			weeks.map((week: any) => ({
-				...week, 
-				days: week.days.map((day:WorkoutDay) =>
-					day.id === id ? {...day, ...updatedDay} : day
-				)}
-			))
-		) 
+	function handleUpdate(idx: number, id: number, day_name: string) {
+		setDays(days => days.map((day,i) => i === idx ? {...day, day_name: day_name} : day))
 	}
 
 	function handleExerciseDuplicate(id: number) {
 		const exercise = exercises.find(e => e.id === id);
 		if (exercise)
+			setExercises(exercises => [...exercises, exercise]);
+	}
+
+	function handleExerciseAdd(exercise) {
 			setExercises(exercises => [...exercises, exercise]);
 	}
 
@@ -178,9 +164,10 @@ const Exercise_info: ExerciseItem[] = [
 
 	interface ExerciseFilter {
 		primary_muscle_ids?: number[]
-		exercise_category?: number;
-		primary_joint_ids?: number[];
+		category?: number;
+		difficulty?: difficultyEnum;
 		equipment_ids?: number[];
+		primary_joint_ids?: number[];
 	}
 		
   const [filterData, setFilter] = useState<ExerciseFilter>({});
@@ -192,6 +179,23 @@ const Exercise_info: ExerciseItem[] = [
     }));
   }
 
+	useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filterData)) {
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          value.forEach((val) => {
+            params.append(key, val); 
+          });
+        } else {
+          params.append(key, value); 
+        }
+      }
+    }
+    const newQuery = params.toString();
+    setQuery(newQuery); 
+	}, [filterData])
+
 	function onSubmit(data: any) {
 		return
 	}
@@ -202,37 +206,24 @@ const Exercise_info: ExerciseItem[] = [
 				Training & Exercise Details
 			</p>
 			<div className="w-full flex gap-5">
-				<div className="w-[29.75%] h-[32rem] bg-[#EEE] rounded-xl space-y-2 custom-scrollbar">
+				<div className="w-[33.3%] h-[32rem] bg-[#EEE] rounded-xl space-y-2 custom-scrollbar">
 					{showSearchResults ? 
 					<div className="p-3">
-						{weeks.map((week: any, index: number) => (
+						{[...Array(noOfWeeks).keys()].map((week: any, i: number) => (
 							<Accordion type="single" defaultValue="item-1" collapsible>
 							<AccordionItem value="item-1" className="!border-none">
 								<AccordionTrigger className="h-0 !no-underline !bg-transparent">
-										<div>
-											{index == 0 &&
-											<Button
-												onClick={(e) => {
-													e.stopPropagation();
-													handleAddWeek()}
-												}
-												className="h-auto p-0" variant="ghost"
-											>
-												<i className="fa fa-plus mr-3"></i>
-											</Button>}
-											<span className="font-semibold">Week {week.week}</span>
-										</div>
+										<span className="font-semibold">Week {i + 1}</span>
 								</AccordionTrigger>
 								<AccordionContent className="space-y-3">
 									<span className="text-sm">Days</span>
-									{week.days.map((st: any, index: number) => (
+									{[...Array(7).keys()].map((_, j: number) => (
 										<WorkoutDayComponent
-										key={st.id}
-										day={st}
-										dayNo={index%7+1}
-										add={index === 0 ? handleAddDay : null}
-										onDelete={handleDelete}
-										onUpdate={handleUpdate}
+										key={i*7 + j}
+										day={days[i*7 + j]}
+										onSave={(day_name) => handleAddDay(i*7 + j, day_name)}
+										onDelete={() => handleDelete(i*7 + j)}
+										onUpdate={(id, day_name) => handleUpdate(i*7 + j, id, day_name)}
 										/>
 									))}
 								</AccordionContent>
@@ -240,35 +231,43 @@ const Exercise_info: ExerciseItem[] = [
 						</Accordion>
 						))}
 					</div>
-					: <div></div>}
-				</div>
-				<div className="w-[36.15%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 relative">
-					<div className="custom-scrollbar">
-						<div className="flex justify-between">
-							<span className="font-semibold">Exercise</span>
+					: <>
+					<div className="sticky z-40 top-0 p-3 bg-[#EEE] space-y-2 custom-scrollbar">
+						<div className="flex justify-between items-center">
+							<span className="font-semibold">Search Exercise</span>
+							<Button 
+								onClick={() => setShowSearchResults(false)}
+								variant="ghost" 
+								className="h-auto p-0 hover:bg-transparent">
+								<i className="fa-regular fa-x font-semibold text-sm"></i>
+							</Button>
 						</div>
 						<div className="flex justify-between">
-							<span className="text-sm">Filter Exercises</span>
+							<span className="text-sm">Filters</span>
 							<Button 
 								onClick={() => setExerciseFilterOpen(prev => !prev)}
 								variant="ghost" 
-								className="h-auto p-0">
+								className="h-auto p-0 hover:bg-transparent">
 								<img src={expandTop} className={cn("w-5 h-5 transition-transform duration-200", !exerciseFilterOpen && 'rotate-180')} alt="show/hide"/>
 							</Button>
 						</div>
-						<div className="grid grid-cols-3 gap-2">
-							{exerciseFilterOpen && Exercise_info.map((element) => {
+							{exerciseFilterOpen && (
+							<>
+							<div className="grid grid-cols-3 gap-2">
+							{Exercise_info.map((element) => {
 							if (element.type == "select") {
 								return (
 									<Select
 										key={element.label}
 										name={element.label}
-										value={filterData[element.label as 'exercise_category']?String(filterData[element.label as 'exercise_category']):undefined}
+										value={(() => {
+										return filterData[element.name as 'category']?String(filterData[element.name as 'category']):''
+										})()}
 										onValueChange={(value) => {
-											handleFilterChange(element.label, value);
+											handleFilterChange(element.name, value);
 										}}
 									>
-										<SelectTrigger className="[&_span]:text-xs">
+										<SelectTrigger className="[&_span]:text-xs border border-black/25">
 											<SelectValue placeholder={element.label.replace(/_/g, ' ') // Replace underscores with spaces
 												.toLowerCase()     // Convert to lowercase
 												.replace(/(?:^|\s)\S/g, (match:string) => match.toUpperCase())} />
@@ -289,44 +288,153 @@ const Exercise_info: ExerciseItem[] = [
 									<MultiSelect
 										key={element.label}
 										options={element.options ?? []}
-										defaultValue={filterData[element.label as "primary_muscle_ids" | "primary_joint_ids" | "equipment_ids"] || []} // Ensure defaultValue is always an array
+										defaultValue={(() => {
+											return filterData[element.name as "primary_muscle_ids" | "primary_joint_ids" | "equipment_ids"] || []
+										})()} 
 										onValueChange={(selectedValues) => {
-											console.log("Selected Values: ", selectedValues); // Debugging step
-											handleFilterChange(element.label, selectedValues); // Pass selected values to state handler
+											console.log("Selected Values: ", selectedValues); 
+											handleFilterChange(element.name, selectedValues); 
 										}}
 										placeholder={element.label.replace(/_/g, ' ')}
 										variant="inverted"
 										maxCount={1}
-										className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 [&_span]:text-xs [&_span]:mx-0 [&_svg]:mx-0"
+										className="border border-black/25 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 [&_span]:text-xs [&_span]:mx-0 [&_svg]:mx-0"
 									/>
 								);
 							}
 						})}
 						</div>
-						<div ref={setInputRef} className="w-full relative">
-							<FloatingLabelInput
-								id="search"
-								placeholder="Search by Exercise Name"
-								onChange={(event) => setInputValue(event.target.value)}
-								className="text-gray-400 bg-transparent"
-							/> 
+						</>
+						)}
+						<div className="flex gap-2">
+							<div className="flex-1">
+								<FloatingLabelInput
+									id="search"
+									placeholder="Search by Exercise Name"
+									onChange={(event) => setInputValue(event.target.value)}
+									className="text-gray-400 bg-transparent border border-black/25"
+								/> 
+							</div>
+							<Button 
+								onClick={() => setFilter({})}
+								variant="ghost" 
+								className="h-auto p-0 hover:bg-transparent">
+								<img src={filterRemove} className="w-5 h-5 transition-transform duration-200" alt="show/hide"/>
+							</Button>
+						</div>
+					</div>
+					<div className="px-3 pb-6 space-y-3">
+					{isLoading ? <Spinner /> 
+					: Exercises?.data.map(exercise => (
+							<div 
+							onClick={() => {handleExerciseAdd(exercise)}}
+							className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer">
+								<div className="flex justify-between items-center relative space-x-1 ">
+									<div className="flex gap-1 w-full">
+										<img
+											id="avatar"
+											src={exercise.thumbnail_male}
+											alt="Exercise Image"
+											className="h-[20px] w-12 object-contain relative"
+										/>
+										<span className="text-sm truncate">{exercise.exercise_name} - {exercise.equipments.map(e => e.name).join(", ")}</span>
+									</div>
+								</div>
+							</div>
+						))
+					}
+					{isLoading ? <Spinner /> 
+					: Exercises?.data.map(exercise => (
+							<div 
+							onClick={() => {handleExerciseAdd(exercise)}}
+							className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer">
+								<div className="flex justify-between items-center relative space-x-1 ">
+									<div className="flex gap-1 w-full">
+										<img
+											id="avatar"
+											src={exercise.thumbnail_male}
+											alt="Exercise Image"
+											className="h-[20px] w-12 object-contain relative"
+										/>
+										<span className="text-sm truncate">{exercise.exercise_name} - {exercise.equipments.map(e => e.name).join(", ")}</span>
+									</div>
+								</div>
+							</div>
+						))
+					}
+					{isLoading ? <Spinner /> 
+					: Exercises?.data.map(exercise => (
+							<div 
+							onClick={() => {handleExerciseAdd(exercise)}}
+							className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer">
+								<div className="flex justify-between items-center relative space-x-1 ">
+									<div className="flex gap-1 w-full">
+										<img
+											id="avatar"
+											src={exercise.thumbnail_male}
+											alt="Exercise Image"
+											className="h-[20px] w-12 object-contain relative"
+										/>
+										<span className="text-sm truncate">{exercise.exercise_name} - {exercise.equipments.map(e => e.name).join(", ")}</span>
+									</div>
+								</div>
+							</div>
+						))
+					}
+					</div>
+					</>}
+				</div>
+				<div className="w-[33.3%] h-[32rem] bg-[#EEE] rounded-xl p-3 relative custom-scrollbar">
+					<div className="space-y-2">
+						<div className="flex justify-between">
+							<span className="font-semibold">Exercise</span>
+							<Button 
+								onClick={() => setShowSearchResults(true)}
+								className="font-normal h-auto p-0 hover:bg-transparent" variant="ghost"
+							>
+								<i className="fa fa-plus "></i>
+								Add Exercise 
+							</Button>
 						</div>
 						<div className="space-y-2">
 							{exercises.map((exercise, i)=> (
 								<WorkoutDayExerciseComponent
 									key={i}
 									exercise={exercise}
+									selected={i===selectedExerciseIndex}
 									onDuplicate={handleExerciseDuplicate}
 									onDelete={(id) => handleExerciseDelete(i, id)}
+									onClick={() => {
+										if (isDirty) {
+											toast({
+												variant: "destructive",
+												title: "Exercise not saved",
+												description: "You have changed the exercise, save before switching to the next exercise",
+											});
+											console.log("form.formState.dirtyFields" , form.formState.dirtyFields)
+										} else {
+											setCurrExercise(exercise);
+											form.reset(exercise);
+											setSelectedExerciseIndex(i)
+										}
+									}}
 								/>
 							))}
 						</div> 
 					</div>
 				</div>
-				<div className="w-[34.1%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 custom-scrollbar">
+				<div className="w-[33.3%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 custom-scrollbar flex flex-col">
 					<div className="flex justify-between">
 						<span className="font-semibold">Exercise Details</span>
+						{isDirty &&
+						<Button
+							onClick={()=> {setEdit(false);setIsFocused(false);return day.id ? onUpdate(day.id,name) : onSave(name)}}
+							className="h-auto p-0" variant="ghost"
+							>
+							<i className="fa-regular fa-floppy-disk h-4 w-4"></i>
+						</Button>}
 					</div>
+					{currExercise !== null ? 
 					<FormProvider {...form}>
 						<form
 							noValidate
@@ -337,7 +445,7 @@ const Exercise_info: ExerciseItem[] = [
 						<div className="flex justify-center">
 								<img
 									id="avatar"
-									src={currExercise.thumbnail_male}
+									src={formValues.thumbnail_male}
 									alt="Exercise Image"
 									className="w-4/5 object-contain relative"
 								/>
@@ -354,12 +462,15 @@ const Exercise_info: ExerciseItem[] = [
 									<div className="flex justify-center">
 										<RadioGroup
 											onValueChange={(e) => {
-												console.log(e);
+												console.log("exercise_type c", e);
 												onChange(e);
 												setTimeout(() => console.log(form.getValues(), formValues), 1000);
 											}}
 											defaultValue={
-												(() => {console.log(value != null ? String(value) : undefined);return value != null ? String(value) : undefined})()
+												(() => {console.log("exercise_type v", value != null ? String(value) : undefined);return value != null ? String(value) : undefined})()
+											}
+											value={
+												(() => {console.log("exercise_type v", value != null ? String(value) : undefined);return value != null ? String(value) : undefined})()
 											}
 											className="flex flex-row space-x-4"
 										>
@@ -407,7 +518,7 @@ const Exercise_info: ExerciseItem[] = [
 										<div className="col-span-9">
 											<FloatingLabelInput
 												type="number"
-												value={formValues.seconds_per_set[i]}
+												value={formValues.seconds_per_set[i]?formValues.seconds_per_set[i]:''}
 												{...register(`seconds_per_set.${i}`, {required: "Required", valueAsNumber: true})}
 												className={cn("bg-transparent border border-black/25",errors?.rest_between_set?.[i]
 														? "border-red-500"
@@ -424,7 +535,10 @@ const Exercise_info: ExerciseItem[] = [
 											<div className="col-span-9">
 												<FloatingLabelInput
 													type="number"
-													value={formValues.repetitions_per_set[i]}
+													value={(() => {
+														console.log(`repetitions_per_set.${i}`, formValues.repetitions_per_set[i]);
+														return formValues.repetitions_per_set[i]?formValues.repetitions_per_set[i]:''
+													})()}
 													{...register(`repetitions_per_set.${i}`, {required: "Required", valueAsNumber: true})}
 													className={cn("bg-transparent border border-black/25",errors?.repetitions_per_set?.[i]
 															? "border-red-500"
@@ -530,7 +644,7 @@ const Exercise_info: ExerciseItem[] = [
 											type="number"
 											id="distance"
 											label="Distance(KM)"
-											labelClassname="bg-transparent"
+											labelClassname="bg-transparent text-xs"
 											className="bg-transparent"
 										/>
 										{errors.distance?.message && (
@@ -547,7 +661,7 @@ const Exercise_info: ExerciseItem[] = [
 											id="speed"
 											type="number"
 											label="Speed(KM/H)"
-											labelClassname="bg-transparent"
+											labelClassname="bg-transparent text-xs"
 											className="bg-transparent"
 										/>
 										{errors.speed?.message && (
@@ -629,9 +743,10 @@ const Exercise_info: ExerciseItem[] = [
 									)}
 								</div>
 								</>}
-							<Button type="submit">Submit</Button>
 						</form>
 					</FormProvider>
+					: <span className="flex flex-grow justify-center items-center">No exercise selected</span>
+					}
 				</div>
 			</div>
 		</div>

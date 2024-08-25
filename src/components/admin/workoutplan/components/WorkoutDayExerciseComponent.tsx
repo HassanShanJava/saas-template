@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export interface Exercise {
 	id: number;
@@ -20,20 +21,22 @@ export interface Exercise {
 interface WorkoutDayExerciseyProps {
 	exercise: Exercise;
 	//add: ((week: number) => void) | null;
+	selected: boolean;
 	onDuplicate: (id: number) => void;
 	onDelete: (id: number) => void;
+	onClick: () => void;
 	//onUpdate: (id: number, updatedDay: WorkoutDayOptional) => void;
 }
-export default function WorkoutDayExerciseComponent({exercise, onDuplicate, onDelete}: WorkoutDayExerciseyProps) {
+export default function WorkoutDayExerciseComponent({exercise, onDuplicate, onDelete, onClick, selected}: WorkoutDayExerciseyProps) {
 	return (
-		<div className="border border-black/25 rounded-lg p-2">
+		<div onClick={onClick} className={cn("border border-black/25 rounded-lg p-2 cursor-pointer hover:border-primary", selected && "border-primary")}>
 			<div className="flex justify-between items-center relative space-x-1">
-				<div className="flex gap-1 w-full">
+				<div className="grid grid-cols-[40px_auto] w-4/5">
 					<img
 						id="avatar"
 						src={exercise.thumbnail_male}
 						alt="Exercise Image"
-						className="h-[20px] w-12 object-contain relative"
+						className="h-[20px] w-[40px] object-contain relative"
 					/>
 					<span className="text-sm truncate">{exercise.exercise_name} - {exercise.equipments.map(e => e.name).join(", ")}</span>
 				</div>

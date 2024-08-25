@@ -35,7 +35,7 @@ import {
   FormControl,
 } from "@/components/ui/form";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRef } from "react";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 interface WorkOutPlanForm {
@@ -68,20 +68,32 @@ import { useGetCountriesQuery, useGetMembersListQuery } from "@/services/memberA
 import { cn } from "@/lib/utils";
 import { Outlet, useNavigate } from "react-router-dom";
 import StepperIndicator from "@/components/ui/stepper-indicator";
-import { UseFormHandleSubmit } from "react-hook-form";
+import { useForm, UseFormHandleSubmit, UseFormReturn } from "react-hook-form";
 //{ isOpen, setOpen }: WorkOutPlanForm
-export type ContextProps = {setHandleSubmit: React.Dispatch<React.SetStateAction<UseFormHandleSubmit<Workout> | null>>}
+export type ContextProps = {form: UseFormReturn<Workout>}
 const WorkoutPlanForm = () => {
   const navigate = useNavigate();
 	const LAST_STEP = 2;
-	const [activeStep, setActiveStep] = useState<number>(1);
-  const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-	const [handleSubmit, setHandleSubmit] = useState<UseFormHandleSubmit<Workout> | null>(null);
+	const [activeStep, setActiveStep] = useState<number>(+location.pathname[location.pathname.length - 1]);
+  const form = useForm<Workout>({
+    defaultValues: {},
+    mode: "all",
+  });
+	const {formState: {isSubmitted, isSubmitting}} = form;
+	useEffect(() => {
+		console.log("activeStep useChipack", activeStep, +location.pathname[location.pathname.length - 1], form.formState.isSubmitting, form.formState.isSubmitted);
+		if(isNaN(activeStep) || (activeStep === 2 && !isSubmitted && !isSubmitting)) {
+			setActiveStep(1)
+			navigate('/admin/workoutplans/add/step/1')
+		} else {
+			navigate(`/admin/workoutplans/add/step/${activeStep}`)
+		}
+	}, [activeStep, isSubmitted])
+		console.log("activeStep", activeStep, +location.pathname[location.pathname.length - 1], form.formState.isSubmitting, form.formState.isSubmitted, location.pathname);
 
   async function onSubmit(data: any) {
     try {
-		console.log(data);
+		console.log("data, data", data);
     } catch (error: unknown) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -141,8 +153,8 @@ const WorkoutPlanForm = () => {
   };
   return (
     <Sheet open={true}>
-      <SheetContent className="!max-w-[1500px] min-w-[1150px] custom-scrollbar py-0" hideCloseButton>
-				<SheetHeader className="sticky z-40 top-0 py-4 bg-white">
+      <SheetContent className="!max-w-full lg:w-[1150px] custom-scrollbar py-0" hideCloseButton>
+				<SheetHeader className="sticky z-50 top-0 py-4 bg-white">
 					<SheetTitle>
 						<div className="flex justify-between gap-5 items-start ">
 							<div>
@@ -167,7 +179,6 @@ const WorkoutPlanForm = () => {
 									onClick={() => {
 											const newActive = activeStep - 1;
 											setActiveStep(newActive)
-											navigate(`/admin/workoutplans/add/step/${newActive}`);
 										}
 									}
 								>
@@ -191,15 +202,12 @@ const WorkoutPlanForm = () => {
 								<Button
 									type="button"
 									className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-									onClick={async () => {
-											if (handleSubmit !== null)
-												console.log(handleSubmit(onSubmit)())
-											//if (await trigger(undefined, {shouldFocus:true})) {
-											//	console.log("form values", getValues());
-											//	const newActive = activeStep + 1;
-											//	setActiveStep(newActive)
-											//	navigate(`/admin/workoutplans/add/step/${newActive}`);
-											//}
+									onClick={() => {
+											form.handleSubmit(async (data) => {
+												await onSubmit(data)
+												const newActive = activeStep + 1;
+												setActiveStep(newActive)
+											})()
 										}
 									}
 								>
@@ -220,7 +228,7 @@ const WorkoutPlanForm = () => {
 						/>
 					</div>
 				</div>
-				<Outlet context={{setHandleSubmit} satisfies ContextProps}/>
+				<Outlet context={{form} satisfies ContextProps}/>
       </SheetContent>
     </Sheet>
   );

@@ -21,27 +21,19 @@ import { useOutletContext } from "react-router-dom";
 import { ContextProps } from "./workout-form";
 
 const WorkoutStep1: React.FC = () => {
-	const {setHandleSubmit} = useOutletContext<ContextProps>();
+	const {form} = useOutletContext<ContextProps>();
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: countries } = useGetCountriesQuery();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { data: memberList } = useGetMembersListQuery(orgId);
-  const form = useForm<Workout>({
-    defaultValues: {},
-    mode: "all",
-  });
 
 
 	const {control, formState: {errors}, register} = form;
-	const {trigger, handleSubmit} = form;
-  useEffect(() => {
-		setHandleSubmit(handleSubmit);
-  }, []);
+	const {trigger} = form;
 	return (
 			<FormProvider {...form}>
-				<form noValidate>
 					<div className="mt-4 space-y-4">
 						<p className="text-black/80 text-[1.37em] font-bold">
 							{" "}
@@ -311,7 +303,6 @@ const WorkoutStep1: React.FC = () => {
 							</div>
 						</div>
 					</div>
-			</form>
 		</FormProvider>
 	);
 }

@@ -68,7 +68,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import uploadimg from "@/assets/upload.svg";
-import { CreateFoodTypes, mealPlanDataType } from "@/app/types";
+import { CreateFoodTypes, ErrorType, mealPlanDataType } from "@/app/types";
 import { useToast } from "@/components/ui/use-toast";
 import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { RootState } from "@/app/store";
@@ -77,6 +77,11 @@ import { useGetMembersListQuery } from "@/services/memberAPi";
 import { useGetFoodsQuery } from "@/services/foodsApi";
 import { useDebounce } from "@/hooks/use-debounce";
 import { categories } from "@/constants/food";
+import {
+  useCreateMealPlansMutation,
+  useUpdateMealPlansMutation,
+} from "@/services/mealPlansApi";
+import { deleteCognitoImage, UploadCognitoImage } from "@/utils/lib/s3Service";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 const chartData = [
@@ -95,20 +100,19 @@ const initialValue = {
   description: "",
   member_id: [],
   meals: [],
-}
+};
 
 interface searchCretiriaType {
   sort_order: string;
   sort_key?: string;
   search_key?: string;
-  category?: string
+  category?: string;
 }
 
 const initialFoodValue = {
   sort_order: "desc",
   sort_key: "created_at",
 };
-
 
 const MealPlanForm = ({
   isOpen,
@@ -125,8 +129,8 @@ const MealPlanForm = ({
   const [openFood, setOpenFood] = useState(false);
   const [pieChartData, setPieChart] = useState(chartData);
   const [files, setFiles] = useState<File[] | null>([]);
-  const { data: membersData } = useGetMembersListQuery(orgId)
-  const [foodList, setFoodList] = useState<CreateFoodTypes[] | []>([])
+  const { data: membersData } = useGetMembersListQuery(orgId);
+  const [foodList, setFoodList] = useState<CreateFoodTypes[] | []>([]);
   const [searchCretiria, setSearchCretiria] =
     useState<searchCretiriaType>(initialFoodValue);
   const [query, setQuery] = useState("");
@@ -134,7 +138,7 @@ const MealPlanForm = ({
   const debouncedInputValue = useDebounce(inputValue, 500);
   // const [filterData, setFilter] = useState<Record<string, any>>({});
 
-  // search input 
+  // search input
   useEffect(() => {
     setSearchCretiria((prev) => {
       const newCriteria = { ...prev };
@@ -155,7 +159,7 @@ const MealPlanForm = ({
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(searchCretiria)) {
       console.log({ key, value });
-      if (value !== undefined && value !== null && value !=='all') {
+      if (value !== undefined && value !== null && value !== "all") {
         params.append(key, value);
       }
     }
@@ -164,18 +168,21 @@ const MealPlanForm = ({
     setQuery(newQuery);
   }, [searchCretiria]);
 
-  const { data: foodData } = useGetFoodsQuery({ org_id: orgId, query: query },
+  const { data: foodData } = useGetFoodsQuery(
+    { org_id: orgId, query: query },
     {
       skip: query == "",
-    })
-
-
+    }
+  );
 
   useEffect(() => {
     if (foodData?.data) {
-      setFoodList(foodData?.data)
+      setFoodList(foodData?.data);
     }
-  }, [foodData])
+  }, [foodData]);
+
+  const [createMealplan] = useCreateMealPlansMutation();
+  const [updateMealplan] = useUpdateMealPlansMutation();
 
   const dropzone = {
     accept: {
@@ -230,33 +237,79 @@ const MealPlanForm = ({
     }
   }, [action, data, reset]);
 
-  const onSubmit = async (data: mealPlanDataType) => {
-    console.log({ data })
-  }
+  const onSubmit = async (input: mealPlanDataType) => {
+
+    const payload = { org_id: orgId, ...input };
+    if (files && files?.length > 0) {
+      if (watcher.profile_img !== "" && watcher.profile_img) {
+        await deleteCognitoImage(watcher.profile_img as string);
+      }
+      console.log(files[0], "food_image");
+      const getUrl = await UploadCognitoImage(files[0]);
+      payload.profile_img = getUrl.location;
+    }
+
+    try {
+      if (action === "add") {
+        await createMealplan(payload).unwrap();
+        toast({
+          variant: "success",
+          title: "Meal plan created successfully",
+        });
+        refetch();
+      } else if (action === "edit") {
+        await updateMealplan({ ...payload, meal_plan_id: data?.meal_plan_id as number }).unwrap();
+        toast({
+          variant: "success",
+          title: "Meal plan updated Successfully",
+        });
+        refetch();
+      }
+    } catch (error) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
+    handleClose();
+  };
 
   const onError = () => {
     toast({
       variant: "destructive",
       description: "Please fill all mandatory fields",
-    })
-  }
+    });
+  };
 
   const handleClose = () => {
     clearErrors();
     setAction("add");
-    setSearchCretiria(initialFoodValue)
-    setInputValue('')
-    setPieChart(chartData)
+    setSearchCretiria(initialFoodValue);
+    setInputValue("");
+    setPieChart(chartData);
     setOpen(false);
   };
 
-  console.log({ watcher, errors }, action)
+  console.log({ watcher, errors }, action);
   return (
     <Sheet open={isOpen} onOpenChange={() => setOpen(false)}>
-      <SheetContent className="!max-w-[1200px] py-0 custom-scrollbar h-screen" hideCloseButton>
+      <SheetContent
+        className="!max-w-[1200px] py-0 custom-scrollbar h-screen"
+        hideCloseButton
+      >
         <FormProvider {...form}>
           <form noValidate onSubmit={handleSubmit(onSubmit)}>
-
             <SheetHeader className="sticky top-0 z-40 pt-4 bg-white">
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start ">
@@ -311,7 +364,6 @@ const MealPlanForm = ({
                     error={errors.name?.message}
                   />
 
-
                   <Controller
                     name={"profile_img"}
                     // rules={{ required: files?.length == 0 && "Required" }}
@@ -347,7 +399,8 @@ const MealPlanForm = ({
                             ))}
 
                           <FileInput className="flex flex-col gap-2  ">
-                            {files?.length == 0 && watcher?.profile_img == null ? (
+                            {files?.length == 0 &&
+                            watcher?.profile_img == null ? (
                               <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
                                 <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
                               </div>
@@ -358,8 +411,11 @@ const MealPlanForm = ({
                                   {/* <i className="text-gray-400 fa-regular fa-image text-2xl"></i> */}
                                   <img
                                     src={
-                                      watcher?.profile_img !== "" && watcher?.profile_img
-                                        ? VITE_VIEW_S3_URL + "/" + watcher?.profile_img
+                                      watcher?.profile_img !== "" &&
+                                      watcher?.profile_img
+                                        ? VITE_VIEW_S3_URL +
+                                          "/" +
+                                          watcher?.profile_img
                                         : ""
                                     }
                                     loading="lazy"
@@ -372,7 +428,9 @@ const MealPlanForm = ({
                             <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
                               <img src={uploadimg} className="size-10" />
                               <span className="text-sm">
-                                {watcher.profile_img ? "Change Image" : "Upload Image"}
+                                {watcher.profile_img
+                                  ? "Change Image"
+                                  : "Upload Image"}
                               </span>
                             </div>
                           </FileInput>
@@ -386,12 +444,10 @@ const MealPlanForm = ({
                       </div>
                     )}
                   />
-
-
                 </div>
                 <div className="flex flex-col gap-2">
                   <Controller
-                    name={'visible_for'}
+                    name={"visible_for"}
                     rules={{ required: "Required" }}
                     control={control}
                     render={({
@@ -399,17 +455,16 @@ const MealPlanForm = ({
                       fieldState: { invalid, error },
                     }) => (
                       <div>
-
-                        <Select value={value} onValueChange={(value) => onChange(value)}>
+                        <Select
+                          value={value}
+                          onValueChange={(value) => onChange(value)}
+                        >
                           <SelectTrigger floatingLabel="Visible for*">
                             <SelectValue placeholder="Select visiblity for" />
                           </SelectTrigger>
                           <SelectContent>
                             {visibleFor.map((visiblity, index) => (
-                              <SelectItem
-                                key={index}
-                                value={visiblity.label}
-                              >
+                              <SelectItem key={index} value={visiblity.label}>
                                 {visiblity.label}
                               </SelectItem>
                             ))}
@@ -436,9 +491,8 @@ const MealPlanForm = ({
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-
                   <Controller
-                    name={'member_id' as keyof mealPlanDataType}
+                    name={"member_id" as keyof mealPlanDataType}
                     rules={{ required: "Required" }}
                     control={control}
                     render={({
@@ -532,6 +586,12 @@ const MealPlanForm = ({
                   <th className="p-3">carbs</th>
                   <th className="p-3">protein</th>
                   <th className="p-3">fat</th>
+                  <th className="p-3 flex justify-end ">
+                    <i
+                      className="text-primary fa fa-plus  cursor-pointer"
+                      onClick={() => setOpenFood(true)}
+                    ></i>
+                  </th>
                 </tr>
                 <tr>
                   <td className="p-3">Please add food</td>
@@ -539,12 +599,6 @@ const MealPlanForm = ({
                   <td className="p-3"></td>
                   <td className="p-3"></td>
                   <td className="p-3"></td>
-                  <td className="p-3 flex justify-end ">
-                    <i
-                      className="text-primary fa fa-plus  cursor-pointer"
-                      onClick={() => setOpenFood(true)}
-                    ></i>
-                  </td>
                 </tr>
               </table>
               {/* 2nd */}
@@ -556,6 +610,12 @@ const MealPlanForm = ({
                   <th className="p-3"></th>
                   <th className="p-3"></th>
                   <th className="p-3"></th>
+                  <th className="p-3 flex justify-end ">
+                    <i
+                      className="text-primary fa fa-plus  cursor-pointer"
+                      onClick={() => setOpenFood(true)}
+                    ></i>
+                  </th>
                 </tr>
                 <tr>
                   <td className="p-3">Please add food</td>
@@ -563,12 +623,6 @@ const MealPlanForm = ({
                   <td className="p-3"></td>
                   <td className="p-3"></td>
                   <td className="p-3"></td>
-                  <td className="p-3 flex justify-end ">
-                    <i
-                      className="text-primary fa fa-plus  cursor-pointer"
-                      onClick={() => setOpenFood(true)}
-                    ></i>
-                  </td>
                 </tr>
               </table>
               {/* 3rd */}
@@ -580,6 +634,12 @@ const MealPlanForm = ({
                   <th className="p-3"></th>
                   <th className="p-3"></th>
                   <th className="p-3"></th>
+                  <th className="p-3 flex justify-end ">
+                    <i
+                      className="text-primary fa fa-plus  cursor-pointer"
+                      onClick={() => setOpenFood(true)}
+                    ></i>
+                  </th>
                 </tr>
                 <tr>
                   <td className="p-3">Please add food</td>
@@ -587,12 +647,6 @@ const MealPlanForm = ({
                   <td className="p-3"></td>
                   <td className="p-3"></td>
                   <td className="p-3"></td>
-                  <td className="p-3 flex justify-end ">
-                    <i
-                      className="text-primary fa fa-plus cursor-pointer"
-                      onClick={() => setOpenFood(true)}
-                    ></i>
-                  </td>
                 </tr>
               </table>
               {/* 4th */}
@@ -604,6 +658,12 @@ const MealPlanForm = ({
                   <th className="p-3"></th>
                   <th className="p-3"></th>
                   <th className="p-3"></th>
+                  <th className="p-3 flex justify-end ">
+                    <i
+                      className="text-primary fa fa-plus  cursor-pointer"
+                      onClick={() => setOpenFood(true)}
+                    ></i>
+                  </th>
                 </tr>
                 <tr>
                   <td className="p-3">Please add food</td>
@@ -611,19 +671,19 @@ const MealPlanForm = ({
                   <td className="p-3"></td>
                   <td className="p-3"></td>
                   <td className="p-3"></td>
-                  <td className="p-3 flex justify-end ">
-                    <i
-                      className="text-primary fa fa-plus cursor-pointer"
-                      onClick={() => setOpenFood(true)}
-                    ></i>
-                  </td>
                 </tr>
               </table>
             </div>
 
-            <AddMeal isOpen={openFood} setSearchCretiria={setSearchCretiria} setOpen={setOpenFood} foodList={foodList} categories={categories} setInputValue={setInputValue} />
+            <AddMeal
+              isOpen={openFood}
+              // setSearchCretiria={setSearchCretiria}
+              setOpen={setOpenFood}
+              foodList={foodList}
+              categories={categories}
+              // setInputValue={setInputValue}
+            />
           </form>
-
         </FormProvider>
       </SheetContent>
     </Sheet>

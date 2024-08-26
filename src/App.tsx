@@ -49,7 +49,7 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/members" element={<MemberPage />} />
-            <Route path="/admin/system_settings" element={<SystemSettings />} />
+            {/* <Route path="/admin/system_settings" element={<SystemSettings />} /> */}
             {/* <Route path="/admin/leads"  element={<Leads />} /> */}
             {/* <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}
             <Route path="/admin/facilities" element={<Facilities />} />
@@ -61,7 +61,7 @@ function App() {
 
             {/* <Route path="/admin/roles"  element={<RolesAndAccess />} /> */}
             <Route path="/admin/staff" element={<Staff />} />
-            {/* <Route path="/admin/exercise" element={<Exercise />} /> */}
+            <Route path="/admin/exercise" element={<Exercise />} />
 
             {/* <Route path="/admin/mealplans" element={<MealPlans />} /> */}
             <Route path="/admin/foods" element={<FoodsNutrition />} />

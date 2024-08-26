@@ -22,7 +22,7 @@ export interface FloatingLabelInputProps extends CommonProps {
   error?: string;
   autoComplete?: string;
   labelClassname?: string;
-  customPercentage?:Array<number>
+  customPercentage?: Array<number>;
 }
 
 const FloatingInput = React.forwardRef<
@@ -59,15 +59,9 @@ const FloatingInput = React.forwardRef<
     <Input
       placeholder=" "
       type={type}
-      className={cn("peer", "font-poppins",className)}
+      className={cn("peer", "font-poppins", className)}
       ref={inputRef}
       {...props}
-      onInput={(e) => {
-        if(type=="number"){
-          const target = e.target as HTMLInputElement;
-          target.value = target.value.replace(/[^0-9.]/g, '');
-        }
-      }}
     />
   );
 });
@@ -76,20 +70,20 @@ FloatingInput.displayName = "FloatingInput";
 interface FloatingLabelProps
   extends React.ComponentPropsWithoutRef<typeof Label> {
   isTextarea?: boolean;
-  customPercentage?:Array<number>,
-  labelClassname?:string
+  customPercentage?: Array<number>;
+  labelClassname?: string;
 }
 
 const FloatingLabel = React.forwardRef<
   React.ElementRef<typeof Label>,
   FloatingLabelProps
->(({ className, isTextarea, customPercentage=[14,12],...props }, ref) => {
+>(({ className, isTextarea, customPercentage = [14, 12], ...props }, ref) => {
   return (
     <Label
       className={cn(
         "peer-focus:secondary font-poppins peer-focus:dark:secondary absolute start-2 z-10 origin-[0] scale-75 transform bg-background px-2 text-sm !text-gray-800 duration-300",
         isTextarea
-          ? `top-2 -translate-y-${customPercentage[2]??"4"} peer-placeholder-shown:top-${customPercentage[0]} peer-placeholder-shown:-translate-y-${customPercentage[1]} peer-placeholder-shown:scale-100 peer-focus:top-2 text-gray-800 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2`
+          ? `top-2 -translate-y-${customPercentage[2] ?? "4"} peer-placeholder-shown:top-${customPercentage[0]} peer-placeholder-shown:-translate-y-${customPercentage[1]} peer-placeholder-shown:scale-100 peer-focus:top-2 text-gray-800 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2`
           : "top-2 -translate-y-4 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 text-gray-800",
         className
       )}
@@ -103,25 +97,44 @@ FloatingLabel.displayName = "FloatingLabel";
 const FloatingLabelInput = React.forwardRef<
   React.ElementRef<typeof FloatingInput>,
   React.PropsWithoutRef<FloatingLabelInputProps>
->(({ id, label, error, type, rows, customPercentage = [], labelClassname='',...props }, ref) => {
-  const isTextarea = type === "textarea";
+>(
+  (
+    {
+      id,
+      label,
+      error,
+      type,
+      rows,
+      customPercentage = [],
+      labelClassname = "",
+      ...props
+    },
+    ref
+  ) => {
+    const isTextarea = type === "textarea";
 
-  return (
-    <div className="font-poppins ">
-      <div className="relative">
-        <FloatingInput ref={ref} id={id} type={type} rows={rows} {...props} />
-        <FloatingLabel htmlFor={id} isTextarea={isTextarea} customPercentage={customPercentage} className={labelClassname}>
-          {label}
-        </FloatingLabel>
+    return (
+      <div className="font-poppins ">
+        <div className="relative">
+          <FloatingInput ref={ref} id={id} type={type} rows={rows} {...props} />
+          <FloatingLabel
+            htmlFor={id}
+            isTextarea={isTextarea}
+            customPercentage={customPercentage}
+            className={labelClassname}
+          >
+            {label}
+          </FloatingLabel>
+        </div>
+        {error && (
+          <span className="text-destructive font-poppins block !mt-[5px] text-xs">
+            {error}
+          </span>
+        )}
       </div>
-      {error && (
-        <span className="text-destructive font-poppins block !mt-[5px] text-xs">
-          {error}
-        </span>
-      )}
-    </div>
-  );
-});
+    );
+  }
+);
 FloatingLabelInput.displayName = "FloatingLabelInput";
 
 export { FloatingInput, FloatingLabel, FloatingLabelInput };

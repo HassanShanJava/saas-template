@@ -207,12 +207,14 @@ export default function FoodsTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex gap-2 items-center justify-between w-fit">
-            <img
+            {row.original.img_url?<img
               src={VITE_VIEW_S3_URL + "/" + row.original.img_url}
               alt={row.original.name}
               loading="lazy"
-              className="size-14 object-contain rounded-sm "
-            />
+              className="size-14 bg-gray-100 object-contain rounded-sm "
+            />:(
+              <div className="size-14 bg-gray-100 rounded-sm"></div>
+            )}
             <span className="capitalize">{row.original.name}</span>
           </div>
         );

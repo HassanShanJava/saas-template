@@ -269,9 +269,30 @@ const StaffForm: React.FC<StaffFormProps> = ({
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
-    const validTypes = ["image/png", "image/jpg", "image/jpeg", "image/gif"];
+    const validTypes = ["image/png", "image/jpg", "image/jpeg"];
+    const maxSizeMB = 1;
+    const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
-    if (file && validTypes.includes(file.type)) {
+    if (file) {
+      if (!validTypes.includes(file.type)) {
+        toast({
+          variant: "destructive",
+          title: "Error Uploading Image",
+          description:
+            "Unsupported image type. Only PNG, JPG, and JPEG are supported.",
+        });
+        return;
+      }
+
+      if (file.size > maxSizeBytes) {
+        toast({
+          variant: "destructive",
+          title: "Error Uploading Image",
+          description: `Image size exceeds ${maxSizeMB} MB limit.`,
+        });
+        return;
+      }
+
       const reader = new FileReader();
 
       setSelectedImage(file);
@@ -281,12 +302,6 @@ const StaffForm: React.FC<StaffFormProps> = ({
       };
 
       reader.readAsDataURL(file);
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Error Uploading image",
-        description: "Unsupported image only Support (png/jpg/jpeg/gif)",
-      });
     }
   };
 
@@ -313,10 +328,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
     console.log("only once", data);
     if (selectedImage) {
       try {
-        if (
-          updatedData.profile_img !== "" &&
-          (updatedData?.profile_img as string).length > 0
-        ) {
+        if (updatedData.profile_img !== "" && selectedImage) {
           await deleteCognitoImage(updatedData.profile_img as string);
         }
         const getUrl = await UploadCognitoImage(selectedImage);
@@ -470,12 +482,10 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     <img
                       id="avatar"
                       src={
-                        watcher.profile_img !== "" &&
-                        watcher.profile_img &&
-                        !avatar
-                          ? VITE_VIEW_S3_URL + "/" + watcher.profile_img
-                          : avatar
-                            ? String(avatar)
+                        avatar
+                          ? String(avatar)
+                          : watcher.profile_img
+                            ? `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
                             : profileimg
                       }
                       loading="lazy"

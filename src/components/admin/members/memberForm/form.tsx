@@ -204,9 +204,30 @@ const MemberForm = ({
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
-    const validTypes = ["image/png", "image/jpg", "image/jpeg", "image/gif"];
+    const validTypes = ["image/png", "image/jpg", "image/jpeg"];
+    const maxSizeMB = 1;
+    const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
-    if (file && validTypes.includes(file.type)) {
+    if (file) {
+      if (!validTypes.includes(file.type)) {
+        toast({
+          variant: "destructive",
+          title: "Error Uploading Image",
+          description:
+            "Unsupported image type. Only PNG, JPG, and JPEG are supported.",
+        });
+        return;
+      }
+
+      if (file.size > maxSizeBytes) {
+        toast({
+          variant: "destructive",
+          title: "Error Uploading Image",
+          description: `Image size exceeds ${maxSizeMB} MB limit.`,
+        });
+        return;
+      }
+
       const reader = new FileReader();
 
       setSelectedImage(file);
@@ -216,12 +237,6 @@ const MemberForm = ({
       };
 
       reader.readAsDataURL(file);
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Error Uploading image",
-        description: "Unsupported image only Support (png/jpg/jpeg/gif)",
-      });
     }
   };
 
@@ -256,7 +271,7 @@ const MemberForm = ({
         ? []
         : memberData?.coaches.map((item) => item.id);
       reset(memberpayload);
-      setAvatar(memberpayload.profile_img as string);
+      // setAvatar(memberpayload.profile_img as string);
     } else {
       const total = memberCountData?.total_members as number;
       if (total >= 0 && action == "add") {
@@ -314,16 +329,9 @@ const MemberForm = ({
 
     if (selectedImage) {
       try {
-        if (
-          updatedData.profile_img !== "" &&
-          (updatedData?.profile_img as string).length > 0
-        ) {
-          const fileName = (updatedData?.profile_img as string).split(
-            "/images/"
-          )[1];
-          await deleteCognitoImage(fileName);
+        if (updatedData.profile_img !== "" && selectedImage) {
+          await deleteCognitoImage(updatedData.profile_img as string);
         }
-
         const getUrl = await UploadCognitoImage(selectedImage);
         updatedData = {
           ...updatedData,
@@ -455,11 +463,18 @@ const MemberForm = ({
                   <div className="relative flex">
                     <img
                       id="avatar"
+                      // src={
+                      //   watcher.profile_img !== "" && watcher.profile_img
+                      //     ? VITE_VIEW_S3_URL + "/" + watcher.profile_img
+                      //     : avatar
+                      //       ? String(avatar)
+                      //       : profileimg
+                      // }
                       src={
-                        watcher.profile_img !== "" && watcher.profile_img
-                          ? VITE_VIEW_S3_URL + "/" + watcher.profile_img
-                          : avatar
-                            ? String(avatar)
+                        avatar
+                          ? String(avatar)
+                          : watcher.profile_img
+                            ? `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
                             : profileimg
                       }
                       alt={profileimg}

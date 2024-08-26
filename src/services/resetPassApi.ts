@@ -4,11 +4,11 @@ import { apiSlice } from "@/features/api/apiSlice";
 export const ResetPassword = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      sendResetEmail: builder.mutation<any, {email:string}>({
+      sendResetEmail: builder.mutation<any, { email: string }>({
         query: (forgotpassowordData) => ({
           url: `/forget_password`,
           method: "POST",
-          body:forgotpassowordData,
+          body: forgotpassowordData,
           headers: {
             Accept: "application/json",
           },
@@ -29,13 +29,13 @@ export const ResetPassword = apiSlice.injectEndpoints({
         query: (resetPasswordData) => ({
           url: `/reset_password`,
           method: "POST",
-          body:resetPasswordData,
+          body: resetPasswordData,
           headers: {
             Accept: "application/json",
           },
           invalidateTags: ["Reset"],
         }),
-      }),   
+      }),
     };
   },
 });

@@ -500,9 +500,9 @@ const Exercise_info: ExerciseItem[] = [
 														min="0"
 													/>
 													{errors?.seconds_per_set?.[i] && (
-														<span className="text-red-500 mr-4">
+														<p className="text-xs leading-snug text-red-500 mr-4">
 															{errors?.seconds_per_set?.[i].message}
-														</span>
+														</p>
 													)}
 												</div>
 											:
@@ -512,6 +512,14 @@ const Exercise_info: ExerciseItem[] = [
 														value={formValues.repetitions_per_set[i]===undefined?0:formValues.repetitions_per_set[i]}
 														{...register(`repetitions_per_set.${i}`, {
 															required: "Required",
+															max: {
+																value: 100,
+																message: "The accepted values are between 1 to 100"
+															},
+															min: {
+																value: 1,
+																message: "The accepted values are between 1 to 100"
+															},
 															setValueAs:v => {console.log("distance value", v);return v}, 
 															validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
 														})}
@@ -519,11 +527,12 @@ const Exercise_info: ExerciseItem[] = [
 																? "border-red-500"
 																: "")}
 														min="0"
+														max="100"
 													/>
 													{errors?.repetitions_per_set?.[i] && (
-														<span className="text-red-500 mr-4">
+														<p className="text-xs leading-snug text-red-500 mr-4">
 															{errors.repetitions_per_set?.[i].message}
-														</span>
+														</p>
 													)}
 												</div>
 											}
@@ -540,9 +549,9 @@ const Exercise_info: ExerciseItem[] = [
 													min="0"
 												/>
 												{errors?.rest_between_set?.[i] && (
-													<span className="text-red-500 mr-4">
+													<p className="text-xs leading-snug text-red-500 mr-4">
 														{errors.rest_between_set?.[i].message}
-													</span>
+													</p>
 												)}
 											</div>
 

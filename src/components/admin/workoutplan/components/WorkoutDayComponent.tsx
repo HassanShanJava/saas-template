@@ -45,16 +45,17 @@ export default function WorkoutDayComponent({day, onSave, onDelete, onUpdate}: W
 			<div className="flex justify-between items-center relative space-x-1">
 				<div className="flex gap-1 w-4/5">
 					<span className="max-w-[30%] text-sm truncate">Day {day.day}: </span>
-						<input
-							ref={setRef}
-							id="search"
-							placeholder="Enter day name"
-							onChange={(event) => setEditName(event.target.value)}
-							onFocus={() => setIsFocused(true)}
-							onBlur={() => setIsFocused(false)}
-							className="bg-transparent text-sm outline-none max-w-[70%]"
-							value={editName}
-						/>
+					<input
+						ref={setRef}
+						id="search"
+						placeholder="Enter day name"
+						maxLength={41}
+						onChange={(event) => setEditName(event.target.value)}
+						onFocus={() => setIsFocused(true)}
+						onBlur={() => setIsFocused(false)}
+						className="bg-transparent text-sm outline-none max-w-[70%]"
+						value={editName}
+					/>
 				</div>
 				<div className="flex gap-x-1 align-center">
 					<Button
@@ -71,6 +72,11 @@ export default function WorkoutDayComponent({day, onSave, onDelete, onUpdate}: W
 					</Button>
 				</div>
 			</div>
+			{editName.length >= 40 && (
+				<span className="text-destructive font-poppins block !mt-[5px] text-xs">
+					Day name cannot exceed 40 characters
+				</span>
+			)}
 		</div>
 		);
 	}

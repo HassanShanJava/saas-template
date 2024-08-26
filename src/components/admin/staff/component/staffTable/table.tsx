@@ -11,6 +11,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -347,20 +353,44 @@ export default function StaffTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-
             <div className="flex gap-2 items-center justify-between">
-              {row.original.profile_img ? <img
-                src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
-                loading="lazy"
-                className="size-14 bg-gray-100 object-contain rounded-sm "
-              /> : (
+              {row.original.profile_img ? (
+                <img
+                  src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
+                  loading="lazy"
+                  className="size-14 bg-gray-100 object-contain rounded-sm "
+                />
+              ) : (
                 <div className="size-14 bg-gray-100 rounded-sm"></div>
               )}
             </div>
             <div className="">
-              <p className="capitalize">{displayValue(
+              {/* <p className="capitalize">{displayValue(
                 row.original.first_name + " " + row.original.last_name
-              )}</p>
+              )}</p> */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="capitalize cursor-pointer">
+                      {/* Display the truncated name */}
+                      {displayValue(
+                        `${row.original.first_name} ${row.original.last_name}`.substring(
+                          0,
+                          6
+                        ) + "..."
+                      )}
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {/* Display the full name in the tooltip */}
+                    <p>
+                      {displayValue(
+                        `${row.original.first_name} ${row.original.last_name}`
+                      )}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               {/* <p className=" text-xs text-gray-400 ">{row.original.email}</p>   */}
             </div>
           </div>
@@ -717,9 +747,9 @@ export default function StaffTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

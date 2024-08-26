@@ -37,7 +37,6 @@ const ResetPassword = () => {
     isLoading,
   } = useVerifyTokenQuery(token as string);
   const [resetPassword] = useResetPasswordMutation();
-  const [invalidToken, setInvalidToken] = useState(true);
 
   const form = useForm<{
     new_password: string;
@@ -61,11 +60,8 @@ const ResetPassword = () => {
         new_password: "",
         confirm_password: "",
       });
-      setInvalidToken(true); // Reset the invalid token state if verification succeeds
     } else if (error && typeof error === "object" && "data" in error) {
       const typedError = error as ErrorType;
-      //   navigate("/expired_token");
-      setInvalidToken(false);
     }
   }, [verifyToken, error]);
 
@@ -304,7 +300,6 @@ const ResetPassword = () => {
                       <span
                         onClick={() => {
                           navigate("/forgot_password");
-                          setInvalidToken(false);
                         }}
                         className="cursor-pointer underline font-semibold text-textprimary"
                       >
@@ -314,7 +309,6 @@ const ResetPassword = () => {
                       <span
                         onClick={() => {
                           navigate("/");
-                          setInvalidToken(false);
                         }}
                         className="cursor-pointer underline font-semibold text-textprimary pr-1"
                       >

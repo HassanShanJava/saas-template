@@ -384,7 +384,6 @@ const ExerciseForm = ({
       name: "video_url_male",
       label: "Youtube link-Male",
       required: false,
-      maxlength: 150,
       pattern: "https?://.+",
     },
     {
@@ -392,7 +391,6 @@ const ExerciseForm = ({
       name: "video_url_female",
       label: "Youtube link-Female",
       required: false,
-      maxlength: 150,
       pattern: "https?://.+",
     },
     {
@@ -499,7 +497,6 @@ const ExerciseForm = ({
                           item.name as keyof createExerciseInputTypes,
                           {
                             required: item.required && "Required",
-                            maxLength: item.maxlength || 40,
                             setValueAs: (value) => value.toLowerCase(),
                             pattern: item.pattern
                               ? {
@@ -514,13 +511,6 @@ const ExerciseForm = ({
                             ?.message
                         }
                       />
-
-                      {errors[item.name as keyof createExerciseInputTypes]
-                        ?.type === "maxLength" && (
-                        <span className="text-red-500 mt-[5px] text-xs">
-                          Max length exceeded
-                        </span>
-                      )}
                     </div>
                   );
                 }
@@ -822,7 +812,7 @@ const ExerciseForm = ({
                 />
               </div>
               <div className="w-[33%]">
-                <h1 className="m-2 font-semibold"> Upload Gif</h1>
+                <h1 className="m-2 font-semibold">Upload Gif*</h1>
                 <Controller
                   name="gif"
                   control={control}

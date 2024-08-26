@@ -966,7 +966,19 @@ const ExerciseForm = ({
                         <Controller
                           name={`timePerSet.${index}.value` as const}
                           control={control}
-                          rules={{ required: "Required" }}
+                          // rules={{ required: "Required" }}
+                          rules={{
+                            required: "Required",
+                            validate: {
+                              positiveInteger: (value) =>
+                                value !== null &&
+                                value !== undefined &&
+                                value > 0 &&
+                                Number.isInteger(Number(value))
+                                  ? true
+                                  : "Required",
+                            },
+                          }}
                           render={({ field }) => (
                             <div>
                               <FloatingLabelInput
@@ -978,7 +990,7 @@ const ExerciseForm = ({
                                     ? "border-red-500"
                                     : ""
                                 }`}
-                                min="0"
+                                min="1"
                                 value={field.value ?? ""}
                               />
                               {errors?.timePerSet?.[index] && (
@@ -993,7 +1005,19 @@ const ExerciseForm = ({
                         <Controller
                           name={`restPerSet.${index}.value` as const}
                           control={control}
-                          rules={{ required: "Required" }}
+                          // rules={{ required: "Required" }}
+                          rules={{
+                            required: "Required",
+                            validate: {
+                              positiveInteger: (value) =>
+                                value !== null &&
+                                value !== undefined &&
+                                value > 0 &&
+                                Number.isInteger(Number(value))
+                                  ? true
+                                  : "Required",
+                            },
+                          }}
                           render={({ field }) => (
                             <div>
                               <FloatingLabelInput
@@ -1005,7 +1029,7 @@ const ExerciseForm = ({
                                     ? "border-red-500"
                                     : ""
                                 }`}
-                                min="0"
+                                min="1"
                                 value={field.value ?? ""}
                               />
                               {errors?.restPerSet?.[index] && (
@@ -1061,7 +1085,28 @@ const ExerciseForm = ({
                         <Controller
                           name={`repetitionPerSet.${index}.value` as const}
                           control={control}
-                          rules={{ required: "Required" }}
+                          // rules={{ required: "Required" }}
+                          // rules={{
+                          //   required: "Required",
+                          //   validate: {
+                          //     positiveInteger: (value) =>
+                          //       (value > 0 &&
+                          //         Number.isInteger(Number(value))) ||
+                          //       "Must be a positive integer",
+                          //   },
+                          // }}
+                          rules={{
+                            required: "Required",
+                            validate: {
+                              positiveInteger: (value) =>
+                                value !== null &&
+                                value !== undefined &&
+                                value > 0 &&
+                                Number.isInteger(Number(value))
+                                  ? true
+                                  : "Required",
+                            },
+                          }}
                           render={({ field }) => (
                             <div>
                               <FloatingLabelInput
@@ -1073,7 +1118,7 @@ const ExerciseForm = ({
                                     ? "border-red-500"
                                     : ""
                                 }`}
-                                min="0"
+                                min="1"
                                 value={field.value ?? ""}
                               />
                               {errors?.repetitionPerSet?.[index] && (
@@ -1091,7 +1136,19 @@ const ExerciseForm = ({
                         <Controller
                           name={`restPerSetrep.${index}.value` as const}
                           control={control}
-                          rules={{ required: "Required" }}
+                          // rules={{ required: "Required" }}
+                          rules={{
+                            required: "Required",
+                            validate: {
+                              positiveInteger: (value) =>
+                                value !== null &&
+                                value !== undefined &&
+                                value > 0 &&
+                                Number.isInteger(Number(value))
+                                  ? true
+                                  : "Required",
+                            },
+                          }}
                           render={({ field }) => (
                             <div>
                               <FloatingLabelInput
@@ -1103,7 +1160,7 @@ const ExerciseForm = ({
                                     ? "border-red-500"
                                     : ""
                                 }`}
-                                min="0"
+                                min="1"
                                 value={field.value ?? ""}
                               />
                               {errors?.restPerSetrep?.[index] && (

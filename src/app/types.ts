@@ -1140,7 +1140,7 @@ export interface ExerciseResponseServerViewType {
   image_url_female?: string;
   image_url_male?: string;
   category_id: number;
-  equipments: {id: number, name: string}[];
+  equipments: EquipmentApiResponse[];
   primary_muscles: muscleserverResponse[];
   secondary_muscles?: muscleserverResponse[];
   primary_joints: JointApiResponse[];

@@ -25,9 +25,10 @@ interface WorkoutDayProps {
 export default function WorkoutDayComponent({day, onSave, onDelete, onUpdate}: WorkoutDayProps) {
 	const [edit, setEdit] = useState<boolean>(false);
 	const [isFocused, setIsFocused] = useState<boolean>(false);
+	const [editName, setEditName] = useState<string>(day.day_name||'');
 	const [name, setName] = useState<string>(day.day_name||'');
 
-	useEffect(() => setName(day.day_name||''), [day]);
+	useEffect(() => {setEditName(day.day_name||'');setName(day.day_name||'')}, [day]);
 
   const setRef = (node: HTMLInputElement | null) => {
     if (node) {
@@ -48,22 +49,22 @@ export default function WorkoutDayComponent({day, onSave, onDelete, onUpdate}: W
 							ref={setRef}
 							id="search"
 							placeholder="Enter day name"
-							onChange={(event) => setName(event.target.value)}
+							onChange={(event) => setEditName(event.target.value)}
 							onFocus={() => setIsFocused(true)}
 							onBlur={() => setIsFocused(false)}
 							className="bg-transparent text-sm outline-none max-w-[70%]"
-							value={name}
+							value={editName}
 						/>
 				</div>
 				<div className="flex gap-x-1 align-center">
 					<Button
-						onClick={()=> {setEdit(false);setIsFocused(false);return day.id ? onUpdate(day.id,name) : onSave(name)}}
+						onClick={()=> {setEdit(false);setIsFocused(false);return day.id ? onUpdate(day.id,editName) : onSave(editName)}}
 						className="h-auto p-0" variant="ghost"
 						>
 						<i className="fa-regular fa-floppy-disk h-4 w-4"></i>
 					</Button>
 					<Button 
-						onClick={() => {setEdit(false);setIsFocused(false)}}
+						onClick={() => {setEdit(false);setIsFocused(false);setEditName(name)}}
 						className="h-auto p-0" variant="ghost"
 					>
 						<i className="fa-solid fa-x h-4 w-4"></i>
@@ -80,7 +81,7 @@ export default function WorkoutDayComponent({day, onSave, onDelete, onUpdate}: W
 			<div className="flex justify-between items-center relative space-x-1">
 				<div className="flex gap-1 w-4/5">
 					<span className="max-w-[30%] text-sm truncate">Day {day.day}: </span>
-						<span className="max-w-[70%] text-sm truncate">{name ?? day.day_name}</span>
+						<span className="max-w-[70%] text-sm truncate">{editName ?? day.day_name}</span>
 				</div>
 				<div className="flex gap-x-1 align-center">
 					<Button 

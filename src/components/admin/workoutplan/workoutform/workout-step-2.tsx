@@ -42,6 +42,14 @@ export interface ExerciseForm {
 	thumbnail_male?: string;
 }
 
+interface ExerciseFilter {
+	primary_muscle_ids?: number[]
+	category?: number;
+	difficulty?: difficultyEnum;
+	equipment_ids?: number[];
+	primary_joint_ids?: number[];
+}
+
 const WorkoutStep2: React.FC = () => {
 	const {form: form1} = useOutletContext<ContextProps>();
 	const noOfWeeks = form1.getValues("weeks");
@@ -51,21 +59,24 @@ const WorkoutStep2: React.FC = () => {
 			day: i%7 + 1,
 		}))
 	))
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+	const [query, setQuery] = useState<string>("");
 	const [exercises, setExercises] = useState<Exercise[]>(workout_day_exercise_data as Exercise[]);
 	const [exerciseFilterOpen, setExerciseFilterOpen] = useState<boolean>(true);
 	const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<number>();
 	const [currExercise, setCurrExercise] = useState<Exercise | null>(null);
+	const [inputRef, setInputRef] = useState<HTMLDivElement | null>(null);
+	const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
+  const [filterData, setFilter] = useState<ExerciseFilter>({});
+	const [uid, setUid] = useState<number>(1e4);
+
+  const { data: WorkoutDays } = useGetAllWorkoutDayQuery();
 	const { data: CategoryData } = useGetAllCategoryQuery();
 	const { data: EquipmentData } = useGetAllEquipmentsQuery();
 	const { data: MuscleData } = useGetAllMuscleQuery();
 	const { data: JointsData } = useGetAllJointsQuery();
 	const { data: MetsData } = useGetAllMetQuery();
-	const [inputRef, setInputRef] = useState<HTMLDivElement | null>(null);
-	const [showSearchResults, setShowSearchResults] = useState<boolean>(true);
-  const { data: WorkoutDays } = useGetAllWorkoutDayQuery();
-  const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-	const [query, setQuery] = useState<string>("");
   const { data: Exercises, isLoading } = useGetAllExercisesQuery(
     {
       org_id: orgId,
@@ -82,6 +93,23 @@ const WorkoutStep2: React.FC = () => {
 			})
     }
   }, [WorkoutDays]);
+
+	useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filterData)) {
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          value.forEach((val) => {
+            params.append(key, val); 
+          });
+        } else {
+          params.append(key, value); 
+        }
+      }
+    }
+    const newQuery = params.toString();
+    setQuery(newQuery); 
+	}, [filterData])
 
 const Exercise_info: ExerciseItem[] = [
 	{
@@ -128,7 +156,6 @@ const Exercise_info: ExerciseItem[] = [
 	},
 ];
 	
-	const [uid, setUid] = useState<number>(1e4);
   const form = useForm<ExerciseForm>({
     defaultValues: currExercise as ExerciseForm,
     mode: "all",
@@ -164,16 +191,6 @@ const Exercise_info: ExerciseItem[] = [
 		setExercises(exercises => exercises.filter((_, i) => i !== index));
 	}
 
-	interface ExerciseFilter {
-		primary_muscle_ids?: number[]
-		category?: number;
-		difficulty?: difficultyEnum;
-		equipment_ids?: number[];
-		primary_joint_ids?: number[];
-	}
-		
-  const [filterData, setFilter] = useState<ExerciseFilter>({});
-
   function handleFilterChange(field: string, value: any) {
     setFilter((prev: any) => ({
       ...prev,
@@ -181,26 +198,12 @@ const Exercise_info: ExerciseItem[] = [
     }));
   }
 
-	useEffect(() => {
-    const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(filterData)) {
-      if (value !== undefined && value !== null) {
-        if (Array.isArray(value)) {
-          value.forEach((val) => {
-            params.append(key, val); 
-          });
-        } else {
-          params.append(key, value); 
-        }
-      }
-    }
-    const newQuery = params.toString();
-    setQuery(newQuery); 
-	}, [filterData])
-
 	function onSubmit(data: any) {
-		return
+		const idx = selectedExerciseIndex;
+		setExercises(exercises => exercises.map((exercise, i) => i === idx ? {...data} : exercise));
+		form.reset(data);
 	}
+
 	return (
 		<div className="mt-4 space-y-4 mb-20">
 			<p className="text-black/80 text-[1.37em] font-bold">
@@ -209,7 +212,7 @@ const Exercise_info: ExerciseItem[] = [
 			</p>
 			<div className="w-full flex gap-5">
 				<div className="w-[33.3%] h-[32rem] bg-[#EEE] rounded-xl space-y-2 custom-scrollbar">
-					{showSearchResults ? 
+					{!showSearchResults ? 
 					<div className="p-3">
 						{[...Array(noOfWeeks).keys()].map((week: any, i: number) => (
 							<Accordion type="single" defaultValue="item-1" collapsible>
@@ -254,7 +257,6 @@ const Exercise_info: ExerciseItem[] = [
 							</Button>
 						</div>
 							{exerciseFilterOpen && (
-							<>
 							<div className="grid grid-cols-3 gap-2">
 							{Exercise_info.map((element) => {
 							if (element.type == "select") {
@@ -306,7 +308,6 @@ const Exercise_info: ExerciseItem[] = [
 							}
 						})}
 						</div>
-						</>
 						)}
 						<div className="flex gap-2">
 							<div className="flex-1">
@@ -391,17 +392,6 @@ const Exercise_info: ExerciseItem[] = [
 					</div>
 				</div>
 				<div className="w-[33.3%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 custom-scrollbar flex flex-col">
-					<div className="flex justify-between">
-						<span className="font-semibold">Exercise Details</span>
-						{isDirty &&
-						<Button
-							onClick={()=> {return}}
-							className="h-auto p-0" variant="ghost"
-							>
-							<i className="fa-regular fa-floppy-disk h-4 w-4"></i>
-						</Button>}
-					</div>
-					{currExercise !== null ? 
 					<FormProvider {...form}>
 						<form
 							noValidate
@@ -409,248 +399,30 @@ const Exercise_info: ExerciseItem[] = [
 							onSubmit={handleSubmit(onSubmit)}
 							action="#"
 						>
-						<div className="flex justify-center">
-								<img
-									id="avatar"
-									src={formValues.thumbnail_male}
-									alt="Exercise Image"
-									className="w-4/5 object-contain relative"
-								/>
-						</div>
-						<div className="relative">
-							<Controller
-								name="exercise_type"
-								rules={{ required: "Required" }}
-								control={control}
-								render={({
-									field: { onChange, value },
-									fieldState: { error },
-								}) => (
-									<div className="flex justify-center">
-										<RadioGroup
-											onValueChange={(e) => {
-												console.log("exercise_type c", e);
-												onChange(e);
-												setTimeout(() => console.log(form.getValues(), formValues), 1000);
-											}}
-											defaultValue={
-												(() => {console.log("exercise_type v", value != null ? String(value) : undefined);return value != null ? String(value) : undefined})()
-											}
-											value={
-												(() => {console.log("exercise_type v", value != null ? String(value) : undefined);return value != null ? String(value) : undefined})()
-											}
-											className="flex flex-row space-x-4"
-										>
-											{exerciseTypeOptions?.map((option: any, index: number) => (
-													<div
-														key={index}
-														className="flex justify-start items-center space-x-3"
-													>
-														<RadioGroupItem
-															id={option.value}
-															value={String(option.value)}
-														/>
-														<Label htmlFor={option.value}>{option.label}</Label>
-													</div>
-												)
-											)}
-										</RadioGroup>
-									</div>
-								)}
-							/>
-							{errors["exercise_type"]?.message && (
-								<span className="text-red-500 text-xs mt-[5px]">
-									{
-										errors["exercise_type"]?.message
-									}
-								</span>
-							)}
-						</div>
-						<div className="gap-2 grid grid-cols-[repeat(20,1fr)] flex items-center">
-							<span className="col-span-9">Rep({formValues.exercise_type === "Time Based" ? 's' : 'x'})</span>	
-							<span className="col-span-9">Rest(s)</span>	
-						</div>
-						<div className="gap-2 grid grid-cols-[repeat(20,1fr)] items-center">
-							{[...Array(
-									Math.max(
-										formValues.repetitions_per_set.length,
-										formValues.seconds_per_set.length,
-										formValues.rest_between_set.length
-									))
-								.keys()].map((_, i) => {
-								console.log("Map ran again")
-								return (
-								<React.Fragment key={i}>
-									{formValues.exercise_type === "Time Based" ?
-										<div className="col-span-9">
-											<FloatingLabelInput
-												type="number"
-												value={formValues.seconds_per_set[i]?formValues.seconds_per_set[i]:''}
-												{...register(`seconds_per_set.${i}`, {required: "Required", valueAsNumber: true})}
-												className={cn("bg-transparent border border-black/25",errors?.rest_between_set?.[i]
-														? "border-red-500"
-														: "")}
-												min="0"
-											/>
-											{errors?.seconds_per_set?.[i] && (
-												<span className="text-red-500 mr-4">
-													{errors?.seconds_per_set?.[i].message}
-												</span>
-											)}
-										</div>
-									:
-											<div className="col-span-9">
-												<FloatingLabelInput
-													type="number"
-													value={(() => {
-														console.log(`repetitions_per_set.${i}`, formValues.repetitions_per_set[i]);
-														return formValues.repetitions_per_set[i]?formValues.repetitions_per_set[i]:''
-													})()}
-													{...register(`repetitions_per_set.${i}`, {required: "Required", valueAsNumber: true})}
-													className={cn("bg-transparent border border-black/25",errors?.repetitions_per_set?.[i]
-															? "border-red-500"
-															: "")}
-													min="0"
-												/>
-												{errors?.repetitions_per_set?.[i] && (
-													<span className="text-red-500 mr-4">
-														{errors.repetitions_per_set?.[i].message}
-													</span>
-												)}
-											</div>
-									}
-
-									<div className="col-span-9">
-										<FloatingLabelInput
-											type="number"
-											{...register(`rest_between_set.${i}`, { required: "Required", valueAsNumber: true})}
-											className={`bg-transparent border border-black/25 ${
-												errors?.rest_between_set?.[i]
-													? "border-red-500"
-													: ""
-											}`}
-											min="0"
-										/>
-										{errors?.rest_between_set?.[i] && (
-											<span className="text-red-500 mr-4">
-												{errors.rest_between_set?.[i].message}
-											</span>
-										)}
-									</div>
-
-									<button
-										type="button"
-										onClick={() => {
-											form.setValue('seconds_per_set', formValues.seconds_per_set.filter((_, index) => index !== i));
-											form.setValue('rest_between_set', formValues.rest_between_set.filter((_, index) => index !== i));
-											form.setValue('repetitions_per_set', formValues.repetitions_per_set.filter((_, index) => index !== i));
-										}}
-										className="text-red-500 hover:text-red-700"
+							<div className="flex justify-between">
+								<span className="font-semibold">Exercise Details</span>
+								{isDirty &&
+								<Button
+									type="submit"
+									onClick={()=> {return}}
+									className="h-auto p-0" variant="ghost"
 									>
-										<i
-											className="fa-regular fa-trash-can text-red-500"
-										/>
-									</button>
-								</React.Fragment>
-							)})}
-						</div>
-						<Button
-							variant={"ghost"}
-							type="button"
-							onClick={() => {
-								form.setValue('seconds_per_set', [...formValues.seconds_per_set, 0]);
-								form.setValue('rest_between_set', [...formValues.rest_between_set, 0]);
-								form.setValue('repetitions_per_set', [...formValues.repetitions_per_set, 0]);
-							}}
-							className="gap-2 items-center justify-center px-4 py-2 rounded hover:bg-transparent"
-						>
-							<i className="fa-solid fa-plus"></i> Add 
-						</Button>
-								{formValues.exercise_type === "Time Based" ?
-								<div className="grid grid-cols-3 gap-2">
-									<div>
-										<Controller
-											name="met_id"
-											rules={{required: "Required"}}
-											control={control}
-											render={({
-												field: {onChange, value, onBlur},
-												fieldState: {invalid, error} 
-											}) => (
-												<Select
-													onValueChange={(value) => onChange(+value)}
-													defaultValue={value?String(value):undefined}
-												>
-													<SelectTrigger
-														floatingLabel="MET"
-														labelClassname="bg-transparent"
-														name="goals"
-														>
-														<SelectValue
-															placeholder="MET"
-														/>
-													</SelectTrigger>
-													<SelectContent>
-													{MetsData?.map((st: any, index: number) =>
-														<SelectItem
-															key={index}
-															value={String(st.value)}
-															>
-															{st.label}
-														</SelectItem>
-													)}
-													</SelectContent>
-												</Select>
-											)}
-										/>
-										{errors.met_id?.message && <span className="text-red-500 text-xs mt-[5px]">{errors.met_id?.message}</span>}
-									</div>
-									<div>
-										<FloatingLabelInput
-											{...register("distance", {
-												setValueAs:v => {console.log("distance value", v);return v}, 
-												validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
-											})}
-											type="number"
-											id="distance"
-											label="Distance(KM)"
-											labelClassname="bg-transparent text-xs"
-											className="bg-transparent"
-										/>
-										{errors.distance?.message && (
-											<span className="text-red-500 text-xs mt-[5px]">
-												{
-													errors.distance?.message
-												}
-											</span>
-										)}
-									</div>
-									<div>
-										<FloatingLabelInput
-											{...register("speed", {
-												setValueAs: v => {console.log("speed value", v);return v}, 
-												validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
-											})}
-											id="speed"
-											type="number"
-											label="Speed(KM/H)"
-											labelClassname="bg-transparent text-xs"
-											className="bg-transparent"
-										/>
-										{errors.speed?.message && (
-											<span className="text-red-500 text-xs mt-[5px]">
-												{
-													errors.speed?.message
-												}
-											</span>
-										)}
-									</div>
-								</div>
-								: 
+									<i className="fa-regular fa-floppy-disk h-4 w-4"></i>
+								</Button>}
+							</div>
+							{currExercise !== null ? 
 								<>
-								<div>
+								<div className="flex justify-center">
+										<img
+											id="avatar"
+											src={formValues.thumbnail_male}
+											alt="Exercise Image"
+											className="w-4/5 object-contain relative"
+										/>
+								</div>
+								<div className="relative">
 									<Controller
-										name="exercise_intensity"
+										name="exercise_type"
 										rules={{ required: "Required" }}
 										control={control}
 										render={({
@@ -660,52 +432,31 @@ const Exercise_info: ExerciseItem[] = [
 											<div className="flex justify-center">
 												<RadioGroup
 													onValueChange={(e) => {
-														console.log(e);
+														console.log("exercise_type c", e);
 														onChange(e);
 														setTimeout(() => console.log(form.getValues(), formValues), 1000);
 													}}
 													defaultValue={
-														(() => {console.log(value != null ? String(value) : undefined);return value != null ? String(value) : undefined})()
+														(() => {console.log("exercise_type v", value != null ? String(value) : undefined);return value != null ? String(value) : undefined})()
+													}
+													value={
+														(() => {console.log("exercise_type v", value != null ? String(value) : undefined);return value != null ? String(value) : undefined})()
 													}
 													className="flex flex-row space-x-4"
 												>
+													{exerciseTypeOptions?.map((option: any, index: number) => (
 															<div
+																key={index}
 																className="flex justify-start items-center space-x-3"
 															>
 																<RadioGroupItem
-																	id="Max Intensity"
-																	value="Max Intensity"
+																	id={option.value}
+																	value={String(option.value)}
 																/>
-																<Label htmlFor="Max Intensity">Max Intensity</Label>
+																<Label htmlFor={option.value}>{option.label}</Label>
 															</div>
-															<div
-																className="flex justify-start items-center space-x-3"
-															>
-																<RadioGroupItem
-																	id="irm"
-																	value="irm"
-																/>
-																<div>
-																	<FloatingLabelInput
-																		{...register("intensity_value", {
-																			setValueAs: v => {console.log("speed value", v);return v}, 
-																			validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
-																		})}
-																		id="speed"
-																		type="number"
-																		className="w-16 bg-transparent"
-																	/>
-																	{errors.speed?.message && (
-																		<span className="text-red-500 text-xs mt-[5px]">
-																			{
-																				errors.speed?.message
-																			}
-																		</span>
-																	)}
-																</div>
-																<Label htmlFor="irm">%1RM</Label>
-															</div>
-														
+														)
+													)}
 												</RadioGroup>
 											</div>
 										)}
@@ -718,11 +469,268 @@ const Exercise_info: ExerciseItem[] = [
 										</span>
 									)}
 								</div>
-								</>}
+								<div className="gap-2 grid grid-cols-[repeat(20,1fr)] flex items-center">
+									<span className="col-span-9">Rep({formValues.exercise_type === "Time Based" ? 's' : 'x'})</span>	
+									<span className="col-span-9">Rest(s)</span>	
+								</div>
+								<div className="gap-2 grid grid-cols-[repeat(20,1fr)] items-center">
+									{[...Array(
+											Math.max(
+												formValues.repetitions_per_set.length,
+												formValues.seconds_per_set.length,
+												formValues.rest_between_set.length
+											))
+										.keys()].map((_, i) => {
+										console.log("Map ran again")
+										return (
+										<React.Fragment key={i}>
+											{formValues.exercise_type === "Time Based" ?
+												<div className="col-span-9">
+													<FloatingLabelInput
+														value={formValues.seconds_per_set[i]===undefined?0:formValues.seconds_per_set[i]}
+														type="number"
+														{...register(`seconds_per_set.${i}`, {
+															required: "Required",
+															setValueAs:v => {console.log("distance value", v);return v}, 
+															validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
+														})}
+														className={cn("bg-transparent border border-black/25",errors?.seconds_per_set?.[i]
+																? "border-red-500"
+																: "")}
+														min="0"
+													/>
+													{errors?.seconds_per_set?.[i] && (
+														<span className="text-red-500 mr-4">
+															{errors?.seconds_per_set?.[i].message}
+														</span>
+													)}
+												</div>
+											:
+												<div className="col-span-9">
+													<FloatingLabelInput
+														type="number"
+														value={formValues.repetitions_per_set[i]===undefined?0:formValues.repetitions_per_set[i]}
+														{...register(`repetitions_per_set.${i}`, {
+															required: "Required",
+															setValueAs:v => {console.log("distance value", v);return v}, 
+															validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
+														})}
+														className={cn("bg-transparent border border-black/25",errors?.repetitions_per_set?.[i]
+																? "border-red-500"
+																: "")}
+														min="0"
+													/>
+													{errors?.repetitions_per_set?.[i] && (
+														<span className="text-red-500 mr-4">
+															{errors.repetitions_per_set?.[i].message}
+														</span>
+													)}
+												</div>
+											}
+
+											<div className="col-span-9">
+												<FloatingLabelInput
+													type="number"
+													{...register(`rest_between_set.${i}`, { required: "Required", valueAsNumber: true})}
+													className={`bg-transparent border border-black/25 ${
+														errors?.rest_between_set?.[i]
+															? "border-red-500"
+															: ""
+													}`}
+													min="0"
+												/>
+												{errors?.rest_between_set?.[i] && (
+													<span className="text-red-500 mr-4">
+														{errors.rest_between_set?.[i].message}
+													</span>
+												)}
+											</div>
+
+											<button
+												type="button"
+												onClick={() => {
+													form.setValue('seconds_per_set', formValues.seconds_per_set.filter((_, index) => index !== i));
+													form.setValue('rest_between_set', formValues.rest_between_set.filter((_, index) => index !== i));
+													form.setValue('repetitions_per_set', formValues.repetitions_per_set.filter((_, index) => index !== i));
+												}}
+												className="text-red-500 hover:text-red-700"
+											>
+												<i
+													className="fa-regular fa-trash-can text-red-500"
+												/>
+											</button>
+										</React.Fragment>
+									)})}
+								</div>
+								<Button
+									variant={"ghost"}
+									type="button"
+									onClick={() => {
+										form.setValue('seconds_per_set', [...formValues.seconds_per_set, 0]);
+										form.setValue('rest_between_set', [...formValues.rest_between_set, 0]);
+										form.setValue('repetitions_per_set', [...formValues.repetitions_per_set, 0]);
+									}}
+									className="gap-2 items-center justify-center px-4 py-2 rounded hover:bg-transparent"
+								>
+									<i className="fa-solid fa-plus"></i> Add 
+								</Button>
+										{formValues.exercise_type === "Time Based" ?
+										<div className="grid grid-cols-3 gap-2">
+											<div>
+												<Controller
+													name="met_id"
+													rules={{required: "Required"}}
+													control={control}
+													render={({
+														field: {onChange, value, onBlur},
+														fieldState: {invalid, error} 
+													}) => (
+														<Select
+															onValueChange={(value) => onChange(+value)}
+															defaultValue={value?String(value):undefined}
+														>
+															<SelectTrigger
+																floatingLabel="MET"
+																labelClassname="bg-transparent"
+																name="goals"
+																>
+																<SelectValue
+																	placeholder="MET"
+																/>
+															</SelectTrigger>
+															<SelectContent>
+															{MetsData?.map((st: any, index: number) =>
+																<SelectItem
+																	key={index}
+																	value={String(st.value)}
+																	>
+																	{st.label}
+																</SelectItem>
+															)}
+															</SelectContent>
+														</Select>
+													)}
+												/>
+												{errors.met_id?.message && <span className="text-red-500 text-xs mt-[5px]">{errors.met_id?.message}</span>}
+											</div>
+											<div>
+												<FloatingLabelInput
+													{...register("distance", {
+														setValueAs:v => {console.log("distance value", v);return v}, 
+														validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
+													})}
+													type="number"
+													id="distance"
+													label="Distance(KM)"
+													labelClassname="bg-transparent text-xs"
+													className="bg-transparent"
+												/>
+												{errors.distance?.message && (
+													<span className="text-red-500 text-xs mt-[5px]">
+														{
+															errors.distance?.message
+														}
+													</span>
+												)}
+											</div>
+											<div>
+												<FloatingLabelInput
+													{...register("speed", {
+														setValueAs: v => {console.log("speed value", v);return v}, 
+														validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
+													})}
+													id="speed"
+													type="number"
+													label="Speed(KM/H)"
+													labelClassname="bg-transparent text-xs"
+													className="bg-transparent"
+												/>
+												{errors.speed?.message && (
+													<span className="text-red-500 text-xs mt-[5px]">
+														{
+															errors.speed?.message
+														}
+													</span>
+												)}
+											</div>
+										</div>
+										: 
+										<>
+										<div>
+											<Controller
+												name="exercise_intensity"
+												rules={{ required: "Required" }}
+												control={control}
+												render={({
+													field: { onChange, value },
+													fieldState: { error },
+												}) => (
+													<div className="flex justify-center">
+														<RadioGroup
+															onValueChange={(e) => {
+																console.log(e);
+																onChange(e);
+																setTimeout(() => console.log(form.getValues(), formValues), 1000);
+															}}
+															defaultValue={
+																(() => {console.log(value != null ? String(value) : undefined);return value != null ? String(value) : undefined})()
+															}
+															className="flex flex-row space-x-4"
+														>
+																	<div
+																		className="flex justify-start items-center space-x-3"
+																	>
+																		<RadioGroupItem
+																			id="Max Intensity"
+																			value="Max Intensity"
+																		/>
+																		<Label htmlFor="Max Intensity">Max Intensity</Label>
+																	</div>
+																	<div
+																		className="flex justify-start items-center space-x-3"
+																	>
+																		<RadioGroupItem
+																			id="irm"
+																			value="irm"
+																		/>
+																		<div>
+																			<FloatingLabelInput
+																				{...register("intensity_value", {
+																					setValueAs: v => {console.log("speed value", v);return v}, 
+																					validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
+																				})}
+																				id="speed"
+																				type="number"
+																				className="w-16 bg-transparent"
+																			/>
+																			{errors.speed?.message && (
+																				<span className="text-red-500 text-xs mt-[5px]">
+																					{
+																						errors.speed?.message
+																					}
+																				</span>
+																			)}
+																		</div>
+																		<Label htmlFor="irm">%1RM</Label>
+																	</div>
+																
+														</RadioGroup>
+													</div>
+												)}
+											/>
+											{errors["exercise_type"]?.message && (
+												<span className="text-red-500 text-xs mt-[5px]">
+													{
+														errors["exercise_type"]?.message
+													}
+												</span>
+											)}
+										</div>
+										</>}
+								</>: <span className="flex flex-grow justify-center items-center">No exercise selected</span>
+								}
 						</form>
 					</FormProvider>
-					: <span className="flex flex-grow justify-center items-center">No exercise selected</span>
-					}
 				</div>
 			</div>
 		</div>

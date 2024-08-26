@@ -45,7 +45,6 @@ function App() {
       <Routes>
         <Route path="/reset_password/:token" element={<ResetPassword />} />
         <Route path="/forgot_password" element={<ForgotPasword />} />
-        <Route path="/expired_token" element={<ExpiredLogin />} />
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/" index element={<AuthenticationPage />} />
           <Route element={<DashboardLayout />}>

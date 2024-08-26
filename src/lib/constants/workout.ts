@@ -1,3 +1,4 @@
+import { WorkoutDay } from "@/components/admin/workoutplan/components/WorkoutDayComponent";
 import { useEffect, useState } from "react";
 
 export const visibleFor = [
@@ -71,7 +72,7 @@ export const workout_day_data = [
 	}
 ]
 
-export function useGetAllWorkoutDayQuery() {
+export function useGetAllWorkoutDayQuery(): {data: WorkoutDay[], isLoading: boolean} {
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 

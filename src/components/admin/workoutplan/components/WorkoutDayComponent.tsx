@@ -25,7 +25,9 @@ interface WorkoutDayProps {
 export default function WorkoutDayComponent({day, onSave, onDelete, onUpdate}: WorkoutDayProps) {
 	const [edit, setEdit] = useState<boolean>(false);
 	const [isFocused, setIsFocused] = useState<boolean>(false);
-	const [name, setName] = useState<string | undefined>(day.day_name);
+	const [name, setName] = useState<string>(day.day_name||'');
+
+	useEffect(() => setName(day.day_name||''), [day]);
 
   const setRef = (node: HTMLInputElement | null) => {
     if (node) {
@@ -50,12 +52,12 @@ export default function WorkoutDayComponent({day, onSave, onDelete, onUpdate}: W
 							onFocus={() => setIsFocused(true)}
 							onBlur={() => setIsFocused(false)}
 							className="bg-transparent text-sm outline-none max-w-[70%]"
-							value={name ?? day.day_name}
+							value={name}
 						/>
 				</div>
 				<div className="flex gap-x-1 align-center">
 					<Button
-						onClick={()=> {setEdit(false);setIsFocused(false);return day.id ? onUpdate(day.id,name  ?? day.day_name) : onSave(name ?? day.day_name)}}
+						onClick={()=> {setEdit(false);setIsFocused(false);return day.id ? onUpdate(day.id,name) : onSave(name)}}
 						className="h-auto p-0" variant="ghost"
 						>
 						<i className="fa-regular fa-floppy-disk h-4 w-4"></i>

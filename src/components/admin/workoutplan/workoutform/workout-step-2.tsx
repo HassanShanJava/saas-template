@@ -1,4 +1,4 @@
-import { IntensityEnum, Workout, WorkoutIntensityEnum, createExerciseInputTypes, difficultyEnum } from "@/app/types";
+import { ExerciseResponseServerViewType, IntensityEnum, Workout, WorkoutIntensityEnum, createExerciseInputTypes, difficultyEnum } from "@/app/types";
 import { Controller, FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { createdByOptions, difficultyOptions, useGetAllWorkoutDayQuery, workout_day_data, workout_day_exercise_data } from "@/lib/constants/workout";
@@ -22,6 +22,7 @@ import { useOutletContext } from "react-router-dom";
 import { ContextProps } from "./workout-form";
 import { useSelector } from "react-redux";
 import { Spinner } from "@/components/ui/spinner/spinner";
+import { RootState } from "@/app/store";
 
 export interface WorkoutWeek {
 	week: number;
@@ -33,11 +34,12 @@ export interface ExerciseForm {
 	seconds_per_set: number[];
 	rest_between_set: number[];
 	repetitions_per_set: number[];
-	speed: number;
-	distance: number;
-	met_id: number;
-	exercise_intensity: "Max" | "% of 1RM";
-	intensity_value: number;
+	speed: number | null;
+	distance: number | null;
+	met_id: number | null;
+	exercise_intensity: IntensityEnum | null;
+	intensity_value: number | null;
+	thumbnail_male?: string;
 }
 
 const WorkoutStep2: React.FC = () => {
@@ -128,7 +130,7 @@ const Exercise_info: ExerciseItem[] = [
 	
 	const [uid, setUid] = useState<number>(1e4);
   const form = useForm<ExerciseForm>({
-    defaultValues: currExercise,
+    defaultValues: currExercise as ExerciseForm,
     mode: "all",
   });
 	const {register, control, formState: {errors, isDirty}, watch, handleSubmit} = form;
@@ -154,7 +156,7 @@ const Exercise_info: ExerciseItem[] = [
 			setExercises(exercises => [...exercises, exercise]);
 	}
 
-	function handleExerciseAdd(exercise) {
+	function handleExerciseAdd(exercise: Exercise) {
 			setExercises(exercises => [...exercises, exercise]);
 	}
 
@@ -325,61 +327,26 @@ const Exercise_info: ExerciseItem[] = [
 					</div>
 					<div className="px-3 pb-6 space-y-3">
 					{isLoading ? <Spinner /> 
-					: Exercises?.data.map(exercise => (
-							<div 
-							onClick={() => {handleExerciseAdd(exercise)}}
-							className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer">
-								<div className="flex justify-between items-center relative space-x-1 ">
-									<div className="flex gap-1 w-full">
-										<img
-											id="avatar"
-											src={exercise.thumbnail_male}
-											alt="Exercise Image"
-											className="h-[20px] w-12 object-contain relative"
-										/>
-										<span className="text-sm truncate">{exercise.exercise_name} - {exercise.equipments.map(e => e.name).join(", ")}</span>
+						: Exercises?.data.map(e => {
+							const exercise: ExerciseResponseServerViewType = e as unknown as ExerciseResponseServerViewType;
+							return (
+								<div 
+								onClick={() => {handleExerciseAdd(exercise as unknown as ExerciseResponseServerViewType)}}
+								className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer">
+									<div className="flex justify-between items-center relative space-x-1 ">
+										<div className="flex gap-1 w-full">
+											<img
+												id="avatar"
+												src={exercise.thumbnail_male}
+												alt="Exercise Image"
+												className="h-[20px] w-12 object-contain relative"
+											/>
+											<span className="text-sm truncate">{exercise.exercise_name} - {exercise.equipments.map(e => e.name).join(", ")}</span>
+										</div>
 									</div>
 								</div>
-							</div>
-						))
-					}
-					{isLoading ? <Spinner /> 
-					: Exercises?.data.map(exercise => (
-							<div 
-							onClick={() => {handleExerciseAdd(exercise)}}
-							className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer">
-								<div className="flex justify-between items-center relative space-x-1 ">
-									<div className="flex gap-1 w-full">
-										<img
-											id="avatar"
-											src={exercise.thumbnail_male}
-											alt="Exercise Image"
-											className="h-[20px] w-12 object-contain relative"
-										/>
-										<span className="text-sm truncate">{exercise.exercise_name} - {exercise.equipments.map(e => e.name).join(", ")}</span>
-									</div>
-								</div>
-							</div>
-						))
-					}
-					{isLoading ? <Spinner /> 
-					: Exercises?.data.map(exercise => (
-							<div 
-							onClick={() => {handleExerciseAdd(exercise)}}
-							className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer">
-								<div className="flex justify-between items-center relative space-x-1 ">
-									<div className="flex gap-1 w-full">
-										<img
-											id="avatar"
-											src={exercise.thumbnail_male}
-											alt="Exercise Image"
-											className="h-[20px] w-12 object-contain relative"
-										/>
-										<span className="text-sm truncate">{exercise.exercise_name} - {exercise.equipments.map(e => e.name).join(", ")}</span>
-									</div>
-								</div>
-							</div>
-						))
+							)
+						})
 					}
 					</div>
 					</>}
@@ -428,7 +395,7 @@ const Exercise_info: ExerciseItem[] = [
 						<span className="font-semibold">Exercise Details</span>
 						{isDirty &&
 						<Button
-							onClick={()=> {setEdit(false);setIsFocused(false);return day.id ? onUpdate(day.id,name) : onSave(name)}}
+							onClick={()=> {return}}
 							className="h-auto p-0" variant="ghost"
 							>
 							<i className="fa-regular fa-floppy-disk h-4 w-4"></i>
@@ -640,7 +607,10 @@ const Exercise_info: ExerciseItem[] = [
 									</div>
 									<div>
 										<FloatingLabelInput
-											{...register("distance", {setValueAs:v => {console.log("distance value", v);return v}, validate: v => (isNaN(v) || v >= 0) || "Only non negative numbers"})}
+											{...register("distance", {
+												setValueAs:v => {console.log("distance value", v);return v}, 
+												validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
+											})}
 											type="number"
 											id="distance"
 											label="Distance(KM)"
@@ -657,7 +627,10 @@ const Exercise_info: ExerciseItem[] = [
 									</div>
 									<div>
 										<FloatingLabelInput
-											{...register("speed", {setValueAs: v => {console.log("speed value", v);return v}, validate: v => (isNaN(v) || v >= 0) || "Only non negative numbers"})}
+											{...register("speed", {
+												setValueAs: v => {console.log("speed value", v);return v}, 
+												validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
+											})}
 											id="speed"
 											type="number"
 											label="Speed(KM/H)"
@@ -714,7 +687,10 @@ const Exercise_info: ExerciseItem[] = [
 																/>
 																<div>
 																	<FloatingLabelInput
-																		{...register("intensity_value", {setValueAs: v => {console.log("speed value", v);return v}, validate: v => (isNaN(v) || v >= 0) || "Only non negative numbers"})}
+																		{...register("intensity_value", {
+																			setValueAs: v => {console.log("speed value", v);return v}, 
+																			validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
+																		})}
 																		id="speed"
 																		type="number"
 																		className="w-16 bg-transparent"

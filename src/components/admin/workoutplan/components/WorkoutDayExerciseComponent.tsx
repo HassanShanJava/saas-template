@@ -1,20 +1,21 @@
+import { ExerciseTypeEnum, IntensityEnum } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export interface Exercise {
 	id: number;
-	video_url_male: string;
-	thumbnail_male: string;
+	video_url_male?: string;
+	thumbnail_male?: string;
 	exercise_name: string;
-	exercise_type: string;
+	exercise_type: ExerciseTypeEnum;
 	seconds_per_set: number[];
 	repetitions_per_set: number[];
 	rest_between_set: number[];
-	exercise_intensity: "Max" | "% of 1RM";
-	intensity_value: number;
-	distance: number;
-	speed: number;
-	met_id: number;
+	exercise_intensity?: IntensityEnum;
+	intensity_value: number | null;
+	distance: number | null;
+	speed: number | null;
+	met_id: number | null;
 	equipments: {id: number; name: string}[];
 }
 

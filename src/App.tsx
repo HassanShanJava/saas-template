@@ -31,7 +31,6 @@ import ResetPassword from "./components/app/reset_password";
 import WorkoutPlanForm from "./components/admin/workoutplan/workoutform/workout-form";
 import WorkoutStep1 from "./components/admin/workoutplan/workoutform/workout-step-1";
 import WorkoutStep2 from "./components/admin/workoutplan/workoutform/workout-step-2";
-import Test from "./components/Test";
 import MyForm from "./components/admin/test/Testcomponent";
 import ForgotPasword from "./components/app/login/forgot_password";
 

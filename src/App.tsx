@@ -28,9 +28,7 @@ import WorkoutPlan from "./components/admin/workoutplan";
 import IdleLogoutHandler from "./components/Idle-Timer";
 import NotFoundPage from "./components/PageNotFound";
 import ResetPassword from "./components/app/reset_password";
-import MyForm from "./components/admin/test/Testcomponent";
 import ForgotPasword from "./components/app/login/forgot_password";
-import ExpiredLogin from "./components/app/reset_password/expired_url";
 
 function App() {
   const loading = useSelector((state: RootState) =>
@@ -45,7 +43,6 @@ function App() {
       <Routes>
         <Route path="/reset_password/:token" element={<ResetPassword />} />
         <Route path="/forgot_password" element={<ForgotPasword />} />
-        <Route path="/expired_token" element={<ExpiredLogin />} />
         <Route path="/" element={<ProtectedRoute />}>
           <Route path="/" index element={<AuthenticationPage />} />
           <Route element={<DashboardLayout />}>

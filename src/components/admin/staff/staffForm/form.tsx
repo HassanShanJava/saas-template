@@ -225,7 +225,13 @@ const StaffForm: React.FC<StaffFormProps> = ({
     status: z.nativeEnum(statusEnum, {
       required_error: "You need to select a status.",
     }),
-    city: z.string().optional(),
+    city: z
+      .string()
+      .max(50, {
+        message: "Cannot be greater than 50 characters",
+      })
+      .trim()
+      .optional(),
     zipcode: z
       .string()
       .trim()
@@ -991,7 +997,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput {...field} id="city" label="City" />
-                        {watcher.city ? <></> : <FormMessage />}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />

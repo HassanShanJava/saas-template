@@ -9,10 +9,13 @@ import { Difficulty } from "@/components/admin/exercise/component/difficultySlid
 import { deleteCognitoImage, UploadCognitoImage } from "@/utils/lib/s3Service";
 
 export const visibilityOptions = [
-  { value: "Only Myself", label: "Only Myself" },
-  { value: "Staff of My Club", label: "Staff of My Club" },
-  { value: "Members of My Club", label: "Members of My Club" },
-  { value: "Everyone in My Club", label: "Everyone in My Club" },
+  { value: "Only Myself", label: "Only myself" },
+  { value: "Staff of My Club", label: "Coaches of my gym" },
+  { value: "Members of My Club", label: "Members of my gym" },
+  {
+    value: "Everyone in My Club",
+    label: "Everyone in my gym (Coaches+ Staff+ Members)",
+  },
 ];
 
 export const exerciseTypeOptions = [
@@ -326,4 +329,3 @@ export const transformExerciseData = (
     imagefemale: [],
   };
 };
-

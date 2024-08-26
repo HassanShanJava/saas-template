@@ -152,7 +152,7 @@ const ResetPassword = () => {
               </CardContent>
             </Card>
           </div>
-        ) : invalidToken ? (
+        ) : verifyToken !== undefined && !error ? (
           <div className="grid grid-cols-3 mx-16 justify-between items-center h-dvh ">
             <div className=" col-span-2"></div>
             <Card className="col-span-1 mx-auto bg-transparent bg-opacity-10  backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg p-2">

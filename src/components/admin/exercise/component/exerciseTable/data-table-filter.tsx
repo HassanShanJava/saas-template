@@ -97,7 +97,7 @@ const ExerciseFilters = ({
                 if (element.type === "multiselect") {
                   return (
                     <MultiSelect
-                      floatingLabel={element.label
+                      floatingLabel={element.name
                         .replace(/_/g, " ")
                         .toUpperCase()}
                       key={element.label}
@@ -109,7 +109,7 @@ const ExerciseFilters = ({
                       }}
                       placeholder={
                         "Select " +
-                        element.label
+                        element.name
                           .replace(/_/g, " ")
                           .toLowerCase() // Convert to lowercase
                           .replace(/(?:^|\s)\S/g, (match: string) =>

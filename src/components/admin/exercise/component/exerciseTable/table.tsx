@@ -434,7 +434,7 @@ export default function ExerciseTableView() {
   const filterDisplay = [
     {
       type: "multiselect",
-      name: "category",
+      name: "Exercise category",
       label: "category",
       options: CategoryData,
       function: handleFilterChange,

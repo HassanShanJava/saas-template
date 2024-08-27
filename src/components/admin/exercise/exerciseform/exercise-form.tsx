@@ -340,7 +340,7 @@ const ExerciseForm = ({
     {
       type: "select",
       name: "category_id",
-      label: "Category*",
+      label: "Exercise Category*",
       required: true,
       options: CategoryData,
     },
@@ -375,14 +375,14 @@ const ExerciseForm = ({
     {
       type: "text",
       name: "video_url_male",
-      label: "Youtube link-Male",
+      label: "Video link-Male",
       required: false,
       pattern: "https?://.+",
     },
     {
       type: "text",
       name: "video_url_female",
-      label: "Youtube link-Female",
+      label: "Video link-Female",
       required: false,
       pattern: "https?://.+",
     },

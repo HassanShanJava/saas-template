@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { planFor } from "@/constants/meal_plans";
 import { Button } from "@/components/ui/button";
 const { VITE_VIEW_S3_URL } = import.meta.env;
@@ -26,14 +26,37 @@ interface FoodForm {
   setOpen: any;
   foodList: CreateFoodTypes[] | [];
   categories: Record<string, string>[];
-  setInputValue?:any;
-  setSearchCretiria?:any;
+  setInputValue?: any;
+  handleAddFood?: any;
+  setSearchCretiria?: any;
+  action?: "add" | "edit";
+  setFoodAction?: any;
+  data?: any;
 }
 
-const FoodForm = ({ isOpen, setOpen, foodList, categories }: FoodForm) => {
+const FoodForm = ({
+  isOpen,
+  setOpen,
+  foodList,
+  categories,
+  handleAddFood,
+  action,
+  data,
+  setFoodAction
+}: FoodForm) => {
   const [selectedFood, setSelectedFood] = useState<Record<string, any>>({});
   const [searchInput, setSearchInput] = useState<string>("");
+  const [quantity, setQuantity] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectPlan, setSelectPlan] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (action == "edit") {
+      setSelectPlan(data.mealType);
+      setQuantity(data.amount);
+      setSelectedFood(foodList.filter((food) => food.id == data.food_id)[0]);
+    }
+  }, [action]);
 
   // Filtered food list based on search input and selected category
   const filteredFoodList = useMemo(() => {
@@ -47,14 +70,46 @@ const FoodForm = ({ isOpen, setOpen, foodList, categories }: FoodForm) => {
     });
   }, [foodList, searchInput, selectedCategory]);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {
+      target: { value },
+    } = e;
+    setQuantity(+value);
+  };
+
+  console.log(
+    { action, data, selectedFood },
+    foodList.filter((food) => food.id == data.food_id)[0]
+  );
+
+  const handleAddMeal = () => {
+    if (quantity !== null) {
+      const mealType = {
+        label: selectPlan,
+        name: selectedFood.name,
+        amount: quantity,
+        calories: ((+quantity as number) * selectedFood.kcal).toFixed(2),
+        carbs: ((+quantity as number) * selectedFood.carbohydrates).toFixed(2),
+        protein: ((+quantity as number) * selectedFood.fat).toFixed(2),
+        fat: ((+quantity as number) * selectedFood.protein).toFixed(2),
+        food_id: selectedFood.id,
+      };
+
+      handleAddFood(mealType, action);
+    }
+    handleClose();
+  };
+
+  const handleClose = () => {
+    setSelectedCategory("all");
+    setSelectPlan(undefined);
+    setFoodAction("add");
+    setQuantity(null);
+    setSelectedFood({});
+    setOpen(false);
+  };
   return (
-    <Sheet
-      open={isOpen}
-      onOpenChange={() => {
-        setOpen(false);
-        setSelectedFood({});
-      }}
-    >
+    <Sheet open={isOpen} onOpenChange={handleClose}>
       <SheetContent className="custom-scrollbar p-0">
         <SheetHeader className="pt-4 bg-white p-4">
           <SheetTitle>Add food or drinks</SheetTitle>
@@ -100,7 +155,8 @@ const FoodForm = ({ isOpen, setOpen, foodList, categories }: FoodForm) => {
                   filteredFoodList.map((food) => (
                     <div
                       key={food.id}
-                      className="flex justify-between items-center"
+                      onClick={() => setSelectedFood(food)}
+                      className="flex justify-between items-center border border-transparent rounded-sm hover:border-primary px-2 py-1 hover:cursor-pointer"
                     >
                       <div key={food.id} className="flex items-center gap-2">
                         <img
@@ -108,7 +164,7 @@ const FoodForm = ({ isOpen, setOpen, foodList, categories }: FoodForm) => {
                           className="size-9 rounded-sm object-contain"
                         />
                         <div>
-                          <p className="text-sm font-semibold text-gray-900">
+                          <p className="text-sm font-semibold text-gray-900 capitalize">
                             {food.name}
                           </p>
                           <p
@@ -119,10 +175,7 @@ const FoodForm = ({ isOpen, setOpen, foodList, categories }: FoodForm) => {
                           </p>
                         </div>
                       </div>
-                      <button
-                        onClick={() => setSelectedFood(food)}
-                        className=" flex items-center justify-center size-5 bg-gray-100 rounded-[50%] "
-                      >
+                      <button className=" flex items-center justify-center size-5 bg-gray-100 rounded-[50%] ">
                         <i className="text-[10px] text-center fa fa-chevron-right  text-gray-800"></i>
                       </button>
                     </div>
@@ -159,8 +212,8 @@ const FoodForm = ({ isOpen, setOpen, foodList, categories }: FoodForm) => {
 
               {/* planFor */}
               <Select
-                onValueChange={(value) => setSelectedCategory(value)}
-                defaultValue={undefined}
+                onValueChange={(value) => setSelectPlan(value)}
+                defaultValue={selectPlan}
               >
                 <SelectTrigger name={"plan_for"}>
                   <SelectValue placeholder="Select plan for" />
@@ -168,16 +221,23 @@ const FoodForm = ({ isOpen, setOpen, foodList, categories }: FoodForm) => {
 
                 <SelectContent>
                   {planFor?.map((st: any, index: number) => (
-                    <SelectItem key={index} value={st.label}>
+                    <SelectItem key={index} value={st.value}>
                       {st.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {/* quantity */}
-              <Input placeholder="Quantity" type="number" id="quantity " />
 
-              <Button className="text-black space-x-2">
+              {/* quantity */}
+              <Input
+                placeholder="Quantity"
+                defaultValue={quantity as number}
+                type="number"
+                id="quantity"
+                onChange={handleChange}
+              />
+
+              <Button className="text-black space-x-2" onClick={handleAddMeal}>
                 <i className="fa fa-plus"></i>
                 <span>Add</span>
               </Button>

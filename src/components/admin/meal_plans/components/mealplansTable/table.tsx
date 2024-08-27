@@ -596,6 +596,7 @@ export default function MealPlansTableView() {
         setOpen={setIsDialogOpen}
         action={action}
         setAction={setAction}
+        refetch={refetch}
       />
     </div>
   );

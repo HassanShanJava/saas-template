@@ -17,10 +17,9 @@ export interface mealPlanDataType {
   name?: string;
   profile_img?: string | null;
   description?: string;
-  member_id?: number[];
+  member_ids?: number[];
   meals?: {
-    id: number;
-    meal_time: string;
+      meal_time: string;
     food_id: number;
     quantity: number;
   }[];

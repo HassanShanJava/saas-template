@@ -470,7 +470,7 @@ const Exercise_info: ExerciseItem[] = [
 									)}
 								</div>
 								<div className="gap-2 grid grid-cols-[repeat(20,1fr)] flex items-center">
-									<span className="col-span-9">Rep({formValues.exercise_type === "Time Based" ? 's' : 'x'})</span>	
+									<span className="col-span-9">{formValues.exercise_type === "Time Based" ? 'Time(s)' : 'Rep(x)'}</span>
 									<span className="col-span-9">Rest(s)</span>	
 								</div>
 								<div className="gap-2 grid grid-cols-[repeat(20,1fr)] items-center">
@@ -491,17 +491,25 @@ const Exercise_info: ExerciseItem[] = [
 														type="number"
 														{...register(`seconds_per_set.${i}`, {
 															required: "Required",
+															max: {
+																value: 3600,
+																message: "The accepted values are between 10 to 3600"
+															},
+															min: {
+																value: 10,
+																message: "The accepted values are between 10 to 3600"
+															},
 															setValueAs:v => {console.log("distance value", v);return v}, 
 															validate: v => (v === null || isNaN(v) || v >= 0) || "Only non negative numbers"
 														})}
 														className={cn("bg-transparent border border-black/25",errors?.seconds_per_set?.[i]
 																? "border-red-500"
 																: "")}
-														min="0"
+														min="10"
 													/>
 													{errors?.seconds_per_set?.[i] && (
 														<p className="text-xs leading-snug text-red-500 mr-4">
-															{errors?.seconds_per_set?.[i].message}
+															{errors?.seconds_per_set?.[i]?.message}
 														</p>
 													)}
 												</div>
@@ -531,7 +539,7 @@ const Exercise_info: ExerciseItem[] = [
 													/>
 													{errors?.repetitions_per_set?.[i] && (
 														<p className="text-xs leading-snug text-red-500 mr-4">
-															{errors.repetitions_per_set?.[i].message}
+															{errors?.repetitions_per_set?.[i]?.message}
 														</p>
 													)}
 												</div>
@@ -540,7 +548,17 @@ const Exercise_info: ExerciseItem[] = [
 											<div className="col-span-9">
 												<FloatingLabelInput
 													type="number"
-													{...register(`rest_between_set.${i}`, { required: "Required", valueAsNumber: true})}
+													{...register(`rest_between_set.${i}`, {
+													max: {
+														value: 3600,
+														message: "The accepted values are between 0 to 3600"
+													},
+													min: {
+														value: 0,
+														message: "The accepted values are between 0 to 3600"
+													},
+													required: "Required",
+													valueAsNumber: true})}
 													className={`bg-transparent border border-black/25 ${
 														errors?.rest_between_set?.[i]
 															? "border-red-500"
@@ -550,7 +568,7 @@ const Exercise_info: ExerciseItem[] = [
 												/>
 												{errors?.rest_between_set?.[i] && (
 													<p className="text-xs leading-snug text-red-500 mr-4">
-														{errors.rest_between_set?.[i].message}
+														{errors?.rest_between_set?.[i]?.message}
 													</p>
 												)}
 											</div>

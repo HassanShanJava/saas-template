@@ -359,7 +359,7 @@ export default function CoachTableView() {
                       {displayValue(
                         `${row.original.first_name} ${row.original.last_name}`.substring(
                           0,
-                          6
+                          8
                         ) + "..."
                       )}
                     </p>

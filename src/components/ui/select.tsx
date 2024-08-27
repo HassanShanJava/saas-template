@@ -15,7 +15,6 @@ import { ChevronDown } from "lucide-react";
 
 const Select = SelectPrimitive.Root;
 
-
 const SelectGroup = SelectPrimitive.Group;
 
 const SelectValue = SelectPrimitive.Value;
@@ -38,7 +37,9 @@ const SelectTrigger = React.forwardRef<
     <SelectPrimitive.Icon asChild>
       <ChevronDown className="h-4 w-4 opacity-50" />
     </SelectPrimitive.Icon>
-    {floatingLabel && <FloatingLabel className="text-gray-800">{floatingLabel}</FloatingLabel>}
+    {floatingLabel && (
+      <FloatingLabel className="text-gray-800">{floatingLabel}</FloatingLabel>
+    )}
   </SelectPrimitive.Trigger>
 ));
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
@@ -117,7 +118,10 @@ const SelectLabel = React.forwardRef<
   <SelectPrimitive.Label
     ref={ref}
     // className={cn("px-2 py-1.5 text-sm font-semibold", className)}
-    className={cn("py-1.5 pl-8 pr-2 text-sm font-semibold placeholder:text-gray-800", className)}
+    className={cn(
+      "py-1.5 pl-8 pr-2 text-sm placeholder:font-normal placeholder:text-gray-800 placeholder:text-sm",
+      className
+    )}
     {...props}
   />
 ));

@@ -402,7 +402,7 @@ const ExerciseForm = ({
     },
   ];
 
-  function handleChange(data: any) {
+  function handleChange(data: Difficulty) {
     setValueofDifficulty(data);
     setValue("difficulty", Difficulty[data]);
   }
@@ -415,6 +415,7 @@ const ExerciseForm = ({
     };
   }
 
+  console.log({ watcher });
   return (
     <Sheet open={isOpen}>
       <SheetContent
@@ -474,7 +475,7 @@ const ExerciseForm = ({
             </SheetHeader>
 
             <h1 className="font-semibold text-xl py-3">Exercise Details</h1>
-            <div className="grid grid-cols-3 gap-3 p-1 ">
+            <div className="grid grid-cols-3 gap-4 p-1">
               {Exercise_info.map((item) => {
                 if (item.type === "slider") {
                   return (
@@ -976,10 +977,10 @@ const ExerciseForm = ({
                               positiveInteger: (value) =>
                                 value !== null &&
                                 value !== undefined &&
-                                value >= 60 &&
+                                value >= 10 &&
                                 value <= 3600
                                   ? true
-                                  : "The accepted values are 60 to 3600",
+                                  : "The accepted values are between 10 to 3600",
                             },
                           }}
                           render={({ field }) => (
@@ -999,7 +1000,7 @@ const ExerciseForm = ({
                               />
                               {errors?.timePerSet?.[index] && (
                                 <span
-                                  className="text-red-500 mr-4"
+                                  className="text-red-500 mr-4 text-xs"
                                   style={{
                                     width: "200px",
                                     display: "inline-block",
@@ -1021,10 +1022,10 @@ const ExerciseForm = ({
                               positiveInteger: (value) =>
                                 value !== null &&
                                 value !== undefined &&
-                                value >= 60 &&
+                                value >= 0 &&
                                 value <= 3600
                                   ? true
-                                  : "The accepted values are 60 to 3600",
+                                  : "The accepted values are between 0 to 3600",
                             },
                           }}
                           render={({ field }) => (
@@ -1044,7 +1045,7 @@ const ExerciseForm = ({
                               />
                               {errors?.restPerSet?.[index] && (
                                 <span
-                                  className="text-red-500 mr-4"
+                                  className="text-red-500 mr-4 text-xs"
                                   style={{
                                     width: "200px",
                                     display: "inline-block",
@@ -1130,7 +1131,7 @@ const ExerciseForm = ({
                               />
                               {errors?.repetitionPerSet?.[index] && (
                                 <span
-                                  className="text-red-500 mr-4"
+                                  className="text-red-500 mr-4 text-xs"
                                   style={{
                                     width: "200px",
                                     display: "inline-block",
@@ -1154,10 +1155,10 @@ const ExerciseForm = ({
                               positiveInteger: (value) =>
                                 value !== null &&
                                 value !== undefined &&
-                                value >= 60 &&
+                                value >= 0 &&
                                 value <= 3600
                                   ? true
-                                  : "The accepted values are 60 to 3600",
+                                  : "The accepted values are between 0 to 3600",
                             },
                           }}
                           render={({ field }) => (
@@ -1177,7 +1178,7 @@ const ExerciseForm = ({
                               />
                               {errors?.restPerSetrep?.[index] && (
                                 <span
-                                  className="text-red-500 mr-4"
+                                  className="text-red-500 mr-4 text-xs"
                                   style={{
                                     width: "200px",
                                     display: "inline-block",

@@ -1,12 +1,25 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import SplineChart from "./component/spline-chart";
 import SimpleBarChart from "./component/barchart";
 import CardComponent from "./component/card-component";
 
 const Dashboard = () => {
   return (
-    <div className="grid gap-6  p-3">
+    <div className="grid gap-6  p-3 2xl:!max-w-[1400px]">
       <CardComponent />
       <div className="grid grid-cols-2 gap-6 p-4">
         <SimpleBarChart />
@@ -17,7 +30,7 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="text-2xl font-bold">Clients</CardTitle>
             <CardDescription className="pt-1 text-gray-400 ">
-                <i className="fa-solid text-green-400 fa-circle-check"></i>
+              <i className="fa-solid text-green-400 fa-circle-check"></i>
               <span className="ml-2 text-gray-400 font-bold text-base">
                 Active Client
               </span>{" "}
@@ -60,6 +73,6 @@ const Dashboard = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Dashboard;

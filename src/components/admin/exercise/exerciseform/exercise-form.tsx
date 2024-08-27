@@ -345,13 +345,6 @@ const ExerciseForm = ({
       options: CategoryData,
     },
     {
-      type: "slider",
-      name: "difficulty",
-      label: "Difficulty*",
-      required: true,
-      options: difficultyTypeoptions,
-    },
-    {
       type: "multiselect",
       name: "equipment_ids",
       label: "Equipments*",
@@ -400,9 +393,16 @@ const ExerciseForm = ({
       required: true,
       options: exerciseTypeOptions,
     },
+    {
+      type: "slider",
+      name: "difficulty",
+      label: "Difficulty*",
+      required: true,
+      options: difficultyTypeoptions,
+    },
   ];
 
-  function handleChange(data: any) {
+  function handleChange(data: Difficulty) {
     setValueofDifficulty(data);
     setValue("difficulty", Difficulty[data]);
   }
@@ -415,6 +415,7 @@ const ExerciseForm = ({
     };
   }
 
+  console.log({ watcher });
   return (
     <Sheet open={isOpen}>
       <SheetContent
@@ -474,7 +475,7 @@ const ExerciseForm = ({
             </SheetHeader>
 
             <h1 className="font-semibold text-xl py-3">Exercise Details</h1>
-            <div className="grid grid-cols-3 gap-3 p-1 ">
+            <div className="grid grid-cols-3 gap-4 p-1">
               {Exercise_info.map((item) => {
                 if (item.type === "slider") {
                   return (
@@ -544,7 +545,9 @@ const ExerciseForm = ({
                                 : []
                             } // Ensure defaultValue is always an array of the expected type
                             // Ensure defaultValue is always an array
-                            placeholder={"Select " + item.label}
+                            placeholder={
+                              "Select " + item.label.replace(/\*/g, "")
+                            }
                             variant="inverted"
                             maxCount={1}
                             className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
@@ -592,7 +595,9 @@ const ExerciseForm = ({
                                   name={item.name}
                                 >
                                   <SelectValue
-                                    placeholder={"Select " + item.label}
+                                    placeholder={
+                                      "Select " + item.label.replace(/\*/g, "")
+                                    }
                                   />
                                 </SelectTrigger>
 
@@ -972,10 +977,10 @@ const ExerciseForm = ({
                               positiveInteger: (value) =>
                                 value !== null &&
                                 value !== undefined &&
-                                value >= 60 &&
+                                value >= 10 &&
                                 value <= 3600
                                   ? true
-                                  : "The accepted values are between 60 to 3600",
+                                  : "The accepted values are between 10 to 3600",
                             },
                           }}
                           render={({ field }) => (
@@ -983,6 +988,7 @@ const ExerciseForm = ({
                               <FloatingLabelInput
                                 label={"Time(s)*"}
                                 type="number"
+                                id={`time-${index}`}
                                 {...field}
                                 className={`border${
                                   errors?.timePerSet?.[index]
@@ -994,7 +1000,7 @@ const ExerciseForm = ({
                               />
                               {errors?.timePerSet?.[index] && (
                                 <span
-                                  className="text-red-500 mr-4"
+                                  className="text-red-500 mr-4 text-xs"
                                   style={{
                                     width: "200px",
                                     display: "inline-block",
@@ -1016,16 +1022,17 @@ const ExerciseForm = ({
                               positiveInteger: (value) =>
                                 value !== null &&
                                 value !== undefined &&
-                                value >= 60 &&
+                                value >= 0 &&
                                 value <= 3600
                                   ? true
-                                  : "The accepted values are between 60 to 3600",
+                                  : "The accepted values are between 0 to 3600",
                             },
                           }}
                           render={({ field }) => (
                             <div>
                               <FloatingLabelInput
                                 label={"Rest Time (s)*"}
+                                id={`rest-time-${index}`}
                                 type="number"
                                 {...field}
                                 className={`border${
@@ -1038,7 +1045,7 @@ const ExerciseForm = ({
                               />
                               {errors?.restPerSet?.[index] && (
                                 <span
-                                  className="text-red-500 mr-4"
+                                  className="text-red-500 mr-4 text-xs"
                                   style={{
                                     width: "200px",
                                     display: "inline-block",
@@ -1104,7 +1111,7 @@ const ExerciseForm = ({
                                 value >= 1 &&
                                 value <= 100
                                   ? true
-                                  : "The accepted values are between 1 to 100",
+                                  : "The accepted values are 1 to 100",
                             },
                           }}
                           render={({ field }) => (
@@ -1112,6 +1119,7 @@ const ExerciseForm = ({
                               <FloatingLabelInput
                                 type="number"
                                 label="Repetitions(x)*"
+                                id={`repitition-time-${index}`}
                                 {...field}
                                 className={`border ${
                                   errors?.repetitionPerSet?.[index]
@@ -1123,7 +1131,7 @@ const ExerciseForm = ({
                               />
                               {errors?.repetitionPerSet?.[index] && (
                                 <span
-                                  className="text-red-500 mr-4"
+                                  className="text-red-500 mr-4 text-xs"
                                   style={{
                                     width: "200px",
                                     display: "inline-block",
@@ -1147,10 +1155,10 @@ const ExerciseForm = ({
                               positiveInteger: (value) =>
                                 value !== null &&
                                 value !== undefined &&
-                                value >= 60 &&
+                                value >= 0 &&
                                 value <= 3600
                                   ? true
-                                  : "The accepted values are between 60 to 3600",
+                                  : "The accepted values are between 0 to 3600",
                             },
                           }}
                           render={({ field }) => (
@@ -1158,6 +1166,7 @@ const ExerciseForm = ({
                               <FloatingLabelInput
                                 label={"Rest Time (s)*"}
                                 type="number"
+                                id={`rest-time-${index}`}
                                 {...field}
                                 className={`border ${
                                   errors?.restPerSetrep?.[index]
@@ -1169,7 +1178,7 @@ const ExerciseForm = ({
                               />
                               {errors?.restPerSetrep?.[index] && (
                                 <span
-                                  className="text-red-500 mr-4"
+                                  className="text-red-500 mr-4 text-xs"
                                   style={{
                                     width: "200px",
                                     display: "inline-block",
@@ -1313,41 +1322,47 @@ const ExerciseForm = ({
                         control={form.control}
                         name="exercise_intensity"
                         render={({ field }) => (
-                          <div className="flex gap-4 w-full justify-start items-center">
-                            Exercise Type:
-                            {Object.values(IntensityEnum).map((value) => (
-                              <label key={value}>
-                                <input
-                                  type="radio"
-                                  value={value}
-                                  checked={field.value === value}
-                                  onChange={field.onChange}
-                                  className="mr-2 checked:bg-primary"
+                          <div className="flex gap-4 w-full justify-start items-start flex-col">
+                            <div className="font-bold text-xl">
+                              Other Details:
+                            </div>
+                            <div className="flex flex-row gap-2 justify-start items-center w-full">
+                              {Object.values(IntensityEnum).map((value) => (
+                                <label key={value}>
+                                  <input
+                                    type="radio"
+                                    value={value}
+                                    checked={field.value === value}
+                                    onChange={field.onChange}
+                                    className="mr-2 checked:bg-primary"
+                                  />
+                                  {value === "irm"
+                                    ? `${value.toUpperCase()}%`
+                                    : value}
+                                </label>
+                              ))}
+                              {field.value === "irm" && (
+                                <Controller
+                                  control={form.control}
+                                  name="intensity_value"
+                                  render={({ field, fieldState }) => (
+                                    <>
+                                      <Slider
+                                        value={[field.value as number]} // Slider expects an array for the value
+                                        onValueChange={(val) => {
+                                          field.onChange(val[0]);
+                                          setCurrentValue(val[0]);
+                                        }} // Update the field with the first value as an integer
+                                        max={100}
+                                        className="w-[30%]"
+                                        step={1} // Step set to 1 for integer values
+                                      />
+                                      {currentValue + "%"}
+                                    </>
+                                  )}
                                 />
-                                {value}
-                              </label>
-                            ))}
-                            {field.value === "irm" && (
-                              <Controller
-                                control={form.control}
-                                name="intensity_value"
-                                render={({ field, fieldState }) => (
-                                  <>
-                                    <Slider
-                                      value={[field.value as number]} // Slider expects an array for the value
-                                      onValueChange={(val) => {
-                                        field.onChange(val[0]);
-                                        setCurrentValue(val[0]);
-                                      }} // Update the field with the first value as an integer
-                                      max={100}
-                                      className="w-[30%]"
-                                      step={1} // Step set to 1 for integer values
-                                    />
-                                    {currentValue + "%"}
-                                  </>
-                                )}
-                              />
-                            )}
+                              )}
+                            </div>
                           </div>
                         )}
                       />

@@ -1,6 +1,6 @@
 import { ExerciseResponseServerViewType, IntensityEnum, Workout, WorkoutIntensityEnum, createExerciseInputTypes, difficultyEnum } from "@/app/types";
 import { Controller, FormProvider, useFieldArray, useForm } from "react-hook-form";
-import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
+import { FloatingInput, FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { createdByOptions, difficultyOptions, useGetAllWorkoutDayQuery, workout_day_data, workout_day_exercise_data } from "@/lib/constants/workout";
 import React, { useEffect, useState } from "react";
 import WorkoutDayComponent, { WorkoutDay, WorkoutDayOptional } from "../components/WorkoutDayComponent";
@@ -40,6 +40,7 @@ export interface ExerciseForm {
 	exercise_intensity: IntensityEnum | null;
 	intensity_value: number | null;
 	thumbnail_male?: string;
+	notes: string;
 }
 
 interface ExerciseFilter {
@@ -754,6 +755,23 @@ const Exercise_info: ExerciseItem[] = [
 											)}
 										</div>
 										</>}
+									<div className="font-poppins">
+										<div className="relative">
+											<FloatingInput
+												id="notes" 
+												type="textarea" 
+												rows={1} 
+												placeholder="Notes"
+												{...register("notes")}
+												className="bg-transparent border border-black/25"
+											/>
+										</div>
+										{errors.notes?.message && (
+											<span className="text-destructive font-poppins block !mt-[5px] text-xs">
+												{errors.notes?.message}
+											</span>
+										)}
+									</div>
 								</>: <span className="flex flex-grow justify-center items-center">No exercise selected</span>
 								}
 						</form>

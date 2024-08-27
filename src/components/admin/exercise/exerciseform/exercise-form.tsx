@@ -266,7 +266,7 @@ const ExerciseForm = ({
         toast({
           variant: "destructive",
           title: "Error in Submission",
-          description: `${typedError.data?.detail}`,
+          description: `${typedError.data?.detail ?? "Internal Server Error"}`,
         });
       } else {
         toast({
@@ -420,7 +420,7 @@ const ExerciseForm = ({
     <Sheet open={isOpen}>
       <SheetContent
         hideCloseButton
-        className="!max-w-[1100px] py-0 custom-scrollbar h-screen"
+        className="!max-w-[1100px] py-0 custom-scrollbar h-full"
       >
         <FormProvider {...form}>
           <form
@@ -1061,8 +1061,8 @@ const ExerciseForm = ({
                           variant={"ghost"}
                           type="button"
                           onClick={() => {
-                            appendTime({ value: null });
-                            appendRest({ value: null });
+                            appendTime({ value: null }, { shouldFocus: false });
+                            appendRest({ value: null }, { shouldFocus: false });
                           }}
                           className="text-primary gap-2 items-center justify-center px-4 py-2 rounded hover:bg-primary"
                         >
@@ -1194,8 +1194,14 @@ const ExerciseForm = ({
                           variant={"ghost"}
                           type="button"
                           onClick={() => {
-                            appendRepetition({ value: null });
-                            appendRestrep({ value: null });
+                            appendRepetition(
+                              { value: null },
+                              { shouldFocus: false }
+                            );
+                            appendRestrep(
+                              { value: null },
+                              { shouldFocus: false }
+                            );
                           }}
                           className="text-primary gap-2 items-center justify-center px-4 py-2 rounded hover:bg-primary"
                         >

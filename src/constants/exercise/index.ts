@@ -10,10 +10,10 @@ import { deleteCognitoImage, UploadCognitoImage } from "@/utils/lib/s3Service";
 
 export const visibilityOptions = [
   { value: "Only Myself", label: "Only myself" },
-  { value: "Staff of My Club", label: "Coaches of my gym" },
-  { value: "Members of My Club", label: "Members of my gym" },
+  { value: "Coaches Of My Gym", label: "Coaches of my gym" },
+  { value: "Members Of My Gym", label: "Members of my gym" },
   {
-    value: "Everyone in My Club",
+    value: "Everyone In My Gym",
     label: "Everyone in my gym",
   },
 ];

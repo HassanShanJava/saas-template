@@ -14,7 +14,7 @@ export const visibilityOptions = [
   { value: "Members of My Club", label: "Members of my gym" },
   {
     value: "Everyone in My Club",
-    label: "Everyone in my gym (Coaches+ Staff+ Members)",
+    label: "Everyone in my gym",
   },
 ];
 

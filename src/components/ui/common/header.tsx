@@ -32,9 +32,11 @@ const Breadcrumb = ({
   if (!isActiveLink(currentPath, targetPath)) return null;
   return (
     <div className="pl-7 pb-4 text-sm">
-      <span className="text-gray-400 pr-1 font-semibold">{pageSetting}</span>{" "}
+      <span className="text-gray-400 pr-1 font-semibold text-sm">
+        {pageSetting}
+      </span>{" "}
       <span className="text-gray-400 font-semibold">/</span>
-      <span className="pl-1 text-primary font-semibold ">{title}</span>
+      <span className="pl-1 text-primary font-semibold text-sm ">{title}</span>
     </div>
   );
 };
@@ -49,7 +51,7 @@ const PageTitle = ({
   title: string;
 }) => {
   if (!isActiveLink(currentPath, targetPath)) return null;
-  return <>{title}</>;
+  return <p className="text-lg">{title}</p>;
 };
 
 const isActiveLink = (currentPath: string, targetPath: string) =>

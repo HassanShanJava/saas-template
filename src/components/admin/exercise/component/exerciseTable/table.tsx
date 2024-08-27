@@ -11,6 +11,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import ExerciseFilters from "./data-table-filter";
 import { Button } from "@/components/ui/button";
 import {
@@ -269,7 +275,23 @@ export default function ExerciseTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original?.exercise_name)}
+            {/* {displayValue(row?.original?.exercise_name)} */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="capitalize cursor-pointer">
+                    {/* Display the truncated name */}
+                    {displayValue(
+                      `${row?.original?.exercise_name}`.substring(0, 8) + "..."
+                    )}
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {/* Display the full name in the tooltip */}
+                  <p>{displayValue(`${row?.original?.exercise_name}`)}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         );
       },

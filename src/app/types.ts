@@ -8,6 +8,7 @@ export interface mealPlanTableType {
 }
 
 export interface mealPlanDataType {
+  id?: number;
   meal_plan_id?: number;
   org_id?: number;
   visible_for?: string;
@@ -17,7 +18,7 @@ export interface mealPlanDataType {
   name?: string;
   profile_img?: string | null;
   description?: string;
-  member_ids?: number[];
+  member_id?: number[];
   meals?: {
       meal_time: string;
     food_id: number;

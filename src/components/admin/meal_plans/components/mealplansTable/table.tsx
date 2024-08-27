@@ -186,7 +186,17 @@ export default function MealPlansTableView() {
   const columns: ColumnDef<mealPlanDataType>[] = [
     {
       accessorKey: "name",
-      header: ({ table }) => <span>Name</span>,
+      header: () => <div className="flex items-center gap-2">
+        <p>Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>,
       cell: ({ row }) => {
         return (
           <div className="flex gap-2 items-center justify-between w-fit">
@@ -207,7 +217,17 @@ export default function MealPlansTableView() {
     },
     {
       accessorKey: "visible_for",
-      header: ({ table }) => <span>Visible For</span>,
+      header: () => <div className="flex items-center gap-2">
+        <p>Visible for</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("visible_for")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>,
       cell: ({ row }) => {
         return <span>{row.original.visible_for}</span>;
       },
@@ -216,7 +236,17 @@ export default function MealPlansTableView() {
     },
     {
       accessorKey: "carbs",
-      header: ({ table }) => <span>Carbs</span>,
+      header: () => <div className="flex items-center gap-2">
+      <p>Carbs</p>
+      <button
+        className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+        onClick={() => toggleSortOrder("carbs")}
+      >
+        <i
+          className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+        ></i>
+      </button>
+    </div>,
       cell: ({ row }) => {
         return <span>{row.original.carbs}</span>;
       },
@@ -225,7 +255,17 @@ export default function MealPlansTableView() {
     },
     {
       accessorKey: "protein",
-      header: ({ table }) => <span>Protein</span>,
+      header: () => <div className="flex items-center gap-2">
+      <p>Protein</p>
+      <button
+        className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+        onClick={() => toggleSortOrder("protein")}
+      >
+        <i
+          className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+        ></i>
+      </button>
+    </div>,
       cell: ({ row }) => {
         return <span>{row.original.protein}</span>;
       },
@@ -234,7 +274,17 @@ export default function MealPlansTableView() {
     },
     {
       accessorKey: "fats",
-      header: ({ table }) => <span>Fats</span>,
+      header: () => <div className="flex items-center gap-2">
+      <p>Name</p>
+      <button
+        className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+        onClick={() => toggleSortOrder("name")}
+      >
+        <i
+          className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+        ></i>
+      </button>
+    </div>,
       cell: ({ row }) => {
         return <span>{row.original.fats}</span>;
       },
@@ -276,10 +326,12 @@ export default function MealPlansTableView() {
 
   const handleOpen = () => {
     setAction("add");
+    setData(undefined);
     setIsDialogOpen(true);
   };
 
   const handleEdit = (data: mealPlanDataType) => {
+    console.log({ data }, 'edit modal')
     setAction("edit");
     setData(data);
     setIsDialogOpen(true);
@@ -597,6 +649,7 @@ export default function MealPlansTableView() {
         action={action}
         setAction={setAction}
         refetch={refetch}
+        data={data}
       />
     </div>
   );

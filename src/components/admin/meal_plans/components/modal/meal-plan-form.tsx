@@ -136,7 +136,7 @@ const initialValue = {
   visible_for: "",
   profile_img: null,
   description: "",
-  member_ids: [],
+  member_id: [],
   meals: [],
 };
 
@@ -188,6 +188,7 @@ const MealPlanForm = ({
   const [addMeal, setMeal] = useState<Record<string, any>>({});
   const [foodAction, setFoodAction] = useState<"add" | "edit">("add");
   const [foodActionData, setFoodActionData] = useState<Record<string, any>>({});
+  const [label, setLabel] = useState<string|undefined>(undefined);
 
   // search input
   useEffect(() => {
@@ -280,9 +281,65 @@ const MealPlanForm = ({
   const watcher = watch();
 
   useEffect(() => {
+    const createMealsState = () => {
+      // Initialize the state structure
+      const mealsState: Record<string, any[]> = {
+        breakfast: [],
+        morning_snack: [],
+        lunch: [],
+        afternoon_snack: [],
+        dinner: [],
+        evening_snack: []
+      };
+
+      if (data?.meals) {
+        data.meals.forEach(meal => {
+          // Find food details from foodList using food_id
+          const foodDetails = foodList.find(food => food.id === meal.food_id);
+
+          if (foodDetails) {
+            // Create the meal object with details
+            const mealWithDetails = {
+              name: foodDetails.name,
+              quantity: meal.quantity,
+              calories: foodDetails.kcal,
+              carbs: foodDetails.carbohydrates,
+              protein: foodDetails.protein,
+              fat: foodDetails.fat,
+              food_id: meal.food_id
+            };
+
+            // Add the meal to the corresponding meal time category
+            mealsState[meal?.meal_time].push(mealWithDetails);
+          }
+        });
+      }
+
+      return mealsState;
+    };
+
     if (action == "edit" && data) {
-      console.log({ data }, "edit");
+      const mealsState = createMealsState();
+      console.log({ mealsState })
+      setMeals(mealsState)
       reset(data as mealPlanDataType);
+      setPieChart([
+        {
+          food_component: "protein",
+          percentage: data.protein as number,
+          fill: "#8BB738",
+        },
+        {
+          food_component: "fats",
+          percentage: data.fats as number,
+          fill: "#E8A239",
+        },
+        {
+          food_component: "carbs",
+          percentage: data.carbs as number,
+          fill: "#DD4664",
+        },
+      ]);
     } else if (action == "add" && data == undefined) {
       console.log({ initialValue }, "add");
       reset(initialValue, { keepIsSubmitted: false, keepSubmitCount: false });
@@ -318,7 +375,7 @@ const MealPlanForm = ({
       } else if (action === "edit") {
         await updateMealplan({
           ...payload,
-          meal_plan_id: data?.meal_plan_id as number,
+          id: data?.meal_plan_id as number,
         }).unwrap();
         toast({
           variant: "success",
@@ -363,6 +420,7 @@ const MealPlanForm = ({
     setPieChart(chartData);
     setMeals(initialMeal);
     setOpen(false);
+    setFiles([]);
   };
 
   const [meals, setMeals] = useState<Record<string, any[]>>(initialMeal);
@@ -371,7 +429,7 @@ const MealPlanForm = ({
     mealType: {
       label: string;
       name: string;
-      amount: number;
+      quantity: number;
       calories: number;
       carbs: number;
       protein: number;
@@ -380,26 +438,26 @@ const MealPlanForm = ({
     },
     foodAction: "add" | "edit"
   ) => {
-    const { label, food_id, amount, calories, carbs, protein, fat } = mealType;
-  
+    const { label, food_id, quantity, calories, carbs, protein, fat } = mealType;
+
     setMeals((prevMeals) => {
       const mealList = prevMeals[label as string];
       const existingFoodIndex = mealList.findIndex(
         (food) => food.food_id === food_id
       );
-  
+
       const updatedFoods = [...mealList];
-  
+
       if (existingFoodIndex !== -1) {
         // Update the existing food item based on the action
         const existingFood = updatedFoods[existingFoodIndex];
-  
+
         updatedFoods[existingFoodIndex] = {
           ...existingFood,
-          amount:
+          quantity:
             foodAction === "add"
-              ? existingFood.amount + amount
-              : amount,
+              ? existingFood.quantity + quantity
+              : quantity,
           calories:
             foodAction === "add"
               ? (+existingFood.calories + +calories).toFixed(2)
@@ -421,7 +479,7 @@ const MealPlanForm = ({
         // Add new food item
         updatedFoods.push({
           name: mealType.name,
-          amount: mealType.amount,
+          quantity: mealType.quantity,
           calories: (+calories).toFixed(2),
           carbs: (+carbs).toFixed(2),
           protein: (+protein).toFixed(2),
@@ -429,15 +487,15 @@ const MealPlanForm = ({
           food_id,
         });
       }
-  
+
       const updatedMeals = {
         ...prevMeals,
         [label]: updatedFoods,
       };
-  
+
       // Recalculate the percentages after the update
       const percentages = calculatePercentages(updatedMeals);
-  
+
       // Update the pie chart data
       setPieChart([
         {
@@ -456,28 +514,28 @@ const MealPlanForm = ({
           fill: "#DD4664",
         },
       ]);
-  
+
       // Update the watcher meals state as an array
       const currentMeals = getValues("meals") as {
         food_id: number;
         quantity: number;
         meal_time: string;
       }[];
-  
+
       setValue("meals", [
         ...currentMeals.filter((meal) => meal.food_id !== food_id),
         {
           food_id: food_id as number,
-          quantity: amount,
+          quantity: quantity,
           meal_time: label,
         },
       ]);
-  
+
       // Update individual macronutrient values
       setValue("fats", percentages.fat);
       setValue("protein", percentages.protein);
       setValue("carbs", percentages.carbs);
-  
+
       return updatedMeals;
     });
   };
@@ -560,7 +618,7 @@ const MealPlanForm = ({
     return meals[mealType].map((meal, index) => (
       <tr key={index}>
         <td className="p-3 w-96">{meal.name}</td>
-        <td className="p-3">{meal.amount}</td>
+        <td className="p-3">{meal.quantity}</td>
         <td className="p-3">{meal.calories} kcal</td>
         <td className="p-3">{meal.carbs} g</td>
         <td className="p-3">{meal.protein} g</td>
@@ -579,6 +637,10 @@ const MealPlanForm = ({
     ));
   };
 
+  const handleOpen = (label:string)=>{
+    setLabel(label)
+    setOpenFood(true)
+  } 
   console.log({ watcher, errors, meals }, action);
   return (
     <Sheet open={isOpen} onOpenChange={() => setOpen(false)}>
@@ -599,7 +661,7 @@ const MealPlanForm = ({
                       </span>{" "}
                       <span className="text-gray-400 font-semibold">/</span>
                       <span className="pl-1 text-primary font-semibold ">
-                        Add Meal Plan
+                        {data ? 'Edit' : 'Add'} Meal Plan
                       </span>
                     </div>
                   </div>
@@ -658,7 +720,7 @@ const MealPlanForm = ({
                         >
                           {files &&
                             files?.map((file, i) => (
-                              <div className="h-40 ">
+                              <div className="h-[180px] ">
                                 <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
                                   <FileUploaderItem
                                     key={i}
@@ -669,7 +731,7 @@ const MealPlanForm = ({
                                     <img
                                       src={URL.createObjectURL(file)}
                                       alt={file.name}
-                                      className="object-contain max-h-40"
+                                      className="object-contain max-h-[180px]"
                                     />
                                   </FileUploaderItem>
                                 </FileUploaderContent>
@@ -678,26 +740,26 @@ const MealPlanForm = ({
 
                           <FileInput className="flex flex-col gap-2  ">
                             {files?.length == 0 &&
-                            watcher?.profile_img == null ? (
-                              <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
+                              watcher?.profile_img == null ? (
+                              <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
                                 <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
                               </div>
                             ) : (
                               files?.length == 0 &&
                               watcher?.profile_img && (
-                                <div className="flex items-center justify-center h-40 w-full border bg-background rounded-md bg-gray-100">
+                                <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
                                   {/* <i className="text-gray-400 fa-regular fa-image text-2xl"></i> */}
                                   <img
                                     src={
                                       watcher?.profile_img !== "" &&
-                                      watcher?.profile_img
+                                        watcher?.profile_img
                                         ? VITE_VIEW_S3_URL +
-                                          "/" +
-                                          watcher?.profile_img
+                                        "/" +
+                                        watcher?.profile_img
                                         : ""
                                     }
                                     loading="lazy"
-                                    className="object-contain max-h-40 "
+                                    className="object-contain max-h-[180px] "
                                   />
                                 </div>
                               )
@@ -762,7 +824,7 @@ const MealPlanForm = ({
                     id="description"
                     label="Description"
                     type="textarea"
-                    rows={10}
+                    rows={11}
                     customPercentage={[14, 8, 10]}
                     {...register("description")}
                     error={errors.description?.message}
@@ -770,7 +832,7 @@ const MealPlanForm = ({
                 </div>
                 <div className="flex flex-col gap-2">
                   <Controller
-                    name={"member_ids" as keyof mealPlanDataType}
+                    name={"member_id" as keyof mealPlanDataType}
                     rules={{ required: "Required" }}
                     control={control}
                     render={({
@@ -786,7 +848,7 @@ const MealPlanForm = ({
                               label: string;
                             }[]
                           }
-                          defaultValue={watch("member_ids") || []} // Ensure defaultValue is always an array
+                          defaultValue={watch("member_id") || []} // Ensure defaultValue is always an array
                           onValueChange={(selectedValues) => {
                             console.log("Selected Values: ", selectedValues); // Debugging step
                             onChange(selectedValues); // Pass selected values to state handler
@@ -797,9 +859,9 @@ const MealPlanForm = ({
                           className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 placeholder:font-normal "
                         />
 
-                        {errors.member_ids?.message && (
+                        {errors.member_id?.message && (
                           <span className="text-red-500 text-xs mt-[5px]">
-                            {errors.member_ids?.message}
+                            {errors.member_id?.message}
                           </span>
                         )}
                       </div>
@@ -807,16 +869,16 @@ const MealPlanForm = ({
                   />
 
                   {/* pie chart */}
-                  <Card className="flex flex-col bg-gray-50">
+                  <Card className="flex flex-col bg-gray-50 ">
                     <CardHeader className="items-center px-0 py-3 text-center">
                       <CardTitle className="font-semibold">
                         Calorie & Micro Nutrient Breakdown{" "}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="flex-1 pb-0">
+                    <CardContent className="flex-1 pb-0 ">
                       <ChartContainer
                         config={chartConfig}
-                        className="mx-auto aspect-square max-h-[152px] !p-0"
+                        className={`mx-auto aspect-square ${getValues("meals")?.length == 0 ? "max-h-[172px]" : "max-h-[158px]"}   !p-0 `}
                       >
                         <PieChart>
                           <ChartTooltip
@@ -871,17 +933,17 @@ const MealPlanForm = ({
                   <col width={20} />
                   <col width={8} />
                   <thead>
-                    <tr className="bg-gray-100 font-semibold capitalize">
-                      <th className="p-3 w-96">{meal.label}</th>
-                      <th className="p-3">Amount</th>
-                      <th className="p-3">Calories</th>
-                      <th className="p-3">Carbs</th>
-                      <th className="p-3">Protein</th>
-                      <th className="p-3">Fat</th>
-                      <th className="p-3 flex justify-end ">
+                    <tr className="bg-gray-50  capitalize">
+                      <th className="p-3 font-semibold">{meal.label}</th>
+                      <th className="p-3 font-semibold">Quantity</th>
+                      <th className="p-3 font-semibold">Calories</th>
+                      <th className="p-3 font-semibold">Carbs</th>
+                      <th className="p-3 font-semibold">Protein</th>
+                      <th className="p-3 font-semibold">Fat</th>
+                      <th className="p-3 font-semibold flex justify-end ">
                         <i
                           className="text-primary fa fa-plus  cursor-pointer"
-                          onClick={() => setOpenFood(true)}
+                          onClick={()=>handleOpen(meal.key)}
                         ></i>
                       </th>
                     </tr>
@@ -902,6 +964,9 @@ const MealPlanForm = ({
               handleAddFood={handleAddFood}
               action={foodAction}
               data={foodActionData}
+              label={label}
+              setLabel={setLabel}
+
             />
           </form>
         </FormProvider>
@@ -911,10 +976,3 @@ const MealPlanForm = ({
 };
 
 export default MealPlanForm;
-
-// state to manage the array for table data
-// add meeal function needs to apends to payload for meals field
-// set percentages
-// call create api
-// set data for update api
-// call update api

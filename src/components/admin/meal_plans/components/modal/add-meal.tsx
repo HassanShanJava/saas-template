@@ -32,6 +32,8 @@ interface FoodForm {
   action?: "add" | "edit";
   setFoodAction?: any;
   data?: any;
+  setLabel?: any;
+  label?: string;
 }
 
 const FoodForm = ({
@@ -42,21 +44,27 @@ const FoodForm = ({
   handleAddFood,
   action,
   data,
-  setFoodAction
+  label,
+  setFoodAction,
+  setLabel
 }: FoodForm) => {
   const [selectedFood, setSelectedFood] = useState<Record<string, any>>({});
   const [searchInput, setSearchInput] = useState<string>("");
   const [quantity, setQuantity] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectPlan, setSelectPlan] = useState<string | undefined>(undefined);
-
+  const [selectPlan, setSelectPlan] = useState<string | undefined>(label);
+console.log({selectPlan, label})
   useEffect(() => {
     if (action == "edit") {
       setSelectPlan(data.mealType);
-      setQuantity(data.amount);
+      setQuantity(data.quantity);
       setSelectedFood(foodList.filter((food) => food.id == data.food_id)[0]);
+    }else{
+      setSelectPlan(label);
+      setQuantity(null);
+      setSelectedFood({});
     }
-  }, [action]);
+  }, [action, label, data]);
 
   // Filtered food list based on search input and selected category
   const filteredFoodList = useMemo(() => {
@@ -77,21 +85,16 @@ const FoodForm = ({
     setQuantity(+value);
   };
 
-  console.log(
-    { action, data, selectedFood },
-    foodList.filter((food) => food.id == data.food_id)[0]
-  );
-
   const handleAddMeal = () => {
     if (quantity !== null) {
       const mealType = {
         label: selectPlan,
         name: selectedFood.name,
-        amount: quantity,
+        quantity: quantity,
         calories: ((+quantity as number) * selectedFood.kcal).toFixed(2),
         carbs: ((+quantity as number) * selectedFood.carbohydrates).toFixed(2),
-        protein: ((+quantity as number) * selectedFood.fat).toFixed(2),
-        fat: ((+quantity as number) * selectedFood.protein).toFixed(2),
+        protein: ((+quantity as number) * selectedFood.protein).toFixed(2),
+        fat: ((+quantity as number) * selectedFood.fat).toFixed(2),
         food_id: selectedFood.id,
       };
 
@@ -107,6 +110,7 @@ const FoodForm = ({
     setQuantity(null);
     setSelectedFood({});
     setOpen(false);
+    setLabel(undefined);
   };
   return (
     <Sheet open={isOpen} onOpenChange={handleClose}>

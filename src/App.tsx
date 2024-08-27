@@ -28,7 +28,6 @@ import WorkoutPlan from "./components/admin/workoutplan";
 import IdleLogoutHandler from "./components/Idle-Timer";
 import NotFoundPage from "./components/PageNotFound";
 import ResetPassword from "./components/app/reset_password";
-import MyForm from "./components/admin/test/Testcomponent";
 import ForgotPasword from "./components/app/login/forgot_password";
 
 function App() {
@@ -49,7 +48,7 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/members" element={<MemberPage />} />
-            <Route path="/admin/system_settings" element={<SystemSettings />} />
+            {/* <Route path="/admin/system_settings" element={<SystemSettings />} /> */}
             {/* <Route path="/admin/leads"  element={<Leads />} /> */}
             {/* <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}
             <Route path="/admin/facilities" element={<Facilities />} />
@@ -61,9 +60,9 @@ function App() {
 
             {/* <Route path="/admin/roles"  element={<RolesAndAccess />} /> */}
             <Route path="/admin/staff" element={<Staff />} />
-            {/* <Route path="/admin/exercise" element={<Exercise />} /> */}
+            <Route path="/admin/exercise" element={<Exercise />} />
 
-          <Route path="/admin/mealplans" element={<MealPlans />} />
+            {/* <Route path="/admin/mealplans" element={<MealPlans />} /> */}
             <Route path="/admin/foods" element={<FoodsNutrition />} />
             {/* <Route path="/admin/workoutplans"  element={<WorkoutPlan />} /> */}
             <Route path="*" element={<NotFoundPage />} />

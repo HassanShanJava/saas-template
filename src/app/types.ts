@@ -987,10 +987,12 @@ export interface ExerciseCreationResponse {
   id: number;
   message: string;
 }
+
 export enum ExerciseTypeEnum {
   time_based = "Time Based",
   repetition_based = "Repetition Based",
 }
+
 export enum difficultyEnum {
   Novice = "Novice",
   Beginner = "Beginner",

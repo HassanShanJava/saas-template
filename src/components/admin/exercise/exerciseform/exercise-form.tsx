@@ -384,7 +384,6 @@ const ExerciseForm = ({
       name: "video_url_male",
       label: "Youtube link-Male",
       required: false,
-      maxlength: 150,
       pattern: "https?://.+",
     },
     {
@@ -392,7 +391,6 @@ const ExerciseForm = ({
       name: "video_url_female",
       label: "Youtube link-Female",
       required: false,
-      maxlength: 150,
       pattern: "https?://.+",
     },
     {
@@ -499,7 +497,6 @@ const ExerciseForm = ({
                           item.name as keyof createExerciseInputTypes,
                           {
                             required: item.required && "Required",
-                            maxLength: item.maxlength || 40,
                             setValueAs: (value) => value.toLowerCase(),
                             pattern: item.pattern
                               ? {
@@ -514,13 +511,6 @@ const ExerciseForm = ({
                             ?.message
                         }
                       />
-
-                      {errors[item.name as keyof createExerciseInputTypes]
-                        ?.type === "maxLength" && (
-                        <span className="text-red-500 mt-[5px] text-xs">
-                          Max length exceeded
-                        </span>
-                      )}
                     </div>
                   );
                 }
@@ -596,11 +586,6 @@ const ExerciseForm = ({
                                     ? value.toString() // Convert numbers to strings
                                     : (value as string | undefined) // Ensure it's a string or undefined
                                 }
-                                // defaultValue={
-                                //   typeof value === "number"
-                                //     ? value.toString()
-                                //     : (value as string | undefined)
-                                // }
                               >
                                 <SelectTrigger
                                   floatingLabel={item.label}
@@ -827,7 +812,7 @@ const ExerciseForm = ({
                 />
               </div>
               <div className="w-[33%]">
-                <h1 className="m-2 font-semibold"> Upload Gif</h1>
+                <h1 className="m-2 font-semibold">Upload Gif*</h1>
                 <Controller
                   name="gif"
                   control={control}
@@ -981,7 +966,18 @@ const ExerciseForm = ({
                         <Controller
                           name={`timePerSet.${index}.value` as const}
                           control={control}
-                          rules={{ required: "Required" }}
+                          rules={{
+                            required: "Required",
+                            validate: {
+                              positiveInteger: (value) =>
+                                value !== null &&
+                                value !== undefined &&
+                                value >= 60 &&
+                                value <= 3600
+                                  ? true
+                                  : "The accepted values are between 60 to 3600",
+                            },
+                          }}
                           render={({ field }) => (
                             <div>
                               <FloatingLabelInput
@@ -993,11 +989,17 @@ const ExerciseForm = ({
                                     ? "border-red-500"
                                     : ""
                                 }`}
-                                min="0"
+                                min="1"
                                 value={field.value ?? ""}
                               />
                               {errors?.timePerSet?.[index] && (
-                                <span className="text-red-500 mr-4">
+                                <span
+                                  className="text-red-500 mr-4"
+                                  style={{
+                                    width: "200px",
+                                    display: "inline-block",
+                                  }}
+                                >
                                   {errors.timePerSet[index]?.value?.message}
                                 </span>
                               )}
@@ -1008,7 +1010,18 @@ const ExerciseForm = ({
                         <Controller
                           name={`restPerSet.${index}.value` as const}
                           control={control}
-                          rules={{ required: "Required" }}
+                          rules={{
+                            required: "Required",
+                            validate: {
+                              positiveInteger: (value) =>
+                                value !== null &&
+                                value !== undefined &&
+                                value >= 60 &&
+                                value <= 3600
+                                  ? true
+                                  : "The accepted values are between 60 to 3600",
+                            },
+                          }}
                           render={({ field }) => (
                             <div>
                               <FloatingLabelInput
@@ -1020,11 +1033,17 @@ const ExerciseForm = ({
                                     ? "border-red-500"
                                     : ""
                                 }`}
-                                min="0"
+                                min="1"
                                 value={field.value ?? ""}
                               />
                               {errors?.restPerSet?.[index] && (
-                                <span className="text-red-500 mr-4">
+                                <span
+                                  className="text-red-500 mr-4"
+                                  style={{
+                                    width: "200px",
+                                    display: "inline-block",
+                                  }}
+                                >
                                   {errors.restPerSet[index]?.value?.message}
                                 </span>
                               )}
@@ -1076,7 +1095,18 @@ const ExerciseForm = ({
                         <Controller
                           name={`repetitionPerSet.${index}.value` as const}
                           control={control}
-                          rules={{ required: "Required" }}
+                          rules={{
+                            required: "Required",
+                            validate: {
+                              withinRange: (value) =>
+                                value !== null &&
+                                value !== undefined &&
+                                value >= 1 &&
+                                value <= 100
+                                  ? true
+                                  : "The accepted values are between 1 to 100",
+                            },
+                          }}
                           render={({ field }) => (
                             <div>
                               <FloatingLabelInput
@@ -1088,11 +1118,17 @@ const ExerciseForm = ({
                                     ? "border-red-500"
                                     : ""
                                 }`}
-                                min="0"
+                                min="1"
                                 value={field.value ?? ""}
                               />
                               {errors?.repetitionPerSet?.[index] && (
-                                <span className="text-red-500 mr-4">
+                                <span
+                                  className="text-red-500 mr-4"
+                                  style={{
+                                    width: "200px",
+                                    display: "inline-block",
+                                  }}
+                                >
                                   {
                                     errors.repetitionPerSet[index]?.value
                                       ?.message
@@ -1102,11 +1138,21 @@ const ExerciseForm = ({
                             </div>
                           )}
                         />
-
                         <Controller
                           name={`restPerSetrep.${index}.value` as const}
                           control={control}
-                          rules={{ required: "Required" }}
+                          rules={{
+                            required: "Required",
+                            validate: {
+                              positiveInteger: (value) =>
+                                value !== null &&
+                                value !== undefined &&
+                                value >= 60 &&
+                                value <= 3600
+                                  ? true
+                                  : "The accepted values are between 60 to 3600",
+                            },
+                          }}
                           render={({ field }) => (
                             <div>
                               <FloatingLabelInput
@@ -1118,11 +1164,17 @@ const ExerciseForm = ({
                                     ? "border-red-500"
                                     : ""
                                 }`}
-                                min="0"
+                                min="1"
                                 value={field.value ?? ""}
                               />
                               {errors?.restPerSetrep?.[index] && (
-                                <span className="text-red-500 mr-4">
+                                <span
+                                  className="text-red-500 mr-4"
+                                  style={{
+                                    width: "200px",
+                                    display: "inline-block",
+                                  }}
+                                >
                                   {errors.restPerSetrep[index]?.value?.message}
                                 </span>
                               )}
@@ -1143,6 +1195,7 @@ const ExerciseForm = ({
                         {
                           <button
                             type="button"
+                            disabled={repetitionFields.length <= 1}
                             onClick={() => {
                               removeRepetition(index);
                               removeRestrep(index);

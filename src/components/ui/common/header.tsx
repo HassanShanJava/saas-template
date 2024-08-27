@@ -107,6 +107,12 @@ export const Header = () => {
                 targetPath="/admin/coach"
                 title="Coach"
               />
+
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/exercise"
+                title="Exercise"
+              />
               <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/coach/addcoach"

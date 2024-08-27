@@ -20,12 +20,7 @@ import logomainsvg from "@/assets/logo-main.svg";
 import { useSendResetEmailMutation } from "@/services/resetPassApi";
 import { ErrorType } from "@/app/types";
 
-// interface forgotPaswordType {
-//   open: boolean;
-//   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-// }
 
-// { open, setOpen }: forgotPaswordType
 const ForgotPasword = () => {
   const { toast } = useToast();
   const navigate = useNavigate();

@@ -4,6 +4,8 @@ import { Header } from "./header";
 import { Toaster } from "@/components/ui/toaster";
 import "./style.css";
 import { IoIosFitness } from "react-icons/io";
+import { MdOutlineFoodBank } from "react-icons/md";
+
 import dashboardsvg from "@/assets/dashboard-svg.svg";
 import event from "@/assets/events.svg";
 import {
@@ -12,7 +14,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
+import { MdSettingsSuggest } from "react-icons/md";
 interface NavItem {
   name: string;
   link: string;
@@ -146,7 +148,7 @@ const navItems: NavItem[] = [
   {
     name: "Food/ Nutrition",
     link: "/admin/foods",
-    icon: EventsIcon,
+    icon: MdOutlineFoodBank,
     dropdown: false,
   },
   {
@@ -166,7 +168,7 @@ const navItems: NavItem[] = [
   {
     name: "System Settings",
     dropdown: true,
-    icon: MultiUserIcon,
+    icon: MdSettingsSuggest,
     link: "",
     children: [
       {

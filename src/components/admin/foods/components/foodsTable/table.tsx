@@ -207,12 +207,14 @@ export default function FoodsTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex gap-2 items-center justify-between w-fit">
-            {row.original.img_url?<img
-              src={VITE_VIEW_S3_URL + "/" + row.original.img_url}
-              alt={row.original.name}
-              loading="lazy"
-              className="size-14 bg-gray-100 object-contain rounded-sm "
-            />:(
+            {row.original.img_url ? (
+              <img
+                src={VITE_VIEW_S3_URL + "/" + row.original.img_url}
+                alt={row.original.name}
+                loading="lazy"
+                className="size-14 bg-gray-100 object-contain rounded-sm "
+              />
+            ) : (
               <div className="size-14 bg-gray-100 rounded-sm"></div>
             )}
             <span className="capitalize">{row.original.name}</span>
@@ -494,7 +496,7 @@ export default function FoodsTableView() {
             <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
             <FloatingLabelInput
               id="search"
-              placeholder="Search by food name"
+              placeholder="Search by name"
               onChange={(event) => setInputValue(event.target.value)}
               className="w-64 pl-8 text-gray-400"
             />

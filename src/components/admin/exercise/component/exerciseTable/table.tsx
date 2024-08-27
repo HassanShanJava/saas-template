@@ -514,7 +514,7 @@ export default function ExerciseTableView() {
               <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
               <FloatingLabelInput
                 id="search"
-                placeholder="Search by Exercise Name"
+                placeholder="Search by name"
                 onChange={(event) => setInputValue(event.target.value)}
                 className="w-64 pl-8 text-gray-400"
               />

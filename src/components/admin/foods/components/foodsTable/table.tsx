@@ -493,7 +493,7 @@ export default function FoodsTableView() {
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
           <div className="flex items-center  relative">
-            <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
+            <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
             <FloatingLabelInput
               id="search"
               placeholder="Search by name"

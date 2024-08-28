@@ -150,8 +150,8 @@ const ResetPassword = () => {
           </div>
         ) : verifyToken !== undefined && !error ? (
           <div className="grid grid-cols-3 mx-16 justify-between items-center h-dvh ">
-            <div className=" col-span-2"></div>
-            <Card className="col-span-1 mx-auto bg-transparent bg-opacity-10  backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg p-2">
+            <div className="col-span-1 xlg:col-span-2"></div>
+            <Card className="col-span-2 xlg:col-span-1 mx-auto bg-transparent bg-opacity-10  backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg p-2">
               <CardHeader>
                 <CardTitle>
                   <div className="gap-1 flex justify-center items-center">

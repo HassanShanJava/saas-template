@@ -676,7 +676,12 @@ const MemberForm = ({
                     id="phone"
                     label="Landline Number"
                     className=""
-                    {...register("phone")}
+                    {...register("phone", {
+                      maxLength: {
+                        value: 15,
+                        message: "should be 15 character or less",
+                      },
+                    })}
                     error={errors.phone?.message}
                   />
                 </div>
@@ -685,7 +690,12 @@ const MemberForm = ({
                     type="tel"
                     id="mobile_number"
                     label="Mobile Number"
-                    {...register("mobile_number")}
+                    {...register("mobile_number", {
+                      maxLength: {
+                        value: 15,
+                        message: "should be 15 character or less",
+                      },
+                    })}
                     error={errors.mobile_number?.message}
                   />
                 </div>

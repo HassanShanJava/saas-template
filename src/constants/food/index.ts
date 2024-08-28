@@ -24,7 +24,7 @@ export const visibleFor = [
 
 export const weights = [
   { value: "g", label: "Gram" },
-  { value: "ml", label: "ML" },
+  { value: "ml", label: "ml" },
   { value: "g_ml", label: "Gram/ML" },
 ];
 

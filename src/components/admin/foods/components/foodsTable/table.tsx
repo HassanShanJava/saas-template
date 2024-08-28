@@ -261,7 +261,7 @@ export default function FoodsTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <span>{row.original.weight_unit}</span>;
+        return <span className="capitalize">{row.original.weight_unit}</span>;
       },
       enableSorting: false,
       enableHiding: false,

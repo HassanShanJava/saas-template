@@ -661,7 +661,7 @@ const MemberForm = ({
                       },
                       pattern: {
                         value:
-                          /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
+                          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
                         message: "Incorrect email format",
                       },
                     })}
@@ -675,7 +675,12 @@ const MemberForm = ({
                     id="phone"
                     label="Landline Number"
                     className=""
-                    {...register("phone")}
+                    {...register("phone", {
+                      maxLength: {
+                        value: 15,
+                        message: "should be 15 character or less",
+                      },
+                    })}
                     error={errors.phone?.message}
                   />
                 </div>
@@ -684,7 +689,12 @@ const MemberForm = ({
                     type="tel"
                     id="mobile_number"
                     label="Mobile Number"
-                    {...register("mobile_number")}
+                    {...register("mobile_number", {
+                      maxLength: {
+                        value: 15,
+                        message: "should be 15 character or less",
+                      },
+                    })}
                     error={errors.mobile_number?.message}
                   />
                 </div>

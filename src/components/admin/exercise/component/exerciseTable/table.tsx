@@ -11,6 +11,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import ExerciseFilters from "./data-table-filter";
 import { Button } from "@/components/ui/button";
 import {
@@ -269,7 +275,23 @@ export default function ExerciseTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original?.exercise_name)}
+            {/* {displayValue(row?.original?.exercise_name)} */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="capitalize cursor-pointer">
+                    {/* Display the truncated name */}
+                    {displayValue(
+                      `${row?.original?.exercise_name}`.substring(0, 8) + "..."
+                    )}
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {/* Display the full name in the tooltip */}
+                  <p>{displayValue(`${row?.original?.exercise_name}`)}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         );
       },
@@ -508,29 +530,31 @@ export default function ExerciseTableView() {
   return (
     <>
       <div className="w-full space-y-4">
-        <div className="flex items-center justify-between px-5 ">
-          <div className="flex flex-1 items-center space-x-2">
-            <div className="flex items-center  relative">
-              <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+          <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
+            <div className="flex items-center relative w-full lg:w-auto">
+              <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
               <FloatingLabelInput
                 id="search"
                 placeholder="Search by name"
                 onChange={(event) => setInputValue(event.target.value)}
-                className="w-64 pl-8 text-gray-400"
+                className=" w-80 lg:w-64 pl-8 text-gray-400"
               />
             </div>
           </div>
-          <Button
-            className="bg-primary m-4 text-black gap-1"
-            onClick={handleRoute}
-          >
-            <PlusIcon className="h-4 w-4" />
-            Create New
-          </Button>
-          <DataTableViewOptions table={table} />
-          <div className="px-3 flex gap-2">
+
+          {/* Buttons Container */}
+          <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
+            <Button
+              className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
+              onClick={handleRoute}
+            >
+              <PlusIcon className="size-4" />
+              Create New
+            </Button>
+            <DataTableViewOptions table={table} />
             <button
-              className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
+              className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
               onClick={() => setOpenFilter(true)}
             >
               <i className="fa fa-filter"></i>

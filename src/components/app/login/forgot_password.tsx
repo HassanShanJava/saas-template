@@ -48,13 +48,18 @@ const ForgotPasword = () => {
     console.log(data);
     const recaptchaValue = recaptchaRef.current?.getValue();
 
+
     if (!recaptchaValue) {
       console.log("Please complete the ReCAPTCHA challenge.");
       setCaptchaError(true);
       return;
     }
+    const payload = {
+      ...data,
+      email: data.email.toLowerCase(),
+    }
     try {
-      const resp = await sendRestEmail(data).unwrap();
+      const resp = await sendRestEmail(payload).unwrap();
       if (resp) {
         toast({
           variant: "success",

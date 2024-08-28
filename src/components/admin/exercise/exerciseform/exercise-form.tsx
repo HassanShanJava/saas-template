@@ -240,6 +240,7 @@ const ExerciseForm = ({
     const payload = {
       ...responsePayload,
       org_id: orgId,
+      exercise_name: responsePayload.exercise_name.toLowerCase(),
     };
     try {
       if (action === "add") {
@@ -328,6 +329,7 @@ const ExerciseForm = ({
       type: "text",
       name: "exercise_name",
       label: "Exercise Name*",
+      maxlength: 41,
       required: true,
     },
     {
@@ -420,7 +422,7 @@ const ExerciseForm = ({
     <Sheet open={isOpen}>
       <SheetContent
         hideCloseButton
-        className="!max-w-[1100px] py-0 custom-scrollbar h-full"
+        className="lg:!max-w-[1100px] py-0 custom-scrollbar h-full w-[85%]"
       >
         <FormProvider {...form}>
           <form
@@ -494,11 +496,16 @@ const ExerciseForm = ({
                       <FloatingLabelInput
                         id={item.name}
                         label={item.label}
+                        maxLength={item.maxlength ?? 0}
                         {...register(
                           item.name as keyof createExerciseInputTypes,
                           {
                             required: item.required && "Required",
                             setValueAs: (value) => value.toLowerCase(),
+                            maxLength: {
+                              value: 40,
+                              message: "Should be 40 characters or less",
+                            },
                             pattern: item.pattern
                               ? {
                                   value: new RegExp(item.pattern),
@@ -1000,7 +1007,7 @@ const ExerciseForm = ({
                               />
                               {errors?.timePerSet?.[index] && (
                                 <span
-                                  className="text-red-500 mr-4 text-xs"
+                                  className="text-red-500 mr-4 text-xs pt-2"
                                   style={{
                                     width: "200px",
                                     display: "inline-block",
@@ -1045,7 +1052,7 @@ const ExerciseForm = ({
                               />
                               {errors?.restPerSet?.[index] && (
                                 <span
-                                  className="text-red-500 mr-4 text-xs"
+                                  className="text-red-500 mr-4 text-xs pt-2"
                                   style={{
                                     width: "200px",
                                     display: "inline-block",
@@ -1131,7 +1138,7 @@ const ExerciseForm = ({
                               />
                               {errors?.repetitionPerSet?.[index] && (
                                 <span
-                                  className="text-red-500 mr-4 text-xs"
+                                  className="text-red-500 mr-4 text-xs pt-2"
                                   style={{
                                     width: "200px",
                                     display: "inline-block",
@@ -1178,7 +1185,7 @@ const ExerciseForm = ({
                               />
                               {errors?.restPerSetrep?.[index] && (
                                 <span
-                                  className="text-red-500 mr-4 text-xs"
+                                  className="text-red-500 mr-4 text-xs pt-2"
                                   style={{
                                     width: "200px",
                                     display: "inline-block",

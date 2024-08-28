@@ -19,6 +19,7 @@ import {
 import { useState, useMemo, useEffect } from "react";
 import { planFor } from "@/constants/meal_plans";
 import { Button } from "@/components/ui/button";
+import { set } from "date-fns";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 interface FoodForm {
@@ -48,18 +49,19 @@ const FoodForm = ({
   setFoodAction,
   setLabel
 }: FoodForm) => {
+  const [inputError, setInputError] = useState<boolean>(false)
   const [selectedFood, setSelectedFood] = useState<Record<string, any>>({});
   const [searchInput, setSearchInput] = useState<string>("");
   const [quantity, setQuantity] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectPlan, setSelectPlan] = useState<string | undefined>(label);
-console.log({selectPlan, label})
+  console.log({ selectPlan, label })
   useEffect(() => {
     if (action == "edit") {
       setSelectPlan(data.mealType);
       setQuantity(data.quantity);
       setSelectedFood(foodList.filter((food) => food.id == data.food_id)[0]);
-    }else{
+    } else {
       setSelectPlan(label);
       setQuantity(null);
       setSelectedFood({});
@@ -86,19 +88,24 @@ console.log({selectPlan, label})
   };
 
   const handleAddMeal = () => {
+
     if (quantity !== null) {
+      setInputError(false)
       const mealType = {
         label: selectPlan,
         name: selectedFood.name,
         quantity: quantity,
-        calories: ((+quantity as number) * selectedFood.kcal).toFixed(2),
-        carbs: ((+quantity as number) * selectedFood.carbohydrates).toFixed(2),
-        protein: ((+quantity as number) * selectedFood.protein).toFixed(2),
-        fat: ((+quantity as number) * selectedFood.fat).toFixed(2),
+        calories: Math.floor(((+quantity as number) * selectedFood.kcal) * 100) / 100,
+        carbs: Math.floor(((+quantity as number) * selectedFood.kcal) * 100) / 100,
+        protein: Math.floor((+quantity as number) * selectedFood.protein * 100) / 100,
+        fat: Math.floor((+quantity as number) * selectedFood.fat * 100) / 100,
         food_id: selectedFood.id,
       };
 
       handleAddFood(mealType, action);
+    } else {
+      setInputError(true);
+      return;
     }
     handleClose();
   };
@@ -120,6 +127,7 @@ console.log({selectPlan, label})
           <Separator className=" h-[1px] rounded-full my-2" />
         </SheetHeader>
         <SheetDescription className="px-4 pb-4">
+
           {Object.entries(selectedFood).length == 0 && (
             <div>
               <div className="flex justify-between items-center gap-2">
@@ -194,7 +202,7 @@ console.log({selectPlan, label})
           )}
 
           {Object.entries(selectedFood).length > 0 && (
-            <div className="flex flex-col gap-3">
+            <form className="flex flex-col gap-3" >
               {/* image */}
               <div className="flex items-center gap-2">
                 <img
@@ -202,7 +210,7 @@ console.log({selectPlan, label})
                   className="size-9 rounded-sm object-contain"
                 />
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="capitalize text-sm font-semibold text-gray-900">
                     {selectedFood.name}
                   </p>
                   <p
@@ -216,6 +224,7 @@ console.log({selectPlan, label})
 
               {/* planFor */}
               <Select
+                disabled={action=='edit'}
                 onValueChange={(value) => setSelectPlan(value)}
                 defaultValue={selectPlan}
               >
@@ -233,19 +242,34 @@ console.log({selectPlan, label})
               </Select>
 
               {/* quantity */}
-              <Input
-                placeholder="Quantity"
-                defaultValue={quantity as number}
-                type="number"
-                id="quantity"
-                onChange={handleChange}
-              />
+              <div>
+                <Input
+                  placeholder="Quantity"
+                  defaultValue={quantity as number}
+                  type="number"
+                  id="quantity"
+                  step={1}
+                  min={1}
+                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                    if (e.key === '.') {
+                      e.preventDefault();
+                      return;
+                    }
+                  }}
+                  onChange={handleChange}
+                />
+                {inputError && (
+                  <span className="text-red-500 text-xs mt-[5px]">
+                    Quantity is required
+                  </span>
+                )}
+              </div>
 
               <Button className="text-black space-x-2" onClick={handleAddMeal}>
                 <i className="fa fa-plus"></i>
                 <span>Add</span>
               </Button>
-            </div>
+            </form>
           )}
         </SheetDescription>
       </SheetContent>

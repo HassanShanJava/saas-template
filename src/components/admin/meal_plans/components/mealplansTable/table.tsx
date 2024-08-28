@@ -51,6 +51,11 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetFoodsQuery } from "@/services/foodsApi";
 import { useGetMembersListQuery } from "@/services/memberAPi";
 import { visibleFor } from "@/constants/meal_plans";
+
+const visibleForMap = Object.fromEntries(
+  visibleFor.map((vf) => [vf.label, vf.value])
+);
+
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
@@ -237,16 +242,16 @@ export default function MealPlansTableView() {
     {
       accessorKey: "carbs",
       header: () => <div className="flex items-center gap-2">
-      <p>Carbs</p>
-      <button
-        className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-        onClick={() => toggleSortOrder("carbs")}
-      >
-        <i
-          className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-        ></i>
-      </button>
-    </div>,
+        <p>Carbs</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("carbs")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>,
       cell: ({ row }) => {
         return <span>{row.original.carbs}</span>;
       },
@@ -256,16 +261,16 @@ export default function MealPlansTableView() {
     {
       accessorKey: "protein",
       header: () => <div className="flex items-center gap-2">
-      <p>Protein</p>
-      <button
-        className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-        onClick={() => toggleSortOrder("protein")}
-      >
-        <i
-          className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-        ></i>
-      </button>
-    </div>,
+        <p>Protein</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("protein")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>,
       cell: ({ row }) => {
         return <span>{row.original.protein}</span>;
       },
@@ -275,16 +280,16 @@ export default function MealPlansTableView() {
     {
       accessorKey: "fats",
       header: () => <div className="flex items-center gap-2">
-      <p>Name</p>
-      <button
-        className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-        onClick={() => toggleSortOrder("name")}
-      >
-        <i
-          className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-        ></i>
-      </button>
-    </div>,
+        <p>Name</p>
+        <button
+          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+          onClick={() => toggleSortOrder("name")}
+        >
+          <i
+            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+          ></i>
+        </button>
+      </div>,
       cell: ({ row }) => {
         return <span>{row.original.fats}</span>;
       },
@@ -332,8 +337,13 @@ export default function MealPlansTableView() {
 
   const handleEdit = (data: mealPlanDataType) => {
     console.log({ data }, 'edit modal')
+    const payload = {
+      ...data,
+      visible_for: visibleForMap[data.visible_for!],
+    };
+    setData(payload);
     setAction("edit");
-    setData(data);
+    setData(payload);
     setIsDialogOpen(true);
   };
 
@@ -361,7 +371,7 @@ export default function MealPlansTableView() {
       type: "select",
       name: "visible_for",
       label: "Visible For",
-      options: visibleFor.map((item) => ({ id: item.label, name: item.label })),
+      options: visibleFor.map((item) => ({ id: item.value, name: item.label })),
       function: handleVisiblity,
     },
     {
@@ -384,13 +394,12 @@ export default function MealPlansTableView() {
 
 
 
-  const totalRecords = mealsData?.total_counts || 0;
+  const totalRecords = mealsData?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
-    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+    Math.floor((totalRecords - 1) / searchCretiria.limit) * searchCretiria.limit
   );
   const isLastPage = searchCretiria.offset >= lastPageOffset;
-
   const nextPage = () => {
     if (!isLastPage) {
       setSearchCretiria((prev) => ({

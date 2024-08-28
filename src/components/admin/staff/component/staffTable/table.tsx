@@ -651,13 +651,12 @@ export default function StaffTableView() {
     });
   };
 
-  const totalRecords = staffData?.total_counts || 0;
+  const totalRecords = staffData?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
-    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+    Math.floor((totalRecords - 1) / searchCretiria.limit) * searchCretiria.limit
   );
   const isLastPage = searchCretiria.offset >= lastPageOffset;
-
   const nextPage = () => {
     if (!isLastPage) {
       setSearchCretiria((prev) => ({

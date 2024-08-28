@@ -241,7 +241,7 @@ export default function FoodsTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <span>{row.original.brand}</span>;
+        return <span className="capitalize">{row.original.brand}</span>;
       },
       enableSorting: false,
       enableHiding: false,

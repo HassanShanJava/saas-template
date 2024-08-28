@@ -149,7 +149,6 @@ const initialValues: MemberInputTypes = {
   coach_id: [] as z.infer<typeof coachsSchema>[],
   membership_plan_id: undefined,
   send_invitation: true,
-  client_since: format(new Date(), "yyyy-MM-dd"),
   auto_renewal: false,
   prolongation_period: undefined,
   auto_renew_days: undefined,
@@ -400,7 +399,7 @@ const MemberForm = ({
       description: "Please fill all the mandatory fields",
     });
   };
-  console.log({ watcher, errors, action });
+  console.log({ watcher, errors, action, isSubmitting });
   return (
     <Sheet open={open}>
       <SheetContent
@@ -442,14 +441,15 @@ const MemberForm = ({
                     <div>
                       <LoadingButton
                         type="submit"
-                        className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
+                        className="w-[100px]  bg-primary text-black text-center flex items-center gap-2"
                         loading={isSubmitting}
                         disabled={isSubmitting}
                       >
                         {!isSubmitting && (
                           <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                         )}
-                        {action === "edit" ? "Update" : "Save"}
+
+                        Save
                       </LoadingButton>
                     </div>
                   </div>
@@ -515,6 +515,28 @@ const MemberForm = ({
                     error={
                       errors?.own_member_id?.message as keyof MemberInputTypes
                     }
+                  />
+                </div>
+                <div className="relative ">
+                  <FloatingLabelInput
+                    id="email"
+                    className=""
+                    type="email"
+                    disabled={action == "edit"}
+                    label="Email Address*"
+                    {...register("email", {
+                      required: "Required",
+                      maxLength: {
+                        value: 40,
+                        message: "Should be 40 characters or less",
+                      },
+                      pattern: {
+                        value:
+                          /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
+                        message: "Incorrect email format",
+                      },
+                    })}
+                    error={errors.email?.message}
                   />
                 </div>
                 <div className="relative ">
@@ -646,28 +668,7 @@ const MemberForm = ({
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                <div className="relative ">
-                  <FloatingLabelInput
-                    id="email"
-                    className=""
-                    type="email"
-                    disabled={action == "edit"}
-                    label="Email Address*"
-                    {...register("email", {
-                      required: "Required",
-                      maxLength: {
-                        value: 40,
-                        message: "Should be 40 characters or less",
-                      },
-                      pattern: {
-                        value:
-                          /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
-                        message: "Incorrect email format",
-                      },
-                    })}
-                    error={errors.email?.message}
-                  />
-                </div>
+                
 
                 <div className="relative ">
                   <FloatingLabelInput
@@ -893,14 +894,14 @@ const MemberForm = ({
                                 className={cn(
                                   "justify-between ",
                                   !value &&
-                                    "font-medium text-gray-800 focus:border-primary "
+                                  "font-medium text-gray-800 focus:border-primary "
                                 )}
                               >
                                 {value
                                   ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                    (country: CountryTypes) =>
+                                      country.id === value // Compare with numeric value
+                                  )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

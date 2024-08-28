@@ -382,14 +382,14 @@ export default function CoachTableView() {
       },
     },
     {
-      accessorKey: "coach_since",
+      accessorKey: "activated_on",
       meta: "Coach Since",
       header: () => (
         <div className="flex items-center gap-2">
           <p>Coach Since</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("coach_since")}
+            onClick={() => toggleSortOrder("activated_on")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -400,7 +400,7 @@ export default function CoachTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayDate(row?.original.coach_since)}
+            {displayDate(row?.original.activated_on)}
           </div>
         );
       },

@@ -99,6 +99,7 @@ export default {
       // => @media (min-width: 1280px) { ... }
 
       "2xl": "1536px",
+      "4xl":"1920px"
       // => @media (min-width: 1536px) { ... }
     },
   },

@@ -376,7 +376,7 @@ export default function StaffTableView() {
                       {displayValue(
                         `${row.original.first_name} ${row.original.last_name}`.substring(
                           0,
-                          6
+                          8
                         ) + "..."
                       )}
                     </p>
@@ -702,7 +702,7 @@ export default function StaffTableView() {
             <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
             <FloatingLabelInput
               id="search"
-              placeholder="Search by staff name"
+              placeholder="Search by name"
               onChange={(event) => setInputValue(event.target.value)}
               className="w-64 pl-8 text-gray-400"
             />

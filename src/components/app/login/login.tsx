@@ -101,8 +101,13 @@ export default function AuthenticationPage() {
       return;
     }
 
-    console.log("Form data:", data);
-    dispatch(login(data));
+    const payload = {
+      ...data,
+      email: data.email.toLowerCase(),
+    }
+
+    console.log("Form data:", payload);
+    dispatch(login(payload));
     // recaptchaRef.current?.reset();
   };
 

@@ -24,7 +24,7 @@ export const visibleFor = [
 
 export const weights = [
   { value: "g", label: "Gram" },
-  { value: "ml", label: "ML" },
+  { value: "ml", label: "ml" },
   { value: "g_ml", label: "Gram/ML" },
 ];
 
@@ -107,13 +107,13 @@ export const nutrientsInfo = [
   {
     name: "carbs_sugar",
     type: "number",
-    label: "Of which sugars (g)",
+    label: "sugars (g)",
     required: false,
   },
   {
     name: "carbs_saturated",
     type: "number",
-    label: "Of which saturated (g)",
+    label: "saturated (g)",
     required: false,
   },
   {
@@ -239,7 +239,7 @@ export const nutrientsInfo = [
   {
     name: "fat_unsaturated",
     type: "number",
-    label: "Fatty acid total unsaturated (g)",
+    label: "Fatty acid unsaturated (g)",
     required: false,
   },
   {
@@ -257,13 +257,13 @@ export const nutrientsInfo = [
   {
     name: "alchohol_mono",
     type: "number",
-    label: "Of which mono unsaturated (g)",
+    label: "mono unsaturated (g)",
     required: false,
   },
   {
     name: "alchohol_poly",
     type: "number",
-    label: "Of which poly unsaturated (g)",
+    label: "poly unsaturated (g)",
     required: false,
   },
   {

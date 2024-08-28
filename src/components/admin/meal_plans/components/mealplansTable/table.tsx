@@ -133,7 +133,6 @@ export default function MealPlansTableView() {
     setQuery(newQuery);
   }, [searchCretiria]);
 
-
   const toggleSortOrder = (key: string) => {
     setSearchCretiria((prev) => {
       const newSortOrder =
@@ -164,9 +163,7 @@ export default function MealPlansTableView() {
     }
   );
 
-  const {
-    data: foodData,
-  } = useGetFoodsQuery(
+  const { data: foodData } = useGetFoodsQuery(
     { org_id: orgId, query: `sort_order=desc&sort_key=created_at` },
     {
       skip: query == "",
@@ -382,8 +379,6 @@ export default function MealPlansTableView() {
     },
   ];
 
-
-
   const totalRecords = mealsData?.total_counts || 0;
   const lastPageOffset = Math.max(
     0,
@@ -430,7 +425,7 @@ export default function MealPlansTableView() {
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
           <div className="flex items-center  relative">
-            <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
+            <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
             <FloatingLabelInput
               id="search"
               placeholder="Search by meal plan name"
@@ -470,9 +465,9 @@ export default function MealPlansTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

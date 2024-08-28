@@ -195,15 +195,15 @@ const StaffForm: React.FC<StaffFormProps> = ({
       .email("invalid email"),
     phone: z
       .string()
-      .max(11, {
-        message: "Cannot be greater than 11 digits",
+      .max(15, {
+        message: "Cannot be greater than 15 characters",
       })
       .trim()
       .optional(),
     mobile_number: z
       .string()
-      .max(11, {
-        message: "Cannot be greater than 11 digits",
+      .max(15, {
+        message: "Cannot be greater than 15 characters",
       })
       .trim()
       .optional(),

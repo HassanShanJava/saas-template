@@ -187,15 +187,15 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .email("Invalid Email"),
     phone: z
       .string()
-      .max(11, {
-        message: "Cannot be greater than 11 digits",
+      .max(15, {
+        message: "Cannot be greater than 15 characters",
       })
       .trim()
       .optional(),
     mobile_number: z
       .string()
-      .max(11, {
-        message: "Cannot be greater than 11 digits",
+      .max(15, {
+        message: "Cannot be greater than 15 characters",
       })
       .trim()
       .optional(),

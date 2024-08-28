@@ -1,4 +1,4 @@
-import tailwindAnimate from 'tailwindcss-animate';
+import tailwindAnimate from "tailwindcss-animate";
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -94,12 +94,12 @@ export default {
       slg: "1000px",
       lg: "1024px",
       // => @media (min-width: 1024px) { ... }
-
+      xlg: "1100px",
       xl: "1280px",
       // => @media (min-width: 1280px) { ... }
 
       "2xl": "1536px",
-      "4xl":"1920px"
+      "4xl": "1920px",
       // => @media (min-width: 1536px) { ... }
     },
   },

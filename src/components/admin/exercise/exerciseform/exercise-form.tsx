@@ -461,7 +461,7 @@ const ExerciseForm = ({
 
                     <LoadingButton
                       type="submit"
-                      className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
+                      className="w-[120px] bg-primary text-black text-center flex items-center gap-2"
                       loading={isSubmitting}
                       disabled={isSubmitting}
                     >

@@ -376,7 +376,7 @@ export default function SaleTaxesTableView() {
     setIsDialogOpen(true);
   };
 
-  const totalRecords = saleTaxesData?.total_counts || 0;
+  const totalRecords = saleTaxesData?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
     Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit

@@ -394,7 +394,7 @@ export default function IncomeCategoryTableView() {
     setIsDialogOpen(true);
   };
 
-  const totalRecords = incomeCategoryData?.total_counts || 0;
+  const totalRecords = incomeCategoryData?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
     Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit

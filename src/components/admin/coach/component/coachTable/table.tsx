@@ -568,7 +568,7 @@ export default function CoachTableView() {
     },
   ];
 
-  const totalRecords = coachData?.total_counts || 0;
+  const totalRecords = coachData?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
     Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
@@ -619,41 +619,38 @@ export default function CoachTableView() {
   const [editCoach, setEditCoach] = useState<coachUpdateInput | null>(null);
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center justify-between gap-2 px-4 py-2 ">
-        <div className="flex flex-1 items-center space-x-2">
-          <div className="flex items-center  relative">
-            <Search className="size-4 text-gray-400 absolute left-1 z-40 ml-2" />
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+        <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
+          <div className="flex items-center relative w-full lg:w-auto">
+            <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
             <FloatingLabelInput
               id="search"
               placeholder="Search by name"
               onChange={(event) => setInputValue(event.target.value)}
-              className="w-64 pl-8 text-gray-400"
+              className=" w-80 lg:w-64 pl-8 text-gray-400"
             />
           </div>
         </div>
-        <Button
-          className="bg-primary  text-black mr-1 "
-          onClick={() => handleOpenForm()}
-        >
-          <PlusIcon className="size-4" />
-          Create New
-        </Button>
-        <DataTableViewOptions table={table} action={handleExportSelected} />
-        <button
-          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
-          onClick={() => setOpenFilter(true)}
-        >
-          <i className="fa fa-filter"></i>
-        </button>
-        {/* <button
-          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
-          onClick={toggleSortOrder}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button> */}
+
+        {/* Buttons Container */}
+        <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
+          <Button
+            className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
+            onClick={() => handleOpenForm()}
+          >
+            <PlusIcon className="size-4" />
+            Create New
+          </Button>
+          <DataTableViewOptions table={table} />
+          <button
+            className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
+            onClick={() => setOpenFilter(true)}
+          >
+            <i className="fa fa-filter"></i>
+          </button>
+        </div>
       </div>
+
       <div className="rounded-none border border-border ">
         <ScrollArea className="w-full relative">
           <ScrollBar

@@ -422,7 +422,7 @@ const ExerciseForm = ({
     <Sheet open={isOpen}>
       <SheetContent
         hideCloseButton
-        className="lg:!max-w-[1100px] py-0 custom-scrollbar h-full w-[85%]"
+        className="lg:!max-w-[1100px] py-0 custom-scrollbar h-full w-[85%] sm:w-full sm:max-w-3xl"
       >
         <FormProvider {...form}>
           <form
@@ -461,7 +461,7 @@ const ExerciseForm = ({
 
                     <LoadingButton
                       type="submit"
-                      className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
+                      className="w-[120px] bg-primary text-black text-center flex items-center gap-2"
                       loading={isSubmitting}
                       disabled={isSubmitting}
                     >

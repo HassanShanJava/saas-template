@@ -422,7 +422,7 @@ const ExerciseForm = ({
     <Sheet open={isOpen}>
       <SheetContent
         hideCloseButton
-        className="lg:!max-w-[1100px] py-0 custom-scrollbar h-full w-[85%]"
+        className="lg:!max-w-[1100px] py-0 custom-scrollbar h-full w-[85%] sm:w-full sm:max-w-3xl"
       >
         <FormProvider {...form}>
           <form

@@ -349,6 +349,7 @@ export interface CountryTypes {
   is_deleted: boolean;
 }
 export interface ErrorType {
+  status?:number;
   data?: {
     detail?: string;
   };
@@ -444,7 +445,6 @@ export interface MemberInputTypes {
   address_1?: string;
   address_2?: string;
   client_status?: string;
-  client_since?: Date | string;
   created_at?: string | null;
   created_by?: number | null;
   org_id?: number;
@@ -478,7 +478,7 @@ export interface MemberResponseTypes {
   zipcode?: string | null;
   address_1?: string | null;
   address_2?: string | null;
-  client_since?: Date;
+  activated_on?: Date;
   created_at?: string | null;
   created_by?: number | null;
   org_id: number;
@@ -526,7 +526,6 @@ export interface MemberTableDatatypes {
   zipcode?: string;
   address_1?: string;
   address_2?: string;
-  client_since?: Date;
   client_status?: string;
   created_at?: string | null;
   created_by?: number | null;
@@ -545,6 +544,7 @@ export interface MemberTableDatatypes {
   }[];
   last_online?: string | null;
   business_name?: string | null;
+  activated_on?:Date|string;
 }
 
 export interface MemberTableResponseDatatypes {
@@ -568,7 +568,7 @@ export interface MemberTableResponseDatatypes {
   zipcode?: string;
   address_1?: string;
   address_2?: string;
-  client_since?: Date;
+  activated_on?: Date|string;
   client_status?: string;
   created_at?: string | null;
   created_by?: number | null;
@@ -616,7 +616,7 @@ export interface CoachTableTypes {
   org_id: number;
   check_in: string | null;
   last_online: string | null;
-  coach_since?: string | null;
+  activated_on?: string | null;
 }
 
 export interface updateStaffInput {
@@ -687,7 +687,7 @@ export interface addCoachResponseType {
   address_2?: string;
   check_in?: string;
   last_online?: string;
-  coach_since?: string;
+  activated_on?: string;
   bank_name?: string;
   iban_no?: string;
   acc_holder_name?: string;
@@ -722,7 +722,7 @@ export interface CoachResponseType {
   address_2?: string | null;
   check_in?: string | null;
   last_online?: string | null;
-  coach_since?: string | null;
+  activated_on?: string | null;
   bank_name?: string | null;
   iban_no?: string | null;
   acc_holder_name?: string | null;
@@ -765,7 +765,7 @@ export interface CoachTableDataTypes {
   address_2?: string;
   check_in?: string | null;
   last_online?: string | null;
-  coach_since?: string | null; // ISO date string
+  activated_on?: string | null; // ISO date string
   coach_status: "pending" | "active" | "inactive";
   org_id: number;
   bank_name?: string;
@@ -795,7 +795,7 @@ export interface CoachResponseTypeById {
   address_2?: string;
   check_in?: string | null;
   last_online?: string | null;
-  coach_since?: string | null; // ISO date string
+  activated_on?: string | null; // ISO date string
   coach_status: "pending" | "active" | "inactive";
   org_id: number;
   bank_name?: string;
@@ -826,7 +826,7 @@ export interface ServerResponseById {
   address_2?: string;
   check_in?: string | null;
   last_online: string | null;
-  coach_since: string | null; // ISO date string
+  activated_on: string | null; // ISO date string
   coach_status: "pending" | "active" | "inactive";
   org_id: number;
   bank_name?: string;
@@ -944,7 +944,7 @@ export interface coachUpdateInput {
   address_2?: string;
   check_in?: string;
   last_online?: string;
-  coach_since?: string;
+  activated_on?: string;
   bank_name: string;
   iban_no: string;
   acc_holder_name: string;

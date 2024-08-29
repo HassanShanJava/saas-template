@@ -15,10 +15,11 @@ export const categories = [
   { value: "other", label: "Other" },
 ];
 
+
 export const visibleFor = [ 
-  { value: "only_me", label: "Only me" },
-  { value: "members", label: "Members in my gym" },
-  { value: "coaches_and_staff", label: "Coaches and Staff in my gym" },
+  { value: "only_myself", label: "Only myself" },
+  { value: "coaches", label: "Coaches of my gym" },
+  { value: "members", label: "Members of my gym" },
   { value: "everyone", label: "Everyone in my gym" },
 ];
 

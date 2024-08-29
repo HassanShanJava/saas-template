@@ -26,13 +26,13 @@ export function DataTableViewOptions<TData>({
   }
   return (
     <div className="flex justify-between items-center gap-3">
-      <Button className="text-black" onClick={handleClick}>
+      <Button className="text-black text-xs lg:text-base" onClick={handleClick}>
         {" "}
         Export CSV <FaFileCsv className="h-4 w-4 text-black" />
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">
+          <Button variant="outline" className="text-xs lg:text-base">
             <Settings2 className="mr-2 h-4 w-4" />
             Columns Settings
           </Button>

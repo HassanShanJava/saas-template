@@ -29,7 +29,7 @@ export function DataTableViewOptions<TData>({
     <div className="flex justify-between items-center gap-3">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">
+          <Button variant="outline" className="text-xs lg:text-base">
             <Settings2 className="mr-2 h-4 w-4" />
             Columns Settings
           </Button>

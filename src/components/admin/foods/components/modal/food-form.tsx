@@ -249,11 +249,12 @@ const FoodForm = ({
                       <div key={item.name} className="relative">
                         <FloatingLabelInput
                           id={item.name}
+                          className="capitalize"
                           label={item.label}
                           {...register(item.name as keyof CreateFoodTypes, {
                             required: item.required && "Required",
                             maxLength: 40,
-                            // setValueAs: (value) => value.toLowerCase(),
+                            setValueAs: (value) => value.toLowerCase(),
                           })}
                           error={
                             errors[item.name as keyof CreateFoodTypes]?.message

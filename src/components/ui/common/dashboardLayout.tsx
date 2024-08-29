@@ -142,7 +142,7 @@ const navItems: NavItem[] = [
   {
     name: "Meal Plans",
     link: "/admin/mealplans",
-    icon: EventsIcon,
+    icon: MdOutlineFoodBank,
     dropdown: false,
   },
   {

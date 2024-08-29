@@ -122,9 +122,9 @@ const calculatePercentages = (meals: {
   const total = totalProtein + totalFat + totalCarbs;
 
   return {
-    protein: total ? +((totalProtein / total) * 100).toFixed(1) : 0,
-    fat: total ? +((totalFat / total) * 100).toFixed(1) : 0,
-    carbs: total ? +((totalCarbs / total) * 100).toFixed(1) : 0,
+    protein: total ? Math.floor(((totalProtein / total) * 100) * 10) / 10 : 0,
+    fat: total ? Math.floor(((totalFat / total) * 100) * 10) / 10 : 0,
+    carbs: total ? Math.floor(((totalCarbs / total) * 100) * 10) / 10 : 0,
   };
 };
 
@@ -421,6 +421,7 @@ const MealPlanForm = ({
     setMeals(initialMeal);
     setOpen(false);
     setFiles([]);
+    reset(initialValue)
   };
 
   const [meals, setMeals] = useState<Record<string, any[]>>(initialMeal);
@@ -459,30 +460,30 @@ const MealPlanForm = ({
             foodAction === "add" ? existingFood.quantity + quantity : quantity,
           calories:
             foodAction === "add"
-              ? (+existingFood.calories + +calories).toFixed(2)
-              : (+calories).toFixed(2),
+              ? Math.floor(((+existingFood.calories + +calories) * 100) / 100)
+              : Math.floor((+calories * 100) / 100),
           carbs:
             foodAction === "add"
-              ? (+existingFood.carbs + +carbs).toFixed(2)
-              : (+carbs).toFixed(2),
+              ? Math.floor(((+existingFood.carbs + +carbs) * 100) / 100)
+              : Math.floor((+carbs * 100) / 100),
           protein:
             foodAction === "add"
-              ? (+existingFood.protein + +protein).toFixed(2)
-              : (+protein).toFixed(2),
+              ? Math.floor(((+existingFood.protein + +protein) * 100) / 100)
+              : Math.floor((+protein * 100) / 100),
           fat:
             foodAction === "add"
-              ? (+existingFood.fat + +fat).toFixed(2)
-              : (+fat).toFixed(2),
+              ? Math.floor(((+existingFood.fat + +fat) * 100) / 100)
+              : Math.floor((+fat * 100) / 100),
         };
       } else {
         // Add new food item
         updatedFoods.push({
           name: mealType.name,
           quantity: mealType.quantity,
-          calories: (+calories).toFixed(2),
-          carbs: (+carbs).toFixed(2),
-          protein: (+protein).toFixed(2),
-          fat: (+fat).toFixed(2),
+          calories: Math.floor((+carbs * 100) / 100),
+          carbs: Math.floor((+carbs * 100) / 100),
+          protein: Math.floor((+protein * 100) / 100),
+          fat: Math.floor((+fat * 100) / 100),
           food_id,
         });
       }
@@ -637,9 +638,9 @@ const MealPlanForm = ({
   };
 
   const handleOpen = (label: string) => {
-    setLabel(label);
-    setOpenFood(true);
-  };
+    setLabel(label)
+    setOpenFood(true)
+  }
   console.log({ watcher, errors, meals }, action);
   return (
     <Sheet open={isOpen} onOpenChange={() => setOpen(false)}>
@@ -694,12 +695,16 @@ const MealPlanForm = ({
             <Separator className=" h-[1px] rounded-full my-2" />
             <div className="pb-4">
               <p className="font-semibold pb-4 pt-2">General Information</p>
-              <div className="grid grid-cols-3 items-start gap-4">
+              <div className="grid grid-cols-3 items-start gap-4 ">
                 <div className="flex flex-col gap-2">
                   <FloatingLabelInput
                     id="male_name"
                     label="Name*"
-                    {...register("name", { required: "  Required" })}
+                    className="capitalize"
+                    {...register("name",  {
+                      required: "  Required",
+                      setValueAs: (value) => value.toLowerCase(),
+                    })}
                     error={errors.name?.message}
                   />
 
@@ -803,7 +808,7 @@ const MealPlanForm = ({
                           </SelectTrigger>
                           <SelectContent>
                             {visibleFor.map((visiblity, index) => (
-                              <SelectItem key={index} value={visiblity.label}>
+                              <SelectItem key={index} value={visiblity.value}>
                                 {visiblity.label}
                               </SelectItem>
                             ))}
@@ -823,9 +828,15 @@ const MealPlanForm = ({
                     id="description"
                     label="Description"
                     type="textarea"
+                    className=" custom-scrollbar"
                     rows={11}
-                    customPercentage={[14, 8, 10]}
-                    {...register("description")}
+                    customPercentage={10}
+                    {...register("description", {
+                      maxLength: {
+                        value: 350,
+                        message: "Description should not exceed 350 characters"
+                      }
+                    })}
                     error={errors.description?.message}
                   />
                 </div>
@@ -874,10 +885,10 @@ const MealPlanForm = ({
                         Calorie & Micro Nutrient Breakdown{" "}
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="flex-1 pb-0 ">
+                    <CardContent className="flex-1 pb-0 px-1 ">
                       <ChartContainer
                         config={chartConfig}
-                        className={`mx-auto aspect-square ${getValues("meals")?.length == 0 ? "max-h-[172px]" : "max-h-[158px]"}   !p-0 `}
+                        className={`mx-auto aspect-square !max-h-[172px]  !p-0 `}
                       >
                         <PieChart>
                           <ChartTooltip
@@ -891,19 +902,20 @@ const MealPlanForm = ({
                           />
                         </PieChart>
                       </ChartContainer>
-                      <div className="flex gap-2 items-center justify-center">
+
+                      <div className="flex  items-center justify-center space-x-1">
                         {pieChartData.map((item) => (
-                          <div className="flex items-center gap-1 font-semibold pb-2">
+                          <div className="flex items-center gap-1 font-semibold pb-2 w-fit">
                             <span
                               style={{ backgroundColor: item.fill }}
-                              className={" rounded-[50%] size-2"}
+                              className={" rounded-[50%] size-1.5"}
                             ></span>
                             <span className="capitalize text-xs">
                               {item.food_component +
                                 " (" +
                                 item.percentage +
                                 "%)"}
-                            </span>
+                            </span> 
                           </div>
                         ))}
                       </div>

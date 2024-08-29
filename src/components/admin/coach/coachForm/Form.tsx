@@ -8,14 +8,17 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+
 import {
-  MultiSelector,
-  MultiSelectorContent,
-  MultiSelectorInput,
-  MultiSelectorItem,
-  MultiSelectorList,
-  MultiSelectorTrigger,
-} from "@/components/ui/multiselect/multiselect";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 import "react-phone-number-input/style.css";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -75,9 +78,9 @@ import {
 
 import {
   useAddCoachMutation,
-  useGetCoachByIdQuery,
   useGetCoachCountQuery,
   useUpdateCoachMutation,
+  useGetCoachAutoFillQuery,
 } from "@/services/coachApi";
 
 import { useGetMembersListQuery } from "@/services/memberAPi";
@@ -108,20 +111,14 @@ const CoachForm: React.FC<CoachFormProps> = ({
   open,
   refetch,
 }) => {
-  //const { id } = useParams();
-  //const {
-  //  data: EditCoachData,
-  //  isLoading: editisLoading,
-  //  refetch: editRefetch,
-  //} = useGetCoachByIdQuery(coachId as number, {
-  //  skip: coachId == undefined,
-  //});
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
   const creator_id =
     useSelector((state: RootState) => state.auth.userInfo?.user?.id) || 0;
 
+    const [emailAutoFill, setEmailAutoFill] = React.useState<string>("");
+    const [openAutoFill, setAutoFill] = useState(false);
   const membersSchema = z.number();
 
   const initialState: CoachInputTypes = {
@@ -267,6 +264,25 @@ const CoachForm: React.FC<CoachFormProps> = ({
     skip: coachData != null,
   });
 
+  const {
+    data: autoFill,
+    error: autoFillErrors,
+    isSuccess: autoFillSuccess,
+    isLoading,
+    isFetching,
+    isError,
+    status,
+  } = useGetCoachAutoFillQuery(
+    {
+      org_id: orgId,
+      email: emailAutoFill,
+    },
+    {
+      skip: emailAutoFill == "",
+    }
+  );
+
+
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
 
@@ -330,7 +346,62 @@ const CoachForm: React.FC<CoachFormProps> = ({
     mode: "onChange",
   });
 
+  const {
+    control,
+    watch,
+    register,
+    setValue,
+    handleSubmit,
+    clearErrors,
+    reset,
+    formState: { isSubmitting, errors },
+  } = form;
+
+
   const watcher = form.watch();
+
+  const email = form.watch("email");
+  useEffect(() => {
+    if ((isLoading || isFetching || status === "pending") && !errors.email) {
+      setAutoFill(false);
+      return;
+    }
+
+    if (coachData === null && !errors.email && email) {
+      setEmailAutoFill(email);
+    } else {
+      setEmailAutoFill("");
+      setAutoFill(false);
+      return;
+    }
+
+    if (!isError && autoFillSuccess && !errors.email) {
+      setAutoFill(true);
+    } else if (isError && !errors.email) {
+      const errorMessage =
+        typeof autoFillErrors === "object" && "data" in autoFillErrors
+          ? (autoFillErrors as ErrorType).data?.detail
+          : "Something Went Wrong.";
+
+      if (autoFillErrors?.status !== 404) {
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: errorMessage,
+        });
+      }
+    }
+  }, [
+    email,
+    coachData,
+    errors.email,
+    isLoading,
+    isFetching,
+    status,
+    autoFillSuccess,
+    isError,
+    autoFillErrors,
+  ]);
 
   function handleClose() {
     form.clearErrors();
@@ -423,7 +494,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
   useEffect(() => {
     if (!open || coachData == null) return;
-    let payloadCoach = { ...coachData };
+    const payloadCoach = { ...coachData };
     console.log("Member_ids before that", payloadCoach.member_ids);
 
     payloadCoach.member_ids = Array.isArray(coachData?.member_ids)
@@ -452,6 +523,16 @@ const CoachForm: React.FC<CoachFormProps> = ({
       variant: "destructive",
       description: "Please fill all the mandatory fields",
     });
+  };
+
+  const setUserAutofill = () => {
+    if (autoFill) {
+      const { id, org_id, ...payload } = autoFill;
+      payload.own_coach_id = watcher.own_coach_id;
+      payload.member_ids=[]
+      payload.members=[]
+      reset(payload);
+    }
   };
 
   return (
@@ -559,6 +640,23 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           disabled
                         />
                         {watcher.own_coach_id ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="email"
+                          label="Email Address*"
+                          disabled={coachData != null}
+                        />
+                        {<FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -698,23 +796,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="email"
-                          label="Email Address*"
-                          disabled={coachData != null}
-                        />
-                        {<FormMessage />}
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                
                 <div className="relative ">
                   <FormField
                     control={form.control}
@@ -1092,6 +1174,41 @@ const CoachForm: React.FC<CoachFormProps> = ({
           </form>
         </Form>
       </SheetContent>
+      {openAutoFill && (
+        <AlertDialog
+          open={openAutoFill}
+          onOpenChange={() => setAutoFill(false)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
+              <AlertDialogDescription>
+                <div className="flex flex-col items-center  justify-center gap-4">
+                  <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
+                    Would you like to autofill this user's basic information?
+                  </AlertDialogTitle>
+                </div>
+                <div className="w-full flex justify-between items-center gap-3 mt-4">
+                  <AlertDialogCancel
+                    onClick={() => setAutoFill(false)}
+                    className="w-full border border-primary font-semibold"
+                  >
+                    <i className="fa fa-xmark text-base px-1 "></i>
+                    No
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={setUserAutofill}
+                    className="w-full bg-primary !text-black font-semibold"
+                  >
+                    <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                    Yes
+                  </AlertDialogAction>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </Sheet>
   );
 };

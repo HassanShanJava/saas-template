@@ -222,6 +222,8 @@ export default function MemberTableView() {
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
   const displayDate = (value: any) => {
+    if(value==null) return "N/A";
+
     const date = new Date(value);
 
     const day = String(date.getDate()).padStart(2, "0");
@@ -352,9 +354,10 @@ export default function MemberTableView() {
         </div>
       ),
       cell: ({ row }) => {
+        console.log(row.original.profile_img,VITE_VIEW_S3_URL + "/" + row.original.profile_img)
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            <div className="flex gap-2 items-center justify-between">
+            <div className="size-14 flex gap-2 items-center justify-between">
               {row.original.profile_img ? (
                 <img
                   src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
@@ -366,9 +369,6 @@ export default function MemberTableView() {
               )}
             </div>
             <div className="">
-              {/* <p className="capitalize">{displayValue(
-                row.original.first_name + " " + row.original.last_name
-              )}</p> */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -384,7 +384,7 @@ export default function MemberTableView() {
                   </TooltipTrigger>
                   <TooltipContent>
                     {/* Display the full name in the tooltip */}
-                    <p>
+                    <p className="text-sm">
                       {displayValue(
                         `${row.original.first_name} ${row.original.last_name}`
                       )}
@@ -521,14 +521,14 @@ export default function MemberTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "client_since",
+      accessorKey: "activated_on",
       meta: "Activation Date",
       header: () => (
         <div className="flex items-center gap-2">
           <p>Activation Date</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("client_since")}
+            onClick={() => toggleSortOrder("activated_on")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -539,7 +539,7 @@ export default function MemberTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayDate(row?.original.client_since)}
+            {displayDate(row?.original.activated_on)}
           </div>
         );
       },

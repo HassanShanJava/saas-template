@@ -387,7 +387,7 @@ export default function FoodsTableView() {
     setIsDialogOpen(true);
   };
 
-  const totalRecords = foodData?.total_counts || 0;
+  const totalRecords = foodData?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
     Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit

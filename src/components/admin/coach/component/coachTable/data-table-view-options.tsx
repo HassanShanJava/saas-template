@@ -14,12 +14,12 @@ import { FaFileCsv } from "react-icons/fa";
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
-action?: () => void; 
+  action?: () => void;
 }
 
 export function DataTableViewOptions<TData>({
   table,
-  action =()=>null,
+  action = () => null,
 }: DataTableViewOptionsProps<TData>) {
   function handleClick() {
     action();
@@ -30,7 +30,7 @@ export function DataTableViewOptions<TData>({
         {" "}
         Export CSV <FaFileCsv className="h-4 w-4 text-black" />
       </Button>
-      <DropdownMenu>
+      {/* <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">
             <Settings2 className="mr-2 h-4 w-4" />
@@ -59,7 +59,7 @@ export function DataTableViewOptions<TData>({
               );
             })}
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu> */}
     </div>
   );
 }

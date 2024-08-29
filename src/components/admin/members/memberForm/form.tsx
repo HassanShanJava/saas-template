@@ -312,15 +312,15 @@ const MemberForm = ({
 
   const email = watch("email");
   useEffect(() => {
-    if ((isLoading || isFetching || status === "pending")&&!errors.email) {
+    if ((isLoading || isFetching || status === "pending") && !errors.email) {
       setAutoFill(false);
       return;
     }
 
     if (action === "add" && !errors.email && email) {
       setEmailAutoFill(email);
-    }else{
-      setEmailAutoFill('');
+    } else {
+      setEmailAutoFill("");
       setAutoFill(false);
       return;
     }
@@ -341,9 +341,6 @@ const MemberForm = ({
         });
       }
     }
-
-
-    
   }, [
     email,
     action,
@@ -478,20 +475,21 @@ const MemberForm = ({
   };
   console.log({ watcher, errors, action, isSubmitting });
 
-  const setUserAutofill=()=>{
-    if(autoFill){
-      const payload={...autoFill}
-      delete payload.id
-      payload.coach_id=[]
-      payload.membership_plan_id=undefined
-      payload.auto_renewal=false
-      payload.auto_renew_days=undefined
-      payload.prolongation_period=undefined
-      payload.inv_days_cycle=undefined
-      payload.send_invitation=true
-      reset(payload)
+  const setUserAutofill = () => {
+    if (autoFill) {
+      const { id, org_id, ...payload } = autoFill;
+      payload.own_member_id = watcher.own_member_id;
+      payload.coach_id = [];
+      payload.coaches = [];
+      payload.membership_plan_id = undefined;
+      payload.auto_renewal = false;
+      payload.auto_renew_days = undefined;
+      payload.prolongation_period = undefined;
+      payload.inv_days_cycle = undefined;
+      payload.send_invitation = true;
+      reset(payload);
     }
-  }
+  };
   return (
     <Sheet open={open}>
       <SheetContent

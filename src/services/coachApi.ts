@@ -140,5 +140,5 @@ export const {
   useUpdateCoachMutation,
   useGetCoachByIdQuery,
   useGetCoachListQuery,
-  useLazyGetCoachAutoFillQuery,
+  useGetCoachAutoFillQuery,
 } = Roles;

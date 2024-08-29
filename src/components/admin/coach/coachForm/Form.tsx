@@ -117,8 +117,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
   const creator_id =
     useSelector((state: RootState) => state.auth.userInfo?.user?.id) || 0;
 
-    const [emailAutoFill, setEmailAutoFill] = React.useState<string>("");
-    const [openAutoFill, setAutoFill] = useState(false);
+  const [emailAutoFill, setEmailAutoFill] = React.useState<string>("");
+  const [openAutoFill, setAutoFill] = useState(false);
   const membersSchema = z.number();
 
   const initialState: CoachInputTypes = {
@@ -282,7 +282,6 @@ const CoachForm: React.FC<CoachFormProps> = ({
     }
   );
 
-
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
 
@@ -357,7 +356,6 @@ const CoachForm: React.FC<CoachFormProps> = ({
     formState: { isSubmitting, errors },
   } = form;
 
-
   const watcher = form.watch();
 
   const email = form.watch("email");
@@ -383,7 +381,12 @@ const CoachForm: React.FC<CoachFormProps> = ({
           ? (autoFillErrors as ErrorType).data?.detail
           : "Something Went Wrong.";
 
-      if (autoFillErrors?.status !== 404) {
+      const errorCode =
+        typeof autoFillErrors === "object" &&
+        "status" in autoFillErrors &&
+        (autoFillErrors as ErrorType).status;
+
+      if (errorCode != 404) {
         toast({
           variant: "destructive",
           title: "Error in Submission",
@@ -529,8 +532,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
     if (autoFill) {
       const { id, org_id, ...payload } = autoFill;
       payload.own_coach_id = watcher.own_coach_id;
-      payload.member_ids=[]
-      payload.members=[]
+      payload.member_ids = [];
+      payload.members = [];
       reset(payload);
     }
   };
@@ -796,7 +799,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                
+
                 <div className="relative ">
                   <FormField
                     control={form.control}

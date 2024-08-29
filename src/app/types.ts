@@ -773,7 +773,8 @@ export interface CoachTableDataTypes {
   acc_holder_name?: string;
   swift_code?: string;
   created_at?: string;
-  members: number[];
+  member_ids?: number[];
+  members?: number[];
 }
 export interface CoachResponseTypeById {
   id: number;

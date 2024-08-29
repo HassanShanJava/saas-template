@@ -116,6 +116,7 @@ export default function ExerciseTableView() {
 
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
+        newCriteria.offset = 0;
       } else {
         delete newCriteria.search_key;
       }
@@ -552,7 +553,7 @@ export default function ExerciseTableView() {
               <PlusIcon className="size-4" />
               Create New
             </Button>
-            <DataTableViewOptions table={table} />
+            {/* <DataTableViewOptions table={table} /> */}
             <button
               className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
               onClick={() => setOpenFilter(true)}

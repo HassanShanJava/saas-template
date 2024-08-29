@@ -142,6 +142,7 @@ const ExerciseFilters = ({
                   setSearchCriteria((prev: any) => ({
                     ...prev,
                     ...filterData,
+                    offset: 0,
                   }));
                   setOpen(false);
                 }}

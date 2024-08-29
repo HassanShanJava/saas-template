@@ -110,6 +110,7 @@ export default function MealPlansTableView() {
 
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
+        newCriteria.offset = 0;
       } else {
         delete newCriteria.search_key;
       }

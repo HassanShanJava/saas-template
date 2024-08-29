@@ -124,6 +124,8 @@ import { useParams } from "react-router-dom";
 import { deleteCognitoImage, UploadCognitoImage } from "@/utils/lib/s3Service";
 import profileimg from "@/assets/profile-image.svg";
 import { Separator } from "@/components/ui/separator";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { SerializedError } from "@reduxjs/toolkit";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 enum genderEnum {
@@ -328,12 +330,17 @@ const MemberForm = ({
     if (!isError && autoFillSuccess && !errors.email) {
       setAutoFill(true);
     } else if (isError && !errors.email) {
+      console.log({ autoFillErrors, status });
       const errorMessage =
         typeof autoFillErrors === "object" && "data" in autoFillErrors
           ? (autoFillErrors as ErrorType).data?.detail
           : "Something Went Wrong.";
+      const errorCode =
+        typeof autoFillErrors === "object" &&
+        "status" in autoFillErrors &&
+        (autoFillErrors as ErrorType).status;
 
-      if (autoFillErrors?.status !== 404) {
+      if (errorCode != 404) {
         toast({
           variant: "destructive",
           title: "Error in Submission",

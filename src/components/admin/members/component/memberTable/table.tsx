@@ -357,12 +357,12 @@ export default function MemberTableView() {
         console.log(row.original.profile_img,VITE_VIEW_S3_URL + "/" + row.original.profile_img)
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            <div className="size-14 flex gap-2 items-center justify-between">
+            <div className="w-14 h-14 flex gap-2 items-center justify-between">
               {row.original.profile_img ? (
                 <img
                   src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
                   loading="lazy"
-                  className="size-14 bg-gray-100 object-contain rounded-sm "
+                  className="w-14 h-14 bg-gray-100 object-contain rounded-sm "
                 />
               ) : (
                 <div className="size-14 bg-gray-100 rounded-sm"></div>

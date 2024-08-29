@@ -43,7 +43,10 @@ export function DataTableRowActions<TData>({
 
   const deleteRow = async () => {
     try {
-      const resp = await deleteMembers(data.id).unwrap();
+      const resp = await deleteMembers({
+        id: data.id,
+        org_id: data.org_id,
+      }).unwrap();
       if (resp) {
         console.log({ resp });
         refetch();

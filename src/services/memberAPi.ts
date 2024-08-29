@@ -78,9 +78,9 @@ export const MemberAPi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Members"],
     }),
-    getMemberById: builder.query<MemberInputTypes, number>({
-      query: (member_id) => ({
-        url: `/member/${member_id}`,
+    getMemberById: builder.query<MemberInputTypes, {org_id:number,id:number}>({
+      query: (member) => ({
+        url: `/member/${member.id}??org_id=${member.org_id}`,
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -115,9 +115,9 @@ export const MemberAPi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Members"],
     }),
-    deleteMember: builder.mutation<MemberResponseTypes, number>({
-      query: (member_id) => ({
-        url: `/member/${member_id}`,
+    deleteMember: builder.mutation<MemberResponseTypes, {org_id:number,id:number}>({
+      query: (member) => ({
+        url: `/member/${member.id}?org_id=${member.org_id}`,
         method: "DELETE",
         headers: {
           Accept: "application/json",
@@ -137,6 +137,16 @@ export const MemberAPi = apiSlice.injectEndpoints({
       transformResponse: (response: { id: number; name: string }[]) =>
         response.map((item: any) => ({ value: item.id, label: item.name })),
     }),
+    getMembersAutoFill: builder.query<MemberTableDatatypes, {org_id:number,email:string}>({
+      query: (member) => ({
+        url: `/member/${member.email}/?org_id=${member.org_id}`,
+        method:"GET",
+        headers: {
+          Accept: "application/json",
+        },
+        providesTags: ["Members"],
+      }),
+    }),
   }),
 });
 
@@ -151,4 +161,5 @@ export const {
   useAddMemberMutation,
   useUpdateMemberMutation,
   useDeleteMemberMutation,
+  useGetMembersAutoFillQuery,
 } = MemberAPi;

@@ -9,6 +9,16 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import {
   Sheet,
@@ -100,9 +110,9 @@ import {
   useGetAllSourceQuery,
   useGetCountriesQuery,
   useGetMemberCountQuery,
+  useGetMembersAutoFillQuery,
   useAddMemberMutation,
   useUpdateMemberMutation,
-  useGetMemberByIdQuery,
 } from "@/services/memberAPi";
 
 import { useGetCoachListQuery } from "@/services/coachApi";
@@ -185,12 +195,32 @@ const MemberForm = ({
   const [selectedImage, setSelectedImage] = React.useState<File | null>(null);
 
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
+  const [emailAutoFill, setEmailAutoFill] = React.useState<string>("");
+  const [openAutoFill, setAutoFill] = useState(false);
 
   // conditional fetching
   const { data: memberCountData, refetch: refecthCount } =
     useGetMemberCountQuery(orgId, {
       skip: action == "edit",
     });
+
+  const {
+    data: autoFill,
+    error: autoFillErrors,
+    isSuccess: autoFillSuccess,
+    isLoading,
+    isFetching,
+    isError,
+    status,
+  } = useGetMembersAutoFillQuery(
+    {
+      org_id: orgId,
+      email: emailAutoFill,
+    },
+    {
+      skip: emailAutoFill == "",
+    }
+  );
 
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
@@ -280,6 +310,53 @@ const MemberForm = ({
     }
   }, [open, action, memberCountData]);
 
+  const email = watch("email");
+  useEffect(() => {
+    if ((isLoading || isFetching || status === "pending")&&!errors.email) {
+      setAutoFill(false);
+      return;
+    }
+
+    if (action === "add" && !errors.email && email) {
+      setEmailAutoFill(email);
+    }else{
+      setEmailAutoFill('');
+      setAutoFill(false);
+      return;
+    }
+
+    if (!isError && autoFillSuccess && !errors.email) {
+      setAutoFill(true);
+    } else if (isError && !errors.email) {
+      const errorMessage =
+        typeof autoFillErrors === "object" && "data" in autoFillErrors
+          ? (autoFillErrors as ErrorType).data?.detail
+          : "Something Went Wrong.";
+
+      if (autoFillErrors?.status !== 404) {
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: errorMessage,
+        });
+      }
+    }
+
+
+    
+  }, [
+    email,
+    action,
+    errors.email,
+    isLoading,
+    isFetching,
+    status,
+    autoFillSuccess,
+    isError,
+    autoFillErrors,
+  ]);
+
+  console.log({ emailAutoFill });
   // set auto_renewal
   const handleMembershipPlanChange = (value: number) => {
     setValue("membership_plan_id", value);
@@ -400,6 +477,21 @@ const MemberForm = ({
     });
   };
   console.log({ watcher, errors, action, isSubmitting });
+
+  const setUserAutofill=()=>{
+    if(autoFill){
+      const payload={...autoFill}
+      delete payload.id
+      payload.coach_id=[]
+      payload.membership_plan_id=undefined
+      payload.auto_renewal=false
+      payload.auto_renew_days=undefined
+      payload.prolongation_period=undefined
+      payload.inv_days_cycle=undefined
+      payload.send_invitation=true
+      reset(payload)
+    }
+  }
   return (
     <Sheet open={open}>
       <SheetContent
@@ -448,7 +540,6 @@ const MemberForm = ({
                         {!isSubmitting && (
                           <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                         )}
-
                         Save
                       </LoadingButton>
                     </div>
@@ -532,7 +623,7 @@ const MemberForm = ({
                       },
                       pattern: {
                         value:
-                          /^[^\s@]+@[^\s@]+\.(com|net|org|edu|gov|mil|io|pk|co|uk|us|ca|de|fr|au|in|jp|kr|cn|br|ru|mx|es|it|nl|se|no|fi|dk|pl|be|ch|at|nz|za|hk|sg|my|tw|ph|vn|th|id|tr)(\.[a-z]{2,4})?$/i,
+                          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i,
                         message: "Incorrect email format",
                       },
                     })}
@@ -668,7 +759,6 @@ const MemberForm = ({
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                
 
                 <div className="relative ">
                   <FloatingLabelInput
@@ -904,14 +994,14 @@ const MemberForm = ({
                                 className={cn(
                                   "justify-between ",
                                   !value &&
-                                  "font-medium text-gray-800 focus:border-primary "
+                                    "font-medium text-gray-800 focus:border-primary "
                                 )}
                               >
                                 {value
                                   ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === value // Compare with numeric value
-                                  )?.country // Display country name if selected
+                                      (country: CountryTypes) =>
+                                        country.id === value // Compare with numeric value
+                                    )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -1131,6 +1221,41 @@ const MemberForm = ({
           </form>
         </FormProvider>
       </SheetContent>
+      {openAutoFill && (
+        <AlertDialog
+          open={openAutoFill}
+          onOpenChange={() => setAutoFill(false)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
+              <AlertDialogDescription>
+                <div className="flex flex-col items-center  justify-center gap-4">
+                  <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
+                    Would you like to autofill this user's basic information?
+                  </AlertDialogTitle>
+                </div>
+                <div className="w-full flex justify-between items-center gap-3 mt-4">
+                  <AlertDialogCancel
+                    onClick={() => setAutoFill(false)}
+                    className="w-full border border-primary font-semibold"
+                  >
+                    <i className="fa fa-xmark text-base px-1 "></i>
+                    No
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={setUserAutofill}
+                    className="w-full bg-primary !text-black font-semibold"
+                  >
+                    <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                    Yes
+                  </AlertDialogAction>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </Sheet>
   );
 };

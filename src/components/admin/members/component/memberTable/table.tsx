@@ -221,6 +221,8 @@ export default function MemberTableView() {
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
   const displayDate = (value: any) => {
+    if(value==null) return "N/A";
+
     const date = new Date(value);
 
     const day = String(date.getDate()).padStart(2, "0");

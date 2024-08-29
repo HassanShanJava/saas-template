@@ -75,7 +75,6 @@ import {
 
 import {
   useAddCoachMutation,
-  useGetCoachByIdQuery,
   useGetCoachCountQuery,
   useUpdateCoachMutation,
 } from "@/services/coachApi";
@@ -108,14 +107,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
   open,
   refetch,
 }) => {
-  //const { id } = useParams();
-  //const {
-  //  data: EditCoachData,
-  //  isLoading: editisLoading,
-  //  refetch: editRefetch,
-  //} = useGetCoachByIdQuery(coachId as number, {
-  //  skip: coachId == undefined,
-  //});
+  
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -423,7 +415,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
   useEffect(() => {
     if (!open || coachData == null) return;
-    let payloadCoach = { ...coachData };
+    const payloadCoach = { ...coachData };
     console.log("Member_ids before that", payloadCoach.member_ids);
 
     payloadCoach.member_ids = Array.isArray(coachData?.member_ids)
@@ -453,6 +445,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
       description: "Please fill all the mandatory fields",
     });
   };
+
+
+  
 
   return (
     <Sheet open={open}>

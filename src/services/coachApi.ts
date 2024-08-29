@@ -2,6 +2,7 @@ import {
   addCoachResponseType,
   CoachInputTypes,
   CoachResponseTypeById,
+  CoachTableDataTypes,
   CoachTypes,
   coachUpdateInput,
   ServerResponseById,
@@ -9,14 +10,10 @@ import {
 
 import { apiSlice } from "@/features/api/apiSlice";
 
-
-
-interface coachInput{
-	query:string,
-	org_id:number
+interface coachInput {
+  query: string;
+  org_id: number;
 }
-
-
 
 export const Roles = apiSlice.injectEndpoints({
   endpoints(builder) {
@@ -53,9 +50,12 @@ export const Roles = apiSlice.injectEndpoints({
         }),
         providesTags: ["Coaches"],
       }),
-      deleteCoach: builder.mutation<addCoachResponseType, number>({
-        query: (coachId) => ({
-          url: `/coach/${coachId}`,
+      deleteCoach: builder.mutation<
+        addCoachResponseType,
+        { org_id: number; id: number }
+      >({
+        query: (coach) => ({
+          url: `/coach/${coach.id}?org_id=${coach.org_id}`,
           method: "DELETE",
           headers: {
             Accept: "application/json",
@@ -64,7 +64,7 @@ export const Roles = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Coaches"],
       }),
-      updateCoach: builder.mutation<any, CoachInputTypes & {id:number}>({
+      updateCoach: builder.mutation<any, CoachInputTypes & { id: number }>({
         query: (coachdata) => ({
           url: "/coach",
           method: "PUT",
@@ -76,25 +76,29 @@ export const Roles = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Coaches"],
       }),
-      getCoachById: builder.query<CoachResponseTypeById, number>({
-        query: (coach_id) => ({
-          url: `/coach/${coach_id}`,
+      getCoachById: builder.query<
+        CoachResponseTypeById,
+        { org_id: number; id: number }
+      >({
+        query: (coach) => ({
+          url: `/coach/${coach.id}?org_id=${coach.org_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",
           },
-
         }),
-        transformResponse: (response: ServerResponseById) => {
-          const { members, ...rest } = response;
-          return {
-            ...rest,
-            member_ids: members.map((member)=>member.id),
-          };
-        },
-        providesTags: (result, error, arg) => [{ type: "Coaches", id: arg }],
+        providesTags: ["Coaches"],
+
+        // transformResponse: (response: ServerResponseById) => {
+        //   const { members, ...rest } = response;
+        //   return {
+        //     ...rest,
+        //     member_ids: members.map((member)=>member.id),
+        //   };
+        // },
+        // providesTags: (result, error, arg) => [{ type: "Coaches", id: arg }],
       }),
-      getCoachList: builder.query<{value:number, label:string}[], number>({
+      getCoachList: builder.query<{ value: number; label: string }[], number>({
         query: (org_id) => ({
           url: `/coach/list/${org_id}`,
           method: "GET",
@@ -102,13 +106,26 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
-        transformResponse: (response: {id:number, name:string}[]) => {
+        transformResponse: (response: { id: number; name: string }[]) => {
           console.log("Original Response:", response);
           return response.map((item) => ({
             value: item.id,
             label: item.name,
           }));
         },
+        providesTags: ["Coaches"],
+      }),
+      getCoachAutoFill: builder.query<
+        CoachTableDataTypes,
+        { org_id: number; email: string }
+      >({
+        query: (coach) => ({
+          url: `/coach/${coach.email}/?org_id=${coach.org_id}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
         providesTags: ["Coaches"],
       }),
     };
@@ -123,4 +140,5 @@ export const {
   useUpdateCoachMutation,
   useGetCoachByIdQuery,
   useGetCoachListQuery,
+  useLazyGetCoachAutoFillQuery,
 } = Roles;

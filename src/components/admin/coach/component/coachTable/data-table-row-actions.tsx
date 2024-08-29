@@ -50,7 +50,10 @@ export function DataTableRowActions({
       org_id: data.org_id,
     };
     try {
-      const resp = await deleteCoach(data?.id).unwrap();
+      const resp = await deleteCoach({
+        id: data?.id,
+        org_id: data?.org_id,
+      }).unwrap();
       refetch();
       if (resp) {
         console.log({ resp });
@@ -62,20 +65,20 @@ export function DataTableRowActions({
       return;
     } catch (error) {
       console.error("Error", { error });
-      if (error && typeof error === "object" && "data" in error) {
-        const typedError = error as ErrorType;
-        toast({
-          variant: "destructive",
-          title: "Error in Submission",
-          description: `${typedError.data?.detail}`,
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error in Submission",
-          description: `Something Went Wrong.`,
-        });
-      }
+      // if (error && typeof error === "object" && "data" in error) {
+      //   const typedError = error as ErrorType;
+      //   toast({
+      //     variant: "destructive",
+      //     title: "Error in Submission",
+      //     description: `${typedError.data?.detail}`,
+      //   });
+      // } else {
+      //   toast({
+      //     variant: "destructive",
+      //     title: "Error in Submission",
+      //     description: `Something Went Wrong.`,
+      //   });
+      // }
     }
   };
 

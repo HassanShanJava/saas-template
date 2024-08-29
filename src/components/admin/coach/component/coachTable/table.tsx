@@ -181,6 +181,8 @@ export default function CoachTableView() {
   const [clearValue, setIsClearValue] = useState({});
 
   const displayDate = (value: any) => {
+    if(value==null) return "N/A";
+    
     const date = new Date(value);
 
     const day = String(date.getDate()).padStart(2, "0");

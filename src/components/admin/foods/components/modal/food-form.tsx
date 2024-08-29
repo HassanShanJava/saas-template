@@ -147,7 +147,6 @@ const FoodForm = ({
       payload.img_url = getUrl.location;
     }
 
-
     try {
       if (action === "add") {
         await createFood(payload).unwrap();
@@ -189,7 +188,7 @@ const FoodForm = ({
     <Sheet open={isOpen}>
       <SheetContent
         hideCloseButton
-        className="!max-w-[1050px] py-0 custom-scrollbar h-screen"
+        className="!max-w-[1050px] py-0 custom-scrollbar h-screen sm:w-[90%] sm:max-w-2xl"
       >
         <FormProvider {...form}>
           <form
@@ -244,7 +243,6 @@ const FoodForm = ({
             <h1 className="font-semibold text-xl py-3">Basic Information</h1>
             <div className="grid grid-cols-3 gap-3  ">
               <div className="col-span-2 grid grid-cols-2 gap-3">
-
                 {basicInfo.map((item) => {
                   if (item.type === "text") {
                     return (
@@ -264,10 +262,10 @@ const FoodForm = ({
 
                         {errors[item.name as keyof CreateFoodTypes]?.type ===
                           "maxLength" && (
-                            <span className="text-red-500 mt-[5px] text-xs">
-                              Max length exceeded
-                            </span>
-                          )}
+                          <span className="text-red-500 mt-[5px] text-xs">
+                            Max length exceeded
+                          </span>
+                        )}
                       </div>
                     );
                   }
@@ -300,22 +298,28 @@ const FoodForm = ({
                                 </SelectTrigger>
 
                                 <SelectContent>
-                                  {item.options?.map((st: any, index: number) => (
-                                    <SelectItem
-                                      key={index}
-                                      value={String(st.value)}
-                                    >
-                                      {st.label}
-                                    </SelectItem>
-                                  ))}
+                                  {item.options?.map(
+                                    (st: any, index: number) => (
+                                      <SelectItem
+                                        key={index}
+                                        value={String(st.value)}
+                                      >
+                                        {st.label}
+                                      </SelectItem>
+                                    )
+                                  )}
                                 </SelectContent>
                               </Select>
                             </div>
                           )}
                         />
-                        {errors[item.name as keyof CreateFoodTypes]?.message && (
+                        {errors[item.name as keyof CreateFoodTypes]
+                          ?.message && (
                           <span className="text-red-500 text-xs mt-[5px]">
-                            {errors[item.name as keyof CreateFoodTypes]?.message}
+                            {
+                              errors[item.name as keyof CreateFoodTypes]
+                                ?.message
+                            }
                           </span>
                         )}
                       </div>

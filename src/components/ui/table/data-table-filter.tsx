@@ -172,6 +172,7 @@ const TableFilters = ({
                   setSearchCriteria((prev: any) => ({
                     ...prev,
                     ...filterData,
+                    offset: 0,
                   }));
                   setOpen(false);
                   console.log("FIltered Data", filterData);

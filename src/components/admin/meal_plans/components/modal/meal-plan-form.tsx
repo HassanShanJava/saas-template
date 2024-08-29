@@ -289,13 +289,13 @@ const MealPlanForm = ({
         lunch: [],
         afternoon_snack: [],
         dinner: [],
-        evening_snack: []
+        evening_snack: [],
       };
 
       if (data?.meals) {
-        data.meals.forEach(meal => {
+        data.meals.forEach((meal) => {
           // Find food details from foodList using food_id
-          const foodDetails = foodList.find(food => food.id === meal.food_id);
+          const foodDetails = foodList.find((food) => food.id === meal.food_id);
 
           if (foodDetails) {
             // Create the meal object with details
@@ -306,7 +306,7 @@ const MealPlanForm = ({
               carbs: foodDetails.carbohydrates,
               protein: foodDetails.protein,
               fat: foodDetails.fat,
-              food_id: meal.food_id
+              food_id: meal.food_id,
             };
 
             // Add the meal to the corresponding meal time category
@@ -320,8 +320,8 @@ const MealPlanForm = ({
 
     if (action == "edit" && data) {
       const mealsState = createMealsState();
-      console.log({ mealsState })
-      setMeals(mealsState)
+      console.log({ mealsState });
+      setMeals(mealsState);
       reset(data as mealPlanDataType);
       setPieChart([
         {
@@ -439,7 +439,8 @@ const MealPlanForm = ({
     },
     foodAction: "add" | "edit"
   ) => {
-    const { label, food_id, quantity, calories, carbs, protein, fat } = mealType;
+    const { label, food_id, quantity, calories, carbs, protein, fat } =
+      mealType;
 
     setMeals((prevMeals) => {
       const mealList = prevMeals[label as string];
@@ -456,9 +457,7 @@ const MealPlanForm = ({
         updatedFoods[existingFoodIndex] = {
           ...existingFood,
           quantity:
-            foodAction === "add"
-              ? existingFood.quantity + quantity
-              : quantity,
+            foodAction === "add" ? existingFood.quantity + quantity : quantity,
           calories:
             foodAction === "add"
               ? Math.floor(((+existingFood.calories + +calories) * 100) / 100)
@@ -646,7 +645,7 @@ const MealPlanForm = ({
   return (
     <Sheet open={isOpen} onOpenChange={() => setOpen(false)}>
       <SheetContent
-        className="!max-w-[1200px] py-0 custom-scrollbar h-screen"
+        className="!max-w-[1200px] py-0 custom-scrollbar h-screen sm:w-[90%] sm:max-w-2xl"
         hideCloseButton
       >
         <FormProvider {...form}>
@@ -662,7 +661,7 @@ const MealPlanForm = ({
                       </span>{" "}
                       <span className="text-gray-400 font-semibold">/</span>
                       <span className="pl-1 text-primary font-semibold ">
-                        {data ? 'Edit' : 'Add'} Meal Plan
+                        {data ? "Edit" : "Add"} Meal Plan
                       </span>
                     </div>
                   </div>
@@ -745,7 +744,7 @@ const MealPlanForm = ({
 
                           <FileInput className="flex flex-col gap-2  ">
                             {files?.length == 0 &&
-                              watcher?.profile_img == null ? (
+                            watcher?.profile_img == null ? (
                               <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
                                 <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
                               </div>
@@ -757,10 +756,10 @@ const MealPlanForm = ({
                                   <img
                                     src={
                                       watcher?.profile_img !== "" &&
-                                        watcher?.profile_img
+                                      watcher?.profile_img
                                         ? VITE_VIEW_S3_URL +
-                                        "/" +
-                                        watcher?.profile_img
+                                          "/" +
+                                          watcher?.profile_img
                                         : ""
                                     }
                                     loading="lazy"
@@ -978,7 +977,6 @@ const MealPlanForm = ({
               data={foodActionData}
               label={label}
               setLabel={setLabel}
-
             />
           </form>
         </FormProvider>

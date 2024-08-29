@@ -572,7 +572,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     <div>
                       <LoadingButton
                         type="submit"
-                        className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
+                        className="w-[120px] bg-primary text-black text-center flex items-center gap-2"
                         loading={form.formState.isSubmitting}
                         disabled={form.formState.isSubmitting}
                       >

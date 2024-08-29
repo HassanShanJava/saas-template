@@ -188,26 +188,30 @@ export default function MealPlansTableView() {
   const columns: ColumnDef<mealPlanDataType>[] = [
     {
       accessorKey: "name",
-      header: () => <div className="flex items-center gap-2">
-        <p>Name</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("name")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>,
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Name</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("name")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return (
           <div className="flex gap-2 items-center justify-between w-fit">
-            {row.original.profile_img ? <img
-              src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
-              alt={row.original.name}
-              loading="lazy"
-              className="size-14 bg-gray-100 object-contain rounded-sm "
-            /> : (
+            {row.original.profile_img ? (
+              <img
+                src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
+                alt={row.original.name}
+                loading="lazy"
+                className="size-14 bg-gray-100 object-contain rounded-sm "
+              />
+            ) : (
               <div className="size-14 bg-gray-100 rounded-sm"></div>
             )}
             <span className="capitalize">{row.original.name}</span>
@@ -219,17 +223,19 @@ export default function MealPlansTableView() {
     },
     {
       accessorKey: "visible_for",
-      header: () => <div className="flex items-center gap-2">
-        <p>Visible for</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("visible_for")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>,
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Visible for</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("visible_for")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
         return <span>{row.original.visible_for}</span>;
       },
@@ -433,32 +439,35 @@ export default function MealPlansTableView() {
   };
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center justify-between px-4">
-        <div className="flex flex-1 items-center  ">
-          <div className="flex items-center  relative">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+        <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
+          <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
             <FloatingLabelInput
               id="search"
-              placeholder="Search by meal plan name"
+              placeholder="Search by name"
               onChange={(event) => setInputValue(event.target.value)}
-              className="w-64 pl-8 text-gray-400"
+              className=" w-80 lg:w-64 pl-8 text-gray-400"
             />
-          </div>{" "}
+          </div>
         </div>
-        <Button
-          className="bg-primary m-4 text-black gap-1 font-semibold"
-          onClick={handleOpen}
-        >
-          <PlusIcon className="h-4 w-4" />
-          Create New
-        </Button>
 
-        <button
-          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
-          onClick={() => setOpenFilter(true)}
-        >
-          <i className="fa fa-filter"></i>
-        </button>
+        {/* Buttons Container */}
+        <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
+          <Button
+            className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
+            onClick={handleOpen}
+          >
+            <PlusIcon className="size-4" />
+            Create New
+          </Button>
+          <button
+            className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
+            onClick={() => setOpenFilter(true)}
+          >
+            <i className="fa fa-filter"></i>
+          </button>
+        </div>
       </div>
       <div className="rounded-none  ">
         <ScrollArea className="w-full relative">

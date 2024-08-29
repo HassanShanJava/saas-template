@@ -659,7 +659,7 @@ export default function MemberTableView() {
 
   console.log({ searchCretiria });
 
-  const totalRecords = memberData?.total_counts || 0;
+  const totalRecords = memberData?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
     Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit

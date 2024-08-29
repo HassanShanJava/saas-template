@@ -486,7 +486,7 @@ export default function ExerciseTableView() {
   console.log({ searchCretiria });
   // Function to go to the next page
 
-  const totalRecords = exercisedata?.total_counts || 0;
+  const totalRecords = exercisedata?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
     Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit

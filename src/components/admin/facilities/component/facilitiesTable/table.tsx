@@ -396,7 +396,7 @@ export default function FacilitiesTableView() {
     setIsDialogOpen(true);
   };
 
-  const totalRecords = facilitiesData?.total_counts || 0;
+  const totalRecords = facilitiesData?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
     Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit

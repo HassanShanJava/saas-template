@@ -942,9 +942,12 @@ const ExerciseForm = ({
                                     className="flex justify-start items-center space-x-3"
                                   >
                                     <RadioGroupItem
+                                      id={option.Label}
                                       value={String(option.value)}
                                     />
-                                    <label>{option.label}</label>
+                                    <label htmlFor={option.label}>
+                                      {option.label}
+                                    </label>
                                   </div>
                                 )
                               )}
@@ -981,13 +984,16 @@ const ExerciseForm = ({
                           rules={{
                             required: "Required",
                             validate: {
-                              positiveInteger: (value) =>
-                                value !== null &&
-                                value !== undefined &&
-                                value >= 10 &&
-                                value <= 3600
+                              positiveInteger: (value) => {
+                                const parsedValue = Number(value); // Ensure the value is treated as a number
+                                return parsedValue !== null &&
+                                  !isNaN(parsedValue) &&
+                                  Number.isInteger(parsedValue) &&
+                                  parsedValue >= 10 &&
+                                  parsedValue <= 3600
                                   ? true
-                                  : "The accepted values are between 10 to 3600",
+                                  : "The accepted values are positive integers between 10 to 3600";
+                              },
                             },
                           }}
                           render={({ field }) => (
@@ -1002,7 +1008,7 @@ const ExerciseForm = ({
                                     ? "border-red-500"
                                     : ""
                                 }`}
-                                min="1"
+                                step={1}
                                 value={field.value ?? ""}
                               />
                               {errors?.timePerSet?.[index] && (
@@ -1026,13 +1032,16 @@ const ExerciseForm = ({
                           rules={{
                             required: "Required",
                             validate: {
-                              positiveInteger: (value) =>
-                                value !== null &&
-                                value !== undefined &&
-                                value >= 0 &&
-                                value <= 3600
+                              positiveInteger: (value) => {
+                                const parsedValue = Number(value); // Ensure the value is treated as a number
+                                return parsedValue !== null &&
+                                  !isNaN(parsedValue) &&
+                                  Number.isInteger(parsedValue) &&
+                                  parsedValue >= 0 &&
+                                  parsedValue <= 3600
                                   ? true
-                                  : "The accepted values are between 0 to 3600",
+                                  : "The accepted values are positive integers between 0 to 3600";
+                              },
                             },
                           }}
                           render={({ field }) => (
@@ -1047,7 +1056,8 @@ const ExerciseForm = ({
                                     ? "border-red-500"
                                     : ""
                                 }`}
-                                min="1"
+                                min="0"
+                                step={1}
                                 value={field.value ?? ""}
                               />
                               {errors?.restPerSet?.[index] && (
@@ -1112,13 +1122,16 @@ const ExerciseForm = ({
                           rules={{
                             required: "Required",
                             validate: {
-                              withinRange: (value) =>
-                                value !== null &&
-                                value !== undefined &&
-                                value >= 1 &&
-                                value <= 100
+                              positiveInteger: (value) => {
+                                const parsedValue = Number(value); // Ensure the value is treated as a number
+                                return parsedValue !== null &&
+                                  !isNaN(parsedValue) &&
+                                  Number.isInteger(parsedValue) &&
+                                  parsedValue >= 1 &&
+                                  parsedValue <= 100
                                   ? true
-                                  : "The accepted values are 1 to 100",
+                                  : "The accepted values are 1 to 100 (integers)";
+                              },
                             },
                           }}
                           render={({ field }) => (
@@ -1134,6 +1147,7 @@ const ExerciseForm = ({
                                     : ""
                                 }`}
                                 min="1"
+                                step={1}
                                 value={field.value ?? ""}
                               />
                               {errors?.repetitionPerSet?.[index] && (
@@ -1159,13 +1173,16 @@ const ExerciseForm = ({
                           rules={{
                             required: "Required",
                             validate: {
-                              positiveInteger: (value) =>
-                                value !== null &&
-                                value !== undefined &&
-                                value >= 0 &&
-                                value <= 3600
+                              positiveInteger: (value) => {
+                                const parsedValue = Number(value); // Ensure the value is treated as a number
+                                return parsedValue !== null &&
+                                  !isNaN(parsedValue) &&
+                                  Number.isInteger(parsedValue) &&
+                                  parsedValue >= 0 &&
+                                  parsedValue <= 3600
                                   ? true
-                                  : "The accepted values are between 0 to 3600",
+                                  : "The accepted values are positive integers between 0 to 3600";
+                              },
                             },
                           }}
                           render={({ field }) => (
@@ -1180,7 +1197,8 @@ const ExerciseForm = ({
                                     ? "border-red-500"
                                     : ""
                                 }`}
-                                min="1"
+                                step={1}
+                                min="0"
                                 value={field.value ?? ""}
                               />
                               {errors?.restPerSetrep?.[index] && (

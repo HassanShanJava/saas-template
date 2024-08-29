@@ -641,7 +641,7 @@ export default function CoachTableView() {
             <PlusIcon className="size-4" />
             Create New
           </Button>
-          <DataTableViewOptions table={table} />
+          <DataTableViewOptions table={table} action={handleExportSelected} />
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}

@@ -497,6 +497,7 @@ const MemberForm = ({
       payload.send_invitation = true;
       payload.is_business=false;
       payload.business_id = null;
+      payload.client_status = 'pending';
       reset(payload);
     }
   };

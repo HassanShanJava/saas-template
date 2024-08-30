@@ -495,6 +495,8 @@ const MemberForm = ({
       payload.prolongation_period = undefined;
       payload.inv_days_cycle = undefined;
       payload.send_invitation = true;
+      payload.is_business=false;
+      payload.business_id = null;
       reset(payload);
     }
   };

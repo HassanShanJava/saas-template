@@ -441,14 +441,14 @@ const StaffForm: React.FC<StaffFormProps> = ({
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start  bg-white">
                   <div>
-                    <p className="font-semibold">Add Staff</p>
+                    <p className="font-semibold">{staffData == null ? "Add" : "Edit"} Staff</p>
                     <div className="text-sm">
                       <span className="text-gray-400 pr-1 font-semibold">
                         Dashboard
                       </span>{" "}
                       <span className="text-gray-400 font-semibold">/</span>
                       <span className="pl-1 text-primary font-semibold ">
-                        Add Staff
+                        {staffData == null ? "Add" : "Edit"} Staff
                       </span>
                     </div>
                   </div>
@@ -531,7 +531,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                         <FloatingLabelInput
                           {...field}
                           id="own_staff_id"
-                          label="Gym Staff Id"
+                          label="Staff Id"
                           disabled
                         />
                         {watcher.own_staff_id ? <></> : <FormMessage />}
@@ -603,69 +603,64 @@ const StaffForm: React.FC<StaffFormProps> = ({
                   />
                 </div>
                 <div className="relative ">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <FormField
-                        control={form.control}
-                        name="dob"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                        "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
-                                      )}
-                                    >
-                                      {field.value ? (
-                                        format(field.value, "dd-MM-yyyy")
-                                      ) : (
-                                        <span>Date of Birth*</span>
-                                      )}
-                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent
-                                className="w-auto p-2"
-                                align="center"
-                              >
-                                <Calendar
-                                  mode="single"
-                                  captionLayout="dropdown-buttons"
-                                  selected={new Date(field.value)}
-                                  onSelect={field.onChange}
-                                  fromYear={1960}
-                                  toYear={2030}
-                                  defaultMonth={
-                                    new Date(
-                                      field && field.value
-                                        ? field.value
-                                        : Date.now()
-                                    )
-                                  }
-                                  disabled={(date: any) =>
-                                    date > new Date() ||
-                                    date < new Date("1900-01-01")
-                                  }
-                                  initialFocus
-                                />
-                              </PopoverContent>
-                            </Popover>
-                            {watcher.dob ? <></> : <FormMessage />}
-                          </FormItem>
-                        )}
-                      />
-                      <TooltipContent>
-                        <p>Date of Birth*</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <FormField
+                    control={form.control}
+                    name="dob"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <div className="relative">
+                                <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">Date of brith*</span>
+                                <Button
+                                  type="button"
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-full pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "dd-MM-yyyy")
+                                  ) : (
+                                    <span>Select date of birth</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </div>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-auto p-2"
+                            align="center"
+                          >
+                            <Calendar
+                              mode="single"
+                              captionLayout="dropdown-buttons"
+                              selected={new Date(field.value)}
+                              onSelect={field.onChange}
+                              fromYear={1960}
+                              toYear={2030}
+                              defaultMonth={
+                                new Date(
+                                  field && field.value
+                                    ? field.value
+                                    : Date.now()
+                                )
+                              }
+                              disabled={(date: any) =>
+                                date > new Date() ||
+                                date < new Date("1900-01-01")
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        {watcher.dob ? <></> : <FormMessage />}
+                      </FormItem>
+                    )}
+                  />
                 </div>
                 <div className="relative ">
                   <FormField
@@ -720,12 +715,19 @@ const StaffForm: React.FC<StaffFormProps> = ({
                   <FormField
                     control={form.control}
                     name="notes"
+                    rules={{
+                      maxLength: {
+                        value: 200,
+                        message: "Notes should not exceed 350 characters"
+                      }
+                    }}
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
                           id="notes"
                           label="Notes"
+                          error={form.formState.errors.notes?.message}
                         />
                         <FormMessage />
                       </FormItem>
@@ -753,8 +755,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                 {field.value === 0
                                   ? "Select Source*"
                                   : sources?.find(
-                                      (source) => source.id === field.value
-                                    )?.source || "Select Source*"}
+                                    (source) => source.id === field.value
+                                  )?.source || "Select Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -800,8 +802,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                 {field.value === 0
                                   ? "Select Role*"
                                   : roleData?.find(
-                                      (role) => role.id === field.value
-                                    )?.name || "Select Role*"}
+                                    (role) => role.id === field.value
+                                  )?.name || "Select Role*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -937,14 +939,14 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                 className={cn(
                                   "justify-between !font-normal",
                                   !field.value &&
-                                    "text-muted-foreground focus:border-primary "
+                                  "text-muted-foreground focus:border-primary "
                                 )}
                               >
                                 {field.value
                                   ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === field.value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                    (country: CountryTypes) =>
+                                      country.id === field.value // Compare with numeric value
+                                  )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

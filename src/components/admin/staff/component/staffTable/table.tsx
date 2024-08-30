@@ -311,10 +311,10 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "own_staff_id",
-      meta: "Gym Staff ID",
+      meta: "Staff ID",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Gym Staff ID</p>
+          <p>Staff ID</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("own_staff_id")}

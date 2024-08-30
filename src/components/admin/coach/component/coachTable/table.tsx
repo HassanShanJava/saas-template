@@ -297,10 +297,10 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "own_coach_id",
-      meta: "Gym Coach ID",
+      meta: "Coach ID",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Gym Coach ID</p>
+          <p>Coach ID</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("own_coach_id")}

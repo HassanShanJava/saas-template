@@ -104,7 +104,7 @@ export default function AuthenticationPage() {
     const payload = {
       ...data,
       email: data.email.toLowerCase(),
-    }
+    };
 
     console.log("Form data:", payload);
     dispatch(login(payload));
@@ -167,7 +167,7 @@ export default function AuthenticationPage() {
                         required: "Email is required.",
                         pattern: {
                           value:
-                            /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                            /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/,
                           message: "Invalid email format.",
                         },
                         maxLength: 50,

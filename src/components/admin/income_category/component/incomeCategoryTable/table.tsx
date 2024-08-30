@@ -217,12 +217,16 @@ export default function IncomeCategoryTableView() {
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    let finalValue: number | string = value;
-    if (name == "sale_tax_id") {
-      finalValue = Number(value);
-    }
     setFormData((prevData) => {
-      const updatedData = { ...prevData, [name]: finalValue };
+      const updatedData = { ...prevData, [name]: value };
+      console.log("After update:", updatedData);
+      return updatedData;
+    });
+  };
+
+  const handleTaxOnChange = (value: number) => {
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, sale_tax_id: value };
       console.log("After update:", updatedData);
       return updatedData;
     });
@@ -474,9 +478,9 @@ export default function IncomeCategoryTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -647,6 +651,7 @@ export default function IncomeCategoryTableView() {
         setFormData={setFormData}
         handleOnChange={handleOnChange}
         salesTaxData={salesTaxData}
+        handleTaxOnChange={handleTaxOnChange}
       />
     </div>
   );
@@ -668,6 +673,7 @@ const IncomeCategoryForm = ({
   refetch,
   setFormData,
   handleOnChange,
+  handleTaxOnChange,
   salesTaxData,
 }: {
   data: incomeCategoryFromData;
@@ -676,6 +682,7 @@ const IncomeCategoryForm = ({
   refetch?: any;
   setFormData?: any;
   handleOnChange?: any;
+  handleTaxOnChange?: any;
   salesTaxData?: any;
 }) => {
   const { toast } = useToast();
@@ -854,8 +861,11 @@ const IncomeCategoryForm = ({
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value) =>
-                            field.onChange(Number(value))
+                          onValueChange={(value) => {
+                            field.onChange(Number(value));
+                            handleTaxOnChange(Number(value));
+                          }
+
                           }
                           defaultValue={field.value?.toString()}
                         >

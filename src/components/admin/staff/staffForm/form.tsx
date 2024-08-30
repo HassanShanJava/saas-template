@@ -715,7 +715,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           </span>
                           <PhoneInput
                             defaultCountry="pk"
-                            value={field.value ?? "92"}
+                            value={field.value}
+                            forceDialCode={true}
                             onChange={field.onChange}
                             inputClassName="w-full "
                           />

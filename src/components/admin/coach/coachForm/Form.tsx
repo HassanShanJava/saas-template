@@ -834,6 +834,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           <PhoneInput
                             defaultCountry="pk"
                             value={field.value}
+                            forceDialCode={true}
                             onChange={field.onChange}
                             inputClassName="w-full "
                           />

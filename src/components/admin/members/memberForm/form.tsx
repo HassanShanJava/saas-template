@@ -806,6 +806,7 @@ const MemberForm = ({
                           defaultCountry="pk"
                           value={value}
                           onChange={onChange}
+                          forceDialCode={true}
                           inputClassName="w-full "
                         />
                       </div>

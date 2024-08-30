@@ -222,7 +222,7 @@ export default function MemberTableView() {
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
   const displayDate = (value: any) => {
-    if(value==null) return "N/A";
+    if (value == null) return "N/A";
 
     const date = new Date(value);
 
@@ -354,7 +354,10 @@ export default function MemberTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        console.log(row.original.profile_img,VITE_VIEW_S3_URL + "/" + row.original.profile_img)
+        console.log(
+          row.original.profile_img,
+          VITE_VIEW_S3_URL + "/" + row.original.profile_img
+        );
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             <div className="w-14 h-14 flex gap-2 items-center justify-between">
@@ -392,8 +395,6 @@ export default function MemberTableView() {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-
-              {/* <p className=" text-xs text-gray-400 ">{row.original.email}</p>   */}
             </div>
           </div>
         );
@@ -417,8 +418,24 @@ export default function MemberTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original?.business_name)}
+          <div className="">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="capitalize cursor-pointer">
+                    {/* Display the truncated name */}
+                    {displayValue(
+                      `${row?.original?.business_name}`.substring(0, 8) + "..."
+                    )}
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm">
+                    {displayValue(`${row?.original?.business_name}`)}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         );
       },

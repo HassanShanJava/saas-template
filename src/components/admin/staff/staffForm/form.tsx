@@ -191,9 +191,15 @@ const StaffForm: React.FC<StaffFormProps> = ({
       }),
     email: z
       .string()
-      .min(1, { message: "Required" })
+      .min(8, { message: "Required" })
       .max(50, "Should be 50 characters or less")
-      .email("invalid email"),
+      .refine(
+        (value) =>
+          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/i.test(value),
+        {
+          message: "Incorrect email format",
+        }
+      ),
     phone: z
       .string()
       .max(15, {
@@ -201,15 +207,19 @@ const StaffForm: React.FC<StaffFormProps> = ({
       })
       .trim()
       .optional()
-      .refine((value) => value === undefined || /^\d{1,15}$/.test(value), {
-        message: "Must be a number between 1 and 15 digits",
-      }),
+      .refine(
+        (value) =>
+          value === undefined || value === "" || /^\d{1,15}$/.test(value),
+        {
+          message: "Must be a number between 1 and 15 digits",
+        }
+      ),
     mobile_number: z
       .string()
-      .max(15, {
-        message: "Cannot be greater than 15 characters",
+      .max(20, {
+        message: "Phone number cannot exceed 20 digits",
       })
-      .regex(/^\+?[1-9]\d{1,14}$/, {
+      .regex(/^\+?[1-9]\d{0,14}$/, {
         message: "invalid phone number",
       })
       .trim()
@@ -413,7 +423,15 @@ const StaffForm: React.FC<StaffFormProps> = ({
   useEffect(() => {
     if (!open || staffData == null) return;
 
-    const updatedStaffData = replaceNullWithEmptyString(staffData);
+    let updatedStaffData = replaceNullWithEmptyString(staffData);
+    if (
+      updatedStaffData?.mobile_number &&
+      [2, 3, 4].includes(updatedStaffData?.mobile_number?.length)
+    ) {
+      updatedStaffData.mobile_number = `+1`;
+    } else {
+      updatedStaffData.mobile_number = updatedStaffData?.mobile_number; // keep it as is
+    }
     setAction("edit");
     form.reset(updatedStaffData);
     // setAvatar(staffData?.profile_img as string);
@@ -714,9 +732,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
                             Phone Number
                           </span>
                           <PhoneInput
-                            defaultCountry="pk"
+                            defaultCountry="us"
                             value={field.value}
-                            forceDialCode={true}
+                            // forceDialCode={true}
                             onChange={field.onChange}
                             inputClassName="w-full "
                           />

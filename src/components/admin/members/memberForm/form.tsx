@@ -230,9 +230,9 @@ const MemberForm = ({
       return true; // If value is empty, validation passes
     }
     if (value.length > 20) {
-      return "Phone number cannot exceed 20 characters";
+      return "Phone number cannot exceed 20 digits";
     }
-    if (!/^\+?[1-9]\d{1,14}$/.test(value)) {
+    if (!/^\+?[1-9]\d{0,14}$/.test(value)) {
       return "Invalid phone number";
     }
     return true; // Return true if validation passes
@@ -314,6 +314,14 @@ const MemberForm = ({
       )
         ? []
         : memberData?.coaches.map((item) => item.id);
+      if (
+        memberpayload?.mobile_number &&
+        [2, 3, 4].includes(memberpayload.mobile_number?.length)
+      ) {
+        memberpayload.mobile_number = `+1`;
+      } else {
+        memberpayload.mobile_number = memberpayload?.mobile_number; // keep it as is
+      }
       reset(memberpayload);
       // setAvatar(memberpayload.profile_img as string);
     } else {
@@ -556,14 +564,14 @@ const MemberForm = ({
                     <div>
                       <LoadingButton
                         type="submit"
-                        className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
+                        className="w-[120px] bg-primary text-black text-center flex items-center gap-2"
                         loading={isSubmitting}
                         disabled={isSubmitting}
                       >
                         {!isSubmitting && (
                           <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                         )}
-                        Save
+                        {action === "edit" ? "Update" : "Save"}
                       </LoadingButton>
                     </div>
                   </div>
@@ -803,11 +811,11 @@ const MemberForm = ({
                           Phone Number
                         </span>
                         <PhoneInput
-                          defaultCountry="pk"
+                          defaultCountry="us"
                           value={value}
                           onChange={onChange}
-                          forceDialCode={true}
-                          inputClassName="w-full "
+                          // forceDialCode={true}
+                          inputClassName="w-full"
                         />
                       </div>
                     )}

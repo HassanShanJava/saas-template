@@ -43,7 +43,7 @@ export function DataTableRowActions({
         refetch();
         toast({
           variant: "success",
-          title: "Deleted Successfully",
+          title: "Meal Plan Deleted Successfully",
         });
       }
       return;

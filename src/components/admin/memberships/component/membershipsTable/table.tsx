@@ -243,7 +243,7 @@ export default function MembershipsTableView() {
         refetch();
         toast({
           variant: "success",
-          title: "Updated Successfully",
+          title: "Membership Updated Successfully",
         });
       }
     } catch (error) {

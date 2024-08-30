@@ -59,7 +59,7 @@ export function DataTableRowActions({
         console.log({ resp });
         toast({
           variant: "success",
-          title: "Deleted Successfully",
+          title: "Coach Deleted Successfully",
         });
       }
       return;

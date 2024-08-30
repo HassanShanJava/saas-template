@@ -532,6 +532,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     if (autoFill) {
       const { id, org_id, ...payload } = autoFill;
       payload.own_coach_id = watcher.own_coach_id;
+      payload.coach_status = 'pending';
       payload.member_ids = [];
       payload.members = [];
       reset(payload);
@@ -1190,8 +1191,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
               {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
-                  <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Would you like to autofill this user's basic information?
+                  <AlertDialogTitle className="text-xl font-medium w-80 text-center">
+                  The email is already registered in the system.<br/> Would you like to auto-fill the details?
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

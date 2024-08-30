@@ -199,7 +199,7 @@ export default function FacilitiesTableView() {
         refetch();
         toast({
           variant: "success",
-          title: "Updated Successfully",
+          title: "Facility Updated Successfully",
         });
       }
     } catch (error) {

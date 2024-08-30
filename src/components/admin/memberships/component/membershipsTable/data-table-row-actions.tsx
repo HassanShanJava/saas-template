@@ -44,7 +44,7 @@ export function DataTableRowActions({
         refetch();
         toast({
           variant: "success",
-          title: "Deleted Successfully",
+          title: "Membership Deleted Successfully",
         });
       }
       return;

@@ -254,7 +254,7 @@ export default function StaffTableView() {
         console.log({ resp });
         toast({
           variant: "success",
-          title: "Updated Successfully",
+          title: "Staff Updated Successfully",
         });
       }
     } catch (error) {

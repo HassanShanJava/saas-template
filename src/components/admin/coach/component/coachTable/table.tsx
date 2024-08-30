@@ -228,7 +228,7 @@ export default function CoachTableView() {
         console.log({ resp });
         toast({
           variant: "success",
-          title: "Updated Successfully",
+          title: "Coach Updated Successfully",
         });
       }
     } catch (error) {

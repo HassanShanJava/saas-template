@@ -450,7 +450,7 @@ const MemberForm = ({
         if (resp) {
           toast({
             variant: "success",
-            title: "Record updated successfully ",
+            title: "Member Updated Successfully ",
           });
           refetch();
           handleClose();

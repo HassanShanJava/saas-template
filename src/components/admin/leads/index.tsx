@@ -110,7 +110,7 @@ const Lead: React.FC = () => {
         refetch();
         toast({
           variant: "success",
-          title: "Updated Successfully",
+          title: "Lead Updated Successfully",
         });
       }
     } catch (error: unknown) {
@@ -142,7 +142,7 @@ const Lead: React.FC = () => {
         refetch();
         toast({
           variant: "success",
-          title: "Updated Successfully",
+          title: "Lead Updated Successfully",
         });
       }
     } catch (error: unknown) {

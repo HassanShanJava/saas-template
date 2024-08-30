@@ -193,7 +193,7 @@ export const RoleForm = ({
           refetch();
           toast({
             variant: "success",
-            title: "Created Successfully",
+            title: "Role Created Successfully",
           });
           resetFormAndCloseDialog();
           setIsDialogOpen(false);
@@ -206,7 +206,7 @@ export const RoleForm = ({
           resourceRefetch();
           toast({
             variant: "success",
-            title: "Updated Successfully",
+            title: "Role Updated Successfully",
           });
           resetFormAndCloseDialog();
           setIsDialogOpen(false);

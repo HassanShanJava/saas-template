@@ -264,7 +264,7 @@ export default function MemberTableView() {
         refetch();
         toast({
           variant: "success",
-          title: "Updated Successfully",
+          title: "Member Updated Successfully",
         });
       }
     } catch (error) {

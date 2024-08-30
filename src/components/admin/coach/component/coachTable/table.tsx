@@ -386,10 +386,10 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "activated_on",
-      meta: "Coach Since",
+      meta: "Activation Date",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Coach Since</p>
+          <p>Activation Date</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("activated_on")}

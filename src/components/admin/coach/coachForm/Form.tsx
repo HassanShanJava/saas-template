@@ -532,6 +532,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     if (autoFill) {
       const { id, org_id, ...payload } = autoFill;
       payload.own_coach_id = watcher.own_coach_id;
+      payload.coach_status = 'pending';
       payload.member_ids = [];
       payload.members = [];
       reset(payload);

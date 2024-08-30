@@ -49,7 +49,7 @@ export function DataTableRowActions<TData>({
         refetch();
         toast({
           variant: "success",
-          title: "Deleted successfully",
+          title: "Exercise Deleted successfully",
         });
       }
     } catch (error) {

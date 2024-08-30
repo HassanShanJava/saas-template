@@ -29,7 +29,6 @@ import IdleLogoutHandler from "./components/Idle-Timer";
 import NotFoundPage from "./components/PageNotFound";
 import ResetPassword from "./components/app/reset_password";
 import ForgotPasword from "./components/app/login/forgot_password";
-import PhoneForm from "./components/ui/phone-input/phone-input";
 
 function App() {
   const loading = useSelector((state: RootState) =>
@@ -42,7 +41,6 @@ function App() {
     <>
       <IdleLogoutHandler />
       <Routes>
-        <Route path="/testingpath" element={<PhoneForm />} />
         <Route path="/reset_password/:token" element={<ResetPassword />} />
         <Route path="/forgot_password" element={<ForgotPasword />} />
         <Route path="/" element={<ProtectedRoute />}>

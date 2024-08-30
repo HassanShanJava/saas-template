@@ -9,6 +9,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Switch } from "@/components/ui/switch";
+import "react-international-phone/style.css"; // Import the default styles for the phone input
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -84,6 +85,7 @@ import {
 } from "@/components/ui/sheet";
 import profileimg from "@/assets/profile-image.svg";
 import { Separator } from "@/components/ui/separator";
+import { PhoneInput } from "react-international-phone";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 enum genderEnum {
@@ -198,11 +200,17 @@ const StaffForm: React.FC<StaffFormProps> = ({
         message: "Cannot be greater than 15 characters",
       })
       .trim()
-      .optional(),
+      .optional()
+      .refine((value) => value === undefined || /^\d{1,15}$/.test(value), {
+        message: "Must be a number between 1 and 15 digits",
+      }),
     mobile_number: z
       .string()
       .max(15, {
         message: "Cannot be greater than 15 characters",
+      })
+      .regex(/^\+?[1-9]\d{1,14}$/, {
+        message: "invalid phone number",
       })
       .trim()
       .optional(),
@@ -440,7 +448,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start  bg-white">
                   <div>
-                    <p className="font-semibold">{staffData == null ? "Add" : "Edit"} Staff</p>
+                    <p className="font-semibold">
+                      {staffData == null ? "Add" : "Edit"} Staff
+                    </p>
                     <div className="text-sm">
                       <span className="text-gray-400 pr-1 font-semibold">
                         Dashboard
@@ -611,7 +621,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           <PopoverTrigger asChild>
                             <FormControl>
                               <div className="relative">
-                                <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">Date of brith*</span>
+                                <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">
+                                  Date of brith*
+                                </span>
                                 <Button
                                   type="button"
                                   variant={"outline"}
@@ -630,10 +642,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                               </div>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent
-                            className="w-auto p-2"
-                            align="center"
-                          >
+                          <PopoverContent className="w-auto p-2" align="center">
                             <Calendar
                               mode="single"
                               captionLayout="dropdown-buttons"
@@ -700,11 +709,17 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     name="mobile_number"
                     render={({ field }) => (
                       <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="mobile_number"
-                          label="Mobile Number"
-                        />
+                        <div className="relative ">
+                          <span className="absolute p-0 text-xs left-12 -top-2 px-1 bg-white z-10">
+                            Phone Number
+                          </span>
+                          <PhoneInput
+                            defaultCountry="pk"
+                            value={field.value ?? "92"}
+                            onChange={field.onChange}
+                            inputClassName="w-full "
+                          />
+                        </div>
                         {<FormMessage />}
                       </FormItem>
                     )}
@@ -717,8 +732,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     rules={{
                       maxLength: {
                         value: 200,
-                        message: "Notes should not exceed 350 characters"
-                      }
+                        message: "Notes should not exceed 350 characters",
+                      },
                     }}
                     render={({ field }) => (
                       <FormItem>
@@ -754,8 +769,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                 {field.value === 0
                                   ? "Select Source*"
                                   : sources?.find(
-                                    (source) => source.id === field.value
-                                  )?.source || "Select Source*"}
+                                      (source) => source.id === field.value
+                                    )?.source || "Select Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -801,8 +816,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                 {field.value === 0
                                   ? "Select Role*"
                                   : roleData?.find(
-                                    (role) => role.id === field.value
-                                  )?.name || "Select Role*"}
+                                      (role) => role.id === field.value
+                                    )?.name || "Select Role*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -938,14 +953,14 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                 className={cn(
                                   "justify-between !font-normal",
                                   !field.value &&
-                                  "text-muted-foreground focus:border-primary "
+                                    "text-muted-foreground focus:border-primary "
                                 )}
                               >
                                 {field.value
                                   ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === field.value // Compare with numeric value
-                                  )?.country // Display country name if selected
+                                      (country: CountryTypes) =>
+                                        country.id === field.value // Compare with numeric value
+                                    )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

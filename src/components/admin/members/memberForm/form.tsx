@@ -101,6 +101,7 @@ import {
   renewalData,
   sourceTypes,
 } from "@/app/types";
+import "react-international-phone/style.css"; // Import the default styles for the phone input
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Label } from "@/components/ui/label";
@@ -125,6 +126,7 @@ import profileimg from "@/assets/profile-image.svg";
 import { Separator } from "@/components/ui/separator";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
+import { PhoneInput } from "react-international-phone";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 enum genderEnum {
@@ -223,7 +225,18 @@ const MemberForm = ({
       skip: emailAutoFill == "",
     }
   );
-
+  const validatePhone = (value: string | undefined) => {
+    if (!value) {
+      return true; // If value is empty, validation passes
+    }
+    if (value.length > 20) {
+      return "Phone number cannot exceed 20 characters";
+    }
+    if (!/^\+?[1-9]\d{1,14}$/.test(value)) {
+      return "Invalid phone number";
+    }
+    return true; // Return true if validation passes
+  };
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
   const { data: coachesData } = useGetCoachListQuery(orgId);
@@ -494,9 +507,9 @@ const MemberForm = ({
       payload.prolongation_period = undefined;
       payload.inv_days_cycle = undefined;
       payload.send_invitation = true;
-      payload.is_business=false;
+      payload.is_business = false;
       payload.business_id = null;
-      payload.client_status = 'pending';
+      payload.client_status = "pending";
       reset(payload);
     }
   };
@@ -516,7 +529,9 @@ const MemberForm = ({
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start  bg-white">
                   <div>
-                    <p className="font-semibold">{action == "add" ? "Add" : "Edit"} Member</p>
+                    <p className="font-semibold">
+                      {action == "add" ? "Add" : "Edit"} Member
+                    </p>
                     <div className="text-sm">
                       <span className="text-gray-400 pr-1 font-semibold">
                         Dashboard
@@ -631,7 +646,7 @@ const MemberForm = ({
                       },
                       pattern: {
                         value:
-                          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i,
+                          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/i,
                         message: "Incorrect email format",
                       },
                     })}
@@ -716,8 +731,9 @@ const MemberForm = ({
                         <PopoverTrigger asChild>
                           <FormControl>
                             <div className="relative">
-
-                              <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">Date of brith*</span>
+                              <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">
+                                Date of brith*
+                              </span>
                               <Button
                                 variant={"outline"}
                                 type="button"
@@ -738,10 +754,7 @@ const MemberForm = ({
                             </div>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent
-                          className="w-auto p-2"
-                          align="center"
-                        >
+                        <PopoverContent className="w-auto p-2" align="center">
                           <Calendar
                             mode="single"
                             captionLayout="dropdown-buttons"
@@ -753,8 +766,7 @@ const MemberForm = ({
                             fromYear={1960}
                             toYear={2030}
                             disabled={(date: any) =>
-                              date > new Date() ||
-                              date < new Date("1960-01-01")
+                              date > new Date() || date < new Date("1960-01-01")
                             }
                             initialFocus
                           />
@@ -771,33 +783,50 @@ const MemberForm = ({
                     label="Landline Number"
                     className=""
                     {...register("phone", {
-                      maxLength: {
-                        value: 15,
-                        message: "should be 15 character or less",
+                      pattern: {
+                        value: /^\d{1,15}$/,
+                        message: "Must be a number between 1 and 15 digits",
                       },
                     })}
                     error={errors.phone?.message}
                   />
                 </div>
                 <div className="relative ">
-                  <FloatingLabelInput
-                    type="tel"
-                    id="mobile_number"
-                    label="Mobile Number"
-                    {...register("mobile_number", {
-                      maxLength: {
-                        value: 15,
-                        message: "should be 15 character or less",
-                      },
-                    })}
-                    error={errors.mobile_number?.message}
+                  <Controller
+                    name="mobile_number"
+                    control={control}
+                    defaultValue=""
+                    rules={{ validate: validatePhone }}
+                    render={({ field: { onChange, value } }) => (
+                      <div className="relative ">
+                        <span className="absolute p-0 text-xs left-12 -top-2 px-1 bg-white z-10">
+                          Phone Number
+                        </span>
+                        <PhoneInput
+                          defaultCountry="pk"
+                          value={value}
+                          onChange={onChange}
+                          inputClassName="w-full "
+                        />
+                      </div>
+                    )}
                   />
+                  {errors.mobile_number && (
+                    <span className="text-red-500 text-xs mt-[5px]">
+                      {errors.mobile_number.message}
+                    </span>
+                  )}
                 </div>
                 <div className="relative ">
                   <FloatingLabelInput
                     id="notes"
                     label="Notes"
-                    {...register("notes", { maxLength: { value: 200, message: "Notes should not exceed 200 characters" } })}
+                    {...register("notes", {
+                      maxLength: {
+                        value: 200,
+                        message: "Notes should not exceed 200 characters",
+                      },
+                    })}
                     error={errors.notes?.message}
                   />
                 </div>
@@ -816,7 +845,7 @@ const MemberForm = ({
                           setValue("client_status", value)
                         }
                         value={value as genderEnum}
-                        disabled={value == 'pending'}
+                        disabled={value == "pending"}
                       >
                         <SelectTrigger
                           floatingLabel="Status*"
@@ -825,7 +854,12 @@ const MemberForm = ({
                           <SelectValue placeholder="Select Status" />
                         </SelectTrigger>
                         <SelectContent className="">
-                          <SelectItem value="pending" className={`${action == 'edit' && "hidden"}`}>Pending</SelectItem>
+                          <SelectItem
+                            value="pending"
+                            className={`${action == "edit" && "hidden"}`}
+                          >
+                            Pending
+                          </SelectItem>
                           <SelectItem value="active">Active</SelectItem>
                           <SelectItem value="inactive">Inactive</SelectItem>
                         </SelectContent>
@@ -1035,14 +1069,14 @@ const MemberForm = ({
                                 className={cn(
                                   "justify-between ",
                                   !value &&
-                                  "font-medium text-gray-800 focus:border-primary "
+                                    "font-medium text-gray-800 focus:border-primary "
                                 )}
                               >
                                 {value
                                   ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === value // Compare with numeric value
-                                  )?.country // Display country name if selected
+                                      (country: CountryTypes) =>
+                                        country.id === value // Compare with numeric value
+                                    )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -1273,7 +1307,8 @@ const MemberForm = ({
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
                   <AlertDialogTitle className="text-xl font-medium w-80 text-center">
-                  The email is already registered in the system.<br/> Would you like to auto-fill the details?
+                    The email is already registered in the system.
+                    <br /> Would you like to auto-fill the details?
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

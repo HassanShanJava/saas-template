@@ -51,9 +51,7 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
 
-    --pc-green: 81, 53%, 47%,
-    --pc-red: 348, 69%, 57%,
-    --pc-yellow: 36, 79%, 57%
+    --pc-green: 81, 53%, 47%, --pc-red: 348, 69%, 57%, --pc-yellow: 36, 79%, 57%;
   }
 }
 
@@ -116,8 +114,6 @@
   outline: 1px solid #77dd77;
 }
 
-
-
 /* Change background color of the input when it is focused (dropdown open) */
 
 /* Change the background color of the selected time */
@@ -125,17 +121,13 @@
 /* Change the background color when hovering over the dropdown times */
 /* .time-input[type="time"]::-webkit-datetime-edit-hour-field:hover {
   background-color: #77dd77; /* Example color */
-/* } */ 
-
-
-
+/* } */
 
 .form__error {
   display: inline-block;
   margin: 0.25rem 0 1rem;
   color: palevioletred;
 }
-
 
 .glyphicon-remove {
   color: red;
@@ -145,14 +137,18 @@
   color: green;
 }
 
-
-input[type='password']::-ms-reveal,
-input[type='password']::-ms-clear {
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
   display: none;
 }
 
-
-.loading{
+.loading {
   opacity: 20;
   transition: opacity 0.5s ease-in-out;
+}
+
+.react-international-phone-input-container:focus-within {
+  outline: 2px solid #77dd77;
+  padding: 1.5px;
+  border-radius: 6px;
 }

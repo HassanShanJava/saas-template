@@ -191,12 +191,12 @@ importers:
       react-idle-timer:
         specifier: ^5.7.2
         version: 5.7.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-international-phone:
+        specifier: ^4.3.0
+        version: 4.3.0(react@18.3.1)
       react-leaflet:
         specifier: ^4.2.1
         version: 4.2.1(leaflet@1.9.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-phone-number-input:
-        specifier: ^3.4.3
-        version: 3.4.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-redux:
         specifier: ^9.1.2
         version: 9.1.2(@types/react@18.3.3)(react@18.3.1)(redux@5.0.1)
@@ -2368,9 +2368,6 @@ packages:
   class-variance-authority@0.6.1:
     resolution: {integrity: sha512-eurOEGc7YVx3majOrOb099PNKgO3KnKSApOprXI4BTq6bcfbqbQXPN2u+rPPmIJ2di23bMwhk0SxCCthBmszEQ==}
 
-  classnames@2.5.1:
-    resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
-
   clsx@1.2.1:
     resolution: {integrity: sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==}
     engines: {node: '>=6'}
@@ -2418,9 +2415,6 @@ packages:
   cosmiconfig@7.1.0:
     resolution: {integrity: sha512-AdmX6xUzdNASswsFtmwSt7Vj8po9IuqXm0UXz7QKPuEUmPB4XyjGfaAr2PSuELMwkRMVH1EpIkX5bTZGRB3eCA==}
     engines: {node: '>=10'}
-
-  country-flag-icons@1.5.12:
-    resolution: {integrity: sha512-ksBaQqQEFSvSFg1NV8tlAk4IjgDRNMu5ImjnCac0C409CiN6ObTI0vCFaNfaPusxLrr5O9pueT1R3G4XMMwErg==}
 
   cross-spawn@7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
@@ -2853,9 +2847,6 @@ packages:
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
 
-  input-format@0.3.10:
-    resolution: {integrity: sha512-5cFv/kOZD7Ch0viprVkuYPDkAU7HBZYBx8QrIpQ6yXUWbAQ0+RQ8IIojDJOf/RO6FDJLL099HDSK2KoVZ2zevg==}
-
   internmap@1.0.1:
     resolution: {integrity: sha512-lDB5YccMydFBtasVtxnZ3MRBHuaoE8GKsppq+EchKL2U4nK/DmEpPHNH8MZe5HkMtpSiTSOZwfN0tzYjO/lJEw==}
 
@@ -2969,9 +2960,6 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
-
-  libphonenumber-js@1.11.4:
-    resolution: {integrity: sha512-F/R50HQuWWYcmU/esP5jrH5LiWYaN7DpN0a/99U8+mnGGtnx8kmRE+649dQh3v+CowXXZc8vpkf5AmYkO0AQ7Q==}
 
   lilconfig@2.1.0:
     resolution: {integrity: sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==}
@@ -3323,6 +3311,11 @@ packages:
       react: '>=16'
       react-dom: '>=16'
 
+  react-international-phone@4.3.0:
+    resolution: {integrity: sha512-lIntIkwq2j0m3j4RsRiGJl/buHMLBd+mQ9S9RfiX3KbiUCUtbawoPCV2r8BvyeRMZI0cDtovoukBCuZ+70QzJA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
@@ -3332,12 +3325,6 @@ packages:
       leaflet: ^1.9.0
       react: ^18.0.0
       react-dom: ^18.0.0
-
-  react-phone-number-input@3.4.3:
-    resolution: {integrity: sha512-n0dD9V1T8EWeRoGwVMcNK6bwOdEbIk0U3EQ87K0WTADgyJZUJd9NIQMmpcl9mtWSL+LwPaEMzre0yGkhwZYTzg==}
-    peerDependencies:
-      react: '>=16.8'
-      react-dom: '>=16.8'
 
   react-redux@9.1.2:
     resolution: {integrity: sha512-0OA4dhM1W48l3uzmv6B7TXPCGmokUU4p1M44DGN2/D9a1FjVPukVjER1PcPX97jIg6aUeLq1XJo1IpfbgULn0w==}
@@ -6810,8 +6797,6 @@ snapshots:
     dependencies:
       clsx: 1.2.1
 
-  classnames@2.5.1: {}
-
   clsx@1.2.1: {}
 
   clsx@2.1.1: {}
@@ -6857,8 +6842,6 @@ snapshots:
       parse-json: 5.2.0
       path-type: 4.0.0
       yaml: 1.10.2
-
-  country-flag-icons@1.5.12: {}
 
   cross-spawn@7.0.3:
     dependencies:
@@ -7302,10 +7285,6 @@ snapshots:
 
   inherits@2.0.4: {}
 
-  input-format@0.3.10:
-    dependencies:
-      prop-types: 15.8.1
-
   internmap@1.0.1: {}
 
   internmap@2.0.3: {}
@@ -7393,8 +7372,6 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
-
-  libphonenumber-js@1.11.4: {}
 
   lilconfig@2.1.0: {}
 
@@ -7645,22 +7622,16 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
+  react-international-phone@4.3.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+
   react-is@16.13.1: {}
 
   react-leaflet@4.2.1(leaflet@1.9.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@react-leaflet/core': 2.1.0(leaflet@1.9.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       leaflet: 1.9.4
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
-  react-phone-number-input@3.4.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      classnames: 2.5.1
-      country-flag-icons: 1.5.12
-      input-format: 0.3.10
-      libphonenumber-js: 1.11.4
-      prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 

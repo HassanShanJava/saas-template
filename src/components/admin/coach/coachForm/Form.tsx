@@ -8,6 +8,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import "react-international-phone/style.css"; // Import the default styles for the phone input
 
 import {
   AlertDialog,
@@ -19,14 +20,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import "react-phone-number-input/style.css";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { PlusIcon, CameraIcon, Webcam } from "lucide-react";
 import { RxCross2 } from "react-icons/rx";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -94,6 +94,7 @@ import {
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
+import { PhoneInput } from "react-international-phone";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 interface CoachFormProps {
@@ -188,11 +189,17 @@ const CoachForm: React.FC<CoachFormProps> = ({
         message: "Cannot be greater than 15 characters",
       })
       .trim()
-      .optional(),
+      .optional()
+      .refine((value) => value === undefined || /^\d{1,15}$/.test(value), {
+        message: "Must be a number between 1 and 15 digits",
+      }),
     mobile_number: z
       .string()
       .max(15, {
         message: "Cannot be greater than 15 characters",
+      })
+      .regex(/^\+?[1-9]\d{1,14}$/, {
+        message: "invalid phone number",
       })
       .trim()
       .optional(),
@@ -502,16 +509,16 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
     payloadCoach.member_ids = Array.isArray(coachData?.member_ids)
       ? coachData.member_ids.every(
-        (item: any) =>
-          (typeof item === "object" &&
-            item.id === 0 &&
-            item.name.trim() === "") ||
-          (typeof item === "number" && item === 0)
-      )
+          (item: any) =>
+            (typeof item === "object" &&
+              item.id === 0 &&
+              item.name.trim() === "") ||
+            (typeof item === "number" && item === 0)
+        )
         ? []
         : coachData.member_ids.map((item: any) =>
-          typeof item === "object" ? item.id : item
-        )
+            typeof item === "object" ? item.id : item
+          )
       : [];
 
     form.reset(payloadCoach);
@@ -532,7 +539,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     if (autoFill) {
       const { id, org_id, ...payload } = autoFill;
       payload.own_coach_id = watcher.own_coach_id;
-      payload.coach_status = 'pending';
+      payload.coach_status = "pending";
       payload.member_ids = [];
       payload.members = [];
       reset(payload);
@@ -551,14 +558,16 @@ const CoachForm: React.FC<CoachFormProps> = ({
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start  bg-white">
                   <div>
-                    <p className="font-semibold">{coachData==null?"Add":"Edit"} Coach</p>
+                    <p className="font-semibold">
+                      {coachData == null ? "Add" : "Edit"} Coach
+                    </p>
                     <div className="text-sm">
                       <span className="text-gray-400 pr-1 font-semibold">
                         Dashboard
                       </span>{" "}
                       <span className="text-gray-400 font-semibold">/</span>
                       <span className="pl-1 text-primary font-semibold ">
-                      {coachData==null?"Add":"Edit"} Coach
+                        {coachData == null ? "Add" : "Edit"} Coach
                       </span>
                     </div>
                   </div>
@@ -743,7 +752,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           <PopoverTrigger asChild>
                             <FormControl>
                               <div className="relative">
-                                <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">Date of brith*</span>
+                                <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">
+                                  Date of brith*
+                                </span>
 
                                 <Button
                                   variant={"outline"}
@@ -765,10 +776,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                               </div>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent
-                            className="w-auto p-2"
-                            align="center"
-                          >
+                          <PopoverContent className="w-auto p-2" align="center">
                             <Calendar
                               mode="single"
                               captionLayout="dropdown-buttons"
@@ -819,17 +827,23 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     name="mobile_number"
                     render={({ field }) => (
                       <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="mobile_number"
-                          label="Mobile Number"
-                        />
-                        {watcher.mobile_number ? <></> : <FormMessage />}
+                        <div className="relative ">
+                          <span className="absolute p-0 text-xs left-12 -top-2 px-1 bg-white z-10">
+                            Phone Number
+                          </span>
+                          <PhoneInput
+                            defaultCountry="pk"
+                            value={field.value}
+                            onChange={field.onChange}
+                            inputClassName="w-full "
+                          />
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+
                 <div className="relative ">
                   <FormField
                     control={form.control}
@@ -883,7 +897,12 @@ const CoachForm: React.FC<CoachFormProps> = ({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="pending" className={`${coachData && "hidden"}`}>Pending</SelectItem>
+                            <SelectItem
+                              value="pending"
+                              className={`${coachData && "hidden"}`}
+                            >
+                              Pending
+                            </SelectItem>
                             <SelectItem value="active">Active</SelectItem>
                             <SelectItem value="inactive">Inactive</SelectItem>
                           </SelectContent>
@@ -899,8 +918,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     rules={{
                       maxLength: {
                         value: 200,
-                        message: "Notes should not exceed 350 characters"
-                      }
+                        message: "Notes should not exceed 350 characters",
+                      },
                     }}
                     name="notes"
                     render={({ field }) => (
@@ -909,7 +928,6 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           {...field}
                           id="notes"
                           label="Notes"
-                          
                         />
                         {watcher.notes ? <></> : <FormMessage />}
                       </FormItem>
@@ -937,8 +955,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 {field.value === 0
                                   ? "Source*"
                                   : sources?.find(
-                                    (source) => source.id === field.value
-                                  )?.source || "Source*"}
+                                      (source) => source.id === field.value
+                                    )?.source || "Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -1038,14 +1056,14 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 className={cn(
                                   "justify-between font-normal",
                                   !field.value &&
-                                  "font-medium text-gray-400 focus:border-primary "
+                                    "font-medium text-gray-400 focus:border-primary "
                                 )}
                               >
                                 {field.value
                                   ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === field.value // Compare with numeric value
-                                  )?.country // Display country name if selected
+                                      (country: CountryTypes) =>
+                                        country.id === field.value // Compare with numeric value
+                                    )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -1192,7 +1210,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
                   <AlertDialogTitle className="text-xl font-medium w-80 text-center">
-                  The email is already registered in the system.<br/> Would you like to auto-fill the details?
+                    The email is already registered in the system.
+                    <br /> Would you like to auto-fill the details?
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

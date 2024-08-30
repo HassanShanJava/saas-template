@@ -64,7 +64,7 @@ function App() {
 
             <Route path="/admin/mealplans" element={<MealPlans />} />
             <Route path="/admin/foods" element={<FoodsNutrition />} />
-            <Route path="/admin/workoutplans"  element={<WorkoutPlan />} />
+            <Route path="/admin/workoutplans" element={<WorkoutPlan />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Route>

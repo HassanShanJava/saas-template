@@ -1131,7 +1131,13 @@ const MemberForm = ({
                   <FloatingLabelInput
                     id="city"
                     label="City"
-                    {...register("city")}
+                    {...register("city", {
+                      maxLength: {
+                        value: 50,
+                        message: "Max",
+                      },
+                    })}
+                    error={errors?.city?.message as keyof MemberInputTypes}
                   />
                 </div>
               </div>

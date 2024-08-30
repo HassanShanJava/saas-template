@@ -180,9 +180,15 @@ const CoachForm: React.FC<CoachFormProps> = ({
       }),
     email: z
       .string()
-      .min(1, { message: "Required" })
-      .max(50, "Must be 50 characters or less")
-      .email("Invalid Email"),
+      .min(8, { message: "Required" })
+      .max(50, "Should be 50 characters or less")
+      .refine(
+        (value) =>
+          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/i.test(value),
+        {
+          message: "Incorrect email format",
+        }
+      ),
     phone: z
       .string()
       .max(15, {
@@ -190,15 +196,19 @@ const CoachForm: React.FC<CoachFormProps> = ({
       })
       .trim()
       .optional()
-      .refine((value) => value === undefined || /^\d{1,15}$/.test(value), {
-        message: "Must be a number between 1 and 15 digits",
-      }),
+      .refine(
+        (value) =>
+          value === undefined || value === "" || /^\d{1,15}$/.test(value),
+        {
+          message: "Must be a number between 1 and 15 digits",
+        }
+      ),
     mobile_number: z
       .string()
-      .max(15, {
-        message: "Cannot be greater than 15 characters",
+      .max(20, {
+        message: "Phone number cannot exceed 20 digits",
       })
-      .regex(/^\+?[1-9]\d{1,14}$/, {
+      .regex(/^\+?[1-9]\d{0,14}$/, {
         message: "invalid phone number",
       })
       .trim()
@@ -251,7 +261,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .refine((value) => value !== 0, {
         message: "Required",
       }),
-    city: z.string().optional(),
+    city: z.string().max(50, "Should be 50 characters or less").optional(),
     org_id: z
       .number({
         required_error: "Required",
@@ -520,7 +530,14 @@ const CoachForm: React.FC<CoachFormProps> = ({
             typeof item === "object" ? item.id : item
           )
       : [];
-
+    if (
+      payloadCoach?.mobile_number &&
+      [2, 3, 4].includes(payloadCoach?.mobile_number?.length)
+    ) {
+      payloadCoach.mobile_number = `+1`;
+    } else {
+      payloadCoach.mobile_number = payloadCoach?.mobile_number; // keep it as is
+    }
     form.reset(payloadCoach);
     console.log("Member_ids", payloadCoach.member_ids);
     // setAvatar(coachData?.profile_img as string);
@@ -828,14 +845,15 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     render={({ field }) => (
                       <FormItem>
                         <div className="relative ">
-                          <span className="absolute p-0 text-xs left-12 -top-2 px-1 bg-white z-10">
+                          <span className="absolute p-0 text-xs left-12 -top-2 px-1 bg-white z-[60]">
                             Phone Number
                           </span>
                           <PhoneInput
-                            defaultCountry="pk"
+                            defaultCountry="us"
                             value={field.value}
+                            // forceDialCode={true}
                             onChange={field.onChange}
-                            inputClassName="w-full "
+                            inputClassName="w-full z-50"
                           />
                         </div>
                         <FormMessage />
@@ -949,7 +967,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           <FormControl>
                             <SelectTrigger
                               floatingLabel="Source*"
-                              className={"font-medium text-gray-400"}
+                              className={"font-medium text-gray-600"}
                             >
                               <SelectValue>
                                 {field.value === 0

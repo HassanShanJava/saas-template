@@ -81,7 +81,7 @@ const FloatingLabel = React.forwardRef<
   return (
     <Label
       className={cn(
-        "peer-focus:secondary font-poppins peer-focus:dark:secondary absolute start-2 z-10 origin-[0] scale-75 transform bg-background px-2 text-sm !text-gray-800 duration-300 font-normal",
+        "peer-focus:secondary font-poppins peer-focus:dark:secondary absolute start-2 peer-focus:z-10 origin-[0] scale-75 transform bg-background px-2 text-sm !text-gray-800 duration-300 font-normal",
         isTextarea
           ? `top-2 -translate-y-4 peer-placeholder-shown:top-[${customPercentage}%] peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 text-gray-800 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2`
           : "top-2 -translate-y-4 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 text-gray-800",

@@ -1191,8 +1191,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
               {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
-                  <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Would you like to autofill this user's basic information?
+                  <AlertDialogTitle className="text-xl font-medium w-80 text-center">
+                  The email is already registered in the system.<br/> Would you like to auto-fill the details?
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

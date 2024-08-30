@@ -36,9 +36,9 @@ interface membershipFormTypes {
   isOpen: boolean;
   setIsOpen: any;
   setAction: any;
-  setData: any;
   data?: membeshipsTableType;
   refetch: any;
+  setData: any;
   action: "add" | "edit";
 }
 interface limitedAccessDaysTypes {

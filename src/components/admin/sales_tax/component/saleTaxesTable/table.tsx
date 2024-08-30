@@ -192,7 +192,7 @@ export default function SaleTaxesTableView() {
         refetch();
         toast({
           variant: "success",
-          title: "Updated Successfully",
+          title: "Tax/VAT Updated Successfully",
         });
       }
     } catch (error) {

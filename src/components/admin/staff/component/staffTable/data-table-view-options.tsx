@@ -30,7 +30,7 @@ export function DataTableViewOptions<TData>({
         {" "}
         Export CSV <FaFileCsv className="h-4 w-4 text-black" />
       </Button>
-      <DropdownMenu>
+      {/* <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="text-xs lg:text-base">
             <Settings2 className="mr-2 h-4 w-4" />
@@ -58,7 +58,7 @@ export function DataTableViewOptions<TData>({
               );
             })}
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu> */}
     </div>
   );
 }

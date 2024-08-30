@@ -55,7 +55,7 @@ export function DataTableRowActions<TData>({
         refetch();
         toast({
           variant: "success",
-          title: "Deleted Successfully",
+          title: "Tax/VAT  Deleted Successfully",
         });
       }
     } catch (error) {

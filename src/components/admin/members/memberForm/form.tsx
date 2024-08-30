@@ -153,6 +153,7 @@ const initialValues: MemberInputTypes = {
   is_business: false,
   business_id: null,
   country_id: null,
+  client_status: "pending",
   city: "",
   zipcode: "",
   address_1: "",
@@ -448,7 +449,7 @@ const MemberForm = ({
         if (resp) {
           toast({
             variant: "success",
-            title: "Record updated successfully ",
+            title: "Member Updated Successfully ",
           });
           refetch();
           handleClose();
@@ -493,6 +494,9 @@ const MemberForm = ({
       payload.prolongation_period = undefined;
       payload.inv_days_cycle = undefined;
       payload.send_invitation = true;
+      payload.is_business=false;
+      payload.business_id = null;
+      payload.client_status = 'pending';
       reset(payload);
     }
   };
@@ -512,14 +516,14 @@ const MemberForm = ({
               <SheetTitle>
                 <div className="flex justify-between gap-5 items-start  bg-white">
                   <div>
-                    <p className="font-semibold">Add Member</p>
+                    <p className="font-semibold">{action == "add" ? "Add" : "Edit"} Member</p>
                     <div className="text-sm">
                       <span className="text-gray-400 pr-1 font-semibold">
                         Dashboard
                       </span>{" "}
                       <span className="text-gray-400 font-semibold">/</span>
                       <span className="pl-1 text-primary font-semibold ">
-                        Add Member
+                        {action == "add" ? "Add" : "Edit"} Member
                       </span>
                     </div>
                   </div>
@@ -700,68 +704,64 @@ const MemberForm = ({
                   )}
                 </div>
                 <div className="relative ">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <Controller
-                        name={"dob" as keyof MemberInputTypes}
-                        rules={{ required: "Required" }}
-                        control={control}
-                        render={({
-                          field: { onChange, value, onBlur },
-                          fieldState: { invalid, error },
-                        }) => (
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                      "w-full pl-3 text-left font-normal ",
-                                      !value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {(value as Date) ? (
-                                      format(value as Date, "dd-MM-yyyy")
-                                    ) : (
-                                      <span className="font-medium text-gray-400">
-                                        Date of Birth*
-                                      </span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </TooltipTrigger>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent
-                              className="w-auto p-2"
-                              align="center"
-                            >
-                              <Calendar
-                                mode="single"
-                                captionLayout="dropdown-buttons"
-                                selected={value as Date}
-                                defaultMonth={
-                                  (value as Date) ? (value as Date) : undefined
-                                }
-                                onSelect={onChange}
-                                fromYear={1960}
-                                toYear={2030}
-                                disabled={(date: any) =>
-                                  date > new Date() ||
-                                  date < new Date("1960-01-01")
-                                }
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
-                        )}
-                      />
-                      <TooltipContent>
-                        <p>Date of Birth*</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Controller
+                    name={"dob" as keyof MemberInputTypes}
+                    rules={{ required: "Required" }}
+                    control={control}
+                    render={({
+                      field: { onChange, value, onBlur },
+                      fieldState: { invalid, error },
+                    }) => (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <div className="relative">
+
+                              <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">Date of brith*</span>
+                              <Button
+                                variant={"outline"}
+                                type="button"
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal ",
+                                  !value && "text-muted-foreground"
+                                )}
+                              >
+                                {(value as Date) ? (
+                                  format(value as Date, "dd-MM-yyyy")
+                                ) : (
+                                  <span className="font-normal text-gray-400">
+                                    Select date of birth
+                                  </span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </div>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-auto p-2"
+                          align="center"
+                        >
+                          <Calendar
+                            mode="single"
+                            captionLayout="dropdown-buttons"
+                            selected={value as Date}
+                            defaultMonth={
+                              (value as Date) ? (value as Date) : undefined
+                            }
+                            onSelect={onChange}
+                            fromYear={1960}
+                            toYear={2030}
+                            disabled={(date: any) =>
+                              date > new Date() ||
+                              date < new Date("1960-01-01")
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  />
                 </div>
 
                 <div className="relative ">
@@ -797,9 +797,46 @@ const MemberForm = ({
                   <FloatingLabelInput
                     id="notes"
                     label="Notes"
-                    {...register("notes")}
+                    {...register("notes", { maxLength: { value: 200, message: "Notes should not exceed 200 characters" } })}
                     error={errors.notes?.message}
                   />
+                </div>
+
+                <div className="relative ">
+                  <Controller
+                    name={"client_status" as keyof MemberInputTypes}
+                    rules={{ required: "Required" }}
+                    control={control}
+                    render={({
+                      field: { onChange, value, onBlur },
+                      fieldState: { invalid, error },
+                    }) => (
+                      <Select
+                        onValueChange={(value: genderEnum) =>
+                          setValue("client_status", value)
+                        }
+                        value={value as genderEnum}
+                        disabled={value == 'pending'}
+                      >
+                        <SelectTrigger
+                          floatingLabel="Status*"
+                          className={`text-black`}
+                        >
+                          <SelectValue placeholder="Select Status" />
+                        </SelectTrigger>
+                        <SelectContent className="">
+                          <SelectItem value="pending" className={`${action == 'edit' && "hidden"}`}>Pending</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.client_status?.message && (
+                    <span className="text-red-500 text-xs mt-[5px]">
+                      {errors.client_status?.message}
+                    </span>
+                  )}
                 </div>
                 <div className="relative ">
                   <Controller
@@ -846,7 +883,7 @@ const MemberForm = ({
                       fieldState: { invalid, error },
                     }) => (
                       <MultiSelect
-                        floatingLabel={"Coaches"}
+                        floatingLabel={"Assign Coaches"}
                         options={
                           coachesData as { value: number; label: string }[]
                         }
@@ -998,14 +1035,14 @@ const MemberForm = ({
                                 className={cn(
                                   "justify-between ",
                                   !value &&
-                                    "font-medium text-gray-800 focus:border-primary "
+                                  "font-medium text-gray-800 focus:border-primary "
                                 )}
                               >
                                 {value
                                   ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                    (country: CountryTypes) =>
+                                      country.id === value // Compare with numeric value
+                                  )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -1235,8 +1272,8 @@ const MemberForm = ({
               {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
-                  <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Would you like to autofill this user's basic information?
+                  <AlertDialogTitle className="text-xl font-medium w-80 text-center">
+                  The email is already registered in the system.<br/> Would you like to auto-fill the details?
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

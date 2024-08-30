@@ -9,7 +9,6 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Switch } from "@/components/ui/switch";
-import "react-phone-number-input/style.css";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

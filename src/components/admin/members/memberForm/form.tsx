@@ -627,8 +627,8 @@ const MemberForm = ({
                     {...register("email", {
                       required: "Required",
                       maxLength: {
-                        value: 40,
-                        message: "Should be 40 characters or less",
+                        value: 50,
+                        message: "Should be 50 characters or less",
                       },
                       pattern: {
                         value:
@@ -1198,6 +1198,7 @@ const MemberForm = ({
                             id="prolongation_period"
                             type="number"
                             min={1}
+                            max={12}
                             className="w-16"
                             {...register("prolongation_period", {
                               valueAsNumber: true,
@@ -1219,6 +1220,7 @@ const MemberForm = ({
                             id="auto_renew_days"
                             type="number"
                             min={1}
+                            max={15}
                             className="w-16"
                             {...register("auto_renew_days", {
                               valueAsNumber: true,
@@ -1243,6 +1245,7 @@ const MemberForm = ({
                             id="inv_days_cycle"
                             type="number"
                             min={1}
+                            max={15}
                             className="w-16"
                             {...register("inv_days_cycle", {
                               valueAsNumber: true,

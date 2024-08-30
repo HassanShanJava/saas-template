@@ -73,8 +73,8 @@ const AutoRenewalForm = () => {
             <FloatingLabelInput
               id="prolongation_period"
               type="number"
-              
-              min={0}
+              min={1}
+              max={15}
               className="w-20 "
               {...register("prolongation_period", {
                 required: "Required",

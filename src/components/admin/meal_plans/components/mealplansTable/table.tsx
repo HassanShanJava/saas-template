@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
-  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -111,6 +109,8 @@ export default function MealPlansTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
+        newCriteria.sort_key="created_at";
+        newCriteria.sort_order= "desc";
       } else {
         delete newCriteria.search_key;
       }

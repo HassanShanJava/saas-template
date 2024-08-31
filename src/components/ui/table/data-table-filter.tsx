@@ -173,6 +173,8 @@ const TableFilters = ({
                     ...prev,
                     ...filterData,
                     offset: 0,
+                    sort_key:"created_at",
+                    sort_order: "desc",
                   }));
                   setOpen(false);
                   console.log("FIltered Data", filterData);

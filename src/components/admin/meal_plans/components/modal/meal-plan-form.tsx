@@ -122,9 +122,9 @@ const calculatePercentages = (meals: {
   const total = totalProtein + totalFat + totalCarbs;
 
   return {
-    protein: total ? Math.floor(((totalProtein / total) * 100) * 10) / 10 : 0,
-    fat: total ? Math.floor(((totalFat / total) * 100) * 10) / 10 : 0,
-    carbs: total ? Math.floor(((totalCarbs / total) * 100) * 10) / 10 : 0,
+    protein: total ? Math.floor((totalProtein / total) * 100 * 10) / 10 : 0,
+    fat: total ? Math.floor((totalFat / total) * 100 * 10) / 10 : 0,
+    carbs: total ? Math.floor((totalCarbs / total) * 100 * 10) / 10 : 0,
   };
 };
 
@@ -421,7 +421,7 @@ const MealPlanForm = ({
     setMeals(initialMeal);
     setOpen(false);
     setFiles([]);
-    reset(initialValue)
+    reset(initialValue);
   };
 
   const [meals, setMeals] = useState<Record<string, any[]>>(initialMeal);
@@ -638,9 +638,9 @@ const MealPlanForm = ({
   };
 
   const handleOpen = (label: string) => {
-    setLabel(label)
-    setOpenFood(true)
-  }
+    setLabel(label);
+    setOpenFood(true);
+  };
   console.log({ watcher, errors, meals }, action);
   return (
     <Sheet open={isOpen} onOpenChange={() => setOpen(false)}>
@@ -701,7 +701,7 @@ const MealPlanForm = ({
                     id="male_name"
                     label="Name*"
                     className="capitalize"
-                    {...register("name",  {
+                    {...register("name", {
                       required: "  Required",
                       setValueAs: (value) => value.toLowerCase(),
                     })}
@@ -828,14 +828,13 @@ const MealPlanForm = ({
                     id="description"
                     label="Description"
                     type="textarea"
-                    className=" custom-scrollbar"
+                    className=" custom-scrollbar "
                     rows={11}
-                    customPercentage={10}
                     {...register("description", {
                       maxLength: {
                         value: 350,
-                        message: "Description should not exceed 350 characters"
-                      }
+                        message: "Description should not exceed 350 characters",
+                      },
                     })}
                     error={errors.description?.message}
                   />
@@ -915,7 +914,7 @@ const MealPlanForm = ({
                                 " (" +
                                 item.percentage +
                                 "%)"}
-                            </span> 
+                            </span>
                           </div>
                         ))}
                       </div>

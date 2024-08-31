@@ -129,6 +129,8 @@ export default function CoachTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
+        newCriteria.sort_key="created_at";
+        newCriteria.sort_order= "desc";
       } else {
         delete newCriteria.search_key;
       }

@@ -238,9 +238,13 @@ const BasicInfoForm = () => {
           <FloatingLabelInput
             id="membership_name"
             label="Name*"
-            {...register("name", { required: "Required", maxLength: {
-							value: 40, message: "Should be 40 characters or less"
-						} })}
+            {...register("name", {
+              required: "Required",
+              maxLength: {
+                value: 40,
+                message: "Should be 40 characters or less",
+              },
+            })}
             error={errors.name?.message}
           />
           <Controller
@@ -322,9 +326,13 @@ const BasicInfoForm = () => {
             label="Description"
             type="textarea"
             rows={4}
-            customPercentage={10}
-            className="col-span-2"
-            {...register("description")}
+            className="custom-scrollbar col-span-2 peer-placeholder-shown:top-[10%]"
+            {...register("description", {
+              maxLength: {
+                value: 350,
+                message: "Description should not exceed 350 characters",
+              },
+            })}
             error={errors.description?.message}
           />
         </div>

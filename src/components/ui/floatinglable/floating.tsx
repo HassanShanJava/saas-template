@@ -22,7 +22,6 @@ export interface FloatingLabelInputProps extends CommonProps {
   error?: string;
   autoComplete?: string;
   labelClassname?: string;
-  customPercentage?: number;
 }
 
 const FloatingInput = React.forwardRef<
@@ -70,20 +69,19 @@ FloatingInput.displayName = "FloatingInput";
 interface FloatingLabelProps
   extends React.ComponentPropsWithoutRef<typeof Label> {
   isTextarea?: boolean;
-  customPercentage?: number;
   labelClassname?: string;
 }
 
 const FloatingLabel = React.forwardRef<
   React.ElementRef<typeof Label>,
   FloatingLabelProps
->(({ className, isTextarea, customPercentage, ...props }, ref) => {
+>(({ className, isTextarea, ...props }, ref) => {
   return (
     <Label
       className={cn(
         "peer-focus:secondary font-poppins peer-focus:dark:secondary absolute start-2 peer-focus:z-10 origin-[0] scale-75 transform bg-background px-2 text-sm !text-gray-800 duration-300 font-normal",
         isTextarea
-          ? `top-2 -translate-y-4 peer-placeholder-shown:top-[${customPercentage}%] peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 text-gray-800 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2`
+          ? `top-2 -translate-y-4 peer-placeholder-shown:top-[20px] peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 text-gray-800 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2`
           : "top-2 -translate-y-4 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 text-gray-800",
         className
       )}
@@ -105,7 +103,6 @@ const FloatingLabelInput = React.forwardRef<
       error,
       type,
       rows,
-      customPercentage,
       labelClassname = "",
       ...props
     },
@@ -120,7 +117,6 @@ const FloatingLabelInput = React.forwardRef<
           <FloatingLabel
             htmlFor={id}
             isTextarea={isTextarea}
-            customPercentage={customPercentage}
             className={labelClassname}
           >
             {label}

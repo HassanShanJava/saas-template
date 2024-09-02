@@ -140,8 +140,8 @@ export default function StaffTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
-        newCriteria.sort_key="created_at";
-        newCriteria.sort_order= "desc";
+        newCriteria.sort_key = "created_at";
+        newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
       }
@@ -432,7 +432,7 @@ export default function StaffTableView() {
           <p>Role</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("role_name")}
+            onClick={() => toggleSortOrder("role_id")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}

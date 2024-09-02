@@ -1322,6 +1322,19 @@ const ExerciseForm = ({
                         <Controller
                           control={form.control}
                           name="distance"
+                          rules={{
+                            validate: {
+                              positiveDecimal: (value) => {
+                                const parsedValue = Number(value); // Ensure the value is treated as a number
+                                return parsedValue !== null &&
+                                  !isNaN(parsedValue) &&
+                                  parsedValue >= 0 && // Minimum value of 0
+                                  parsedValue <= 20 // Maximum value of 20
+                                  ? true
+                                  : "The accepted values are numbers between 0 and 20.";
+                              },
+                            },
+                          }}
                           render={({ field, fieldState }) => (
                             <FloatingLabelInput
                               {...field}
@@ -1334,6 +1347,19 @@ const ExerciseForm = ({
                         <Controller
                           control={form.control}
                           name="speed"
+                          rules={{
+                            validate: {
+                              positiveDecimal: (value) => {
+                                const parsedValue = Number(value); // Ensure the value is treated as a number
+                                return parsedValue !== null &&
+                                  !isNaN(parsedValue) &&
+                                  parsedValue >= 0 && // Minimum value of 0
+                                  parsedValue <= 20 // Maximum value of 20
+                                  ? true
+                                  : "The accepted values are numbers between 0 and 20.";
+                              },
+                            },
+                          }}
                           render={({ field, fieldState }) => (
                             <FloatingLabelInput
                               {...field}

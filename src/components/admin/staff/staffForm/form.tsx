@@ -772,7 +772,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     rules={{
                       maxLength: {
                         value: 200,
-                        message: "Notes should not exceed 350 characters",
+                        message: "Notes should not exceed 200 characters",
                       },
                     }}
                     render={({ field }) => (

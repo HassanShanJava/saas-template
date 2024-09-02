@@ -117,7 +117,6 @@ export default function ExerciseTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
-        newCriteria.sort_key = "id";
         newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
@@ -286,7 +285,8 @@ export default function ExerciseTableView() {
                     {/* Display the truncated name */}
                     {displayValue(
                       `${row.original.exercise_name}`.length > 8
-                        ? `${row.original.exercise_name}`.substring(0, 8) + "..."
+                        ? `${row.original.exercise_name}`.substring(0, 8) +
+                            "..."
                         : `${row.original.exercise_name}`
                     )}
                   </p>
@@ -582,9 +582,9 @@ export default function ExerciseTableView() {
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
                         </TableHead>
                       );
                     })}

@@ -224,7 +224,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
       })
       .trim()
       .optional(),
-    notes: z.string().optional(),
+    notes: z.string().max(200, {
+      message: "Note must be greater than 200 characters",
+    }).optional(),
     source_id: z.coerce
       .number({
         required_error: "Source Required.",
@@ -252,10 +254,15 @@ const StaffForm: React.FC<StaffFormProps> = ({
     zipcode: z
       .string()
       .trim()
-      .max(10, "Zipcode must be 10 characters or less")
+      .max(15, "Zipcode must be 15 characters or less")
       .optional(),
-    address_1: z.string().optional(),
-    address_2: z.string().optional(),
+    address_1: z.string().max(50, {
+      message: "Address must be greater than 50 characters",
+    })
+    .trim().optional(),
+    address_2: z.string().max(50, {
+      message: "Address must be greater than 50 characters",
+    }).optional(),
     org_id: z
       .number({
         required_error: "Required",
@@ -423,15 +430,14 @@ const StaffForm: React.FC<StaffFormProps> = ({
   useEffect(() => {
     if (!open || staffData == null) return;
 
-    let updatedStaffData = replaceNullWithEmptyString(staffData);
+    const updatedStaffData = replaceNullWithEmptyString(staffData);
     if (
       updatedStaffData?.mobile_number &&
       [2, 3, 4].includes(updatedStaffData?.mobile_number?.length)
     ) {
       updatedStaffData.mobile_number = `+1`;
-    } else {
-      updatedStaffData.mobile_number = updatedStaffData?.mobile_number; // keep it as is
     }
+    
     setAction("edit");
     form.reset(updatedStaffData);
     // setAvatar(staffData?.profile_img as string);

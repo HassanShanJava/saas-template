@@ -478,9 +478,9 @@ export default function IncomeCategoryTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -706,7 +706,11 @@ const IncomeCategoryForm = ({
     name: z
       .string()
       .min(1, { message: "Required" })
-      .max(40, "Should be 40 characters or less"),
+      .max(40, "Should be 40 characters or less")
+      .refine(
+        (value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value ?? ""),
+        "Name should contain only alphabets"
+      ),
   });
 
   const form = useForm<z.infer<typeof incomeCategoryFormSchema>>({
@@ -816,44 +820,24 @@ const IncomeCategoryForm = ({
                   <FormField
                     control={form.control}
                     name="name"
-                    render={({ field }) => (
+                    render={({
+                      field: { onChange, value, onBlur },
+                      fieldState: { invalid, error },
+                    }) => (
                       <FormItem>
                         <FloatingLabelInput
-                          {...field}
                           id="name"
                           name="name"
                           label="Category Name*"
-                          value={field.value ?? ""}
+                          value={value ?? ""}
                           onChange={handleOnChange}
+                          // error={error?.message??""}
                         />
+                        {/* {watcher.name ? <></> : <FormMessage />} */}
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  {/* <FormField
-                    control={form.control}
-                    name="percentage"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          type="number"
-                          id="percentage"
-                          name="percentage"
-                          min={1}
-                          step={".1"}
-                          max={100}
-                          className=""
-                          label="Percentage"
-                          value={field.value ?? 1}
-                          onChange={handleOnChange}
-
-                        />
-                        {watcher.percentage ? <></> : <FormMessage />}
-                      </FormItem>
-                    )}
-                  /> */}
 
                   <FormField
                     control={form.control}
@@ -864,9 +848,7 @@ const IncomeCategoryForm = ({
                           onValueChange={(value) => {
                             field.onChange(Number(value));
                             handleTaxOnChange(Number(value));
-                          }
-
-                          }
+                          }}
                           defaultValue={field.value?.toString()}
                         >
                           <FormControl>

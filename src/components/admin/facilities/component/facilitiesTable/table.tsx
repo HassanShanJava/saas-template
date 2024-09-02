@@ -720,14 +720,17 @@ const CreditForm = ({
     name: z
       .string()
       .min(1, { message: "Required" })
-      .max(40, "Should be 40 characters or less"),
-    min_limit: z.number().min(1, { message: "Required" }),
+      .max(40, "Name must be 40 characters or less")
+      .refine((value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value ?? ""), 'Name should contain only alphabets'), 
+    min_limit: z
+      .number({ required_error: "Required" })
+      .min(1, { message: "Min. limit required is 1." }),
   });
 
   const form = useForm<z.infer<typeof creditFormSchema>>({
     resolver: zodResolver(creditFormSchema),
     defaultValues: formData,
-    mode: "onChange",
+    mode: "all",
   });
 
   const watcher = form.watch();
@@ -832,18 +835,29 @@ const CreditForm = ({
                   <form
                     onSubmit={form.handleSubmit(onSubmit, onError)}
                     className="flex flex-col py-4 gap-4"
+                    noValidate
                   >
                     <FormField
                       control={form.control}
                       name="name"
-                      render={({ field }) => (
+                      rules={{
+                        required: "Required",
+                        maxLength: {
+                          value: 50,
+                          message: "Name should less than 50 characters.",
+                        },
+                      }}
+                      render={({
+                        field: { onChange, value, onBlur },
+                        fieldState: { invalid, error },
+                      }) => (
                         <FormItem>
                           <FloatingLabelInput
-                            {...field}
                             id="name"
                             name="name"
                             label="Facility Name*"
-                            value={field.value ?? ""}
+                            value={value ?? ""}
+                            error={error?.message??""}
                             onChange={handleOnChange}
                           />
                           {watcher.name ? <></> : <FormMessage />}
@@ -854,17 +868,25 @@ const CreditForm = ({
                     <FormField
                       control={form.control}
                       name="min_limit"
-                      render={({ field }) => (
+                      rules={{
+                        required: "Required",
+                        min: {
+                          value: 1,
+                          message: "Min. limit required is 1.",
+                        },
+                      }}
+                      render={({
+                        field: { onChange, value, onBlur },
+                        fieldState: { invalid, error },
+                      }) => (
                         <FormItem>
                           <FloatingLabelInput
-                            {...field}
                             id="min_limit"
                             name="min_limit"
-                            min={1}
                             type="number"
                             className=""
                             label="Min Requred Limit*"
-                            value={field.value ?? 1}
+                            value={value}
                             onChange={handleOnChange}
                           />
                           {watcher.min_limit ? <></> : <FormMessage />}

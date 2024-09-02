@@ -384,10 +384,9 @@ export default function MemberTableView() {
                     <p className="capitalize cursor-pointer">
                       {/* Display the truncated name */}
                       {displayValue(
-                        `${row.original.first_name} ${row.original.last_name}`.substring(
-                          0,
-                          8
-                        ) + "..."
+                        `${row.original.first_name} ${row.original.last_name}`.length > 8
+                          ? `${row.original.first_name} ${row.original.last_name}`.substring(0, 8) + "..."
+                          : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
                   </TooltipTrigger>
@@ -431,8 +430,10 @@ export default function MemberTableView() {
                   <p className="capitalize cursor-pointer">
                     {/* Display the truncated name */}
                     {displayValue(
-                      `${row?.original?.business_name}`.substring(0, 8) + "..."
-                    )}
+  `${row.original.business_name}`.length > 8
+    ? `${row.original.business_name}`.substring(0, 8) + "..."
+    : `${row.original.business_name}`
+)}
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>

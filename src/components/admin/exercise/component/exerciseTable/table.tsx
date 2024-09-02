@@ -285,7 +285,9 @@ export default function ExerciseTableView() {
                   <p className="capitalize cursor-pointer">
                     {/* Display the truncated name */}
                     {displayValue(
-                      `${row?.original?.exercise_name}`.substring(0, 8) + "..."
+                      `${row.original.exercise_name}`.length > 8
+                        ? `${row.original.exercise_name}`.substring(0, 8) + "..."
+                        : `${row.original.exercise_name}`
                     )}
                   </p>
                 </TooltipTrigger>

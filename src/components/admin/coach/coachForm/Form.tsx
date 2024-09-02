@@ -451,6 +451,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     form.clearErrors();
     form.reset(initialState);
     setAvatar(null);
+    setSelectedImage(null);
     setCoachData(null);
     setOpen(false);
   }

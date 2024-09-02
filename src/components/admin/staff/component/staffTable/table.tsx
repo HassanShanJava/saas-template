@@ -109,7 +109,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key: "created_at",
+  sort_key: "id",
 };
 export default function StaffTableView() {
   const orgId =
@@ -142,7 +142,7 @@ export default function StaffTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
-        newCriteria.sort_key = "created_at";
+        newCriteria.sort_key = "id";
         newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
@@ -332,8 +332,8 @@ export default function StaffTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {/* {displayValue(row?.original?.own_staff_id)} */}
-            {`${orgName?.slice(0, 2)}-${row?.original?.id}`}
+            {displayValue(row?.original?.own_staff_id)}
+            {/* {`${orgName?.slice(0, 2)}-${row?.original?.id}`} */}
           </div>
         );
       },
@@ -435,7 +435,7 @@ export default function StaffTableView() {
           <p>Role</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("role_name")}
+            onClick={() => toggleSortOrder("role_id")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -529,7 +529,7 @@ export default function StaffTableView() {
           <p>Last Check In</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("last_checkin")}
+            onClick={() => toggleSortOrder("check_in")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}

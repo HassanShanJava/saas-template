@@ -91,7 +91,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key: "created_at",
+  sort_key: "id",
 };
 
 const status = [
@@ -127,7 +127,7 @@ export default function MemberTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
-        newCriteria.sort_key = "created_at";
+        newCriteria.sort_key = "id";
         newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
@@ -325,7 +325,7 @@ export default function MemberTableView() {
           <p>Member Id</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("own_member_id")}
+            onClick={() => toggleSortOrder("id")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -336,7 +336,8 @@ export default function MemberTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {`${orgName?.slice(0, 2)}-${row?.original?.id}`}
+            {/* {`${orgName?.slice(0, 2)}-${row?.original?.id}`} */}
+            {displayValue(row?.original.own_member_id)}
           </div>
         );
       },

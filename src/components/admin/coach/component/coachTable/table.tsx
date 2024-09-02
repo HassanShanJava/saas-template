@@ -106,7 +106,7 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key: "created_at",
+  sort_key: "id",
 };
 
 export default function CoachTableView() {
@@ -132,7 +132,7 @@ export default function CoachTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
-        newCriteria.sort_key = "created_at";
+        newCriteria.sort_key = "id";
         newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
@@ -319,8 +319,8 @@ export default function CoachTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {/* {displayValue(row?.original?.own_coach_id)} */}
-            {`${orgName?.slice(0, 2)}-${row?.original?.id}`}
+            {displayValue(row?.original?.own_coach_id)}
+            {/* {`${orgName?.slice(0, 2)}-${row?.original?.id}`} */}
           </div>
         );
       },

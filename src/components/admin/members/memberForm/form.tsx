@@ -403,6 +403,7 @@ const MemberForm = ({
 
   function handleClose() {
     setAvatar(null);
+    setSelectedImage(null)
     clearErrors();
     reset(initialValues, {
       keepIsSubmitted: false,

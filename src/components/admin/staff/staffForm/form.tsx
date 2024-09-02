@@ -156,6 +156,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
     form.clearErrors();
     form.reset(initialState);
     setAvatar(null);
+    setSelectedImage(null);
     setStaffData(null);
     setOpen(false);
   };

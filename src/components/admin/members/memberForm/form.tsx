@@ -8,7 +8,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-
+import { PhoneNumberUtil } from "google-libphonenumber";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -225,18 +225,37 @@ const MemberForm = ({
       skip: emailAutoFill == "",
     }
   );
+  const phoneUtil = PhoneNumberUtil.getInstance();
+
   const validatePhone = (value: string | undefined) => {
     if (!value) {
-      return true; // If value is empty, validation passes
+      return true; // If value is empty, validation passes (based on requirements)
     }
+
     if (value.length > 20) {
       return "Phone number cannot exceed 20 digits";
     }
-    if (!/^\+?[1-9]\d{0,14}$/.test(value)) {
-      return "Invalid phone number";
+
+    if (value.length <= 4) {
+      return true; // Pass validation if length is 5 or fewer
     }
-    return true; // Return true if validation passes
+
+    try {
+      // Parse the phone number with the default country code (can be adjusted)
+      const parsedNumber = phoneUtil.parseAndKeepRawInput(value);
+
+      // Check if the parsed number is a valid phone number
+      if (!phoneUtil.isValidNumber(parsedNumber)) {
+        return "Invalid phone number";
+      }
+
+      return true; // Return true if validation passes
+    } catch (error) {
+      // Catch parsing errors and return an appropriate message
+      return "Invalid phone number format";
+    }
   };
+
   const { data: countries } = useGetCountriesQuery();
   const { data: business } = useGetAllBusinessesQuery(orgId);
   const { data: coachesData } = useGetCoachListQuery(orgId);
@@ -316,7 +335,7 @@ const MemberForm = ({
         : memberData?.coaches.map((item) => item.id);
       if (
         memberpayload?.mobile_number &&
-        [2, 3, 4].includes(memberpayload.mobile_number?.length)
+        [0, 2, 3, 4].includes(memberpayload.mobile_number?.length)
       ) {
         memberpayload.mobile_number = `+1`;
       } else {
@@ -1142,7 +1161,7 @@ const MemberForm = ({
                     {...register("city", {
                       maxLength: {
                         value: 50,
-                        message: "Max",
+                        message: "Should be 50 characters or less",
                       },
                     })}
                     error={errors?.city?.message as keyof MemberInputTypes}

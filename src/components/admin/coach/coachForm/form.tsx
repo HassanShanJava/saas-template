@@ -187,7 +187,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .max(50, "Should be 50 characters or less")
       .refine(
         (value) =>
-          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/i.test(value),
+          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i.test(value),
         {
           message: "Incorrect email format",
         }

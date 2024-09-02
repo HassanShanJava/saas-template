@@ -198,7 +198,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
       .max(50, "Should be 50 characters or less")
       .refine(
         (value) =>
-          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/i.test(value),
+          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i.test(value),
         {
           message: "Incorrect email format",
         }
@@ -878,6 +878,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     render={({ field }) => (
                       <FormItem>
                         <Select
+                          disabled={field.value === "pending"}
                           onValueChange={(value: statusEnum) =>
                             form.setValue("status", value)
                           }
@@ -885,7 +886,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                         >
                           <FormControl>
                             <SelectTrigger
-                              disabled={field.value == "pending"}
+                              disabled={field.value === "pending"}
                               floatingLabel="Status*"
                               className={`text-black`}
                             >

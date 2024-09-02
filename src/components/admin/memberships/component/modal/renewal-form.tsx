@@ -91,16 +91,21 @@ const AutoRenewalForm = () => {
             <FloatingLabelInput
               id="days_before"
               type="number"
-              
               min={1}
               max={15}
               className="w-20 "
-              {...register("days_before", { required: "Days are Required",
+              {...register("days_before", {
+                required: "Days are Required",
                 valueAsNumber: true,
-                validate: (value) =>
-                  (value && value <= 15) || "Value must be 15 or less",
-                onChange:(e)=> handleDayInput(e,'days_before'),
-               })}
+                min: {
+                  value: 1,
+                  message: "Days must be between 1 and 15.",
+                },
+                max: {
+                  value: 15,
+                  message: "Days must be between 1 and 15.",
+                },
+              })}
               error={errors.days_before?.message}
             />
             <p>days before contracts runs out.</p>
@@ -112,16 +117,20 @@ const AutoRenewalForm = () => {
             <FloatingLabelInput
               id="next_invoice"
               type="number"
-              
               min={1}
               max={15}
               className="w-20 "
               {...register("next_invoice", {
                 required: "Days are Required",
                 valueAsNumber: true,
-                validate: (value) =>
-                  (value && value <= 15) || "Value must be 15 or less",
-                onChange:(e)=> handleDayInput(e,'next_invoice'),
+                min: {
+                  value: 1,
+                  message: "Days must be between 1 and 15.",
+                },
+                max: {
+                  value: 15,
+                  message: "Days must be between 1 and 15.",
+                },
               })}
               error={errors.next_invoice?.message}
             />

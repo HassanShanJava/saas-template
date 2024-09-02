@@ -187,7 +187,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .max(50, "Should be 50 characters or less")
       .refine(
         (value) =>
-          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/i.test(value),
+          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i.test(value),
         {
           message: "Incorrect email format",
         }
@@ -240,7 +240,12 @@ const CoachForm: React.FC<CoachFormProps> = ({
         required_error: "You need to select status.",
       })
       .default("pending"),
-    notes: z.string().optional(),
+    notes: z
+      .string()
+      .max(200, {
+        message: "Notes must be greater than 200 characters",
+      })
+      .optional(),
     source_id: z.coerce
       .number({
         required_error: "Required",
@@ -248,32 +253,46 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .refine((value) => value !== 0, {
         message: "Required",
       }),
-    address_1: z.string().optional(),
-    address_2: z.string().optional(),
+    address_1: z.string().max(50, {
+      message: "Address must be greater than 50 characters",
+    }).optional(),
+    address_2: z.string().max(50, {
+      message: "Address must be greater than 50 characters",
+    }).optional(),
     zipcode: z
       .string()
       .trim()
-      .max(10, "Zipcode must be 10 characters or less")
+      .max(15, {
+        message: "Zipcode must be 15 characters or less",
+      })
       .optional(),
     bank_name: z
       .string()
       .trim()
-      .max(40, "Sbould be 40 characters or less")
+      .max(40, {
+        message: "Should be 40 characters or less",
+      })
       .optional(),
     iban_no: z
       .string()
       .trim()
-      .max(34, "Sbould be 34 characters or less")
+      .max(34, {
+        message: "Should be 34 characters or less",
+      })
       .optional(),
     swift_code: z
       .string()
       .trim()
-      .max(11, "Should be 11 characters or less")
+      .max(11, {
+        message: "Should be 11 characters or less",
+      })
       .optional(),
     acc_holder_name: z
       .string()
       .trim()
-      .max(50, "Should be 50 characters or less")
+      .max(50, {
+        message: "Should be 50 characters or less",
+      })
       .optional(),
     country_id: z.coerce
       .number({
@@ -282,7 +301,12 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .refine((value) => value !== 0, {
         message: "Required",
       }),
-    city: z.string().max(50, "Should be 50 characters or less").optional(),
+    city: z
+      .string()
+      .max(50, {
+        message: "City be 50 characters or less",
+      })
+      .optional(),
     org_id: z
       .number({
         required_error: "Required",
@@ -380,7 +404,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: initialState,
-    mode: "onChange",
+    mode: "all",
   });
 
   const {
@@ -448,6 +472,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     form.clearErrors();
     form.reset(initialState);
     setAvatar(null);
+    setSelectedImage(null);
     setCoachData(null);
     setOpen(false);
   }
@@ -1150,13 +1175,19 @@ const CoachForm: React.FC<CoachFormProps> = ({
                   />
                 </div>
                 <div className="relative ">
-                  <FormField
+                <FormField
                     control={form.control}
                     name="city"
+                    rules={{
+                      maxLength: {
+                        value: 50,
+                        message: "City should be less than 50 character.",
+                      },
+                    }}
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput {...field} id="city" label="City" />
-                        {<FormMessage />}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />

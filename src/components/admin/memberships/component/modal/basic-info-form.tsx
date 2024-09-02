@@ -242,7 +242,7 @@ const BasicInfoForm = () => {
               required: "Required",
               maxLength: {
                 value: 40,
-                message: "Should be 40 characters or less",
+                message: "Name must be 40 characters or less",
               },
             })}
             error={errors.name?.message}
@@ -456,7 +456,17 @@ const BasicInfoForm = () => {
             id="duration_no"
             type="number"
             className="w-20 "
-            {...register("duration_no", { required: "Required" })}
+            {...register("duration_no", {
+              required: "Required",
+              min: {
+                value: 1,
+                message: "Duration must be between 1 and 12.",
+              },
+              max: {
+                value: 12,
+                message: "Duration must be between 1 and 12.",
+              },
+            })}
             error={errors.duration_no?.message}
           />
         </div>

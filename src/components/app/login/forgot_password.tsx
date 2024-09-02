@@ -20,7 +20,6 @@ import logomainsvg from "@/assets/logo-main.svg";
 import { useSendResetEmailMutation } from "@/services/resetPassApi";
 import { ErrorType } from "@/app/types";
 
-
 const ForgotPasword = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -48,7 +47,6 @@ const ForgotPasword = () => {
     console.log(data);
     const recaptchaValue = recaptchaRef.current?.getValue();
 
-
     if (!recaptchaValue) {
       console.log("Please complete the ReCAPTCHA challenge.");
       setCaptchaError(true);
@@ -57,7 +55,7 @@ const ForgotPasword = () => {
     const payload = {
       ...data,
       email: data.email.toLowerCase(),
-    }
+    };
     try {
       const resp = await sendRestEmail(payload).unwrap();
       if (resp) {
@@ -145,7 +143,7 @@ const ForgotPasword = () => {
                           required: "Email is required.",
                           pattern: {
                             value:
-                              /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/,
+                              /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
                             message: "Invalid email format.",
                           },
                           maxLength: 50,

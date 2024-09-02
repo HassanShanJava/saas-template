@@ -143,7 +143,7 @@ const ExerciseFilters = ({
                     ...prev,
                     ...filterData,
                     offset: 0,
-                    sort_key:"created_at",
+                    sort_key:"id",
                     sort_order: "desc",
                   }));
                   setOpen(false);

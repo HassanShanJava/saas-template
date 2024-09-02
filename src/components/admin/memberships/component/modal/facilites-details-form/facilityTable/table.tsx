@@ -411,6 +411,7 @@ export default function FacilityTableView({
             <div className="flex items-center  gap-2 px-3 py-1 rounded-md border text-sm border-gray-300 focus-within:border-primary focus-within:ring-[1] ring-primary">
               <Search className="w-[14px] h-[14px] text-gray-400 m-auto " />
               <input
+                type="text"
                 placeholder="Search by Name"
                 value={
                   (table.getColumn("name")?.getFilterValue() as string) ?? ""
@@ -419,6 +420,7 @@ export default function FacilityTableView({
                   table.getColumn("name")?.setFilterValue(event.target.value)
                 }
                 className="h-7  outline-none"
+                maxLength={50}
               />
             </div>
           </div>

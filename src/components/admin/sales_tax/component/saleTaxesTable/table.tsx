@@ -456,9 +456,9 @@ export default function SaleTaxesTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -677,9 +677,9 @@ const SaleTaxesForm = ({
       .string()
       .min(1, { message: "Required" })
       .max(40, "Name must be 40 characters or less")
-      .refine((value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value ?? ""), 'Name should contain only alphabets'), 
+      .refine((value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value ?? ""), 'Name should contain only alphabets'),
     status: z.string({ required_error: "Required" }).default("active"),
-    percentage: z.number().min(1, { message: "Required" }),
+    percentage: z.number({ required_error: "Required" }).min(1, { message: "Minimum percentage required is 1" }).max(99, { message: "Maximum percentage required is 99" }),
   });
 
   const form = useForm<z.infer<typeof saleTaxFormSchema>>({
@@ -793,7 +793,7 @@ const SaleTaxesForm = ({
                     control={form.control}
                     name="name"
                     rules={{
-                      required:"Required",
+                      required: "Required",
                       maxLength: {
                         value: 50,
                         message: "Name should be less than 50 character.",
@@ -820,7 +820,7 @@ const SaleTaxesForm = ({
                     control={form.control}
                     name="percentage"
                     rules={{
-                      required:"Required",
+                      required: "Required",
                       min: {
                         value: 0,
                         message: "Mininum percenttage is 0",
@@ -845,7 +845,7 @@ const SaleTaxesForm = ({
                           value={value}
                           onChange={handleOnChange}
                         />
-                        {watcher.percentage ? <></> : <FormMessage />}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />

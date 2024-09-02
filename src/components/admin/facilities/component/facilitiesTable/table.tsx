@@ -494,9 +494,9 @@ export default function FacilitiesTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -721,10 +721,11 @@ const CreditForm = ({
       .string()
       .min(1, { message: "Required" })
       .max(40, "Name must be 40 characters or less")
-      .refine((value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value ?? ""), 'Name should contain only alphabets'), 
+      .refine((value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value ?? ""), 'Name should contain only alphabets'),
     min_limit: z
       .number({ required_error: "Required" })
-      .min(1, { message: "Min. limit required is 1." }),
+      .min(1, { message: "Min. limit required is 1." })
+      .max(1000, { message: "Max. limit required is 1000." }),
   });
 
   const form = useForm<z.infer<typeof creditFormSchema>>({
@@ -857,7 +858,7 @@ const CreditForm = ({
                             name="name"
                             label="Facility Name*"
                             value={value ?? ""}
-                            error={error?.message??""}
+                            // error={error?.message??""}
                             onChange={handleOnChange}
                           />
                           {watcher.name ? <></> : <FormMessage />}
@@ -872,7 +873,11 @@ const CreditForm = ({
                         required: "Required",
                         min: {
                           value: 1,
-                          message: "Min. limit required is 1.",
+                          message: "Min. limit required is 1",
+                        },
+                        max: {
+                          value: 1000,
+                          message: "Max. limit required is 1000",
                         },
                       }}
                       render={({
@@ -888,8 +893,9 @@ const CreditForm = ({
                             label="Min Requred Limit*"
                             value={value}
                             onChange={handleOnChange}
+                          // error={error?.message??""}
                           />
-                          {watcher.min_limit ? <></> : <FormMessage />}
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -912,11 +918,10 @@ const CreditForm = ({
                                 <SelectValue placeholder="">
                                   <span className="flex gap-2 items-center">
                                     <span
-                                      className={`w-2 h-2 rounded-full ${
-                                        field.value == "active"
-                                          ? "bg-green-500"
-                                          : "bg-blue-500"
-                                      }`}
+                                      className={`w-2 h-2 rounded-full ${field.value == "active"
+                                        ? "bg-green-500"
+                                        : "bg-blue-500"
+                                        }`}
                                     ></span>
                                     {field.value == "active"
                                       ? "Active"

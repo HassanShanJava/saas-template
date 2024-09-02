@@ -66,7 +66,7 @@ import {
 } from "@/app/types";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Separator } from "@/components/ui/separator";
-import CoachForm from "../../coachForm/Form";
+import CoachForm from "../../coachForm/form";
 import { Sheet } from "@/components/ui/sheet";
 import TableFilters from "@/components/ui/table/data-table-filter";
 const { VITE_VIEW_S3_URL } = import.meta.env;

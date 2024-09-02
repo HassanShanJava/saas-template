@@ -245,7 +245,11 @@ export default function SaleTaxesTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <span>{row.original.name}</span>;
+        return <span>{displayValue(
+          `${row.original.name}`.length > 15
+            ? `${row.original.name}`.substring(0, 15) + "..."
+            : `${row.original.name}`
+        )}</span>;
       },
       enableSorting: false,
       enableHiding: false,

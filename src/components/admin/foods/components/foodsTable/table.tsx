@@ -10,6 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+const displayValue = (value: any) => (value === null ? "N/A" : value);
 
 import {
   Table,
@@ -220,7 +221,11 @@ export default function FoodsTableView() {
             ) : (
               <div className="size-14 bg-gray-100 rounded-sm"></div>
             )}
-            <span className="capitalize">{row.original.name}</span>
+            <span className="capitalize">{displayValue(
+              `${row.original.name}`.length > 8
+                ? `${row.original.name}`.substring(0, 8) + "..."
+                : `${row.original.name}`
+            )}</span>
           </div>
         );
       },
@@ -244,7 +249,11 @@ export default function FoodsTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <span className="capitalize">{row.original.brand}</span>;
+        return <span className="capitalize">{displayValue(
+          `${row.original.brand}`.length > 8
+            ? `${row.original.brand}`.substring(0, 8) + "..."
+            : `${row.original.brand}`
+        )}</span>;
       },
       enableSorting: false,
       enableHiding: false,

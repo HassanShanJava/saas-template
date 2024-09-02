@@ -54,7 +54,6 @@ import {
   FormLabel,
   FormControl,
 } from "@/components/ui/form";
-
 import { toast } from "@/components/ui/use-toast";
 
 import {
@@ -134,7 +133,11 @@ enum genderEnum {
   female = "female",
   other = "other",
 }
-
+export enum statusEnum {
+  pending = "pending",
+  active = "active",
+  inactive = "inactive",
+}
 const coachsSchema = z.object({
   id: z.number(),
   name: z.string(),
@@ -673,7 +676,7 @@ const MemberForm = ({
                       },
                       pattern: {
                         value:
-                          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$/i,
+                          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i,
                         message: "Incorrect email format",
                       },
                     })}
@@ -869,11 +872,11 @@ const MemberForm = ({
                       fieldState: { invalid, error },
                     }) => (
                       <Select
-                        onValueChange={(value: genderEnum) =>
+                        onValueChange={(value: statusEnum) =>
                           setValue("client_status", value)
                         }
-                        value={value as genderEnum}
-                        disabled={value == "pending"}
+                        value={value as statusEnum}
+                        disabled={value === "pending"}
                       >
                         <SelectTrigger
                           floatingLabel="Status*"

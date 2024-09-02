@@ -262,7 +262,7 @@ const FoodForm = ({
                   min={1}
                   max={20}
                   onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (e.key === '.') {
+                    if (e.key == '.' || e.key =='+'||e.key =='-' ) {
                       e.preventDefault();
                       return;
                     }

@@ -249,28 +249,28 @@ export default function FoodsTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: "weight_unit",
-      meta: "weight_unit",
-      header: () => (
-        <div className="flex items-center gap-2">
-          <p>Weight/Unit</p>
-          <button
-            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("brand")}
-          >
-            <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-            ></i>
-          </button>
-        </div>
-      ),
-      cell: ({ row }) => {
-        return <span className="capitalize">{row.original.weight_unit}</span>;
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
+    // {
+    //   accessorKey: "weight_unit",
+    //   meta: "weight_unit",
+    //   header: () => (
+    //     <div className="flex items-center gap-2">
+    //       <p>Weight/Unit</p>
+    //       <button
+    //         className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+    //         onClick={() => toggleSortOrder("brand")}
+    //       >
+    //         <i
+    //           className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+    //         ></i>
+    //       </button>
+    //     </div>
+    //   ),
+    //   cell: ({ row }) => {
+    //     return <span className="capitalize">{row.original.weight_unit}</span>;
+    //   },
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
     {
       accessorKey: "category",
       meta: "Category",

@@ -11,6 +11,8 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 
+const displayValue = (value: any) => (value === null ? "N/A" : value);
+
 import {
   Table,
   TableBody,
@@ -215,7 +217,11 @@ export default function MealPlansTableView() {
             ) : (
               <div className="size-14 bg-gray-100 rounded-sm"></div>
             )}
-            <span className="capitalize">{row.original.name}</span>
+            <span className="capitalize">{displayValue(
+              `${row.original.name}`.length > 8
+                ? `${row.original.name}`.substring(0, 8) + "..."
+                : `${row.original.name}`
+            )}</span>
           </div>
         );
       },

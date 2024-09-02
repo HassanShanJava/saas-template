@@ -10,6 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+const displayValue = (value: any) => (value === null ? "N/A" : value);
 
 import {
   Table,
@@ -220,7 +221,11 @@ export default function FoodsTableView() {
             ) : (
               <div className="size-14 bg-gray-100 rounded-sm"></div>
             )}
-            <span className="capitalize">{row.original.name}</span>
+            <span className="capitalize">{displayValue(
+              `${row.original.name}`.length > 8
+                ? `${row.original.name}`.substring(0, 8) + "..."
+                : `${row.original.name}`
+            )}</span>
           </div>
         );
       },
@@ -244,33 +249,37 @@ export default function FoodsTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <span className="capitalize">{row.original.brand}</span>;
+        return <span className="capitalize">{displayValue(
+          `${row.original.brand}`.length > 8
+            ? `${row.original.brand}`.substring(0, 8) + "..."
+            : `${row.original.brand}`
+        )}</span>;
       },
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: "weight_unit",
-      meta: "weight_unit",
-      header: () => (
-        <div className="flex items-center gap-2">
-          <p>Weight/Unit</p>
-          <button
-            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("brand")}
-          >
-            <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-            ></i>
-          </button>
-        </div>
-      ),
-      cell: ({ row }) => {
-        return <span className="capitalize">{row.original.weight_unit}</span>;
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
+    // {
+    //   accessorKey: "weight_unit",
+    //   meta: "weight_unit",
+    //   header: () => (
+    //     <div className="flex items-center gap-2">
+    //       <p>Weight/Unit</p>
+    //       <button
+    //         className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+    //         onClick={() => toggleSortOrder("brand")}
+    //       >
+    //         <i
+    //           className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+    //         ></i>
+    //       </button>
+    //     </div>
+    //   ),
+    //   cell: ({ row }) => {
+    //     return <span className="capitalize">{row.original.weight_unit}</span>;
+    //   },
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
     {
       accessorKey: "category",
       meta: "Category",

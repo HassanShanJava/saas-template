@@ -366,10 +366,9 @@ export default function CoachTableView() {
                     <p className="capitalize cursor-pointer">
                       {/* Display the truncated name */}
                       {displayValue(
-                        `${row.original.first_name} ${row.original.last_name}`.substring(
-                          0,
-                          8
-                        ) + "..."
+                        `${row.original.first_name} ${row.original.last_name}`.length > 8
+                          ? `${row.original.first_name} ${row.original.last_name}`.substring(0, 8) + "..."
+                          : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
                   </TooltipTrigger>
@@ -583,7 +582,7 @@ export default function CoachTableView() {
     Math.floor((totalRecords - 1) / searchCretiria.limit) * searchCretiria.limit
   );
   const isLastPage = searchCretiria.offset >= lastPageOffset;
-  console.log(isLastPage,searchCretiria.offset,lastPageOffset,"lastPageOffset")
+  console.log(isLastPage, searchCretiria.offset, lastPageOffset, "lastPageOffset")
 
   const nextPage = () => {
     if (!isLastPage) {

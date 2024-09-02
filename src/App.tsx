@@ -20,7 +20,7 @@ import MemberForm from "./components/admin/members/memberForm/form";
 import Staff from "./components/admin/staff";
 import StaffForm from "./components/admin/staff/staffForm/form";
 import Coach from "./components/admin/coach";
-import CoachForm from "./components/admin/coach/coachForm/Form";
+import CoachForm from "./components/admin/coach/coachForm/form";
 import Exercise from "./components/admin/exercise";
 import MealPlans from "./components/admin/meal_plans";
 import FoodsNutrition from "./components/admin/foods";

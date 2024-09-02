@@ -250,23 +250,19 @@ const FoodForm = ({
                         <FloatingLabelInput
                           id={item.name}
                           className="capitalize"
-                          label={item.label}
+                          label={item.label + (item.required ? "*":"")}
                           {...register(item.name as keyof CreateFoodTypes, {
                             required: item.required && "Required",
-                            maxLength: 40,
+                            maxLength: {
+                              value: 50,
+                              message: `${item.name.charAt(0).toUpperCase() + item.name.slice(1)} should not exceed 50 characters`,
+                            },
                             setValueAs: (value) => value.toLowerCase(),
                           })}
                           error={
                             errors[item.name as keyof CreateFoodTypes]?.message
                           }
                         />
-
-                        {errors[item.name as keyof CreateFoodTypes]?.type ===
-                          "maxLength" && (
-                          <span className="text-red-500 mt-[5px] text-xs">
-                            Max length exceeded
-                          </span>
-                        )}
                       </div>
                     );
                   }
@@ -290,7 +286,7 @@ const FoodForm = ({
                                 defaultValue={value as string | undefined}
                               >
                                 <SelectTrigger
-                                  floatingLabel={item.label}
+                                  floatingLabel={item.label + (item.required ? "*":"")}
                                   name={item.name}
                                 >
                                   <SelectValue
@@ -316,13 +312,13 @@ const FoodForm = ({
                         />
                         {errors[item.name as keyof CreateFoodTypes]
                           ?.message && (
-                          <span className="text-red-500 text-xs mt-[5px]">
-                            {
-                              errors[item.name as keyof CreateFoodTypes]
-                                ?.message
-                            }
-                          </span>
-                        )}
+                            <span className="text-red-500 text-xs mt-[5px]">
+                              {
+                                errors[item.name as keyof CreateFoodTypes]
+                                  ?.message
+                              }
+                            </span>
+                          )}
                       </div>
                     );
                   }
@@ -456,6 +452,10 @@ const FoodForm = ({
                     {...register("weight", {
                       required: "Required",
                       valueAsNumber: true,
+                      max: {
+                        value: 1000,
+                        message: `Value must be less than or equal to 1000`,
+                      }
                     })}
                   />
                 </div>
@@ -485,13 +485,17 @@ const FoodForm = ({
                         min={0}
                         step={0.01}
                         id={item.name}
-                        label={item.label}
+                        label={item.label + (item.required ? "*":"")}
                         error={
                           errors[item.name as keyof CreateFoodTypes]?.message
                         }
                         {...register(item.name as keyof CreateFoodTypes, {
                           required: item.required && "Required",
                           valueAsNumber: true,
+                          max: {
+                            value: 1000,
+                            message: `Value must be less than or equal to 1000`,
+                          }
                         })}
                       />
                     </div>

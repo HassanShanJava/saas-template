@@ -84,12 +84,20 @@ const FoodForm = ({
     const {
       target: { value },
     } = e;
-    setQuantity(+value);
+    // Convert the value to a number
+    const quantityValue = +value;
+
+    if (quantityValue > 20) {
+      setInputError(true);
+    } else {
+      setInputError(false);
+      setQuantity(quantityValue);
+    }
   };
 
   const handleAddMeal = () => {
 
-    if (quantity !== null) {
+    if (quantity !== null && quantity <= 20) {
       setInputError(false)
       const mealType = {
         label: selectPlan,
@@ -224,7 +232,7 @@ const FoodForm = ({
 
               {/* planFor */}
               <Select
-                disabled={action=='edit'}
+                disabled={action == 'edit'}
                 onValueChange={(value) => setSelectPlan(value)}
                 defaultValue={selectPlan}
               >
@@ -250,6 +258,7 @@ const FoodForm = ({
                   id="quantity"
                   step={1}
                   min={1}
+                  max={20}
                   onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                     if (e.key === '.') {
                       e.preventDefault();
@@ -260,7 +269,7 @@ const FoodForm = ({
                 />
                 {inputError && (
                   <span className="text-red-500 text-xs mt-[5px]">
-                    Quantity is required
+                    {quantity as number > 20 ? "Quantity cannot be more than 20" : "Quantity is required"}
                   </span>
                 )}
               </div>

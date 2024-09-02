@@ -149,7 +149,7 @@ const initialValues: MemberInputTypes = {
   first_name: "",
   last_name: "",
   gender: genderEnum.male,
-  dob: format(new Date(), "yyyy-MM-dd"),
+  dob: "",
   email: "",
   phone: "",
   mobile_number: "",
@@ -341,9 +341,8 @@ const MemberForm = ({
         [0, 2, 3, 4].includes(memberpayload.mobile_number?.length)
       ) {
         memberpayload.mobile_number = `+1`;
-      } else {
-        memberpayload.mobile_number = memberpayload?.mobile_number; // keep it as is
       }
+
       reset(memberpayload);
       // setAvatar(memberpayload.profile_img as string);
     } else {
@@ -426,6 +425,7 @@ const MemberForm = ({
 
   function handleClose() {
     setAvatar(null);
+    setSelectedImage(null)
     clearErrors();
     reset(initialValues, {
       keepIsSubmitted: false,
@@ -781,6 +781,11 @@ const MemberForm = ({
                                 )}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
+                              {errors.dob?.message && (
+                                <span className="text-red-500 text-xs mt-[5px]">
+                                  {errors.dob?.message}
+                                </span>
+                              )}
                             </div>
                           </FormControl>
                         </PopoverTrigger>
@@ -1064,21 +1069,39 @@ const MemberForm = ({
                   <FloatingLabelInput
                     id="address_1"
                     label="Street Address"
-                    {...register("address_1")}
+                    {...register("address_1", {
+                      maxLength: {
+                        value: 50,
+                        message: "Address should be less than 50 characters",
+                      },
+                    })}
+                    error={errors.address_1?.message}
                   />
                 </div>
                 <div className="relative ">
                   <FloatingLabelInput
                     id="address_2"
                     label="Extra Address"
-                    {...register("address_2")}
+                    {...register("address_2", {
+                      maxLength: {
+                        value: 50,
+                        message: "Address should be less than 50 characters",
+                      },
+                    })}
+                    error={errors.address_2?.message}
                   />
                 </div>
                 <div className="relative ">
                   <FloatingLabelInput
                     id="zipcode"
                     label="Zip Code"
-                    {...register("zipcode")}
+                    {...register("zipcode", {
+                      maxLength: {
+                        value: 15,
+                        message: "Zip code should be less than 15 characters",
+                      },
+                    })}
+                    error={errors.zipcode?.message}
                   />
                 </div>
                 <div className="relative">
@@ -1164,7 +1187,7 @@ const MemberForm = ({
                     {...register("city", {
                       maxLength: {
                         value: 50,
-                        message: "Should be 50 characters or less",
+                        message: "City should be less than 50 characters",
                       },
                     })}
                     error={errors?.city?.message as keyof MemberInputTypes}
@@ -1273,6 +1296,16 @@ const MemberForm = ({
                             {...register("prolongation_period", {
                               valueAsNumber: true,
                               required: watcher.auto_renewal && "Required",
+                              min: {
+                                value: 1,
+                                message:
+                                  "Pro. Period must be between 1 and 12.",
+                              },
+                              max: {
+                                value: 12,
+                                message:
+                                  "Pro. Period must be between 1 and 12.",
+                              },
                             })}
                             error={errors.prolongation_period?.message}
                           />
@@ -1295,6 +1328,14 @@ const MemberForm = ({
                             {...register("auto_renew_days", {
                               valueAsNumber: true,
                               required: watcher.auto_renewal && "Required",
+                              min: {
+                                value: 1,
+                                message: "Days must be between 1 and 15.",
+                              },
+                              max: {
+                                value: 15,
+                                message: "Days must be between 1 and 15.",
+                              },
                             })}
                             error={errors.auto_renew_days?.message}
                           />
@@ -1320,6 +1361,14 @@ const MemberForm = ({
                             {...register("inv_days_cycle", {
                               valueAsNumber: true,
                               required: watcher.auto_renewal && "Required",
+                              min: {
+                                value: 1,
+                                message: "Days must be between 1 and 15.",
+                              },
+                              max: {
+                                value: 15,
+                                message: "Days must be between 1 and 15.",
+                              },
                             })}
                             error={errors.inv_days_cycle?.message}
                           />

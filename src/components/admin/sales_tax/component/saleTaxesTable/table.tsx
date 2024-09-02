@@ -379,7 +379,7 @@ export default function SaleTaxesTableView() {
   const totalRecords = saleTaxesData?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
-    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+    Math.floor((totalRecords - 1) / searchCretiria.limit) * searchCretiria.limit
   );
   const isLastPage = searchCretiria.offset >= lastPageOffset;
 
@@ -456,9 +456,9 @@ export default function SaleTaxesTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -676,15 +676,16 @@ const SaleTaxesForm = ({
     name: z
       .string()
       .min(1, { message: "Required" })
-      .max(40, "Should be 40 characters or less"),
+      .max(40, "Name must be 40 characters or less")
+      .refine((value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value ?? ""), 'Name should contain only alphabets'),
     status: z.string({ required_error: "Required" }).default("active"),
-    percentage: z.number().min(1, { message: "Required" }),
+    percentage: z.number({ required_error: "Required" }).min(1, { message: "Minimum percentage required is 1" }).max(99, { message: "Maximum percentage required is 99" }),
   });
 
   const form = useForm<z.infer<typeof saleTaxFormSchema>>({
     resolver: zodResolver(saleTaxFormSchema),
     defaultValues: formData,
-    mode: "onChange",
+    mode: "all",
   });
 
   const watcher = form.watch();
@@ -786,18 +787,28 @@ const SaleTaxesForm = ({
                 <form
                   onSubmit={form.handleSubmit(onSubmit, onError)}
                   className="flex flex-col py-4 gap-4"
+                  noValidate
                 >
                   <FormField
                     control={form.control}
                     name="name"
-                    render={({ field }) => (
+                    rules={{
+                      required: "Required",
+                      maxLength: {
+                        value: 50,
+                        message: "Name should be less than 50 character.",
+                      },
+                    }}
+                    render={({
+                      field: { onChange, value, onBlur },
+                      fieldState: { invalid, error },
+                    }) => (
                       <FormItem>
                         <FloatingLabelInput
-                          {...field}
                           id="name"
                           name="name"
                           label="Tax/VAT Name*"
-                          value={field.value ?? ""}
+                          value={value ?? ""}
                           onChange={handleOnChange}
                         />
                         <FormMessage />
@@ -808,22 +819,33 @@ const SaleTaxesForm = ({
                   <FormField
                     control={form.control}
                     name="percentage"
-                    render={({ field }) => (
+                    rules={{
+                      required: "Required",
+                      min: {
+                        value: 0,
+                        message: "Mininum percenttage is 0",
+                      },
+                      max: {
+                        value: 100,
+                        message: "Maximum percenttage is 100",
+                      },
+                    }}
+                    render={({
+                      field: { onChange, value, onBlur },
+                      fieldState: { invalid, error },
+                    }) => (
                       <FormItem>
                         <FloatingLabelInput
-                          {...field}
                           type="number"
                           id="percentage"
                           name="percentage"
-                          min={1}
                           step={".1"}
-                          max={100}
                           className=""
                           label="Percentage*"
-                          value={field.value ?? 1}
+                          value={value}
                           onChange={handleOnChange}
                         />
-                        {watcher.percentage ? <></> : <FormMessage />}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />

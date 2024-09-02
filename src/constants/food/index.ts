@@ -37,7 +37,7 @@ export const basicInfo = [
   {
     type: "text",
     name: "name",
-    label: "Name*",
+    label: "Name",
     required: true,
   },
   {

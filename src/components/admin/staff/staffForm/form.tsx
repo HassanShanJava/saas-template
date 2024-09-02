@@ -157,6 +157,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
     form.clearErrors();
     form.reset(initialState);
     setAvatar(null);
+    setSelectedImage(null);
     setStaffData(null);
     setOpen(false);
   };
@@ -222,29 +223,10 @@ const StaffForm: React.FC<StaffFormProps> = ({
         message: "Phone number cannot exceed 20 digits",
       })
       .trim()
-      .optional()
-      .refine(
-        (value) => {
-          if (!value) return true; // Skip validation if the field is optional and not provided
-          if (value.length <= 4) {
-            return true; // Pass validation if length is 5 or fewer
-          }
-          try {
-            // Parse the phone number with the utility
-            const parsedNumber = phoneUtil.parseAndKeepRawInput(value);
-
-            // Check if the parsed number is a valid phone number
-            return phoneUtil.isValidNumber(parsedNumber);
-          } catch (e) {
-            // Return false if parsing fails (e.g., invalid format)
-            return false;
-          }
-        },
-        {
-          message: "Invalid phone number", // Custom error message for refine validation
-        }
-      ),
-    notes: z.string().optional(),
+      .optional(),
+    notes: z.string().max(200, {
+      message: "Note must be greater than 200 characters",
+    }).optional(),
     source_id: z.coerce
       .number({
         required_error: "Source Required.",
@@ -272,10 +254,15 @@ const StaffForm: React.FC<StaffFormProps> = ({
     zipcode: z
       .string()
       .trim()
-      .max(10, "Zipcode must be 10 characters or less")
+      .max(15, "Zipcode must be 15 characters or less")
       .optional(),
-    address_1: z.string().optional(),
-    address_2: z.string().optional(),
+    address_1: z.string().max(50, {
+      message: "Address must be greater than 50 characters",
+    })
+    .trim().optional(),
+    address_2: z.string().max(50, {
+      message: "Address must be greater than 50 characters",
+    }).optional(),
     org_id: z
       .number({
         required_error: "Required",
@@ -443,15 +430,14 @@ const StaffForm: React.FC<StaffFormProps> = ({
   useEffect(() => {
     if (!open || staffData == null) return;
 
-    let updatedStaffData = replaceNullWithEmptyString(staffData);
+    const updatedStaffData = replaceNullWithEmptyString(staffData);
     if (
       updatedStaffData?.mobile_number &&
       [0, 2, 3, 4].includes(updatedStaffData?.mobile_number?.length)
     ) {
       updatedStaffData.mobile_number = `+1`;
-    } else {
-      updatedStaffData.mobile_number = updatedStaffData?.mobile_number; // keep it as is
     }
+    
     setAction("edit");
     form.reset(updatedStaffData);
     // setAvatar(staffData?.profile_img as string);

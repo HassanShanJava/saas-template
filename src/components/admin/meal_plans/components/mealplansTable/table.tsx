@@ -109,8 +109,8 @@ export default function MealPlansTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
-        newCriteria.sort_key="created_at";
-        newCriteria.sort_order= "desc";
+        newCriteria.sort_key = "id";
+        newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
       }
@@ -486,9 +486,9 @@ export default function MealPlansTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

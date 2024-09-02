@@ -66,7 +66,7 @@ import {
 } from "@/app/types";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Separator } from "@/components/ui/separator";
-import CoachForm from "../../coachForm/Form";
+import CoachForm from "../../coachForm/form";
 import { Sheet } from "@/components/ui/sheet";
 import TableFilters from "@/components/ui/table/data-table-filter";
 const { VITE_VIEW_S3_URL } = import.meta.env;
@@ -106,12 +106,15 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key: "created_at",
+  sort_key: "id",
 };
 
 export default function CoachTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const orgName = useSelector(
+    (state: RootState) => state.auth.userInfo?.user?.org_name
+  );
   const [searchCretiria, setSearchCretiria] =
     useState<searchCretiriaType>(initialValue);
   const [query, setQuery] = useState("");
@@ -129,8 +132,8 @@ export default function CoachTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
-        newCriteria.sort_key="created_at";
-        newCriteria.sort_order= "desc";
+        newCriteria.sort_key = "id";
+        newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
       }
@@ -184,8 +187,8 @@ export default function CoachTableView() {
   const [clearValue, setIsClearValue] = useState({});
 
   const displayDate = (value: any) => {
-    if(value==null) return "N/A";
-    
+    if (value == null) return "N/A";
+
     const date = new Date(value);
 
     const day = String(date.getDate()).padStart(2, "0");
@@ -317,6 +320,7 @@ export default function CoachTableView() {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original?.own_coach_id)}
+            {/* {`${orgName?.slice(0, 2)}-${row?.original?.id}`} */}
           </div>
         );
       },
@@ -576,9 +580,10 @@ export default function CoachTableView() {
   const totalRecords = coachData?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
-    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+    Math.floor((totalRecords - 1) / searchCretiria.limit) * searchCretiria.limit
   );
   const isLastPage = searchCretiria.offset >= lastPageOffset;
+  console.log(isLastPage,searchCretiria.offset,lastPageOffset,"lastPageOffset")
 
   const nextPage = () => {
     if (!isLastPage) {
@@ -672,9 +677,9 @@ export default function CoachTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

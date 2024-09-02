@@ -96,6 +96,10 @@ const PriceDiscountTaxForm = () => {
           min={0}
           {...register("net_price", {
             required: "Required",
+            min: {
+              value: 1,
+              message: "Price must be more than 1",
+            },
           })}
           error={errors.net_price?.message}
         />
@@ -108,9 +112,14 @@ const PriceDiscountTaxForm = () => {
           {...register("discount", {
             required: "Required",
             valueAsNumber: true,
-            validate: (value) =>
-              (value && value <= 99) || "Value must be 99 or less",
-            onChange: handleDiscountInput,
+            min: {
+              value: 1,
+              message: "Discount must be more than 0",
+            },
+            max: {
+              value: 99,
+              message: "Discount must be between 0 and 99.",
+            },
           })}
           error={errors.discount?.message}
         />

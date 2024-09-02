@@ -117,8 +117,8 @@ export default function ExerciseTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
-        newCriteria.sort_key="created_at";
-        newCriteria.sort_order= "desc";
+        newCriteria.sort_key = "id";
+        newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
       }
@@ -492,7 +492,7 @@ export default function ExerciseTableView() {
   const totalRecords = exercisedata?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
-    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+    Math.floor((totalRecords - 1) / searchCretiria.limit) * searchCretiria.limit
   );
   const isLastPage = searchCretiria.offset >= lastPageOffset;
 
@@ -580,9 +580,9 @@ export default function ExerciseTableView() {
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                         </TableHead>
                       );
                     })}

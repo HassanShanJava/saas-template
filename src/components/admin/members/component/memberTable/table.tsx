@@ -107,6 +107,9 @@ export default function MemberTableView() {
   );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const orgName = useSelector(
+    (state: RootState) => state.auth.userInfo?.user?.org_name
+  );
   const [searchCretiria, setSearchCretiria] =
     useState<searchCretiriaType>(initialValue);
   const [query, setQuery] = useState("");
@@ -124,8 +127,8 @@ export default function MemberTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
-        newCriteria.sort_key="created_at";
-        newCriteria.sort_order= "desc";
+        newCriteria.sort_key = "created_at";
+        newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
       }
@@ -333,7 +336,7 @@ export default function MemberTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original?.own_member_id)}
+            {`${orgName?.slice(0, 2)}-${row?.original?.id}`}
           </div>
         );
       },
@@ -682,7 +685,7 @@ export default function MemberTableView() {
   const totalRecords = memberData?.filtered_counts || 0;
   const lastPageOffset = Math.max(
     0,
-    Math.floor(totalRecords / searchCretiria.limit) * searchCretiria.limit
+    Math.floor((totalRecords - 1) / searchCretiria.limit) * searchCretiria.limit
   );
   const isLastPage = searchCretiria.offset >= lastPageOffset;
 
@@ -781,9 +784,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

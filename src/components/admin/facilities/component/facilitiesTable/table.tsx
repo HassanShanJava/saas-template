@@ -12,6 +12,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+const displayValue = (value: any) => (value === null ? "N/A" : value);
 
 import {
   Table,
@@ -264,7 +265,11 @@ export default function FacilitiesTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <p>{row.original.name}</p>;
+        return <p>{displayValue(
+          `${row.original.name}`.length > 15
+            ? `${row.original.name}`.substring(0, 15) + "..."
+            : `${row.original.name}`
+        )}</p>;
       },
       enableSorting: false,
       enableHiding: false,

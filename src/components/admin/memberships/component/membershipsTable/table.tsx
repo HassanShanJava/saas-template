@@ -10,6 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+const displayValue = (value: any) => (value === null ? "N/A" : value);
 
 import {
   Table,
@@ -295,7 +296,11 @@ export default function MembershipsTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <span>{row.original.name}</span>;
+        return <span>{displayValue(
+          `${row.original.name}`.length > 8
+            ? `${row.original.name}`.substring(0, 8) + "..."
+            : `${row.original.name}`
+        )}</span>;
       },
       enableSorting: false,
       enableHiding: false,

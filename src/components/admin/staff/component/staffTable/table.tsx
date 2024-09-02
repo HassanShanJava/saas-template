@@ -228,6 +228,21 @@ export default function StaffTableView() {
     return `${day}-${month}-${year}`;
   };
 
+  const displayDateTime =  (value: any) => {
+    if (value == null) return "N/A";
+  
+    const date = new Date(value);
+  
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const year = date.getFullYear();
+  
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+  
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  };
+
   const handleStatusChange = async (payload: {
     own_staff_id: string;
     status: statusEnum;
@@ -380,10 +395,9 @@ export default function StaffTableView() {
                     <p className="capitalize cursor-pointer">
                       {/* Display the truncated name */}
                       {displayValue(
-                        `${row.original.first_name} ${row.original.last_name}`.substring(
-                          0,
-                          8
-                        ) + "..."
+                        `${row.original.first_name} ${row.original.last_name}`.length > 8
+                          ? `${row.original.first_name} ${row.original.last_name}`.substring(0, 8) + "..."
+                          : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
                   </TooltipTrigger>
@@ -540,7 +554,7 @@ export default function StaffTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.last_checkin)}
+            {displayDateTime(row?.original.last_checkin)}
           </div>
         );
       },
@@ -564,7 +578,7 @@ export default function StaffTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.last_online)}
+            {displayDateTime(row?.original.last_online)}
           </div>
         );
       },

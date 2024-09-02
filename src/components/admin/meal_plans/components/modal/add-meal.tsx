@@ -89,6 +89,8 @@ const FoodForm = ({
 
     if (quantityValue > 20) {
       setInputError(true);
+      setQuantity(quantityValue);
+      return;
     } else {
       setInputError(false);
       setQuantity(quantityValue);
@@ -210,7 +212,7 @@ const FoodForm = ({
           )}
 
           {Object.entries(selectedFood).length > 0 && (
-            <form className="flex flex-col gap-3" >
+            <form noValidate className="flex flex-col gap-3" >
               {/* image */}
               <div className="flex items-center gap-2">
                 <img
@@ -260,7 +262,7 @@ const FoodForm = ({
                   min={1}
                   max={20}
                   onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (e.key === '.') {
+                    if (e.key == '.' || e.key =='+'||e.key =='-' ) {
                       e.preventDefault();
                       return;
                     }
@@ -274,7 +276,7 @@ const FoodForm = ({
                 )}
               </div>
 
-              <Button className="text-black space-x-2" onClick={handleAddMeal}>
+              <Button type="button" className="text-black space-x-2" onClick={handleAddMeal}>
                 <i className="fa fa-plus"></i>
                 <span>Add</span>
               </Button>

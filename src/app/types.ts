@@ -4,7 +4,7 @@ import { JSONObject } from "@/types/hook-stepper";
 export interface mealPlanTableType {
   data: mealPlanDataType[];
   total_counts: number;
-  filtered_counts: number
+  filtered_counts: number;
 }
 
 export interface mealPlanDataType {
@@ -20,7 +20,7 @@ export interface mealPlanDataType {
   description?: string;
   member_id?: number[];
   meals?: {
-      meal_time: string;
+    meal_time: string;
     food_id: number;
     quantity: number;
   }[];
@@ -349,7 +349,7 @@ export interface CountryTypes {
   is_deleted: boolean;
 }
 export interface ErrorType {
-  status?:number;
+  status?: number;
   data?: {
     detail?: string;
   };
@@ -544,7 +544,7 @@ export interface MemberTableDatatypes {
   }[];
   last_online?: string | null;
   business_name?: string | null;
-  activated_on?:Date|string;
+  activated_on?: Date | string;
 }
 
 export interface MemberTableResponseDatatypes {
@@ -568,7 +568,7 @@ export interface MemberTableResponseDatatypes {
   zipcode?: string;
   address_1?: string;
   address_2?: string;
-  activated_on?: Date|string;
+  activated_on?: Date | string;
   client_status?: string;
   created_at?: string | null;
   created_by?: number | null;
@@ -594,7 +594,7 @@ export interface CoachTableTypes {
   own_coach_id: string;
   first_name: string;
   last_name: string;
-  gender?: "male" | "female" | "other";
+  gender?: genderEnum;
   dob: string;
   email: string;
   phone?: string;
@@ -644,7 +644,7 @@ export interface CoachInputTypes {
   own_coach_id?: string;
   first_name?: string;
   last_name?: string;
-  gender?: "male" | "female" | "other";
+  gender?: genderEnum;
   dob?: string;
   email?: string;
   phone?: string;
@@ -674,7 +674,7 @@ export interface addCoachResponseType {
   first_name: string;
   last_name: string;
   dob: string;
-  gender?: "male" | "female" | "other";
+  gender?: genderEnum;
   email: string;
   phone?: string;
   mobile_number?: string;
@@ -708,7 +708,7 @@ export interface CoachResponseType {
   first_name: string;
   last_name: string;
   dob: string;
-  gender?: "male" | "female" | "other";
+  gender?: genderEnum;
   email: string;
   password?: string;
   phone?: string;
@@ -752,7 +752,7 @@ export interface CoachTableDataTypes {
   first_name: string;
   last_name: string;
   dob: string; // ISO date string
-  gender: "male" | "female" | "other";
+  gender: genderEnum;
   email: string;
   phone?: string;
   mobile_number?: string;
@@ -783,7 +783,7 @@ export interface CoachResponseTypeById {
   first_name: string;
   last_name: string;
   dob: string; // ISO date string
-  gender: "male" | "female" | "other";
+  gender: genderEnum;
   email: string;
   phone?: string;
   mobile_number?: string;
@@ -814,7 +814,7 @@ export interface ServerResponseById {
   first_name: string;
   last_name: string;
   dob: string; // ISO date string
-  gender: "male" | "female" | "other";
+  gender: genderEnum;
   email: string;
   phone?: string;
   mobile_number?: string;
@@ -931,7 +931,7 @@ export interface coachUpdateInput {
   first_name?: string;
   last_name?: string;
   dob?: string;
-  gender?: "male" | "female" | "other";
+  gender?: genderEnum;
   email?: string;
   password?: string;
   phone?: string;

@@ -97,7 +97,11 @@ import { Separator } from "@/components/ui/separator";
 import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { PhoneInput } from "react-international-phone";
 const { VITE_VIEW_S3_URL } = import.meta.env;
-
+enum genderEnum {
+  male = "male",
+  female = "female",
+  other = "other",
+}
 interface CoachFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   open: boolean;
@@ -129,7 +133,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     own_coach_id: "",
     first_name: "",
     last_name: "",
-    gender: "male",
+    gender: genderEnum.male,
     dob: "",
     email: "",
     phone: "",
@@ -169,11 +173,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .trim()
       .max(40, "Sbould be 40 characters or less")
       .min(3, { message: "Required" }),
-    gender: z
-      .enum(["male", "female", "other"], {
-        required_error: "You need to select a gender type.",
-      })
-      .default("male"),
+    gender: z.nativeEnum(genderEnum, {
+      required_error: "You need to select a gender type.",
+    }),
     dob: z.coerce
       .string({
         required_error: "Required",
@@ -253,12 +255,18 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .refine((value) => value !== 0, {
         message: "Required",
       }),
-    address_1: z.string().max(50, {
-      message: "Address must be greater than 50 characters",
-    }).optional(),
-    address_2: z.string().max(50, {
-      message: "Address must be greater than 50 characters",
-    }).optional(),
+    address_1: z
+      .string()
+      .max(50, {
+        message: "Address must be greater than 50 characters",
+      })
+      .optional(),
+    address_2: z
+      .string()
+      .max(50, {
+        message: "Address must be greater than 50 characters",
+      })
+      .optional(),
     zipcode: z
       .string()
       .trim()
@@ -778,14 +786,13 @@ const CoachForm: React.FC<CoachFormProps> = ({
                   <FormField
                     control={form.control}
                     name="gender"
-                    defaultValue="male"
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value: "male" | "female" | "other") =>
+                          onValueChange={(value: genderEnum) =>
                             form.setValue("gender", value)
                           }
-                          defaultValue="male"
+                          value={field.value as genderEnum}
                         >
                           <FormControl>
                             <SelectTrigger
@@ -1175,7 +1182,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                   />
                 </div>
                 <div className="relative ">
-                <FormField
+                  <FormField
                     control={form.control}
                     name="city"
                     rules={{

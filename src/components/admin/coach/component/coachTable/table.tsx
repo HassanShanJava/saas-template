@@ -198,6 +198,21 @@ export default function CoachTableView() {
     return `${day}-${month}-${year}`;
   };
 
+  const displayDateTime =  (value: any) => {
+    if (value == null) return "N/A";
+  
+    const date = new Date(value);
+  
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const year = date.getFullYear();
+  
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+  
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  };
+
   const handleExportSelected = () => {
     const selectedRows = table
       .getSelectedRowModel()
@@ -493,7 +508,7 @@ export default function CoachTableView() {
         console.log(row?.original.check_in);
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.check_in)}
+            {displayDateTime(row?.original.check_in)}
           </div>
         );
       },
@@ -517,7 +532,7 @@ export default function CoachTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.last_online)}
+            {displayDateTime(row?.original.last_online)}
           </div>
         );
       },

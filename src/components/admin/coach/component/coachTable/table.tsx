@@ -389,7 +389,7 @@ export default function CoachTableView() {
                   </TooltipTrigger>
                   <TooltipContent>
                     {/* Display the full name in the tooltip */}
-                    <p>
+                    <p className="capitalize">
                       {displayValue(
                         `${row.original.first_name} ${row.original.last_name}`
                       )}

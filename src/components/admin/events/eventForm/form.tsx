@@ -312,7 +312,7 @@ const EventForm: React.FC<eventFormType> = ({
                           )}
                         />
 
-                        <TooltipContent>
+                        <TooltipContent >
                           <p>Start Time</p>
                         </TooltipContent>
                       </Tooltip>

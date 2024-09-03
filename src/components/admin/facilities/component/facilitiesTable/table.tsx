@@ -13,7 +13,12 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 const displayValue = (value: any) => (value === null ? "N/A" : value);
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -265,11 +270,28 @@ export default function FacilitiesTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <p>{displayValue(
-          `${row.original.name}`.length > 15
-            ? `${row.original.name}`.substring(0, 15) + "..."
-            : `${row.original.name}`
-        )}</p>;
+        return (
+          <div className="">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="capitalize cursor-pointer">
+                    <span>{displayValue(
+                      `${row.original.name}`.length > 15
+                        ? `${row.original.name}`.substring(0, 15) + "..."
+                        : `${row.original.name}`
+                    )}</span>
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent className="mr-24">
+                  <p className="text-sm w-fit ">
+                    {displayValue(`${row?.original?.name}`)}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        );;
       },
       enableSorting: false,
       enableHiding: false,

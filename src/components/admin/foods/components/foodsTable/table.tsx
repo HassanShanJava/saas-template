@@ -11,6 +11,12 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 const displayValue = (value: any) => (value === null ? "N/A" : value);
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import {
   Table,
@@ -223,11 +229,26 @@ export default function FoodsTableView() {
             ) : (
               <div className="size-14 bg-gray-100 rounded-sm"></div>
             )}
-            <span className="capitalize">{displayValue(
-              `${row.original.name}`.length > 8
-                ? `${row.original.name}`.substring(0, 8) + "..."
-                : `${row.original.name}`
-            )}</span>
+            <div className="">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="capitalize cursor-pointer">
+                      <span>{displayValue(
+                        `${row.original.name}`.length > 8
+                          ? `${row.original.name}`.substring(0, 8) + "..."
+                          : `${row.original.name}`
+                      )}</span>
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="capitalize text-sm">
+                      {displayValue(`${row?.original?.name}`)}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
         );
       },
@@ -251,11 +272,28 @@ export default function FoodsTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <span className="capitalize">{displayValue(
-          `${row.original.brand}`.length > 8
-            ? `${row.original.brand}`.substring(0, 8) + "..."
-            : `${row.original.brand}`
-        )}</span>;
+        return (
+          <div className="">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="capitalize cursor-pointer">
+                    <span>{displayValue(
+                      `${row.original.brand}`.length > 8
+                        ? `${row.original.brand}`.substring(0, 8) + "..."
+                        : `${row.original.brand}`
+                    )}</span>
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="capitalize text-sm">
+                    {displayValue(`${row?.original?.brand}`)}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        );
       },
       enableSorting: false,
       enableHiding: false,

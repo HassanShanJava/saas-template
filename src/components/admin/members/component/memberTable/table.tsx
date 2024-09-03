@@ -407,7 +407,7 @@ export default function MemberTableView() {
                   </TooltipTrigger>
                   <TooltipContent>
                     {/* Display the full name in the tooltip */}
-                    <p className="text-sm">
+                    <p className="capitalize text-sm">
                       {displayValue(
                         `${row.original.first_name} ${row.original.last_name}`
                       )}
@@ -452,7 +452,7 @@ export default function MemberTableView() {
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="text-sm">
+                  <p className="capitalize text-sm">
                     {displayValue(`${row?.original?.business_name}`)}
                   </p>
                 </TooltipContent>

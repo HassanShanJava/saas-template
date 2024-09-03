@@ -10,7 +10,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -245,11 +250,28 @@ export default function SaleTaxesTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        return <span>{displayValue(
-          `${row.original.name}`.length > 15
-            ? `${row.original.name}`.substring(0, 15) + "..."
-            : `${row.original.name}`
-        )}</span>;
+        return (
+          <div className="">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="capitalize cursor-pointer">
+                    <span>{displayValue(
+                      `${row.original.name}`.length > 20
+                        ? `${row.original.name}`.substring(0, 20) + "..."
+                        : `${row.original.name}`
+                    )}</span>
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent className="mr-[16.5rem]">
+                  <p className="text-sm">
+                    {displayValue(`${row?.original?.name}`)}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        );;
       },
       enableSorting: false,
       enableHiding: false,

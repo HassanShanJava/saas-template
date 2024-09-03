@@ -238,18 +238,18 @@ export default function MemberTableView() {
     return `${day}-${month}-${year}`;
   };
 
-  const displayDateTime =  (value: any) => {
+  const displayDateTime = (value: any) => {
     if (value == null) return "N/A";
-  
+
     const date = new Date(value);
-  
+
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
     const year = date.getFullYear();
-  
+
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
-  
+
     return `${day}-${month}-${year} ${hours}:${minutes}`;
   };
   const handleExportSelected = () => {
@@ -444,16 +444,22 @@ export default function MemberTableView() {
                 <TooltipTrigger asChild>
                   <p className="capitalize cursor-pointer">
                     {/* Display the truncated name */}
-                    {displayValue(
-                      `${row.original.business_name}`.length > 8
-                        ? `${row.original.business_name}`.substring(0, 8) + "..."
-                        : `${row.original.business_name}`
-                    )}
+                    {
+                      !row.original.is_business && row.original.business_id == undefined ? "N/A" : (
+                        displayValue(
+                          `${row.original.business_name}`.length > 8
+                            ? `${row.original.business_name}`.substring(0, 8) + "..."
+                            : `${row.original.business_name}`
+                        )
+                      )}
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="capitalize text-sm">
-                    {displayValue(`${row?.original?.business_name}`)}
+                    {
+                      !row.original.is_business && row.original.business_id == undefined ? "N/A" :
+                        displayValue(`${row.original.business_name}`)
+                    }
                   </p>
                 </TooltipContent>
               </Tooltip>

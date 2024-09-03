@@ -173,7 +173,7 @@ const TableFilters = ({
                     ...prev,
                     ...filterData,
                     offset: 0,
-                    sort_key:"id",
+                    // sort_key:"id",
                     sort_order: "desc",
                   }));
                   setOpen(false);

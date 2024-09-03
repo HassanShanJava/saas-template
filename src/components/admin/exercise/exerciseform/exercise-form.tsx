@@ -496,16 +496,17 @@ const ExerciseForm = ({
                       <FloatingLabelInput
                         id={item.name}
                         label={item.label}
-                        maxLength={item.maxlength ?? 0}
                         {...register(
                           item.name as keyof createExerciseInputTypes,
                           {
                             required: item.required && "Required",
                             setValueAs: (value) => value.toLowerCase(),
-                            maxLength: {
-                              value: 40,
-                              message: "Should be 40 characters or less",
-                            },
+                            maxLength: item.maxlength
+                              ? {
+                                  value: item.maxlength,
+                                  message: `Should be ${item.maxlength} characters or less`,
+                                }
+                              : undefined,
                             pattern: item.pattern
                               ? {
                                   value: new RegExp(item.pattern),
@@ -1359,6 +1360,7 @@ const ExerciseForm = ({
                             </div>
                           )}
                         />
+
                         <Controller
                           control={form.control}
                           name="speed"

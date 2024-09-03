@@ -202,8 +202,8 @@ export function combinePayload(input: any, updatedData: any) {
     // exercise_intensity: input.exercise_intensity,
     // intensity_value: input.intensity_value,
     difficulty: input.difficulty,
-    distance: input.distance ? parseInt(input.distance, 10) : 0,
-    speed: input.speed ? parseInt(input.speed, 10) : 0,
+    distance: input.distance ? parseFloat(input.distance) : 0,
+    speed: input.speed ? parseFloat(input.speed) : 0,
     met_id: input.met_id,
     gif_url: updatedData.gif_url,
     video_url_male: input.video_url_male,
@@ -236,6 +236,9 @@ export function combinePayload(input: any, updatedData: any) {
       ? input.restPerSetrep.map((item: any) => parseInt(item.value, 10))
       : [];
     finalPayload.sets = input.repetitionPerSet.length;
+    finalPayload.met_id = null;
+    finalPayload.distance = 0;
+    finalPayload.speed = 0;
   }
 
   if (input.exercise_type === ExerciseTypeEnum.time_based) {
@@ -246,6 +249,7 @@ export function combinePayload(input: any, updatedData: any) {
       ? input.restPerSet.map((item: any) => parseInt(item.value, 10))
       : [];
     finalPayload.sets = input.timePerSet.length;
+    finalPayload.exercise_intensity = 0;
   }
 
   // Conditionally include exercise_intensity and intensity_value

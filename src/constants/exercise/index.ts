@@ -239,6 +239,8 @@ export function combinePayload(input: any, updatedData: any) {
     finalPayload.met_id = null;
     finalPayload.distance = 0;
     finalPayload.speed = 0;
+    finalPayload.exercise_intensity = input.exercise_intensity;
+    finalPayload.intensity_value = input.intensity_value;
   }
 
   if (input.exercise_type === ExerciseTypeEnum.time_based) {
@@ -249,15 +251,8 @@ export function combinePayload(input: any, updatedData: any) {
       ? input.restPerSet.map((item: any) => parseInt(item.value, 10))
       : [];
     finalPayload.sets = input.timePerSet.length;
-  }
-
-  // Conditionally include exercise_intensity and intensity_value
-  if (input.exercise_intensity) {
-    finalPayload.exercise_intensity = input.exercise_intensity;
-  }
-
-  if (input.intensity_value) {
-    finalPayload.intensity_value = input.intensity_value;
+    finalPayload.intensity_value = 0;
+    finalPayload.exercise_intensity = null;
   }
 
   return finalPayload;

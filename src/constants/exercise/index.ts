@@ -249,7 +249,6 @@ export function combinePayload(input: any, updatedData: any) {
       ? input.restPerSet.map((item: any) => parseInt(item.value, 10))
       : [];
     finalPayload.sets = input.timePerSet.length;
-    finalPayload.exercise_intensity = 0;
   }
 
   // Conditionally include exercise_intensity and intensity_value

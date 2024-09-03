@@ -1336,12 +1336,27 @@ const ExerciseForm = ({
                             },
                           }}
                           render={({ field, fieldState }) => (
-                            <FloatingLabelInput
-                              {...field}
-                              type="number"
-                              id="distance"
-                              label="Distance(KM)"
-                            />
+                            <div className="flex flex-col w-[20%]">
+                              <FloatingLabelInput
+                                {...field}
+                                type="number"
+                                id="distance"
+                                min={0}
+                                max={20}
+                                label="Distance(KM)"
+                              />
+                              {fieldState.error && (
+                                <p
+                                  className="text-red-500 mr-4 text-xs pt-2"
+                                  style={{
+                                    width: "200px",
+                                    display: "inline-block",
+                                  }}
+                                >
+                                  {fieldState.error.message}
+                                </p>
+                              )}
+                            </div>
                           )}
                         />
                         <Controller
@@ -1361,12 +1376,27 @@ const ExerciseForm = ({
                             },
                           }}
                           render={({ field, fieldState }) => (
-                            <FloatingLabelInput
-                              {...field}
-                              id="speed"
-                              type="number"
-                              label="Speed(KM/H)"
-                            />
+                            <div className="flex flex-col w-[20%]">
+                              <FloatingLabelInput
+                                {...field}
+                                min={0}
+                                max={20}
+                                id="speed"
+                                type="number"
+                                label="Speed(KM/H)"
+                              />
+                              {fieldState.error && (
+                                <p
+                                  className="text-red-500 mr-4 text-xs pt-2"
+                                  style={{
+                                    width: "200px",
+                                    display: "inline-block",
+                                  }}
+                                >
+                                  {fieldState.error.message}
+                                </p>
+                              )}
+                            </div>
                           )}
                         />
                       </div>

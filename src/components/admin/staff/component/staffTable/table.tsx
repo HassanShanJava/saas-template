@@ -86,7 +86,7 @@ const downloadCSV = (data: staffTypesResponseList[], fileName: string) => {
       last_online,
     }) => ({
       "Staff Id": own_staff_id,
-      "Coach Name": `${first_name || ""} ${last_name || ""}`,
+      "Staff Name": `${first_name || ""} ${last_name || ""}`,
       "Activation Date": activated_on || "",
       Status: status || "",
       Role: role_name || "",

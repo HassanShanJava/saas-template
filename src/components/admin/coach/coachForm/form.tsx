@@ -330,7 +330,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
-  const { data: coachCountData } = useGetCoachCountQuery(orgId, {
+  const { data: coachCountData, refetch: refecthCount } = useGetCoachCountQuery(orgId, {
     skip: coachData != null,
   });
 
@@ -488,8 +488,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let updatedData = {
       ...data,
-      first_name:data.first_name.toLowerCase(),
-      last_name:data.last_name.toLowerCase(),
+      first_name: data.first_name.toLowerCase(),
+      last_name: data.last_name.toLowerCase(),
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
     };
 
@@ -524,6 +524,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
             title: "Coach Created Successfully ",
           });
           refetch();
+          refecthCount();
           handleClose();
         }
       } else {
@@ -556,6 +557,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
           description: `Something Went Wrong.`,
         });
       }
+      refecthCount();
     }
   }
 
@@ -575,16 +577,16 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
     payloadCoach.member_ids = Array.isArray(coachData?.member_ids)
       ? coachData.member_ids.every(
-          (item: any) =>
-            (typeof item === "object" &&
-              item.id === 0 &&
-              item.name.trim() === "") ||
-            (typeof item === "number" && item === 0)
-        )
+        (item: any) =>
+          (typeof item === "object" &&
+            item.id === 0 &&
+            item.name.trim() === "") ||
+          (typeof item === "number" && item === 0)
+      )
         ? []
         : coachData.member_ids.map((item: any) =>
-            typeof item === "object" ? item.id : item
-          )
+          typeof item === "object" ? item.id : item
+        )
       : [];
     if (
       payloadCoach?.mobile_number &&
@@ -737,13 +739,35 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="email"
-                          label="Email Address*"
-                          disabled={coachData != null}
-                        />
+                        {(coachData == null) || (coachData != null && watcher.coach_status == "pending") ? (
+                          <FloatingLabelInput
+                            {...field}
+                            id="email"
+                            label="Email Address*"
+                          />
+                        ) : (
+
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+
+                                <FloatingLabelInput
+                                  {...field}
+                                  id="email"
+                                  label="Email Address*"
+                                  disabled={coachData != null && watcher.coach_status != "pending"}
+                                />
+
+                              </TooltipTrigger>
+
+                              <TooltipContent>
+                                You cannot update the email address once the coach is active
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                         {<FormMessage />}
+
                       </FormItem>
                     )}
                   />
@@ -1031,8 +1055,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 {field.value === 0
                                   ? "Source*"
                                   : sources?.find(
-                                      (source) => source.id === field.value
-                                    )?.source || "Source*"}
+                                    (source) => source.id === field.value
+                                  )?.source || "Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -1132,14 +1156,14 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 className={cn(
                                   "justify-between font-normal",
                                   !field.value &&
-                                    "font-medium text-gray-800 focus:border-primary "
+                                  "font-medium text-gray-800 focus:border-primary "
                                 )}
                               >
                                 {field.value
                                   ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === field.value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                    (country: CountryTypes) =>
+                                      country.id === field.value // Compare with numeric value
+                                  )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

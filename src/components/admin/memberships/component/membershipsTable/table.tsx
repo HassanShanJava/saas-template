@@ -69,7 +69,8 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key: "created_at",
+  // sort_key: "created_at",
+  sort_key: "id",
 };
 
 const durationLabels = {
@@ -104,12 +105,7 @@ interface searchCretiriaType {
 export default function MembershipsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
-    limit: 10,
-    offset: 0,
-    sort_order: "desc",
-    sort_key: "created_at",
-  });
+  const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>(initialValue);
   const [query, setQuery] = useState("");
   const [openFilter, setOpenFilter] = useState(false);
   const [filterData, setFilter] = useState<Record<string, any>>({});

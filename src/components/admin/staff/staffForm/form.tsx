@@ -426,12 +426,13 @@ const StaffForm: React.FC<StaffFormProps> = ({
           description: `Something Went Wrong.`,
         });
       }
+      countRefetch()
     }
   }
 
   useEffect(() => {
     if (!open || staffData == null) return;
-
+    
     const updatedStaffData = replaceNullWithEmptyString(staffData);
     if (
       updatedStaffData?.mobile_number &&
@@ -508,7 +509,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                         {!form.formState.isSubmitting && (
                           <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                         )}
-                        {action === "edit" ? "Update" : "Save"}
+                        {staffData ? "Update" : "Save"}
                       </LoadingButton>
                     </div>
                   </div>

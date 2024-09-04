@@ -689,6 +689,7 @@ const MemberForm = ({
                     label="First Name*"
                     {...register("first_name", {
                       required: "Required",
+                      setValueAs: (value) => value.toLowerCase(),
                       maxLength: {
                         value: 40,
                         message: "Should be 40 characters or less",
@@ -697,6 +698,7 @@ const MemberForm = ({
                     error={
                       errors?.first_name?.message as keyof MemberInputTypes
                     }
+                    className="capitalize"
                   />
                 </div>
                 <div className="relative ">
@@ -705,12 +707,14 @@ const MemberForm = ({
                     label="Last Name*"
                     {...register("last_name", {
                       required: "Required",
+                      setValueAs: (value) => value.toLowerCase(),
                       maxLength: {
                         value: 40,
                         message: "Should be 40 characters or less",
                       },
                     })}
                     error={errors?.last_name?.message as keyof MemberInputTypes}
+                    className="capitalize"
                   />
                 </div>
                 <div className="relative ">
@@ -1023,10 +1027,11 @@ const MemberForm = ({
                         }
                         value={value?.toString()}
                       >
-                        <SelectTrigger className="font-medium text-gray-800">
+                        <SelectTrigger className="capitalize  font-medium text-gray-800">
                           <SelectValue placeholder="Select Business" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="capitalize"
+                        >
                           {/* <Button variant={"link"} className="gap-2 text-black">
                             <PlusIcon className="text-black w-5 h-5" /> Add New
                             business
@@ -1123,14 +1128,14 @@ const MemberForm = ({
                                 className={cn(
                                   "justify-between ",
                                   !value &&
-                                    "font-medium text-gray-800 focus:border-primary "
+                                  "font-medium text-gray-800 focus:border-primary "
                                 )}
                               >
                                 {value
                                   ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                    (country: CountryTypes) =>
+                                      country.id === value // Compare with numeric value
+                                  )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

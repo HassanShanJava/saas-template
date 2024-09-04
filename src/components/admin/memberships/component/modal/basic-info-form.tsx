@@ -91,14 +91,14 @@ const BasicInfoForm = () => {
     (getValues("limited_access_data") as limitedAccessDaysTypes[]).length > 0
       ? (getValues("limited_access_data") as limitedAccessDaysTypes[])
       : [
-          { id: 1, day: "monday", from: "", to: "" },
-          { id: 2, day: "tuesday", from: "", to: "" },
-          { id: 3, day: "wednesday", from: "", to: "" },
-          { id: 4, day: "thursday", from: "", to: "" },
-          { id: 5, day: "friday", from: "", to: "" },
-          { id: 6, day: "saturday", from: "", to: "" },
-          { id: 7, day: "sunday", from: "", to: "" },
-        ]
+        { id: 1, day: "monday", from: "", to: "" },
+        { id: 2, day: "tuesday", from: "", to: "" },
+        { id: 3, day: "wednesday", from: "", to: "" },
+        { id: 4, day: "thursday", from: "", to: "" },
+        { id: 5, day: "friday", from: "", to: "" },
+        { id: 6, day: "saturday", from: "", to: "" },
+        { id: 7, day: "sunday", from: "", to: "" },
+      ]
   );
 
   const orgId =
@@ -240,12 +240,14 @@ const BasicInfoForm = () => {
             label="Name*"
             {...register("name", {
               required: "Required",
+              setValueAs: (value) => value.toLowerCase(),
               maxLength: {
                 value: 40,
                 message: "Name must be 40 characters or less",
               },
             })}
             error={errors.name?.message}
+            className="capitalize"
           />
           <Controller
             name="group_id"
@@ -563,8 +565,8 @@ function Combobox({ list, setFilter, name }: comboboxType) {
                       setValue(currentValue == value ? "" : currentValue);
                       setFilter(
                         list &&
-                          list?.find((list) => list.label === currentValue)
-                            ?.value
+                        list?.find((list) => list.label === currentValue)
+                          ?.value
                       );
                       setOpen(false);
                     }}

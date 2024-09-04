@@ -284,7 +284,7 @@ export default function FacilitiesTableView() {
                   </p>
                 </TooltipTrigger>
                 <TooltipContent className="mr-24">
-                  <p className="text-sm w-fit ">
+                  <p className="capitalize text-sm w-fit ">
                     {displayValue(`${row?.original?.name}`)}
                   </p>
                 </TooltipContent>
@@ -765,10 +765,12 @@ const CreditForm = ({
 
   const onSubmit = async (data: z.infer<typeof creditFormSchema>) => {
     console.log({ data });
+    const payload = {...data}
+    payload.name=payload.name.toLowerCase();
 
     try {
       if (formData.case == "add") {
-        const resp = await createCredits(data).unwrap();
+        const resp = await createCredits(payload).unwrap();
         if (resp) {
           console.log({ resp });
           refetch();
@@ -780,7 +782,7 @@ const CreditForm = ({
           setIsDialogOpen(false);
         }
       } else {
-        const resp = await updateCredits(data).unwrap();
+        const resp = await updateCredits(payload).unwrap();
         if (resp) {
           console.log({ resp });
           refetch();

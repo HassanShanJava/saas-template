@@ -488,6 +488,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let updatedData = {
       ...data,
+      first_name:data.first_name.toLowerCase(),
+      last_name:data.last_name.toLowerCase(),
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
     };
 
@@ -756,6 +758,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           {...field}
                           id="first_name"
                           label="First Name*"
+                          className="capitalize"
                         />
                         <FormMessage>
                           {form.formState.errors.first_name?.message}
@@ -774,6 +777,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           {...field}
                           id="last_name"
                           label="Last Name*"
+                          className="capitalize"
                         />
                         <FormMessage>
                           {form.formState.errors.last_name?.message}

@@ -348,7 +348,7 @@ export default function MembershipsTableView() {
         const group = groupData?.filter(
           (item) => item.value == row.original.group_id
         )[0];
-        return <span>{group?.label}</span>;
+        return <span className="capitalize">{group?.label}</span>;
       },
       enableSorting: false,
       enableHiding: false,

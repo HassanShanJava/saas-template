@@ -87,6 +87,7 @@ const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
       "Last Login": last_online || "",
     })
   );
+  console.log("csv data", filteredData);
   const csv = Papa.unparse(filteredData);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -285,7 +286,15 @@ export default function MemberTableView() {
       return;
     }
     console.log({ selectedRows }, typeof selectedRows);
-    downloadCSV(selectedRows, "members_list.csv");
+    const updatedSelectedRows = selectedRows.map((row) => ({
+      ...row,
+      membership_plan_id: membershipPlans.filter(
+        (plan: any) => plan.id == row.membership_plan_id
+      )[0].name,
+    }));
+
+    console.log(updatedSelectedRows);
+    downloadCSV(updatedSelectedRows, "members_list.csv");
   };
 
   const [updateMember] = useUpdateMemberMutation();

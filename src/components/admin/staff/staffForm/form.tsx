@@ -427,12 +427,13 @@ const StaffForm: React.FC<StaffFormProps> = ({
           description: `Something Went Wrong.`,
         });
       }
+      countRefetch()
     }
   }
 
   useEffect(() => {
     if (!open || staffData == null) return;
-
+    
     const updatedStaffData = replaceNullWithEmptyString(staffData);
     if (
       updatedStaffData?.mobile_number &&

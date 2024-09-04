@@ -158,7 +158,8 @@ const initialMeal = {
 
 const initialFoodValue = {
   sort_order: "desc",
-  sort_key: "created_at",
+  // sort_key: "created_at",
+  sort_key: "id",
 };
 
 const MealPlanForm = ({

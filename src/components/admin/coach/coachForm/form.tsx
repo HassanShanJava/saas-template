@@ -8,6 +8,12 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import "react-international-phone/style.css"; // Import the default styles for the phone input
 import {
   AlertDialog,
@@ -320,9 +326,12 @@ const CoachForm: React.FC<CoachFormProps> = ({
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
-  const { data: coachCountData } = useGetCoachCountQuery(orgId, {
-    skip: coachData != null,
-  });
+  const { data: coachCountData, refetch: refecthCount } = useGetCoachCountQuery(
+    orgId,
+    {
+      skip: coachData != null,
+    }
+  );
 
   const {
     data: autoFill,
@@ -478,8 +487,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let updatedData = {
       ...data,
-      first_name:data.first_name.toLowerCase(),
-      last_name:data.last_name.toLowerCase(),
+      first_name: data.first_name.toLowerCase(),
+      last_name: data.last_name.toLowerCase(),
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
     };
 
@@ -513,7 +522,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
             variant: "success",
             title: "Coach Created Successfully ",
           });
-          refetch?.();
+          refetch();
+          refecthCount();
           handleClose();
         }
       } else {
@@ -546,6 +556,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
           description: `Something Went Wrong.`,
         });
       }
+      refecthCount();
     }
   }
 
@@ -728,12 +739,36 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="email"
-                          label="Email Address*"
-                          disabled={coachData != null}
-                        />
+                        {coachData == null ||
+                        (coachData != null &&
+                          watcher.coach_status == "pending") ? (
+                          <FloatingLabelInput
+                            {...field}
+                            id="email"
+                            label="Email Address*"
+                          />
+                        ) : (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <FloatingLabelInput
+                                  {...field}
+                                  id="email"
+                                  label="Email Address*"
+                                  disabled={
+                                    coachData != null &&
+                                    watcher.coach_status != "pending"
+                                  }
+                                />
+                              </TooltipTrigger>
+
+                              <TooltipContent>
+                                You cannot update the email address once the
+                                coach is active
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                         {<FormMessage />}
                       </FormItem>
                     )}
@@ -945,7 +980,6 @@ const CoachForm: React.FC<CoachFormProps> = ({
                   <FormField
                     control={form.control}
                     name="coach_status"
-                    defaultValue="pending"
                     render={({ field }) => (
                       <FormItem>
                         <Select
@@ -953,7 +987,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           onValueChange={(
                             value: "pending" | "active" | "inactive"
                           ) => form.setValue("coach_status", value)}
-                          defaultValue="pending"
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger

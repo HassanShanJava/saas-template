@@ -89,7 +89,8 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  sort_key: "created_at",
+  // sort_key: "created_at",
+  sort_key: "id",
 };
 
 export default function MealPlansTableView() {
@@ -117,8 +118,8 @@ export default function MealPlansTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
-        // newCriteria.sort_key = "id";
-        newCriteria.sort_key = "created_at";
+        newCriteria.sort_key = "id";
+        // newCriteria.sort_key = "created_at";
 
         newCriteria.sort_order = "desc";
       } else {

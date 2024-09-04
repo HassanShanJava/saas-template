@@ -356,7 +356,7 @@ export default function StaffTableView() {
           <p>Staff ID</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("own_staff_id")}
+            onClick={() => toggleSortOrder("id")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}

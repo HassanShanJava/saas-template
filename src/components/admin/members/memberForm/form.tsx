@@ -352,7 +352,16 @@ const MemberForm = ({
       }
       reset(initialValues);
     }
-  }, [open, action, memberCountData]);
+  }, [open, action]);
+
+  useEffect(() => {
+    if (!open) return;
+    const total = memberCountData?.total_members as number;
+    if (total >= 0) {
+      form.setValue("own_member_id", `${orgName?.slice(0, 2)}-${total + 1}`);
+      form.clearErrors();
+    }
+  }, [open, memberCountData]);
 
   const email = watch("email");
   useEffect(() => {
@@ -514,7 +523,7 @@ const MemberForm = ({
           description: `Something Went Wrong.`,
         });
       }
-      handleClose();
+      refecthCount()
     }
   }
   const onError = () => {
@@ -662,25 +671,60 @@ const MemberForm = ({
                   />
                 </div>
                 <div className="relative ">
-                  <FloatingLabelInput
-                    id="email"
-                    className=""
-                    type="email"
-                    label="Email Address*"
-                    {...register("email", {
-                      required: "Required",
-                      maxLength: {
-                        value: 50,
-                        message: "Should be 50 characters or less",
-                      },
-                      pattern: {
-                        value:
-                          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i,
-                        message: "Incorrect email format",
-                      },
-                    })}
-                    error={errors.email?.message}
-                  />
+                  {(action == "add") || (action == "edit" && watcher.client_status == "pending") ? (
+
+                    <FloatingLabelInput
+                      id="email"
+                      className=""
+                      type="email"
+                      label="Email Address*"
+                      {...register("email", {
+                        required: "Required",
+                        maxLength: {
+                          value: 50,
+                          message: "Should be 50 characters or less",
+                        },
+                        pattern: {
+                          value:
+                            /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i,
+                          message: "Incorrect email format",
+                        },
+                      })}
+                      error={errors.email?.message}
+                    />
+                  ) : (
+
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <FloatingLabelInput
+                            id="email"
+                            className=""
+                            type="email"
+                            label="Email Address*"
+                            disabled={action == "edit" && watcher.client_status != "pending"}
+                            {...register("email", {
+                              required: "Required",
+                              maxLength: {
+                                value: 50,
+                                message: "Should be 50 characters or less",
+                              },
+                              pattern: {
+                                value:
+                                  /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i,
+                                message: "Incorrect email format",
+                              },
+                            })}
+                            error={errors.email?.message}
+                          />
+                        </TooltipTrigger>
+
+                        <TooltipContent>
+                          You cannot update the email address once the member is active
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 </div>
                 <div className="relative ">
                   <FloatingLabelInput
@@ -926,10 +970,10 @@ const MemberForm = ({
                         }
                         value={value?.toString()}
                       >
-                        <SelectTrigger className="font-medium text-gray-800">
+                        <SelectTrigger className="font-medium capitalize text-gray-800">
                           <SelectValue placeholder="Select Source*" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="capitalize">
                           {sources &&
                             sources?.map((item) => (
                               <SelectItem value={item.id.toString()}>
@@ -1223,12 +1267,12 @@ const MemberForm = ({
                           <FormControl>
                             <SelectTrigger
                               name="membership_plan_id"
-                              className={`font-medium text-gray-800`}
+                              className={`font-medium capitalize text-gray-800`}
                             >
                               <SelectValue placeholder="Select membership plan*" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="capitalize">
                             {membershipPlans && membershipPlans?.length > 0 ? (
                               membershipPlans.map(
                                 (sourceval: membeshipsTableType) => {

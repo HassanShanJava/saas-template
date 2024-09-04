@@ -60,7 +60,6 @@ import {
   useGetAllCategoryQuery,
   useGetAllExercisesQuery,
 } from "@/services/exerciseApi";
-// import ExerciseForm from "../../exerciseform/form";
 import ExerciseForm from "../../exerciseform/exercise-form";
 
 import { Separator } from "@/components/ui/separator";
@@ -764,16 +763,6 @@ export default function ExerciseTableView() {
           data={data}
           refetch={refetch}
         />
-
-        {/* <ExerciseForm
-        isOpen={isDialogOpen}
-        setOpen={setIsDialogOpen}
-        // action={action}
-        // setAction={setAction}
-        // data={data}
-        // refetch={refetch}
-      /> */}
-        {/* <ExerciseForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} /> */}
       </div>
     </>
   );

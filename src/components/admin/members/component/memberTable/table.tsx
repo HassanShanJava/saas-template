@@ -399,8 +399,12 @@ export default function MemberTableView() {
                     <p className="capitalize cursor-pointer">
                       {/* Display the truncated name */}
                       {displayValue(
-                        `${row.original.first_name} ${row.original.last_name}`.length > 8
-                          ? `${row.original.first_name} ${row.original.last_name}`.substring(0, 8) + "..."
+                        `${row.original.first_name} ${row.original.last_name}`
+                          .length > 8
+                          ? `${row.original.first_name} ${row.original.last_name}`.substring(
+                              0,
+                              8
+                            ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -444,22 +448,23 @@ export default function MemberTableView() {
                 <TooltipTrigger asChild>
                   <p className="capitalize cursor-pointer">
                     {/* Display the truncated name */}
-                    {
-                      !row.original.is_business && row.original.business_id == undefined ? "N/A" : (
-                        displayValue(
+                    {!row.original.is_business &&
+                    row.original.business_id == undefined
+                      ? "N/A"
+                      : displayValue(
                           `${row.original.business_name}`.length > 8
-                            ? `${row.original.business_name}`.substring(0, 8) + "..."
+                            ? `${row.original.business_name}`.substring(0, 8) +
+                                "..."
                             : `${row.original.business_name}`
-                        )
-                      )}
+                        )}
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="capitalize text-sm">
-                    {
-                      !row.original.is_business && row.original.business_id == undefined ? "N/A" :
-                        displayValue(`${row.original.business_name}`)
-                    }
+                    {!row.original.is_business &&
+                    row.original.business_id == undefined
+                      ? "N/A"
+                      : displayValue(`${row.original.business_name}`)}
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -779,16 +784,6 @@ export default function MemberTableView() {
             <i className="fa fa-filter"></i>
           </button>
         </div>
-
-        {/* Optional Sorting Button */}
-        {/* <button
-    className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
-    onClick={toggleSortOrder}
-  >
-    <i
-      className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-    ></i>
-  </button> */}
       </div>
 
       <div className="rounded-none border border-border ">
@@ -807,9 +802,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

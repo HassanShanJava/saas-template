@@ -276,11 +276,13 @@ export default function FacilitiesTableView() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <p className="capitalize cursor-pointer">
-                    <span>{displayValue(
-                      `${row.original.name}`.length > 15
-                        ? `${row.original.name}`.substring(0, 15) + "..."
-                        : `${row.original.name}`
-                    )}</span>
+                    <span>
+                      {displayValue(
+                        `${row.original.name}`.length > 15
+                          ? `${row.original.name}`.substring(0, 15) + "..."
+                          : `${row.original.name}`
+                      )}
+                    </span>
                   </p>
                 </TooltipTrigger>
                 <TooltipContent className="mr-24">
@@ -291,7 +293,7 @@ export default function FacilitiesTableView() {
               </Tooltip>
             </TooltipProvider>
           </div>
-        );;
+        );
       },
       enableSorting: false,
       enableHiding: false,
@@ -469,24 +471,6 @@ export default function FacilitiesTableView() {
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center  ">
-          {/* <div className="flex flex-1 items-center  ">
-            <div className="flex items-center w-[40%] gap-2 py-2 rounded-md border border-gray-300 focus-within:border-primary focus-within:ring-[1] ring-primary">
-              <Search className="w-6 h-6 text-gray-500" />
-              <input
-                placeholder="Search"
-                // value={
-                //   (table.getColumn("full_name")?.getFilterValue() as string) ??
-                //   ""
-                // }
-                // onChange={(event) =>
-                //   table
-                //     .getColumn("full_name")
-                //     ?.setFilterValue(event.target.value)
-                // }
-                className="h-7 w-[150px] lg:w-[220px] outline-none"
-              />
-            </div>
-          </div> */}
           <p className="font-semibold text-2xl">Facilities</p>
         </div>
         <Button
@@ -496,14 +480,6 @@ export default function FacilitiesTableView() {
           <PlusIcon className="h-4 w-4 " />
           Create New
         </Button>
-
-        {/* <button
-          className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
-          onClick={toggleSortOrder}
-        >
-          <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order=='desc'?"rotate-180":"-rotate-180"}`}></i>
-        </button> */}
-        {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
       <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
@@ -521,9 +497,9 @@ export default function FacilitiesTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -748,7 +724,10 @@ const CreditForm = ({
       .string()
       .min(1, { message: "Required" })
       .max(40, "Name must be 40 characters or less")
-      .refine((value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value ?? ""), 'Name should contain only alphabets'),
+      .refine(
+        (value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value ?? ""),
+        "Name should contain only alphabets"
+      ),
     min_limit: z
       .number({ required_error: "Required" })
       .min(1, { message: "Min. limit required is 1." })
@@ -920,7 +899,7 @@ const CreditForm = ({
                             label="Min Requred Limit*"
                             value={value}
                             onChange={handleOnChange}
-                          // error={error?.message??""}
+                            // error={error?.message??""}
                           />
                           <FormMessage />
                         </FormItem>
@@ -945,10 +924,11 @@ const CreditForm = ({
                                 <SelectValue placeholder="">
                                   <span className="flex gap-2 items-center">
                                     <span
-                                      className={`w-2 h-2 rounded-full ${field.value == "active"
-                                        ? "bg-green-500"
-                                        : "bg-blue-500"
-                                        }`}
+                                      className={`w-2 h-2 rounded-full ${
+                                        field.value == "active"
+                                          ? "bg-green-500"
+                                          : "bg-blue-500"
+                                      }`}
                                     ></span>
                                     {field.value == "active"
                                       ? "Active"

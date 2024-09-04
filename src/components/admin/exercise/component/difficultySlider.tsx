@@ -15,7 +15,6 @@ const difficultyLabels = [
   "Expert",
 ];
 
-// Assuming Difficulty enum is defined like this:
 export enum Difficulty {
   Novice = 0,
   Beginner,
@@ -30,10 +29,6 @@ const DifficultySlider: React.FC<DifficultySliderProps> = ({
   onChange,
   error,
 }) => {
-  const handleLabelClick = (index: number) => {
-    onChange(index as Difficulty);
-  };
-
   return (
     <div className="relative">
       <div className="flex justify-between items-center">
@@ -53,23 +48,6 @@ const DifficultySlider: React.FC<DifficultySliderProps> = ({
           value={[value]}
           onValueChange={(val) => onChange(val[0] as Difficulty)}
         >
-          {/* <Slider.Track className="relative flex-grow h-2 bg-gray-200 rounded-full overflow-hidden">
-            <Slider.Range className="absolute h-full rounded-full" />
-            <div className="absolute inset-0 flex items-center justify-between">
-              {difficultyLabels.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-3 h-3 rounded-full ${
-                    index === value ? "bg-green-600" : "bg-gray-400"
-                  }`}
-                  style={{
-                    left: `${(index / (difficultyLabels.length - 1)) * 100}%`,
-                    transform: "translateX(-50%)",
-                  }}
-                />
-              ))}
-            </div>
-          </Slider.Track> */}
           <Slider.Track className="relative flex-grow h-2 bg-gray-200 rounded-full overflow-hidden">
             <Slider.Range className="absolute h-full rounded-full" />
             <div className="absolute inset-0 flex items-center justify-between w-full px-1">

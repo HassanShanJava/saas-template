@@ -51,7 +51,7 @@ import { useNavigate } from "react-router-dom";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import Papa from "papaparse";
-import { DataTableFacetedFilter } from "./data-table-faced-filter";
+
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetAllMemberQuery } from "@/services/memberAPi";
 import {
@@ -198,18 +198,18 @@ export default function CoachTableView() {
     return `${day}-${month}-${year}`;
   };
 
-  const displayDateTime =  (value: any) => {
+  const displayDateTime = (value: any) => {
     if (value == null) return "N/A";
-  
+
     const date = new Date(value);
-  
+
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
     const year = date.getFullYear();
-  
+
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
-  
+
     return `${day}-${month}-${year} ${hours}:${minutes}`;
   };
 
@@ -381,8 +381,12 @@ export default function CoachTableView() {
                     <p className="capitalize cursor-pointer">
                       {/* Display the truncated name */}
                       {displayValue(
-                        `${row.original.first_name} ${row.original.last_name}`.length > 8
-                          ? `${row.original.first_name} ${row.original.last_name}`.substring(0, 8) + "..."
+                        `${row.original.first_name} ${row.original.last_name}`
+                          .length > 8
+                          ? `${row.original.first_name} ${row.original.last_name}`.substring(
+                              0,
+                              8
+                            ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -597,7 +601,12 @@ export default function CoachTableView() {
     Math.floor((totalRecords - 1) / searchCretiria.limit) * searchCretiria.limit
   );
   const isLastPage = searchCretiria.offset >= lastPageOffset;
-  console.log(isLastPage, searchCretiria.offset, lastPageOffset, "lastPageOffset")
+  console.log(
+    isLastPage,
+    searchCretiria.offset,
+    lastPageOffset,
+    "lastPageOffset"
+  );
 
   const nextPage = () => {
     if (!isLastPage) {
@@ -691,9 +700,9 @@ export default function CoachTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

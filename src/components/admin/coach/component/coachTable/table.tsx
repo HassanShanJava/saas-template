@@ -83,7 +83,25 @@ const status = [
 ];
 
 const downloadCSV = (data: any[], fileName: string) => {
-  const csv = Papa.unparse(data);
+  const filteredData = data.map(
+    ({
+      own_coach_id,
+      first_name,
+      last_name,
+      activated_on,
+      coach_status,
+      check_in,
+      last_online,
+    }) => ({
+      "Coach Id": own_coach_id,
+      "Coach Name": `${first_name || ""} ${last_name || ""}`,
+      "Activation Date": activated_on || "",
+      Status: coach_status || "",
+      "Last Check In": check_in || "",
+      "Last Login": last_online || "",
+    })
+  );
+  const csv = Papa.unparse(filteredData);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);

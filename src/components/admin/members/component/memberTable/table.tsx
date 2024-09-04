@@ -65,8 +65,29 @@ import TableFilters from "@/components/ui/table/data-table-filter";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
-  const csvData = data.map(({ coaches, ...newdata }) => newdata);
-  const csv = Papa.unparse(csvData);
+  const filteredData = data.map(
+    ({
+      own_member_id,
+      first_name,
+      last_name,
+      business_name,
+      membership_plan_id,
+      client_status,
+      activated_on,
+      check_in,
+      last_online,
+    }) => ({
+      "Member Id": own_member_id,
+      "Member Name": `${first_name || ""} ${last_name || ""}`,
+      "Business Name": business_name || "",
+      "Membership Plan": membership_plan_id || "",
+      Status: client_status || "",
+      "Activation Date": activated_on || "",
+      "Last Check In": check_in || "",
+      "Last Login": last_online || "",
+    })
+  );
+  const csv = Papa.unparse(filteredData);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);

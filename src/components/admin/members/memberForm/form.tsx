@@ -666,7 +666,6 @@ const MemberForm = ({
                     id="email"
                     className=""
                     type="email"
-                    disabled={action == "edit"}
                     label="Email Address*"
                     {...register("email", {
                       required: "Required",

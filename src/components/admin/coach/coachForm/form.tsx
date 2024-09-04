@@ -741,7 +741,6 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           {...field}
                           id="email"
                           label="Email Address*"
-                          disabled={coachData != null}
                         />
                         {<FormMessage />}
                       </FormItem>

@@ -492,7 +492,7 @@ export default function MemberTableView() {
             (plan: any) => plan.id == row.original.membership_plan_id
           )[0];
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="capitalize flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(mebershipName?.name ?? "")}
           </div>
         );

@@ -978,7 +978,6 @@ const CoachForm: React.FC<CoachFormProps> = ({
                   <FormField
                     control={form.control}
                     name="coach_status"
-                    defaultValue="pending"
                     render={({ field }) => (
                       <FormItem>
                         <Select
@@ -986,7 +985,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           onValueChange={(
                             value: "pending" | "active" | "inactive"
                           ) => form.setValue("coach_status", value)}
-                          defaultValue="pending"
+                          value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger

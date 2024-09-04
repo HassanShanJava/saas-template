@@ -42,12 +42,7 @@ const PriceDiscountTaxForm = () => {
     setValue("income_category_id", value);
   };
 
-  const handleDiscountInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10);
-    if (value > 99) {
-      setValue("discount", 99);
-    }
-  };
+  
   console.log({ salesTaxData });
 
   useEffect(() => {
@@ -110,12 +105,9 @@ const PriceDiscountTaxForm = () => {
           min={0}
           max={99}
           {...register("discount", {
-            required: "Required",
+            // required: "Required",
             valueAsNumber: true,
-            min: {
-              value: 1,
-              message: "Discount must be more than 0",
-            },
+            min:0,
             max: {
               value: 99,
               message: "Discount must be between 0 and 99.",

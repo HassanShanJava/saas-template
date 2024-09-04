@@ -249,7 +249,7 @@ export default function IncomeCategoryTableView() {
                   </p>
                 </TooltipTrigger>
                 <TooltipContent className="mr-[17.5rem]">
-                  <p className="text-sm">
+                  <p className="capitalize text-sm">
                     {displayValue(`${row?.original?.name}`)}
                   </p>
                 </TooltipContent>
@@ -663,11 +663,11 @@ const IncomeCategoryForm = ({
     });
   };
   const onSubmit = async (data: z.infer<typeof incomeCategoryFormSchema>) => {
-    console.log({ data });
-
+    const payload = {...data}
+    payload.name=payload.name.toLowerCase();
     try {
       if (formData.case == "add") {
-        const resp = await createIncomeCategory(data);
+        const resp = await createIncomeCategory(payload);
         if (resp) {
           console.log({ resp });
           refetch();
@@ -679,7 +679,7 @@ const IncomeCategoryForm = ({
           setIsDialogOpen(false);
         }
       } else {
-        const resp = await updateIncomeCategory(data);
+        const resp = await updateIncomeCategory(payload);
         if (resp) {
           console.log({ resp });
           refetch();
@@ -764,6 +764,7 @@ const IncomeCategoryForm = ({
                         <FloatingLabelInput
                           id="name"
                           name="name"
+                          className="capitalize"
                           label="Category Name*"
                           value={value ?? ""}
                           onChange={handleOnChange}

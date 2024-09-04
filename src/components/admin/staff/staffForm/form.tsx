@@ -353,6 +353,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let updatedData = {
       ...data,
+      first_name:data.first_name.toLowerCase(),
+      last_name:data.last_name.toLowerCase(),
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
     };
     console.log("Updated data with only date:", updatedData);
@@ -581,6 +583,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           {...field}
                           id="first_name"
                           label="First Name*"
+                          className="capitalize"
                         />
                         <FormMessage />
                       </FormItem>
@@ -597,6 +600,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           {...field}
                           id="last_name"
                           label="Last Name*"
+                          className="capitalize"
                         />
                         <FormMessage />
                       </FormItem>

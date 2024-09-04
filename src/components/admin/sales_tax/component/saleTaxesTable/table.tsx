@@ -264,7 +264,7 @@ export default function SaleTaxesTableView() {
                   </p>
                 </TooltipTrigger>
                 <TooltipContent className="mr-[16.5rem]">
-                  <p className="text-sm">
+                  <p className="captilaize text-sm">
                     {displayValue(`${row?.original?.name}`)}
                   </p>
                 </TooltipContent>
@@ -718,10 +718,11 @@ const SaleTaxesForm = ({
 
   const onSubmit = async (data: z.infer<typeof saleTaxFormSchema>) => {
     console.log({ data });
-
+    const payload = {...data}
+    payload.name=payload.name.toLowerCase();
     try {
       if (formData.case == "add") {
-        const resp = await createSalesTax(data);
+        const resp = await createSalesTax(payload);
         if (resp) {
           console.log({ resp });
           refetch();
@@ -733,7 +734,7 @@ const SaleTaxesForm = ({
           setIsDialogOpen(false);
         }
       } else {
-        const resp = await updateSalesTax(data);
+        const resp = await updateSalesTax(payload);
         if (resp) {
           console.log({ resp });
           refetch();

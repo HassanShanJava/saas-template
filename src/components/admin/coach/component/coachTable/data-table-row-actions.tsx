@@ -65,24 +65,23 @@ export function DataTableRowActions({
       return;
     } catch (error) {
       console.error("Error", { error });
-      // if (error && typeof error === "object" && "data" in error) {
-      //   const typedError = error as ErrorType;
-      //   toast({
-      //     variant: "destructive",
-      //     title: "Error in Submission",
-      //     description: `${typedError.data?.detail}`,
-      //   });
-      // } else {
-      //   toast({
-      //     variant: "destructive",
-      //     title: "Error in Submission",
-      //     description: `Something Went Wrong.`,
-      //   });
-      // }
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
     }
   };
 
-  console.log(data, "edit row");
   return (
     <>
       <Dialog>
@@ -99,7 +98,6 @@ export function DataTableRowActions({
           <DropdownMenuContent align="end" className="w-4">
             <DialogTrigger asChild>
               <DropdownMenuItem
-                // onClick={() => handleEdit(data)}
                 onClick={() => {
                   const { members, ...rest } = data;
                   const coachData = {
@@ -124,7 +122,6 @@ export function DataTableRowActions({
         <AlertDialog open={isdelete} onOpenChange={() => setIsDelete(false)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
                   <img src={warning} alt="warning" className="w-18 h-18" />

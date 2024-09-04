@@ -74,7 +74,27 @@ import TableFilters from "@/components/ui/table/data-table-filter";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 const downloadCSV = (data: staffTypesResponseList[], fileName: string) => {
-  const csv = Papa.unparse(data);
+  const filteredData = data.map(
+    ({
+      own_staff_id,
+      first_name,
+      last_name,
+      activated_on,
+      status,
+      role_name,
+      last_checkin,
+      last_online,
+    }) => ({
+      "Staff Id": own_staff_id,
+      "Coach Name": `${first_name || ""} ${last_name || ""}`,
+      "Activation Date": activated_on || "",
+      Status: status || "",
+      Role: role_name || "",
+      "Last Check In": last_checkin || "",
+      "Last Login": last_online || "",
+    })
+  );
+  const csv = Papa.unparse(filteredData);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
@@ -228,18 +248,18 @@ export default function StaffTableView() {
     return `${day}-${month}-${year}`;
   };
 
-  const displayDateTime =  (value: any) => {
+  const displayDateTime = (value: any) => {
     if (value == null) return "N/A";
-  
+
     const date = new Date(value);
-  
+
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
     const year = date.getFullYear();
-  
+
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
-  
+
     return `${day}-${month}-${year} ${hours}:${minutes}`;
   };
 
@@ -395,8 +415,12 @@ export default function StaffTableView() {
                     <p className="capitalize cursor-pointer">
                       {/* Display the truncated name */}
                       {displayValue(
-                        `${row.original.first_name} ${row.original.last_name}`.length > 8
-                          ? `${row.original.first_name} ${row.original.last_name}`.substring(0, 8) + "..."
+                        `${row.original.first_name} ${row.original.last_name}`
+                          .length > 8
+                          ? `${row.original.first_name} ${row.original.last_name}`.substring(
+                              0,
+                              8
+                            ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -762,9 +786,9 @@ export default function StaffTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

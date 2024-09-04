@@ -122,14 +122,6 @@ const StaffForm: React.FC<StaffFormProps> = ({
   );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const [action, setAction] = useState<"add" | "edit">();
-  //const {
-  //  data: EditStaffData,
-  //  isLoading: editLoading,
-  //  refetch: editRefetch,
-  //} = useGetStaffByIdQuery(staffId as number, {
-  //  skip: staffId == undefined,
-  //});
 
   const initialState: StaffInputType = {
     profile_img: "",
@@ -224,9 +216,12 @@ const StaffForm: React.FC<StaffFormProps> = ({
       })
       .trim()
       .optional(),
-    notes: z.string().max(200, {
-      message: "Note must be greater than 200 characters",
-    }).optional(),
+    notes: z
+      .string()
+      .max(200, {
+        message: "Note must be greater than 200 characters",
+      })
+      .optional(),
     source_id: z.coerce
       .number({
         required_error: "Source Required.",
@@ -256,13 +251,19 @@ const StaffForm: React.FC<StaffFormProps> = ({
       .trim()
       .max(15, "Zipcode must be 15 characters or less")
       .optional(),
-    address_1: z.string().max(50, {
-      message: "Address must be greater than 50 characters",
-    })
-    .trim().optional(),
-    address_2: z.string().max(50, {
-      message: "Address must be greater than 50 characters",
-    }).optional(),
+    address_1: z
+      .string()
+      .max(50, {
+        message: "Address must be greater than 50 characters",
+      })
+      .trim()
+      .optional(),
+    address_2: z
+      .string()
+      .max(50, {
+        message: "Address must be greater than 50 characters",
+      })
+      .optional(),
     org_id: z
       .number({
         required_error: "Required",
@@ -440,10 +441,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
     ) {
       updatedStaffData.mobile_number = `+1`;
     }
-    
-    setAction("edit");
     form.reset(updatedStaffData);
-    // setAvatar(staffData?.profile_img as string);
   }, [open, staffData]);
 
   useEffect(() => {

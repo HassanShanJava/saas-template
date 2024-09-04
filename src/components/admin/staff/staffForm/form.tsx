@@ -709,7 +709,6 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           {...field}
                           id="email"
                           label="Email Address*"
-                          disabled={staffData != null}
                         />
                         <FormMessage />
                       </FormItem>

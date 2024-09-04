@@ -210,11 +210,6 @@ const ExerciseForm = ({
   const [updateExercise] = useUpdateExerciseMutation();
   console.log({ watcher, errors });
   const onSubmit = async (input: createExerciseInputTypes) => {
-    // console.log("input payload", { input });
-    // console.log("FIle infor", input.gif[0]);
-    // console.log("Male image", input.imagemale[0]);
-    // console.log("Female image", input.imagefemale[0]);
-    // Example usage
     const fileInputObject = {
       gif: input.gif,
       imagemale: input.imagemale,
@@ -234,7 +229,6 @@ const ExerciseForm = ({
       existingImages
     );
 
-    // console.log("Resulting urls", result);
     const responsePayload = combinePayload(input, result);
     console.log("Dead final response", responsePayload);
     const payload = {
@@ -483,9 +477,9 @@ const ExerciseForm = ({
                   return (
                     <DifficultySlider
                       id="difficulty"
-                      value={valueofDifficulty} // Use the Difficulty enum directly
+                      value={valueofDifficulty}
                       onChange={(value) => {
-                        handleChange(value); // Ensure the field's onChange is called
+                        handleChange(value);
                       }}
                     />
                   );
@@ -543,16 +537,13 @@ const ExerciseForm = ({
                               }[]
                             }
                             onValueChange={(selectedValues) => {
-                              onChange(selectedValues as (string | number)[]); // Update form state on value change
-                              // Update form state on value change
+                              onChange(selectedValues as (string | number)[]);
                             }}
-                            // Initialize the multi-select with default values
                             defaultValue={
                               Array.isArray(value)
                                 ? (value as (string | number)[])
                                 : []
-                            } // Ensure defaultValue is always an array of the expected type
-                            // Ensure defaultValue is always an array
+                            }
                             placeholder={
                               "Select " + item.label.replace(/\*/g, "")
                             }
@@ -594,8 +585,8 @@ const ExerciseForm = ({
                                 }}
                                 defaultValue={
                                   typeof value === "number"
-                                    ? value.toString() // Convert numbers to strings
-                                    : (value as string | undefined) // Ensure it's a string or undefined
+                                    ? value.toString()
+                                    : (value as string | undefined)
                                 }
                               >
                                 <SelectTrigger
@@ -653,7 +644,6 @@ const ExerciseForm = ({
                       <FileUploader
                         value={field.value}
                         onValueChange={(files: File[] | null) => {
-                          // Pass files or null depending on whether files exist
                           field.onChange(files ?? null);
                         }}
                         dropzoneOptions={dropzone}
@@ -670,7 +660,6 @@ const ExerciseForm = ({
                                 >
                                   <img
                                     src={URL.createObjectURL(file)}
-                                    // src="https://uploads.fitnfi.com/images/background.png"
                                     alt={file.name}
                                     className="object-contain max-h-40 border-dashed border-2 border-primary h-72 p-2"
                                   />
@@ -745,7 +734,6 @@ const ExerciseForm = ({
                       <FileUploader
                         value={field.value}
                         onValueChange={(files: File[] | null) => {
-                          // Pass files or null depending on whether files exist
                           field.onChange(files ?? null);
                         }}
                         dropzoneOptions={dropzone}
@@ -986,7 +974,7 @@ const ExerciseForm = ({
                             required: "Required",
                             validate: {
                               positiveInteger: (value) => {
-                                const parsedValue = Number(value); // Ensure the value is treated as a number
+                                const parsedValue = Number(value);
                                 return parsedValue !== null &&
                                   !isNaN(parsedValue) &&
                                   Number.isInteger(parsedValue) &&
@@ -1034,7 +1022,7 @@ const ExerciseForm = ({
                             required: "Required",
                             validate: {
                               positiveInteger: (value) => {
-                                const parsedValue = Number(value); // Ensure the value is treated as a number
+                                const parsedValue = Number(value);
                                 return parsedValue !== null &&
                                   !isNaN(parsedValue) &&
                                   Number.isInteger(parsedValue) &&
@@ -1124,7 +1112,7 @@ const ExerciseForm = ({
                             required: "Required",
                             validate: {
                               positiveInteger: (value) => {
-                                const parsedValue = Number(value); // Ensure the value is treated as a number
+                                const parsedValue = Number(value);
                                 return parsedValue !== null &&
                                   !isNaN(parsedValue) &&
                                   Number.isInteger(parsedValue) &&
@@ -1175,7 +1163,7 @@ const ExerciseForm = ({
                             required: "Required",
                             validate: {
                               positiveInteger: (value) => {
-                                const parsedValue = Number(value); // Ensure the value is treated as a number
+                                const parsedValue = Number(value);
                                 return parsedValue !== null &&
                                   !isNaN(parsedValue) &&
                                   Number.isInteger(parsedValue) &&
@@ -1326,7 +1314,7 @@ const ExerciseForm = ({
                           rules={{
                             validate: {
                               positiveDecimal: (value) => {
-                                const parsedValue = Number(value); // Ensure the value is treated as a number
+                                const parsedValue = Number(value);
                                 return parsedValue !== null &&
                                   !isNaN(parsedValue) &&
                                   parsedValue >= 0 && // Minimum value of 0
@@ -1367,7 +1355,7 @@ const ExerciseForm = ({
                           rules={{
                             validate: {
                               positiveDecimal: (value) => {
-                                const parsedValue = Number(value); // Ensure the value is treated as a number
+                                const parsedValue = Number(value);
                                 return parsedValue !== null &&
                                   !isNaN(parsedValue) &&
                                   parsedValue >= 0 && // Minimum value of 0
@@ -1437,14 +1425,14 @@ const ExerciseForm = ({
                                   render={({ field, fieldState }) => (
                                     <>
                                       <Slider
-                                        value={[field.value as number]} // Slider expects an array for the value
+                                        value={[field.value as number]}
                                         onValueChange={(val) => {
                                           field.onChange(val[0]);
                                           setCurrentValue(val[0]);
-                                        }} // Update the field with the first value as an integer
+                                        }}
                                         max={100}
                                         className="w-[30%]"
-                                        step={1} // Step set to 1 for integer values
+                                        step={1}
                                       />
                                       {currentValue + "%"}
                                     </>

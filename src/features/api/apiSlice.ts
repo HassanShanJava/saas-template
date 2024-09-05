@@ -36,11 +36,10 @@ const baseQueryWithReauth: BaseQueryFn<
 
     // save to redux else logout
     if (refreshResult.data) {
-      api.dispatch(
-        tokenReceived(
-          (refreshResult.data as { access_token: string }).access_token
-        )
-      );
+      const newAccessToken = (refreshResult.data as { access_token: string })
+        .access_token;
+      api.dispatch(tokenReceived(newAccessToken));
+      localStorage.setItem("userToken", newAccessToken);
       result = await baseQuery(args, api, extraOptions);
     } else {
       api.dispatch(logout());

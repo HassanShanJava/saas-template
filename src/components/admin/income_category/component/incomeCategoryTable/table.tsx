@@ -170,42 +170,6 @@ export default function IncomeCategoryTableView() {
     });
   };
 
-  //   // table dropdown status update
-  //   const handleStatusChange = async (payload: {
-  //     id: number;
-  //     org_id: number;
-  //     status: string;
-  // ;
-  //   }) => {
-  //     try {
-  //       const resp = await updateIncomeCategory(payload).unwrap();
-  //       if (resp) {
-  //         console.log({ resp });
-  //         refetch();
-  //         toast({
-  //           variant: "success",
-  //           title: "Updated Successfully",
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.error("Error", { error });
-  //       if (error && typeof error === "object" && "data" in error) {
-  //         const typedError = error as ErrorType;
-  //         toast({
-  //           variant: "destructive",
-  //           title: "Error in form Submission",
-  //           description: typedError.data?.detail,
-  //         });
-  //       } else {
-  //         toast({
-  //           variant: "destructive",
-  //           title: "Error in form Submission",
-  //           description: `Something Went Wrong.`,
-  //         });
-  //       }
-  //     }
-  //   };
-
   const incomeCategorytableData = React.useMemo(() => {
     return Array.isArray(incomeCategoryData?.data)
       ? incomeCategoryData?.data
@@ -276,11 +240,13 @@ export default function IncomeCategoryTableView() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <p className="capitalize cursor-pointer">
-                    <span>{displayValue(
-                      `${row.original.name}`.length > 20
-                        ? `${row.original.name}`.substring(0, 20) + "..."
-                        : `${row.original.name}`
-                    )}</span>
+                    <span>
+                      {displayValue(
+                        `${row.original.name}`.length > 20
+                          ? `${row.original.name}`.substring(0, 20) + "..."
+                          : `${row.original.name}`
+                      )}
+                    </span>
                   </p>
                 </TooltipTrigger>
                 <TooltipContent className="mr-[17.5rem]">
@@ -321,55 +287,6 @@ export default function IncomeCategoryTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    // {
-    //   accessorKey: "status",
-    //   header: () => (<div className="flex items-center gap-2">
-    //     <p>Status</p>
-    //     <button
-    //       className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-    //       onClick={() => toggleSortOrder("status")}
-    //     >
-    //       <i
-    //         className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-    //       ></i>
-    //     </button>
-    //   </div>),
-    //   cell: ({ row }) => {
-    //     const value =
-    //       row.original?.status != null ? row.original?.status + "" : "false";
-    //     const statusLabel = status.filter((r) => r.value === value)[0];
-    //     const id = Number(row.original.id);
-    //     const org_id = Number(row.original.org_id);
-    //     return (
-    //       <Select
-    //         defaultValue={value}
-    //         onValueChange={(e) =>
-    //           handleStatusChange({ status: e, id: id, org_id: org_id })
-    //         }
-    //       >
-    //         <SelectTrigger>
-    //           <SelectValue placeholder="Status" className="text-gray-400">
-    //             <span className="flex gap-2 items-center">
-    //               <span
-    //                 className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
-    //               ></span>
-    //               <span>{statusLabel?.label}</span>
-    //             </span>
-    //           </SelectValue>
-    //         </SelectTrigger>
-    //         <SelectContent>
-    //           {status.map((item) => (
-    //             <SelectItem key={item.value + ""} value={item.value + ""}>
-    //               {item.label}
-    //             </SelectItem>
-    //           ))}
-    //         </SelectContent>
-    //       </Select>
-    //     );
-    //   },
-    //   enableSorting: false,
-    //   enableHiding: false,
-    // },
     {
       id: "actions",
       header: "Actions",
@@ -481,14 +398,6 @@ export default function IncomeCategoryTableView() {
           <PlusIcon className="h-4 w-4" />
           Create New
         </Button>
-
-        {/* <button
-            className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
-            onClick={toggleSortOrder}
-          >
-            <i className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == 'desc' ? "rotate-180" : "-rotate-180"}`}></i>
-          </button> */}
-        {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
       </div>
       <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
@@ -506,9 +415,9 @@ export default function IncomeCategoryTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -860,7 +769,7 @@ const IncomeCategoryForm = ({
                           label="Category Name*"
                           value={value ?? ""}
                           onChange={handleOnChange}
-                        // error={error?.message??""}
+                          // error={error?.message??""}
                         />
                         {/* {watcher.name ? <></> : <FormMessage />} */}
                         <FormMessage />

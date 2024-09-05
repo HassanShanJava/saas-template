@@ -63,10 +63,56 @@ import { Separator } from "@/components/ui/separator";
 import MemberForm from "../../memberForm/form";
 import TableFilters from "@/components/ui/table/data-table-filter";
 const { VITE_VIEW_S3_URL } = import.meta.env;
+const displayDate = (value: any) => {
+  if (value == null) return "N/A";
 
+  const date = new Date(value);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+};
+const displayDateTime = (value: any) => {
+  if (value == null) return "N/A";
+
+  const date = new Date(value);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+  const year = date.getFullYear();
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${day}-${month}-${year} ${hours}:${minutes}`;
+};
 const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
-  const csvData = data.map(({ coaches, ...newdata }) => newdata);
-  const csv = Papa.unparse(csvData);
+  const filteredData = data.map(
+    ({
+      own_member_id,
+      first_name,
+      last_name,
+      business_name,
+      membership_plan_id,
+      client_status,
+      activated_on,
+      check_in,
+      last_online,
+    }) => ({
+      "Member Id": own_member_id,
+      "Member Name": `${first_name || ""} ${last_name || ""}`,
+      "Business Name": business_name || "",
+      "Membership Plan": membership_plan_id || "",
+      Status: client_status || "",
+      "Activation Date": displayDate(activated_on) || "",
+      "Last Check In": displayDateTime(check_in) || "",
+      "Last Login": displayDateTime(last_online) || "",
+    })
+  );
+  console.log("csv data", filteredData);
+  const csv = Papa.unparse(filteredData);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
@@ -226,32 +272,20 @@ export default function MemberTableView() {
   const displayValue = (value: string | undefined | null) =>
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
-  const displayDate = (value: any) => {
-    if (value == null) return "N/A";
+  // const displayDateTime = (value: any) => {
+  //   if (value == null) return "N/A";
 
-    const date = new Date(value);
+  //   const date = new Date(value);
 
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    const year = date.getFullYear();
+  //   const day = String(date.getDate()).padStart(2, "0");
+  //   const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+  //   const year = date.getFullYear();
 
-    return `${day}-${month}-${year}`;
-  };
+  //   const hours = String(date.getHours()).padStart(2, "0");
+  //   const minutes = String(date.getMinutes()).padStart(2, "0");
 
-  const displayDateTime = (value: any) => {
-    if (value == null) return "N/A";
-
-    const date = new Date(value);
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    const year = date.getFullYear();
-
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-
-    return `${day}-${month}-${year} ${hours}:${minutes}`;
-  };
+  //   return `${day}-${month}-${year} ${hours}:${minutes}`;
+  // };
   const handleExportSelected = () => {
     const selectedRows = table
       .getSelectedRowModel()
@@ -264,7 +298,14 @@ export default function MemberTableView() {
       return;
     }
     console.log({ selectedRows }, typeof selectedRows);
-    downloadCSV(selectedRows, "members_list.csv");
+    const updatedSelectedRows = selectedRows.map((row) => ({
+      ...row,
+      membership_plan_id: membershipPlans.filter(
+        (plan: any) => plan.id == row.membership_plan_id
+      )[0].name,
+    }));
+
+    downloadCSV(updatedSelectedRows, "members_list.csv");
   };
 
   const [updateMember] = useUpdateMemberMutation();
@@ -399,8 +440,12 @@ export default function MemberTableView() {
                     <p className="capitalize cursor-pointer">
                       {/* Display the truncated name */}
                       {displayValue(
-                        `${row.original.first_name} ${row.original.last_name}`.length > 8
-                          ? `${row.original.first_name} ${row.original.last_name}`.substring(0, 8) + "..."
+                        `${row.original.first_name} ${row.original.last_name}`
+                          .length > 8
+                          ? `${row.original.first_name} ${row.original.last_name}`.substring(
+                              0,
+                              8
+                            ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -444,22 +489,23 @@ export default function MemberTableView() {
                 <TooltipTrigger asChild>
                   <p className="capitalize cursor-pointer">
                     {/* Display the truncated name */}
-                    {
-                      !row.original.is_business && row.original.business_id == undefined ? "N/A" : (
-                        displayValue(
+                    {!row.original.is_business &&
+                    row.original.business_id == undefined
+                      ? "N/A"
+                      : displayValue(
                           `${row.original.business_name}`.length > 8
-                            ? `${row.original.business_name}`.substring(0, 8) + "..."
+                            ? `${row.original.business_name}`.substring(0, 8) +
+                                "..."
                             : `${row.original.business_name}`
-                        )
-                      )}
+                        )}
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="capitalize text-sm">
-                    {
-                      !row.original.is_business && row.original.business_id == undefined ? "N/A" :
-                        displayValue(`${row.original.business_name}`)
-                    }
+                    {!row.original.is_business &&
+                    row.original.business_id == undefined
+                      ? "N/A"
+                      : displayValue(`${row.original.business_name}`)}
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -779,16 +825,6 @@ export default function MemberTableView() {
             <i className="fa fa-filter"></i>
           </button>
         </div>
-
-        {/* Optional Sorting Button */}
-        {/* <button
-    className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
-    onClick={toggleSortOrder}
-  >
-    <i
-      className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-    ></i>
-  </button> */}
       </div>
 
       <div className="rounded-none border border-border ">
@@ -807,9 +843,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

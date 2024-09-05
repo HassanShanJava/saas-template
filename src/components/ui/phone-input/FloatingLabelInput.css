@@ -1,34 +1,3 @@
-/* .floating-label-input {
-  position: relative;
-  margin-top: 20px; /* Adjusts space above the input container */
-/* } */
-/* 
-.floating-label-input input {
-  padding-left: 20px; /* This ensures space between the label and the flag */
-/* width: 100%; */
-/* box-sizing: border-box; */
-/* } */
-
-/* .floating-label { */
-/* position: absolute; */
-/* left: 45px; Adjust this value to move the label away from the flag */
-/* top: 50%; Vertically centers the label */
-/* transform: translateY(-50%); Center vertically */
-/* background: white; Matches input background */
-/* transition: 0.2s ease-in-out; Smooth transition for label movement */
-/* color: #999; Initial label color */
-/* pointer-events: none; Prevents mouse events on the label */
-/* } */
-
-/* .floating-label-input.focused .floating-label, */
-/* .floating-label-input input:focus + .floating-label, */
-/* .floating-label-input input:not(:placeholder-shown) + .floating-label { */
-/* top: 0; Align label with the top border of the input */
-/* transform: translateY(-50%) scale(0.8); Ensures label stays on the border and scales */
-/* background-color: white; Ensures label background matches input */
-/* color: #333; Changes color when focused or value is present */
-/* } */
-
 /* Wrapper for the input and label */
 .floating-label-wrapper {
   position: relative;

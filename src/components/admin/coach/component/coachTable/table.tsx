@@ -13,13 +13,6 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Table,
   TableBody,
   TableCell,
@@ -42,7 +35,6 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-// import { MemberFilterSchema, MemberTabletypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
@@ -50,8 +42,6 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { Spinner } from "@/components/ui/spinner/spinner";
-import Papa from "papaparse";
-
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetAllMemberQuery } from "@/services/memberAPi";
 import {
@@ -71,6 +61,12 @@ import { Sheet } from "@/components/ui/sheet";
 import TableFilters from "@/components/ui/table/data-table-filter";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 import {
+  coachMapper,
+  displayDate,
+  displayDateTime,
+  downloadCSV,
+} from "@/utils/helper";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -81,60 +77,6 @@ const status = [
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
-const displayDate = (value: any) => {
-  if (value == null) return "N/A";
-
-  const date = new Date(value);
-
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-  const year = date.getFullYear();
-
-  return `${day}-${month}-${year}`;
-};
-
-const displayDateTime = (value: any) => {
-  if (value == null) return "N/A";
-
-  const date = new Date(value);
-
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-  const year = date.getFullYear();
-
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${day}-${month}-${year} ${hours}:${minutes}`;
-};
-const downloadCSV = (data: any[], fileName: string) => {
-  const filteredData = data.map(
-    ({
-      own_coach_id,
-      first_name,
-      last_name,
-      activated_on,
-      coach_status,
-      check_in,
-      last_online,
-    }) => ({
-      "Coach Id": own_coach_id,
-      "Coach Name": `${first_name || ""} ${last_name || ""}`,
-      "Activation Date": displayDate(activated_on) || "",
-      Status: coach_status || "",
-      "Last Check In": displayDateTime(check_in) || "",
-      "Last Login": displayDateTime(last_online) || "",
-    })
-  );
-  const csv = Papa.unparse(filteredData);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
 
 interface searchCretiriaType {
   limit: number;
@@ -240,7 +182,7 @@ export default function CoachTableView() {
       });
       return;
     }
-    downloadCSV(selectedRows, "coach_list.csv");
+    downloadCSV(selectedRows, "coach_list.csv", coachMapper);
   };
 
   const handleStatusChange = async (payload: {

@@ -51,76 +51,22 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { DataTableViewOptions } from "./data-table-view-options";
-import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
   useGetAllMemberQuery,
-  useGetMemberCountQuery,
   useUpdateMemberMutation,
 } from "@/services/memberAPi";
 import { useGetMembershipListQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
 import MemberForm from "../../memberForm/form";
 import TableFilters from "@/components/ui/table/data-table-filter";
+import {
+  displayDate,
+  displayDateTime,
+  downloadCSV,
+  membersMapper,
+} from "@/utils/helper";
 const { VITE_VIEW_S3_URL } = import.meta.env;
-const displayDate = (value: any) => {
-  if (value == null) return "N/A";
-
-  const date = new Date(value);
-
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-  const year = date.getFullYear();
-
-  return `${day}-${month}-${year}`;
-};
-const displayDateTime = (value: any) => {
-  if (value == null) return "N/A";
-
-  const date = new Date(value);
-
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-  const year = date.getFullYear();
-
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${day}-${month}-${year} ${hours}:${minutes}`;
-};
-const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
-  const filteredData = data.map(
-    ({
-      own_member_id,
-      first_name,
-      last_name,
-      business_name,
-      membership_plan_id,
-      client_status,
-      activated_on,
-      check_in,
-      last_online,
-    }) => ({
-      "Member Id": own_member_id,
-      "Member Name": `${first_name || ""} ${last_name || ""}`,
-      "Business Name": business_name || "",
-      "Membership Plan": membership_plan_id || "",
-      Status: client_status || "",
-      "Activation Date": displayDate(activated_on) || "",
-      "Last Check In": displayDateTime(check_in) || "",
-      "Last Login": displayDateTime(last_online) || "",
-    })
-  );
-  console.log("csv data", filteredData);
-  const csv = Papa.unparse(filteredData);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
 
 interface searchCretiriaType {
   limit: number;
@@ -227,7 +173,6 @@ export default function MemberTableView() {
     }
   );
 
-  const { data: count } = useGetMemberCountQuery(orgId);
   const { data: membershipPlans } = useGetMembershipListQuery(orgId);
 
   useEffect(() => {
@@ -272,20 +217,6 @@ export default function MemberTableView() {
   const displayValue = (value: string | undefined | null) =>
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
-  // const displayDateTime = (value: any) => {
-  //   if (value == null) return "N/A";
-
-  //   const date = new Date(value);
-
-  //   const day = String(date.getDate()).padStart(2, "0");
-  //   const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-  //   const year = date.getFullYear();
-
-  //   const hours = String(date.getHours()).padStart(2, "0");
-  //   const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  //   return `${day}-${month}-${year} ${hours}:${minutes}`;
-  // };
   const handleExportSelected = () => {
     const selectedRows = table
       .getSelectedRowModel()
@@ -305,7 +236,7 @@ export default function MemberTableView() {
       )[0].name,
     }));
 
-    downloadCSV(updatedSelectedRows, "members_list.csv");
+    downloadCSV(updatedSelectedRows, "members_list.csv", membersMapper);
   };
 
   const [updateMember] = useUpdateMemberMutation();

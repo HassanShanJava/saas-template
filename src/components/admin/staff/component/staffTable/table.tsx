@@ -59,7 +59,6 @@ import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { DataTableViewOptions } from "./data-table-view-options";
-import Papa from "papaparse";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
   useGetStaffsQuery,
@@ -69,65 +68,15 @@ import StaffForm, { statusEnum } from "../../staffForm/form";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Separator } from "@/components/ui/separator";
 import { useGetRolesQuery } from "@/services/rolesApi";
+import {
+  displayDate,
+  displayDateTime,
+  downloadCSV,
+  staffMapper,
+} from "@/utils/helper";
 import { Sheet } from "@/components/ui/sheet";
 import TableFilters from "@/components/ui/table/data-table-filter";
 const { VITE_VIEW_S3_URL } = import.meta.env;
-const displayDate = (value: any) => {
-  if (!value) {
-    return "N/A";
-  }
-  const date = new Date(value);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-  const year = date.getFullYear();
-  console.log(day, month, year);
-  return `${day}-${month}-${year}`;
-};
-
-const displayDateTime = (value: any) => {
-  if (value == null) return "N/A";
-
-  const date = new Date(value);
-
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-  const year = date.getFullYear();
-
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${day}-${month}-${year} ${hours}:${minutes}`;
-};
-const downloadCSV = (data: staffTypesResponseList[], fileName: string) => {
-  const filteredData = data.map(
-    ({
-      own_staff_id,
-      first_name,
-      last_name,
-      activated_on,
-      status,
-      role_name,
-      last_checkin,
-      last_online,
-    }) => ({
-      "Staff Id": own_staff_id,
-      "Staff Name": `${first_name || ""} ${last_name || ""}`,
-      "Activation Date": displayDate(activated_on) || "",
-      Role: role_name || "",
-      Status: status || "",
-      "Last Check In": displayDateTime(last_checkin) || "",
-      "Last Login": displayDateTime(last_online) || "",
-    })
-  );
-  const csv = Papa.unparse(filteredData);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -255,7 +204,7 @@ export default function StaffTableView() {
       });
       return;
     }
-    downloadCSV(selectedRows, "staff_list.csv");
+    downloadCSV(selectedRows, "staff_list.csv", staffMapper);
   };
 
   const displayValue = (value: string | undefined | null) =>

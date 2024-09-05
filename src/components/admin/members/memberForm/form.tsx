@@ -38,7 +38,7 @@ import {
   MultiSelectorTrigger,
 } from "@/components/ui/multiselect/multiselect";
 import { Switch } from "@/components/ui/switch";
-import React, { useEffect, useState } from "react";
+import React, { act, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
@@ -357,7 +357,7 @@ const MemberForm = ({
   useEffect(() => {
     if (!open) return;
     const total = memberCountData?.total_members as number;
-    if (total >= 0) {
+    if (total >= 0 && action === "add") {
       form.setValue("own_member_id", `${orgName?.slice(0, 2)}-${total + 1}`);
       form.clearErrors();
     }
@@ -434,7 +434,7 @@ const MemberForm = ({
 
   function handleClose() {
     setAvatar(null);
-    setSelectedImage(null)
+    setSelectedImage(null);
     clearErrors();
     reset(initialValues, {
       keepIsSubmitted: false,
@@ -451,6 +451,7 @@ const MemberForm = ({
       ...data,
       org_id: orgId,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
+      business_id: data.is_business ? null : data.business_id,
     };
 
     if (!updatedData.auto_renew_days) {
@@ -523,7 +524,7 @@ const MemberForm = ({
           description: `Something Went Wrong.`,
         });
       }
-      refecthCount()
+      refecthCount();
     }
   }
   const onError = () => {
@@ -671,8 +672,8 @@ const MemberForm = ({
                   />
                 </div>
                 <div className="relative ">
-                  {(action == "add") || (action == "edit" && watcher.client_status == "pending") ? (
-
+                  {action == "add" ||
+                  (action == "edit" && watcher.client_status == "pending") ? (
                     <FloatingLabelInput
                       id="email"
                       className=""
@@ -693,7 +694,6 @@ const MemberForm = ({
                       error={errors.email?.message}
                     />
                   ) : (
-
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -702,7 +702,10 @@ const MemberForm = ({
                             className=""
                             type="email"
                             label="Email Address*"
-                            disabled={action == "edit" && watcher.client_status != "pending"}
+                            disabled={
+                              action == "edit" &&
+                              watcher.client_status != "pending"
+                            }
                             {...register("email", {
                               required: "Required",
                               maxLength: {
@@ -720,7 +723,8 @@ const MemberForm = ({
                         </TooltipTrigger>
 
                         <TooltipContent>
-                          You cannot update the email address once the member is active
+                          You cannot update the email address once the member is
+                          active
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -1073,8 +1077,7 @@ const MemberForm = ({
                         <SelectTrigger className="capitalize  font-medium text-gray-800">
                           <SelectValue placeholder="Select Business" />
                         </SelectTrigger>
-                        <SelectContent className="capitalize"
-                        >
+                        <SelectContent className="capitalize">
                           {/* <Button variant={"link"} className="gap-2 text-black">
                             <PlusIcon className="text-black w-5 h-5" /> Add New
                             business
@@ -1087,7 +1090,7 @@ const MemberForm = ({
                                   value={sourceval.id?.toString()}
                                   key={sourceval.id?.toString()}
                                 >
-                                  {sourceval.first_name}
+                                  {sourceval.full_name}
                                 </SelectItem>
                               );
                             })
@@ -1171,14 +1174,14 @@ const MemberForm = ({
                                 className={cn(
                                   "justify-between ",
                                   !value &&
-                                  "font-medium text-gray-800 focus:border-primary "
+                                    "font-medium text-gray-800 focus:border-primary "
                                 )}
                               >
                                 {value
                                   ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === value // Compare with numeric value
-                                  )?.country // Display country name if selected
+                                      (country: CountryTypes) =>
+                                        country.id === value // Compare with numeric value
+                                    )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -1443,9 +1446,10 @@ const MemberForm = ({
               {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
-                  <AlertDialogTitle className="text-xl font-medium w-80 text-center">
+                  <AlertDialogTitle className="text-lg font-medium w-full text-center">
                     The email is already registered in the system.
-                    <br /> Would you like to auto-fill the details?
+                    <br /> 
+                    <span className="">Would you like to auto-fill the details?</span>
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

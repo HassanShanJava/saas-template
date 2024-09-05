@@ -133,12 +133,12 @@ const navItems: NavItem[] = [
   //   icon: IoIosFitness,
   //   dropdown: false,
   // },
-  // {
-  //   name: "Roles & Access Management",
-  //   link: "/admin/roles",
-  //   icon: EventsIcon,
-  //   dropdown: false,
-  // },
+  {
+    name: "Roles & Access Management",
+    link: "/admin/roles",
+    icon: EventsIcon,
+    dropdown: false,
+  },
   {
     name: "Meal Plans",
     link: "/admin/mealplans",

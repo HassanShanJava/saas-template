@@ -361,7 +361,7 @@ export interface sourceTypes {
 
 export interface BusinessTypes {
   id: number;
-  first_name: string;
+  full_name: string;
 }
 
 export interface membershipplanTypes {

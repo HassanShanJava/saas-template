@@ -708,7 +708,6 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           {...field}
                           id="email"
                           label="Email Address*"
-                          disabled={staffData != null}
                         />
                         <FormMessage />
                       </FormItem>
@@ -770,7 +769,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           {...field}
                           id="notes"
                           label="Notes"
-                          error={form.formState.errors.notes?.message}
+                          // error={form.formState.errors.notes?.message}
                         />
                         <FormMessage />
                       </FormItem>

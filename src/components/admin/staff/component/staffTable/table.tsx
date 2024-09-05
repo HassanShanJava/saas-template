@@ -72,7 +72,32 @@ import { useGetRolesQuery } from "@/services/rolesApi";
 import { Sheet } from "@/components/ui/sheet";
 import TableFilters from "@/components/ui/table/data-table-filter";
 const { VITE_VIEW_S3_URL } = import.meta.env;
+const displayDate = (value: any) => {
+  if (!value) {
+    return "N/A";
+  }
+  const date = new Date(value);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+  const year = date.getFullYear();
+  console.log(day, month, year);
+  return `${day}-${month}-${year}`;
+};
 
+const displayDateTime = (value: any) => {
+  if (value == null) return "N/A";
+
+  const date = new Date(value);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+  const year = date.getFullYear();
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${day}-${month}-${year} ${hours}:${minutes}`;
+};
 const downloadCSV = (data: staffTypesResponseList[], fileName: string) => {
   const filteredData = data.map(
     ({
@@ -87,11 +112,11 @@ const downloadCSV = (data: staffTypesResponseList[], fileName: string) => {
     }) => ({
       "Staff Id": own_staff_id,
       "Staff Name": `${first_name || ""} ${last_name || ""}`,
-      "Activation Date": activated_on || "",
-      Status: status || "",
+      "Activation Date": displayDate(activated_on) || "",
       Role: role_name || "",
-      "Last Check In": last_checkin || "",
-      "Last Login": last_online || "",
+      Status: status || "",
+      "Last Check In": displayDateTime(last_checkin) || "",
+      "Last Login": displayDateTime(last_online) || "",
     })
   );
   const csv = Papa.unparse(filteredData);
@@ -235,33 +260,6 @@ export default function StaffTableView() {
 
   const displayValue = (value: string | undefined | null) =>
     value == null || value == "" ? "N/A" : value;
-
-  const displayDate = (value: any) => {
-    if (!value) {
-      return "N/A";
-    }
-    const date = new Date(value);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    const year = date.getFullYear();
-    console.log(day, month, year);
-    return `${day}-${month}-${year}`;
-  };
-
-  const displayDateTime = (value: any) => {
-    if (value == null) return "N/A";
-
-    const date = new Date(value);
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    const year = date.getFullYear();
-
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-
-    return `${day}-${month}-${year} ${hours}:${minutes}`;
-  };
 
   const handleStatusChange = async (payload: {
     own_staff_id: string;

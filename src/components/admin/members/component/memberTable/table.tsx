@@ -63,7 +63,31 @@ import { Separator } from "@/components/ui/separator";
 import MemberForm from "../../memberForm/form";
 import TableFilters from "@/components/ui/table/data-table-filter";
 const { VITE_VIEW_S3_URL } = import.meta.env;
+const displayDate = (value: any) => {
+  if (value == null) return "N/A";
 
+  const date = new Date(value);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+};
+const displayDateTime = (value: any) => {
+  if (value == null) return "N/A";
+
+  const date = new Date(value);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+  const year = date.getFullYear();
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${day}-${month}-${year} ${hours}:${minutes}`;
+};
 const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
   const filteredData = data.map(
     ({
@@ -82,9 +106,9 @@ const downloadCSV = (data: MemberTableDatatypes[], fileName: string) => {
       "Business Name": business_name || "",
       "Membership Plan": membership_plan_id || "",
       Status: client_status || "",
-      "Activation Date": activated_on || "",
-      "Last Check In": check_in || "",
-      "Last Login": last_online || "",
+      "Activation Date": displayDate(activated_on) || "",
+      "Last Check In": displayDateTime(check_in) || "",
+      "Last Login": displayDateTime(last_online) || "",
     })
   );
   console.log("csv data", filteredData);
@@ -248,32 +272,20 @@ export default function MemberTableView() {
   const displayValue = (value: string | undefined | null) =>
     value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
-  const displayDate = (value: any) => {
-    if (value == null) return "N/A";
+  // const displayDateTime = (value: any) => {
+  //   if (value == null) return "N/A";
 
-    const date = new Date(value);
+  //   const date = new Date(value);
 
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    const year = date.getFullYear();
+  //   const day = String(date.getDate()).padStart(2, "0");
+  //   const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+  //   const year = date.getFullYear();
 
-    return `${day}-${month}-${year}`;
-  };
+  //   const hours = String(date.getHours()).padStart(2, "0");
+  //   const minutes = String(date.getMinutes()).padStart(2, "0");
 
-  const displayDateTime = (value: any) => {
-    if (value == null) return "N/A";
-
-    const date = new Date(value);
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    const year = date.getFullYear();
-
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-
-    return `${day}-${month}-${year} ${hours}:${minutes}`;
-  };
+  //   return `${day}-${month}-${year} ${hours}:${minutes}`;
+  // };
   const handleExportSelected = () => {
     const selectedRows = table
       .getSelectedRowModel()
@@ -293,7 +305,6 @@ export default function MemberTableView() {
       )[0].name,
     }));
 
-    console.log(updatedSelectedRows);
     downloadCSV(updatedSelectedRows, "members_list.csv");
   };
 

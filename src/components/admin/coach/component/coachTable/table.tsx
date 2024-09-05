@@ -81,7 +81,32 @@ const status = [
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
+const displayDate = (value: any) => {
+  if (value == null) return "N/A";
 
+  const date = new Date(value);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+};
+
+const displayDateTime = (value: any) => {
+  if (value == null) return "N/A";
+
+  const date = new Date(value);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+  const year = date.getFullYear();
+
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${day}-${month}-${year} ${hours}:${minutes}`;
+};
 const downloadCSV = (data: any[], fileName: string) => {
   const filteredData = data.map(
     ({
@@ -95,10 +120,10 @@ const downloadCSV = (data: any[], fileName: string) => {
     }) => ({
       "Coach Id": own_coach_id,
       "Coach Name": `${first_name || ""} ${last_name || ""}`,
-      "Activation Date": activated_on || "",
+      "Activation Date": displayDate(activated_on) || "",
       Status: coach_status || "",
-      "Last Check In": check_in || "",
-      "Last Login": last_online || "",
+      "Last Check In": displayDateTime(check_in) || "",
+      "Last Login": displayDateTime(last_online) || "",
     })
   );
   const csv = Papa.unparse(filteredData);
@@ -203,33 +228,6 @@ export default function CoachTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-
-  const displayDate = (value: any) => {
-    if (value == null) return "N/A";
-
-    const date = new Date(value);
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    const year = date.getFullYear();
-
-    return `${day}-${month}-${year}`;
-  };
-
-  const displayDateTime = (value: any) => {
-    if (value == null) return "N/A";
-
-    const date = new Date(value);
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
-    const year = date.getFullYear();
-
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-
-    return `${day}-${month}-${year} ${hours}:${minutes}`;
-  };
 
   const handleExportSelected = () => {
     const selectedRows = table

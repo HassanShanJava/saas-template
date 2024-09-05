@@ -435,7 +435,6 @@ export default function ExerciseTableView() {
       ),
     },
   ];
-  // console.log("data",{memberData})
   const table = useReactTable({
     data: ExerciseTableData as ExerciseResponseViewType[],
     columns,
@@ -622,13 +621,13 @@ export default function ExerciseTableView() {
                       ))}
                     </TableRow>
                   ))
-                ) : ExerciseTableData.length > 0 ? (
+                ) : exercisedata?.total_counts == 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      No data found.
+                      No Exercise added yet.
                     </TableCell>
                   </TableRow>
                 ) : (

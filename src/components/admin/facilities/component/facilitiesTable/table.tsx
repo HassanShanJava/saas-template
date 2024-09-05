@@ -745,8 +745,8 @@ const CreditForm = ({
 
   const onSubmit = async (data: z.infer<typeof creditFormSchema>) => {
     console.log({ data });
-    const payload = {...data}
-    payload.name=payload.name.toLowerCase();
+    const payload = { ...data };
+    payload.name = payload.name.toLowerCase();
 
     try {
       if (formData.case == "add") {

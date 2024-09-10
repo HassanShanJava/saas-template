@@ -57,7 +57,7 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
           body: roledata,
-          providesTags: ["Roles"],
+          invalidatesTags: ["Roles"],
         }),
       }),
       updateRole: builder.mutation<any, updateRoleTypes>({
@@ -68,7 +68,7 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
           body: roledata,
-          providesTags: ["Roles"],
+          invalidatesTags: ["Roles"],
         }),
       }),
     };

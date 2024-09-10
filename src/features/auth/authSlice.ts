@@ -1,6 +1,7 @@
-import { loginUser } from "@/services/authService";
+import { getUserResource, loginUser } from "@/services/authService";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import { Console } from "console";
 
 interface User {
   id: number;
@@ -88,6 +89,12 @@ export const login = createAsyncThunk(
         data,
       }: { data: { token: { access_token: string }; user?: any } } =
         await loginUser(email, password);
+
+      console.log({ data })
+      if (data.user.role_id) {
+        const { data: userRoles } = await getUserResource(data.user.role_id, data.token.access_token    )
+        console.log({ userRoles });
+      }
       localStorage.setItem("userToken", data.token?.access_token);
       if (rememberme) {
         localStorage.setItem("email", email);

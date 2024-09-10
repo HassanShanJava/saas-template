@@ -14,7 +14,7 @@ interface StepperIndicatorProps {
 
 const StepperIndicator = ({ activeStep, labels, lastKey }: StepperIndicatorProps) => {
   return (
-    <div className=" flex justify-center items-center ">
+    <div className="w-full flex justify-center items-center px-8 pb-8">
       {labels.map((label, step) => (
         <Fragment key={label.key}>
           <div className="relative">
@@ -34,7 +34,7 @@ const StepperIndicator = ({ activeStep, labels, lastKey }: StepperIndicatorProps
             <Separator
               orientation="horizontal"
               className={clsx(
-                "w-[130px] h-[2px]",
+                "h-[2px] flex-1",
                 step <= activeStep - 1 && "bg-primary"
               )}
             />

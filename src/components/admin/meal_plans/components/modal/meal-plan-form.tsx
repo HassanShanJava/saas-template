@@ -705,10 +705,10 @@ const MealPlanForm = ({
                     {...register("name", {
                       required: "  Required",
                       setValueAs: (value) => value.toLowerCase(),
-                      maxLength:{
+                      maxLength: {
                         value: 50,
                         message: "Name should not exceed 50 characters",
-                      }
+                      },
                     })}
                     error={errors.name?.message}
                   />

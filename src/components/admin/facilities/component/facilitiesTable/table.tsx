@@ -810,6 +810,7 @@ const CreditForm = ({
     }));
   };
 
+  console.log("errror", form.formState.errors);
   return (
     <div>
       <Sheet
@@ -870,7 +871,7 @@ const CreditForm = ({
                             // error={error?.message??""}
                             onChange={handleOnChange}
                           />
-                          {watcher.name ? <></> : <FormMessage />}
+                          {<FormMessage />}
                         </FormItem>
                       )}
                     />

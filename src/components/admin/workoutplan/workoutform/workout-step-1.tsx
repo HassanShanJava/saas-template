@@ -55,8 +55,25 @@ import { FiUpload } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { useOutletContext } from "react-router-dom";
 import { ContextProps } from "./workout-form";
+import {
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+  FileInput,
+} from "@/components/ui/file-uploader"; // Assuming you have these components
+import { DropzoneOptions } from "react-dropzone";
+const { VITE_VIEW_S3_URL } = import.meta.env;
+import uploadimg from "@/assets/upload.svg";
 
 const WorkoutStep1: React.FC = () => {
+  const dropzone = {
+    accept: {
+      "image/*": [".jpg", ".jpeg", ".png"],
+    },
+    multiple: true,
+    maxFiles: 1,
+    maxSize: 1 * 1024 * 1024,
+  } satisfies DropzoneOptions;
   const { form } = useOutletContext<ContextProps>();
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,13 +81,16 @@ const WorkoutStep1: React.FC = () => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { data: memberList } = useGetMembersListQuery(orgId);
-
+  const [files, setFiles] = useState<File[]>([]); // State for managing uploaded files
   const {
     control,
     formState: { errors },
     register,
+    watch,
   } = form;
   console.log("errors", errors);
+  const fileWatcher = watch("img_url"); // Watch for profile_img field value
+  const watcher = watch();
   const { trigger } = form;
   return (
     <FormProvider {...form}>
@@ -123,12 +143,12 @@ const WorkoutStep1: React.FC = () => {
                 fieldState: { invalid, error },
               }) => (
                 <MultiSelect
-                  floatingLabel="Assign Members*"
-                  key="Assign Members*"
+                  floatingLabel="Assign Members"
+                  key="Assign Members"
                   options={memberList || []}
                   defaultValue={value || []} // Ensure defaultValue is always an array
                   onValueChange={(selectedValues) => onChange(selectedValues)}
-                  placeholder="Assign Members*"
+                  placeholder="Assign Members"
                   variant="inverted"
                   maxCount={1}
                   className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
@@ -150,7 +170,7 @@ const WorkoutStep1: React.FC = () => {
                   onValueChange={(value) => onChange(value)}
                   defaultValue={value}
                 >
-                  <SelectTrigger floatingLabel="Goal" name="goals">
+                  <SelectTrigger floatingLabel="Goal*" name="goals">
                     <SelectValue placeholder="Select Goal" />
                   </SelectTrigger>
                   <SelectContent>
@@ -182,7 +202,7 @@ const WorkoutStep1: React.FC = () => {
                   onValueChange={(value) => onChange(value)}
                   defaultValue={value}
                 >
-                  <SelectTrigger floatingLabel="Level" name="level">
+                  <SelectTrigger floatingLabel="Level*" name="level">
                     <SelectValue placeholder="Select Level" />
                   </SelectTrigger>
                   <SelectContent>
@@ -214,7 +234,7 @@ const WorkoutStep1: React.FC = () => {
                   onValueChange={(value) => onChange(value)}
                   defaultValue={value}
                 >
-                  <SelectTrigger floatingLabel="Visible For" name="visiblefor">
+                  <SelectTrigger floatingLabel="Visible For*" name="visiblefor">
                     <SelectValue placeholder="Select Visible For" />
                   </SelectTrigger>
                   <SelectContent>
@@ -248,7 +268,7 @@ const WorkoutStep1: React.FC = () => {
                     (value ? String(value) : value) as string | undefined
                   }
                 >
-                  <SelectTrigger floatingLabel="Weeks" name="weeks">
+                  <SelectTrigger floatingLabel="Weeks*" name="weeks">
                     <SelectValue placeholder="Weeks" />
                   </SelectTrigger>
                   <SelectContent>
@@ -305,7 +325,7 @@ const WorkoutStep1: React.FC = () => {
 					</div>*/}
           <div className="row-span-4 h-min">
             <div>
-              <div className="justify-center items-center flex flex-col">
+              {/* <div className="justify-center items-center flex flex-col">
                 <div className="flex flex-col items-center justify-center p-4 border rounded h-32 w-32">
                   {selectedImage ? (
                     <img
@@ -335,7 +355,84 @@ const WorkoutStep1: React.FC = () => {
                 >
                   <FiUpload className="text-primary w-5 h-5" /> Upload Picture
                 </Button>
-              </div>
+              </div> */}
+              {/* <Controller
+                name={"profile_image"}
+                control={control}
+                render={({
+                  field: { onChange, value, onBlur },
+                  fieldState: { invalid, error },
+                }) => (
+                  <div className="">
+                    <FileUploader
+                      value={files}
+                      onValueChange={setFiles}
+                      dropzoneOptions={dropzone}
+                    >
+                      {files &&
+                        files?.map((file, i) => (
+                          <div className="h-[180px] ">
+                            <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
+                              <FileUploaderItem
+                                key={i}
+                                index={i}
+                                className="h-full  p-0 rounded-md overflow-hidden relative "
+                                aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                              >
+                                <img
+                                  src={URL.createObjectURL(file)}
+                                  alt={file.name}
+                                  className="object-contain max-h-[180px]"
+                                />
+                              </FileUploaderItem>
+                            </FileUploaderContent>
+                          </div>
+                        ))}
+
+                      <FileInput className="flex flex-col gap-2  ">
+                        {files?.length == 0 && watcher?.profile_img == null ? (
+                          <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
+                            <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
+                          </div>
+                        ) : (
+                          files?.length == 0 &&
+                          watcher?.profile_img && (
+                            <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
+                              <img
+                                src={
+                                  watcher?.profile_img !== "" &&
+                                  watcher?.profile_img
+                                    ? VITE_VIEW_S3_URL +
+                                      "/" +
+                                      watcher?.profile_img
+                                    : ""
+                                }
+                                loading="lazy"
+                                className="object-contain max-h-[180px] "
+                              />
+                            </div>
+                          )
+                        )}
+
+                        <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
+                          <img src={uploadimg} className="size-10" />
+                          <span className="text-sm">
+                            {watcher.profile_img
+                              ? "Change Image"
+                              : "Upload Image"}
+                          </span>
+                        </div>
+                      </FileInput>
+                    </FileUploader>
+
+                    {errors.profile_img?.message && files?.length == 0 && (
+                      <span className="text-red-500 text-xs mt-[5px]">
+                        {errors.profile_img?.message}
+                      </span>
+                    )}
+                  </div>
+                )}
+              /> */}
             </div>
           </div>
         </div>

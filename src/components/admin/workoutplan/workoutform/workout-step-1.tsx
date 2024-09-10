@@ -81,7 +81,7 @@ const WorkoutStep1: React.FC = () => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { data: memberList } = useGetMembersListQuery(orgId);
-  const [files, setFiles] = useState<File[]>([]); // State for managing uploaded files
+  const [files, setFiles] = useState<File[] | null>([]);
   const {
     control,
     formState: { errors },
@@ -105,9 +105,9 @@ const WorkoutStep1: React.FC = () => {
             <FloatingLabelInput
               id="name"
               label="Name*"
-              error={errors.name?.message}
+              error={errors.workout_name?.message}
               maxLength={41}
-              {...register("name", {
+              {...register("workout_name", {
                 required: "Required",
                 maxLength: {
                   value: 40,
@@ -159,7 +159,7 @@ const WorkoutStep1: React.FC = () => {
           {/* <!-- Column 2: Visibility and Repetition --> */}
           <div className="h-min">
             <Controller
-              name="goal"
+              name="goals"
               rules={{ required: "Required" }}
               control={control}
               render={({
@@ -183,9 +183,9 @@ const WorkoutStep1: React.FC = () => {
                 </Select>
               )}
             />
-            {errors.goal?.message && (
+            {errors.goals?.message && (
               <span className="text-red-500 text-xs mt-[5px]">
-                {errors.goal?.message}
+                {errors.goals?.message}
               </span>
             )}
           </div>
@@ -223,7 +223,7 @@ const WorkoutStep1: React.FC = () => {
           </div>
           <div className="h-min">
             <Controller
-              name="visiblefor"
+              name="visible_for"
               rules={{ required: "Required" }}
               control={control}
               render={({
@@ -247,9 +247,9 @@ const WorkoutStep1: React.FC = () => {
                 </Select>
               )}
             />
-            {errors.visiblefor?.message && (
+            {errors.visible_for?.message && (
               <span className="text-red-500 text-xs mt-[5px]">
-                {errors.visiblefor?.message}
+                {errors.visible_for?.message}
               </span>
             )}
           </div>
@@ -290,7 +290,6 @@ const WorkoutStep1: React.FC = () => {
               </span>
             )}
           </div>
-          {/* <!-- Column 3: Image Upload --> */}
           {/*<div className="p-4">
 						<div className="mb-4">
 							<div className="justify-center items-center flex flex-col">
@@ -324,116 +323,86 @@ const WorkoutStep1: React.FC = () => {
 						</div>
 					</div>*/}
           <div className="row-span-4 h-min">
-            <div>
-              {/* <div className="justify-center items-center flex flex-col">
-                <div className="flex flex-col items-center justify-center p-4 border rounded h-32 w-32">
-                  {selectedImage ? (
-                    <img
-                      src={URL.createObjectURL(selectedImage)}
-                      alt="Selected"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <ImageIcon className="w-12 h-12 text-gray-400" />
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={() => {
-                    return;
-                  }}
-                  className="hidden"
-                  ref={fileInputRef}
-                />
-                <Button
-                  variant="ghost"
-                  className="px-2 mt-2 gap-1 border-dashed border-2 font-normal text-xs hover:bg-green-100"
-                  onClick={() => {
-                    return;
-                  }}
-                >
-                  <FiUpload className="text-primary w-5 h-5" /> Upload Picture
-                </Button>
-              </div> */}
-              {/* <Controller
-                name={"profile_image"}
-                control={control}
-                render={({
-                  field: { onChange, value, onBlur },
-                  fieldState: { invalid, error },
-                }) => (
-                  <div className="">
-                    <FileUploader
-                      value={files}
-                      onValueChange={setFiles}
-                      dropzoneOptions={dropzone}
-                    >
-                      {files &&
-                        files?.map((file, i) => (
-                          <div className="h-[180px] ">
-                            <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
-                              <FileUploaderItem
-                                key={i}
-                                index={i}
-                                className="h-full  p-0 rounded-md overflow-hidden relative "
-                                aria-roledescription={`file ${i + 1} containing ${file.name}`}
-                              >
-                                <img
-                                  src={URL.createObjectURL(file)}
-                                  alt={file.name}
-                                  className="object-contain max-h-[180px]"
-                                />
-                              </FileUploaderItem>
-                            </FileUploaderContent>
-                          </div>
-                        ))}
-
-                      <FileInput className="flex flex-col gap-2  ">
-                        {files?.length == 0 && watcher?.profile_img == null ? (
-                          <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
-                            <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
-                          </div>
-                        ) : (
-                          files?.length == 0 &&
-                          watcher?.profile_img && (
-                            <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
-                              <img
-                                src={
-                                  watcher?.profile_img !== "" &&
-                                  watcher?.profile_img
-                                    ? VITE_VIEW_S3_URL +
-                                      "/" +
-                                      watcher?.profile_img
-                                    : ""
-                                }
-                                loading="lazy"
-                                className="object-contain max-h-[180px] "
-                              />
+            <div className="p-4">
+              <div className="mb-4">
+                <Controller
+                  name={"img_url"}
+                  control={control}
+                  render={({
+                    field: { onChange, value, onBlur },
+                    fieldState: { invalid, error },
+                  }) => (
+                    <div className="">
+                      <FileUploader
+                        value={files}
+                        onValueChange={setFiles}
+                        dropzoneOptions={dropzone}
+                      >
+                        {files &&
+                          files?.map((file, i) => (
+                            <div className="h-[180px] ">
+                              <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
+                                <FileUploaderItem
+                                  key={i}
+                                  index={i}
+                                  className="h-[180px] w-full p-0 rounded-md overflow-hidden relative bg-gray-100 flex items-center justify-center" // Ensure the background doesn't shrink
+                                  aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                                >
+                                  <img
+                                    src={URL.createObjectURL(file)}
+                                    alt={file.name}
+                                    className="object-contain max-h-[180px] max-w-full mx-auto" // Ensures the image stays within the container and is centered
+                                  />
+                                </FileUploaderItem>
+                              </FileUploaderContent>
                             </div>
-                          )
-                        )}
+                          ))}
 
-                        <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
-                          <img src={uploadimg} className="size-10" />
-                          <span className="text-sm">
-                            {watcher.profile_img
-                              ? "Change Image"
-                              : "Upload Image"}
-                          </span>
-                        </div>
-                      </FileInput>
-                    </FileUploader>
+                        <FileInput className="flex flex-col gap-2  ">
+                          {files?.length == 0 && watcher?.img_url == null ? (
+                            <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
+                              <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
+                            </div>
+                          ) : (
+                            files?.length == 0 &&
+                            watcher?.img_url && (
+                              <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
+                                <img
+                                  src={
+                                    watcher?.img_url !== "" && watcher?.img_url
+                                      ? VITE_VIEW_S3_URL +
+                                        "/" +
+                                        watcher?.img_url
+                                      : ""
+                                  }
+                                  loading="lazy"
+                                  className="object-contain max-h-[180px] "
+                                />
+                              </div>
+                            )
+                          )}
+                          <div className="flex items-center  justify-center gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
+                            <img src={uploadimg} className="size-10" />
+                            <span className="text-sm">
+                              {watcher.img_url
+                                ? "Change Image"
+                                : "Upload Image"}
+                            </span>
+                          </div>
+                        </FileInput>
+                      </FileUploader>
 
-                    {errors.profile_img?.message && files?.length == 0 && (
-                      <span className="text-red-500 text-xs mt-[5px]">
-                        {errors.profile_img?.message}
-                      </span>
-                    )}
-                  </div>
-                )}
-              /> */}
+                      {errors.img_url?.message && files?.length == 0 && (
+                        <span className="text-red-500 text-xs mt-[5px]">
+                          {errors.img_url?.message}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                />
+              </div>
             </div>
+            <div></div>
           </div>
         </div>
       </div>

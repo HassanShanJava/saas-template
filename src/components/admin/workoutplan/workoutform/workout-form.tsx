@@ -34,15 +34,9 @@ import {
   FormMessage,
   FormControl,
 } from "@/components/ui/form";
-
 import { useEffect, useState } from "react";
 import { useRef } from "react";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-interface WorkOutPlanForm {
-  isOpen: boolean;
-  setOpen: any;
-}
-
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Separator } from "@/components/ui/separator";
@@ -56,23 +50,11 @@ import {
 import { Check, ChevronDownIcon, ImageIcon } from "lucide-react";
 import { FiUpload } from "react-icons/fi";
 import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "@/components/ui/use-toast";
-import { CountryTypes, ErrorType, Workout } from "@/app/types";
-import { AutosizeTextarea } from "@/components/ui/autosizetextarea/autosizetextarea";
-import { membersSchema } from "@/schema/formSchema";
-
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/store";
-import {
-  useGetCountriesQuery,
-  useGetMembersListQuery,
-} from "@/services/memberAPi";
-import { cn } from "@/lib/utils";
+import { ErrorType, Workout } from "@/app/types";
 import { Outlet, useNavigate } from "react-router-dom";
 import StepperIndicator from "@/components/ui/stepper-indicator";
 import { useForm, UseFormHandleSubmit, UseFormReturn } from "react-hook-form";
-//{ isOpen, setOpen }: WorkOutPlanForm
 export type ContextProps = { form: UseFormReturn<Workout> };
 const WorkoutPlanForm = () => {
   const navigate = useNavigate();
@@ -81,7 +63,9 @@ const WorkoutPlanForm = () => {
     +location.pathname[location.pathname.length - 1]
   );
   const form = useForm<Workout>({
-    defaultValues: {},
+    defaultValues: {
+      img_url: "abc",
+    },
     mode: "all",
   });
   const {
@@ -135,27 +119,6 @@ const WorkoutPlanForm = () => {
       }
     }
   }
-  //const FormSchema = z.object({
-  //  name: z
-  //    .string({
-  //      required_error: "Required",
-  //    })
-  //    .min(3, {
-  //      message: "Required",
-  //    }),
-  //  description: z.string({}).optional(),
-  //  members_id: z.array(membersSchema).nonempty({
-  //    message: "Required",
-  //  }),
-  //  country_id: z.coerce
-  //    .number({
-  //      required_error: "Required",
-  //    })
-  //    .refine((value) => value !== 0, {
-  //      message: "Required",
-  //    }),
-  //});
-  const { data: countries } = useGetCountriesQuery();
 
   const [workoutPlan, setworkoutPlan] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -231,6 +194,7 @@ const WorkoutPlanForm = () => {
                     onClick={() => {
                       form.handleSubmit(async (data) => {
                         await onSubmit(data);
+                        console.log("Step of action active", activeStep, data);
                         const newActive = activeStep + 1;
                         setActiveStep(newActive);
                       })();

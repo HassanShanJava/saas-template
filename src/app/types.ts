@@ -1173,10 +1173,11 @@ export interface deleteExerciseInput {
 }
 
 export interface Workout {
-  name: string;
+  workout_name: string;
+  org_id: number;
   description?: string;
-  visiblefor: string | undefined;
-  goal: string;
+  visible_for: string | undefined;
+  goals: string;
   level: string;
   weeks: number;
   member_ids: number[];

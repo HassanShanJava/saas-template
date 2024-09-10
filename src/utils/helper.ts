@@ -47,12 +47,16 @@ export const downloadCSV = <T>(
   link.click();
   document.body.removeChild(link);
 };
+const capitalizeFirstLetter = (str: string) =>
+  str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
 export const membersMapper = (member: MemberTableDatatypes) => ({
   "Member Id": member.own_member_id,
-  "Member Name": `${member.first_name || ""} ${member.last_name || ""}`,
-  "Business Name": member.business_name || "",
-  "Membership Plan": member.membership_plan_id || "",
-  Status: member.client_status || "",
+  "Member Name": `${capitalizeFirstLetter(member.first_name?.toUpperCase() || "")} ${capitalizeFirstLetter(member.last_name?.toUpperCase() || "")}`,
+  "Business Name": capitalizeFirstLetter(member.business_name || ""),
+  "Membership Plan": capitalizeFirstLetter(
+    member.membership_plan_id?.toString() || ""
+  ),
+  Status: capitalizeFirstLetter(member.client_status || ""),
   "Activation Date": displayDate(member.activated_on) || "",
   "Last Check In": displayDateTime(member.check_in) || "",
   "Last Login": displayDateTime(member.last_online) || "",
@@ -69,10 +73,10 @@ export const staffMapper = ({
   last_online,
 }: staffTypesResponseList) => ({
   "Staff Id": own_staff_id,
-  "Staff Name": `${first_name || ""} ${last_name || ""}`,
+  "Staff Name": `${capitalizeFirstLetter(first_name || "")} ${capitalizeFirstLetter(last_name || "")}`,
   "Activation Date": displayDate(activated_on) || "",
-  Role: role_name || "",
-  Status: status || "",
+  Role: capitalizeFirstLetter(role_name || ""),
+  Status: capitalizeFirstLetter(status || "") || "",
   "Last Check In": displayDateTime(last_checkin) || "",
   "Last Login": displayDateTime(last_online) || "",
 });
@@ -86,9 +90,9 @@ export const coachMapper = ({
   last_online,
 }: CoachTableDataTypes) => ({
   "Coach Id": own_coach_id,
-  "Coach Name": `${first_name || ""} ${last_name || ""}`,
+  "Coach Name": `${capitalizeFirstLetter(first_name || "")} ${capitalizeFirstLetter(last_name || "")}`,
   "Activation Date": displayDate(activated_on) || "",
-  Status: coach_status || "",
+  Status: capitalizeFirstLetter(coach_status || ""),
   "Last Check In": displayDateTime(check_in) || "",
   "Last Login": displayDateTime(last_online) || "",
 });

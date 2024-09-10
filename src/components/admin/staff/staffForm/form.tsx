@@ -215,7 +215,28 @@ const StaffForm: React.FC<StaffFormProps> = ({
         message: "Phone number cannot exceed 20 digits",
       })
       .trim()
-      .optional(),
+      .optional()
+      .refine(
+        (value) => {
+          if (!value) return true; // Skip validation if the field is optional and not provided
+          if (value.length <= 4) {
+            return true; // Pass validation if length is 5 or fewer
+          }
+          try {
+            // Parse the phone number with the utility
+            const parsedNumber = phoneUtil.parseAndKeepRawInput(value);
+
+            // Check if the parsed number is a valid phone number
+            return phoneUtil.isValidNumber(parsedNumber);
+          } catch (e) {
+            // Return false if parsing fails (e.g., invalid format)
+            return false;
+          }
+        },
+        {
+          message: "Invalid phone number", // Custom error message for refine validation
+        }
+      ),
     notes: z
       .string()
       .max(200, {
@@ -353,8 +374,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     let updatedData = {
       ...data,
-      first_name:data.first_name.toLowerCase(),
-      last_name:data.last_name.toLowerCase(),
+      first_name: data.first_name.toLowerCase(),
+      last_name: data.last_name.toLowerCase(),
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
     };
     console.log("Updated data with only date:", updatedData);
@@ -427,13 +448,13 @@ const StaffForm: React.FC<StaffFormProps> = ({
           description: `Something Went Wrong.`,
         });
       }
-      countRefetch()
+      countRefetch();
     }
   }
 
   useEffect(() => {
     if (!open || staffData == null) return;
-    
+
     const updatedStaffData = replaceNullWithEmptyString(staffData);
     if (
       updatedStaffData?.mobile_number &&

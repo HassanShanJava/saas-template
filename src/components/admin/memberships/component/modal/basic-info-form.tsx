@@ -273,7 +273,7 @@ const BasicInfoForm = () => {
                       {error?.message}
                     </span>
                   )}
-                  <SelectContent>
+                  <SelectContent className="custom-scrollbar max-h-64">
                     {groupList &&
                       groupList.length > 0 &&
                       groupList.map((item) => (

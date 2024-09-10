@@ -1006,6 +1006,10 @@ export enum IntensityEnum {
   max_intensity = "Max Intensity",
   irm = "irm",
 }
+export enum WorkoutIntensityEnum {
+  "Max Intensity" = "Max Intensity",
+  "irm" = "%1RM",
+}
 enum VisibilityEnum {
   only_myself = "Only Myself",
   staff_of_my_club = "Staff of My Club",
@@ -1122,17 +1126,17 @@ export interface ExerciseResponseServerViewType {
   exercise_name: string;
   visible_for?: VisibilityEnum;
   org_id?: number;
-  exercise_type?: ExerciseTypeEnum;
+  exercise_type: ExerciseTypeEnum;
   exercise_intensity?: IntensityEnum;
-  intensity_value?: number | null;
+  intensity_value: number | null;
   difficulty?: difficultyEnum;
   sets?: number | null;
-  seconds_per_set?: number[];
-  repetitions_per_set?: number[];
-  rest_between_set?: number[];
-  distance?: number | null;
-  speed?: number | null;
-  met_id?: number | null;
+  seconds_per_set: number[];
+  repetitions_per_set: number[];
+  rest_between_set: number[];
+  distance: number | null;
+  speed: number | null;
+  met_id: number | null;
   gif_url: string;
   video_url_male?: string;
   video_url_female?: string;
@@ -1166,4 +1170,15 @@ export interface deleteExerciseResponse {
 
 export interface deleteExerciseInput {
   id: number;
+}
+
+export interface Workout {
+  name: string;
+  description?: string;
+  visiblefor: string | undefined;
+  goal: string;
+  level: string;
+  weeks: number;
+  member_ids: number[];
+  img_url?: string;
 }

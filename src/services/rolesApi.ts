@@ -37,7 +37,7 @@ export const Roles = apiSlice.injectEndpoints({
       getAllResources: builder.query<TranformedResourceRsp, void>({
         query: () => ({
           url: `/role/resource`,
-          method: "GET",
+          method: "GET",  
           headers: {
             Accept: "application/json",
           },

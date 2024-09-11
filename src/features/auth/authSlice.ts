@@ -1,8 +1,5 @@
 import { getUserResource, loginUser } from "@/services/authService";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
-import { Console } from "console";
-
 interface User {
   id: number;
   first_name: string;
@@ -15,6 +12,7 @@ interface AuthState {
   userToken: string | null;
   userInfo: {
     user: User;
+    sidepanel: Array<any>;
   } | null;
   error: string | null;
   loading: boolean;
@@ -44,6 +42,7 @@ const authSlice = createSlice({
     logout: (state) => {
       localStorage.removeItem("userToken");
       localStorage.removeItem("userInfo");
+      localStorage.removeItem("sidepanel");
       state.userToken = null;
       state.userInfo = null;
       state.error = null;
@@ -59,14 +58,17 @@ const authSlice = createSlice({
     builder.addCase(login.pending, (state) => {
       state.loading = true;
       state.error = null;
-    });
+    }); 
     builder.addCase(login.fulfilled, (state, { payload }) => {
       state.loading = false;
       state.isLoggedIn = true;
-      state.userInfo = { user: payload.user };
+      state.userInfo = { user: payload.user, sidepanel: payload.sidepanel };
       state.userToken = payload.token.access_token;
       state.error = null;
+      const stringifiedData = JSON.stringify(payload.sidepanel);
+      const encodedData = btoa(stringifiedData);
       localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); // Set userInfo in local storage
+      localStorage.setItem("sidepanel", JSON.stringify({ sidepanel: encodedData })); // Set userInfo in local storage
       localStorage.setItem("userToken", payload.token.access_token); // Set userToken in local storage
     });
     builder.addCase(login.rejected, (state, { payload }) => {
@@ -85,15 +87,18 @@ export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password, rememberme }: loginParams, { rejectWithValue }) => {
     try {
+
       const {
         data,
       }: { data: { token: { access_token: string }; user?: any } } =
         await loginUser(email, password);
 
-      console.log({ data })
-      if (data.user.role_id) {
-        const { data: userRoles } = await getUserResource(data.user.role_id, data.token.access_token    )
-        console.log({ userRoles });
+      const { data: userRoles } = await getUserResource(data.user.role_id, data.token.access_token)
+      console.log({ userRoles });
+      if (userRoles) {
+        const stringifiedData = JSON.stringify(userRoles);
+        const encodedData = btoa(stringifiedData);
+        localStorage.setItem("sidepanel", encodedData);
       }
       localStorage.setItem("userToken", data.token?.access_token);
       if (rememberme) {
@@ -105,7 +110,7 @@ export const login = createAsyncThunk(
         if (localStorage.getItem("password") != null)
           localStorage.removeItem("password");
       }
-      return data;
+      return { ...data, sidepanel: userRoles };
     } catch (e: any) {
       console.log(e);
       localStorage.removeItem("password");

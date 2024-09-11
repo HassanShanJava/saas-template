@@ -20,8 +20,8 @@ interface NavItem {
   link: string;
   dropdown: boolean;
   icon:
-    | React.FC<React.SVGProps<SVGSVGElement>>
-    | React.FC<React.ImgHTMLAttributes<HTMLImageElement>>;
+  | React.FC<React.SVGProps<SVGSVGElement>>
+  | React.FC<React.ImgHTMLAttributes<HTMLImageElement>>;
   children?: any;
   hiddenRoutes?: string[];
 }
@@ -197,7 +197,16 @@ const navItems: NavItem[] = [
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
-
+  const sidepanel = JSON.parse(localStorage.getItem("sidepanel") as string).sidepanel ;
+  if (sidepanel) {
+    try {
+      const data = atob(sidepanel)
+      const decodedSidepanel = JSON.parse(data);
+      console.log({ decodedSidepanel });  
+    } catch (error) {
+      console.error("Error decoding Base64 string:", error);
+    }
+  }
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
   const isActiveLink = (

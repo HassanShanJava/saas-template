@@ -377,6 +377,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
       first_name: data.first_name.toLowerCase(),
       last_name: data.last_name.toLowerCase(),
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
+      email: data.email.toLowerCase(),
     };
     console.log("Updated data with only date:", updatedData);
     console.log("only once", data);

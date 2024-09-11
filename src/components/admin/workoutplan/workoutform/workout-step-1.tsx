@@ -66,9 +66,9 @@ const { VITE_VIEW_S3_URL } = import.meta.env;
 import uploadimg from "@/assets/upload.svg";
 
 const WorkoutStep1: React.FC = () => {
-  const dropzone = {
+  const dropzoneOptions = {
     accept: {
-      "image/*": [".jpg", ".jpeg", ".png"],
+      "image/": [".jpg", ".jpeg", ".png"],
     },
     multiple: true,
     maxFiles: 1,
@@ -81,17 +81,24 @@ const WorkoutStep1: React.FC = () => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { data: memberList } = useGetMembersListQuery(orgId);
-  const [files, setFiles] = useState<File[] | null>([]);
+  const fileInput = form.getValues("file");
+  const [files, setFiles] = useState<File[] | null>(fileInput ?? []);
+
   const {
     control,
     formState: { errors },
     register,
     watch,
+    setValue,
   } = form;
   console.log("errors", errors);
-  const fileWatcher = watch("img_url"); // Watch for profile_img field value
   const watcher = watch();
   const { trigger } = form;
+  const onFileChange = (value: File[] | null) => {
+    const fileArray = value ?? []; // Ensure it's an array
+    setFiles(fileArray);
+    setValue("file", fileArray);
+  };
   return (
     <FormProvider {...form}>
       <div className="mt-4 space-y-4">
@@ -290,53 +297,18 @@ const WorkoutStep1: React.FC = () => {
               </span>
             )}
           </div>
-          {/*<div className="p-4">
-						<div className="mb-4">
-							<div className="justify-center items-center flex flex-col">
-								<div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-									{selectedImage ? (
-										<img
-											src={URL.createObjectURL(selectedImage)}
-											alt="Selected"
-											className="h-full w-full object-cover"
-										/>
-									) : (
-										<ImageIcon className="w-12 h-12 text-gray-400" />
-									)}
-								</div>
-								<input
-									type="file"
-									accept="image/*"
-									onChange={handleImageChange}
-									className="hidden"
-									id="image-upload"
-								/>
-								<label htmlFor="image-upload">
-									<Button
-										variant="ghost"
-										className="mt-2 gap-2 border-dashed border-2 text-xs"
-									>
-										<FiUpload className="text-primary w-5 h-5" /> Image
-									</Button>
-								</label>
-							</div>
-						</div>
-					</div>*/}
           <div className="row-span-4 h-min">
             <div className="p-4">
               <div className="mb-4">
                 <Controller
-                  name={"img_url"}
+                  name={"file"}
                   control={control}
-                  render={({
-                    field: { onChange, value, onBlur },
-                    fieldState: { invalid, error },
-                  }) => (
+                  render={({ field }) => (
                     <div className="">
                       <FileUploader
                         value={files}
-                        onValueChange={setFiles}
-                        dropzoneOptions={dropzone}
+                        onValueChange={onFileChange}
+                        dropzoneOptions={dropzoneOptions}
                       >
                         {files &&
                           files?.map((file, i) => (
@@ -360,23 +332,23 @@ const WorkoutStep1: React.FC = () => {
 
                         <FileInput className="flex flex-col gap-2  ">
                           {files?.length == 0 && watcher?.img_url == null ? (
-                            <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
+                            <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md ">
                               <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
                             </div>
                           ) : (
                             files?.length == 0 &&
                             watcher?.img_url && (
-                              <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
+                              <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md ">
                                 <img
                                   src={
                                     watcher?.img_url !== "" && watcher?.img_url
                                       ? VITE_VIEW_S3_URL +
                                         "/" +
                                         watcher?.img_url
-                                      : ""
+                                      : watcher.img_url
                                   }
                                   loading="lazy"
-                                  className="object-contain max-h-[180px] "
+                                  className="object-contain max-h-[180px] m-5 border-t border-b"
                                 />
                               </div>
                             )
@@ -384,7 +356,7 @@ const WorkoutStep1: React.FC = () => {
                           <div className="flex items-center  justify-center gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
                             <img src={uploadimg} className="size-10" />
                             <span className="text-sm">
-                              {watcher.img_url
+                              {watcher.img_url || files?.length
                                 ? "Change Image"
                                 : "Upload Image"}
                             </span>

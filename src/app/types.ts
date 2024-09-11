@@ -1180,6 +1180,32 @@ export interface Workout {
   goals: string;
   level: string;
   weeks: number;
-  member_ids: number[];
   img_url?: string;
+  member_ids: number[];
+  file?: File[];
+}
+
+export interface workoutResponse {
+  status_code: string;
+  id: number;
+  message: string;
+}
+
+export interface WorkoutPlanView {
+  workout_name: string;
+  org_id: number;
+  description?: string;
+  visible_for: VisibilityEnum;
+  goals: string;
+  level: difficultyEnum;
+  notes?: string;
+  weeks: number;
+  image_url?: string;
+  id: number;
+}
+
+export interface WorkoutPlansTableResponse {
+  data: WorkoutPlanView[];
+  total_counts: number;
+  filtered_counts: number;
 }

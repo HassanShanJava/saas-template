@@ -490,6 +490,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
       first_name: data.first_name.toLowerCase(),
       last_name: data.last_name.toLowerCase(),
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
+      email: email.toLowerCase(),
     };
 
     console.log("Updated data with only date:", updatedData);

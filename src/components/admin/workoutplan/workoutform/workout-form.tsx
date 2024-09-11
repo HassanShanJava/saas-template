@@ -55,17 +55,21 @@ import { ErrorType, Workout } from "@/app/types";
 import { Outlet, useNavigate } from "react-router-dom";
 import StepperIndicator from "@/components/ui/stepper-indicator";
 import { useForm, UseFormHandleSubmit, UseFormReturn } from "react-hook-form";
+import { useAddWorkoutMutation } from "@/services/workoutService";
+import { processAndUploadImages } from "@/constants/workout";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
 export type ContextProps = { form: UseFormReturn<Workout> };
 const WorkoutPlanForm = () => {
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const navigate = useNavigate();
   const LAST_STEP = 2;
   const [activeStep, setActiveStep] = useState<number>(
     +location.pathname[location.pathname.length - 1]
   );
   const form = useForm<Workout>({
-    defaultValues: {
-      img_url: "abc",
-    },
+    defaultValues: {},
     mode: "all",
   });
   const {
@@ -98,9 +102,35 @@ const WorkoutPlanForm = () => {
     location.pathname
   );
 
-  async function onSubmit(data: any) {
+  const [createWorkout] = useAddWorkoutMutation();
+  async function onSubmit(data: Workout) {
     try {
-      console.log("data, data", data);
+      const fileInputObject = {
+        file: form.getValues("file"),
+      };
+      const ExistingImages = {
+        file: data.img_url,
+      };
+
+      console.log(
+        "New Image",
+        fileInputObject.file,
+        "existing one url",
+        ExistingImages.file
+      );
+      const result = await processAndUploadImages(
+        fileInputObject,
+        ExistingImages
+      );
+      console.log("data, data", data, "Image Url getting", result.img_url);
+      const payload = {
+        ...data,
+        img_url: result.img_url,
+        org_id: orgId,
+        workout_name: data.workout_name.toLowerCase(),
+      };
+      delete payload.file;
+      console.log("final Payload", payload);
     } catch (error: unknown) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -119,23 +149,16 @@ const WorkoutPlanForm = () => {
       }
     }
   }
-
-  const [workoutPlan, setworkoutPlan] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleButtonClick = () => {
-    fileInputRef.current?.click();
+  const onError = () => {
+    toast({
+      variant: "destructive",
+      description: "Please fill all the mandatory fields",
+    });
   };
-
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    setSelectedImage(file);
-  };
-
   const handleClose = () => {
     navigate("/admin/workoutplans");
   };
+
   return (
     <Sheet open={true}>
       <SheetContent
@@ -197,7 +220,7 @@ const WorkoutPlanForm = () => {
                         console.log("Step of action active", activeStep, data);
                         const newActive = activeStep + 1;
                         setActiveStep(newActive);
-                      })();
+                      }, onError)();
                     }}
                   >
                     <i className="fa fa-arrow-right-long "></i>

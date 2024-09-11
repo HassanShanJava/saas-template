@@ -681,6 +681,7 @@ const MemberForm = ({
                       label="Email Address*"
                       {...register("email", {
                         required: "Required",
+                        setValueAs: (value) => value.toLowerCase(),
                         maxLength: {
                           value: 50,
                           message: "Should be 50 characters or less",
@@ -1448,8 +1449,10 @@ const MemberForm = ({
                 <div className="flex flex-col items-center  justify-center gap-4">
                   <AlertDialogTitle className="text-lg font-medium w-full text-center">
                     The email is already registered in the system.
-                    <br /> 
-                    <span className="">Would you like to auto-fill the details?</span>
+                    <br />
+                    <span className="">
+                      Would you like to auto-fill the details?
+                    </span>
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

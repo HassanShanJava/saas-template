@@ -12,7 +12,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -37,51 +42,37 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, membeshipsTableType } from "@/app/types";
+import { ErrorType, Workout } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import WorkoutPlanForm from "../workoutform/workout-form";
 import { useNavigate } from "react-router-dom";
-
-// import { DataTableFacetedFilter } from "./data-table-faced-filter";
-
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-];
-
-const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
-  const csv = Papa.unparse(data);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
+import { initialValue, displayValue } from "@/utils/helper";
+interface searchCretiriaType {
+  limit: number;
+  offset: number;
+  sort_order: string;
+  sort_key?: string;
+  search: string;
+  goals?: string[];
+  visible_for?: string[];
+  level?: string;
+  exercise_type?: string;
+}
 export default function WorkoutPlansTableView() {
   const navigate = useNavigate();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  const [action, setAction] = useState<"add" | "edit">("add");
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
-  const handleCloseDailog = () => setIsDialogOpen(false);
 
   const [formData, setFormData] = useState({});
 
-  // const membershipstableData = React.useMemo(() => {
-  //   return Array.isArray(membershipsData) ? membershipsData : [];
-  // }, [membershipsData]);
 
   const { toast } = useToast();
 
-  // const [data, setData] = useState<membeshipsTableType|undefined>(undefined);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterID, setFilterID] = useState({});
   const [filters, setFilters] = useState<any>();
@@ -89,31 +80,49 @@ export default function WorkoutPlansTableView() {
   const [rowSelection, setRowSelection] = useState({});
   const [isClear, setIsClear] = useState(false);
   const [clearValue, setIsClearValue] = useState({});
-  
 
-  const handleExportSelected = () => {
-    const selectedRows = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original);
-    if (selectedRows.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Select atleast one row for CSV download!",
-      });
-      return;
-    }
-    downloadCSV(selectedRows, "selected_data.csv");
-  };
-
-  const columns: ColumnDef<membeshipsTableType>[] = [
+  const columns: ColumnDef<Workout>[] = [
     {
-      accessorKey: "name",
-      header: ({ table }) => <span>Name</span>,
+      accessorKey: "Plan name",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Plan Name</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            // onClick={() => toggleSortOrder("exercise_name")}
+          >
+            {/* searchCretiria.sort_order */}
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${"desc" == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-        return <span>any</span>;
+        return (
+          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
+            {/* {displayValue(row?.original?.exercise_name)} */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="capitalize cursor-pointer">
+                    {/* Display the truncated name */}
+                    {displayValue(
+                      `${row.original.workout_name}`.length > 8
+                        ? `${row.original.workout_name}`.substring(0, 8) + "..."
+                        : `${row.original.workout_name}`
+                    )}
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {/* Display the full name in the tooltip */}
+                  <p>{displayValue(`${row?.original?.workout_name}`)}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "visible_for",
@@ -155,7 +164,7 @@ export default function WorkoutPlansTableView() {
       accessorKey: "action",
       header: ({ table }) => <span>Action</span>,
       cell: ({ row }) => {
-        const { discount } = row.original;
+        // const { discount } = row.original;
 
         return <span>any</span>;
       },
@@ -186,7 +195,7 @@ export default function WorkoutPlansTableView() {
   }
 
   const handleOpen = () => {
-		navigate("/admin/workoutplans/add/step/1")
+    navigate("/admin/workoutplans/add/step/1");
   };
 
   return (
@@ -279,8 +288,6 @@ export default function WorkoutPlansTableView() {
           </Table>
         </ScrollArea>
       </div>
-
-      {/*<WorkoutPlanForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} />*/}
     </div>
   );
 }

@@ -96,3 +96,13 @@ export const coachMapper = ({
   "Last Check In": displayDateTime(check_in) || "",
   "Last Login": displayDateTime(last_online) || "",
 });
+
+export const initialValue = {
+  limit: 10,
+  offset: 0,
+  sort_order: "desc",
+  sort_key: "created_at",
+};
+
+export const displayValue = (value: string | undefined | null) =>
+  value == null || value == undefined || value.trim() == "" ? "N/A" : value;

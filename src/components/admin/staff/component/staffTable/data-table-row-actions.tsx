@@ -23,6 +23,8 @@ import { ErrorType, staffTypesResponseList } from "@/app/types";
 import { useNavigate } from "react-router-dom";
 import { useDeleteStaffMutation } from "@/services/staffsApi";
 import warning from "@/assets/warning.svg";
+import { RootState } from "@/app/store";
+import { useSelector } from "react-redux";
 
 export function DataTableRowActions({
   data,
@@ -33,6 +35,8 @@ export function DataTableRowActions({
   refetch: () => void;
   handleEdit: (staffData: staffTypesResponseList | null) => void;
 }) {
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+
   const [isdelete, setIsDelete] = React.useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -93,7 +97,7 @@ export function DataTableRowActions({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            <DropdownMenuItem onClick={() => setIsDelete(true)}>
+            <DropdownMenuItem disabled={userInfo?.user?.id==data.id} onClick={() => setIsDelete(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>

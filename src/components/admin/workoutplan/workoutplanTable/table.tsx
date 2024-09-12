@@ -43,6 +43,7 @@ import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import WorkoutPlanForm from "../workoutform/workout-form";
+import { useNavigate } from "react-router-dom";
 
 // import { DataTableFacetedFilter } from "./data-table-faced-filter";
 
@@ -63,6 +64,7 @@ const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
 };
 
 export default function WorkoutPlansTableView() {
+  const navigate = useNavigate();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -184,8 +186,7 @@ export default function WorkoutPlansTableView() {
   }
 
   const handleOpen = () => {
-    setAction("add");
-    setIsDialogOpen(true);
+		navigate("/admin/workoutplans/add/step/1")
   };
 
   return (
@@ -279,7 +280,7 @@ export default function WorkoutPlansTableView() {
         </ScrollArea>
       </div>
 
-      <WorkoutPlanForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} />
+      {/*<WorkoutPlanForm isOpen={isDialogOpen} setOpen={setIsDialogOpen} />*/}
     </div>
   );
 }

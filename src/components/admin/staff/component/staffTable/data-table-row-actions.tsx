@@ -97,7 +97,7 @@ export function DataTableRowActions({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            <DropdownMenuItem disabled={userInfo?.user?.id==data.id} onClick={() => setIsDelete(true)}>
+            <DropdownMenuItem disabled={userInfo?.user?.id == data.id} className="disabled:cursor-not-allowed" onClick={() => setIsDelete(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>

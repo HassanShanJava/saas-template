@@ -936,8 +936,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="p-0 relative -left-4" side="bottom">
-                          <Command>
+                        <PopoverContent className="p-0 relative " side="bottom">
+                          <Command className="w-full ">
                             <CommandList >
                               <CommandInput placeholder="Select Country" />
                               <CommandEmpty>No country found.</CommandEmpty>

@@ -15,38 +15,37 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import warning from "@/assets/warning.svg";
-
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { createMembershipType, ErrorType } from "@/app/types";
-import { useDeleteMembershipsMutation } from "@/services/membershipsApi";
+import { ErrorType, WorkoutPlanView } from "@/app/types";
 
 export function DataTableRowActions({
+  row,
   data,
   refetch,
   handleEdit,
 }: {
-  data: createMembershipType & { id: number };
+  row: number;
+  data: WorkoutPlanView & { id: number };
   refetch?: any;
   handleEdit?: any;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
-  const [deleteMembership, { isLoading: deleteLoading }] =
-    useDeleteMembershipsMutation();
+
   const { toast } = useToast();
 
   const deleteRow = async () => {
     try {
-      const resp = await deleteMembership(data.id).unwrap();
-      if (resp) {
-        refetch();
-        toast({
-          variant: "success",
-          title: "Deleted Successfully",
-        });
-      }
+      // const resp = await deleteMembership(data.id).unwrap();
+      // if (resp) {
+      //   refetch();
+      //   toast({
+      //     variant: "success",
+      //     title: "Deleted Successfully",
+      //   });
+      // }
       return;
     } catch (error) {
       console.error("Error", { error });
@@ -98,12 +97,11 @@ export function DataTableRowActions({
         <AlertDialog open={isdelete} onOpenChange={() => setIsDelete(false)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
                   <img src={warning} alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this membership
+                    Please confirm if you want to delete this workout
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

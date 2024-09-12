@@ -227,25 +227,27 @@ export default function MealPlansTableView() {
               <div className="size-14 bg-gray-100 rounded-sm"></div>
             )}
             <div className="">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <p className="capitalize cursor-pointer">
-                    <span>{displayValue(
-                      `${row.original.name}`.length > 8
-                        ? `${row.original.name}`.substring(0, 8) + "..."
-                        : `${row.original.name}`
-                    )}</span>
-                  </p>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="capitalize text-sm">
-                    {displayValue(`${row?.original?.name}`)}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="capitalize cursor-pointer">
+                      <span>
+                        {displayValue(
+                          `${row.original.name}`.length > 8
+                            ? `${row.original.name}`.substring(0, 8) + "..."
+                            : `${row.original.name}`
+                        )}
+                      </span>
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="capitalize text-sm">
+                      {displayValue(`${row?.original?.name}`)}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
         );
       },
@@ -275,57 +277,63 @@ export default function MealPlansTableView() {
     },
     {
       accessorKey: "carbs",
-      header: () => <div className="flex items-center gap-2">
-        <p>Carbs</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("carbs")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>,
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Carbs</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("carbs")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-        return <span>{row.original.carbs}</span>;
+        return <span>{row.original.carbs}%</span>;
       },
       enableSorting: false,
       enableHiding: false,
     },
     {
       accessorKey: "protein",
-      header: () => <div className="flex items-center gap-2">
-        <p>Protein</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("protein")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>,
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Protein</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("protein")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-        return <span>{row.original.protein}</span>;
+        return <span>{row.original.protein}%</span>;
       },
       enableSorting: false,
       enableHiding: false,
     },
     {
       accessorKey: "fats",
-      header: () => <div className="flex items-center gap-2">
-        <p>Name</p>
-        <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("name")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
-      </div>,
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Fats</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("name")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-        return <span>{row.original.fats}</span>;
+        return <span>{row.original.fats}%</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -370,7 +378,7 @@ export default function MealPlansTableView() {
   };
 
   const handleEdit = (data: mealPlanDataType) => {
-    console.log({ data }, 'edit modal')
+    console.log({ data }, "edit modal");
     const payload = {
       ...data,
       visible_for: visibleForMap[data.visible_for!],
@@ -425,8 +433,6 @@ export default function MealPlansTableView() {
       function: handleMembers,
     },
   ];
-
-
 
   const totalRecords = mealsData?.filtered_counts || 0;
   const lastPageOffset = Math.max(
@@ -516,9 +522,9 @@ export default function MealPlansTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

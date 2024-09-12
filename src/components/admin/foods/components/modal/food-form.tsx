@@ -250,7 +250,7 @@ const FoodForm = ({
                         <FloatingLabelInput
                           id={item.name}
                           className="capitalize"
-                          label={item.label + (item.required ? "*":"")}
+                          label={item.label + (item.required ? "*" : "")}
                           {...register(item.name as keyof CreateFoodTypes, {
                             required: item.required && "Required",
                             maxLength: {
@@ -286,7 +286,9 @@ const FoodForm = ({
                                 defaultValue={value as string | undefined}
                               >
                                 <SelectTrigger
-                                  floatingLabel={item.label + (item.required ? "*":"")}
+                                  floatingLabel={
+                                    item.label + (item.required ? "*" : "")
+                                  }
                                   name={item.name}
                                 >
                                   <SelectValue
@@ -312,13 +314,13 @@ const FoodForm = ({
                         />
                         {errors[item.name as keyof CreateFoodTypes]
                           ?.message && (
-                            <span className="text-red-500 text-xs mt-[5px]">
-                              {
-                                errors[item.name as keyof CreateFoodTypes]
-                                  ?.message
-                              }
-                            </span>
-                          )}
+                          <span className="text-red-500 text-xs mt-[5px]">
+                            {
+                              errors[item.name as keyof CreateFoodTypes]
+                                ?.message
+                            }
+                          </span>
+                        )}
                       </div>
                     );
                   }
@@ -420,8 +422,8 @@ const FoodForm = ({
                           }}
                           defaultValue={value}
                         >
-                          <SelectTrigger floatingLabel={"Weight Unit*"}>
-                            <SelectValue placeholder={"Select weight unit"} />
+                          <SelectTrigger floatingLabel={"Unit*"}>
+                            <SelectValue placeholder={"Select unit"} />
                           </SelectTrigger>
                           <SelectContent>
                             {weights.map((unit, i) => (
@@ -444,7 +446,7 @@ const FoodForm = ({
                 <div className="relative">
                   <FloatingLabelInput
                     id={"weight"}
-                    label={"Weight"}
+                    label={"value"}
                     type="number"
                     min={0}
                     step={0.01}
@@ -455,7 +457,7 @@ const FoodForm = ({
                       max: {
                         value: 1000,
                         message: `Value must be less than or equal to 1000`,
-                      }
+                      },
                     })}
                   />
                 </div>
@@ -485,7 +487,7 @@ const FoodForm = ({
                         min={0}
                         step={0.01}
                         id={item.name}
-                        label={item.label + (item.required ? "*":"")}
+                        label={item.label + (item.required ? "*" : "")}
                         error={
                           errors[item.name as keyof CreateFoodTypes]?.message
                         }
@@ -495,7 +497,7 @@ const FoodForm = ({
                           max: {
                             value: 1000,
                             message: `Value must be less than or equal to 1000`,
-                          }
+                          },
                         })}
                       />
                     </div>

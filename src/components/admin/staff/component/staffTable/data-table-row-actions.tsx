@@ -14,19 +14,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ErrorType, staffTypesResponseList } from "@/app/types";
-import { useNavigate } from "react-router-dom";
 import { useDeleteStaffMutation } from "@/services/staffsApi";
 import warning from "@/assets/warning.svg";
 import { useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/app/store";
-import { useDispatch } from "react-redux";
-import { logout } from "@/features/auth/authSlice";
+import { RootState } from "@/app/store";
 
 export function DataTableRowActions({
   data,
@@ -37,22 +33,10 @@ export function DataTableRowActions({
   refetch: () => void;
   handleEdit: (staffData: staffTypesResponseList | null) => void;
 }) {
-  const dispatch = useDispatch<AppDispatch>();
-  const handleLogout = () => {
-    dispatch(logout());
-    toast({
-      variant: "success",
-      title: "Logout",
-      description: "You are Successfully Logged Out",
-    });
-    navigate("/");
-  };
-
   const userId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.id) || 0;
   const [isdelete, setIsDelete] = React.useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const [deleteCoach, { isLoading: deletingcoach }] = useDeleteStaffMutation();
   const deleteRow = async () => {
@@ -68,9 +52,6 @@ export function DataTableRowActions({
           variant: "success",
           title: "Deleted Staff Successfully",
         });
-        if (userId === data.id) {
-          handleLogout();
-        }
       }
       return;
     } catch (error) {
@@ -131,12 +112,6 @@ export function DataTableRowActions({
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
                     Please confirm if you want to delete this Staff
                   </AlertDialogTitle>
-                  {userId === data.id && (
-                    <p className="text-red-500 text-base">
-                      {" "}
-                      Do you want to remove yourself as staff?
-                    </p>
-                  )}
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">
                   <AlertDialogCancel

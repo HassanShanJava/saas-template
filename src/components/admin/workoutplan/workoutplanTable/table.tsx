@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ColumnDef,
   PaginationState,
@@ -26,10 +26,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -42,7 +41,7 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, Workout } from "@/app/types";
+import { ErrorType, Workout, WorkoutPlanView } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
@@ -50,38 +49,123 @@ import Papa from "papaparse";
 import WorkoutPlanForm from "../workoutform/workout-form";
 import { useNavigate } from "react-router-dom";
 import { initialValue, displayValue } from "@/utils/helper";
-interface searchCretiriaType {
-  limit: number;
-  offset: number;
-  sort_order: string;
-  sort_key?: string;
-  search: string;
-  goals?: string[];
-  visible_for?: string[];
-  level?: string;
-  exercise_type?: string;
-}
+import { searchCritiriaType } from "@/constants/workout/index";
+import { useDebounce } from "@/hooks/use-debounce";
+import {
+  useGetAllWorkoutDayQuery,
+  visibleFor,
+  workoutGoals,
+} from "@/lib/constants/workout";
+import { skip } from "node:test";
+import { useGetAllWorkoutQuery } from "@/services/workoutService";
+import { Separator } from "@/components/ui/separator";
+import TableFilters from "@/components/ui/table/data-table-filter";
+import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 export default function WorkoutPlansTableView() {
   const navigate = useNavigate();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-
-
-
-  const [formData, setFormData] = useState({});
-
-
   const { toast } = useToast();
 
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [filterID, setFilterID] = useState({});
-  const [filters, setFilters] = useState<any>();
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
-  const [isClear, setIsClear] = useState(false);
-  const [clearValue, setIsClearValue] = useState({});
+  const [inputValue, setInputValue] = useState("");
+  const [openFilter, setOpenFilter] = useState(false);
+  const debouncedInputValue = useDebounce(inputValue, 500);
+  const [filterData, setFilter] = useState({});
 
-  const columns: ColumnDef<Workout>[] = [
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [searchCritiria, setSearchCritiria] =
+    useState<searchCritiriaType>(initialValue);
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    setSearchCritiria((prev) => {
+      const newCriteria = { ...prev };
+
+      if (debouncedInputValue.trim() !== "") {
+        newCriteria.search_key = debouncedInputValue;
+        newCriteria.offset = 0;
+        newCriteria.sort_order = "desc";
+      } else {
+        delete newCriteria.search_key;
+      }
+
+      return newCriteria;
+    });
+    console.log({ debouncedInputValue });
+  }, [debouncedInputValue, setSearchCritiria]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    // Iterate through the search criteria
+    for (const [key, value] of Object.entries(searchCritiria)) {
+      console.log("just checking here", [key, value]);
+      if (value !== undefined && value !== null) {
+        // Check if the value is an array
+        if (Array.isArray(value)) {
+          value.forEach((val) => {
+            params.append(key, val); // Append each array element as a separate query parameter
+          });
+        } else {
+          params.append(key, value); // For non-array values
+        }
+      }
+    }
+
+    // Create the final query string
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery); // Update the query state for API call
+  }, [searchCritiria]);
+
+  const toggleSortOrder = (key: string) => {
+    setSearchCritiria((prev) => {
+      const newSortOrder = "desc";
+      // prev.sort_key === key
+      //   ? prev.sort_order === "desc"
+      //     ? "asc"
+      //     : "desc"
+      //   : "desc";
+
+      return {
+        ...prev,
+        // sort_key: key,
+        sort_order: newSortOrder,
+      };
+    });
+  };
+
+  const {
+    data: workoutdata,
+    isLoading,
+    refetch,
+    error,
+    isError,
+  } = useGetAllWorkoutQuery(
+    {
+      org_id: orgId,
+      query: query,
+    },
+    {
+      skip: true, //query == "", need to do this
+    }
+  );
+
+  useEffect(() => {
+    if (isError) {
+      const typedError = error as ErrorType;
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: typedError.data?.detail ?? "Internal Server Error",
+      });
+    }
+  }, [isError]);
+
+  const WorkoutTableData = useMemo(() => {
+    return Array.isArray(workoutdata?.data) ? workoutdata?.data : [];
+  }, [workoutdata]);
+
+  const columns: ColumnDef<WorkoutPlanView>[] = [
     {
       accessorKey: "Plan name",
       header: () => (
@@ -89,11 +173,10 @@ export default function WorkoutPlansTableView() {
           <p>Plan Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            // onClick={() => toggleSortOrder("exercise_name")}
+            onClick={() => toggleSortOrder("plan_name")}
           >
-            {/* searchCretiria.sort_order */}
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${"desc" == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCritiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -101,12 +184,10 @@ export default function WorkoutPlansTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
-            {/* {displayValue(row?.original?.exercise_name)} */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <p className="capitalize cursor-pointer">
-                    {/* Display the truncated name */}
                     {displayValue(
                       `${row.original.workout_name}`.length > 8
                         ? `${row.original.workout_name}`.substring(0, 8) + "..."
@@ -115,7 +196,6 @@ export default function WorkoutPlansTableView() {
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {/* Display the full name in the tooltip */}
                   <p>{displayValue(`${row?.original?.workout_name}`)}</p>
                 </TooltipContent>
               </Tooltip>
@@ -125,48 +205,108 @@ export default function WorkoutPlansTableView() {
       },
     },
     {
+      accessorKey: "goals",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Goal</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("goal")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCritiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original?.goals)}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "level",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Level</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("goal")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCritiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original?.level)}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "visible_for",
-      header: ({ table }) => <span>Visible For</span>,
+      meta: "Visible For",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Visible For</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("visible_for")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCritiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-        return <span>any</span>;
+        return (
+          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row.original.visible_for)}
+          </div>
+        );
       },
-      enableSorting: false,
-      enableHiding: false,
     },
+
     {
-      accessorKey: "any",
-      header: ({ table }) => <span>any</span>,
+      accessorKey: "week",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Week(X)</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("week")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCritiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
       cell: ({ row }) => {
-        return <span>any</span>;
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original?.weeks.toString())}
+          </div>
+        );
       },
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      accessorKey: "any",
-      header: ({ table }) => <span>any</span>,
-      cell: ({ row }) => {
-        return <span>any</span>;
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      accessorKey: "any",
-      header: ({ table }) => <span>any</span>,
-      cell: ({ row }) => {
-        return <span>any</span>;
-      },
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "action",
-      header: ({ table }) => <span>Action</span>,
+      header: ({ table }) => <span>Actions</span>,
       cell: ({ row }) => {
-        // const { discount } = row.original;
-
-        return <span>any</span>;
+        <DataTableRowActions
+          row={row.original.id}
+          data={row?.original}
+          refetch={refetch}
+        />;
       },
       enableSorting: false,
       enableHiding: false,
@@ -174,46 +314,108 @@ export default function WorkoutPlansTableView() {
   ];
 
   const table = useReactTable({
-    data: [] as any[],
+    data: WorkoutTableData as WorkoutPlanView[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
-      columnVisibility,
-      rowSelection,
     },
   });
-
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
-  }
 
   const handleOpen = () => {
     navigate("/admin/workoutplans/add/step/1");
   };
+  const totalRecords = workoutdata?.filtered_counts || 0;
+  const lastPageOffset = Math.max(
+    0,
+    Math.floor((totalRecords - 1) / searchCritiria.limit) * searchCritiria.limit
+  );
+  const isLastPage = searchCritiria.offset >= lastPageOffset;
+  const nextPage = () => {
+    if (!isLastPage) {
+      setSearchCritiria((prev) => ({
+        ...prev,
+        offset: prev.offset + prev.limit,
+      }));
+    }
+  };
 
+  // Function to go to the previous page
+  const prevPage = () => {
+    setSearchCritiria((prev) => ({
+      ...prev,
+      offset: Math.max(0, prev.offset - prev.limit),
+    }));
+  };
+
+  // Function to go to the first page
+  const firstPage = () => {
+    setSearchCritiria((prev) => ({
+      ...prev,
+      offset: 0,
+    }));
+  };
+
+  // Function to go to the last page
+  const lastPage = () => {
+    if (!isLastPage) {
+      setSearchCritiria((prev) => ({
+        ...prev,
+        offset: lastPageOffset,
+      }));
+    }
+  };
+
+  const filterDisplay = [
+    {
+      type: "multiselect",
+      name: "Goals",
+      label: "Goals",
+      options: workoutGoals,
+    },
+    {
+      type: "select",
+      name: "visible_for",
+      label: "visible for",
+      options: visibleFor,
+    },
+  ];
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center justify-between px-4">
-        <div className="flex flex-1 items-center  ">
-          <p className="font-semibold text-2xl">Workout Plans</p>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+        <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
+          <div className="flex items-center relative w-full lg:w-auto">
+            <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
+            <FloatingLabelInput
+              id="search"
+              placeholder="Search by name"
+              onChange={(event) => setInputValue(event.target.value)}
+              className=" w-80 lg:w-64 pl-8 text-gray-400"
+            />
+          </div>
         </div>
-        <Button
-          className="bg-primary m-4 text-black gap-1 font-semibold"
-          onClick={handleOpen}
-        >
-          <PlusIcon className="h-4 w-4" />
-          Create New
-        </Button>
-        {/* <DataTableViewOptions table={table} action={handleExportSelected} /> */}
+
+        {/* Buttons Container */}
+        <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
+          <Button
+            className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
+            onClick={() => handleOpen}
+          >
+            <PlusIcon className="size-4" />
+            Create New
+          </Button>
+          <button
+            className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
+            onClick={() => setOpenFilter(true)}
+          >
+            <i className="fa fa-filter"></i>
+          </button>
+        </div>
       </div>
-      <div className="rounded-none  ">
+      <div className="rounded-none border border-border ">
         <ScrollArea className="w-full relative">
           <ScrollBar orientation="horizontal" />
           <Table className="w-full overflow-x-scroll">
@@ -265,7 +467,7 @@ export default function WorkoutPlansTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : false ? (
+              ) : WorkoutTableData.length > 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -288,6 +490,117 @@ export default function WorkoutPlansTableView() {
           </Table>
         </ScrollArea>
       </div>
+
+      {/* pagination */}
+      {WorkoutTableData.length > 0 && (
+        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">Items per page:</p>
+              <Select
+                value={searchCritiria.limit.toString()}
+                onValueChange={(value) => {
+                  const newSize = Number(value);
+                  setSearchCritiria((prev) => ({
+                    ...prev,
+                    limit: newSize,
+                    offset: 0, // Reset offset when page size changes
+                  }));
+                }}
+              >
+                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+                  <SelectValue>{searchCritiria.limit}</SelectValue>
+                </SelectTrigger>
+                <SelectContent side="bottom">
+                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={pageSize.toString()}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Separator
+              orientation="vertical"
+              className="h-11 w-[1px] bg-gray-300"
+            />
+            <span>
+              {" "}
+              {`${searchCritiria.offset + 1} - ${searchCritiria.limit} of ${workoutdata?.filtered_counts} Items  `}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center space-x-2">
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+                onClick={firstPage}
+                disabled={searchCritiria.offset === 0}
+              >
+                <DoubleArrowLeftIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[0.5px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={prevPage}
+                disabled={searchCritiria.offset === 0}
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+                onClick={nextPage}
+                disabled={isLastPage}
+              >
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+
+              <Separator
+                orientation="vertical"
+                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+              />
+
+              <Button
+                variant="outline"
+                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+                onClick={lastPage}
+                disabled={isLastPage}
+              >
+                <DoubleArrowRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <TableFilters
+        isOpen={openFilter}
+        setOpen={setOpenFilter}
+        initialValue={initialValue}
+        filterData={filterData}
+        setFilter={setFilter}
+        setSearchCriteria={setSearchCritiria}
+        filterDisplay={filterDisplay}
+      />
     </div>
   );
 }

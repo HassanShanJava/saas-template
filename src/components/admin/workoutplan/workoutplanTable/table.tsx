@@ -402,7 +402,7 @@ export default function WorkoutPlansTableView() {
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
           <Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
-            onClick={() => handleOpen}
+            onClick={() => handleOpen()}
           >
             <PlusIcon className="size-4" />
             Create New

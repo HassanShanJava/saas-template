@@ -2,12 +2,12 @@ import { WorkoutDay } from "@/components/admin/workoutplan/components/WorkoutDay
 import { useEffect, useState } from "react";
 
 export const visibleFor = [
-  { value: "Only Myself", name: "Only myself" },
-  { value: "Coaches Of My Gym", name: "Coaches of my gym" },
-  { value: "Members Of My Gym", name: "Members of my gym" },
+  { value: "Only Myself", label: "Only myself" },
+  { value: "Coaches Of My Gym", label: "Coaches of my gym" },
+  { value: "Members Of My Gym", label: "Members of my gym" },
   {
     value: "Everyone In My Gym",
-    name: "Everyone in my gym",
+    label: "Everyone in my gym",
   },
 ];
 

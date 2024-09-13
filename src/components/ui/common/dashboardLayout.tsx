@@ -87,113 +87,113 @@ const ManageIcon: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (
   props
 ) => <img {...props} src={event} alt="manage" />;
 
-const navItems: NavItem[] = [
-  {
-    name: "Dashboard",
-    link: "/admin/dashboard",
-    icon: DashBoardIcon,
-    dropdown: false,
-  },
-  {
-    name: "Members",
-    link: "/admin/members",
-    // hiddenRoutes: ["/admin/members/addmember", "/admin/members/editmember"],
-    icon: MultiUserIcon,
-    dropdown: false,
-  },
-  // {
-  //   name: "Leads",
-  //   link: "/admin/leads",
-  //   icon: RocketIcon,
-  //   dropdown: false,
-  // },
-  // {
-  //   name: "Events",
-  //   link: "/admin/events",
-  //   icon: EventsIcon,
-  //   dropdown: false,
-  // },
-  {
-    name: "Coach",
-    link: "/admin/coach",
-    icon: MultiUserIcon,
-    dropdown: false,
-    // hiddenRoutes: ["/admin/coach/addcoach", "/admin/coach/editcoach"],
-  },
-  {
-    name: "Exercise",
-    link: "/admin/exercise",
-    icon: IoIosFitness,
-    dropdown: false,
-    // hiddenRoutes: ["/admin/exercise/addexercise"],
-  },
-  // {
-  //   name: "Workout Plan",
-  //   link: "/admin/workoutplans",
-  //   icon: IoIosFitness,
-  //   dropdown: false,
-  // },
-  {
-    name: "Roles & Access Management",
-    link: "/admin/roles",
-    icon: EventsIcon,
-    dropdown: false,
-  },
-  {
-    name: "Meal Plans",
-    link: "/admin/mealplans",
-    icon: MdOutlineFoodBank,
-    dropdown: false,
-  },
-  {
-    name: "Food/ Nutrition",
-    link: "/admin/foods",
-    icon: MdOutlineFoodBank,
-    dropdown: false,
-  },
-  {
-    name: "Manage",
-    dropdown: true,
-    icon: ManageIcon,
-    link: "",
-    children: [
-      {
-        name: "Staff",
-        link: "/admin/staff",
-        icon: "fa fa-user",
-      },
-    ],
-    // hiddenRoutes: ["/admin/staff/addstaff", "/admin/staff/editstaff"],
-  },
-  {
-    name: "System Settings",
-    dropdown: true,
-    icon: MdSettingsSuggest,
-    link: "",
-    children: [
-      {
-        name: "Facilities",
-        link: "/admin/facilities",
-        icon: "fa fa-user",
-      },
-      {
-        name: "Sale Taxes",
-        link: "/admin/saleTaxes",
-        icon: "fa fa-user",
-      },
-      {
-        name: "Income Category",
-        link: "/admin/incomeCategory",
-        icon: "fa fa-user",
-      },
-      {
-        name: "Memberships",
-        link: "/admin/memberships",
-        icon: "fa fa-user",
-      },
-    ],
-  },
-];
+// const navItems: NavItem[] = [
+//   {
+//     name: "Dashboard",
+//     link: "/admin/dashboard",
+//     icon: DashBoardIcon,
+//     dropdown: false,
+//   },
+//   {
+//     name: "Members",
+//     link: "/admin/members",
+//     // hiddenRoutes: ["/admin/members/addmember", "/admin/members/editmember"],
+//     icon: MultiUserIcon,
+//     dropdown: false,
+//   },
+//   // {
+//   //   name: "Leads",
+//   //   link: "/admin/leads",
+//   //   icon: RocketIcon,
+//   //   dropdown: false,
+//   // },
+//   // {
+//   //   name: "Events",
+//   //   link: "/admin/events",
+//   //   icon: EventsIcon,
+//   //   dropdown: false,
+//   // },
+//   {
+//     name: "Coach",
+//     link: "/admin/coach",
+//     icon: MultiUserIcon,
+//     dropdown: false,
+//     // hiddenRoutes: ["/admin/coach/addcoach", "/admin/coach/editcoach"],
+//   },
+//   {
+//     name: "Exercise",
+//     link: "/admin/exercise",
+//     icon: IoIosFitness,
+//     dropdown: false,
+//     // hiddenRoutes: ["/admin/exercise/addexercise"],
+//   },
+//   // {
+//   //   name: "Workout Plan",
+//   //   link: "/admin/workoutplans",
+//   //   icon: IoIosFitness,
+//   //   dropdown: false,
+//   // },
+//   {
+//     name: "Roles & Access Management",
+//     link: "/admin/roles",
+//     icon: EventsIcon,
+//     dropdown: false,
+//   },
+//   {
+//     name: "Meal Plans",
+//     link: "/admin/mealplans",
+//     icon: MdOutlineFoodBank,
+//     dropdown: false,
+//   },
+//   {
+//     name: "Food/ Nutrition",
+//     link: "/admin/foods",
+//     icon: MdOutlineFoodBank,
+//     dropdown: false,
+//   },
+//   {
+//     name: "Manage",
+//     dropdown: true,
+//     icon: ManageIcon,
+//     link: "",
+//     children: [
+//       {
+//         name: "Staff",
+//         link: "/admin/staff",
+//         icon: "fa fa-user",
+//       },
+//     ],
+//     // hiddenRoutes: ["/admin/staff/addstaff", "/admin/staff/editstaff"],
+//   },
+//   {
+//     name: "System Settings",
+//     dropdown: true,
+//     icon: MdSettingsSuggest,
+//     link: "",
+//     children: [
+//       {
+//         name: "Facilities",
+//         link: "/admin/facilities",
+//         icon: "fa fa-user",
+//       },
+//       {
+//         name: "Sale Taxes",
+//         link: "/admin/saleTaxes",
+//         icon: "fa fa-user",
+//       },
+//       {
+//         name: "Income Category",
+//         link: "/admin/incomeCategory",
+//         icon: "fa fa-user",
+//       },
+//       {
+//         name: "Memberships",
+//         link: "/admin/memberships",
+//         icon: "fa fa-user",
+//       },
+//     ],
+//   },
+// ];
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
@@ -210,7 +210,25 @@ useEffect(() => {
     try {
       const decodedSidepanel = JSON.parse(atob(sidepanel));
       console.log({ decodedSidepanel });
-      setSidePanel(decodedSidepanel);
+      const filteredPanel = decodedSidepanel.filter((sidepanel:any) => {
+        // If the parent has no children, handle based on the parent's access_type
+        if (!sidepanel.children || sidepanel.children.length === 0) {
+          return sidepanel.access_type !== "no_access";
+        }
+      
+        // If the parent has children, filter out the children with access_type == "no_access"
+        const filteredChildren = sidepanel.children.filter((child:any) => child.access_type !== "no_access");
+      
+        // If after filtering, no children are left, we filter out the parent as well
+        if (filteredChildren.length === 0) {
+          return false; // Filter out the parent if all children have "no_access"
+        }
+      
+        // Otherwise, keep the parent and assign the filtered children
+        sidepanel.children = filteredChildren;
+        return true;
+      });
+      setSidePanel(filteredPanel);
     } catch (error) {
       console.error("Error decoding Base64 string:", error);
     }

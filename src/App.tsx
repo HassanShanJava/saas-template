@@ -68,8 +68,8 @@ function App() {
             <Route path="/admin/mealplans" element={<MealPlans />} />
             <Route path="/admin/foods" element={<FoodsNutrition />} />
             <Route path="/admin/workoutplans" element={<WorkoutPlan />} />
-            {/* <Route path="/admin/mealplans" element={<MealPlans />} />
-            <Route path="/admin/foods" element={<FoodsNutrition />} /> */}
+            <Route path="/admin/mealplans" element={<MealPlans />} />
+            <Route path="/admin/foods" element={<FoodsNutrition />} />
             {/* <Route path="/admin/workoutplans/" element={<WorkoutPlan />} >
 							<Route path="add/" element={<WorkoutPlanForm/>}>
 									<Route path="step/1" element={<WorkoutStep1/>}/>

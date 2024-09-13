@@ -69,7 +69,7 @@ const authSlice = createSlice({
       const stringifiedData = JSON.stringify(payload.sidepanel);
       const encodedData = btoa(stringifiedData);
       localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); // Set userInfo in local storage
-      localStorage.setItem("sidepanel", JSON.stringify({ sidepanel: encodedData })); // Set userInfo in local storage
+      localStorage.setItem("sidepanel", encodedData); // Set sidepanel in local storage
       localStorage.setItem("userToken", payload.token.access_token); // Set userToken in local storage
     });
     builder.addCase(login.rejected, (state, { payload }) => {

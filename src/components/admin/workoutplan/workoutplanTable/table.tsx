@@ -41,7 +41,13 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, Workout, WorkoutPlanView } from "@/app/types";
+import {
+  ErrorType,
+  MultiSelectOption,
+  Option,
+  Workout,
+  WorkoutPlanView,
+} from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
@@ -56,11 +62,13 @@ import {
   visibleFor,
   workoutGoals,
 } from "@/lib/constants/workout";
-import { skip } from "node:test";
 import { useGetAllWorkoutQuery } from "@/services/workoutService";
 import { Separator } from "@/components/ui/separator";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
+import { LevelsOptions, visibilityOptions } from "@/utils/Enums";
+import Pagination from "@/components/ui/table/pagination-table";
+import usePagination from "@/hooks/use-pagination";
 export default function WorkoutPlansTableView() {
   const navigate = useNavigate();
   const orgId =
@@ -120,15 +128,15 @@ export default function WorkoutPlansTableView() {
   const toggleSortOrder = (key: string) => {
     setSearchCritiria((prev) => {
       const newSortOrder = "desc";
-      // prev.sort_key === key
-      //   ? prev.sort_order === "desc"
-      //     ? "asc"
-      //     : "desc"
-      //   : "desc";
+      prev.sort_key === key
+        ? prev.sort_order === "desc"
+          ? "asc"
+          : "desc"
+        : "desc";
 
       return {
         ...prev,
-        // sort_key: key,
+        sort_key: key,
         sort_order: newSortOrder,
       };
     });
@@ -146,7 +154,7 @@ export default function WorkoutPlansTableView() {
       query: query,
     },
     {
-      skip: true, //query == "", need to do this
+      skip: query == "", //query == "", need to do this
     }
   );
 
@@ -234,7 +242,7 @@ export default function WorkoutPlansTableView() {
           <p>Level</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("goal")}
+            onClick={() => toggleSortOrder("level")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCritiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -328,59 +336,115 @@ export default function WorkoutPlansTableView() {
   const handleOpen = () => {
     navigate("/admin/workoutplans/add/step/1");
   };
+
   const totalRecords = workoutdata?.filtered_counts || 0;
-  const lastPageOffset = Math.max(
-    0,
-    Math.floor((totalRecords - 1) / searchCritiria.limit) * searchCritiria.limit
-  );
-  const isLastPage = searchCritiria.offset >= lastPageOffset;
-  const nextPage = () => {
-    if (!isLastPage) {
-      setSearchCritiria((prev) => ({
-        ...prev,
-        offset: prev.offset + prev.limit,
-      }));
-    }
-  };
+  const {
+    searchCriteria,
+    handleLimitChange,
+    handleNextPage,
+    handlePrevPage,
+    handleFirstPage,
+    handleLastPage,
+  } = usePagination({ totalRecords });
+  // const lastPageOffset = Math.max(
+  //   0,
+  //   Math.floor((totalRecords - 1) / searchCritiria.limit) * searchCritiria.limit
+  // );
+  // const isLastPage = searchCritiria.offset >= lastPageOffset;
+  // const nextPage = () => {
+  //   if (!isLastPage) {
+  //     setSearchCritiria((prev) => ({
+  //       ...prev,
+  //       offset: prev.offset + prev.limit,
+  //     }));
+  //   }
+  // };
 
-  // Function to go to the previous page
-  const prevPage = () => {
-    setSearchCritiria((prev) => ({
+  // // Function to go to the previous page
+  // const prevPage = () => {
+  //   setSearchCritiria((prev) => ({
+  //     ...prev,
+  //     offset: Math.max(0, prev.offset - prev.limit),
+  //   }));
+  // };
+
+  // // Function to go to the first page
+  // const firstPage = () => {
+  //   setSearchCritiria((prev) => ({
+  //     ...prev,
+  //     offset: 0,
+  //   }));
+  // };
+
+  // // Function to go to the last page
+  // const lastPage = () => {
+  //   if (!isLastPage) {
+  //     setSearchCritiria((prev) => ({
+  //       ...prev,
+  //       offset: lastPageOffset,
+  //     }));
+  //   }
+  // };
+
+  interface Filter {
+    visible_for?: string;
+    goals?: string[];
+    level?: string; // Keep this as string
+  }
+
+  type FilterDisplayItem =
+    | {
+        type: "select";
+        name: "visible_for" | "level";
+        label: string;
+        options?: Option[];
+        function: (value: string) => void;
+      }
+    | {
+        type: "multiselect";
+        name: "goals";
+        label: string;
+        options?: Option[];
+        function: (value: string[]) => void;
+      };
+
+  const handleFilterChange = <T extends keyof Filter>(
+    key: T,
+    value: Filter[T]
+  ) => {
+    setFilter((prev: Filter) => ({
       ...prev,
-      offset: Math.max(0, prev.offset - prev.limit),
+      [key]: value,
     }));
   };
 
-  // Function to go to the first page
-  const firstPage = () => {
-    setSearchCritiria((prev) => ({
-      ...prev,
-      offset: 0,
-    }));
-  };
-
-  // Function to go to the last page
-  const lastPage = () => {
-    if (!isLastPage) {
-      setSearchCritiria((prev) => ({
-        ...prev,
-        offset: lastPageOffset,
-      }));
-    }
-  };
-
-  const filterDisplay = [
+  const filterDisplay: FilterDisplayItem[] = [
     {
       type: "multiselect",
-      name: "Goals",
+      name: "goals",
       label: "Goals",
-      options: workoutGoals,
+      // options: workoutGoals.map((food) => ({ value: food.value, label: food.name })),
+      function: (value: string[]) => handleFilterChange("goals", value),
     },
     {
       type: "select",
       name: "visible_for",
-      label: "visible for",
-      options: visibleFor,
+      label: "Visible For",
+      options: visibleFor.map((item) => ({
+        id: item.value,
+        name: item.label,
+      })),
+      function: (value: string) => handleFilterChange("visible_for", value),
+    },
+    {
+      type: "select",
+      name: "level",
+      label: "Level",
+      options: LevelsOptions.map((item) => ({
+        id: item.value,
+        name: item.label,
+      })),
+      function: (value: string) => handleFilterChange("level", value),
     },
   ];
   return (
@@ -493,103 +557,113 @@ export default function WorkoutPlansTableView() {
 
       {/* pagination */}
       {WorkoutTableData.length > 0 && (
-        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium">Items per page:</p>
-              <Select
-                value={searchCritiria.limit.toString()}
-                onValueChange={(value) => {
-                  const newSize = Number(value);
-                  setSearchCritiria((prev) => ({
-                    ...prev,
-                    limit: newSize,
-                    offset: 0, // Reset offset when page size changes
-                  }));
-                }}
-              >
-                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-                  <SelectValue>{searchCritiria.limit}</SelectValue>
-                </SelectTrigger>
-                <SelectContent side="bottom">
-                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={pageSize.toString()}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Separator
-              orientation="vertical"
-              className="h-11 w-[1px] bg-gray-300"
-            />
-            <span>
-              {" "}
-              {`${searchCritiria.offset + 1} - ${searchCritiria.limit} of ${workoutdata?.filtered_counts} Items  `}
-            </span>
-          </div>
+        // <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+        //   <div className="flex items-center justify-center gap-2">
+        //     <div className="flex items-center gap-2">
+        //       <p className="text-sm font-medium">Items per page:</p>
+        //       <Select
+        //         value={searchCritiria.limit.toString()}
+        //         onValueChange={(value) => {
+        //           const newSize = Number(value);
+        //           setSearchCritiria((prev) => ({
+        //             ...prev,
+        //             limit: newSize,
+        //             offset: 0, // Reset offset when page size changes
+        //           }));
+        //         }}
+        //       >
+        //         <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+        //           <SelectValue>{searchCritiria.limit}</SelectValue>
+        //         </SelectTrigger>
+        //         <SelectContent side="bottom">
+        //           {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+        //             <SelectItem key={pageSize} value={pageSize.toString()}>
+        //               {pageSize}
+        //             </SelectItem>
+        //           ))}
+        //         </SelectContent>
+        //       </Select>
+        //     </div>
+        //     <Separator
+        //       orientation="vertical"
+        //       className="h-11 w-[1px] bg-gray-300"
+        //     />
+        //     <span>
+        //       {" "}
+        //       {`${searchCritiria.offset + 1} - ${searchCritiria.limit} of ${workoutdata?.filtered_counts} Items  `}
+        //     </span>
+        //   </div>
 
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center space-x-2">
-              <Separator
-                orientation="vertical"
-                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-              />
+        //   <div className="flex items-center justify-center gap-2">
+        //     <div className="flex items-center space-x-2">
+        //       <Separator
+        //         orientation="vertical"
+        //         className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+        //       />
 
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
-                onClick={firstPage}
-                disabled={searchCritiria.offset === 0}
-              >
-                <DoubleArrowLeftIcon className="h-4 w-4" />
-              </Button>
+        //       <Button
+        //         variant="outline"
+        //         className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
+        //         onClick={firstPage}
+        //         disabled={searchCritiria.offset === 0}
+        //       >
+        //         <DoubleArrowLeftIcon className="h-4 w-4" />
+        //       </Button>
 
-              <Separator
-                orientation="vertical"
-                className="h-11 w-[0.5px] bg-gray-300"
-              />
+        //       <Separator
+        //         orientation="vertical"
+        //         className="h-11 w-[0.5px] bg-gray-300"
+        //       />
 
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-                onClick={prevPage}
-                disabled={searchCritiria.offset === 0}
-              >
-                <ChevronLeftIcon className="h-4 w-4" />
-              </Button>
+        //       <Button
+        //         variant="outline"
+        //         className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+        //         onClick={prevPage}
+        //         disabled={searchCritiria.offset === 0}
+        //       >
+        //         <ChevronLeftIcon className="h-4 w-4" />
+        //       </Button>
 
-              <Separator
-                orientation="vertical"
-                className="h-11 w-[1px] bg-gray-300"
-              />
+        //       <Separator
+        //         orientation="vertical"
+        //         className="h-11 w-[1px] bg-gray-300"
+        //       />
 
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-                onClick={nextPage}
-                disabled={isLastPage}
-              >
-                <ChevronRightIcon className="h-4 w-4" />
-              </Button>
+        //       <Button
+        //         variant="outline"
+        //         className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
+        //         onClick={nextPage}
+        //         disabled={isLastPage}
+        //       >
+        //         <ChevronRightIcon className="h-4 w-4" />
+        //       </Button>
 
-              <Separator
-                orientation="vertical"
-                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-              />
+        //       <Separator
+        //         orientation="vertical"
+        //         className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+        //       />
 
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-                onClick={lastPage}
-                disabled={isLastPage}
-              >
-                <DoubleArrowRightIcon className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+        //       <Button
+        //         variant="outline"
+        //         className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
+        //         onClick={lastPage}
+        //         disabled={isLastPage}
+        //       >
+        //         <DoubleArrowRightIcon className="h-4 w-4" />
+        //       </Button>
+        //     </div>
+        //   </div>
+        // </div>
+        <Pagination
+          limit={searchCriteria.limit}
+          offset={searchCriteria.offset}
+          totalItems={totalRecords}
+          onLimitChange={handleLimitChange}
+          onNextPage={handleNextPage}
+          onPrevPage={handlePrevPage}
+          onFirstPage={handleFirstPage}
+          onLastPage={handleLastPage}
+        />
       )}
 
       <TableFilters

@@ -10,7 +10,7 @@ export interface searchCritiriaType {
   limit: number;
   offset: number;
   sort_order: string;
-  // sort_key?: string;
+  sort_key?: string;
   search_key?: string;
   goals?: string[];
   visible_for?: string[];

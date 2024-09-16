@@ -1209,3 +1209,13 @@ export interface WorkoutPlansTableResponse {
   total_counts: number;
   filtered_counts: number;
 }
+
+export type Option = {
+  id: string;
+  name: string;
+};
+
+export type MultiSelectOption = {
+  value: number;
+  label: string;
+};

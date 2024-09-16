@@ -345,7 +345,9 @@ export const Header = () => {
                   className="rounded-full"
                   alt="Avatar"
                 />
-                <h1 className="text-base">{userInfo?.user?.first_name}</h1>
+                <h1 className="text-base capitalize">
+                  {userInfo?.user?.first_name}
+                </h1>
                 <Button
                   variant="ghost"
                   size="icon"

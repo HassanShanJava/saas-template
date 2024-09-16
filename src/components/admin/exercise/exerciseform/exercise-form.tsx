@@ -903,7 +903,7 @@ const ExerciseForm = ({
               </div>
             </div>
             <div className="my-5">
-              <h1 className="font-bold text-xl">Exercise Type :</h1>
+              <h1 className="font-bold text-xl py-3">Exercise Type :</h1>
               {Exercise_info.map((item) => {
                 if (item.type === "radio") {
                   return (

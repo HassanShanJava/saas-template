@@ -1,6 +1,6 @@
 import DashboardLayout from "./components/ui/common/dashboardLayout";
 import AuthenticationPage from "./components/app/login/login";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Dashboard from "./components/admin/dashboard";
 import SystemSettings from "./components/admin/system_settings";
 import Leads from "./components/admin/leads";
@@ -16,11 +16,8 @@ import Memberships from "./components/admin/memberships";
 import RolesAndAccess from "./components/admin/roles";
 import Loader from "@/components/Loader";
 import MemberPage from "./components/admin/members";
-import MemberForm from "./components/admin/members/memberForm/form";
 import Staff from "./components/admin/staff";
-import StaffForm from "./components/admin/staff/staffForm/form";
 import Coach from "./components/admin/coach";
-import CoachForm from "./components/admin/coach/coachForm/form";
 import Exercise from "./components/admin/exercise";
 import MealPlans from "./components/admin/meal_plans";
 import FoodsNutrition from "./components/admin/foods";
@@ -46,7 +43,7 @@ function App() {
       <Routes>
         <Route path="/reset_password/:token" element={<ResetPassword />} />
         <Route path="/forgot_password" element={<ForgotPasword />} />
-        <Route path="/" element={<ProtectedRoute />}>
+        <Route path="/" element={<ProtectedRoute/>}>
           <Route path="/" index element={<AuthenticationPage />} />
           <Route element={<DashboardLayout />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
@@ -68,8 +65,6 @@ function App() {
             <Route path="/admin/mealplans" element={<MealPlans />} />
             <Route path="/admin/foods" element={<FoodsNutrition />} />
             <Route path="/admin/workoutplans" element={<WorkoutPlan />} />
-            <Route path="/admin/mealplans" element={<MealPlans />} />
-            <Route path="/admin/foods" element={<FoodsNutrition />} />
             {/* <Route path="/admin/workoutplans/" element={<WorkoutPlan />} >
 							<Route path="add/" element={<WorkoutPlanForm/>}>
 									<Route path="step/1" element={<WorkoutStep1/>}/>
@@ -77,7 +72,8 @@ function App() {
 							</Route>
 						</Route> */}
             {/*<Route path="/test" element={<Test />} />*/}
-            <Route path="*" element={<NotFoundPage />} />
+            <Route path="/notfound" element={<NotFoundPage />} />
+            <Route path="*" element={<Navigate to="/notfound" replace />} />
           </Route>
         </Route>
       </Routes>

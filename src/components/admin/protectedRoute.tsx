@@ -1,7 +1,11 @@
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import NotFoundPage from "../PageNotFound";
+import AuthenticationPage from "../app/login/login";
+import DashboardLayout from "../ui/common/dashboardLayout";
+import { extractLinks } from "@/utils/helper";
 
-const ProtectedRoute = () => {  
+const ProtectedRoute = () => {
   const [sidePanel, setSidePanel] = useState<string[]>([]);
   const sidepanel = localStorage.getItem("sidepanel");
 
@@ -35,14 +39,13 @@ const ProtectedRoute = () => {
       }
     }
   }, [sidepanel]);
-  
-  const navigate=useNavigate()
+
+  const navigate = useNavigate()
   const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const location = useLocation();
-  console.log({ sidePanel }, sidePanel.some(link=>link==location.pathname))
   // Redirect to login if not authenticated and trying to access a protected route
   if (!isAuthenticated && location.pathname !== "/") {
-    return <Navigate to="/" />;
+    return <AuthenticationPage />;
   }
 
   // Redirect to dashboard if authenticated and trying to access the login page
@@ -51,32 +54,19 @@ const ProtectedRoute = () => {
   }
 
   // Check if the current path is not in the links array and redirect to the first available link
-  if (isAuthenticated && !sidePanel.some(link=>link==location.pathname)) {
-    navigate("/notfound")
-    // window.location.assign('/notfound')
+  if (isAuthenticated) {
+    if (sidePanel.some(link => link == location.pathname)) {
+      return <Outlet />;
+    } else {
+      return <NotFoundPage />
+    }
   }
 
   return <Outlet />;
+
 };
 
 
-// Function to extract all links
-function extractLinks(data: any[]) {
-  let links: string[] = [];
-
-  data.forEach((item: any) => {
-    if (item.link && item.link != '/') {
-      links.push(item.link); // Add current link
-    }
-
-    // Recursively extract links from children if any
-    if (item.children && item.children.length > 0) {
-      links = links.concat(extractLinks(item.children));
-    }
-  });
-
-  return links;
-}
 
 
 export default ProtectedRoute;

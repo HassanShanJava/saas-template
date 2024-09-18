@@ -90,12 +90,13 @@ import { deleteCognitoImage, UploadCognitoImage } from "@/utils/lib/s3Service";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 const mealTypes = [
-  { key: "breakfast", label: "Breakfast" },
-  { key: "morning_snack", label: "Morning Snack" },
-  { key: "lunch", label: "Lunch" },
-  { key: "afternoon_snack", label: "Afternoon Snack" },
-  { key: "dinner", label: "Dinner" },
-  { key: "evening_snack", label: "Evening Snack" },
+  // made same for backend mapping according to enums
+  { key: "Breakfast", label: "Breakfast" },
+  { key: "Morning Snack", label: "Morning Snack" },
+  { key: "Lunch", label: "Lunch" },
+  { key: "Afternoon Snack", label: "Afternoon Snack" },
+  { key: "Dinner", label: "Dinner" },
+  { key: "Evening Snack", label: "Evening Snack" },
 ];
 
 const chartData = [
@@ -148,12 +149,13 @@ interface searchCretiriaType {
 }
 
 const initialMeal = {
-  breakfast: [],
-  morning_snack: [],
-  lunch: [],
-  afternoon_snack: [],
-  dinner: [],
-  evening_snack: [],
+  // changed according to enums
+  "Breakfast": [],
+  "Morning Snack": [],
+  "Lunch": [],
+  "Afternoon Snack": [],
+  "Dinner": [],
+  "Evening Snack": [],
 };
 
 const initialFoodValue = {
@@ -285,12 +287,12 @@ const MealPlanForm = ({
     const createMealsState = () => {
       // Initialize the state structure
       const mealsState: Record<string, any[]> = {
-        breakfast: [],
-        morning_snack: [],
-        lunch: [],
-        afternoon_snack: [],
-        dinner: [],
-        evening_snack: [],
+        "Breakfast": [],
+        "Morning Snack": [],
+        "Lunch": [],
+        "Afternoon Snack": [],
+        "Dinner": [],
+        "Evening Snack": [],
       };
 
       if (data?.meals) {
@@ -300,6 +302,7 @@ const MealPlanForm = ({
 
           if (foodDetails) {
             // Create the meal object with details
+            console.log(meal?.meal_time,"meal?.meal_time")
             const mealWithDetails = {
               name: foodDetails.name,
               quantity: meal.quantity,
@@ -311,7 +314,7 @@ const MealPlanForm = ({
             };
 
             // Add the meal to the corresponding meal time category
-            mealsState[meal?.meal_time].push(mealWithDetails);
+            // mealsState[meal?.meal_time].push(mealWithDetails);
           }
         });
       }
@@ -603,6 +606,7 @@ const MealPlanForm = ({
     );
   };
   const renderTableRow = (mealType: string) => {
+    console.log({ meals }, mealType)
     if (meals[mealType].length === 0) {
       return (
         <tr>
@@ -618,7 +622,7 @@ const MealPlanForm = ({
 
     return meals[mealType].map((meal, index) => (
       <tr key={index}>
-        <td className="p-3 w-96">{meal.name}</td>
+        <td className="p-3 w-96 capitalize">{meal.name}</td>
         <td className="p-3">{meal.quantity}</td>
         <td className="p-3">{meal.calories} kcal</td>
         <td className="p-3">{meal.carbs} g</td>
@@ -749,7 +753,7 @@ const MealPlanForm = ({
 
                           <FileInput className="flex flex-col gap-2  ">
                             {files?.length == 0 &&
-                            watcher?.profile_img == null ? (
+                              watcher?.profile_img == null ? (
                               <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
                                 <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
                               </div>
@@ -761,10 +765,10 @@ const MealPlanForm = ({
                                   <img
                                     src={
                                       watcher?.profile_img !== "" &&
-                                      watcher?.profile_img
+                                        watcher?.profile_img
                                         ? VITE_VIEW_S3_URL +
-                                          "/" +
-                                          watcher?.profile_img
+                                        "/" +
+                                        watcher?.profile_img
                                         : ""
                                     }
                                     loading="lazy"
@@ -813,7 +817,7 @@ const MealPlanForm = ({
                           </SelectTrigger>
                           <SelectContent>
                             {visibleFor.map((visiblity, index) => (
-                              <SelectItem key={index} value={visiblity.value}>
+                              <SelectItem key={index} value={visiblity.label}>
                                 {visiblity.label}
                               </SelectItem>
                             ))}

@@ -105,6 +105,8 @@ interface searchCretiriaType {
 }
 
 export default function FacilitiesTableView() {
+  const { facilities } = JSON.parse(localStorage.getItem("accessLevels") as string)
+
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -254,6 +256,20 @@ export default function FacilitiesTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
+  const actionsColumn: ColumnDef<creditTablestypes> = {
+    id: "actions",
+    header: "Actions",
+    maxSize: 100,
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={facilities}
+        data={row.original}
+        refetch={refetch}
+        handleEdit={handleEditCredit}
+      />
+    ),
+  };
+
   const columns: ColumnDef<creditTablestypes>[] = [
     {
       accessorKey: "name",
@@ -371,18 +387,7 @@ export default function FacilitiesTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      id: "actions",
-      header: "Actions",
-      maxSize: 100,
-      cell: ({ row }) => (
-        <DataTableRowActions
-          data={row.original}
-          refetch={refetch}
-          handleEdit={handleEditCredit}
-        />
-      ),
-    },
+    ...(facilities !== "read" ? [actionsColumn] : []),  
   ];
 
   const table = useReactTable({
@@ -474,13 +479,13 @@ export default function FacilitiesTableView() {
         <div className="flex flex-1 items-center  ">
           <p className="font-semibold text-2xl">Facilities</p>
         </div>
-        <Button
+        {facilities !== "read" && <Button
           className="bg-primary m-4 text-black font-semibold gap-1"
           onClick={handleAddCredit}
         >
           <PlusIcon className="h-4 w-4 " />
           Create New
-        </Button>
+        </Button>}
       </div>
       <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
@@ -498,9 +503,9 @@ export default function FacilitiesTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -903,7 +908,7 @@ const CreditForm = ({
                             label="Min Requred Limit*"
                             value={value}
                             onChange={handleOnChange}
-                            // error={error?.message??""}
+                          // error={error?.message??""}
                           />
                           <FormMessage />
                         </FormItem>
@@ -928,11 +933,10 @@ const CreditForm = ({
                                 <SelectValue placeholder="">
                                   <span className="flex gap-2 items-center">
                                     <span
-                                      className={`w-2 h-2 rounded-full ${
-                                        field.value == "active"
+                                      className={`w-2 h-2 rounded-full ${field.value == "active"
                                           ? "bg-green-500"
                                           : "bg-blue-500"
-                                      }`}
+                                        }`}
                                     ></span>
                                     {field.value == "active"
                                       ? "Active"

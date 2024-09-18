@@ -89,6 +89,7 @@ const initialValue = {
 };
 
 export default function ExerciseTableView() {
+  const { exercise } = JSON.parse(localStorage.getItem("accessLevels") as string)
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isOpen, setOpen] = useState(false);
   const orgId =
@@ -258,6 +259,20 @@ export default function ExerciseTableView() {
     setIsDialogOpen(true);
   };
 
+  const actionsColumn: ColumnDef<ExerciseResponseViewType> = {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={exercise}
+        row={row.original.id}
+        data={row?.original}
+        refetch={refetch}
+        hanleEditExercise={handleEditExercise}
+      />
+    ),
+  };
+
   const columns: ColumnDef<ExerciseResponseViewType>[] = [
     {
       accessorKey: "exercise_name",
@@ -287,7 +302,7 @@ export default function ExerciseTableView() {
                     {displayValue(
                       `${row.original.exercise_name}`.length > 8
                         ? `${row.original.exercise_name}`.substring(0, 8) +
-                            "..."
+                        "..."
                         : `${row.original.exercise_name}`
                     )}
                   </p>
@@ -422,18 +437,7 @@ export default function ExerciseTableView() {
         );
       },
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <DataTableRowActions
-          row={row.original.id}
-          data={row?.original}
-          refetch={refetch}
-          hanleEditExercise={handleEditExercise}
-        />
-      ),
-    },
+    ...(exercise !== "read" ? [actionsColumn] : []),
   ];
   const table = useReactTable({
     data: ExerciseTableData as ExerciseResponseViewType[],
@@ -550,13 +554,13 @@ export default function ExerciseTableView() {
 
           {/* Buttons Container */}
           <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-            <Button
+            {exercise!=="read" &&<Button
               className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
               onClick={handleRoute}
             >
               <PlusIcon className="size-4" />
               Create New
-            </Button>
+            </Button>}
             {/* <DataTableViewOptions table={table} /> */}
             <button
               className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
@@ -582,9 +586,9 @@ export default function ExerciseTableView() {
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                         </TableHead>
                       );
                     })}

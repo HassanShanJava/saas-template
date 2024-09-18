@@ -40,6 +40,7 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
 import { DataTableViewOptions } from "./data-table-view-options";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
@@ -95,6 +96,7 @@ const initialValue = {
 };
 
 export default function CoachTableView() {
+  const { coach } = JSON.parse(localStorage.getItem("accessLevels") as string)
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const orgName = useSelector(
@@ -249,6 +251,19 @@ export default function CoachTableView() {
     });
   };
 
+  const actionsColumn: ColumnDef<CoachTableDataTypes> = {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={coach}
+        data={row.original}
+        refetch={refetch}
+        handleEdit={handleOpenForm}
+      />
+    ),
+  }
+
   const columns: ColumnDef<CoachTableDataTypes>[] = [
     {
       id: "select",
@@ -342,9 +357,9 @@ export default function CoachTableView() {
                         `${row.original.first_name} ${row.original.last_name}`
                           .length > 8
                           ? `${row.original.first_name} ${row.original.last_name}`.substring(
-                              0,
-                              8
-                            ) + "..."
+                            0,
+                            8
+                          ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -499,17 +514,8 @@ export default function CoachTableView() {
         );
       },
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <DataTableRowActions
-          data={row.original}
-          refetch={refetch}
-          handleEdit={handleOpenForm}
-        />
-      ),
-    },
+    ...(coach !== "read" ? [actionsColumn] : []),
+
   ];
   const table = useReactTable({
     data: coachTableData as CoachTableDataTypes[],
@@ -625,13 +631,13 @@ export default function CoachTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
+          {coach !== "read" && <Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={() => handleOpenForm()}
           >
             <PlusIcon className="size-4" />
             Create New
-          </Button>
+          </Button>}
           <DataTableViewOptions table={table} action={handleExportSelected} />
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
@@ -658,9 +664,9 @@ export default function CoachTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

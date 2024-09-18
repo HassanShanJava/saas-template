@@ -64,13 +64,13 @@
     return (
       <div className="font-poppins flex h-full w-full relative ">
         <div
-          className={`bg-white border-r text-black shadow-md transition-all duration-300 ${isSidebarOpen ? "w-72" : "w-16"} max-h-screen custom-scrollbar-right `}
+          className={`bg-white border-r text-black shadow-md transition-all duration-300  max-h-screen custom-scrollbar-right ${isSidebarOpen ? "w-full max-w-[275px]" : "max-w-16"}`}
         >
           <div
             style={{ direction: "ltr" }}
             className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white "
           >
-            <Link to="#" className="flex items-center gap-2 font-semibold">
+            <Link to="#" className="flex items-center gap-2 font-semibold ">
               <img
                 src={dashboardsvg}
                 className={`h-8 w-9 ${!isSidebarOpen && "hidden"}`}
@@ -90,7 +90,7 @@
           </div>
           <nav
             style={{ direction: "ltr" }}
-            className="flex flex-col gap-1 px-2 py-2 "
+            className="flex flex-col gap-2 px-2 py-2 "
           >
             {sidePanel && sidePanel?.map((item: any, i: number) => (
               <>
@@ -98,10 +98,10 @@
                   <Link
                     key={i}
                     to={item.link}
-                    className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors hover:bg-primary ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-primary" : ""}`}
+                    className={`flex items-center gap-2 rounded-md p-1 transition-colors hover:bg-primary ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-primary" : ""}`}
                   >
                     <div
-                      className={` w-8 h-8 ${isActiveLink(item.link) ? "bg-[#3ED13E]" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
+                      className={` w-7 h-7 ${isActiveLink(item.link) ? "bg-[#3ED13E]" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
                     >
                       <i
                         className={`${item.icon} text-md ${isActiveLink(item.link) ? "" : "text-gray-500 stroke-current"}`}
@@ -118,11 +118,11 @@
                     <Accordion type="single" collapsible>
                       <AccordionItem value="item-1 !border-none" id="accordion">
                         <AccordionTrigger
-                          className={`flex items-center gap-2 rounded-md px-3 py-2 transition-colors !no-underline ${isSidebarOpen ? "justify-between text-sm" : "justify-center text-lg "} `}
+                          className={`flex items-center gap-2 rounded-md p-1 transition-colors !no-underline ${isSidebarOpen ? "justify-between text-sm" : "justify-center text-lg "} `}
                         >
                           <div className="flex items-center gap-2">
                             <div
-                              className={`w-8 h-8 bg-gray-100 rounded-lg justify-center flex items-center`}
+                              className={`w-7 h-7 bg-gray-100 rounded-lg justify-center flex items-center`}
                             >
                               <i
                                 className={`${item.icon} w-4 h-4 text-gray-500 stroke-current`}
@@ -156,10 +156,10 @@
             )}
           </nav>
         </div>
-        <div className="relative flex-1 max-h-screen w-[80%]">
+        <div className="relative flex-1 max-h-screen w-[calc(100%-275px)]">
           <Header />
-          <main className="p-0 bg-outletcolor overflow-y-auto h-[90vh] relative">
-            <div className="2xl:max-w-[1400px] mx-auto 4xl:max-w-[2200px]">
+          <main className=" bg-outletcolor overflow-y-auto h-[90vh] relative">
+            <div className="   2xl:max-w-[1400px] mx-auto 4xl:max-w-[2200px]">
               <Outlet />
               <Toaster />
             </div>

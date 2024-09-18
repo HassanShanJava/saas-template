@@ -103,6 +103,8 @@ interface searchCretiriaType {
 }
 
 export default function MembershipsTableView() {
+  const { membership } = JSON.parse(localStorage.getItem("accessLevels") as string)
+
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>(initialValue);
@@ -281,6 +283,21 @@ export default function MembershipsTableView() {
     setAction("edit");
     setIsDialogOpen(true);
   };
+
+  const actionsColumn: ColumnDef<membeshipsTableType> = {
+    id: "actions",
+    header: "Actions",
+    maxSize: 100,
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={membership}
+        data={row.original}
+        refetch={refetch}
+        handleEdit={handleEditMembership}
+      />
+    ),
+  };
+
 
   const columns: ColumnDef<membeshipsTableType>[] = [
     {
@@ -533,18 +550,7 @@ export default function MembershipsTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      id: "actions",
-      header: "Actions",
-      maxSize: 100,
-      cell: ({ row }) => (
-        <DataTableRowActions
-          data={row.original}
-          refetch={refetch}
-          handleEdit={handleEditMembership}
-        />
-      ),
-    },
+    ...(membership !== "read" ? [actionsColumn] : []),  
   ];
 
   const table = useReactTable({
@@ -732,13 +738,13 @@ export default function MembershipsTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
+          {membership !== "read" && <Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={handleOpen}
           >
             <PlusIcon className="size-4" />
             Create New
-          </Button>
+          </Button>}
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}

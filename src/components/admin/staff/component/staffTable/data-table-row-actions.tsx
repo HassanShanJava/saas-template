@@ -30,10 +30,12 @@ export function DataTableRowActions({
   data,
   refetch,
   handleEdit,
+  access
 }: {
   data: staffTypesResponseList & { id: number };
   refetch: () => void;
   handleEdit: (staffData: staffTypesResponseList | null) => void;
+  access: string
 }) {
   const { userInfo } = useSelector((state: RootState) => state.auth);
 
@@ -97,10 +99,10 @@ export function DataTableRowActions({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            <DropdownMenuItem disabled={userInfo?.user?.id == data.id} className="disabled:cursor-not-allowed" onClick={() => setIsDelete(true)}>
+            {access == "full_access" && <DropdownMenuItem disabled={userInfo?.user?.id == data.id} className="disabled:cursor-not-allowed" onClick={() => setIsDelete(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
-            </DropdownMenuItem>
+            </DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
       </Dialog>

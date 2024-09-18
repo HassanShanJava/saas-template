@@ -299,7 +299,7 @@ const FoodForm = ({
                                     (st: any, index: number) => (
                                       <SelectItem
                                         key={index}
-                                        value={String(st.value)}
+                                        value={String(st.label)}
                                       >
                                         {st.label}
                                       </SelectItem>

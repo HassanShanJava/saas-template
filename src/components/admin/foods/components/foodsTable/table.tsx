@@ -90,11 +90,11 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  // sort_key: "created_at",
   sort_key: "id",
 };
 
 export default function FoodsTableView() {
+  const { food } = JSON.parse(localStorage.getItem("accessLevels") as string)
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -198,6 +198,21 @@ export default function FoodsTableView() {
       return;
     }
     downloadCSV(selectedRows, "selected_data.csv");
+  };
+
+  const actionsColumn: ColumnDef<CreateFoodTypes> = {
+    accessorKey: "action",
+    header: ({ table }) => <span>Action</span>,
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={food}
+        handleEdit={handleEdit}
+        data={row.original}
+        refetch={refetch}
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
   };
 
   const columns: ColumnDef<CreateFoodTypes>[] = [
@@ -387,19 +402,7 @@ export default function FoodsTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: "action",
-      header: ({ table }) => <span>Action</span>,
-      cell: ({ row }) => (
-        <DataTableRowActions
-          handleEdit={handleEdit}
-          data={row.original}
-          refetch={refetch}
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+    ...(food !== "read" ? [actionsColumn] : []),
   ];
 
   const table = useReactTable({
@@ -432,7 +435,6 @@ export default function FoodsTableView() {
     setAction("edit");
     const payload = {
       ...data,
-      category: categoryMap[data.category!],
       visible_for: visibleForMap[data.visible_for!],
       weight_unit: weightsMap[data.weight_unit!],
     };
@@ -524,7 +526,7 @@ export default function FoodsTableView() {
       type: "select",
       name: "category",
       label: "Food Category",
-      options: categories.map((item) => ({ id: item.value, name: item.label })),
+      options: categories.map((item) => ({ id: item.label, name: item.label })),
       function: handleCategory,
     },
     {
@@ -558,13 +560,13 @@ export default function FoodsTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
+          {food !=="read"&&<Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={handleOpen}
           >
             <PlusIcon className="size-4" />
             Create New
-          </Button>
+          </Button>}
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}

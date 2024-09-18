@@ -113,10 +113,10 @@ export function DataTableRowActions({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            <DropdownMenuItem onClick={() => setIsDelete(true)}>
+            {access=="coach"&&<DropdownMenuItem onClick={() => setIsDelete(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
-            </DropdownMenuItem>
+            </DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
       </Dialog>

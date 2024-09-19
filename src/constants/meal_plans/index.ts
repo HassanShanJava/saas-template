@@ -13,3 +13,14 @@ export const planFor = [
   { value: "dinner", label: "Dinner" },
   { value: "evening_snack", label: "Evening Snack" },
 ];
+
+
+export const mealTypes = [
+  // made same for backend mapping according to enums
+  { key: "breakfast", label: "Breakfast" },
+  { key: "morning_snack", label: "Morning Snack" },
+  { key: "lunch", label: "Lunch" },
+  { key: "afternoon_snack", label: "Afternoon Snack" },
+  { key: "dinner", label: "Dinner" },
+  { key: "evening_snack", label: "Evening Snack" },
+];

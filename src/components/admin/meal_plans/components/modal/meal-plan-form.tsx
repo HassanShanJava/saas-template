@@ -6,7 +6,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { visibleFor } from "@/constants/meal_plans";
+import { visibleFor, mealTypes } from "@/constants/meal_plans";
 
 import {
   Form,
@@ -89,16 +89,6 @@ import {
 import { deleteCognitoImage, UploadCognitoImage } from "@/utils/lib/s3Service";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
-const mealTypes = [
-  // made same for backend mapping according to enums
-  { key: "Breakfast", label: "Breakfast" },
-  { key: "Morning Snack", label: "Morning Snack" },
-  { key: "Lunch", label: "Lunch" },
-  { key: "Afternoon Snack", label: "Afternoon Snack" },
-  { key: "Dinner", label: "Dinner" },
-  { key: "Evening Snack", label: "Evening Snack" },
-];
-
 const chartData = [
   { food_component: "protein", percentage: 0, fill: "#8BB738" },
   { food_component: "fats", percentage: 0, fill: "#E8A239" },
@@ -150,12 +140,12 @@ interface searchCretiriaType {
 
 const initialMeal = {
   // changed according to enums
-  "Breakfast": [],
-  "Morning Snack": [],
-  "Lunch": [],
-  "Afternoon Snack": [],
-  "Dinner": [],
-  "Evening Snack": [],
+  "breakfast": [],
+  "morning_snack": [],
+  "lunch": [],
+  "afternoon_snack": [],
+  "dinner": [],
+  "evening_snack": [],
 };
 
 const initialFoodValue = {
@@ -212,7 +202,6 @@ const MealPlanForm = ({
   useEffect(() => {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(searchCretiria)) {
-      console.log({ key, value });
       if (value !== undefined && value !== null && value !== "all") {
         params.append(key, value);
       }
@@ -287,12 +276,12 @@ const MealPlanForm = ({
     const createMealsState = () => {
       // Initialize the state structure
       const mealsState: Record<string, any[]> = {
-        "Breakfast": [],
-        "Morning Snack": [],
-        "Lunch": [],
-        "Afternoon Snack": [],
-        "Dinner": [],
-        "Evening Snack": [],
+        "breakfast": [],
+        "morning_snack": [],
+        "lunch": [],
+        "afternoon_snack": [],
+        "dinner": [],
+        "evening_snack": [],
       };
 
       if (data?.meals) {
@@ -302,7 +291,6 @@ const MealPlanForm = ({
 
           if (foodDetails) {
             // Create the meal object with details
-            console.log(meal?.meal_time,"meal?.meal_time")
             const mealWithDetails = {
               name: foodDetails.name,
               quantity: meal.quantity,
@@ -314,7 +302,7 @@ const MealPlanForm = ({
             };
 
             // Add the meal to the corresponding meal time category
-            // mealsState[meal?.meal_time].push(mealWithDetails);
+            mealsState[meal?.meal_time].push(mealWithDetails);
           }
         });
       }
@@ -324,7 +312,6 @@ const MealPlanForm = ({
 
     if (action == "edit" && data) {
       const mealsState = createMealsState();
-      console.log({ mealsState });
       setMeals(mealsState);
       reset(data as mealPlanDataType);
       setPieChart([
@@ -606,7 +593,6 @@ const MealPlanForm = ({
     );
   };
   const renderTableRow = (mealType: string) => {
-    console.log({ meals }, mealType)
     if (meals[mealType].length === 0) {
       return (
         <tr>
@@ -868,7 +854,6 @@ const MealPlanForm = ({
                           }
                           defaultValue={watch("member_id") || []} // Ensure defaultValue is always an array
                           onValueChange={(selectedValues) => {
-                            console.log("Selected Values: ", selectedValues); // Debugging step
                             onChange(selectedValues); // Pass selected values to state handler
                           }}
                           placeholder={"Select members"}

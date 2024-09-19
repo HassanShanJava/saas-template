@@ -1,4 +1,4 @@
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
   ExpandedState,
@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getRolesType,  resourceTypes } from "@/app/types";
+import { getRolesType, resourceTypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RootState, AppDispatch } from "@/app/store";
 import { useSelector, useDispatch } from "react-redux";
@@ -34,6 +34,8 @@ import { useGetResourcesQuery, useGetRolesQuery } from "@/services/rolesApi";
 import { RoleForm } from "./../../roleform/form";
 
 export default function RoleTableView() {
+  const { role } = JSON.parse(localStorage.getItem("accessLevels") as string)
+
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [expanded, setExpanded] = useState<ExpandedState>(true);
@@ -49,8 +51,8 @@ export default function RoleTableView() {
 
   const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(
     undefined
-  ); 
-  
+  );
+
   const {
     data: resourceData,
     isLoading,
@@ -253,7 +255,7 @@ export default function RoleTableView() {
             </Select>
           </div>
           <div className="">
-            <Button
+            {role !== "read" && <Button
               variant={"outline"}
               className={`gap-1 justify-center text-gray-500 font-normal border-primary items-center flex px-3 disabled:cursor-not-allowed`}
               disabled={!selectedRoleId}
@@ -261,16 +263,16 @@ export default function RoleTableView() {
             >
               <i className="fa-regular fa-edit h-4 w-4"></i>
               Edit
-            </Button>
+            </Button>}
           </div>
         </div>
-        <Button
+        {role !== "read" && <Button
           className="bg-primary m-4 text-black gap-1 "
           onClick={handleAddRole}
         >
           <PlusIcon className="h-4 w-4" />
           Create New
-        </Button>
+        </Button>}
       </div>
       {isRoleFound ? (
         <div className="rounded-none border border-border ">
@@ -285,9 +287,9 @@ export default function RoleTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     ))}
                   </TableRow>

@@ -244,7 +244,7 @@ const FoodForm = ({
 
                 <SelectContent>
                   {planFor?.map((st: any, index: number) => (
-                    <SelectItem key={index} value={st.label}>
+                    <SelectItem key={index} value={st.value}>
                       {st.label}
                     </SelectItem>
                   ))}

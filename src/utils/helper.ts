@@ -4,31 +4,21 @@ import {
   staffTypesResponseList,
 } from "@/app/types";
 import Papa from "papaparse";
+import { formatInTimeZone } from "date-fns-tz";
 export const displayDate = (value: any) => {
-  if (value == null) return "N/A";
-
-  const date = new Date(value);
-
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-
-  return `${day}-${month}-${year}`;
+  if (!value) return "N/A";
+  const utcDate = new Date(value);
+  const pkOffset = 5 * 60;
+  const localTime = new Date(utcDate.getTime() + pkOffset * 60 * 1000);
+  return formatInTimeZone(localTime, "Asia/Karachi", "dd-MMM-yyyy");
 };
 
 export const displayDateTime = (value: any) => {
-  if (value == null) return "N/A";
-
-  const date = new Date(value);
-
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${day}-${month}-${year} ${hours}:${minutes}`;
+  if (!value) return "N/A";
+  const utcDate = new Date(value);
+  const pkOffset = 5 * 60;
+  const localTime = new Date(utcDate.getTime() + pkOffset * 60 * 1000);
+  return formatInTimeZone(localTime, "Asia/Karachi", "dd-MMM-yyyy hh:mma");
 };
 
 export const downloadCSV = <T>(

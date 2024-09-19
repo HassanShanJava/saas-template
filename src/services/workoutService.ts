@@ -42,6 +42,18 @@ export const workoutApi = apiSlice.injectEndpoints({
           "content-Type": "application/json",
         },
       }),
+      invalidatesTags: ["Workout"],
+    }),
+    updateWorkout: builder.mutation<any, any>({
+      query: () => ({
+        url: "/workout",
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }),
+      invalidatesTags: ["Workout"],
     }),
   }),
 });

@@ -219,7 +219,7 @@ export default function WorkoutPlansTableView() {
           <p>Goal</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("goal")}
+            onClick={() => toggleSortOrder("goals")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -355,7 +355,7 @@ export default function WorkoutPlansTableView() {
   interface Filter {
     visible_for?: string;
     goals?: string[];
-    level?: string; // Keep this as string
+    level?: string;
   }
 
   type FilterDisplayItem =
@@ -370,7 +370,7 @@ export default function WorkoutPlansTableView() {
         type: "multiselect";
         name: "goals";
         label: string;
-        options?: Option[];
+        options?: { value: string; label: string }[];
         function: (value: string[]) => void;
       };
 
@@ -384,12 +384,25 @@ export default function WorkoutPlansTableView() {
     }));
   };
 
+  const handleFilterChangeGoal = <T extends keyof Filter>(
+    key: T,
+    labels: Filter[T]
+  ) => {
+    setFilter((prev: Filter) => ({
+      ...prev,
+      [key]: labels,
+    }));
+  };
   const filterDisplay: FilterDisplayItem[] = [
     {
       type: "multiselect",
       name: "goals",
       label: "Goals",
-      function: (value: string[]) => handleFilterChange("goals", value),
+      options: workoutGoals.map((item) => ({
+        value: item.label,
+        label: item.label,
+      })),
+      function: (labels: string[]) => handleFilterChangeGoal("goals", labels),
     },
     {
       type: "select",

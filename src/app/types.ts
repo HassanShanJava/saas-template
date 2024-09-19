@@ -1185,6 +1185,17 @@ export interface Workout {
   file?: File[];
 }
 
+export interface Workoutupdate {
+  id: number;
+  workout_name: string;
+  description?: string;
+  goals: string;
+  img_url?: string;
+  level: string;
+  visible_for: string | undefined;
+  weeks: number;
+  member: number[];
+}
 export interface workoutResponse {
   status_code: string;
   id: number;
@@ -1216,6 +1227,6 @@ export type Option = {
 };
 
 export type MultiSelectOption = {
-  value: number;
+  name: number;
   label: string;
 };

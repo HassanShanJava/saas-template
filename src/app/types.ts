@@ -1206,8 +1206,8 @@ export interface WorkoutPlanView {
 
 export interface WorkoutPlansTableResponse {
   data: WorkoutPlanView[];
-  total_counts: number;
-  filtered_counts: number;
+  total_count: number;
+  filtered_count: number;
 }
 
 export type Option = {

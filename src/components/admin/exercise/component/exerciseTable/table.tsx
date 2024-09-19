@@ -435,6 +435,7 @@ export default function ExerciseTableView() {
       ),
     },
   ];
+  
   const table = useReactTable({
     data: ExerciseTableData as ExerciseResponseViewType[],
     columns,

@@ -32,7 +32,22 @@ export const workoutApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Workout"],
     }),
+    deleteWorkout: builder.mutation<number, number>({
+      query: (workoutid) => ({
+        url: `/workout/${workoutid}`,
+        method: "DELETE",
+        body: workoutid,
+        headers: {
+          Accept: "application/json",
+          "content-Type": "application/json",
+        },
+      }),
+    }),
   }),
 });
 
-export const { useAddWorkoutMutation, useGetAllWorkoutQuery } = workoutApi;
+export const {
+  useAddWorkoutMutation,
+  useGetAllWorkoutQuery,
+  useDeleteWorkoutMutation,
+} = workoutApi;

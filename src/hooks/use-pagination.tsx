@@ -1,21 +1,21 @@
 import { useState } from "react";
 
-type PaginationParams = {
-  limit?: number;
+type PaginationParams<T> = {
   totalRecords: number;
+  searchCriteria: T;
+  setSearchCriteria: React.Dispatch<React.SetStateAction<T>>;
 };
 
-const usePagination = ({ limit = 10, totalRecords }: PaginationParams) => {
-  const [searchCriteria, setSearchCriteria] = useState({
-    limit,
-    offset: 0,
-  });
-
+const usePagination = <T extends { limit: number; offset: number }>({
+  totalRecords,
+  searchCriteria,
+  setSearchCriteria,
+}: PaginationParams<T>) => {
   const handleLimitChange = (newLimit: number) => {
     setSearchCriteria((prev) => ({
       ...prev,
       limit: newLimit,
-      offset: 0,
+      offset: 0, // Reset offset on limit change
     }));
   };
 
@@ -47,10 +47,10 @@ const usePagination = ({ limit = 10, totalRecords }: PaginationParams) => {
     }));
   };
 
-  const isLastPage = searchCriteria.offset + searchCriteria.limit >= totalRecords;
+  const isLastPage =
+    searchCriteria.offset + searchCriteria.limit >= totalRecords;
 
   return {
-    searchCriteria,
     handleLimitChange,
     handleNextPage,
     handlePrevPage,

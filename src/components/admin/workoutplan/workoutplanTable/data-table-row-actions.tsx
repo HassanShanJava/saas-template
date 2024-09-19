@@ -20,6 +20,7 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ErrorType, WorkoutPlanView } from "@/app/types";
+import { useDeleteWorkoutMutation } from "@/services/workoutService";
 
 export function DataTableRowActions({
   row,
@@ -35,17 +36,18 @@ export function DataTableRowActions({
   const [isdelete, setIsDelete] = React.useState(false);
 
   const { toast } = useToast();
-
+  const [deleteWorkout, { isLoading: isdeletingWorkout }] =
+    useDeleteWorkoutMutation();
   const deleteRow = async () => {
     try {
-      // const resp = await deleteMembership(data.id).unwrap();
-      // if (resp) {
-      //   refetch();
-      //   toast({
-      //     variant: "success",
-      //     title: "Deleted Successfully",
-      //   });
-      // }
+      const resp = await deleteWorkout(data.id).unwrap();
+      if (resp) {
+        refetch();
+        toast({
+          variant: "success",
+          title: "Deleted Successfully",
+        });
+      }
       return;
     } catch (error) {
       console.error("Error", { error });

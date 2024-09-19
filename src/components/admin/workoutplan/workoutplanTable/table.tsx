@@ -43,9 +43,8 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import {
   ErrorType,
-  MultiSelectOption,
   Option,
-  Workout,
+  WorkoutPlansTableResponse,
   WorkoutPlanView,
 } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
@@ -81,12 +80,12 @@ export default function WorkoutPlansTableView() {
   const [filterData, setFilter] = useState({});
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [searchCritiria, setSearchCritiria] =
+  const [searchCriteria, setSearchCriteria] =
     useState<searchCritiriaType>(initialValue);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    setSearchCritiria((prev) => {
+    setSearchCriteria((prev) => {
       const newCriteria = { ...prev };
 
       if (debouncedInputValue.trim() !== "") {
@@ -100,12 +99,12 @@ export default function WorkoutPlansTableView() {
       return newCriteria;
     });
     console.log({ debouncedInputValue });
-  }, [debouncedInputValue, setSearchCritiria]);
+  }, [debouncedInputValue, setSearchCriteria]);
 
   useEffect(() => {
     const params = new URLSearchParams();
     // Iterate through the search criteria
-    for (const [key, value] of Object.entries(searchCritiria)) {
+    for (const [key, value] of Object.entries(searchCriteria)) {
       console.log("just checking here", [key, value]);
       if (value !== undefined && value !== null) {
         // Check if the value is an array
@@ -123,10 +122,10 @@ export default function WorkoutPlansTableView() {
     const newQuery = params.toString();
     console.log({ newQuery });
     setQuery(newQuery); // Update the query state for API call
-  }, [searchCritiria]);
+  }, [searchCriteria]);
 
   const toggleSortOrder = (key: string) => {
-    setSearchCritiria((prev) => {
+    setSearchCriteria((prev) => {
       const newSortOrder = "desc";
       prev.sort_key === key
         ? prev.sort_order === "desc"
@@ -170,7 +169,7 @@ export default function WorkoutPlansTableView() {
   }, [isError]);
 
   const WorkoutTableData = useMemo(() => {
-    return Array.isArray(workoutdata?.data) ? workoutdata?.data : [];
+    return (workoutdata?.data ?? []) as WorkoutPlanView[];
   }, [workoutdata]);
 
   const columns: ColumnDef<WorkoutPlanView>[] = [
@@ -184,12 +183,13 @@ export default function WorkoutPlansTableView() {
             onClick={() => toggleSortOrder("plan_name")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCritiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
       ),
       cell: ({ row }) => {
+        console.log("row", row);
         return (
           <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
             <TooltipProvider>
@@ -222,7 +222,7 @@ export default function WorkoutPlansTableView() {
             onClick={() => toggleSortOrder("goal")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCritiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -245,7 +245,7 @@ export default function WorkoutPlansTableView() {
             onClick={() => toggleSortOrder("level")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCritiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -269,7 +269,7 @@ export default function WorkoutPlansTableView() {
             onClick={() => toggleSortOrder("visible_for")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCritiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -293,7 +293,7 @@ export default function WorkoutPlansTableView() {
             onClick={() => toggleSortOrder("week")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCritiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -310,11 +310,13 @@ export default function WorkoutPlansTableView() {
       accessorKey: "action",
       header: ({ table }) => <span>Actions</span>,
       cell: ({ row }) => {
-        <DataTableRowActions
-          row={row.original.id}
-          data={row?.original}
-          refetch={refetch}
-        />;
+        return (
+          <DataTableRowActions
+            row={row.original.id}
+            data={row?.original}
+            refetch={refetch}
+          />
+        );
       },
       enableSorting: false,
       enableHiding: false,
@@ -337,55 +339,19 @@ export default function WorkoutPlansTableView() {
     navigate("/admin/workoutplans/add/step/1");
   };
 
-  const totalRecords = workoutdata?.filtered_counts || 0;
+  const totalRecords = workoutdata?.filtered_count || 0;
   const {
-    searchCriteria,
     handleLimitChange,
     handleNextPage,
     handlePrevPage,
     handleFirstPage,
     handleLastPage,
-  } = usePagination({ totalRecords });
-  // const lastPageOffset = Math.max(
-  //   0,
-  //   Math.floor((totalRecords - 1) / searchCritiria.limit) * searchCritiria.limit
-  // );
-  // const isLastPage = searchCritiria.offset >= lastPageOffset;
-  // const nextPage = () => {
-  //   if (!isLastPage) {
-  //     setSearchCritiria((prev) => ({
-  //       ...prev,
-  //       offset: prev.offset + prev.limit,
-  //     }));
-  //   }
-  // };
-
-  // // Function to go to the previous page
-  // const prevPage = () => {
-  //   setSearchCritiria((prev) => ({
-  //     ...prev,
-  //     offset: Math.max(0, prev.offset - prev.limit),
-  //   }));
-  // };
-
-  // // Function to go to the first page
-  // const firstPage = () => {
-  //   setSearchCritiria((prev) => ({
-  //     ...prev,
-  //     offset: 0,
-  //   }));
-  // };
-
-  // // Function to go to the last page
-  // const lastPage = () => {
-  //   if (!isLastPage) {
-  //     setSearchCritiria((prev) => ({
-  //       ...prev,
-  //       offset: lastPageOffset,
-  //     }));
-  //   }
-  // };
-
+    isLastPage,
+  } = usePagination<searchCritiriaType>({
+    totalRecords,
+    searchCriteria,
+    setSearchCriteria,
+  });
   interface Filter {
     visible_for?: string;
     goals?: string[];
@@ -423,7 +389,6 @@ export default function WorkoutPlansTableView() {
       type: "multiselect",
       name: "goals",
       label: "Goals",
-      // options: workoutGoals.map((food) => ({ value: food.value, label: food.name })),
       function: (value: string[]) => handleFilterChange("goals", value),
     },
     {
@@ -447,6 +412,14 @@ export default function WorkoutPlansTableView() {
       function: (value: string) => handleFilterChange("level", value),
     },
   ];
+
+  console.log(
+    "workout data",
+    workoutdata?.data,
+    WorkoutTableData,
+    "Total Records",
+    { totalRecords }
+  );
   return (
     <div className="w-full space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
@@ -481,7 +454,10 @@ export default function WorkoutPlansTableView() {
       </div>
       <div className="rounded-none border border-border ">
         <ScrollArea className="w-full relative">
-          <ScrollBar orientation="horizontal" />
+          <ScrollBar
+            orientation="horizontal"
+            className="relative z-30 cursor-grab"
+          ></ScrollBar>
           <Table className="w-full overflow-x-scroll">
             <TableHeader className="bg-secondary/80">
               {table?.getHeaderGroups().map((headerGroup) => (
@@ -502,7 +478,7 @@ export default function WorkoutPlansTableView() {
               ))}
             </TableHeader>
             <TableBody>
-              {true ? (
+              {isLoading ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -531,13 +507,13 @@ export default function WorkoutPlansTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : WorkoutTableData.length > 0 ? (
+              ) : WorkoutTableData.length == 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No data found.
+                    No workout added yet.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -546,7 +522,7 @@ export default function WorkoutPlansTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No records found.
+                    No worktout found.
                   </TableCell>
                 </TableRow>
               )}
@@ -557,103 +533,6 @@ export default function WorkoutPlansTableView() {
 
       {/* pagination */}
       {WorkoutTableData.length > 0 && (
-        // <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
-        //   <div className="flex items-center justify-center gap-2">
-        //     <div className="flex items-center gap-2">
-        //       <p className="text-sm font-medium">Items per page:</p>
-        //       <Select
-        //         value={searchCritiria.limit.toString()}
-        //         onValueChange={(value) => {
-        //           const newSize = Number(value);
-        //           setSearchCritiria((prev) => ({
-        //             ...prev,
-        //             limit: newSize,
-        //             offset: 0, // Reset offset when page size changes
-        //           }));
-        //         }}
-        //       >
-        //         <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-        //           <SelectValue>{searchCritiria.limit}</SelectValue>
-        //         </SelectTrigger>
-        //         <SelectContent side="bottom">
-        //           {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-        //             <SelectItem key={pageSize} value={pageSize.toString()}>
-        //               {pageSize}
-        //             </SelectItem>
-        //           ))}
-        //         </SelectContent>
-        //       </Select>
-        //     </div>
-        //     <Separator
-        //       orientation="vertical"
-        //       className="h-11 w-[1px] bg-gray-300"
-        //     />
-        //     <span>
-        //       {" "}
-        //       {`${searchCritiria.offset + 1} - ${searchCritiria.limit} of ${workoutdata?.filtered_counts} Items  `}
-        //     </span>
-        //   </div>
-
-        //   <div className="flex items-center justify-center gap-2">
-        //     <div className="flex items-center space-x-2">
-        //       <Separator
-        //         orientation="vertical"
-        //         className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-        //       />
-
-        //       <Button
-        //         variant="outline"
-        //         className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
-        //         onClick={firstPage}
-        //         disabled={searchCritiria.offset === 0}
-        //       >
-        //         <DoubleArrowLeftIcon className="h-4 w-4" />
-        //       </Button>
-
-        //       <Separator
-        //         orientation="vertical"
-        //         className="h-11 w-[0.5px] bg-gray-300"
-        //       />
-
-        //       <Button
-        //         variant="outline"
-        //         className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-        //         onClick={prevPage}
-        //         disabled={searchCritiria.offset === 0}
-        //       >
-        //         <ChevronLeftIcon className="h-4 w-4" />
-        //       </Button>
-
-        //       <Separator
-        //         orientation="vertical"
-        //         className="h-11 w-[1px] bg-gray-300"
-        //       />
-
-        //       <Button
-        //         variant="outline"
-        //         className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-        //         onClick={nextPage}
-        //         disabled={isLastPage}
-        //       >
-        //         <ChevronRightIcon className="h-4 w-4" />
-        //       </Button>
-
-        //       <Separator
-        //         orientation="vertical"
-        //         className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-        //       />
-
-        //       <Button
-        //         variant="outline"
-        //         className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-        //         onClick={lastPage}
-        //         disabled={isLastPage}
-        //       >
-        //         <DoubleArrowRightIcon className="h-4 w-4" />
-        //       </Button>
-        //     </div>
-        //   </div>
-        // </div>
         <Pagination
           limit={searchCriteria.limit}
           offset={searchCriteria.offset}
@@ -672,7 +551,7 @@ export default function WorkoutPlansTableView() {
         initialValue={initialValue}
         filterData={filterData}
         setFilter={setFilter}
-        setSearchCriteria={setSearchCritiria}
+        setSearchCriteria={setSearchCriteria}
         filterDisplay={filterDisplay}
       />
     </div>

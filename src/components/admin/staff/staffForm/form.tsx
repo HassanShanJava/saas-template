@@ -869,66 +869,72 @@ const StaffForm: React.FC<StaffFormProps> = ({
                       field: { onChange, value, onBlur },
                       fieldState: { invalid, error },
                     }) => (
-                      <FormItem className="w-full">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className="w-full hover:bg-transparent border-[1px] shadow-sm"
-                                disabled={userInfo?.user?.id == watcher.id}
-                              >
-                                <span className="w-full text-left font-normal">
+                      <div className="relative w-full">
+                        <span className="absolute p-0 text-xs font-light text-gray-900 left-3 -top-1.5  px-1 bg-white">
+                          Role Name*
+                        </span>
+                        <FormItem className=" w-full">
 
-                                  {value
-                                    ? roleData?.find(
-                                      (role) =>
-                                        role.id === value
-                                    )?.name
-                                    : "Select Role*"}
-                                </span>
-                                <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="p-0 relative " side="bottom">
-                            <Command className="w-full ">
-                              <CommandList >
-                                <CommandInput placeholder="Select Country" />
-                                <CommandEmpty>No country found.</CommandEmpty>
-                                <CommandGroup className="">
-                                  {roleData &&
-                                    roleData.filter(role => role.name !== "Admin").map((role: any) => (
-                                      <CommandItem
-                                        value={role.id}
-                                        key={role.id}
-                                        onSelect={() => {
-                                          setValue(
-                                            "role_id",
-                                            role.id // Set country_id to country.id as number
-                                          );
-                                        }}
-                                      >
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                            role.id == value
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          )}
-                                        />
-                                        {role.name}
-                                        {/* Display the country name */}
-                                      </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        {watcher.role_id ? <></> : <FormMessage />}
-                      </FormItem>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className="w-full hover:bg-transparent border-[1px] shadow-sm"
+                                  disabled={userInfo?.user?.id == watcher.id}
+                                >
+                                  <span className="w-full text-left font-normal">
+
+                                    {value
+                                      ? roleData?.find(
+                                        (role) =>
+                                          role.id === value
+                                      )?.name
+                                      : "Select Role*"}
+                                  </span>
+                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="p-0 relative " side="bottom">
+                              <Command className="w-full ">
+                                <CommandList >
+                                  <CommandInput placeholder="Select Role" />
+                                  <CommandEmpty>No country found.</CommandEmpty>
+                                  <CommandGroup className="">
+                                    {roleData &&
+                                      roleData.filter(role => role.name !== "Admin").map((role: any) => (
+                                        <CommandItem
+                                          value={role.id}
+                                          key={role.id}
+                                          onSelect={() => {
+                                            setValue(
+                                              "role_id",
+                                              role.id // Set country_id to country.id as number
+                                            );
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                              role.id == value
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                          {role.name}
+                                          {/* Display the country name */}
+                                        </CommandItem>
+                                      ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          {watcher.role_id ? <></> : <FormMessage />}
+                        </FormItem>
+                      </div>
                     )}
                   />
 
@@ -936,7 +942,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild className="hover:cursor-pointer">
-                          <Info className="size-5"/>
+                          <Info className="size-5" />
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
                           Staff cannot edit there own role

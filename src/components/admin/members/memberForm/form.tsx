@@ -38,7 +38,7 @@ import {
   MultiSelectorTrigger,
 } from "@/components/ui/multiselect/multiselect";
 import { Switch } from "@/components/ui/switch";
-import React, { act, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";

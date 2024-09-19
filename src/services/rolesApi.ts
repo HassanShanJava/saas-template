@@ -37,7 +37,7 @@ export const Roles = apiSlice.injectEndpoints({
       getAllResources: builder.query<TranformedResourceRsp, void>({
         query: () => ({
           url: `/role/resource`,
-          method: "GET",
+          method: "GET",  
           headers: {
             Accept: "application/json",
           },
@@ -57,7 +57,7 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
           body: roledata,
-          providesTags: ["Roles"],
+          invalidatesTags: ["Roles"],
         }),
       }),
       updateRole: builder.mutation<any, updateRoleTypes>({
@@ -68,7 +68,7 @@ export const Roles = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
           body: roledata,
-          providesTags: ["Roles"],
+          invalidatesTags: ["Roles"],
         }),
       }),
     };

@@ -92,6 +92,7 @@ const status = [
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 export default function MemberTableView() {
+  const { member } = JSON.parse(localStorage.getItem("accessLevels") as string)
   const [action, setAction] = useState<"add" | "edit">("add");
   const [open, setOpen] = useState<boolean>(false);
   const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
@@ -278,6 +279,20 @@ export default function MemberTableView() {
     }
   };
 
+  const actionsColumn: ColumnDef<MemberTableDatatypes> = {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={member}
+        row={row.original.id}
+        data={row?.original}
+        refetch={refetch}
+        handleEditMember={handleEditForm}
+      />
+    ),
+  };
+
   const columns: ColumnDef<MemberTableDatatypes>[] = [
     {
       id: "select",
@@ -374,9 +389,9 @@ export default function MemberTableView() {
                         `${row.original.first_name} ${row.original.last_name}`
                           .length > 8
                           ? `${row.original.first_name} ${row.original.last_name}`.substring(
-                              0,
-                              8
-                            ) + "..."
+                            0,
+                            8
+                          ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -421,20 +436,20 @@ export default function MemberTableView() {
                   <p className="capitalize cursor-pointer">
                     {/* Display the truncated name */}
                     {!row.original.is_business &&
-                    row.original.business_id == undefined
+                      row.original.business_id == undefined
                       ? "N/A"
                       : displayValue(
-                          `${row.original.business_name}`.length > 8
-                            ? `${row.original.business_name}`.substring(0, 8) +
-                                "..."
-                            : `${row.original.business_name}`
-                        )}
+                        `${row.original.business_name}`.length > 8
+                          ? `${row.original.business_name}`.substring(0, 8) +
+                          "..."
+                          : `${row.original.business_name}`
+                      )}
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="capitalize text-sm">
                     {!row.original.is_business &&
-                    row.original.business_id == undefined
+                      row.original.business_id == undefined
                       ? "N/A"
                       : displayValue(`${row.original.business_name}`)}
                   </p>
@@ -614,20 +629,9 @@ export default function MemberTableView() {
         );
       },
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <DataTableRowActions
-          row={row.original.id}
-          data={row?.original}
-          refetch={refetch}
-          handleEditMember={handleEditForm}
-        />
-      ),
-    },
+    ...(member !== "read" ? [actionsColumn] : []),
   ];
-
+  
   const table = useReactTable({
     data: memberTableData as MemberTableDatatypes[],
     columns,
@@ -741,13 +745,13 @@ export default function MemberTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
+          {member !=="read"&&<Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={handleOpenForm}
           >
             <PlusIcon className="size-4" />
             Create New
-          </Button>
+          </Button>}
           <DataTableViewOptions table={table} action={handleExportSelected} />
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
@@ -774,9 +778,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

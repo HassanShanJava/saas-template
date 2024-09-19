@@ -94,6 +94,7 @@ const initialValue = {
 };
 
 export default function MealPlansTableView() {
+  const { meal_plan } = JSON.parse(localStorage.getItem("accessLevels") as string)
   const { toast } = useToast();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -197,6 +198,23 @@ export default function MealPlansTableView() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
+  const actionsColumn: ColumnDef<mealPlanDataType> = {
+    accessorKey: "actions",
+    header: ({ table }) => <span>Action</span>,
+    cell: ({ row }) => {
+      return (
+        <DataTableRowActions
+          access={meal_plan}
+          handleEdit={handleEdit}
+          data={row.original}
+          refetch={refetch}
+        />
+      );
+    },
+    enableSorting: false,
+    enableHiding: false,
+  }
+
   const columns: ColumnDef<mealPlanDataType>[] = [
     {
       accessorKey: "name",
@@ -227,25 +245,25 @@ export default function MealPlansTableView() {
               <div className="size-14 bg-gray-100 rounded-sm"></div>
             )}
             <div className="">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <p className="capitalize cursor-pointer">
-                    <span>{displayValue(
-                      `${row.original.name}`.length > 8
-                        ? `${row.original.name}`.substring(0, 8) + "..."
-                        : `${row.original.name}`
-                    )}</span>
-                  </p>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="capitalize text-sm">
-                    {displayValue(`${row?.original?.name}`)}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="capitalize cursor-pointer">
+                      <span>{displayValue(
+                        `${row.original.name}`.length > 8
+                          ? `${row.original.name}`.substring(0, 8) + "..."
+                          : `${row.original.name}`
+                      )}</span>
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="capitalize text-sm">
+                      {displayValue(`${row?.original?.name}`)}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
         );
       },
@@ -330,21 +348,7 @@ export default function MealPlansTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: "actions",
-      header: ({ table }) => <span>Action</span>,
-      cell: ({ row }) => {
-        return (
-          <DataTableRowActions
-            handleEdit={handleEdit}
-            data={row.original}
-            refetch={refetch}
-          />
-        );
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
+    ...(meal_plan !== "read" ? [actionsColumn] : []),
   ];
 
   const table = useReactTable({
@@ -485,13 +489,13 @@ export default function MealPlansTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
+          {meal_plan !== "read" && <Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={handleOpen}
           >
             <PlusIcon className="size-4" />
             Create New
-          </Button>
+          </Button>}
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}

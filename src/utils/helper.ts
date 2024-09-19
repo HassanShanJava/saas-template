@@ -86,3 +86,23 @@ export const coachMapper = ({
   "Last Check In": displayDateTime(check_in) || "",
   "Last Login": displayDateTime(last_online) || "",
 });
+
+
+
+// Function to extract all links
+export function extractLinks(data: any[]) {
+  let links: string[] = [];
+
+  data.forEach((item: any) => {
+    if (item.link && item.link != '/') {
+      links.push(item.link); // Add current link
+    }
+
+    // Recursively extract links from children if any
+    if (item.children && item.children.length > 0) {
+      links = links.concat(extractLinks(item.children));
+    }
+  });
+
+  return links;
+}

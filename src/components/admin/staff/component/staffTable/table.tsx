@@ -106,6 +106,7 @@ const initialValue = {
   sort_key: "id",
 };
 export default function StaffTableView() {
+  const { staff } = JSON.parse(localStorage.getItem("accessLevels") as string)
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const orgName = useSelector(
@@ -271,6 +272,19 @@ export default function StaffTableView() {
     setOpen(true);
   };
 
+  const actionsColumn: ColumnDef<staffTypesResponseList> = {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={staff}
+        handleEdit={handleOpenForm}
+        data={row.original}
+        refetch={refetch}
+      />
+    ),
+  }
+
   const columns: ColumnDef<staffTypesResponseList>[] = [
     {
       id: "select",
@@ -365,9 +379,9 @@ export default function StaffTableView() {
                         `${row.original.first_name} ${row.original.last_name}`
                           .length > 8
                           ? `${row.original.first_name} ${row.original.last_name}`.substring(
-                              0,
-                              8
-                            ) + "..."
+                            0,
+                            8
+                          ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -554,17 +568,9 @@ export default function StaffTableView() {
         );
       },
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <DataTableRowActions
-          handleEdit={handleOpenForm}
-          data={row.original}
-          refetch={refetch}
-        />
-      ),
-    },
+    ...(staff !== "read" ? [actionsColumn] : []),
+
+
   ];
 
   const table = useReactTable({
@@ -701,13 +707,13 @@ export default function StaffTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
+          {staff !== "read" && <Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={() => handleOpenForm()}
           >
             <PlusIcon className="size-4" />
             Create New
-          </Button>
+          </Button>}
           <DataTableViewOptions table={table} action={handleExportSelected} />
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
@@ -733,9 +739,9 @@ export default function StaffTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

@@ -299,7 +299,7 @@ const FoodForm = ({
                                     (st: any, index: number) => (
                                       <SelectItem
                                         key={index}
-                                        value={String(st.value)}
+                                        value={String(st.label)}
                                       >
                                         {st.label}
                                       </SelectItem>
@@ -425,7 +425,7 @@ const FoodForm = ({
                           </SelectTrigger>
                           <SelectContent>
                             {weights.map((unit, i) => (
-                              <SelectItem value={unit.value} key={i}>
+                              <SelectItem value={unit.label} key={i}>
                                 {unit.label}
                               </SelectItem>
                             ))}
@@ -448,7 +448,7 @@ const FoodForm = ({
                     type="number"
                     min={0}
                     step={0.01}
-                    error={errors?.weight_unit?.message}
+                    error={errors?.weight?.message}
                     {...register("weight", {
                       required: "Required",
                       valueAsNumber: true,

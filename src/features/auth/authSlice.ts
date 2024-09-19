@@ -1,12 +1,11 @@
-import { loginUser } from "@/services/authService";
+import { getUserResource, loginUser } from "@/services/authService";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
-
 interface User {
   id: number;
   first_name: string;
   email: string;
   org_id: number;
+  role_id: number;
   org_name: string;
 }
 
@@ -14,6 +13,8 @@ interface AuthState {
   userToken: string | null;
   userInfo: {
     user: User;
+    sidepanel: Array<any>;
+    accessLevels: Record<string, string>;
   } | null;
   error: string | null;
   loading: boolean;
@@ -43,6 +44,8 @@ const authSlice = createSlice({
     logout: (state) => {
       localStorage.removeItem("userToken");
       localStorage.removeItem("userInfo");
+      localStorage.removeItem("sidepanel");
+      localStorage.removeItem("accessLevels");
       state.userToken = null;
       state.userInfo = null;
       state.error = null;
@@ -62,10 +65,15 @@ const authSlice = createSlice({
     builder.addCase(login.fulfilled, (state, { payload }) => {
       state.loading = false;
       state.isLoggedIn = true;
-      state.userInfo = { user: payload.user };
+      state.userInfo = { user: payload.user, sidepanel: payload.sidepanel, accessLevels: payload.accessLevels };
       state.userToken = payload.token.access_token;
       state.error = null;
+      const stringifiedData = JSON.stringify(payload.sidepanel);
+      const encodedData = btoa(stringifiedData);
+      console.log(payload.accessLevels, "accessLevels")
       localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); // Set userInfo in local storage
+      localStorage.setItem("sidepanel", encodedData); // Set sidepanel in local storage
+      localStorage.setItem("accessLevels", JSON.stringify(payload.accessLevels)); // Set sidepanel in local storage
       localStorage.setItem("userToken", payload.token.access_token); // Set userToken in local storage
     });
     builder.addCase(login.rejected, (state, { payload }) => {
@@ -84,10 +92,22 @@ export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password, rememberme }: loginParams, { rejectWithValue }) => {
     try {
+
       const {
         data,
       }: { data: { token: { access_token: string }; user?: any } } =
         await loginUser(email, password);
+
+      const { data: userRoles } = await getUserResource(data.user.role_id, data.token.access_token)
+      console.log({ userRoles });
+      const accessLevels = extractAccessCodes(userRoles)
+      if (userRoles && accessLevels) {
+        const stringifiedData = JSON.stringify(userRoles);
+        const encodedData = btoa(stringifiedData);
+        localStorage.setItem("sidepanel", encodedData);
+        localStorage.setItem("accessLevels", JSON.stringify(accessLevels)); // Set sidepanel in local storage
+
+      }
       localStorage.setItem("userToken", data.token?.access_token);
       if (rememberme) {
         localStorage.setItem("email", email);
@@ -98,7 +118,7 @@ export const login = createAsyncThunk(
         if (localStorage.getItem("password") != null)
           localStorage.removeItem("password");
       }
-      return data;
+      return { ...data, sidepanel: userRoles, accessLevels: accessLevels };
     } catch (e: any) {
       console.log(e);
       localStorage.removeItem("password");
@@ -114,3 +134,23 @@ export const login = createAsyncThunk(
 
 export const { logout, tokenReceived, updateLastRefetch } = authSlice.actions;
 export default authSlice.reducer;
+
+function extractAccessCodes(data: any) {
+  let accessMap: Record<string, string> = {};
+
+  function processItem(item: Record<string, any>) {
+    const accessType: string = item.access_type;
+
+    if (accessType) {
+      accessMap[item.code] = accessType;
+    }
+
+    if (item.children && item.children.length > 0) {
+      item.children.forEach(processItem);
+    }
+  }
+
+  data.forEach(processItem);
+
+  return accessMap;
+}

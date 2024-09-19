@@ -175,11 +175,11 @@ export const Header = () => {
                 targetPath="/admin/memberships"
                 title="System Settings"
               />
-              {/* <PageTitle
+              <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/roles"
-                title="Roles and Access Management"
-              /> */}
+                title="Roles & Access Management"
+              />
               {/* <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/leads"
@@ -196,7 +196,7 @@ export const Header = () => {
                 title="Events"
               />
               <PageTitle
-                currentPath={location.pathname}
+                  currentPath={location.pathname}
                 targetPath="/admin/events/addevents"
                 title="Events"
               /> */}

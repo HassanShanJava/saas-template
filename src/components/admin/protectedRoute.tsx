@@ -57,7 +57,7 @@ const ProtectedRoute = () => {
   if (isAuthenticated) {
     if (sidePanel.some(link => link == location.pathname)) {
       return <Outlet />;
-    } else {
+    } else if(sidePanel.length>0){
       return <NotFoundPage />
     }
   }

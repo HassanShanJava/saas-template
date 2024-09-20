@@ -143,7 +143,7 @@ const WorkoutStep1: React.FC = () => {
           </div>
           <div className="h-min">
             <Controller
-              name="member_ids"
+              name="members"
               control={control}
               render={({
                 field: { onChange, value, onBlur },

@@ -42,6 +42,7 @@ import {
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import {
+  difficultyEnum,
   ErrorType,
   Option,
   WorkoutPlansTableResponse,
@@ -70,6 +71,8 @@ import Pagination from "@/components/ui/table/pagination-table";
 import usePagination from "@/hooks/use-pagination";
 export default function WorkoutPlansTableView() {
   const navigate = useNavigate();
+
+
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { toast } = useToast();
@@ -126,12 +129,8 @@ export default function WorkoutPlansTableView() {
 
   const toggleSortOrder = (key: string) => {
     setSearchCriteria((prev) => {
-      const newSortOrder = "desc";
-      prev.sort_key === key
-        ? prev.sort_order === "desc"
-          ? "asc"
-          : "desc"
-        : "desc";
+      const newSortOrder =
+        prev.sort_key === key && prev.sort_order === "desc" ? "asc" : "desc";
 
       return {
         ...prev,
@@ -172,6 +171,93 @@ export default function WorkoutPlansTableView() {
     return (workoutdata?.data ?? []) as WorkoutPlanView[];
   }, [workoutdata]);
 
+  // const handleLevelChange = async (payload: {
+  //   level: difficultyEnum;
+  //   id: number;
+  //   weeks: number;
+  // }) => {
+  //   try {
+  //     const resp = await updateLevel(payload).unwrap();
+  //     refetch();
+  //     if (resp) {
+  //       console.log({ resp });
+  //       toast({
+  //         variant: "success",
+  //         title: "Updated Successfully",
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error", { error });
+  //     if (error && typeof error === "object" && "data" in error) {
+  //       const typedError = error as ErrorType;
+  //       toast({
+  //         variant: "destructive",
+  //         title: "Error in Submission",
+  //         description: `${typedError.data?.detail}`,
+  //       });
+  //     } else {
+  //       toast({
+  //         variant: "destructive",
+  //         title: "Error in Submission",
+  //         description: `Something Went Wrong.`,
+  //       });
+  //     }
+  //   }
+  // };
+
+  type UpdatePayload = {
+    id: number;
+    weeks: number;
+    level?: difficultyEnum;
+    goals?: string;
+  };
+
+  const handleUpdate = async (
+    payload: UpdatePayload,
+    updateType: "level" | "goal"
+  ) => {
+    try {
+      // const resp =
+      //   updateType === "level"
+      //     ? await updateLevel({
+      //         level: payload.level!,
+      //         id: payload.id,
+      //         weeks: payload.weeks,
+      //       }).unwrap()
+      //     : await updateGoal({
+      //         goals: payload.goals!,
+      //         id: payload.id,
+      //         weeks: payload.weeks,
+      //       }).unwrap();
+
+      refetch();
+
+      // if (resp) {
+      //   console.log({ resp });
+      //   toast({
+      //     variant: "success",
+      //     title: "Updated Successfully",
+      //   });
+      // }
+    } catch (error) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
+  };
+
   const columns: ColumnDef<WorkoutPlanView>[] = [
     {
       accessorKey: "Plan name",
@@ -191,7 +277,7 @@ export default function WorkoutPlansTableView() {
       cell: ({ row }) => {
         console.log("row", row);
         return (
-          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden ">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -228,10 +314,38 @@ export default function WorkoutPlansTableView() {
         </div>
       ),
       cell: ({ row }) => {
+        const id = Number(row.original.id);
+        const weeks = Number(row.original.weeks);
+        const goals = row.original.goals;
+        const goalsLable = workoutGoals.filter((r) => r.value === goals)[0];
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original?.goals)}
-          </div>
+          // <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          //   {displayValue(row?.original?.goals)}
+          // </div>
+          <>
+            <Select
+              defaultValue={goals}
+              // onValueChange={(e:string)=>()}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Status" className="text-gray-400">
+                  <span className="flex gap-2 items-center">
+                    <span>{goalsLable?.label}</span>
+                  </span>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {workoutGoals.map(
+                  (item: any) =>
+                    !item.hide && (
+                      <SelectItem key={item.value + ""} value={item.value + ""}>
+                        {item.label}
+                      </SelectItem>
+                    )
+                )}
+              </SelectContent>
+            </Select>
+          </>
         );
       },
     },
@@ -251,10 +365,38 @@ export default function WorkoutPlansTableView() {
         </div>
       ),
       cell: ({ row }) => {
+        const id = Number(row.original.id);
+        const weeks = Number(row.original.weeks);
+        const goals = row.original.goals;
+        const goalsLable = workoutGoals.filter((r) => r.value === goals)[0];
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original?.level)}
-          </div>
+          // <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          //   {displayValue(row?.original?.goals)}
+          // </div>
+          <>
+            <Select
+              defaultValue={goals}
+              // onValueChange={(e:string)=>()}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Status" className="text-gray-400">
+                  <span className="flex gap-2 items-center">
+                    <span>{goalsLable?.label}</span>
+                  </span>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {workoutGoals.map(
+                  (item: any) =>
+                    !item.hide && (
+                      <SelectItem key={item.value + ""} value={item.value + ""}>
+                        {item.label}
+                      </SelectItem>
+                    )
+                )}
+              </SelectContent>
+            </Select>
+          </>
         );
       },
     },
@@ -290,7 +432,7 @@ export default function WorkoutPlansTableView() {
           <p>Week(X)</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("week")}
+            onClick={() => toggleSortOrder("weeks")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -339,7 +481,7 @@ export default function WorkoutPlansTableView() {
     navigate("/admin/workoutplans/add/step/1");
   };
 
-  const totalRecords = workoutdata?.filtered_count || 0;
+  const totalRecords = workoutdata?.total_counts || 0;
   const {
     handleLimitChange,
     handleNextPage,

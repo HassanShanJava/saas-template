@@ -999,7 +999,7 @@ export enum difficultyEnum {
   Novice = "Novice",
   Beginner = "Beginner",
   Intermediate = "Intermediate",
-  Advance = "Advance",
+  Advanced = "Advanced",
   Expert = "Expert",
 }
 export enum IntensityEnum {
@@ -1181,7 +1181,7 @@ export interface Workout {
   level: string;
   weeks: number;
   img_url?: string;
-  member_ids: number[];
+  members: number[];
   file?: File[];
 }
 
@@ -1194,7 +1194,7 @@ export interface Workoutupdate {
   level: string;
   visible_for: string | undefined;
   weeks: number;
-  member: number[];
+  members: number[];
 }
 export interface workoutResponse {
   status_code: string;
@@ -1202,23 +1202,33 @@ export interface workoutResponse {
   message: string;
 }
 
-export interface WorkoutPlanView {
-  workout_name: string;
-  org_id: number;
-  description?: string;
-  visible_for: VisibilityEnum;
-  goals: string;
-  level: difficultyEnum;
-  notes?: string;
-  weeks: number;
-  image_url?: string;
+export interface WorkoutUpdateResponse {
+  status: string;
   id: number;
+  message: string;
+}
+
+interface members {
+  member_id: number;
+}
+
+export interface WorkoutPlanView {
+  id: number;
+  workout_name: string;
+  description?: string;
+  goals: string;
+  image_url?: string;
+  level: difficultyEnum;
+  visible_for: VisibilityEnum;
+  weeks: number;
+  members: members[];
+  org_id: number;
 }
 
 export interface WorkoutPlansTableResponse {
   data: WorkoutPlanView[];
-  total_count: number;
-  filtered_count: number;
+  total_counts: number;
+  filtered_counts: number;
 }
 
 export type Option = {
@@ -1230,3 +1240,38 @@ export type MultiSelectOption = {
   name: number;
   label: string;
 };
+
+export interface days {
+  workout_id: number;
+  day_name: string;
+  week: number;
+  day: number;
+  id?: number;
+}
+export interface WorkoutDatabyId {
+  workout_name: string;
+  org_id: number;
+  description?: string;
+  visible_for: VisibilityEnum;
+  goals: string;
+  level: difficultyEnum;
+  weeks: number;
+  image_url?: string;
+  id: number;
+  members: members[];
+  days: days[];
+}
+
+export interface workoutUpdateStatus {
+  id: number;
+  goals?: string;
+  level?: difficultyEnum;
+  weeks: number;
+}
+
+// export interface workoutAddDay {
+//   workout_id: number;
+//   day_name: string;
+//   week: number;
+//   day: number;
+// }

@@ -56,14 +56,14 @@ import TableFilters from "@/components/ui/table/data-table-filter";
 import { visibleFor, categories, weights } from "@/constants/food";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
-const categoryMap = Object.fromEntries(
-  categories.map((cat) => [cat.label, cat.value])
-);
-const visibleForMap = Object.fromEntries(
-  visibleFor.map((vf) => [vf.label, vf.value])
-);
-
-const weightsMap = Object.fromEntries(weights.map((w) => [w.label, w.value]));
+// removed for enum changes
+// const categoryMap = Object.fromEntries(
+//   categories.map((cat) => [cat.label, cat.value])
+// );
+// const visibleForMap = Object.fromEntries(
+//   visibleFor.map((vf) => [vf.label, vf.value])
+// );
+// const weightsMap = Object.fromEntries(weights.map((w) => [w.label, w.value]));
 
 const downloadCSV = (data: CreateFoodTypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -433,12 +433,7 @@ export default function FoodsTableView() {
 
   const handleEdit = (data: CreateFoodTypes) => {
     setAction("edit");
-    const payload = {
-      ...data,
-      visible_for: visibleForMap[data.visible_for!],
-      weight_unit: weightsMap[data.weight_unit!],
-    };
-    setData(payload);
+    setData(data);
     setIsDialogOpen(true);
   };
 

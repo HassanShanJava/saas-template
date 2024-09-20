@@ -74,7 +74,7 @@ export default function RoleTableView() {
       cell: ({ row }) => {
         return (
           <div
-            className={`flex items-center gap-2 text-ellipsis whitespace-nowrap overflow-hidden ${row.original.is_parent && " font-bold"}`}
+            className={`flex items-center gap-2 text-ellipsis whitespace-nowrap overflow-hidden ${row.original.is_parent && " font-semibold"}`}
             style={{
               paddingLeft: `${row.depth * 2}rem`,
             }}
@@ -93,7 +93,9 @@ export default function RoleTableView() {
                 )}
               </button>
             )}
-            {row?.original?.name}
+            <span className="text-gray-500">
+              {row?.original?.name}
+            </span>
           </div>
         );
       },
@@ -283,7 +285,7 @@ export default function RoleTableView() {
                 {table?.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
+                      <TableHead key={header.id} className="font-bold">
                         {header.isPlaceholder
                           ? null
                           : flexRender(

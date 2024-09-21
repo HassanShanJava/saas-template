@@ -69,7 +69,7 @@ export const basicInfo = [
     type: "select",
     name: "visible_for",
     label: "Visible For",
-    required: false,
+    required: true,
     options: visibleFor,
   },
 ];

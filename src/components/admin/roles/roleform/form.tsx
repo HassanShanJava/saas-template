@@ -111,9 +111,9 @@ export const RoleForm = ({
       createAccess(data?.allResourceData);
     } else if (formData.case == "edit") {
       // createAccess(formData.tableAccess as resourceTypes);
-      console.log(formData.tableAccess, "formData.tableAccess")
-      setAccess(formData.tableAccess)
-      form.reset(formData)
+      console.log(formData.tableAccess, "formData.tableAccess");
+      setAccess(formData.tableAccess);
+      form.reset(formData);
     }
   }, [data, formData]);
 
@@ -125,7 +125,7 @@ export const RoleForm = ({
       .string({
         required_error: "Required",
       })
-      .default('active'),
+      .default("active"),
   });
 
   const form = useForm<z.infer<typeof RoleFormSchema>>({
@@ -142,12 +142,12 @@ export const RoleForm = ({
 
     setFormData((prev: any) => ({
       ...prev,
-      status: 'active',
+      status: "active",
       name: "",
     }));
     form.reset({
       org_id: formData.org_id,
-      status: 'active',
+      status: "active",
       name: "",
     });
     createAccess(data?.allResourceData as resourceTypes[]);
@@ -159,12 +159,12 @@ export const RoleForm = ({
 
     setFormData((prev: any) => ({
       ...prev,
-      status: 'active',
+      status: "active",
       name: "",
     }));
     form.reset({
       org_id: formData.org_id,
-      status: 'active',
+      status: "active",
       name: "",
     });
     setIsDialogOpen();
@@ -259,9 +259,7 @@ export const RoleForm = ({
                 )}
               </button>
             )}
-            <span className="text-gray-500">
-              {row?.original?.name}
-            </span>
+            <span className="text-gray-500">{row?.original?.name}</span>
           </div>
         );
       },
@@ -352,47 +350,45 @@ export const RoleForm = ({
 
   return (
     <div>
-      <Sheet
-        open={isDialogOpen}
-      >
+      <Sheet open={isDialogOpen}>
         <SheetContent
           className="w-full !max-w-[930px]  flex flex-col custom-scrollbar py-0"
           hideCloseButton
         >
-          <SheetHeader className="sticky top-0 pt-4 bg-white z-[100]">
-            <div className="flex items-center justify-between gap-5 ">
-              <SheetTitle className="text-xl font-semibold px-1 ">
-                {formData.case == "add" ? "Create" : "Edit"} Role
-              </SheetTitle>
-              <div className="flex justify-center gap-5 ">
-                <Button
-                  type="button"
-                  className="w-[100px] text-center flex items-center gap-2 border-primary"
-                  variant={"outline"}
-                  onClick={handleClose}
-                >
-                  <i className="fa fa-xmark"></i>
-                  Cancel
-                </Button>
-                <LoadingButton
-                  type="submit"
-                  className="w-[100px] px-2 text-center flex items-center gap-2 border-primary"
-                  loading={form.formState.isSubmitting}
-                >
-                  {!form.formState.isSubmitting && (
-                    <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                  )}
-                  Save
-                </LoadingButton>
-              </div>
-            </div>
-          </SheetHeader>
-          <SheetDescription>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="flex flex-col  gap-4 pb-4"
-              >
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col  gap-4 pb-4"
+            >
+              <SheetHeader className="sticky top-0 pt-4 bg-white z-[100]">
+                <div className="flex items-center justify-between gap-5 ">
+                  <SheetTitle className="text-xl font-semibold px-1 ">
+                    {formData.case == "add" ? "Create" : "Edit"} Role
+                  </SheetTitle>
+                  <div className="flex justify-center gap-5 ">
+                    <Button
+                      type="button"
+                      className="w-[100px] text-center flex items-center gap-2 border-primary"
+                      variant={"outline"}
+                      onClick={handleClose}
+                    >
+                      <i className="fa fa-xmark px-1 "></i>
+                      Cancel
+                    </Button>
+                    <LoadingButton
+                      type="submit"
+                      className="w-[100px] px-2 text-center flex items-center gap-2 border-primary text-black"
+                      loading={form.formState.isSubmitting}
+                    >
+                      {!form.formState.isSubmitting && (
+                        <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                      )}
+                      Save
+                    </LoadingButton>
+                  </div>
+                </div>
+              </SheetHeader>
+              <SheetDescription>
                 <div className="flex gap-4 flex-row min-w-full">
                   <FormField
                     control={form.control}
@@ -419,9 +415,7 @@ export const RoleForm = ({
                       <FormItem className="w-1/2">
                         <Select
                           defaultValue={field.value}
-                          onValueChange={(value) =>
-                            field.onChange(value)
-                          }
+                          onValueChange={(value) => field.onChange(value)}
                           value={field.value} // Ensure value is a string
                         >
                           <FormControl>
@@ -429,12 +423,17 @@ export const RoleForm = ({
                               <SelectValue placeholder="Select status">
                                 <span className="flex gap-2 items-center">
                                   <span
-                                    className={`w-2 h-2 rounded-full ${field.value == 'active'
-                                      ? "bg-green-500"
-                                      : "bg-blue-500"
-                                      }`}
+                                    className={`w-2 h-2 rounded-full ${
+                                      field.value == "active"
+                                        ? "bg-green-500"
+                                        : "bg-blue-500"
+                                    }`}
                                   ></span>
-                                  {status.filter(status => status.value === field.value)[0]?.label}
+                                  {
+                                    status.filter(
+                                      (status) => status.value === field.value
+                                    )[0]?.label
+                                  }
                                 </span>
                               </SelectValue>
                             </SelectTrigger>
@@ -456,9 +455,7 @@ export const RoleForm = ({
                   <div className="rounded-none  mt-4">
                     <ScrollArea className="w-full relative">
                       <ScrollBar orientation="horizontal" />
-                      <Table
-                        className=""
-                      >
+                      <Table className="">
                         <TableHeader className="bg-gray-100 sticky top-0 z-50">
                           {table?.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
@@ -469,15 +466,15 @@ export const RoleForm = ({
                                     style={{
                                       minWidth: header.column.columnDef.size,
                                       maxWidth: header.column.columnDef.size,
-                                      fontWeight: "bold"
+                                      fontWeight: "bold",
                                     }}
                                   >
                                     {header.isPlaceholder
                                       ? null
                                       : flexRender(
-                                        header.column.columnDef.header,
-                                        header.getContext()
-                                      )}
+                                          header.column.columnDef.header,
+                                          header.getContext()
+                                        )}
                                   </TableHead>
                                 );
                               })}
@@ -505,7 +502,7 @@ export const RoleForm = ({
                                 data-state={row.getIsSelected() && "selected"}
                               >
                                 {row.getVisibleCells().map((cell) => (
-                                  <TableCell key={cell.id} >
+                                  <TableCell key={cell.id}>
                                     {flexRender(
                                       cell.column.columnDef.cell,
                                       cell.getContext()
@@ -539,9 +536,9 @@ export const RoleForm = ({
                     </ScrollArea>
                   </div>
                 </div>
-              </form>
-            </Form>
-          </SheetDescription>
+              </SheetDescription>
+            </form>
+          </Form>
         </SheetContent>
       </Sheet>
     </div>

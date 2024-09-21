@@ -81,7 +81,7 @@ const BasicInfoForm = () => {
   const { toast } = useToast();
 
   const [isAddGroup, setAddGroup] = useState<boolean>(false);
-  const [inputValue, setInputValue] = useState<any>("");
+  const [inputValue, setInputValue] = useState<string>("");
   const [access, setAccess] = useState<string | undefined>("");
   const [groupList, setGroupList] = useState<groupList[]>([]);
 
@@ -201,11 +201,19 @@ const BasicInfoForm = () => {
     e.preventDefault();
 
     if (!inputValue.trim()) return;
+    
+    if(inputValue.length>15){
+      toast({
+        variant:"destructive",
+        title:"Group name cannot be too large"
+      })
+      return;
+    }
 
     try {
       const payload = {
         org_id: orgId,
-        name: inputValue,
+        name: inputValue.toLowerCase(),
       };
 
       const resp = await createGroups(payload).unwrap();
@@ -273,7 +281,7 @@ const BasicInfoForm = () => {
                       {error?.message}
                     </span>
                   )}
-                  <SelectContent className="custom-scrollbar max-h-64">
+                  <SelectContent className="capitalize custom-scrollbar max-h-64">
                     {groupList &&
                       groupList.length > 0 &&
                       groupList.map((item) => (
@@ -297,7 +305,7 @@ const BasicInfoForm = () => {
                         <Input
                           type="text"
                           name="group"
-                          className="px-2 py-4"
+                          className="px-2 py-4 capitalize"
                           placeholder="Enter group name"
                           value={inputValue}
                           onChange={handleOnChange}

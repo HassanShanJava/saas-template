@@ -1,13 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ColumnDef,
-  PaginationState,
   SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -37,42 +34,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import {
   difficultyEnum,
   ErrorType,
   Option,
-  WorkoutPlansTableResponse,
   WorkoutPlanView,
 } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import Papa from "papaparse";
-import WorkoutPlanForm from "../workoutform/workout-form";
 import { useNavigate } from "react-router-dom";
 import { initialValue, displayValue } from "@/utils/helper";
 import { searchCritiriaType } from "@/constants/workout/index";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
-  useGetAllWorkoutDayQuery,
   visibleFor,
   workoutGoals,
   workoutLevels,
 } from "@/lib/constants/workout";
 import { useGetAllWorkoutQuery, useUpdateWorkoutgridMutation } from "@/services/workoutService";
-import { Separator } from "@/components/ui/separator";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { LevelsOptions, visibilityOptions } from "@/utils/Enums";
+import { LevelsOptions} from "@/utils/Enums";
 import Pagination from "@/components/ui/table/pagination-table";
 import usePagination from "@/hooks/use-pagination";
 export default function WorkoutPlansTableView() {
   const navigate = useNavigate();
-
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { toast } = useToast();
@@ -172,39 +158,6 @@ export default function WorkoutPlansTableView() {
     return (workoutdata?.data ?? []) as WorkoutPlanView[];
   }, [workoutdata]);
     const [updateGrid]=useUpdateWorkoutgridMutation();
-  // const handleLevelChange = async (payload: {
-  //   level: difficultyEnum;
-  //   id: number;
-  //   weeks: number;
-  // }) => {
-  //   try {
-  //     const resp = await updateLevel(payload).unwrap();
-  //     refetch();
-  //     if (resp) {
-  //       console.log({ resp });
-  //       toast({
-  //         variant: "success",
-  //         title: "Updated Successfully",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("Error", { error });
-  //     if (error && typeof error === "object" && "data" in error) {
-  //       const typedError = error as ErrorType;
-  //       toast({
-  //         variant: "destructive",
-  //         title: "Error in Submission",
-  //         description: `${typedError.data?.detail}`,
-  //       });
-  //     } else {
-  //       toast({
-  //         variant: "destructive",
-  //         title: "Error in Submission",
-  //         description: `Something Went Wrong.`,
-  //       });
-  //     }
-  //   }
-  // };
 
   type UpdatePayload = {
     id: number;

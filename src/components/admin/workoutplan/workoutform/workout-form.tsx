@@ -52,7 +52,7 @@ import { FiUpload } from "react-icons/fi";
 import * as z from "zod";
 import { toast } from "@/components/ui/use-toast";
 import { ErrorType, Workout } from "@/app/types";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate ,useParams} from "react-router-dom";
 import StepperIndicator from "@/components/ui/stepper-indicator";
 import { useForm, UseFormHandleSubmit, UseFormReturn } from "react-hook-form";
 import { useAddWorkoutMutation } from "@/services/workoutService";
@@ -61,6 +61,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 export type ContextProps = { form: UseFormReturn<Workout> };
 const WorkoutPlanForm = () => {
+  const { workoutId } = useParams<{ workoutId: string }>(); // Extract workoutId
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const navigate = useNavigate();
@@ -75,24 +76,48 @@ const WorkoutPlanForm = () => {
   const {
     formState: { isSubmitted, isSubmitting },
   } = form;
+
+  const [workoutIdState, setWorkoutIdState] = useState<number | null>(workoutId ? parseInt(workoutId) : null);
+
+
+  // useEffect(() => {
+  //   console.log(
+  //     "activeStep useChipack",
+  //     activeStep,
+  //     +location.pathname[location.pathname.length - 1],
+  //     form.formState.isSubmitting,
+  //     form.formState.isSubmitted
+  //   );
+  //   if (
+  //     isNaN(activeStep) ||
+  //     (activeStep === 2 && !isSubmitted && !isSubmitting)
+  //   ) {
+  //     setActiveStep(1);
+  //     navigate("/admin/workoutplans/add/step/1");
+  //   } else {
+  //     navigate(`/admin/workoutplans/add/step/${activeStep}`);
+  //   }
+  // }, [activeStep, isSubmitted]);
+
   useEffect(() => {
     console.log(
-      "activeStep useChipack",
+      "activeStep useEffect",
       activeStep,
       +location.pathname[location.pathname.length - 1],
       form.formState.isSubmitting,
       form.formState.isSubmitted
     );
-    if (
-      isNaN(activeStep) ||
-      (activeStep === 2 && !isSubmitted && !isSubmitting)
-    ) {
+  
+    if (isNaN(activeStep) || (activeStep === 2 && !isSubmitted && !isSubmitting)) {
       setActiveStep(1);
       navigate("/admin/workoutplans/add/step/1");
     } else {
-      navigate(`/admin/workoutplans/add/step/${activeStep}`);
+      // Navigate to the current step, including workoutId if it exists
+      const workoutIdPart = workoutIdState ? `/${workoutIdState}` : '';
+      navigate(`/admin/workoutplans/add/step/${activeStep}${workoutIdPart}`);
     }
-  }, [activeStep, isSubmitted]);
+  }, [activeStep, isSubmitted, workoutIdState]);
+  
   console.log(
     "activeStep",
     activeStep,
@@ -102,7 +127,7 @@ const WorkoutPlanForm = () => {
     location.pathname
   );
 
-  const [createWorkout] = useAddWorkoutMutation();
+  const [createWorkout,{isLoading:AddworkoutLoading,isError}] = useAddWorkoutMutation();
   async function onSubmit(data: Workout) {
     try {
       const fileInputObject = {
@@ -130,7 +155,28 @@ const WorkoutPlanForm = () => {
         workout_name: data.workout_name.toLowerCase(),
       };
       delete payload.file;
-      console.log("final Payload", payload);
+      // console.log("final Payload", payload);
+      // const resp=await createWorkout(payload).unwrap();
+      // if (resp) {
+      //   console.log({ resp });
+      // }
+
+      let resp;
+      if (workoutIdState) {
+        // Update existing workout
+        // resp = await updateWorkout({ id: workoutIdState, ...payload }).unwrap(); // Use your update mutation here
+
+        console.log("updated data",{payload})
+      } else {
+        // Create new workout
+        resp = await createWorkout(payload).unwrap();
+      }
+  
+      if (resp) {
+        setWorkoutIdState(resp.id); // Set the workout ID
+        const newActiveStep = 2;
+        navigate(`/admin/workoutplans/add/step/${newActiveStep}/${resp.id}`); // Navigate to step 2 with ID
+      }
     } catch (error: unknown) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -190,6 +236,7 @@ const WorkoutPlanForm = () => {
                     onClick={() => {
                       const newActive = activeStep - 1;
                       setActiveStep(newActive);
+                      navigate(`/admin/workoutplans/add/step/${newActive}/${workoutIdState}`);
                     }}
                   >
                     <i className="fa fa-arrow-left-long "></i>
@@ -213,7 +260,7 @@ const WorkoutPlanForm = () => {
                 ) : (
                   <Button
                     type="button"
-                    className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
+                    className="w-[120px] bg-primary text-black text-center flex items-center gap-2"
                     onClick={() => {
                       form.handleSubmit(async (data) => {
                         await onSubmit(data);
@@ -222,7 +269,11 @@ const WorkoutPlanForm = () => {
                         setActiveStep(newActive);
                       }, onError)();
                     }}
+                    disabled={AddworkoutLoading}
                   >
+                    {!form.formState.isSubmitting && (
+                          <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                        )}
                     <i className="fa fa-arrow-right-long "></i>
                     Next
                   </Button>

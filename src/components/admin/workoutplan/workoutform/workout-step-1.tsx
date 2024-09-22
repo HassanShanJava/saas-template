@@ -175,7 +175,7 @@ const WorkoutStep1: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {workoutGoals.map((st: any, index: number) => (
-                      <SelectItem key={index} value={st.value}>
+                      <SelectItem key={index} value={st.label}>
                         {st.label}
                       </SelectItem>
                     ))}
@@ -207,7 +207,7 @@ const WorkoutStep1: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {workoutLevels.map((st: any, index: number) => (
-                      <SelectItem key={index} value={st.value}>
+                      <SelectItem key={index} value={st.label}>
                         {st.label}
                       </SelectItem>
                     ))}

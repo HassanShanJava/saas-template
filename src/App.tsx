@@ -72,8 +72,8 @@ function App() {
             <Route path="/admin/foods" element={<FoodsNutrition />} /> */}
             <Route path="/admin/workoutplans/" element={<WorkoutPlan />}>
               <Route path="add/" element={<WorkoutPlanForm />}>
-                <Route path="step/1" element={<WorkoutStep1 />} />
-                <Route path="step/2" element={<WorkoutStep2 />} />
+                <Route path="step/1/:workoutId?" element={<WorkoutStep1 />} />
+                <Route path="step/2/:workoutId?" element={<WorkoutStep2 />} />
               </Route>
             </Route>
             {/*<Route path="/test" element={<Test />} />*/}

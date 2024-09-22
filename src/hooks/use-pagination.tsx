@@ -11,6 +11,12 @@ const usePagination = <T extends { limit: number; offset: number }>({
   searchCriteria,
   setSearchCriteria,
 }: PaginationParams<T>) => {
+  const lastPageOffset = Math.max(
+    0,
+    Math.floor((totalRecords - 1) / searchCriteria.limit) * searchCriteria.limit
+  );
+  const isLastPage = searchCriteria.offset >= lastPageOffset;
+
   const handleLimitChange = (newLimit: number) => {
     setSearchCriteria((prev) => ({
       ...prev,
@@ -20,16 +26,18 @@ const usePagination = <T extends { limit: number; offset: number }>({
   };
 
   const handleNextPage = () => {
-    setSearchCriteria((prev) => ({
-      ...prev,
-      offset: prev.offset + prev.limit,
-    }));
+    if (!isLastPage) {
+      setSearchCriteria((prev) => ({
+        ...prev,
+        offset: prev.offset + prev.limit,
+      }));
+    }
   };
 
   const handlePrevPage = () => {
     setSearchCriteria((prev) => ({
       ...prev,
-      offset: Math.max(prev.offset - prev.limit, 0),
+      offset: Math.max(0, prev.offset - prev.limit),
     }));
   };
 
@@ -41,14 +49,13 @@ const usePagination = <T extends { limit: number; offset: number }>({
   };
 
   const handleLastPage = () => {
-    setSearchCriteria((prev) => ({
-      ...prev,
-      offset: totalRecords - prev.limit,
-    }));
+    if (!isLastPage) {
+      setSearchCriteria((prev) => ({
+        ...prev,
+        offset: lastPageOffset,
+      }));
+    }
   };
-
-  const isLastPage =
-    searchCriteria.offset + searchCriteria.limit >= totalRecords;
 
   return {
     handleLimitChange,

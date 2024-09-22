@@ -24,6 +24,7 @@ type PaginationProps = {
   onPrevPage: () => void;
   onFirstPage: () => void;
   onLastPage: () => void;
+  isLastPage: boolean;
 };
 
 const Pagination: React.FC<PaginationProps> = ({
@@ -35,8 +36,9 @@ const Pagination: React.FC<PaginationProps> = ({
   onPrevPage,
   onFirstPage,
   onLastPage,
+  isLastPage,
 }) => {
-  const isLastPage = offset + limit >= totalItems;
+  // const isLastPage = offset + limit >= totalItems;
 
   return (
     <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
@@ -63,7 +65,7 @@ const Pagination: React.FC<PaginationProps> = ({
           orientation="vertical"
           className="h-11 w-[1px] bg-gray-300"
         />
-        <span>{`${offset + 1} - ${Math.min(offset + limit, totalItems)} of ${totalItems} Items`}</span>
+        <span>{`${offset + 1} - ${limit} of ${totalItems} Items`}</span>
       </div>
 
       <div className="flex items-center justify-center gap-2">

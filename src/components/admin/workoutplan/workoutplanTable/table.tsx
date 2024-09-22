@@ -72,7 +72,6 @@ import usePagination from "@/hooks/use-pagination";
 export default function WorkoutPlansTableView() {
   const navigate = useNavigate();
 
-
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { toast } = useToast();
@@ -94,6 +93,7 @@ export default function WorkoutPlansTableView() {
       if (debouncedInputValue.trim() !== "") {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
+        newCriteria.sort_key = "id";
         newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
@@ -317,13 +317,12 @@ export default function WorkoutPlansTableView() {
         const id = Number(row.original.id);
         const weeks = Number(row.original.weeks);
         const goals = row.original.goals;
-        const goalsLable = workoutGoals.filter((r) => r.value === goals)[0];
         return (
           // <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
           //   {displayValue(row?.original?.goals)}
           // </div>
           <>
-            <Select
+            {/* <Select
               defaultValue={goals}
               // onValueChange={(e:string)=>()}
             >
@@ -331,6 +330,30 @@ export default function WorkoutPlansTableView() {
                 <SelectValue placeholder="Status" className="text-gray-400">
                   <span className="flex gap-2 items-center">
                     <span>{goalsLable?.label}</span>
+                  </span>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {workoutGoals.map(
+                  (item: any) =>
+                    !item.hide && (
+                      <SelectItem key={item.value + ""} value={item.value + ""}>
+                        {item.label}
+                      </SelectItem>
+                    )
+                )}
+              </SelectContent>
+            </Select> */}
+            <Select
+              value={goals} // Ensure value is a string if `goals` is a number
+              onValueChange={(newValue) => {
+                // Handle value change logic here
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue className="text-gray-400">
+                  <span className="flex gap-2 items-center">
+                    <span>{goals}</span>
                   </span>
                 </SelectValue>
               </SelectTrigger>
@@ -481,7 +504,7 @@ export default function WorkoutPlansTableView() {
     navigate("/admin/workoutplans/add/step/1");
   };
 
-  const totalRecords = workoutdata?.total_counts || 0;
+  const totalRecords = workoutdata?.filtered_counts || 0;
   const {
     handleLimitChange,
     handleNextPage,
@@ -697,6 +720,7 @@ export default function WorkoutPlansTableView() {
           onPrevPage={handlePrevPage}
           onFirstPage={handleFirstPage}
           onLastPage={handleLastPage}
+          isLastPage={isLastPage}
         />
       )}
 

@@ -38,7 +38,6 @@ const Pagination: React.FC<PaginationProps> = ({
   onLastPage,
   isLastPage,
 }) => {
-  // const isLastPage = offset + limit >= totalItems;
 
   return (
     <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">

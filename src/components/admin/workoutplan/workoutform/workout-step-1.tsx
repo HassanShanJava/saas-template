@@ -133,13 +133,6 @@ const WorkoutStep1: React.FC = () => {
               {...register("description")}
               error={errors.description?.message}
             />
-            {/*<AutosizeTextarea
-								placeholder="description"
-								id="description"
-								minHeight={94}
-								maxHeight={600}
-								className="h-full"
-							/>*/}
           </div>
           <div className="h-min">
             <Controller

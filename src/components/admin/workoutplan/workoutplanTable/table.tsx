@@ -61,8 +61,9 @@ import {
   useGetAllWorkoutDayQuery,
   visibleFor,
   workoutGoals,
+  workoutLevels,
 } from "@/lib/constants/workout";
-import { useGetAllWorkoutQuery } from "@/services/workoutService";
+import { useGetAllWorkoutQuery, useUpdateWorkoutgridMutation } from "@/services/workoutService";
 import { Separator } from "@/components/ui/separator";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
@@ -152,7 +153,7 @@ export default function WorkoutPlansTableView() {
       query: query,
     },
     {
-      skip: query == "", //query == "", need to do this
+      skip: query == "",
     }
   );
 
@@ -170,7 +171,7 @@ export default function WorkoutPlansTableView() {
   const WorkoutTableData = useMemo(() => {
     return (workoutdata?.data ?? []) as WorkoutPlanView[];
   }, [workoutdata]);
-
+    const [updateGrid]=useUpdateWorkoutgridMutation();
   // const handleLevelChange = async (payload: {
   //   level: difficultyEnum;
   //   id: number;
@@ -217,28 +218,28 @@ export default function WorkoutPlansTableView() {
     updateType: "level" | "goal"
   ) => {
     try {
-      // const resp =
-      //   updateType === "level"
-      //     ? await updateLevel({
-      //         level: payload.level!,
-      //         id: payload.id,
-      //         weeks: payload.weeks,
-      //       }).unwrap()
-      //     : await updateGoal({
-      //         goals: payload.goals!,
-      //         id: payload.id,
-      //         weeks: payload.weeks,
-      //       }).unwrap();
+      const resp =
+        updateType === "level"
+          ? await updateGrid({
+              level: payload.level!,
+              id: payload.id,
+              weeks: payload.weeks,
+            }).unwrap()
+          : await updateGrid({
+              goals: payload.goals!,
+              id: payload.id,
+              weeks: payload.weeks,
+            }).unwrap();
 
       refetch();
 
-      // if (resp) {
-      //   console.log({ resp });
-      //   toast({
-      //     variant: "success",
-      //     title: "Updated Successfully",
-      //   });
-      // }
+      if (resp) {
+        console.log({ resp });
+        toast({
+          variant: "success",
+          title: "Updated Successfully",
+        });
+      }
     } catch (error) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -263,9 +264,9 @@ export default function WorkoutPlansTableView() {
       accessorKey: "Plan name",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Plan Name</p>
+          <span>Plan Name</span>
           <button
-            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            className="text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("plan_name")}
           >
             <i
@@ -277,7 +278,7 @@ export default function WorkoutPlansTableView() {
       cell: ({ row }) => {
         console.log("row", row);
         return (
-          <div className="flex px-2 text-ellipsis whitespace-nowrap overflow-hidden ">
+          <div className="flex px-2 w-fit">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -304,7 +305,7 @@ export default function WorkoutPlansTableView() {
         <div className="flex items-center gap-2">
           <p>Goal</p>
           <button
-            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            className="text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("goals")}
           >
             <i
@@ -316,61 +317,34 @@ export default function WorkoutPlansTableView() {
       cell: ({ row }) => {
         const id = Number(row.original.id);
         const weeks = Number(row.original.weeks);
-        const goals = row.original.goals;
+        let goals = row.original.goals;
         return (
-          // <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-          //   {displayValue(row?.original?.goals)}
-          // </div>
-          <>
-            {/* <Select
-              defaultValue={goals}
-              // onValueChange={(e:string)=>()}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Status" className="text-gray-400">
-                  <span className="flex gap-2 items-center">
-                    <span>{goalsLable?.label}</span>
-                  </span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {workoutGoals.map(
-                  (item: any) =>
-                    !item.hide && (
-                      <SelectItem key={item.value + ""} value={item.value + ""}>
-                        {item.label}
-                      </SelectItem>
-                    )
-                )}
-              </SelectContent>
-            </Select> */}
-            <Select
-              value={goals} // Ensure value is a string if `goals` is a number
-              onValueChange={(newValue) => {
-                // Handle value change logic here
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue className="text-gray-400">
-                  <span className="flex gap-2 items-center">
-                    <span>{goals}</span>
-                  </span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {workoutGoals.map(
-                  (item: any) =>
-                    !item.hide && (
-                      <SelectItem key={item.value + ""} value={item.value + ""}>
-                        {item.label}
-                      </SelectItem>
-                    )
-                )}
-              </SelectContent>
-            </Select>
-          </>
+          <Select
+            value={goals} 
+            onValueChange={(newValue) => {
+              handleUpdate({ id: id, weeks: weeks, goals: newValue }, "goal");
+            }}
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue className="text-gray-400">
+                <span className="flex gap-2 items-center">
+                  <span>{goals}</span>
+                </span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {workoutGoals.map(
+                (item: any) =>
+                  !item.hide && (
+                    <SelectItem key={item.value} value={item.label}>
+                      {item.label}
+                    </SelectItem>
+                  )
+              )}
+            </SelectContent>
+          </Select>
         );
-      },
+      },  
     },
     {
       accessorKey: "level",
@@ -390,29 +364,29 @@ export default function WorkoutPlansTableView() {
       cell: ({ row }) => {
         const id = Number(row.original.id);
         const weeks = Number(row.original.weeks);
-        const goals = row.original.goals;
-        const goalsLable = workoutGoals.filter((r) => r.value === goals)[0];
+        const level = row.original.level;
         return (
-          // <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-          //   {displayValue(row?.original?.goals)}
-          // </div>
           <>
             <Select
-              defaultValue={goals}
-              // onValueChange={(e:string)=>()}
+               defaultValue={level as difficultyEnum}
+               onValueChange={(e: difficultyEnum ) => {
+                if(e){
+                  handleUpdate({ id: id, weeks: weeks, level: e }, "level");
+                }
+              }}
             >
-              <SelectTrigger>
+              <SelectTrigger  className="w-[150px]">
                 <SelectValue placeholder="Status" className="text-gray-400">
                   <span className="flex gap-2 items-center">
-                    <span>{goalsLable?.label}</span>
+                    <span>{level}</span>
                   </span>
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {workoutGoals.map(
+                {workoutLevels.map(
                   (item: any) =>
                     !item.hide && (
-                      <SelectItem key={item.value + ""} value={item.value + ""}>
+                      <SelectItem key={item.value} value={item.label}>
                         {item.label}
                       </SelectItem>
                     )

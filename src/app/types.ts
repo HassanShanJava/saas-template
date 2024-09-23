@@ -1204,7 +1204,7 @@ export interface workoutResponse {
 
 export interface WorkoutUpdateResponse {
   status: string;
-  id: number;
+  workout_id: number;
   message: string;
 }
 
@@ -1256,7 +1256,7 @@ export interface WorkoutDatabyId {
   goals: string;
   level: difficultyEnum;
   weeks: number;
-  image_url?: string;
+  img_url?: string;
   id: number;
   members: members[];
   days: days[];

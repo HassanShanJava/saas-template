@@ -21,6 +21,7 @@ import React from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ErrorType, WorkoutPlanView } from "@/app/types";
 import { useDeleteWorkoutMutation } from "@/services/workoutService";
+import { useNavigate } from "react-router-dom";
 
 export function DataTableRowActions({
   row,
@@ -34,6 +35,7 @@ export function DataTableRowActions({
   handleEdit?: any;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
+  const navigate = useNavigate(); // Use the navigate hook
 
   const { toast } = useToast();
   const [deleteWorkout, { isLoading: isdeletingWorkout }] =
@@ -67,6 +69,10 @@ export function DataTableRowActions({
       }
     }
   };
+  const handleEditClick = (data: WorkoutPlanView & { id: number }) => {
+    // Navigate to the edit route with the specific ID
+    navigate(`/admin/workoutplans/add/step/1/${data.id}`);
+  };
 
   return (
     <>
@@ -83,7 +89,7 @@ export function DataTableRowActions({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-4">
             <DialogTrigger asChild>
-              <DropdownMenuItem onClick={() => handleEdit(data)}>
+              <DropdownMenuItem onClick={() => handleEditClick(data)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>

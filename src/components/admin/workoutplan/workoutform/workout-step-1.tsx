@@ -126,7 +126,7 @@ const WorkoutStep1: React.FC = () => {
           <div className="row-span-2">
             <FloatingLabelInput
               id="description"
-              label="Description"
+              label="description"
               type="textarea"
               rows={4}
               className="col-span-2"
@@ -168,7 +168,8 @@ const WorkoutStep1: React.FC = () => {
               }) => (
                 <Select
                   onValueChange={(value) => onChange(value)}
-                  defaultValue={value}
+                  // defaultValue={value}
+                  value={value}
                 >
                   <SelectTrigger floatingLabel="Goal*" name="goals">
                     <SelectValue placeholder="Select Goal" />
@@ -200,7 +201,8 @@ const WorkoutStep1: React.FC = () => {
               }) => (
                 <Select
                   onValueChange={(value) => onChange(value)}
-                  defaultValue={value}
+                  // defaultValue={value}
+                  value={value}
                 >
                   <SelectTrigger floatingLabel="Level*" name="level">
                     <SelectValue placeholder="Select Level" />
@@ -232,9 +234,14 @@ const WorkoutStep1: React.FC = () => {
               }) => (
                 <Select
                   onValueChange={(value) => onChange(value)}
-                  defaultValue={value}
+                  value={value}
+
+                  // defaultValue={value}
                 >
-                  <SelectTrigger floatingLabel="Visible For*" name="visiblefor">
+                  <SelectTrigger
+                    floatingLabel="Visible For*"
+                    name="visible_for"
+                  >
                     <SelectValue placeholder="Select Visible For" />
                   </SelectTrigger>
                   <SelectContent>
@@ -264,9 +271,10 @@ const WorkoutStep1: React.FC = () => {
               }) => (
                 <Select
                   onValueChange={(value) => onChange(Number(value))}
-                  defaultValue={
-                    (value ? String(value) : value) as string | undefined
-                  }
+                  // defaultValue={
+                  //   (value ? String(value) : value) as string | undefined
+                  // }
+                  value={(value ? String(value) : value) as string | undefined}
                 >
                   <SelectTrigger floatingLabel="Weeks*" name="weeks">
                     <SelectValue placeholder="Weeks" />

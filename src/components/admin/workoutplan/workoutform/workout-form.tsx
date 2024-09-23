@@ -52,13 +52,18 @@ import { FiUpload } from "react-icons/fi";
 import * as z from "zod";
 import { toast } from "@/components/ui/use-toast";
 import { ErrorType, Workout } from "@/app/types";
-import { Outlet, useNavigate ,useParams} from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 import StepperIndicator from "@/components/ui/stepper-indicator";
 import { useForm, UseFormHandleSubmit, UseFormReturn } from "react-hook-form";
-import { useAddWorkoutMutation } from "@/services/workoutService";
+import {
+  useAddWorkoutMutation,
+  useUpdateWorkoutMutation,
+} from "@/services/workoutService";
 import { processAndUploadImages } from "@/constants/workout";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
+import { useGetWorkoutByIdQuery } from "@/services/workoutService";
+import { initialValue } from "@/constants/workout/index";
 export type ContextProps = { form: UseFormReturn<Workout> };
 const WorkoutPlanForm = () => {
   const { workoutId } = useParams<{ workoutId: string }>(); // Extract workoutId
@@ -67,67 +72,101 @@ const WorkoutPlanForm = () => {
   const navigate = useNavigate();
   const LAST_STEP = 2;
   const [activeStep, setActiveStep] = useState<number>(
-    +location.pathname[location.pathname.length - 1]
+    +parseInt(location.pathname.split("/").slice(-2, -1)[0])
   );
+
+  const {
+    data: workoutdataStep1,
+    error,
+    isLoading: workoutidDataLoading,
+  } = useGetWorkoutByIdQuery(
+    {
+      workoutId,
+      include_days: true,
+      include_days_and_exercises: false,
+    },
+    {
+      skip: workoutId == undefined,
+    }
+  );
+
   const form = useForm<Workout>({
     defaultValues: {},
     mode: "all",
   });
+
   const {
-    formState: { isSubmitted, isSubmitting },
+    control,
+    watch,
+    register,
+    handleSubmit,
+    clearErrors,
+    reset,
+    formState: { isSubmitting, errors, isSubmitted },
   } = form;
 
-  const [workoutIdState, setWorkoutIdState] = useState<number | null>(workoutId ? parseInt(workoutId) : null);
+  const watcher = watch();
 
-
-  // useEffect(() => {
-  //   console.log(
-  //     "activeStep useChipack",
-  //     activeStep,
-  //     +location.pathname[location.pathname.length - 1],
-  //     form.formState.isSubmitting,
-  //     form.formState.isSubmitted
-  //   );
-  //   if (
-  //     isNaN(activeStep) ||
-  //     (activeStep === 2 && !isSubmitted && !isSubmitting)
-  //   ) {
-  //     setActiveStep(1);
-  //     navigate("/admin/workoutplans/add/step/1");
-  //   } else {
-  //     navigate(`/admin/workoutplans/add/step/${activeStep}`);
-  //   }
-  // }, [activeStep, isSubmitted]);
+  const [workoutIdState, setWorkoutIdState] = useState<number | null>(
+    workoutId ? parseInt(workoutId) : null
+  );
 
   useEffect(() => {
     console.log(
       "activeStep useEffect",
       activeStep,
       +location.pathname[location.pathname.length - 1],
+      +location.pathname[location.pathname.length - 2],
+      parseInt(location.pathname.split("/").slice(-2, -1)[0]),
       form.formState.isSubmitting,
       form.formState.isSubmitted
     );
-  
-    if (isNaN(activeStep) || (activeStep === 2 && !isSubmitted && !isSubmitting)) {
+
+    if (
+      isNaN(activeStep) ||
+      (activeStep === 2 && !isSubmitted && !isSubmitting)
+    ) {
       setActiveStep(1);
       navigate("/admin/workoutplans/add/step/1");
     } else {
       // Navigate to the current step, including workoutId if it exists
-      const workoutIdPart = workoutIdState ? `/${workoutIdState}` : '';
+      const workoutIdPart = workoutIdState ? `/${workoutIdState}` : "";
       navigate(`/admin/workoutplans/add/step/${activeStep}${workoutIdPart}`);
     }
-  }, [activeStep, isSubmitted, workoutIdState]);
-  
-  console.log(
-    "activeStep",
-    activeStep,
-    +location.pathname[location.pathname.length - 1],
-    form.formState.isSubmitting,
-    form.formState.isSubmitted,
-    location.pathname
-  );
 
-  const [createWorkout,{isLoading:AddworkoutLoading,isError}] = useAddWorkoutMutation();
+    if (workoutdataStep1 && !isSubmitted) {
+      if (workoutIdState) {
+        const transformedData = {
+          workout_name: workoutdataStep1.workout_name || "",
+          org_id: workoutdataStep1.org_id || 0,
+          description: workoutdataStep1.description || "",
+          visible_for: workoutdataStep1.visible_for,
+          goals: workoutdataStep1.goals,
+          level: workoutdataStep1.level,
+          weeks: workoutdataStep1.weeks,
+          img_url: workoutdataStep1.img_url || undefined,
+          members: workoutdataStep1.members.map(
+            (member: { member_id: number }) => member.member_id
+          ),
+          file: undefined, // Adjust according to how files are managed
+        };
+        // Set the transformed data to the form
+        console.log("formadata", transformedData);
+        reset(transformedData);
+      } else {
+        reset(initialValue);
+      }
+    }
+  }, [activeStep, workoutdataStep1, isSubmitting, isSubmitted, workoutIdState]);
+
+  const [createWorkout, { isLoading: AddworkoutLoading, isError }] =
+    useAddWorkoutMutation();
+
+  const [
+    updateWorkout,
+    { isLoading: updateLoading, isError: workoutUpdateError },
+  ] = useUpdateWorkoutMutation();
+
   async function onSubmit(data: Workout) {
     try {
       const fileInputObject = {
@@ -160,22 +199,27 @@ const WorkoutPlanForm = () => {
       // if (resp) {
       //   console.log({ resp });
       // }
-
       let resp;
       if (workoutIdState) {
-        // Update existing workout
-        // resp = await updateWorkout({ id: workoutIdState, ...payload }).unwrap(); // Use your update mutation here
-
-        console.log("updated data",{payload})
+        resp = await updateWorkout({ id: workoutIdState, ...payload }).unwrap(); // Use your update mutation here
+        console.log("updated data", { payload });
+        if (resp) {
+          setWorkoutIdState(resp.workout_id); // Set the workout ID
+          const newActiveStep = 2;
+          console.log("resp id", resp.workout_id, workoutIdState, workoutId);
+          navigate(
+            `/admin/workoutplans/add/step/${newActiveStep}/${resp.workout_id}`
+          ); // Navigate to step 2 with ID
+        }
       } else {
         // Create new workout
         resp = await createWorkout(payload).unwrap();
-      }
-  
-      if (resp) {
-        setWorkoutIdState(resp.id); // Set the workout ID
-        const newActiveStep = 2;
-        navigate(`/admin/workoutplans/add/step/${newActiveStep}/${resp.id}`); // Navigate to step 2 with ID
+        if (resp) {
+          setWorkoutIdState(resp.id); // Set the workout ID
+          const newActiveStep = 2;
+          console.log("resp id", resp.id, workoutIdState, workoutId);
+          navigate(`/admin/workoutplans/add/step/${newActiveStep}/${resp.id}`); // Navigate to step 2 with ID
+        }
       }
     } catch (error: unknown) {
       console.error("Error", { error });
@@ -205,13 +249,21 @@ const WorkoutPlanForm = () => {
     navigate("/admin/workoutplans");
   };
 
+  console.log(
+    "WorkOutId step 1 data to populate",
+    { workoutdataStep1 },
+    { watcher },
+    { workoutIdState }
+  );
+  // console.log(, "edit");
+
   return (
     <Sheet open={true}>
       <SheetContent
         className="!max-w-full lg:w-[1150px] custom-scrollbar py-0"
         hideCloseButton
       >
-        <SheetHeader className="sticky z-50 top-0 py-4 bg-white">
+        <SheetHeader className="sticky z-40 top-0 py-4 bg-white">
           <SheetTitle>
             <div className="flex justify-between gap-5 items-start ">
               <div>
@@ -236,7 +288,9 @@ const WorkoutPlanForm = () => {
                     onClick={() => {
                       const newActive = activeStep - 1;
                       setActiveStep(newActive);
-                      navigate(`/admin/workoutplans/add/step/${newActive}/${workoutIdState}`);
+                      navigate(
+                        `/admin/workoutplans/add/step/${newActive}/${workoutIdState}`
+                      );
                     }}
                   >
                     <i className="fa fa-arrow-left-long "></i>
@@ -258,9 +312,9 @@ const WorkoutPlanForm = () => {
                     Save
                   </LoadingButton>
                 ) : (
-                  <Button
+                  <LoadingButton
                     type="button"
-                    className="w-[120px] bg-primary text-black text-center flex items-center gap-2"
+                    className="w-[130px] bg-primary text-black text-center flex items-center gap-2"
                     onClick={() => {
                       form.handleSubmit(async (data) => {
                         await onSubmit(data);
@@ -269,14 +323,15 @@ const WorkoutPlanForm = () => {
                         setActiveStep(newActive);
                       }, onError)();
                     }}
-                    disabled={AddworkoutLoading}
+                    loading={AddworkoutLoading || updateLoading}
+                    disabled={AddworkoutLoading || updateLoading}
                   >
                     {!form.formState.isSubmitting && (
-                          <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                        )}
+                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                    )}
                     <i className="fa fa-arrow-right-long "></i>
                     Next
-                  </Button>
+                  </LoadingButton>
                 )}
               </div>
             </div>

@@ -15,7 +15,7 @@ interface workoutQuery {
 }
 
 interface WorkoutQueryParams {
-  workoutId: number;
+  workoutId?: string;
   include_days?: boolean;
   include_days_and_exercises?: boolean;
 }
@@ -125,7 +125,7 @@ export const workoutApi = apiSlice.injectEndpoints({
       invalidatesTags: ["Workout"],
     }),
     deleteWorkoutDay: builder.mutation<
-      { status: string; message: string },
+      { status: number; message: string },
       number
     >({
       query: (workoutdata) => ({

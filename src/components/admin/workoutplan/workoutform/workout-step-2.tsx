@@ -19,10 +19,11 @@ import {
 import {
   createdByOptions,
   difficultyOptions,
-  useGetAllWorkoutDayQuery,
   workout_day_data,
   workout_day_exercise_data,
 } from "@/lib/constants/workout";
+
+import { useGetAllWorkoutDayQuery } from "@/constants/workout/index";
 import React, { useEffect, useState } from "react";
 import WorkoutDayComponent, {
   WorkoutDay,
@@ -62,11 +63,16 @@ import WorkoutDayExerciseComponent, {
 import { Label } from "@/components/ui/label";
 import expandTop from "@/assets/expand-top.svg";
 import filterRemove from "@/assets/filter-remove.svg";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import { ContextProps } from "./workout-form";
 import { useSelector } from "react-redux";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import { RootState } from "@/app/store";
+import {
+  useAddWorkoutDayMutation,
+  useDeleteWorkoutDayMutation,
+  useUpdateWorkoutDayMutation,
+} from "@/services/workoutService";
 
 export interface WorkoutWeek {
   week: number;
@@ -96,6 +102,7 @@ interface ExerciseFilter {
 }
 
 const WorkoutStep2: React.FC = () => {
+  const { workoutId } = useParams<{ workoutId: string }>(); // Extract workoutId
   const { form: form1 } = useOutletContext<ContextProps>();
   const noOfWeeks = form1.getValues("weeks");
   const [days, setDays] = useState(() =>
@@ -118,7 +125,7 @@ const WorkoutStep2: React.FC = () => {
   const [filterData, setFilter] = useState<ExerciseFilter>({});
   const [uid, setUid] = useState<number>(1e4);
 
-  const { data: WorkoutDays } = useGetAllWorkoutDayQuery();
+  const { data: WorkoutDays } = useGetAllWorkoutDayQuery(workoutId as string);
   const { data: CategoryData } = useGetAllCategoryQuery();
   const { data: EquipmentData } = useGetAllEquipmentsQuery();
   const { data: MuscleData } = useGetAllMuscleQuery();
@@ -129,6 +136,16 @@ const WorkoutStep2: React.FC = () => {
     query: query,
   });
 
+  const [addWorkoutDay, { isLoading: addDayLoading, isError: addDayError }] =
+    useAddWorkoutDayMutation();
+  const [
+    updateWorkoutDay,
+    { isLoading: updateDayLoading, isError: updateDayError },
+  ] = useUpdateWorkoutDayMutation();
+  const [
+    deleteWorkoutDay,
+    { isLoading: deleteDayLoading, isError: deleteDayError },
+  ] = useDeleteWorkoutDayMutation();
   useEffect(() => {
     if (WorkoutDays) {
       console.log("eGetAllWorkoutDayQueryetsData:", WorkoutDays);
@@ -158,6 +175,7 @@ const WorkoutStep2: React.FC = () => {
     setQuery(newQuery);
   }, [filterData]);
 
+  console.log("Workout id", workoutId);
   const Exercise_info: ExerciseItem[] = [
     {
       type: "multiselect",
@@ -217,27 +235,107 @@ const WorkoutStep2: React.FC = () => {
   const formValues = watch();
 
   function handleAddDay(idx: number, day_name: string) {
-    console.log("onSave", day_name);
-    setDays((days) =>
-      days.map((day, i) =>
-        i === idx ? { ...day, day_name: day_name, id: uid } : day
-      )
-    );
-    setUid((uid) => uid + 1);
+    const newDay = {
+      day_name: day_name,
+      week: Math.floor(idx / 7) + 1,
+      day: (idx % 7) + 1,
+      workout_id: Number(workoutId) || 0,
+    };
+    console.log("onSave", day_name, newDay);
+
+    addWorkoutDay(newDay)
+      .unwrap()
+      .then(() => {
+        // Use uid only in local state but not in the API payload
+        setDays((days) =>
+          days.map((day, i) =>
+            i === idx ? { ...day, day_name: day_name, id: uid } : day
+          )
+        );
+        setUid((uid) => uid + 1); // Increment UID locally
+        toast({
+          variant: "success",
+          description: "Workout Day Added",
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to add workout day:", error);
+        toast({
+          variant: "destructive",
+          description: "Failed to Add Workout Day",
+        });
+      });
+    // setDays((days) =>
+    //   days.map((day, i) =>
+    //     i === idx ? { ...day, day_name: day_name, id: uid } : day
+    //   )
+    // );
+    // setUid((uid) => uid + 1);
   }
 
   function handleDelete(idx: number) {
-    setDays((days) =>
-      days.map((day, i) =>
-        i === idx ? { week: Math.floor(i / 7) + 1, day: (i % 7) + 1 } : day
-      )
-    );
+    const dayToDelete = days[idx];
+    console.log("dleete id", days[idx].id);
+    // if(!dayToDelete.){
+
+    // }
+    // setDays((days) =>
+    //   days.map((day, i) =>
+    //     i === idx ? { week: Math.floor(i / 7) + 1, day: (i % 7) + 1 } : day
+    //   )
+    // );
+
+    //  if (!dayToDelete.id) {
+    //    console.warn("No ID found for this day, can't delete from server.");
+    //    return;
+    //  }
+
+    //  deleteWorkoutDay(dayToDelete.id)
+    //    .unwrap()
+    //    .then(() => {
+    //      setDays((days) =>
+    //        days.map((day, i) =>
+    //          i === idx ? { week: Math.floor(i / 7) + 1, day: (i % 7) + 1 } : day
+    //        )
+    //      );
+    //    })
+    //    .catch((error) => {
+    //      console.error("Failed to delete workout day:", error);
+    //    });
   }
 
   function handleUpdate(idx: number, id: number, day_name: string) {
-    setDays((days) =>
-      days.map((day, i) => (i === idx ? { ...day, day_name: day_name } : day))
-    );
+    const updatedDay = {
+      id: id,
+      day_name: day_name,
+      week: Math.floor(idx / 7) + 1,
+      day: (idx % 7) + 1,
+      workout_id: Number(workoutId) || 0,
+    };
+
+    updateWorkoutDay(updatedDay)
+      .unwrap()
+      .then(() => {
+        setDays((days) =>
+          days.map((day, i) =>
+            i === idx ? { ...day, day_name: day_name } : day
+          )
+        );
+        toast({
+          variant: "success",
+          description: "Workout Day Updated",
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to update workout day:", error);
+        toast({
+          variant: "destructive",
+          description: "Failed to update Workout Day",
+        });
+      });
+    // setDays((days) =>
+    //   days.map((day, i) => (i === idx ? { ...day, day_name: day_name } : day))
+    // );
   }
 
   function handleExerciseDuplicate(id: number) {

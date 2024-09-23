@@ -77,24 +77,24 @@ export const workout_day_data = [
   },
 ];
 
-export function useGetAllWorkoutDayQuery(): {
-  data: WorkoutDay[];
-  isLoading: boolean;
-} {
-  const [data, setData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+// export function useGetAllWorkoutDayQuery(): {
+//   data: WorkoutDay[];
+//   isLoading: boolean;
+// } {
+//   const [data, setData] = useState<any>(null);
+//   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setData(workout_day_data);
-      setIsLoading(false);
-    }, 6000);
+//   useEffect(() => {
+//     const timer = setTimeout(() => {
+//       setData(workout_day_data);
+//       setIsLoading(false);
+//     }, 6000);
 
-    return () => clearTimeout(timer);
-  }, []);
+//     return () => clearTimeout(timer);
+//   }, []);
 
-  return { data, isLoading };
-}
+//   return { data, isLoading };
+// }
 
 export const workout_day_exercise_data = [
   {

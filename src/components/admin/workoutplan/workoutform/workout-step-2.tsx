@@ -67,12 +67,15 @@ import { ContextProps } from "./workout-form";
 import { useSelector } from "react-redux";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import { RootState } from "@/app/store";
+const { VITE_VIEW_S3_URL } = import.meta.env;
+
 import {
   useAddWorkoutDayMutation,
   useDeleteWorkoutDayMutation,
   useGetAllExerciseForWorkoutQuery,
   useUpdateWorkoutDayMutation,
 } from "@/services/workoutService";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export interface WorkoutWeek {
   week: number;
@@ -96,7 +99,7 @@ export interface ExerciseForm {
   met_id: number | null;
   exercise_intensity: IntensityEnum | null;
   intensity_value: number | null;
-  thumbnail_male?: string;
+  gif_url?: string;
   notes: string;
 }
 
@@ -109,6 +112,9 @@ interface ExerciseFilter {
 }
 
 const WorkoutStep2: React.FC = () => {
+  const [inputValue, setInputValue] = useState("");
+  const debouncedInputValue = useDebounce(inputValue, 500);
+
   const [loadingState, setLoadingState] = useState<LoadingState>({
     isAdding: false,
     isUpdating: false,
@@ -556,7 +562,7 @@ const WorkoutStep2: React.FC = () => {
                     <FloatingLabelInput
                       id="search"
                       placeholder="Search by Exercise Name"
-                      // onChange={(event) => setInputValue(event.target.value)}
+                      onChange={(event) => setInputValue(event.target.value)}
                       className="text-gray-400 bg-transparent border border-black/25"
                     />
                   </div>
@@ -593,7 +599,11 @@ const WorkoutStep2: React.FC = () => {
                           <div className="flex gap-1 w-full">
                             <img
                               id="avatar"
-                              src={exercise.thumbnail_male}
+                              src={
+                                exercise.thumbnail_male
+                                  ? `${VITE_VIEW_S3_URL}/${exercise.thumbnail_male}`
+                                  : `${VITE_VIEW_S3_URL}/download.png`
+                              }
                               alt="Exercise Image"
                               className="h-[20px] w-12 object-contain relative"
                             />
@@ -686,7 +696,11 @@ const WorkoutStep2: React.FC = () => {
                   <div className="flex justify-center">
                     <img
                       id="avatar"
-                      src={formValues.thumbnail_male}
+                      src={
+                        formValues.gif_url
+                          ? `${VITE_VIEW_S3_URL}/${formValues.gif_url}`
+                          : `${VITE_VIEW_S3_URL}/download.png`
+                      }
                       alt="Exercise Image"
                       className="w-4/5 object-contain relative"
                     />
@@ -954,7 +968,7 @@ const WorkoutStep2: React.FC = () => {
                       <div>
                         <Controller
                           name="met_id"
-                          rules={{ required: "Required" }}
+                          // rules={{ required: "Required" }}
                           control={control}
                           render={({
                             field: { onChange, value, onBlur },

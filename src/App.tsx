@@ -43,7 +43,7 @@ function App() {
       <Routes>
         <Route path="/reset_password/:token" element={<ResetPassword />} />
         <Route path="/forgot_password" element={<ForgotPasword />} />
-        <Route path="/" element={<ProtectedRoute/>}>
+        <Route path="/" element={<ProtectedRoute />}>
           <Route path="/" index element={<AuthenticationPage />} />
           <Route element={<DashboardLayout />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
@@ -72,9 +72,9 @@ function App() {
 							</Route>
 						</Route> */}
             {/*<Route path="/test" element={<Test />} />*/}
-            <Route path="/notfound" element={<NotFoundPage />} />
-            <Route path="*" element={<Navigate to="/notfound" replace />} />
           </Route>
+          <Route path="/notfound" element={<NotFoundPage />} />
+          <Route path="*" element={<Navigate to="/notfound" replace />} />
         </Route>
       </Routes>
       <Loader open={loading} />

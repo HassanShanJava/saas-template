@@ -4,11 +4,15 @@ import NotFoundPage from "../PageNotFound";
 import AuthenticationPage from "../app/login/login";
 import DashboardLayout from "../ui/common/dashboardLayout";
 import { extractLinks } from "@/utils/helper";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
 
 const ProtectedRoute = () => {
   const [sidePanel, setSidePanel] = useState<string[]>([]);
   const sidepanel = localStorage.getItem("sidepanel");
-
+  const orgId = useSelector(
+    (state: RootState) => state.auth.userInfo?.user?.org_id
+  );
   useEffect(() => {
     if (sidepanel) {
       try {
@@ -44,25 +48,43 @@ const ProtectedRoute = () => {
   const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const location = useLocation();
   // Redirect to login if not authenticated and trying to access a protected route
-  if (!isAuthenticated && location.pathname !== "/") {
-    return <AuthenticationPage />;
-  }
+  if(orgId==21){
 
-  // Redirect to dashboard if authenticated and trying to access the login page
-  if (isAuthenticated && location.pathname === "/") {
-    return <Navigate to={sidePanel[0]} />;
-  }
-
-  // Check if the current path is not in the links array and redirect to the first available link
-  if (isAuthenticated) {
-    if (sidePanel.some(link => link == location.pathname)) {
-      return <Outlet />;
-    } else if(sidePanel.length>0){
-      return <NotFoundPage />
+    if (!isAuthenticated && location.pathname !== "/") {
+      return <Navigate to="/" />;
     }
+  
+    // Redirect to dashboard if authenticated and trying to access the login page
+    if (isAuthenticated && location.pathname === "/") {
+      return <Navigate to="/admin/dashboard" />;
+    }
+  
+    return <Outlet />;
+  }else{
+    if (!isAuthenticated && location.pathname !== "/") {
+      // return <AuthenticationPage />;
+      return <Outlet />;
+    }
+  
+    // Redirect to dashboard if authenticated and trying to access the login page
+    if (isAuthenticated && location.pathname === "/") {
+      return <Navigate to={sidePanel[0]} />;
+    }
+  
+    // Check if the current path is not in the links array and redirect to the first available link
+    if (isAuthenticated) {
+      if (orgId == 21) {
+        return <Outlet />;
+      } else if (sidePanel.some(link => link == location.pathname)) {
+        return <Outlet />;
+      } else if (sidePanel.length > 0) {
+        return <NotFoundPage />
+      }
+  
+    }
+  
+    return <Outlet />;
   }
-
-  return <Outlet />;
 
 };
 

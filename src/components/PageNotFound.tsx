@@ -1,10 +1,15 @@
+import { RootState } from "@/app/store";
 import { extractLinks } from "@/utils/helper";
 import React from "react";
 import { FaHome, FaFrown } from "react-icons/fa";
 import { GiRollingDices } from "react-icons/gi";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const NotFoundPage = () => {
+  const orgId = useSelector(
+    (state: RootState) => state.auth.userInfo?.user?.org_id
+  );
   const sidepanel = localStorage.getItem("sidepanel");
   const decodedSidepanel = JSON.parse(atob(sidepanel as string));
   const filteredPanel = decodedSidepanel.filter((sidepanel: any) => {
@@ -36,7 +41,7 @@ const NotFoundPage = () => {
       <p style={messageStyle}>
         It seems like the page you're looking for doesn't exist.
       </p>
-      <Link to={links[0]} style={linkStyle} className="text-primar">
+      <Link to={orgId == 21 ? "/admin/dashboard" : links[0]} style={linkStyle} className="text-primar">
         <FaHome style={homeIconStyle} className="text-primary" />{" "}
         <span className="text-primary">Go back to Home</span>
       </Link>

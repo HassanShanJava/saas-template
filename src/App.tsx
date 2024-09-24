@@ -30,6 +30,15 @@ import WorkoutStep1 from "./components/admin/workoutplan/workoutform/workout-ste
 import WorkoutStep2 from "./components/admin/workoutplan/workoutform/workout-step-2";
 import ForgotPasword from "./components/app/login/forgot_password";
 
+
+// pos
+import Sell from "./components/admin/pos/sell";
+import CounterManagement from "./components/admin/pos/counter_management";
+import PaymentMethods from "./components/admin/pos/payment_methods";
+import CashManagement from "./components/admin/pos/cash_management";
+import Register from "./components/admin/pos/register";
+import SaleHistory from "./components/admin/pos/sales_history";
+
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -72,6 +81,13 @@ function App() {
 							</Route>
 						</Route> */}
             {/*<Route path="/test" element={<Test />} />*/}
+            
+            <Route path="/admin/pos/sell" element={<Sell />} />
+            <Route path="/admin/pos/salesHistory" element={<SaleHistory />} />
+            <Route path="/admin/pos/register" element={<Register />} />
+            <Route path="/admin/pos/cash" element={<CashManagement />} />
+            <Route path="/admin/pos/paymentMethods" element={<PaymentMethods />} />
+            <Route path="/admin/pos/counter" element={<CounterManagement />} />
             <Route path="/notfound" element={<NotFoundPage />} />
             <Route path="*" element={<Navigate to="/notfound" replace />} />
           </Route>

@@ -543,10 +543,10 @@ export default function FacilitiesTableView() {
                   </TableRow>
                 ))
               ) : facilitiestableData.length > 0 ? (
-                <TableRow>
+                <TableRow className="!p-0">
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-24 text-center  "
                   >
                     No data found.
                   </TableCell>

@@ -303,8 +303,8 @@ export default function MembershipsTableView() {
     {
       accessorKey: "name",
       header: () => (
-        <div className="flex items-center gap-2">
-          <p>Membership Name</p>
+        <div className="flex  items-center gap-2">
+          <p className="w-full">Membership Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("name")}
@@ -723,7 +723,7 @@ export default function MembershipsTableView() {
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
         <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
           <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />

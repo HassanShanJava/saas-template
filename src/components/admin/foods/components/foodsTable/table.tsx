@@ -240,10 +240,10 @@ export default function FoodsTableView() {
                 src={VITE_VIEW_S3_URL + "/" + row.original.img_url}
                 alt={row.original.name}
                 loading="lazy"
-                className="size-14 bg-gray-100 object-contain rounded-sm "
+                className="size-8 bg-gray-100 object-cover rounded-sm "
               />
             ) : (
-              <div className="size-14 bg-gray-100 rounded-sm"></div>
+              <div className="size-8 bg-gray-100 rounded-sm"></div>
             )}
             <div className="">
               <TooltipProvider>
@@ -251,8 +251,8 @@ export default function FoodsTableView() {
                   <TooltipTrigger asChild>
                     <p className="capitalize cursor-pointer">
                       <span>{displayValue(
-                        `${row.original.name}`.length > 8
-                          ? `${row.original.name}`.substring(0, 8) + "..."
+                        `${row.original.name}`.length > 15
+                          ? `${row.original.name}`.substring(0, 15) + "..."
                           : `${row.original.name}`
                       )}</span>
                     </p>
@@ -540,7 +540,7 @@ export default function FoodsTableView() {
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
         <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
           <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />

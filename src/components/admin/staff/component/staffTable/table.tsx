@@ -311,10 +311,10 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "own_staff_id",
-      meta: "Staff ID",
+      meta: "Staff Id",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Staff ID</p>
+          <p>Staff Id</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("id")}
@@ -355,15 +355,15 @@ export default function StaffTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            <div className="w-14 h-14 flex gap-2 items-center justify-between">
+            <div className="size-8 flex gap-2 items-center justify-between">
               {row.original.profile_img ? (
                 <img
                   src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
                   loading="lazy"
-                  className="w-14 h-14 bg-gray-100 object-contain rounded-sm "
+                  className="size-8 bg-gray-100 object-contain rounded-sm "
                 />
               ) : (
-                <div className="size-14 bg-gray-100 rounded-sm"></div>
+                <div className="size-8 bg-gray-100 rounded-sm"></div>
               )}
             </div>
             <div className="">
@@ -496,7 +496,7 @@ export default function StaffTableView() {
             }
             disabled={value == "pending"}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-8">
               <SelectValue placeholder="Status" className="text-gray-400">
                 <span className="flex gap-2 items-center">
                   <span
@@ -692,7 +692,7 @@ export default function StaffTableView() {
   const [open, setOpen] = useState<boolean>(false);
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
         <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
           <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />

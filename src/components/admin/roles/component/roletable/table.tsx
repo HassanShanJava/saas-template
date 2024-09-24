@@ -225,7 +225,7 @@ export default function RoleTableView() {
 
   return (
     <div className="w-full ">
-      <div className="flex items-center justify-between px-5 ">
+      <div className="flex items-center justify-between px-3 ">
         <div className="flex flex-1 items-center space-x-2">
           <div className="flex items-center  relative">
             <Select

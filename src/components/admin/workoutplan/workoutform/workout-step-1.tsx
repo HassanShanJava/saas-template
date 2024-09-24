@@ -40,7 +40,6 @@ import {
 } from "@/lib/constants/workout";
 import { cn } from "@/lib/utils";
 import {
-  useGetCountriesQuery,
   useGetMembersListQuery,
 } from "@/services/memberAPi";
 import { Check, ChevronDownIcon, ImageIcon } from "lucide-react";
@@ -75,9 +74,6 @@ const WorkoutStep1: React.FC = () => {
     maxSize: 1 * 1024 * 1024,
   } satisfies DropzoneOptions;
   const { form } = useOutletContext<ContextProps>();
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { data: countries } = useGetCountriesQuery();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { data: memberList } = useGetMembersListQuery(orgId);

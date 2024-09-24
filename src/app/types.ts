@@ -969,6 +969,11 @@ export interface EquipmentApiResponse {
   equipment_name: string;
 }
 
+export interface EquipmentApiResponseServer {
+  id: number;
+  name: string;
+}
+
 export interface CategoryApiResponse {
   id: number;
   category_name: string;
@@ -1145,7 +1150,7 @@ export interface ExerciseResponseServerViewType {
   image_url_female?: string;
   image_url_male?: string;
   category_id: number;
-  equipments: EquipmentApiResponse[];
+  equipments: EquipmentApiResponseServer[];
   primary_muscles: muscleserverResponse[];
   secondary_muscles?: muscleserverResponse[];
   primary_joints: JointApiResponse[];
@@ -1268,10 +1273,3 @@ export interface workoutUpdateStatus {
   level?: difficultyEnum;
   weeks: number;
 }
-
-// export interface workoutAddDay {
-//   workout_id: number;
-//   day_name: string;
-//   week: number;
-//   day: number;
-// }

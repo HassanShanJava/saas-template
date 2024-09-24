@@ -1,6 +1,7 @@
 import { ExerciseTypeEnum, IntensityEnum } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+const { VITE_VIEW_S3_URL } = import.meta.env;
 
 export interface Exercise {
   id: number;
@@ -48,12 +49,16 @@ export default function WorkoutDayExerciseComponent({
         <div className="grid grid-cols-[40px_auto] w-4/5">
           <img
             id="avatar"
-            src={exercise.thumbnail_male}
+            src={
+              exercise.thumbnail_male
+                ? `${VITE_VIEW_S3_URL}/${exercise.thumbnail_male}`
+                : `${VITE_VIEW_S3_URL}/download.png`
+            }
             alt="Exercise Image"
             className="h-[20px] w-[40px] object-contain relative"
           />
           <span className="text-sm truncate">
-            {exercise.exercise_name} -{" "}
+            {exercise.exercise_name}-{" "}
             {exercise.equipments.map((e) => e.name).join(", ")}
           </span>
         </div>

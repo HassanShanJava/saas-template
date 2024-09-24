@@ -7,6 +7,7 @@ import {
   WorkoutUpdateResponse,
   workoutUpdateStatus,
   days,
+  ExerciseTableServerTypes,
 } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 interface workoutQuery {
@@ -128,16 +129,27 @@ export const workoutApi = apiSlice.injectEndpoints({
       { status: number; message: string },
       number
     >({
-      query: (workoutdata) => ({
-        url: "/workout/day",
+      query: (workoutid) => ({
+        url: `/workout/day/${workoutid}`,
         method: "DELETE",
-        body: workoutdata,
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/json",
         },
       }),
       invalidatesTags: ["Workout"],
+    }),
+    getAllExerciseForWorkout: builder.query<
+      ExerciseTableServerTypes,
+      workoutQuery
+    >({
+      query: (SearchCriteria) => ({
+        url: `/exercise?org_id=${SearchCriteria.org_id}&${SearchCriteria.query}`,
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      }),
+      providesTags: ["Exercise"],
     }),
   }),
 });
@@ -152,4 +164,5 @@ export const {
   useAddWorkoutDayMutation,
   useDeleteWorkoutDayMutation,
   useUpdateWorkoutDayMutation,
+  useGetAllExerciseForWorkoutQuery,
 } = workoutApi;

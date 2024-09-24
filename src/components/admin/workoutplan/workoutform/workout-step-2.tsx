@@ -20,7 +20,6 @@ import {
   createdByOptions,
   difficultyOptions,
   workout_day_data,
-  workout_day_exercise_data,
 } from "@/lib/constants/workout";
 
 import { useGetAllWorkoutDayQuery } from "@/constants/workout/index";
@@ -71,6 +70,7 @@ import { RootState } from "@/app/store";
 import {
   useAddWorkoutDayMutation,
   useDeleteWorkoutDayMutation,
+  useGetAllExerciseForWorkoutQuery,
   useUpdateWorkoutDayMutation,
 } from "@/services/workoutService";
 
@@ -78,7 +78,14 @@ export interface WorkoutWeek {
   week: number;
   days: WorkoutDay[];
 }
-
+interface LoadingState {
+  isAdding: boolean;
+  isUpdating: boolean;
+  isDeleting: boolean;
+  currentAddingDay: number | null;
+  currentUpdatingDay: number | null;
+  currentDeletingDay: number | null;
+}
 export interface ExerciseForm {
   exercise_type: string;
   seconds_per_set: number[];
@@ -102,6 +109,14 @@ interface ExerciseFilter {
 }
 
 const WorkoutStep2: React.FC = () => {
+  const [loadingState, setLoadingState] = useState<LoadingState>({
+    isAdding: false,
+    isUpdating: false,
+    isDeleting: false,
+    currentAddingDay: null,
+    currentUpdatingDay: null,
+    currentDeletingDay: null,
+  });
   const { workoutId } = useParams<{ workoutId: string }>(); // Extract workoutId
   const { form: form1 } = useOutletContext<ContextProps>();
   const noOfWeeks = form1.getValues("weeks");
@@ -114,9 +129,8 @@ const WorkoutStep2: React.FC = () => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [query, setQuery] = useState<string>("");
-  const [exercises, setExercises] = useState<Exercise[]>(
-    workout_day_exercise_data as Exercise[]
-  );
+  const [exercises, setExercises] = useState<Exercise[]>([] as Exercise[]);
+  // workout_day_exercise_data as Exercise[]
   const [exerciseFilterOpen, setExerciseFilterOpen] = useState<boolean>(true);
   const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<number>();
   const [currExercise, setCurrExercise] = useState<Exercise | null>(null);
@@ -131,7 +145,7 @@ const WorkoutStep2: React.FC = () => {
   const { data: MuscleData } = useGetAllMuscleQuery();
   const { data: JointsData } = useGetAllJointsQuery();
   const { data: MetsData } = useGetAllMetQuery();
-  const { data: Exercises, isLoading } = useGetAllExercisesQuery({
+  const { data: Exercises, isLoading } = useGetAllExerciseForWorkoutQuery({
     org_id: orgId,
     query: query,
   });
@@ -198,13 +212,13 @@ const WorkoutStep2: React.FC = () => {
       required: true,
       options: difficultyOptions,
     },
-    {
-      type: "select",
-      name: "created_by",
-      label: "Created By",
-      required: true,
-      options: createdByOptions,
-    },
+    // {
+    //   type: "select",
+    //   name: "created_by",
+    //   label: "Created By",
+    //   required: true,
+    //   options: createdByOptions,
+    // },
     {
       type: "multiselect",
       name: "equipment_ids",
@@ -235,6 +249,11 @@ const WorkoutStep2: React.FC = () => {
   const formValues = watch();
 
   function handleAddDay(idx: number, day_name: string) {
+    setLoadingState((prevState) => ({
+      ...prevState,
+      isAdding: true,
+      currentAddingDay: idx,
+    }));
     const newDay = {
       day_name: day_name,
       week: Math.floor(idx / 7) + 1,
@@ -246,17 +265,21 @@ const WorkoutStep2: React.FC = () => {
     addWorkoutDay(newDay)
       .unwrap()
       .then(() => {
-        // Use uid only in local state but not in the API payload
         setDays((days) =>
           days.map((day, i) =>
             i === idx ? { ...day, day_name: day_name, id: uid } : day
           )
         );
-        setUid((uid) => uid + 1); // Increment UID locally
+        setUid((uid) => uid + 1);
         toast({
           variant: "success",
           description: "Workout Day Added",
         });
+        setLoadingState((prevState) => ({
+          ...prevState,
+          isAdding: false,
+          currentAddingDay: null,
+        }));
       })
       .catch((error) => {
         console.error("Failed to add workout day:", error);
@@ -265,46 +288,51 @@ const WorkoutStep2: React.FC = () => {
           description: "Failed to Add Workout Day",
         });
       });
-    // setDays((days) =>
-    //   days.map((day, i) =>
-    //     i === idx ? { ...day, day_name: day_name, id: uid } : day
-    //   )
-    // );
-    // setUid((uid) => uid + 1);
   }
 
-  function handleDelete(idx: number) {
-    const dayToDelete = days[idx];
-    console.log("dleete id", days[idx].id);
-    // if(!dayToDelete.){
+  function handleDelete(idx: number, id: number) {
+    setLoadingState((prevState) => ({
+      ...prevState,
+      isDeleting: true,
+      currentDeletingDay: idx,
+    }));
 
-    // }
-    // setDays((days) =>
-    //   days.map((day, i) =>
-    //     i === idx ? { week: Math.floor(i / 7) + 1, day: (i % 7) + 1 } : day
-    //   )
-    // );
-
-    //  if (!dayToDelete.id) {
-    //    console.warn("No ID found for this day, can't delete from server.");
-    //    return;
-    //  }
-
-    //  deleteWorkoutDay(dayToDelete.id)
-    //    .unwrap()
-    //    .then(() => {
-    //      setDays((days) =>
-    //        days.map((day, i) =>
-    //          i === idx ? { week: Math.floor(i / 7) + 1, day: (i % 7) + 1 } : day
-    //        )
-    //      );
-    //    })
-    //    .catch((error) => {
-    //      console.error("Failed to delete workout day:", error);
-    //    });
+    if (!id) {
+      return;
+    }
+    deleteWorkoutDay(Number(id))
+      .unwrap()
+      .then(() => {
+        setDays((days) =>
+          days.map((day, i) =>
+            i === idx ? { week: Math.floor(i / 7) + 1, day: (i % 7) + 1 } : day
+          )
+        );
+        toast({
+          variant: "success",
+          description: "Workout Day Deleted",
+        });
+        setLoadingState((prevState) => ({
+          ...prevState,
+          isDeleting: false,
+          currentDeletingDay: null,
+        }));
+      })
+      .catch(() => {
+        toast({
+          variant: "destructive",
+          description: "Failed to delete the day",
+        });
+      });
   }
 
   function handleUpdate(idx: number, id: number, day_name: string) {
+    setLoadingState((prevState) => ({
+      ...prevState,
+      isUpdating: true,
+      currentUpdatingDay: idx,
+    }));
+
     const updatedDay = {
       id: id,
       day_name: day_name,
@@ -325,6 +353,11 @@ const WorkoutStep2: React.FC = () => {
           variant: "success",
           description: "Workout Day Updated",
         });
+        setLoadingState((prevState) => ({
+          ...prevState,
+          isUpdating: false,
+          currentUpdatingDay: null,
+        }));
       })
       .catch((error) => {
         console.error("Failed to update workout day:", error);
@@ -333,9 +366,6 @@ const WorkoutStep2: React.FC = () => {
           description: "Failed to update Workout Day",
         });
       });
-    // setDays((days) =>
-    //   days.map((day, i) => (i === idx ? { ...day, day_name: day_name } : day))
-    // );
   }
 
   function handleExerciseDuplicate(id: number) {
@@ -384,19 +414,36 @@ const WorkoutStep2: React.FC = () => {
                     </AccordionTrigger>
                     <AccordionContent className="space-y-3">
                       <span className="text-sm">Days</span>
-                      {[...Array(7).keys()].map((_, j: number) => (
-                        <WorkoutDayComponent
-                          key={i * 7 + j}
-                          day={days[i * 7 + j]}
-                          onSave={(day_name) =>
-                            handleAddDay(i * 7 + j, day_name)
-                          }
-                          onDelete={() => handleDelete(i * 7 + j)}
-                          onUpdate={(id, day_name) =>
-                            handleUpdate(i * 7 + j, id, day_name)
-                          }
-                        />
-                      ))}
+                      {[...Array(7).keys()].map((_, j: number) => {
+                        const index = i * 7 + j; // Calculate the index for the current day
+
+                        const isCreating =
+                          loadingState.isAdding &&
+                          loadingState.currentAddingDay === index;
+                        const isUpdating =
+                          loadingState.isUpdating &&
+                          loadingState.currentUpdatingDay === index;
+                        const isDeleting =
+                          loadingState.isDeleting &&
+                          loadingState.currentDeletingDay === index;
+
+                        return (
+                          <WorkoutDayComponent
+                            key={i * 7 + j}
+                            day={days[i * 7 + j]}
+                            onSave={(day_name) =>
+                              handleAddDay(i * 7 + j, day_name)
+                            }
+                            onDelete={(id) => handleDelete(i * 7 + j, id)}
+                            onUpdate={(id, day_name) =>
+                              handleUpdate(i * 7 + j, id, day_name)
+                            }
+                            isCreating={isCreating}
+                            isUpdating={isUpdating}
+                            isDeleting={isDeleting}
+                          />
+                        );
+                      })}
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
@@ -530,38 +577,38 @@ const WorkoutStep2: React.FC = () => {
                 {isLoading ? (
                   <Spinner />
                 ) : (
-                  // Exercises?.data.map((e) => {
-                  //   const exercise: ExerciseResponseServerViewType =
-                  //     e as unknown as ExerciseResponseServerViewType;
-                  //   return (
-                  //     <div
-                  //       onClick={() => {
-                  //         handleExerciseAdd(
-                  //           exercise as unknown as ExerciseResponseServerViewType
-                  //         );
-                  //       }}
-                  //       className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer"
-                  //     >
-                  //       <div className="flex justify-between items-center relative space-x-1 ">
-                  //         <div className="flex gap-1 w-full">
-                  //           <img
-                  //             id="avatar"
-                  //             src={exercise.thumbnail_male}
-                  //             alt="Exercise Image"
-                  //             className="h-[20px] w-12 object-contain relative"
-                  //           />
-                  //           <span className="text-sm truncate">
-                  //             {exercise.exercise_name} -{" "}
-                  //             {exercise.equipments
-                  //               .map((e) => e.name)
-                  //               .join(", ")}
-                  //           </span>
-                  //         </div>
-                  //       </div>
-                  //     </div>
-                  //   );
-                  // })
-                  <></>
+                  Exercises?.data.map((e) => {
+                    const exercise: ExerciseResponseServerViewType =
+                      e as unknown as ExerciseResponseServerViewType;
+                    return (
+                      <div
+                        onClick={() => {
+                          handleExerciseAdd(
+                            exercise as unknown as ExerciseResponseServerViewType
+                          );
+                        }}
+                        className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer"
+                      >
+                        <div className="flex justify-between items-center relative space-x-1 ">
+                          <div className="flex gap-1 w-full">
+                            <img
+                              id="avatar"
+                              src={exercise.thumbnail_male}
+                              alt="Exercise Image"
+                              className="h-[20px] w-12 object-contain relative"
+                            />
+                            <span className="text-sm truncate">
+                              {exercise.exercise_name} -{" "}
+                              {exercise.equipments
+                                .map((e) => e.name)
+                                .join(", ")}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                  // <></>
                 )}
               </div>
             </>

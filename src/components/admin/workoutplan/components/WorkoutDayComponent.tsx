@@ -6,6 +6,12 @@ import {
 import { cn } from "@/lib/utils";
 import { Pencil } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export interface WorkoutDay {
   id?: number;
@@ -24,12 +30,18 @@ interface WorkoutDayProps {
   onSave: (day_name: string) => void;
   onDelete?: (id: number) => void;
   onUpdate: (id: number, day_name: string) => void;
+  isCreating?: boolean;
+  isUpdating?: boolean;
+  isDeleting?: boolean;
 }
 export default function WorkoutDayComponent({
   day,
   onSave,
   onDelete,
   onUpdate,
+  isCreating,
+  isDeleting,
+  isUpdating,
 }: WorkoutDayProps) {
   const [edit, setEdit] = useState<boolean>(false);
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -48,6 +60,8 @@ export default function WorkoutDayComponent({
       }
     }
   };
+
+  const isLoading = isCreating || isUpdating || isDeleting;
 
   if (edit) {
     return (
@@ -85,7 +99,11 @@ export default function WorkoutDayComponent({
               className="h-auto p-0"
               variant="ghost"
             >
-              <i className="fa-regular fa-floppy-disk h-4 w-4"></i>
+              {isCreating || isUpdating ? (
+                <></>
+              ) : (
+                <i className="fa-regular fa-floppy-disk h-4 w-4"></i>
+              )}
             </Button>
             <Button
               onClick={() => {
@@ -119,8 +137,17 @@ export default function WorkoutDayComponent({
       <div className="flex justify-between items-center relative space-x-1">
         <div className="flex gap-1 w-4/5">
           <span className="max-w-[30%] text-sm truncate">Day {day.day}: </span>
-          <span className="max-w-[70%] text-sm truncate">
-            {editName ?? day.day_name}
+          <span className="max-w-[70%] text-sm ">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger className="max-w-[100%] truncate">
+                  {editName ?? day.day_name}
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{editName ?? day.day_name}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </span>
         </div>
         <div className="flex gap-x-1 align-center">
@@ -128,11 +155,42 @@ export default function WorkoutDayComponent({
             onClick={() => {
               setEdit(true);
               setIsFocused(true);
+              // clicking(isCreatingId?.day);
             }}
             className="h-auto p-0"
             variant="ghost"
           >
-            <Pencil className="h-4 w-4" />
+            {isUpdating ? (
+              <>
+                <button
+                  className="bg-transparent outline-none flex flex-row text-sm text-gray-500"
+                  disabled
+                >
+                  <svg
+                    className="animate-spin h-5 w-5 text-primary"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    ></path>
+                  </svg>
+                </button>
+              </>
+            ) : (
+              <Pencil className="h-4 w-4" />
+            )}
           </Button>
           <Button
             onClick={() => {
@@ -143,7 +201,35 @@ export default function WorkoutDayComponent({
             className="h-auto p-0"
             variant="ghost"
           >
-            <i className="fa-regular fa-trash-can h-4 w-4"></i>
+            {isDeleting ? (
+              <button
+                className="bg-transparent outline-none flex flex-row text-sm text-gray-500"
+                disabled
+              >
+                <svg
+                  className="animate-spin h-5 w-5 text-primary"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  ></path>
+                </svg>
+              </button>
+            ) : (
+              <i className="fa-solid fa-trash h-4 w-4"></i>
+            )}
           </Button>
         </div>
       </div>
@@ -164,10 +250,43 @@ export default function WorkoutDayComponent({
         className="font-normal h-auto p-0 hover:bg-transparent"
         variant="ghost"
       >
-        <i className="text-gray-500">
-          <i className="fa fa-plus text-primary mr-2"></i>
-          Add workout.
-        </i>
+        {isCreating ? (
+          <>
+            <button
+              className="bg-transparent outline-none flex flex-row text-sm text-gray-500"
+              disabled
+            >
+              <svg
+                className="animate-spin h-5 w-5 text-primary"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                ></path>
+              </svg>
+              Adding workout day
+            </button>
+          </>
+        ) : (
+          <>
+            <i className="text-gray-500">
+              <i className="fa fa-plus text-primary mr-2"></i>
+              Add workout.
+            </i>
+          </>
+        )}
       </Button>
     </div>
   );

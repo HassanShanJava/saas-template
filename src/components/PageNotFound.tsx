@@ -31,6 +31,7 @@ const NotFoundPage = () => {
     return true;
   });
   const links = extractLinks(filteredPanel)
+  console.log({links})
   return (
     <div style={containerStyle}>
       <div style={iconContainerStyle}>

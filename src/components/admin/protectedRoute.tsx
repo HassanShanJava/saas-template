@@ -48,44 +48,18 @@ const ProtectedRoute = () => {
   const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const location = useLocation();
   // Redirect to login if not authenticated and trying to access a protected route
-  if(orgId==21){
-
-    if (!isAuthenticated && location.pathname !== "/") {
-      return <Navigate to="/" />;
-    }
-  
-    // Redirect to dashboard if authenticated and trying to access the login page
-    if (isAuthenticated && location.pathname === "/") {
-      return <Navigate to="/admin/dashboard" />;
-    }
-  
-    return <Outlet />;
-  }else{
-    if (!isAuthenticated && location.pathname !== "/") {
-      // return <AuthenticationPage />;
-      return <Outlet />;
-    }
-  
-    // Redirect to dashboard if authenticated and trying to access the login page
-    if (isAuthenticated && location.pathname === "/") {
-      return <Navigate to={sidePanel[0]} />;
-    }
-  
-    // Check if the current path is not in the links array and redirect to the first available link
-    if (isAuthenticated) {
-      if (orgId == 21) {
-        return <Outlet />;
-      } else if (sidePanel.some(link => link == location.pathname)) {
-        return <Outlet />;
-      } else if (sidePanel.length > 0) {
-        return <NotFoundPage />
-      }
-  
-    }
-  
-    return <Outlet />;
+   // Redirect to login if not authenticated and trying to access a protected route
+   if (!isAuthenticated && location.pathname !== "/") {
+    return <Navigate to="/" />;
   }
 
+  // Redirect to dashboard if authenticated and trying to access the login page
+  if (isAuthenticated && location.pathname === "/") {
+    return <Navigate to="/admin/dashboard" />;
+  }
+
+  return <Outlet />;
+  
 };
 
 

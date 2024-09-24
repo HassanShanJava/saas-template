@@ -314,7 +314,7 @@ export default function StaffTableView() {
       meta: "Staff Id",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Staff Id</p>
+          <p className="text-nowrap">Staff Id</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("id")}
@@ -341,7 +341,7 @@ export default function StaffTableView() {
 
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Staff Name</p>
+          <p className="text-nowrap">Staff Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("first_name")}
@@ -407,7 +407,7 @@ export default function StaffTableView() {
       meta: "Activation Date",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Activation Date</p>
+          <p className="text-nowrap">Activation Date</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("activated_on")}
@@ -431,7 +431,7 @@ export default function StaffTableView() {
       meta: "Role",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Role</p>
+          <p className="text-nowrap">Role</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("role_id")}
@@ -444,7 +444,7 @@ export default function StaffTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex text-nowrap items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original.role_name)}
           </div>
         );
@@ -525,7 +525,7 @@ export default function StaffTableView() {
       meta: "Last Check In",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Last Check In</p>
+          <p className="text-nowrap">Last Check In</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("check_in")}
@@ -538,7 +538,7 @@ export default function StaffTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex text-nowrap items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayDateTime(row?.original.last_checkin)}
           </div>
         );
@@ -549,7 +549,7 @@ export default function StaffTableView() {
       meta: "Last Login",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Last Login</p>
+          <p className="text-nowrap">Last Login</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("last_online")}
@@ -562,7 +562,7 @@ export default function StaffTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex text-nowrap items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayDateTime(row?.original.last_online)}
           </div>
         );

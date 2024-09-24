@@ -326,7 +326,7 @@ export default function SaleTaxesTableView() {
     //           handleStatusChange({ status: e, id: id, org_id: org_id })
     //         }
     //       >
-    //         <SelectTrigger>
+    //         <SelectTrigger className="h-8">
     //           <SelectValue placeholder="Status" className="text-gray-400">
     //             <span className="flex gap-2 items-center">
     //               <span

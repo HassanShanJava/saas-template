@@ -10,7 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-const displayValue = (value: any) => (value === null ? "N/A" : value);
+const displayValue = (value: any) => (value === null || value === "" ? "N/A" : value);
 import {
   Tooltip,
   TooltipContent,

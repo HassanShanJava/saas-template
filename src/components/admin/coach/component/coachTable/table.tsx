@@ -290,10 +290,10 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "own_coach_id",
-      meta: "Coach ID",
+      meta: "Coach Id",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Coach ID</p>
+          <p className="text-nowrap">Coach Id</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("id")}
@@ -319,7 +319,7 @@ export default function CoachTableView() {
       meta: "Coach Name",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Coach Name</p>
+          <p className="text-nowrap">Coach Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("first_name")}
@@ -386,7 +386,7 @@ export default function CoachTableView() {
       meta: "Activation Date",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Activation Date</p>
+          <p className="text-nowrap">Activation Date</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("activated_on")}
@@ -410,7 +410,7 @@ export default function CoachTableView() {
       meta: "Status",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Status</p>
+          <p className="text-nowrap">Status</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("coach_status")}
@@ -470,7 +470,7 @@ export default function CoachTableView() {
       meta: "Last Check In",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Last Check In</p>
+          <p className="text-nowrap">Last Check In</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("check_in")}
@@ -482,7 +482,6 @@ export default function CoachTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        console.log(row?.original.check_in);
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayDateTime(row?.original.check_in)}
@@ -495,7 +494,7 @@ export default function CoachTableView() {
       meta: "Last Login",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Last Login</p>
+          <p className="text-nowrap">Last Login</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("last_online")}

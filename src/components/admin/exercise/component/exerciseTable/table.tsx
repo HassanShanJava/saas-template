@@ -279,7 +279,7 @@ export default function ExerciseTableView() {
       meta: "Exercise Name",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Exercise Name</p>
+          <p className="text-nowrap">Exercise Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("exercise_name")}
@@ -322,7 +322,7 @@ export default function ExerciseTableView() {
       meta: "Exercise Category",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Exercise Category</p>
+          <p className="text-nowrap">Exercise Category</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("category_name")}
@@ -346,7 +346,7 @@ export default function ExerciseTableView() {
       meta: "Visible For",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Visible For</p>
+          <p className="text-nowrap">Visible For</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("visible_for")}
@@ -370,7 +370,7 @@ export default function ExerciseTableView() {
       meta: "Exercise Type",
       header: () => (
         <div className="flex  gap-2">
-          <p>Exercise Type</p>
+          <p className="text-nowrap">Exercise Type</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("exercise_type")}
@@ -394,7 +394,7 @@ export default function ExerciseTableView() {
       meta: "Difficulty",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Difficulty</p>
+          <p className="text-nowrap">Difficulty</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("difficulty")}

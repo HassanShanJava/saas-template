@@ -107,8 +107,9 @@ interface ExerciseFilter {
   primary_muscle_ids?: number[];
   category?: number;
   difficulty?: difficultyEnum;
-  equipment_ids?: number[];
+  equipments?: number[];
   primary_joint_ids?: number[];
+  search_key?: string;
 }
 
 const WorkoutStep2: React.FC = () => {
@@ -218,13 +219,6 @@ const WorkoutStep2: React.FC = () => {
       required: true,
       options: difficultyOptions,
     },
-    // {
-    //   type: "select",
-    //   name: "created_by",
-    //   label: "Created By",
-    //   required: true,
-    //   options: createdByOptions,
-    // },
     {
       type: "multiselect",
       name: "equipments",
@@ -401,6 +395,10 @@ const WorkoutStep2: React.FC = () => {
     );
     form.reset(data);
   }
+  const isLastSet =
+    formValues.seconds_per_set.length === 1 ||
+    formValues.rest_between_set.length === 1 ||
+    formValues.repetitions_per_set.length === 1;
 
   return (
     <div className="mt-4 space-y-4 mb-20">
@@ -409,7 +407,7 @@ const WorkoutStep2: React.FC = () => {
         Training & Exercise Details
       </p>
       <div className="w-full flex gap-5">
-        <div className="w-[33.3%] h-[32rem] bg-[#EEE] rounded-xl space-y-2 custom-scrollbar">
+        <div className="w-[40%] h-[32rem] bg-[#EEE] rounded-xl space-y-2 custom-scrollbar">
           {!showSearchResults ? (
             <div className="p-3">
               {[...Array(noOfWeeks).keys()].map((week: any, i: number) => (
@@ -486,7 +484,7 @@ const WorkoutStep2: React.FC = () => {
                   </Button>
                 </div>
                 {exerciseFilterOpen && (
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {Exercise_info.map((element) => {
                       if (element.type == "select") {
                         return (
@@ -533,6 +531,7 @@ const WorkoutStep2: React.FC = () => {
                           <MultiSelect
                             key={element.label}
                             options={element.options ?? []}
+                            dotruncate={true}
                             defaultValue={(() => {
                               return (
                                 filterData[
@@ -600,8 +599,8 @@ const WorkoutStep2: React.FC = () => {
                             <img
                               id="avatar"
                               src={
-                                exercise.thumbnail_male
-                                  ? `${VITE_VIEW_S3_URL}/${exercise.thumbnail_male}`
+                                exercise.gif_url
+                                  ? `${VITE_VIEW_S3_URL}/${exercise.gif_url}`
                                   : `${VITE_VIEW_S3_URL}/download.png`
                               }
                               alt="Exercise Image"
@@ -624,7 +623,7 @@ const WorkoutStep2: React.FC = () => {
             </>
           )}
         </div>
-        <div className="w-[33.3%] h-[32rem] bg-[#EEE] rounded-xl p-3 relative custom-scrollbar">
+        <div className="w-[30%] h-[32rem] bg-[#EEE] rounded-xl p-3 relative custom-scrollbar">
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="font-semibold">Exercise</span>
@@ -668,7 +667,7 @@ const WorkoutStep2: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="w-[33.3%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 custom-scrollbar flex flex-col">
+        <div className="w-[30%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 custom-scrollbar flex flex-col">
           <FormProvider {...form}>
             <form
               noValidate
@@ -827,7 +826,7 @@ const WorkoutStep2: React.FC = () => {
                                 min="10"
                               />
                               {errors?.seconds_per_set?.[i] && (
-                                <p className="text-xs leading-snug text-red-500 mr-4">
+                                <p className="text-xs leading-snug  pt-3 text-red-500 mr-4">
                                   {errors?.seconds_per_set?.[i]?.message}
                                 </p>
                               )}
@@ -874,7 +873,7 @@ const WorkoutStep2: React.FC = () => {
                                 max="100"
                               />
                               {errors?.repetitions_per_set?.[i] && (
-                                <p className="text-xs leading-snug text-red-500 mr-4">
+                                <p className="text-xs leading-snug  pt-3 text-red-500 mr-4">
                                   {errors?.repetitions_per_set?.[i]?.message}
                                 </p>
                               )}
@@ -906,38 +905,42 @@ const WorkoutStep2: React.FC = () => {
                               min="0"
                             />
                             {errors?.rest_between_set?.[i] && (
-                              <p className="text-xs leading-snug text-red-500 mr-4">
+                              <p className="text-xs leading-snug pt-3 text-red-500 mr-4">
                                 {errors?.rest_between_set?.[i]?.message}
                               </p>
                             )}
                           </div>
 
-                          <button
+                          <Button
                             type="button"
+                            variant={"ghost"}
                             onClick={() => {
-                              form.setValue(
-                                "seconds_per_set",
-                                formValues.seconds_per_set.filter(
-                                  (_, index) => index !== i
-                                )
-                              );
-                              form.setValue(
-                                "rest_between_set",
-                                formValues.rest_between_set.filter(
-                                  (_, index) => index !== i
-                                )
-                              );
-                              form.setValue(
-                                "repetitions_per_set",
-                                formValues.repetitions_per_set.filter(
-                                  (_, index) => index !== i
-                                )
-                              );
+                              if (!isLastSet) {
+                                form.setValue(
+                                  "seconds_per_set",
+                                  formValues.seconds_per_set.filter(
+                                    (_, index) => index !== i
+                                  )
+                                );
+                                form.setValue(
+                                  "rest_between_set",
+                                  formValues.rest_between_set.filter(
+                                    (_, index) => index !== i
+                                  )
+                                );
+                                form.setValue(
+                                  "repetitions_per_set",
+                                  formValues.repetitions_per_set.filter(
+                                    (_, index) => index !== i
+                                  )
+                                );
+                              }
                             }}
-                            className="text-red-500 hover:text-red-700"
+                            disabled={isLastSet}
+                            className={`text-red-500 hover:text-red-700 ${isLastSet ? "opacity-50 cursor-not-allowed" : ""}`}
                           >
                             <i className="fa-regular fa-trash-can text-red-500" />
-                          </button>
+                          </Button>
                         </React.Fragment>
                       );
                     })}
@@ -959,12 +962,12 @@ const WorkoutStep2: React.FC = () => {
                         0,
                       ]);
                     }}
-                    className="gap-2 items-center justify-center px-4 py-2 rounded hover:bg-transparent"
+                    className="gap-2 items-center justify-center px-4 py-2 rounded hover:bg-primary"
                   >
                     <i className="fa-solid fa-plus"></i> Add
                   </Button>
                   {formValues.exercise_type === "Time Based" ? (
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-3 gap-2 ">
                       <div>
                         <Controller
                           name="met_id"
@@ -979,8 +982,9 @@ const WorkoutStep2: React.FC = () => {
                               defaultValue={value ? String(value) : undefined}
                             >
                               <SelectTrigger
+                                className="border border-black/25"
                                 floatingLabel="MET"
-                                labelClassname="bg-transparent"
+                                labelClassname="bg-[#EEE]"
                                 name="goals"
                               >
                                 <SelectValue placeholder="MET" />
@@ -1020,8 +1024,8 @@ const WorkoutStep2: React.FC = () => {
                           type="number"
                           id="distance"
                           label="Distance(KM)"
-                          labelClassname="bg-transparent text-xs"
-                          className="bg-transparent"
+                          labelClassname="bg-[#EEE] text-xs"
+                          className=" border border-black/25 bg-transparent"
                         />
                         {errors.distance?.message && (
                           <span className="text-red-500 text-xs mt-[5px]">
@@ -1045,8 +1049,8 @@ const WorkoutStep2: React.FC = () => {
                           id="speed"
                           type="number"
                           label="Speed(KM/H)"
-                          labelClassname="bg-transparent text-xs"
-                          className="bg-transparent"
+                          labelClassname="bg-[#EEE] text-xs"
+                          className=" border border-black/25 bg-transparent"
                         />
                         {errors.speed?.message && (
                           <span className="text-red-500 text-xs mt-[5px]">

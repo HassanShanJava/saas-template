@@ -59,6 +59,7 @@ interface MultiSelectProps extends VariantProps<typeof multiSelectVariants> {
   width?: string | number;
   floatingLabel?: string; // Add this line
   labelClassname?: string; // Add this line
+  dotruncate?: boolean;
 }
 
 export const MultiSelect = React.forwardRef<
@@ -80,6 +81,7 @@ export const MultiSelect = React.forwardRef<
       width,
       floatingLabel,
       labelClassname,
+      dotruncate = false,
       ...props
     },
     ref
@@ -195,7 +197,15 @@ export const MultiSelect = React.forwardRef<
                           {IconComponent && (
                             <IconComponent className="h-4 w-4 mr-2" />
                           )}
-                          {option?.label}
+                          <span
+                            className={cn(
+                              `${dotruncate ? "truncate" : ""}`,
+                              "max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap"
+                            )}
+                          >
+                            {option?.label}
+                          </span>
+
                           <XCircle
                             className="ml-2 h-4 w-4 cursor-pointer"
                             onClick={(event) => {

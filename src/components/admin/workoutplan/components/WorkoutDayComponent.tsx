@@ -30,6 +30,8 @@ interface WorkoutDayProps {
   onSave: (day_name: string) => void;
   onDelete?: (id: number) => void;
   onUpdate: (id: number, day_name: string) => void;
+  onSelect?: (day: WorkoutDay) => void;
+  isSelected?: boolean;
   isCreating?: boolean;
   isUpdating?: boolean;
   isDeleting?: boolean;
@@ -39,6 +41,8 @@ export default function WorkoutDayComponent({
   onSave,
   onDelete,
   onUpdate,
+  onSelect,
+  isSelected,
   isCreating,
   isDeleting,
   isUpdating,
@@ -129,10 +133,12 @@ export default function WorkoutDayComponent({
   return day.id ? (
     <div
       className={cn(
-        "border border-black/25 rounded-lg p-2",
+        "border border-black/25 rounded-lg p-2 cursor-pointer transition-all duration-200",
+        isSelected && "bg-blue-100 ring-2 ring-primary ring-offset-2",
         isFocused &&
           "outline-none ring-2 ring-primary ring-offset-2 ring-offset-[#EEE]"
       )}
+      onClick={() => onSelect && onSelect(day)}
     >
       <div className="flex justify-between items-center relative space-x-1">
         <div className="flex gap-1 w-4/5">
@@ -152,9 +158,10 @@ export default function WorkoutDayComponent({
         </div>
         <div className="flex gap-x-1 align-center">
           <Button
-            onClick={() => {
+            onClick={(e) => {
               setEdit(true);
               setIsFocused(true);
+              e.stopPropagation();
               // clicking(isCreatingId?.day);
             }}
             className="h-auto p-0"
@@ -193,7 +200,8 @@ export default function WorkoutDayComponent({
             )}
           </Button>
           <Button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               if (day.id && onDelete) {
                 onDelete(day.id); // Pass the day.id to the delete function
               }
@@ -238,9 +246,11 @@ export default function WorkoutDayComponent({
     <div
       className={cn(
         "flex justify-center border-dashed  border-2 border-black/25 rounded-lg p-2",
+        isSelected && "bg-blue-100 ring-2 ring-primary ring-offset-2",
         isFocused &&
           "outline-none ring-2 ring-primary ring-offset-2 ring-offset-[#EEE]"
       )}
+      onClick={() => onSelect && onSelect(day)}
     >
       <Button
         onClick={() => {

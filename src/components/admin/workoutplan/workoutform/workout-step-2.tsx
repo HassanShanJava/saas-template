@@ -7,6 +7,13 @@ import {
   difficultyEnum,
 } from "@/app/types";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+import {
   Controller,
   FormProvider,
   useFieldArray,
@@ -55,7 +62,6 @@ import {
 import { ExerciseItem, exerciseTypeOptions } from "@/constants/exercise";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
-import { current } from "@reduxjs/toolkit";
 import WorkoutDayExerciseComponent, {
   Exercise,
 } from "../components/WorkoutDayExerciseComponent";
@@ -69,11 +75,19 @@ import { Spinner } from "@/components/ui/spinner/spinner";
 import { RootState } from "@/app/store";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
+interface SelectedDay {
+  id?: number;
+  week: number;
+  day: number;
+  day_name?: string;
+}
+
 import {
   useAddWorkoutDayMutation,
   useDeleteWorkoutDayMutation,
   useGetAllExerciseForWorkoutQuery,
   useUpdateWorkoutDayMutation,
+  useAddExerciseInWorkoutMutation,
 } from "@/services/workoutService";
 import { useDebounce } from "@/hooks/use-debounce";
 
@@ -104,17 +118,16 @@ export interface ExerciseForm {
 }
 
 interface ExerciseFilter {
-  primary_muscle_ids?: number[];
+  primary_muscle?: number[];
   category?: number;
   difficulty?: difficultyEnum;
   equipments?: number[];
-  primary_joint_ids?: number[];
+  primary_joints?: number[];
   search_key?: string;
 }
 
 const WorkoutStep2: React.FC = () => {
-  const [inputValue, setInputValue] = useState("");
-  const debouncedInputValue = useDebounce(inputValue, 500);
+  const [selectedDay, setSelectedDay] = useState<SelectedDay | null>(null);
 
   const [loadingState, setLoadingState] = useState<LoadingState>({
     isAdding: false,
@@ -135,6 +148,8 @@ const WorkoutStep2: React.FC = () => {
   );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [query, setQuery] = useState<string>("");
   const [exercises, setExercises] = useState<Exercise[]>([] as Exercise[]);
   // workout_day_exercise_data as Exercise[]
@@ -167,6 +182,14 @@ const WorkoutStep2: React.FC = () => {
     deleteWorkoutDay,
     { isLoading: deleteDayLoading, isError: deleteDayError },
   ] = useDeleteWorkoutDayMutation();
+
+  const [
+    addExerciseInWorkout,
+    { isLoading: addExerciseLoading, isError: addExerciseError },
+  ] = useAddExerciseInWorkoutMutation();
+
+
+  
   useEffect(() => {
     if (WorkoutDays) {
       console.log("eGetAllWorkoutDayQueryetsData:", WorkoutDays);
@@ -192,9 +215,12 @@ const WorkoutStep2: React.FC = () => {
         }
       }
     }
+    if (debouncedSearchTerm) {
+      params.append("search_key", debouncedSearchTerm);
+    }
     const newQuery = params.toString();
     setQuery(newQuery);
-  }, [filterData]);
+  }, [filterData, debouncedSearchTerm]);
 
   console.log("Workout id", workoutId);
   const Exercise_info: ExerciseItem[] = [
@@ -388,6 +414,12 @@ const WorkoutStep2: React.FC = () => {
     }));
   }
 
+  function handleDaySelect(day: WorkoutDay) {
+    if (day.id) {
+      setSelectedDay((prevDay) => (prevDay?.id === day.id ? null : day));
+    }
+  }
+
   function onSubmit(data: any) {
     const idx = selectedExerciseIndex;
     setExercises((exercises) =>
@@ -396,9 +428,9 @@ const WorkoutStep2: React.FC = () => {
     form.reset(data);
   }
   const isLastSet =
-    formValues.seconds_per_set.length === 1 ||
-    formValues.rest_between_set.length === 1 ||
-    formValues.repetitions_per_set.length === 1;
+    formValues.seconds_per_set?.length === 1 ||
+    formValues.rest_between_set?.length === 1 ||
+    formValues.repetitions_per_set?.length === 1;
 
   return (
     <div className="mt-4 space-y-4 mb-20">
@@ -407,7 +439,7 @@ const WorkoutStep2: React.FC = () => {
         Training & Exercise Details
       </p>
       <div className="w-full flex gap-5">
-        <div className="w-[40%] h-[32rem] bg-[#EEE] rounded-xl space-y-2 custom-scrollbar">
+        <div className="w-[40%] h-[32rem] bg-[#EEE] rounded-xl space-y-2 custom-scrollbar overflow-hidden">
           {!showSearchResults ? (
             <div className="p-3">
               {[...Array(noOfWeeks).keys()].map((week: any, i: number) => (
@@ -432,20 +464,27 @@ const WorkoutStep2: React.FC = () => {
                           loadingState.currentDeletingDay === index;
 
                         return (
-                          <WorkoutDayComponent
-                            key={i * 7 + j}
-                            day={days[i * 7 + j]}
-                            onSave={(day_name) =>
-                              handleAddDay(i * 7 + j, day_name)
-                            }
-                            onDelete={(id) => handleDelete(i * 7 + j, id)}
-                            onUpdate={(id, day_name) =>
-                              handleUpdate(i * 7 + j, id, day_name)
-                            }
-                            isCreating={isCreating}
-                            isUpdating={isUpdating}
-                            isDeleting={isDeleting}
-                          />
+                          <div className="space-y-2 px-1">
+                            <WorkoutDayComponent
+                              key={i * 7 + j}
+                              day={days[i * 7 + j]}
+                              onSave={(day_name) =>
+                                handleAddDay(i * 7 + j, day_name)
+                              }
+                              onDelete={(id) => handleDelete(i * 7 + j, id)}
+                              onUpdate={(id, day_name) =>
+                                handleUpdate(i * 7 + j, id, day_name)
+                              }
+                              onSelect={(day) => handleDaySelect(day)}
+                              isSelected={
+                                selectedDay?.week === days[i * 7 + j].week &&
+                                selectedDay?.day === days[i * 7 + j].day
+                              }
+                              isCreating={isCreating}
+                              isUpdating={isUpdating}
+                              isDeleting={isDeleting}
+                            />
+                          </div>
                         );
                       })}
                     </AccordionContent>
@@ -536,9 +575,9 @@ const WorkoutStep2: React.FC = () => {
                               return (
                                 filterData[
                                   element.name as
-                                    | "primary_muscle_ids"
-                                    | "primary_joint_ids"
-                                    | "equipment_ids"
+                                    | "primary_muscle"
+                                    | "primary_joints"
+                                    | "equipments"
                                 ] || []
                               );
                             })()}
@@ -561,8 +600,9 @@ const WorkoutStep2: React.FC = () => {
                     <FloatingLabelInput
                       id="search"
                       placeholder="Search by Exercise Name"
-                      onChange={(event) => setInputValue(event.target.value)}
-                      className="text-gray-400 bg-transparent border border-black/25"
+                      onChange={(event) => setSearchTerm(event.target.value)}
+                      value={searchTerm}
+                      className="text-black bg-transparent border border-black/25"
                     />
                   </div>
                   <Button
@@ -625,17 +665,49 @@ const WorkoutStep2: React.FC = () => {
         </div>
         <div className="w-[30%] h-[32rem] bg-[#EEE] rounded-xl p-3 relative custom-scrollbar">
           <div className="space-y-2">
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <span className="font-semibold">Exercise</span>
-              <Button
-                onClick={() => setShowSearchResults(true)}
-                className="font-normal h-auto p-0 hover:bg-transparent"
-                variant="ghost"
-              >
-                <i className="fa fa-plus "></i>
-                Add Exercise
-              </Button>
+              {selectedDay ? (
+                <Button
+                  onClick={() => setShowSearchResults(true)}
+                  className="font-normal h-auto p-0 hover:bg-transparent gap-2"
+                  variant="ghost"
+                >
+                  <i className="fa fa-plus "></i>
+                  Add Exercise
+                </Button>
+              ) : (
+                <span className="text-sm text-gray-500 italic">
+                  Select a day to add exercises
+                </span>
+              )}
             </div>
+            {/* {selectedDay && (
+              <div className="text-sm text-gray-600 bg-primary/20 p-2 rounded-md">
+                Selected: Week {selectedDay.week}, Day {selectedDay.day} -{" "}
+                {selectedDay.day_name?.slice(0, 8) + "..."}
+                {/* (ID: {selectedDay.id}) */}
+            {/* </div> */}
+            {/* )} */}
+            {selectedDay && (
+              <div className="text-sm text-gray-600 bg-primary/20 p-2 rounded-md">
+                Selected: Week {selectedDay.week}, Day {selectedDay.day} -{" "}
+                {selectedDay.day_name && selectedDay.day_name.length > 8 ? (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        {selectedDay.day_name.slice(0, 8) + "..."}
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{selectedDay.day_name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ) : (
+                  selectedDay.day_name
+                )}
+              </div>
+            )}
             <div className="space-y-2">
               {exercises.map((exercise, i) => (
                 <WorkoutDayExerciseComponent

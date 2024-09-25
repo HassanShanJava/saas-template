@@ -4,28 +4,30 @@ import { cn } from "@/lib/utils";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 export interface Exercise {
-  id: number;
-  video_url_male?: string;
-  thumbnail_male?: string;
-  exercise_name: string;
-  exercise_type: ExerciseTypeEnum;
-  seconds_per_set: number[];
-  repetitions_per_set: number[];
-  rest_between_set: number[];
+  id?: number;
+  workout_day_id?: number;
+  exercise_id?: number;
+  exercise_type?: ExerciseTypeEnum;
+  sets?: number | null;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
   exercise_intensity?: IntensityEnum;
-  intensity_value: number | null;
-  distance: number | null;
-  speed: number | null;
-  met_id: number | null;
-  equipments?: { id: number; name: string }[];
+  intensity_value?: number | null;
   notes?: string;
+  distance?: number | null;
+  speed?: number | null;
+  met_id?: number | null;
+  exercise_name: string;
+  thumbnail_male?: string;
+  gif_url?: string;
 }
 
 interface WorkoutDayExerciseyProps {
   exercise: Exercise;
   //add: ((week: number) => void) | null;
   selected: boolean;
-  onDuplicate: (id: number) => void;
+  onDuplicate: (exercise: Exercise, id: number) => void;
   onDelete: (id: number) => void;
   onClick: () => void;
   //onUpdate: (id: number, updatedDay: WorkoutDayOptional) => void;
@@ -66,7 +68,7 @@ export default function WorkoutDayExerciseComponent({
         <div className="flex gap-x-1 align-center">
           <Button
             onClick={() => {
-              onDuplicate(exercise.id);
+              onDuplicate(exercise, exercise?.id || 0);
             }}
             className="h-auto p-0"
             variant="ghost"
@@ -75,7 +77,7 @@ export default function WorkoutDayExerciseComponent({
           </Button>
           <Button
             onClick={() => {
-              onDelete(exercise.id);
+              onDelete(exercise?.id || 0);
             }}
             className="h-auto p-0"
             variant="ghost"

@@ -198,6 +198,19 @@ export const workoutApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Workout"],
     }),
+    deleteExerciseInWorkoutday: builder.mutation<
+      { status: number; message: string },
+      number
+    >({
+      query: (Id) => ({
+        url: `/workout/day/exercise/${Id}`,
+        method: "DELETE",
+        headers: {
+          Accept: "application/json",
+        },
+      }),
+      invalidatesTags: ["Workout"],
+    }),
   }),
 });
 
@@ -215,4 +228,5 @@ export const {
   useAddExerciseInWorkoutMutation,
   useUpdateExerciseInWorkoutMutation,
   useGetExerciseByWorkoutDayIdQuery,
+  useDeleteExerciseInWorkoutdayMutation
 } = workoutApi;

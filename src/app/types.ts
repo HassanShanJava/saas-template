@@ -1252,6 +1252,29 @@ export interface days {
   week: number;
   day: number;
   id?: number;
+  exercises?: exercises[]; // Assuming exercises have their own structure
+}
+export interface exercises {
+  workout_day_id: number;
+  exercise_id: number;
+  exercise_type: string;
+  sets: number;
+  seconds_per_set: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  exercise_intensity: string;
+  intensity_value: number;
+  notes?: string;
+  distance: number;
+  speed: number;
+  met_value?: number | null;
+  id: number;
+  exercise_name: string;
+  gif_url: string;
+  video_url_male?: string;
+  video_url_female?: string;
+  thumbnail_male?: string;
+  thumbnail_female?: string;
 }
 export interface WorkoutDatabyId {
   workout_name: string;
@@ -1324,17 +1347,17 @@ export interface getWorkoutdayExerciseResponse {
 }
 
 export interface workoutDayExerciseInput {
-  workout_day_id: number;
-  exercise_id: number;
-  exercise_type?: ExerciseTypeEnum;
-  sets: number;
+  workout_day_id?: number;
+  exercise_id?: number;
+  exercise_type: ExerciseTypeEnum;
+  sets?: number | null;
   seconds_per_set?: number[];
   repetitions_per_set?: number[];
   rest_between_set?: number[];
   exercise_intensity?: IntensityEnum;
-  intensity_value?: number;
+  intensity_value?: number | null;
   notes?: string;
-  distance?: number;
-  speed?: number;
-  met_value?: number;
+  distance?: number | null;
+  speed?: number | null;
+  met_value?: number | null;
 }

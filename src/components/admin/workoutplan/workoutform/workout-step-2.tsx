@@ -1,10 +1,12 @@
 import {
   ExerciseResponseServerViewType,
+  ExerciseTypeEnum,
   IntensityEnum,
   Workout,
   WorkoutIntensityEnum,
   createExerciseInputTypes,
   difficultyEnum,
+  getWorkoutdayExerciseResponse,
 } from "@/app/types";
 import {
   Tooltip,
@@ -88,6 +90,9 @@ import {
   useGetAllExerciseForWorkoutQuery,
   useUpdateWorkoutDayMutation,
   useAddExerciseInWorkoutMutation,
+  useGetExerciseByWorkoutDayIdQuery,
+  useDeleteExerciseInWorkoutdayMutation,
+  useUpdateExerciseInWorkoutMutation,
 } from "@/services/workoutService";
 import { useDebounce } from "@/hooks/use-debounce";
 
@@ -151,7 +156,7 @@ const WorkoutStep2: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [query, setQuery] = useState<string>("");
-  const [exercises, setExercises] = useState<Exercise[]>([] as Exercise[]);
+  // const [exercises, setExercises] = useState<Exercise[]>([] as Exercise[]);
   // workout_day_exercise_data as Exercise[]
   const [exerciseFilterOpen, setExerciseFilterOpen] = useState<boolean>(true);
   const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<number>();
@@ -167,10 +172,11 @@ const WorkoutStep2: React.FC = () => {
   const { data: MuscleData } = useGetAllMuscleQuery();
   const { data: JointsData } = useGetAllJointsQuery();
   const { data: MetsData } = useGetAllMetQuery();
-  const { data: Exercises, isLoading } = useGetAllExerciseForWorkoutQuery({
-    org_id: orgId,
-    query: query,
-  });
+  const { data: Exercises, isLoading: isWorkoutQueryLoading } =
+    useGetAllExerciseForWorkoutQuery({
+      org_id: orgId,
+      query: query,
+    });
 
   const [addWorkoutDay, { isLoading: addDayLoading, isError: addDayError }] =
     useAddWorkoutDayMutation();
@@ -187,9 +193,10 @@ const WorkoutStep2: React.FC = () => {
     addExerciseInWorkout,
     { isLoading: addExerciseLoading, isError: addExerciseError },
   ] = useAddExerciseInWorkoutMutation();
+  const [isAddingExercise, setIsAddingExercise] = useState(false);
+  const [deleteExercise] = useDeleteExerciseInWorkoutdayMutation();
+  const [updateExercise] = useUpdateExerciseInWorkoutMutation();
 
-
-  
   useEffect(() => {
     if (WorkoutDays) {
       console.log("eGetAllWorkoutDayQueryetsData:", WorkoutDays);
@@ -313,6 +320,13 @@ const WorkoutStep2: React.FC = () => {
           variant: "destructive",
           description: "Failed to Add Workout Day",
         });
+      })
+      .finally(() => {
+        setLoadingState((prevState) => ({
+          ...prevState,
+          isAdding: false,
+          currentAddingDay: null,
+        }));
       });
   }
 
@@ -349,6 +363,13 @@ const WorkoutStep2: React.FC = () => {
           variant: "destructive",
           description: "Failed to delete the day",
         });
+      })
+      .finally(() => {
+        setLoadingState((prevState) => ({
+          ...prevState,
+          isDeleting: false,
+          currentDeletingDay: null,
+        }));
       });
   }
 
@@ -391,20 +412,93 @@ const WorkoutStep2: React.FC = () => {
           variant: "destructive",
           description: "Failed to update Workout Day",
         });
+      })
+      .finally(() => {
+        setLoadingState((prevState) => ({
+          ...prevState,
+          isUpdating: false,
+          currentUpdatingDay: null,
+        }));
       });
   }
 
-  function handleExerciseDuplicate(id: number) {
-    const exercise = exercises.find((e) => e.id === id);
-    if (exercise) setExercises((exercises) => [...exercises, exercise]);
-  }
+  const handleExerciseDuplicate = async (exercise: Exercise, index: number) => {
+    try {
+      console.log("exercise", exercise);
+      const response = await addExerciseInWorkout({
+        ...exercise,
+        exercise_type: exercise.exercise_type || ExerciseTypeEnum.time_based,
+      }).unwrap();
+      toast({
+        title: "Exercise duplicated",
+        description: "The exercise has been successfully duplicated.",
+      });
+    } catch (error) {
+      console.error("Failed to duplicate exercise:", error);
+      toast({
+        variant: "destructive",
+        title: "Duplication failed",
+        description: "There was an error duplicating the exercise.",
+      });
+    }
+  };
 
   function handleExerciseAdd(exercise: Exercise) {
-    setExercises((exercises) => [...exercises, exercise]);
-  }
+    // setExercises((exercises) => [...exercises, exercise]);
+    if (!selectedDay?.id) {
+      toast({
+        variant: "destructive",
+        description: "Please select a day before adding an exercise.",
+      });
+      return;
+    }
+    console.log("exercise", exercise);
+    setIsAddingExercise(true);
 
-  function handleExerciseDelete(index: number, id: number) {
-    setExercises((exercises) => exercises.filter((_, i) => i !== index));
+    const exerciseData = {
+      exercise_id: exercise.id,
+      workout_day_id: selectedDay?.id,
+      exercise_type: exercise.exercise_type,
+      sets: exercise.sets,
+      seconds_per_set: exercise.seconds_per_set,
+      repetitions_per_set: exercise.repetitions_per_set,
+      rest_between_set: exercise.rest_between_set,
+      exercise_intensity:
+        exercise.exercise_intensity ?? IntensityEnum.max_intensity,
+      intensity_value: exercise.intensity_value ?? null,
+      notes: "",
+      distance: exercise.distance,
+      speed: exercise.speed,
+      met_id: exercise.met_id,
+    };
+
+    addExerciseInWorkout({
+      ...exerciseData,
+      exercise_type: exerciseData.exercise_type ?? ExerciseTypeEnum.time_based,
+    })
+      .unwrap()
+      .then((response: getWorkoutdayExerciseResponse) => {
+        const newExercise: Exercise = {
+          ...response,
+          intensity_value: response.intensity_value ?? null, // Convert undefined to null
+          exercise_type: response.exercise_type || ExerciseTypeEnum.time_based, // Provide a default value
+        };
+        // setExercises((prevExercises) => [...prevExercises, newExercise]);
+        toast({
+          variant: "success",
+          description: "Exercise added successfully.",
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to add exercise:", error);
+        toast({
+          variant: "destructive",
+          description: "Failed to add exercise. Please try again.",
+        });
+      })
+      .finally(() => {
+        setIsAddingExercise(false);
+      });
   }
 
   function handleFilterChange(field: string, value: any) {
@@ -421,16 +515,22 @@ const WorkoutStep2: React.FC = () => {
   }
 
   function onSubmit(data: any) {
-    const idx = selectedExerciseIndex;
-    setExercises((exercises) =>
-      exercises.map((exercise, i) => (i === idx ? { ...data } : exercise))
-    );
-    form.reset(data);
+    // const idx = selectedExerciseIndex;
+    // setExercises((exercises) =>
+    //   exercises.map((exercise, i) => (i === idx ? { ...data } : exercise))
+    // );
+    // form.reset(data);
   }
   const isLastSet =
     formValues.seconds_per_set?.length === 1 ||
     formValues.rest_between_set?.length === 1 ||
     formValues.repetitions_per_set?.length === 1;
+
+  const {
+    data: exercises,
+    isLoading,
+    refetch,
+  } = useGetExerciseByWorkoutDayIdQuery(selectedDay?.id ?? 0);
 
   return (
     <div className="mt-4 space-y-4 mb-20">
@@ -626,35 +726,44 @@ const WorkoutStep2: React.FC = () => {
                     const exercise: ExerciseResponseServerViewType =
                       e as unknown as ExerciseResponseServerViewType;
                     return (
-                      <div
-                        onClick={() => {
-                          handleExerciseAdd(
-                            exercise as unknown as ExerciseResponseServerViewType
-                          );
-                        }}
-                        className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer"
-                      >
-                        <div className="flex justify-between items-center relative space-x-1 ">
-                          <div className="flex gap-1 w-full">
-                            <img
-                              id="avatar"
-                              src={
-                                exercise.gif_url
-                                  ? `${VITE_VIEW_S3_URL}/${exercise.gif_url}`
-                                  : `${VITE_VIEW_S3_URL}/download.png`
-                              }
-                              alt="Exercise Image"
-                              className="h-[20px] w-12 object-contain relative"
-                            />
-                            <span className="text-sm truncate">
-                              {exercise.exercise_name} -{" "}
-                              {exercise.equipments
-                                .map((e) => e.name)
-                                .join(", ")}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="w-full">
+                            <div
+                              onClick={() => {
+                                handleExerciseAdd(
+                                  exercise as unknown as ExerciseResponseServerViewType
+                                );
+                              }}
+                              className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer"
+                            >
+                              <div className="flex justify-between items-center relative space-x-1 ">
+                                <div className="flex gap-1 w-full">
+                                  <img
+                                    id="avatar"
+                                    src={
+                                      exercise.gif_url
+                                        ? `${VITE_VIEW_S3_URL}/${exercise.gif_url}`
+                                        : `${VITE_VIEW_S3_URL}/download.png`
+                                    }
+                                    alt="Exercise Image"
+                                    className="h-[20px] w-12 object-contain relative"
+                                  />
+                                  <span className="text-sm truncate">
+                                    {exercise.exercise_name} -{" "}
+                                    {exercise.equipments
+                                      .map((e) => e.name)
+                                      .join(", ")}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>click to add exercise in workout day.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     );
                   })
                   // <></>
@@ -677,9 +786,10 @@ const WorkoutStep2: React.FC = () => {
                   Add Exercise
                 </Button>
               ) : (
-                <span className="text-sm text-gray-500 italic">
-                  Select a day to add exercises
-                </span>
+                // <span className="text-sm text-gray-500 italic">
+                //   Select a day to add exercises
+                // </span>
+                <></>
               )}
             </div>
             {/* {selectedDay && (
@@ -709,7 +819,7 @@ const WorkoutStep2: React.FC = () => {
               </div>
             )}
             <div className="space-y-2">
-              {exercises.map((exercise, i) => (
+              {/* {exercises?.map((exercise: Exercise, i: number) => (
                 <WorkoutDayExerciseComponent
                   key={i}
                   exercise={exercise}
@@ -733,9 +843,37 @@ const WorkoutStep2: React.FC = () => {
                       form.reset(exercise);
                       setSelectedExerciseIndex(i);
                     }
+                    console.log("exercise", exercise);
                   }}
                 />
-              ))}
+              ))} */}
+              {exercises && exercises.length > 0 ? (
+                exercises.map((exercise: Exercise, i: number) => (
+                  <WorkoutDayExerciseComponent
+                    key={i}
+                    exercise={exercise}
+                    selected={i === selectedExerciseIndex}
+                    onDuplicate={() => handleExerciseDuplicate(exercise, i)}
+                    // onDelete={(id) => handleExerciseDelete(i, id)}
+                    onDelete={() => {
+                      if (exercise.id !== undefined) {
+                        deleteExercise(exercise.id);
+                      }
+                    }}
+                    onClick={() => {
+                      setCurrExercise(exercise);
+                      form.reset(exercise);
+                      setSelectedExerciseIndex(i);
+                    }}
+                  />
+                ))
+              ) : (
+                <div className="text-center text-gray-500 mt-4">
+                  {selectedDay
+                    ? "No exercises found for this workout"
+                    : "Select a day to add exercises"}
+                </div>
+              )}{" "}
             </div>
           </div>
         </div>
@@ -749,18 +887,30 @@ const WorkoutStep2: React.FC = () => {
             >
               <div className="flex justify-between">
                 <span className="font-semibold">Exercise Details</span>
-                {isDirty && (
-                  <Button
-                    type="submit"
+                <div className="flex gap-2">
+                  <button
+                    className="text-red-500"
                     onClick={() => {
-                      return;
+                      setCurrExercise(null);
+                      setSelectedExerciseIndex(undefined);
                     }}
-                    className="h-auto p-0"
-                    variant="ghost"
                   >
-                    <i className="fa-regular fa-floppy-disk h-4 w-4"></i>
-                  </Button>
-                )}
+                    <i className="fa-solid fa-trash-can"></i>
+                  </button>
+
+                  {isDirty && (
+                    <Button
+                      type="submit"
+                      onClick={() => {
+                        return;
+                      }}
+                      className="h-auto p-0"
+                      variant="ghost"
+                    >
+                      <i className="fa-regular fa-floppy-disk h-4 w-4"></i>
+                    </Button>
+                  )}
+                </div>
               </div>
               {currExercise !== null ? (
                 <>
@@ -1231,7 +1381,10 @@ const WorkoutStep2: React.FC = () => {
                 </>
               ) : (
                 <span className="flex flex-grow justify-center items-center">
-                  No exercise selected
+                  <div className="text-center">
+                    No exercise selected, please select an exercise to update
+                    it.
+                  </div>
                 </span>
               )}
             </form>

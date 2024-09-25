@@ -51,13 +51,14 @@ import { Check, ChevronDownIcon, ImageIcon } from "lucide-react";
 import { FiUpload } from "react-icons/fi";
 import * as z from "zod";
 import { toast } from "@/components/ui/use-toast";
-import { ErrorType, Workout } from "@/app/types";
+import { ErrorType, Workout, WorkoutDatabyId } from "@/app/types";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import StepperIndicator from "@/components/ui/stepper-indicator";
 import { useForm, UseFormHandleSubmit, UseFormReturn } from "react-hook-form";
 import {
   useAddWorkoutMutation,
   useUpdateWorkoutMutation,
+  useDeleteWorkoutMutation,
 } from "@/services/workoutService";
 import { processAndUploadImages } from "@/constants/workout";
 import { useSelector } from "react-redux";
@@ -74,16 +75,17 @@ const WorkoutPlanForm = () => {
   const [activeStep, setActiveStep] = useState<number>(
     +parseInt(location.pathname.split("/").slice(-2, -1)[0])
   );
+  const [deleteWorkout, { isLoading: isDeleting }] = useDeleteWorkoutMutation();
 
   const {
     data: workoutdataStep1,
-    error,
+    error: workoutError,
     isLoading: workoutidDataLoading,
   } = useGetWorkoutByIdQuery(
     {
       workoutId,
       include_days: true,
-      include_days_and_exercises: false,
+      include_days_and_exercises: true,
     },
     {
       skip: workoutId == undefined,
@@ -158,6 +160,7 @@ const WorkoutPlanForm = () => {
       }
     }
   }, [activeStep, workoutdataStep1, isSubmitting, isSubmitted, workoutIdState]);
+  const [isSubmittedcode, setIsSubmitting] = useState(false);
 
   const [createWorkout, { isLoading: AddworkoutLoading, isError }] =
     useAddWorkoutMutation();
@@ -167,7 +170,71 @@ const WorkoutPlanForm = () => {
     { isLoading: updateLoading, isError: workoutUpdateError },
   ] = useUpdateWorkoutMutation();
 
+  const onSubmitworkout = async (formData: WorkoutDatabyId) => {
+    setIsSubmitting(true);
+
+    if (formData?.days) {
+      const daysWithExercises = formData.days.filter(
+        (day) => day.exercises && day.exercises.length > 0
+      );
+
+      if (daysWithExercises.length === 0) {
+        // toast.error(
+        //   "The workout must have at least one day with one exercise."
+        // // );
+        toast({
+          variant: "destructive",
+          // title: "Error in form Submission",
+          description: `The workout must have at least one day with one exercise.`,
+        });
+      } else if (
+        formData.days.length > 1 &&
+        daysWithExercises.length !== formData.days.length
+      ) {
+        // toast.error(
+        //   "If there are multiple days, each day must have at least one exercise."
+        // );
+        toast({
+          variant: "destructive",
+          // title: "Error in form Submission",
+          description: `If there are multiple days, each day must have at least one exercise.`,
+        });
+      } else {
+        try {
+          // Save the form with all values
+          // await saveWorkoutForm(formData);
+          // toast.success("Workout saved successfully!");
+          toast({
+            variant: "success",
+            // title: "Error in form Submission",
+            description: `Workout saved successfully!`,
+          });
+          // Close the form or navigate away
+          // ...
+        } catch (error) {
+          console.error("Failed to save workout:", error);
+          // toast.error("Failed to save workout. Please try again.");
+          toast({
+            variant: "destructive",
+            // title: "Error in form Submission",
+            description: `Failed to save workout. Please try again.`,
+          });
+        }
+      }
+    } else {
+      toast({
+        variant: "destructive",
+        // title: "Error in form Submission",
+        description: `Workout data is not available. Please try again.`,
+      });
+      // toast.error("Workout data is not available. Please try again.");
+    }
+
+    setIsSubmitting(false);
+  };
   async function onSubmit(data: Workout) {
+    if (isSubmittedcode) return;
+    setIsSubmitting(true);
     try {
       const fileInputObject = {
         file: form.getValues("file"),
@@ -199,26 +266,64 @@ const WorkoutPlanForm = () => {
       // if (resp) {
       //   console.log({ resp });
       // }
+
+      // let resp;
+      // if (workoutIdState) {
+      //   resp = await updateWorkout({ id: workoutIdState, ...payload }).unwrap(); // Use your update mutation here
+      //   console.log("updated data", { payload });
+      //   if (resp) {
+      //     setWorkoutIdState(resp.workout_id); // Set the workout ID
+      //     const newActiveStep = 2;
+      //     console.log("resp id", resp.workout_id, workoutIdState, workoutId);
+      //     navigate(
+      //       `/admin/workoutplans/add/step/${newActiveStep}/${resp.workout_id}`
+      //     ); // Navigate to step 2 with ID
+      //   }
+      // } else {
+      //   // Create new workout
+      //   resp = await createWorkout(payload).unwrap();
+      //   if (resp) {
+      //     setWorkoutIdState(resp.id); // Set the workout ID
+      //     const newActiveStep = 2;
+      //     console.log("resp id", resp.id, workoutIdState, workoutId);
+      //     navigate(`/admin/workoutplans/add/step/${newActiveStep}/${resp.id}`); // Navigate to step 2 with ID
+      //   }
+      // }
+
       let resp;
       if (workoutIdState) {
-        resp = await updateWorkout({ id: workoutIdState, ...payload }).unwrap(); // Use your update mutation here
+        resp = await updateWorkout({ id: workoutIdState, ...payload }).unwrap();
         console.log("updated data", { payload });
-        if (resp) {
-          setWorkoutIdState(resp.workout_id); // Set the workout ID
+        if (resp && resp.workout_id) {
+          setWorkoutIdState(resp.workout_id);
           const newActiveStep = 2;
           console.log("resp id", resp.workout_id, workoutIdState, workoutId);
           navigate(
             `/admin/workoutplans/add/step/${newActiveStep}/${resp.workout_id}`
-          ); // Navigate to step 2 with ID
+          );
+        } else {
+          toast({
+            variant: "destructive",
+            // title: "Error in form Submission",
+            description: `Failed to create workout`,
+          });
+          // throw new Error("No workout_id received after update");
         }
       } else {
         // Create new workout
         resp = await createWorkout(payload).unwrap();
-        if (resp) {
-          setWorkoutIdState(resp.id); // Set the workout ID
+        if (resp && resp.id) {
+          setWorkoutIdState(resp.id);
           const newActiveStep = 2;
           console.log("resp id", resp.id, workoutIdState, workoutId);
-          navigate(`/admin/workoutplans/add/step/${newActiveStep}/${resp.id}`); // Navigate to step 2 with ID
+          navigate(`/admin/workoutplans/add/step/${newActiveStep}/${resp.id}`);
+        } else {
+          // throw new Error("No id received after creation");
+          toast({
+            variant: "destructive",
+            // title: "Error in form Submission",
+            description: `Failed to create workout`,
+          });
         }
       }
     } catch (error: unknown) {
@@ -237,6 +342,8 @@ const WorkoutPlanForm = () => {
           description: `Something Went Wrong.`,
         });
       }
+    } finally {
+      setIsSubmitting(false);
     }
   }
   const onError = () => {
@@ -245,7 +352,22 @@ const WorkoutPlanForm = () => {
       description: "Please fill all the mandatory fields",
     });
   };
-  const handleClose = () => {
+  const handleClose = async () => {
+    if (workoutIdState) {
+      try {
+        await deleteWorkout(workoutIdState).unwrap();
+        toast({
+          variant: "success",
+          description: "Workout deleted successfully",
+        });
+      } catch (error) {
+        console.error("Failed to delete workout:", error);
+        toast({
+          variant: "destructive",
+          description: "Failed to delete workout",
+        });
+      }
+    }
     navigate("/admin/workoutplans");
   };
 
@@ -256,7 +378,27 @@ const WorkoutPlanForm = () => {
     { workoutIdState }
   );
   // console.log(, "edit");
-
+  useEffect(() => {
+    if (workoutError) {
+      // Check if the error is due to the workout not existing
+      if ("status" in workoutError && workoutError.status === 404) {
+        toast({
+          variant: "destructive",
+          title: "Workout Not Found",
+          description: "The requested workout does not exist.",
+        });
+        // Close the form and navigate back to the workout plans list
+        navigate("/admin/workoutplans");
+      } else {
+        // Handle other types of errors
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "An error occurred while fetching the workout data.",
+        });
+      }
+    }
+  }, [workoutError, navigate]);
   return (
     <Sheet open={true}>
       <SheetContent
@@ -302,13 +444,13 @@ const WorkoutPlanForm = () => {
                   <LoadingButton
                     type="submit"
                     className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                    // onClick={handleSubmit(onSubmit)}
-                    // loading={isSubmitting}
-                    // disabled={isSubmitting}
+                    onClick={handleSubmit(onSubmit)}
+                    loading={isSubmitting}
+                    disabled={isSubmitting || workoutidDataLoading}
                   >
-                    {/* {!isSubmitting && ( */}
-                    <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                    {/* )} */}
+                    {!isSubmitting && (
+                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                    )}
                     Save
                   </LoadingButton>
                 ) : (
@@ -323,10 +465,14 @@ const WorkoutPlanForm = () => {
                         setActiveStep(newActive);
                       }, onError)();
                     }}
-                    loading={AddworkoutLoading || updateLoading}
-                    disabled={AddworkoutLoading || updateLoading}
+                    loading={
+                      isSubmittedcode || AddworkoutLoading || updateLoading
+                    }
+                    disabled={
+                      isSubmittedcode || AddworkoutLoading || updateLoading
+                    }
                   >
-                    {!form.formState.isSubmitting && (
+                    {!(isSubmitting || AddworkoutLoading || updateLoading) && (
                       <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                     )}
                     <i className="fa fa-arrow-right-long "></i>

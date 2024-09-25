@@ -39,9 +39,7 @@ import {
   workoutLevels,
 } from "@/lib/constants/workout";
 import { cn } from "@/lib/utils";
-import {
-  useGetMembersListQuery,
-} from "@/services/memberAPi";
+import { useGetMembersListQuery } from "@/services/memberAPi";
 import { Check, ChevronDownIcon, ImageIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -124,7 +122,7 @@ const WorkoutStep1: React.FC = () => {
               id="description"
               label="description"
               type="textarea"
-              rows={4}
+              rows={5}
               className="col-span-2"
               {...register("description")}
               error={errors.description?.message}

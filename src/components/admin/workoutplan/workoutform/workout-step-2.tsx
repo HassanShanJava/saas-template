@@ -199,13 +199,13 @@ const WorkoutStep2: React.FC = () => {
   const Exercise_info: ExerciseItem[] = [
     {
       type: "multiselect",
-      name: "primary_muscle_ids",
+      name: "primary_muscle",
       label: "Primary Muscle*",
       required: true,
       options: MuscleData,
     },
     {
-      type: "select",
+      type: "multiselect",
       name: "category",
       label: "Category",
       required: true,
@@ -227,14 +227,14 @@ const WorkoutStep2: React.FC = () => {
     // },
     {
       type: "multiselect",
-      name: "equipment_ids",
+      name: "equipments",
       label: "Equipments*",
       required: true,
       options: EquipmentData,
     },
     {
       type: "multiselect",
-      name: "primary_joint_ids",
+      name: "primary_joints",
       label: "Primary Joints*",
       required: true,
       options: JointsData,

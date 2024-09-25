@@ -1273,3 +1273,68 @@ export interface workoutUpdateStatus {
   level?: difficultyEnum;
   weeks: number;
 }
+
+export interface exerciseByWorkoutDayUpdateResponse {
+  workout_day_id: number;
+  id: number;
+  exercise_type?: ExerciseTypeEnum;
+  intensity_value?: number;
+  exercise_id: number;
+  distance?: number;
+  sets?: number;
+  speed?: number;
+  met_value?: number;
+  seconds_per_set?: number[];
+  notes?: string;
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  exercise_intensity?: IntensityEnum;
+}
+
+export interface exerciseByWorkoutDayUpdateInput {
+  id: number;
+  exercise_type?: ExerciseTypeEnum;
+  sets: number;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  exercise_intensity?: IntensityEnum;
+  intensity_value?: number;
+  notes?: string;
+  exercise_id: number;
+}
+
+export interface getWorkoutdayExerciseResponse {
+  workout_day_id: number;
+  exercise_id: number;
+  exercise_type?: ExerciseTypeEnum;
+  sets: number;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  exercise_intensity?: IntensityEnum;
+  intensity_value?: number;
+  notes?: string;
+  distance?: number;
+  speed?: number;
+  met_value?: number;
+  id: number;
+  exercise_name: string;
+  gif_url: string;
+}
+
+export interface workoutDayExerciseInput {
+  workout_day_id: number;
+  exercise_id: number;
+  exercise_type?: ExerciseTypeEnum;
+  sets: number;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  exercise_intensity?: IntensityEnum;
+  intensity_value?: number;
+  notes?: string;
+  distance?: number;
+  speed?: number;
+  met_value?: number;
+}

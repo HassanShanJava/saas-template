@@ -17,7 +17,7 @@ export interface Exercise {
   distance: number | null;
   speed: number | null;
   met_id: number | null;
-  equipments: { id: number; name: string }[];
+  equipments?: { id: number; name: string }[];
   notes?: string;
 }
 
@@ -58,8 +58,9 @@ export default function WorkoutDayExerciseComponent({
             className="h-[20px] w-[40px] object-contain relative"
           />
           <span className="text-sm truncate">
-            {exercise.exercise_name}-{" "}
-            {exercise.equipments.map((e) => e.name).join(", ")}
+            {exercise.exercise_name}
+            {/* -{" "} */}
+            {/* {exercise.equipments.map((e) => e.name).join(", ")} */}
           </span>
         </div>
         <div className="flex gap-x-1 align-center">

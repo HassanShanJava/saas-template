@@ -8,6 +8,10 @@ import {
   workoutUpdateStatus,
   days,
   ExerciseTableServerTypes,
+  getWorkoutdayExerciseResponse,
+  exerciseByWorkoutDayUpdateInput,
+  exerciseByWorkoutDayUpdateResponse,
+  workoutDayExerciseInput,
 } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 interface workoutQuery {
@@ -151,6 +155,49 @@ export const workoutApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Exercise"],
     }),
+    addExerciseInWorkout: builder.mutation<
+      getWorkoutdayExerciseResponse,
+      workoutDayExerciseInput
+    >({
+      query: (workoutdata) => ({
+        url: "/workout/day/exercise",
+        method: "POST",
+        body: workoutdata,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }),
+      invalidatesTags: ["Workout"],
+    }),
+    updateExerciseInWorkout: builder.mutation<
+      exerciseByWorkoutDayUpdateResponse,
+      exerciseByWorkoutDayUpdateInput
+    >({
+      query: (workoutdata) => ({
+        url: "/workout/day/exercise",
+        method: "PUT",
+        body: workoutdata,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }),
+      invalidatesTags: ["Workout"],
+    }),
+    getExerciseByWorkoutDayId: builder.query<
+      getWorkoutdayExerciseResponse[],
+      number
+    >({
+      query: (workoutdayId) => ({
+        url: `/workout/day/${workoutdayId}/exercise`,
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      }),
+      providesTags: ["Workout"],
+    }),
   }),
 });
 
@@ -165,4 +212,7 @@ export const {
   useDeleteWorkoutDayMutation,
   useUpdateWorkoutDayMutation,
   useGetAllExerciseForWorkoutQuery,
+  useAddExerciseInWorkoutMutation,
+  useUpdateExerciseInWorkoutMutation,
+  useGetExerciseByWorkoutDayIdQuery,
 } = workoutApi;

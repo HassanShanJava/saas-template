@@ -273,7 +273,7 @@ const EventForm: React.FC<eventFormType> = ({
                                 selected={field.value}
                                 onSelect={field.onChange}
                                 fromYear={1960}
-                                toYear={2030}
+                                toYear={new Date().getFullYear()}
                                 disabled={(date: any) =>
                                   date > new Date() ||
                                   date < new Date("1900-01-01")

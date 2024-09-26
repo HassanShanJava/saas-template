@@ -204,6 +204,8 @@ const MemberForm = ({
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
   const [emailAutoFill, setEmailAutoFill] = React.useState<string>("");
   const [openAutoFill, setAutoFill] = useState(false);
+  const [country, setCountry] = useState(false);
+  const [dob, setDob] = useState(false);
 
   // conditional fetching
   const { data: memberCountData, refetch: refecthCount } =
@@ -673,7 +675,7 @@ const MemberForm = ({
                 </div>
                 <div className="relative ">
                   {action == "add" ||
-                  (action == "edit" && watcher.client_status == "pending") ? (
+                    (action == "edit" && watcher.client_status == "pending") ? (
                     <FloatingLabelInput
                       id="email"
                       className=""
@@ -808,7 +810,7 @@ const MemberForm = ({
                       field: { onChange, value, onBlur },
                       fieldState: { invalid, error },
                     }) => (
-                      <Popover>
+                      <Popover open={dob} onOpenChange={setDob}>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <div className="relative">
@@ -819,14 +821,13 @@ const MemberForm = ({
                                 variant={"outline"}
                                 type="button"
                                 className={cn(
-                                  "w-full pl-3 text-left font-normal ",
-                                  !value && "text-muted-foreground"
+                                  "w-full pl-3 text-gray-800 text-left font-normal hover:bg-transparent border-[1px]",  
                                 )}
                               >
                                 {(value as Date) ? (
                                   format(value as Date, "dd-MM-yyyy")
                                 ) : (
-                                  <span className="font-normal text-gray-400">
+                                  <span >
                                     Select date of birth
                                   </span>
                                 )}
@@ -848,9 +849,12 @@ const MemberForm = ({
                             defaultMonth={
                               (value as Date) ? (value as Date) : undefined
                             }
-                            onSelect={onChange}
+                            onSelect={(value) => {
+                              onChange(value);
+                              setDob(false);
+                            }}
                             fromYear={1960}
-                            toYear={2030}
+                            toYear={new Date().getFullYear()}
                             disabled={(date: any) =>
                               date > new Date() || date < new Date("1960-01-01")
                             }
@@ -974,10 +978,10 @@ const MemberForm = ({
                         }
                         value={value?.toString()}
                       >
-                        <SelectTrigger className="font-medium capitalize text-gray-800">
+                        <SelectTrigger className="font-normal capitalize text-gray-800">
                           <SelectValue placeholder="Select Source*" />
                         </SelectTrigger>
-                        <SelectContent className="capitalize">
+                        <SelectContent className="capitalize max-h-52">
                           {sources &&
                             sources?.map((item) => (
                               <SelectItem value={item.id.toString()}>
@@ -1074,10 +1078,10 @@ const MemberForm = ({
                         }
                         value={value?.toString()}
                       >
-                        <SelectTrigger className="capitalize  font-medium text-gray-800">
+                        <SelectTrigger className="capitalize  font-normal text-gray-800">
                           <SelectValue placeholder="Select Business" />
                         </SelectTrigger>
-                        <SelectContent className="capitalize">
+                        <SelectContent side="bottom" className="capitalize max-h-52">
                           {/* <Button variant={"link"} className="gap-2 text-black">
                             <PlusIcon className="text-black w-5 h-5" /> Add New
                             business
@@ -1165,23 +1169,23 @@ const MemberForm = ({
                       fieldState: { invalid, error },
                     }) => (
                       <div className="flex flex-col w-full">
-                        <Popover>
+                        <Popover open={country} onOpenChange={setCountry}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
                                 variant="outline"
                                 role="combobox"
                                 className={cn(
-                                  "justify-between ",
+                                  "font-normal text-gray-800 border-[1px] justify-between hover:bg-transparent hover:text-gray-800",
                                   !value &&
-                                    "font-medium text-gray-800 focus:border-primary "
+                                  "  focus:border-primary "
                                 )}
                               >
                                 {value
                                   ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                    (country: CountryTypes) =>
+                                      country.id === value // Compare with numeric value
+                                  )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -1203,6 +1207,7 @@ const MemberForm = ({
                                             "country_id",
                                             country.id // Set country_id to country.id as number
                                           );
+                                          setCountry(false);
                                         }}
                                       >
                                         <Check
@@ -1270,12 +1275,12 @@ const MemberForm = ({
                           <FormControl>
                             <SelectTrigger
                               name="membership_plan_id"
-                              className={`font-medium capitalize text-gray-800`}
+                              className={`font-normal capitalize text-gray-800`}
                             >
                               <SelectValue placeholder="Select membership plan*" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="capitalize">
+                          <SelectContent className="capitalize max-h-52">
                             {membershipPlans && membershipPlans?.length > 0 ? (
                               membershipPlans.map(
                                 (sourceval: membeshipsTableType) => {
@@ -1448,7 +1453,7 @@ const MemberForm = ({
                 <div className="flex flex-col items-center  justify-center gap-4">
                   <AlertDialogTitle className="text-lg font-medium w-full text-center">
                     The email is already registered in the system.
-                    <br /> 
+                    <br />
                     <span className="">Would you like to auto-fill the details?</span>
                   </AlertDialogTitle>
                 </div>

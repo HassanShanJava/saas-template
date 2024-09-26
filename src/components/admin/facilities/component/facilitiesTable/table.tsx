@@ -364,7 +364,7 @@ export default function FacilitiesTableView() {
               handleStatusChange({ status: e, id: id, org_id: org_id })
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-8">
               <SelectValue placeholder="Status" className="text-gray-400">
                 <span className="flex gap-2 items-center">
                   <span
@@ -543,10 +543,10 @@ export default function FacilitiesTableView() {
                   </TableRow>
                 ))
               ) : facilitiestableData.length > 0 ? (
-                <TableRow>
+                <TableRow className="!p-0">
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-24 text-center  "
                   >
                     No data found.
                   </TableCell>
@@ -731,7 +731,7 @@ const CreditForm = ({
       .min(1, { message: "Required" })
       .max(40, "Name must be 40 characters or less")
       .refine(
-        (value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value ?? ""),
+        (value) => /^[a-zA-Z]+(?:[-'s]?[a-zA-Z ]+)*$/.test(value ?? ""),
         "Name should contain only alphabets"
       ),
     min_limit: z
@@ -873,6 +873,7 @@ const CreditForm = ({
                             name="name"
                             label="Facility Name*"
                             value={value ?? ""}
+                            className="capitalize"
                             // error={error?.message??""}
                             onChange={handleOnChange}
                           />

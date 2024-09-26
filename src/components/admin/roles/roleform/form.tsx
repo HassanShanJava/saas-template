@@ -449,14 +449,14 @@ export const RoleForm = ({
                   />
                 </div>
                 <div>
-                  <h1 className="text-xl px-1 font-semibold text-black">
+                  <h1 className="text-xl px-1 my-4 font-semibold text-black">
                     Module Access
                   </h1>
-                  <div className="rounded-none  mt-4">
+                  <div className="rounded-none  ">
                     <ScrollArea className="w-full relative">
                       <ScrollBar orientation="horizontal" />
-                      <Table className="">
-                        <TableHeader className="bg-gray-100 sticky top-0 z-50">
+                      <Table className="relative">
+                        <TableHeader className="bg-gray-100  !sticky !top-0  z-50">
                           {table?.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                               {headerGroup.headers.map((header) => {

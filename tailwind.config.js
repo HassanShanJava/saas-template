@@ -15,9 +15,10 @@ export default {
     extend: {
       colors: {
         // outletcolor: "hsl((--bg-outlet-background))",
-        outletcolor: "#f7f7f7",
+        outletcolor: "#F7F7F7",
         // tableheader: "hsl((--table-header-color))",
-        tableheader: "#f5f5f5",
+        tableheader: "#F5F5F5",
+        hoverprimary: "#E4FFE4",
         failure: "hsl((--bg-secondary-red))",
         maintextColor: "hsl((--text-main-color))",
         bgbackground: "hsl((--background-color))",

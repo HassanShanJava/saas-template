@@ -159,7 +159,7 @@ const DashboardLayout: React.FC = () => {
       <div className="relative flex-1 overflow-y-auto max-h-screen w-[calc(100%-275px)]">
         <Header />
         <main className=" bg-outletcolor  h-[90vh] relative ">
-          <div className="   2xl:max-w-[1400px] mx-auto 4xl:max-w-[2200px]">
+          <div className="   w-full mx-auto">
             <Outlet />
             <Toaster />
           </div>

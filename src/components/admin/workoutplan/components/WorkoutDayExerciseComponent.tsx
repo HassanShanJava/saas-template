@@ -44,7 +44,6 @@ export default function WorkoutDayExerciseComponent({
 }: WorkoutDayExerciseyProps) {
   return (
     <div
-      onClick={onClick}
       className={cn(
         "border border-black/25 rounded-lg p-2 cursor-pointer hover:border-primary",
         selected && "border-primary"
@@ -68,7 +67,10 @@ export default function WorkoutDayExerciseComponent({
             {/* {exercise.equipments.map((e) => e.name).join(", ")} */}
           </span>
         </div>
-        <div className="flex gap-x-1 align-center">
+        <div className="flex gap-x-4 align-center ">
+          <Button onClick={onClick} className="h-auto p-0" variant="ghost">
+            <i className="fa fa-pencil" aria-hidden="true"></i>
+          </Button>
           <Button
             onClick={() => {
               onDuplicate(exercise, exercise?.id || 0);

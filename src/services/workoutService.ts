@@ -211,19 +211,18 @@ export const workoutApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Workout"],
     }),
-    verifyWorkoutCreation: builder.mutation<
+    verifyWorkoutCreation: builder.query<
       { message: string; status: number },
       number
     >({
       query: (workoutId) => ({
         url: `/workout/verify/${workoutId}`,
-        method: "POST",
+        method: "GET",
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/json",
         },
       }),
-      invalidatesTags: ["Workout"],
+      providesTags: ["Workout"],
     }),
   }),
 });
@@ -243,5 +242,5 @@ export const {
   useUpdateExerciseInWorkoutMutation,
   useGetExerciseByWorkoutDayIdQuery,
   useDeleteExerciseInWorkoutdayMutation,
-  useVerifyWorkoutCreationMutation,
+  useVerifyWorkoutCreationQuery,
 } = workoutApi;

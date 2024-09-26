@@ -73,7 +73,7 @@ export function DataTableRowActions({
   };
   const handleEditClick = (data: WorkoutPlanView & { id: number }) => {
     // Navigate to the edit route with the specific ID
-    navigate(`/admin/workoutplans/add/step/1/${data.id}`);
+    navigate(`/admin/workoutplans/add/step/1/${data.id}?mode=edit`);
   };
 
   return (

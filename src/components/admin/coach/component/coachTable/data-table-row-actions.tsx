@@ -34,10 +34,12 @@ export function DataTableRowActions({
   data,
   refetch,
   handleEdit,
+  access
 }: {
   data: CoachTableDataTypes;
   refetch: () => void;
   handleEdit: (coachData: coachUpdateInput) => void;
+  access:string
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const [deleteCoach, { isLoading: deleteLoading }] = useDeleteCoachMutation();
@@ -111,10 +113,10 @@ export function DataTableRowActions({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            <DropdownMenuItem onClick={() => setIsDelete(true)}>
+            {access=="full_access"&&<DropdownMenuItem onClick={() => setIsDelete(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
-            </DropdownMenuItem>
+            </DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
       </Dialog>

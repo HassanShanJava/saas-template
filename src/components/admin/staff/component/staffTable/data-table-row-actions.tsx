@@ -21,20 +21,22 @@ import { useToast } from "@/components/ui/use-toast";
 import { ErrorType, staffTypesResponseList } from "@/app/types";
 import { useDeleteStaffMutation } from "@/services/staffsApi";
 import warning from "@/assets/warning.svg";
-import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
+import { useSelector } from "react-redux";
 
 export function DataTableRowActions({
   data,
   refetch,
   handleEdit,
+  access
 }: {
   data: staffTypesResponseList & { id: number };
   refetch: () => void;
   handleEdit: (staffData: staffTypesResponseList | null) => void;
+  access: string
 }) {
-  const userId =
-    useSelector((state: RootState) => state.auth.userInfo?.user?.id) || 0;
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+
   const [isdelete, setIsDelete] = React.useState(false);
   const { toast } = useToast();
 
@@ -94,10 +96,10 @@ export function DataTableRowActions({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            <DropdownMenuItem onClick={() => setIsDelete(true)}>
+            {access == "full_access" && <DropdownMenuItem disabled={userInfo?.user?.id == data.id} className="disabled:cursor-not-allowed" onClick={() => setIsDelete(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
-            </DropdownMenuItem>
+            </DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
       </Dialog>

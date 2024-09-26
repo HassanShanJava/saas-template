@@ -10,7 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-const displayValue = (value: any) => (value === null ? "N/A" : value);
+const displayValue = (value: any) => (value === null || value === "" ? "N/A" : value);
 import {
   Tooltip,
   TooltipContent,
@@ -56,14 +56,14 @@ import TableFilters from "@/components/ui/table/data-table-filter";
 import { visibleFor, categories, weights } from "@/constants/food";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
-const categoryMap = Object.fromEntries(
-  categories.map((cat) => [cat.label, cat.value])
-);
-const visibleForMap = Object.fromEntries(
-  visibleFor.map((vf) => [vf.label, vf.value])
-);
-
-const weightsMap = Object.fromEntries(weights.map((w) => [w.label, w.value]));
+// removed for enum changes
+// const categoryMap = Object.fromEntries(
+//   categories.map((cat) => [cat.label, cat.value])
+// );
+// const visibleForMap = Object.fromEntries(
+//   visibleFor.map((vf) => [vf.label, vf.value])
+// );
+// const weightsMap = Object.fromEntries(weights.map((w) => [w.label, w.value]));
 
 const downloadCSV = (data: CreateFoodTypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -90,11 +90,11 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  // sort_key: "created_at",
   sort_key: "id",
 };
 
 export default function FoodsTableView() {
+  const { food } = JSON.parse(localStorage.getItem("accessLevels") as string)
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -200,6 +200,21 @@ export default function FoodsTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
+  const actionsColumn: ColumnDef<CreateFoodTypes> = {
+    accessorKey: "action",
+    header: ({ table }) => <span>Action</span>,
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={food}
+        handleEdit={handleEdit}
+        data={row.original}
+        refetch={refetch}
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  };
+
   const columns: ColumnDef<CreateFoodTypes>[] = [
     {
       accessorKey: "name",
@@ -225,10 +240,10 @@ export default function FoodsTableView() {
                 src={VITE_VIEW_S3_URL + "/" + row.original.img_url}
                 alt={row.original.name}
                 loading="lazy"
-                className="size-14 bg-gray-100 object-contain rounded-sm "
+                className="size-8 bg-gray-100 object-cover rounded-sm "
               />
             ) : (
-              <div className="size-14 bg-gray-100 rounded-sm"></div>
+              <div className="size-8 bg-gray-100 rounded-sm"></div>
             )}
             <div className="">
               <TooltipProvider>
@@ -236,8 +251,8 @@ export default function FoodsTableView() {
                   <TooltipTrigger asChild>
                     <p className="capitalize cursor-pointer">
                       <span>{displayValue(
-                        `${row.original.name}`.length > 8
-                          ? `${row.original.name}`.substring(0, 8) + "..."
+                        `${row.original.name}`.length > 15
+                          ? `${row.original.name}`.substring(0, 15) + "..."
                           : `${row.original.name}`
                       )}</span>
                     </p>
@@ -387,19 +402,7 @@ export default function FoodsTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: "action",
-      header: ({ table }) => <span>Action</span>,
-      cell: ({ row }) => (
-        <DataTableRowActions
-          handleEdit={handleEdit}
-          data={row.original}
-          refetch={refetch}
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+    ...(food !== "read" ? [actionsColumn] : []),
   ];
 
   const table = useReactTable({
@@ -430,13 +433,7 @@ export default function FoodsTableView() {
 
   const handleEdit = (data: CreateFoodTypes) => {
     setAction("edit");
-    const payload = {
-      ...data,
-      category: categoryMap[data.category!],
-      visible_for: visibleForMap[data.visible_for!],
-      weight_unit: weightsMap[data.weight_unit!],
-    };
-    setData(payload);
+    setData(data);
     setIsDialogOpen(true);
   };
 
@@ -524,7 +521,7 @@ export default function FoodsTableView() {
       type: "select",
       name: "category",
       label: "Food Category",
-      options: categories.map((item) => ({ id: item.value, name: item.label })),
+      options: categories.map((item) => ({ id: item.label, name: item.label })),
       function: handleCategory,
     },
     {
@@ -543,7 +540,7 @@ export default function FoodsTableView() {
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
         <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
           <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
@@ -558,13 +555,13 @@ export default function FoodsTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
+          {food !=="read"&&<Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={handleOpen}
           >
             <PlusIcon className="size-4" />
             Create New
-          </Button>
+          </Button>}
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}

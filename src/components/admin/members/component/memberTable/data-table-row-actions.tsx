@@ -26,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import warning from "@/assets/warning.svg";
 interface DataTableRowActionsProps<TData> {
   row: number;
+  access:string
   data: MemberTableDatatypes;
   refetch: any;
   handleEditMember: any;
@@ -33,6 +34,7 @@ interface DataTableRowActionsProps<TData> {
 
 export function DataTableRowActions<TData>({
   row,
+  access,
   data,
   refetch,
   handleEditMember,
@@ -94,10 +96,10 @@ export function DataTableRowActions<TData>({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            <DropdownMenuItem onClick={() => setIsDelete(true)}>
+            {access === "full_access"&&<DropdownMenuItem onClick={() => setIsDelete(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
-            </DropdownMenuItem>
+            </DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
         {isdelete && (

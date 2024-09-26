@@ -103,6 +103,8 @@ interface searchCretiriaType {
 }
 
 export default function MembershipsTableView() {
+  const { membership } = JSON.parse(localStorage.getItem("accessLevels") as string)
+
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>(initialValue);
@@ -282,12 +284,27 @@ export default function MembershipsTableView() {
     setIsDialogOpen(true);
   };
 
+  const actionsColumn: ColumnDef<membeshipsTableType> = {
+    id: "actions",
+    header: "Actions",
+    maxSize: 100,
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={membership}
+        data={row.original}
+        refetch={refetch}
+        handleEdit={handleEditMembership}
+      />
+    ),
+  };
+
+
   const columns: ColumnDef<membeshipsTableType>[] = [
     {
       accessorKey: "name",
       header: () => (
-        <div className="flex items-center gap-2">
-          <p>Membership Name</p>
+        <div className="flex  items-center gap-2">
+          <p className="text-nowrap">Membership Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("name")}
@@ -329,7 +346,7 @@ export default function MembershipsTableView() {
       accessorKey: "group_id",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Group</p>
+          <p className="text-nowrap">Group</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("group_id")}
@@ -351,11 +368,11 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "duration",
-      header: ({ table }) => <span>Duration</span>,
+      header: ({ table }) => <span className="text-nowrap">Duration</span>,
       cell: ({ row }) => {
         const { duration_no, duration_type } = row.original
           .access_time as AccessTime;
-        return <span>{`${duration_no} ${durationLabels[duration_type]}`}</span>;
+        return <span className="text-nowrap">{`${duration_no} ${durationLabels[duration_type]}`}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -363,8 +380,8 @@ export default function MembershipsTableView() {
     {
       accessorKey: "income_category_id",
       header: () => (
-        <div className="flex items-center gap-2">
-          <p>Income Category</p>
+        <div className="flex  items-center gap-2">
+          <p className="text-nowrap">Income Category</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("income_category_id")}
@@ -379,7 +396,7 @@ export default function MembershipsTableView() {
         const incomeCat = incomeCatData?.filter(
           (item) => item.id == row.original.income_category_id
         )[0];
-        return <span>{`${incomeCat?.name}`}</span>;
+        return <span className="text-nowrap capitalize">{`${incomeCat?.name}`}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -387,16 +404,16 @@ export default function MembershipsTableView() {
     {
       accessorKey: "net_price",
       header: () => (
-        <div className="flex items-center gap-2">
-          <p>Net Price</p>
-          {/* <button
+        <div className="flex  items-center gap-2">
+          <p className="text-nowrap">Net Price</p>
+          <button
           className=" size-5 text-gray-400 p-0 flex items-center justify-center"
           onClick={() => toggleSortOrder("net_price")}
         >
           <i
             className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
           ></i>
-        </button> */}
+        </button>
         </div>
       ),
       cell: ({ row }) => {
@@ -410,7 +427,7 @@ export default function MembershipsTableView() {
       accessorKey: "discount",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Discount</p>
+          <p className="text-nowrap">Discount</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("discount")}
@@ -433,7 +450,7 @@ export default function MembershipsTableView() {
       accessorKey: "payment_method",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Payment Method</p>
+          <p className="text-nowrap">Payment Method</p>
         </div>
       ),
       cell: ({ row }) => {
@@ -446,7 +463,7 @@ export default function MembershipsTableView() {
     },
     {
       accessorKey: "tax_rate",
-      header: ({ table }) => <span>Tax/VAT Rate</span>,
+      header: ({ table }) => <span className="text-nowrap">Tax/VAT Rate</span>,
       cell: ({ row }) => {
         const incomeCat = incomeCatData?.filter(
           (item) => item.id == row.original.income_category_id
@@ -454,7 +471,7 @@ export default function MembershipsTableView() {
         const saleTax = salesTaxData?.filter(
           (item) => item.id == incomeCat?.sale_tax_id
         )[0];
-        return <span>{`SRB (${saleTax?.percentage.toFixed(2)}%) `}</span>;
+        return <span className="text-nowrap">{`SRB (${saleTax?.percentage.toFixed(2)}%) `}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -463,7 +480,7 @@ export default function MembershipsTableView() {
       accessorKey: "total_price",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Total Amount</p>
+          <p className="text-nowrap">Total Amount</p>
           <button
             className=" size-5 text-gray-400 p-2 flex items-center justify-center"
             onClick={() => toggleSortOrder("total_price")}
@@ -476,7 +493,7 @@ export default function MembershipsTableView() {
       ),
       cell: ({ row }) => {
         const { total_price } = row.original;
-        return <span>{`Rs. ${total_price}`}</span>;
+        return <span className="text-nowrap">{`Rs. ${total_price}`}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -510,7 +527,7 @@ export default function MembershipsTableView() {
               handleStatusChange({ status: e, id: id, org_id: org_id })
             }
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-8">
               <SelectValue placeholder="Status" className="text-gray-400">
                 <span className="flex gap-2 items-center">
                   <span
@@ -533,18 +550,7 @@ export default function MembershipsTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      id: "actions",
-      header: "Actions",
-      maxSize: 100,
-      cell: ({ row }) => (
-        <DataTableRowActions
-          data={row.original}
-          refetch={refetch}
-          handleEdit={handleEditMembership}
-        />
-      ),
-    },
+    ...(membership !== "read" ? [actionsColumn] : []),  
   ];
 
   const table = useReactTable({
@@ -717,7 +723,7 @@ export default function MembershipsTableView() {
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
         <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
           <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
@@ -732,13 +738,13 @@ export default function MembershipsTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
+          {membership !== "read" && <Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={handleOpen}
           >
             <PlusIcon className="size-4" />
             Create New
-          </Button>
+          </Button>}
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}
@@ -748,12 +754,12 @@ export default function MembershipsTableView() {
         </div>
       </div>
       <div className="rounded-none border border-border  ">
-        <ScrollArea className="w-full relative">
+        <ScrollArea className="max-w-full relative">
           <ScrollBar
             orientation="horizontal"
             className="relative z-30 cursor-grab"
           />
-          <Table className="w-full overflow-x-scroll">
+          <Table className=" w-full   overflow-x-scroll">
             <TableHeader className="bg-secondary/80">
               {table?.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>

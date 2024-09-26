@@ -1,8 +1,8 @@
-export const visibleFor = [
-  { value: "only_myself", label: "Only myself" },
-  { value: "coaches", label: "Coaches of my gym" },
-  { value: "members", label: "Members of my gym" },
-  { value: "everyone", label: "Everyone in my gym" },
+export const visibleFor = [ 
+  { value: "Only Myself", label: "Only Myself" },
+  { value: "Coaches Of My Gym", label: "Coaches Of My Gym" },
+  { value: "Members Of My Gym", label: "Members Of My Gym" },
+  { value: "Everyone In My Gym", label: "Everyone In My Gym" },
 ];
 
 export const planFor = [
@@ -12,4 +12,15 @@ export const planFor = [
   { value: "afternoon_snack", label: "Afternoon Snack" },
   { value: "dinner", label: "Dinner" },
   { value: "evening_snack", label: "Evening Snack" },
+];
+
+
+export const mealTypes = [
+  // made same for backend mapping according to enums
+  { key: "breakfast", label: "Breakfast" },
+  { key: "morning_snack", label: "Morning Snack" },
+  { key: "lunch", label: "Lunch" },
+  { key: "afternoon_snack", label: "Afternoon Snack" },
+  { key: "dinner", label: "Dinner" },
+  { key: "evening_snack", label: "Evening Snack" },
 ];

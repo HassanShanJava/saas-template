@@ -75,7 +75,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="font-poppins sticky top-0 z-20 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
+    <header className="font-poppins sticky top-0 z-5  0 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
       <div className="flex w-full justify-between items-center gap-4">
         <div className="flex flex-row h-full justify-between items-center gap-4">
           <div className="w-full">
@@ -175,11 +175,11 @@ export const Header = () => {
                 targetPath="/admin/memberships"
                 title="System Settings"
               />
-              {/* <PageTitle
+              <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/roles"
-                title="Roles and Access Management"
-              /> */}
+                title="Roles & Access Management"
+              />
               {/* <PageTitle
                 currentPath={location.pathname}
                 targetPath="/admin/leads"
@@ -196,7 +196,7 @@ export const Header = () => {
                 title="Events"
               />
               <PageTitle
-                currentPath={location.pathname}
+                  currentPath={location.pathname}
                 targetPath="/admin/events/addevents"
                 title="Events"
               /> */}
@@ -345,7 +345,9 @@ export const Header = () => {
                   className="rounded-full"
                   alt="Avatar"
                 />
-                <h1 className="text-base">{userInfo?.user?.first_name}</h1>
+                <h1 className="text-base capitalize">
+                  {userInfo?.user?.first_name}
+                </h1>
                 <Button
                   variant="ghost"
                   size="icon"

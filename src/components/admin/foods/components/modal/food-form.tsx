@@ -272,7 +272,7 @@ const FoodForm = ({
                       <div key={item.name} className="relative">
                         <Controller
                           name={item.name as keyof CreateFoodTypes}
-                          rules={{ required: "Required" }}
+                          rules={{ required: item.required && "Required" }}
                           control={control}
                           render={({
                             field: { onChange, value, onBlur },
@@ -286,9 +286,7 @@ const FoodForm = ({
                                 defaultValue={value as string | undefined}
                               >
                                 <SelectTrigger
-                                  floatingLabel={
-                                    item.label + (item.required ? "*" : "")
-                                  }
+                                  floatingLabel={`${item.label}${item.required ? "*" : ""}`}
                                   name={item.name}
                                 >
                                   <SelectValue
@@ -301,7 +299,7 @@ const FoodForm = ({
                                     (st: any, index: number) => (
                                       <SelectItem
                                         key={index}
-                                        value={String(st.value)}
+                                        value={String(st.label)}
                                       >
                                         {st.label}
                                       </SelectItem>
@@ -427,7 +425,7 @@ const FoodForm = ({
                           </SelectTrigger>
                           <SelectContent>
                             {weights.map((unit, i) => (
-                              <SelectItem value={unit.value} key={i}>
+                              <SelectItem value={unit.label} key={i}>
                                 {unit.label}
                               </SelectItem>
                             ))}
@@ -446,11 +444,11 @@ const FoodForm = ({
                 <div className="relative">
                   <FloatingLabelInput
                     id={"weight"}
-                    label={"value"}
+                    label={"Weight*"}
                     type="number"
                     min={0}
                     step={0.01}
-                    error={errors?.weight_unit?.message}
+                    error={errors?.weight?.message}
                     {...register("weight", {
                       required: "Required",
                       valueAsNumber: true,

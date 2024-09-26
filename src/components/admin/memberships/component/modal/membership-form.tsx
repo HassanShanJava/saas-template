@@ -1,4 +1,3 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 import { StepperFormValues } from "@/types/hook-stepper";
 import StepperIndicator from "@/components/ui/stepper-indicator";
@@ -23,10 +22,7 @@ import { ErrorType, membeshipsTableType } from "@/app/types";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
-  SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 
@@ -121,7 +117,6 @@ const MembershipForm = ({
 
   const { toast } = useToast();
   const [activeStep, setActiveStep] = useState(1);
-  const [erroredInputName, setErroredInputName] = useState("");
   const methods = useForm<StepperFormValues>({
     mode: "all",
     defaultValues: defaultValue,
@@ -178,7 +173,7 @@ const MembershipForm = ({
       console.log({ defaultValue }, "add");
       reset(defaultValue, { keepIsSubmitted: false, keepSubmitCount: false });
     }
-  }, [data, action]);
+  }, [data, action, reset]);
 
   const onSubmit = async (formData: StepperFormValues) => {
     const payload = formData;

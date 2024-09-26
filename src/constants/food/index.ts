@@ -17,10 +17,10 @@ export const categories = [
 
 
 export const visibleFor = [ 
-  { value: "only_myself", label: "Only myself" },
-  { value: "coaches", label: "Coaches of my gym" },
-  { value: "members", label: "Members of my gym" },
-  { value: "everyone", label: "Everyone in my gym" },
+  { value: "Only Myself", label: "Only Myself" },
+  { value: "Coaches Of My Gym", label: "Coaches Of My Gym" },
+  { value: "Members Of My Gym", label: "Members Of My Gym" },
+  { value: "Everyone In My Gym", label: "Everyone In My Gym" },
 ];
 
 export const weights = [
@@ -69,7 +69,7 @@ export const basicInfo = [
     type: "select",
     name: "visible_for",
     label: "Visible For",
-    required: false,
+    required: true,
     options: visibleFor,
   },
 ];

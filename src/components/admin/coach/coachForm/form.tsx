@@ -121,6 +121,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
   const [emailAutoFill, setEmailAutoFill] = React.useState<string>("");
   const [openAutoFill, setAutoFill] = useState(false);
+  const [country, setCountry] = useState(false);
+  const [dob, setDob] = useState(false);
   const membersSchema = z.number();
   const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -850,7 +852,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     name="dob"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <Popover>
+                        <Popover open={dob} onOpenChange={setDob}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <div className="relative">
@@ -883,9 +885,12 @@ const CoachForm: React.FC<CoachFormProps> = ({
                               mode="single"
                               captionLayout="dropdown-buttons"
                               selected={new Date(field.value)}
-                              onSelect={field.onChange}
+                              onSelect={(value)=>{
+                                field.onChange(value);
+                                setDob(false);
+                              }}
                               fromYear={1960}
-                              toYear={2030}
+                              toYear={new Date().getFullYear()}
                               defaultMonth={
                                 new Date(
                                   field && field.value
@@ -1149,16 +1154,16 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     name="country_id"
                     render={({ field }) => (
                       <FormItem className="flex flex-col w-full">
-                        <Popover>
+                        <Popover open={country} onOpenChange={setCountry}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
                                 variant="outline"
                                 role="combobox"
                                 className={cn(
-                                  "justify-between font-normal",
+                                  "font-normal text-gray-800 border-[1px] justify-between hover:bg-transparent hover:text-gray-800",
                                   !field.value &&
-                                    "font-medium text-gray-800 focus:border-primary "
+                                  "  focus:border-primary "
                                 )}
                               >
                                 {field.value
@@ -1187,6 +1192,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                             "country_id",
                                             country.id // Set country_id to country.id as number
                                           );
+                                          setCountry(false);
                                         }}
                                       >
                                         <Check

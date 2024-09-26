@@ -94,6 +94,7 @@ const initialValue = {
 };
 
 export default function MealPlansTableView() {
+  const { meal_plan } = JSON.parse(localStorage.getItem("accessLevels") as string)
   const { toast } = useToast();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -197,6 +198,23 @@ export default function MealPlansTableView() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
+  const actionsColumn: ColumnDef<mealPlanDataType> = {
+    accessorKey: "actions",
+    header: ({ table }) => <span>Action</span>,
+    cell: ({ row }) => {
+      return (
+        <DataTableRowActions
+          access={meal_plan}
+          handleEdit={handleEdit}
+          data={row.original}
+          refetch={refetch}
+        />
+      );
+    },
+    enableSorting: false,
+    enableHiding: false,
+  }
+
   const columns: ColumnDef<mealPlanDataType>[] = [
     {
       accessorKey: "name",
@@ -231,13 +249,11 @@ export default function MealPlansTableView() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <p className="capitalize cursor-pointer">
-                      <span>
-                        {displayValue(
-                          `${row.original.name}`.length > 8
-                            ? `${row.original.name}`.substring(0, 8) + "..."
-                            : `${row.original.name}`
-                        )}
-                      </span>
+                      <span>{displayValue(
+                        `${row.original.name}`.length > 8
+                          ? `${row.original.name}`.substring(0, 8) + "..."
+                          : `${row.original.name}`
+                      )}</span>
                     </p>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -338,21 +354,7 @@ export default function MealPlansTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: "actions",
-      header: ({ table }) => <span>Action</span>,
-      cell: ({ row }) => {
-        return (
-          <DataTableRowActions
-            handleEdit={handleEdit}
-            data={row.original}
-            refetch={refetch}
-          />
-        );
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
+    ...(meal_plan !== "read" ? [actionsColumn] : []),
   ];
 
   const table = useReactTable({
@@ -476,7 +478,7 @@ export default function MealPlansTableView() {
   };
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
         <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
           <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
@@ -491,13 +493,13 @@ export default function MealPlansTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
+          {meal_plan !== "read" && <Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={handleOpen}
           >
             <PlusIcon className="size-4" />
             Create New
-          </Button>
+          </Button>}
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}

@@ -79,10 +79,10 @@ const TableFilters = ({
                         element.function(value);
                       }}
                     >
-                      <SelectTrigger floatingLabel={element.label}>
-                        <SelectValue placeholder={"Select " + element.label} />
+                      <SelectTrigger className="capitalize" floatingLabel={element.label}>
+                        <SelectValue  placeholder={"Select " + element.label} />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="capitalize">
                         {element.options?.map((st: any, index: number) => (
                           <SelectItem key={index} value={String(st.id)}>
                             {st.name}
@@ -147,7 +147,7 @@ const TableFilters = ({
                       placeholder={"Select " + element.label.replace(/_/g, " ")}
                       variant="inverted"
                       maxCount={1}
-                      className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                      className="capitalize focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                     />
                   );
                 }

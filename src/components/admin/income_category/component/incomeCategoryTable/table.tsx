@@ -102,6 +102,8 @@ interface searchCretiriaType {
 }
 
 export default function IncomeCategoryTableView() {
+  const { inc_cat } = JSON.parse(localStorage.getItem("accessLevels") as string)
+
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -217,6 +219,20 @@ export default function IncomeCategoryTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
+  const actionsColumn: ColumnDef<incomeCategoryTableType> = {
+    id: "actions",
+    header: "Actions",
+    maxSize: 100,
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={inc_cat}
+        data={row.original}
+        refetch={refetch}
+        handleEdit={handleEditIncomeCategory}
+      />
+    ),
+  };
+
   const columns: ColumnDef<incomeCategoryTableType>[] = [
     {
       accessorKey: "name",
@@ -287,18 +303,7 @@ export default function IncomeCategoryTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      id: "actions",
-      header: "Actions",
-      maxSize: 100,
-      cell: ({ row }) => (
-        <DataTableRowActions
-          data={row.original}
-          refetch={refetch}
-          handleEdit={handleEditIncomeCategory}
-        />
-      ),
-    },
+    ...(inc_cat !== "read" ? [actionsColumn] : []),
   ];
 
   const table = useReactTable({
@@ -391,13 +396,13 @@ export default function IncomeCategoryTableView() {
         <div className="flex flex-1 items-center  ">
           <p className="font-semibold text-2xl">Income Categories</p>
         </div>
-        <Button
+        {inc_cat !== "read" && <Button
           className="bg-primary m-4 text-black gap-1 font-semibold"
           onClick={handleAddIncomeCategory}
         >
           <PlusIcon className="h-4 w-4" />
           Create New
-        </Button>
+        </Button>}
       </div>
       <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
@@ -415,9 +420,9 @@ export default function IncomeCategoryTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -664,8 +669,8 @@ const IncomeCategoryForm = ({
     });
   };
   const onSubmit = async (data: z.infer<typeof incomeCategoryFormSchema>) => {
-    const payload = {...data}
-    payload.name=payload.name.toLowerCase();
+    const payload = { ...data }
+    payload.name = payload.name.toLowerCase();
     try {
       if (formData.case == "add") {
         const resp = await createIncomeCategory(payload);
@@ -769,7 +774,7 @@ const IncomeCategoryForm = ({
                           label="Category Name*"
                           value={value ?? ""}
                           onChange={handleOnChange}
-                          // error={error?.message??""}
+                        // error={error?.message??""}
                         />
                         {/* {watcher.name ? <></> : <FormMessage />} */}
                         <FormMessage />

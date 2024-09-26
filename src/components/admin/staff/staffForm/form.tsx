@@ -87,6 +87,7 @@ import profileimg from "@/assets/profile-image.svg";
 import { Separator } from "@/components/ui/separator";
 import { PhoneInput } from "react-international-phone";
 import { PhoneNumberUtil } from "google-libphonenumber";
+import { Info } from "lucide-react";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 enum genderEnum {
@@ -123,6 +124,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+
   const initialState: StaffInputType = {
     profile_img: "",
     gender: genderEnum.male,
@@ -156,6 +159,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
   const phoneUtil = PhoneNumberUtil.getInstance();
 
   const FormSchema = z.object({
+    id: z.number().optional(),
     profile_img: z.string().trim().default("").optional(),
     own_staff_id: z.string({
       required_error: "Required",
@@ -301,6 +305,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
   });
 
   const { data: roleData } = useGetRolesQuery(orgId);
+
   const { data: countries } = useGetCountriesQuery();
   const { data: sources } = useGetAllSourceQuery();
   const { data: staffCount, refetch: countRefetch } = useGetStaffCountQuery(
@@ -315,7 +320,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
 
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = React.useState<File | null>(null);
-
+  const [country, setCountry] = useState(false);
+  const [dob, setDob] = useState(false);
   const [avatar, setAvatar] = React.useState<string | ArrayBuffer | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -368,6 +374,17 @@ const StaffForm: React.FC<StaffFormProps> = ({
     },
     mode: "onChange",
   });
+
+  const {
+    control,
+    watch,
+    register,
+    setValue,
+    handleSubmit,
+    clearErrors,
+    reset,
+    formState: { isSubmitting, errors },
+  } = form;
 
   const watcher = form.watch();
 
@@ -599,6 +616,22 @@ const StaffForm: React.FC<StaffFormProps> = ({
                 <div className="relative ">
                   <FormField
                     control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="email"
+                          label="Email Address*"
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative ">
+                  <FormField
+                    control={form.control}
                     name="first_name"
                     render={({ field }) => (
                       <FormItem>
@@ -667,7 +700,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     name="dob"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <Popover>
+                        <Popover open={dob} onOpenChange={setDob}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <div className="relative">
@@ -697,9 +730,12 @@ const StaffForm: React.FC<StaffFormProps> = ({
                               mode="single"
                               captionLayout="dropdown-buttons"
                               selected={new Date(field.value)}
-                              onSelect={field.onChange}
+                              onSelect={(value)=>{
+                                field.onChange(value);
+                                setDob(false);
+                              }}
                               fromYear={1960}
-                              toYear={2030}
+                              toYear={new Date().getFullYear()}
                               defaultMonth={
                                 new Date(
                                   field && field.value
@@ -720,22 +756,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     )}
                   />
                 </div>
-                <div className="relative ">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FloatingLabelInput
-                          {...field}
-                          id="email"
-                          label="Email Address*"
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+
                 <div className="relative ">
                   <FormField
                     control={form.control}
@@ -791,7 +812,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           {...field}
                           id="notes"
                           label="Notes"
-                          // error={form.formState.errors.notes?.message}
+                        // error={form.formState.errors.notes?.message}
                         />
                         <FormMessage />
                       </FormItem>
@@ -819,8 +840,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                 {field.value === 0
                                   ? "Select Source*"
                                   : sources?.find(
-                                      (source) => source.id === field.value
-                                    )?.source || "Select Source*"}
+                                    (source) => source.id === field.value
+                                  )?.source || "Select Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -845,55 +866,97 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     )}
                   />
                 </div>
-                <div className="relative ">
+                <div className="relative flex gap-2 items-center w-full justify-between">
                   <FormField
                     control={form.control}
                     name="role_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          onValueChange={(value) =>
-                            field.onChange(Number(value))
-                          }
-                          defaultValue={field.value?.toString() || "0"}
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              floatingLabel="Role*"
-                              className={`${watcher.role_id ? "text-black" : "text-gray-500"}`}
-                            >
-                              <SelectValue>
-                                {field.value === 0
-                                  ? "Select Role*"
-                                  : roleData?.find(
-                                      (role) => role.id === field.value
-                                    )?.name || "Select Role*"}
-                              </SelectValue>
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {roleData && roleData.length > 0 ? (
-                              roleData?.map((sourceval: getRolesType) => {
-                                return (
-                                  <SelectItem
-                                    key={sourceval.id}
-                                    value={sourceval.id?.toString()}
-                                  >
-                                    {sourceval.name}
-                                  </SelectItem>
-                                );
-                              })
-                            ) : (
-                              <>
-                                <p className="p-2"> No Role Found</p>
-                              </>
-                            )}
-                          </SelectContent>
-                        </Select>
-                        {watcher.role_id ? <></> : <FormMessage />}
-                      </FormItem>
+
+                    render={({
+                      field: { onChange, value, onBlur },
+                      fieldState: { invalid, error },
+                    }) => (
+                      <div className="relative w-full">
+                        <span className="absolute p-0 text-xs font-light text-gray-900 left-3 -top-1.5  px-1 bg-white">
+                          Role Name*
+                        </span>
+                        <FormItem className=" w-full">
+
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className="w-full hover:bg-transparent border-[1px] shadow-sm"
+                                  disabled={userInfo?.user?.id == watcher.id}
+                                >
+                                  <span className="w-full text-left font-normal">
+
+                                    {value
+                                      ? roleData?.find(
+                                        (role) =>
+                                          role.id === value
+                                      )?.name
+                                      : "Select Role*"}
+                                  </span>
+                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="p-0 relative " side="bottom">
+                              <Command className="w-full ">
+                                <CommandList >
+                                  <CommandInput placeholder="Select Role" />
+                                  <CommandEmpty>No country found.</CommandEmpty>
+                                  <CommandGroup className="">
+                                    {roleData &&
+                                      roleData.filter(role => role.name !== "Admin").map((role: any) => (
+                                        <CommandItem
+                                          value={role.id}
+                                          key={role.id}
+                                          onSelect={() => {
+                                            setValue(
+                                              "role_id",
+                                              role.id // Set country_id to country.id as number
+                                            );
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                              role.id == value
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                          {role.name}
+                                          {/* Display the country name */}
+                                        </CommandItem>
+                                      ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          {watcher.role_id ? <></> : <FormMessage />}
+                        </FormItem>
+                      </div>
                     )}
                   />
+
+                  {userInfo?.user?.id == watcher.id && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild className="hover:cursor-pointer">
+                          <Info className="size-5" />
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          Staff cannot edit there own role
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+
                 </div>
                 <div className="relative ">
                   <FormField
@@ -995,23 +1058,23 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     name="country_id"
                     render={({ field }) => (
                       <FormItem className="flex flex-col w-full">
-                        <Popover>
+                        <Popover open={country} onOpenChange={setCountry}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
                                 variant="outline"
                                 role="combobox"
                                 className={cn(
-                                  "justify-between !font-normal",
+                                  "font-normal text-gray-800 border-[1px] justify-between hover:bg-transparent hover:text-gray-800",
                                   !field.value &&
-                                    "font-medium text-gray-800 focus:border-primary "
+                                  "  focus:border-primary "
                                 )}
                               >
                                 {field.value
                                   ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === field.value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                    (country: CountryTypes) =>
+                                      country.id === field.value // Compare with numeric value
+                                  )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -1033,6 +1096,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                             "country_id",
                                             country.id // Set country_id to country.id as number
                                           );
+                                          setCountry(false);
                                         }}
                                       >
                                         <Check
@@ -1092,7 +1156,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
           </form>
         </Form>
       </SheetContent>
-    </Sheet>
+    </Sheet >
   );
 };
 

@@ -94,6 +94,8 @@ interface searchCretiriaType {
 }
 
 export default function SaleTaxesTableView() {
+  const { sale_tax } = JSON.parse(localStorage.getItem("accessLevels") as string)
+
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -219,20 +221,20 @@ export default function SaleTaxesTableView() {
       }
     }
   };
+  const actionsColumn: ColumnDef<saleTaxesTableType> = {
+    id: "actions",
+    header: "Actions",
+    maxSize: 100,
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={sale_tax}
+        data={row.original}
+        refetch={refetch}
+        handleEdit={handleEditSaleTax}
+      />
+    ),
+  }
 
-  const handleExportSelected = () => {
-    const selectedRows = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original);
-    if (selectedRows.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Select atleast one row for CSV download!",
-      });
-      return;
-    }
-    downloadCSV(selectedRows, "selected_data.csv");
-  };
 
   const columns: ColumnDef<saleTaxesTableType>[] = [
     {
@@ -324,7 +326,7 @@ export default function SaleTaxesTableView() {
     //           handleStatusChange({ status: e, id: id, org_id: org_id })
     //         }
     //       >
-    //         <SelectTrigger>
+    //         <SelectTrigger className="h-8">
     //           <SelectValue placeholder="Status" className="text-gray-400">
     //             <span className="flex gap-2 items-center">
     //               <span
@@ -347,18 +349,8 @@ export default function SaleTaxesTableView() {
     //   enableSorting: false,
     //   enableHiding: false,
     // },
-    {
-      id: "actions",
-      header: "Actions",
-      maxSize: 100,
-      cell: ({ row }) => (
-        <DataTableRowActions
-          data={row.original}
-          refetch={refetch}
-          handleEdit={handleEditSaleTax}
-        />
-      ),
-    },
+    ...(sale_tax !== "read" ? [actionsColumn] : []),
+
   ];
 
   const table = useReactTable({
@@ -451,13 +443,13 @@ export default function SaleTaxesTableView() {
         <div className="flex flex-1 items-center  ">
           <p className="font-semibold text-2xl">Sales Tax</p>
         </div>
-        <Button
+        {sale_tax !== "read" && <Button
           className="bg-primary m-4 text-black gap-1 font-semibold"
           onClick={handleAddSaleTax}
         >
           <PlusIcon className="h-4 w-4" />
           Create New
-        </Button>
+        </Button>}
         {/* <button
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={toggleSortOrder}
@@ -719,8 +711,8 @@ const SaleTaxesForm = ({
 
   const onSubmit = async (data: z.infer<typeof saleTaxFormSchema>) => {
     console.log({ data });
-    const payload = {...data}
-    payload.name=payload.name.toLowerCase();
+    const payload = { ...data }
+    payload.name = payload.name.toLowerCase();
     try {
       if (formData.case == "add") {
         const resp = await createSalesTax(payload);

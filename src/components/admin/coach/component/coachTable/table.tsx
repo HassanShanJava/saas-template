@@ -40,6 +40,7 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
 import { DataTableViewOptions } from "./data-table-view-options";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
@@ -95,6 +96,7 @@ const initialValue = {
 };
 
 export default function CoachTableView() {
+  const { coach } = JSON.parse(localStorage.getItem("accessLevels") as string)
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const orgName = useSelector(
@@ -249,6 +251,19 @@ export default function CoachTableView() {
     });
   };
 
+  const actionsColumn: ColumnDef<CoachTableDataTypes> = {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={coach}
+        data={row.original}
+        refetch={refetch}
+        handleEdit={handleOpenForm}
+      />
+    ),
+  }
+
   const columns: ColumnDef<CoachTableDataTypes>[] = [
     {
       id: "select",
@@ -275,10 +290,10 @@ export default function CoachTableView() {
     },
     {
       accessorKey: "own_coach_id",
-      meta: "Coach ID",
+      meta: "Coach Id",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Coach ID</p>
+          <p className="text-nowrap">Coach Id</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("id")}
@@ -304,7 +319,7 @@ export default function CoachTableView() {
       meta: "Coach Name",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Coach Name</p>
+          <p className="text-nowrap">Coach Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("first_name")}
@@ -318,15 +333,15 @@ export default function CoachTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            <div className="w-14 h-14 flex gap-2 items-center justify-between">
+            <div className="size-8 flex gap-2 items-center justify-between">
               {row.original.profile_img ? (
                 <img
                   src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
                   loading="lazy"
-                  className="w-14 h-14 bg-gray-100 object-contain rounded-sm "
+                  className="size-8 bg-gray-100 object-contain rounded-sm "
                 />
               ) : (
-                <div className="size-14 bg-gray-100 rounded-sm"></div>
+                <div className="size-8 bg-gray-100 rounded-sm"></div>
               )}
             </div>
             <div className="">
@@ -342,9 +357,9 @@ export default function CoachTableView() {
                         `${row.original.first_name} ${row.original.last_name}`
                           .length > 8
                           ? `${row.original.first_name} ${row.original.last_name}`.substring(
-                              0,
-                              8
-                            ) + "..."
+                            0,
+                            8
+                          ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -371,7 +386,7 @@ export default function CoachTableView() {
       meta: "Activation Date",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Activation Date</p>
+          <p className="text-nowrap">Activation Date</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("activated_on")}
@@ -395,7 +410,7 @@ export default function CoachTableView() {
       meta: "Status",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Status</p>
+          <p className="text-nowrap">Status</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("coach_status")}
@@ -424,8 +439,8 @@ export default function CoachTableView() {
             }
             disabled={value == "pending"}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Status" className="text-gray-400">
+            <SelectTrigger className="h-8">
+              <SelectValue placeholder="Status" className="text-gray-400 ">
                 <span className="flex gap-2 items-center">
                   <span
                     className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
@@ -455,7 +470,7 @@ export default function CoachTableView() {
       meta: "Last Check In",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Last Check In</p>
+          <p className="text-nowrap">Last Check In</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("check_in")}
@@ -467,7 +482,6 @@ export default function CoachTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        console.log(row?.original.check_in);
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayDateTime(row?.original.check_in)}
@@ -480,7 +494,7 @@ export default function CoachTableView() {
       meta: "Last Login",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Last Login</p>
+          <p className="text-nowrap">Last Login</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("last_online")}
@@ -499,17 +513,8 @@ export default function CoachTableView() {
         );
       },
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <DataTableRowActions
-          data={row.original}
-          refetch={refetch}
-          handleEdit={handleOpenForm}
-        />
-      ),
-    },
+    ...(coach !== "read" ? [actionsColumn] : []),
+
   ];
   const table = useReactTable({
     data: coachTableData as CoachTableDataTypes[],
@@ -605,7 +610,7 @@ export default function CoachTableView() {
   const [editCoach, setEditCoach] = useState<coachUpdateInput | null>(null);
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
         <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
           <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
@@ -620,13 +625,13 @@ export default function CoachTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
+          {coach !== "read" && <Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={() => handleOpenForm()}
           >
             <PlusIcon className="size-4" />
             Create New
-          </Button>
+          </Button>}
           <DataTableViewOptions table={table} action={handleExportSelected} />
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
@@ -653,9 +658,9 @@ export default function CoachTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

@@ -106,6 +106,7 @@ const initialValue = {
   sort_key: "id",
 };
 export default function StaffTableView() {
+  const { staff } = JSON.parse(localStorage.getItem("accessLevels") as string)
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const orgName = useSelector(
@@ -271,6 +272,19 @@ export default function StaffTableView() {
     setOpen(true);
   };
 
+  const actionsColumn: ColumnDef<staffTypesResponseList> = {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={staff}
+        handleEdit={handleOpenForm}
+        data={row.original}
+        refetch={refetch}
+      />
+    ),
+  }
+
   const columns: ColumnDef<staffTypesResponseList>[] = [
     {
       id: "select",
@@ -297,10 +311,10 @@ export default function StaffTableView() {
     },
     {
       accessorKey: "own_staff_id",
-      meta: "Staff ID",
+      meta: "Staff Id",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Staff ID</p>
+          <p className="text-nowrap">Staff Id</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("id")}
@@ -327,7 +341,7 @@ export default function StaffTableView() {
 
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Staff Name</p>
+          <p className="text-nowrap">Staff Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("first_name")}
@@ -341,15 +355,15 @@ export default function StaffTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            <div className="w-14 h-14 flex gap-2 items-center justify-between">
+            <div className="size-8 flex gap-2 items-center justify-between">
               {row.original.profile_img ? (
                 <img
                   src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
                   loading="lazy"
-                  className="w-14 h-14 bg-gray-100 object-contain rounded-sm "
+                  className="size-8 bg-gray-100 object-contain rounded-sm "
                 />
               ) : (
-                <div className="size-14 bg-gray-100 rounded-sm"></div>
+                <div className="size-8 bg-gray-100 rounded-sm"></div>
               )}
             </div>
             <div className="">
@@ -362,13 +376,13 @@ export default function StaffTableView() {
                     <p className="capitalize cursor-pointer">
                       {/* Display the truncated name */}
                       {displayValue(
-                        `${row.original.first_name} ${row.original.last_name}`
+                        `${row.original.first_name??""} ${row.original.last_name??""}`
                           .length > 8
-                          ? `${row.original.first_name} ${row.original.last_name}`.substring(
-                              0,
-                              8
-                            ) + "..."
-                          : `${row.original.first_name} ${row.original.last_name}`
+                          ? `${row.original.first_name??""} ${row.original.last_name??""}`.substring(
+                            0,
+                            8
+                          ) + "..."
+                          : `${row.original.first_name??""} ${row.original.last_name??""}`
                       )}
                     </p>
                   </TooltipTrigger>
@@ -376,7 +390,7 @@ export default function StaffTableView() {
                     {/* Display the full name in the tooltip */}
                     <p className="capitalize">
                       {displayValue(
-                        `${row.original.first_name} ${row.original.last_name}`
+                        `${row.original.first_name??""} ${row.original.last_name??""}`
                       )}
                     </p>
                   </TooltipContent>
@@ -393,7 +407,7 @@ export default function StaffTableView() {
       meta: "Activation Date",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Activation Date</p>
+          <p className="text-nowrap">Activation Date</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("activated_on")}
@@ -417,7 +431,7 @@ export default function StaffTableView() {
       meta: "Role",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Role</p>
+          <p className="text-nowrap">Role</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("role_id")}
@@ -430,7 +444,7 @@ export default function StaffTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex text-nowrap items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original.role_name)}
           </div>
         );
@@ -482,7 +496,7 @@ export default function StaffTableView() {
             }
             disabled={value == "pending"}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-8">
               <SelectValue placeholder="Status" className="text-gray-400">
                 <span className="flex gap-2 items-center">
                   <span
@@ -511,7 +525,7 @@ export default function StaffTableView() {
       meta: "Last Check In",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Last Check In</p>
+          <p className="text-nowrap">Last Check In</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("check_in")}
@@ -524,7 +538,7 @@ export default function StaffTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex text-nowrap items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayDateTime(row?.original.last_checkin)}
           </div>
         );
@@ -535,7 +549,7 @@ export default function StaffTableView() {
       meta: "Last Login",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Last Login</p>
+          <p className="text-nowrap">Last Login</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("last_online")}
@@ -548,23 +562,15 @@ export default function StaffTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex text-nowrap items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayDateTime(row?.original.last_online)}
           </div>
         );
       },
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <DataTableRowActions
-          handleEdit={handleOpenForm}
-          data={row.original}
-          refetch={refetch}
-        />
-      ),
-    },
+    ...(staff !== "read" ? [actionsColumn] : []),
+
+
   ];
 
   const table = useReactTable({
@@ -686,7 +692,7 @@ export default function StaffTableView() {
   const [open, setOpen] = useState<boolean>(false);
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
         <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
           <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
@@ -701,13 +707,13 @@ export default function StaffTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
+          {staff !== "read" && <Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={() => handleOpenForm()}
           >
             <PlusIcon className="size-4" />
             Create New
-          </Button>
+          </Button>}
           <DataTableViewOptions table={table} action={handleExportSelected} />
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
@@ -733,9 +739,9 @@ export default function StaffTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

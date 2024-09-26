@@ -1,6 +1,6 @@
 import DashboardLayout from "./components/ui/common/dashboardLayout";
 import AuthenticationPage from "./components/app/login/login";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Dashboard from "./components/admin/dashboard";
 import SystemSettings from "./components/admin/system_settings";
 import Leads from "./components/admin/leads";
@@ -16,11 +16,8 @@ import Memberships from "./components/admin/memberships";
 import RolesAndAccess from "./components/admin/roles";
 import Loader from "@/components/Loader";
 import MemberPage from "./components/admin/members";
-import MemberForm from "./components/admin/members/memberForm/form";
 import Staff from "./components/admin/staff";
-import StaffForm from "./components/admin/staff/staffForm/form";
 import Coach from "./components/admin/coach";
-import CoachForm from "./components/admin/coach/coachForm/form";
 import Exercise from "./components/admin/exercise";
 import MealPlans from "./components/admin/meal_plans";
 import FoodsNutrition from "./components/admin/foods";
@@ -32,6 +29,14 @@ import WorkoutPlanForm from "./components/admin/workoutplan/workoutform/workout-
 import WorkoutStep1 from "./components/admin/workoutplan/workoutform/workout-step-1";
 import WorkoutStep2 from "./components/admin/workoutplan/workoutform/workout-step-2";
 import ForgotPasword from "./components/app/login/forgot_password";
+
+// pos
+import Sell from "./components/admin/pos/sell";
+import CounterManagement from "./components/admin/pos/counter_management";
+import PaymentMethods from "./components/admin/pos/payment_methods";
+import CashManagement from "./components/admin/pos/cash_management";
+import Register from "./components/admin/pos/register";
+import SaleHistory from "./components/admin/pos/sales_history";
 
 function App() {
   const loading = useSelector((state: RootState) =>
@@ -68,16 +73,25 @@ function App() {
             <Route path="/admin/mealplans" element={<MealPlans />} />
             <Route path="/admin/foods" element={<FoodsNutrition />} />
             <Route path="/admin/workoutplans" element={<WorkoutPlan />} />
-            {/* <Route path="/admin/mealplans" element={<MealPlans />} />
-            <Route path="/admin/foods" element={<FoodsNutrition />} /> */}
+
             <Route path="/admin/workoutplans/" element={<WorkoutPlan />}>
               <Route path="add/" element={<WorkoutPlanForm />}>
                 <Route path="step/1/:workoutId?" element={<WorkoutStep1 />} />
                 <Route path="step/2/:workoutId?" element={<WorkoutStep2 />} />
               </Route>
             </Route>
-            {/*<Route path="/test" element={<Test />} />*/}
-            <Route path="*" element={<NotFoundPage />} />
+
+            <Route path="/admin/pos/sell" element={<Sell />} />
+            <Route path="/admin/pos/salesHistory" element={<SaleHistory />} />
+            <Route path="/admin/pos/register" element={<Register />} />
+            <Route path="/admin/pos/cash" element={<CashManagement />} />
+            <Route
+              path="/admin/pos/paymentMethods"
+              element={<PaymentMethods />}
+            />
+            <Route path="/admin/pos/counter" element={<CounterManagement />} />
+            <Route path="/notfound" element={<NotFoundPage />} />
+            <Route path="*" element={<Navigate to="/notfound" replace />} />
           </Route>
         </Route>
       </Routes>

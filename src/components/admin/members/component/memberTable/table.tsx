@@ -92,6 +92,7 @@ const status = [
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 export default function MemberTableView() {
+  const { member } = JSON.parse(localStorage.getItem("accessLevels") as string)
   const [action, setAction] = useState<"add" | "edit">("add");
   const [open, setOpen] = useState<boolean>(false);
   const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
@@ -278,6 +279,20 @@ export default function MemberTableView() {
     }
   };
 
+  const actionsColumn: ColumnDef<MemberTableDatatypes> = {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={member}
+        row={row.original.id}
+        data={row?.original}
+        refetch={refetch}
+        handleEditMember={handleEditForm}
+      />
+    ),
+  };
+
   const columns: ColumnDef<MemberTableDatatypes>[] = [
     {
       id: "select",
@@ -309,7 +324,7 @@ export default function MemberTableView() {
       meta: "Member Id",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Member Id</p>
+          <p className="text-nowrap">Member Id</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("id")}
@@ -335,7 +350,7 @@ export default function MemberTableView() {
       meta: "Member Name",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Member Name</p>
+          <p className="text-nowrap">Member Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("first_name")}
@@ -347,21 +362,17 @@ export default function MemberTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        console.log(
-          row.original.profile_img,
-          VITE_VIEW_S3_URL + "/" + row.original.profile_img
-        );
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            <div className="w-14 h-14 flex gap-2 items-center justify-between">
+            <div className="size-8 flex gap-2 items-center justify-between">
               {row.original.profile_img ? (
                 <img
                   src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
                   loading="lazy"
-                  className="w-14 h-14 bg-gray-100 object-contain rounded-sm "
+                  className="size-8 bg-gray-100 object-contain rounded-sm "
                 />
               ) : (
-                <div className="size-14 bg-gray-100 rounded-sm"></div>
+                <div className="size-8 bg-gray-100 rounded-sm"></div>
               )}
             </div>
             <div className="">
@@ -372,11 +383,11 @@ export default function MemberTableView() {
                       {/* Display the truncated name */}
                       {displayValue(
                         `${row.original.first_name} ${row.original.last_name}`
-                          .length > 8
+                          .length > 12
                           ? `${row.original.first_name} ${row.original.last_name}`.substring(
-                              0,
-                              8
-                            ) + "..."
+                            0,
+                            12
+                          ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -401,7 +412,7 @@ export default function MemberTableView() {
       meta: "Business Name",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Business Name</p>
+          <p className="text-nowrap">Business Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("business_name")}
@@ -421,20 +432,20 @@ export default function MemberTableView() {
                   <p className="capitalize cursor-pointer">
                     {/* Display the truncated name */}
                     {!row.original.is_business &&
-                    row.original.business_id == undefined
+                      row.original.business_id == undefined
                       ? "N/A"
                       : displayValue(
-                          `${row.original.business_name}`.length > 8
-                            ? `${row.original.business_name}`.substring(0, 8) +
-                                "..."
-                            : `${row.original.business_name}`
-                        )}
+                        `${row.original.business_name}`.length > 15
+                          ? `${row.original.business_name}`.substring(0, 15) +
+                          "..."
+                          : `${row.original.business_name}`
+                      )}
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="capitalize text-sm">
                     {!row.original.is_business &&
-                    row.original.business_id == undefined
+                      row.original.business_id == undefined
                       ? "N/A"
                       : displayValue(`${row.original.business_name}`)}
                   </p>
@@ -451,7 +462,7 @@ export default function MemberTableView() {
       meta: "Membership Plan",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Membership Plan</p>
+          <p className="text-nowrap">Membership Plan</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("membership_plan_id")}
@@ -469,7 +480,7 @@ export default function MemberTableView() {
             (plan: any) => plan.id == row.original.membership_plan_id
           )[0];
         return (
-          <div className="capitalize flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="capitalize text-nowrap flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(mebershipName?.name ?? "")}
           </div>
         );
@@ -480,7 +491,7 @@ export default function MemberTableView() {
       meta: "Status",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Status</p>
+          <p className="text-nowrap">Status</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("client_status")}
@@ -516,9 +527,9 @@ export default function MemberTableView() {
             }
             disabled={statusLabel.hide}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Status" className="text-gray-400">
-                <span className="flex gap-2 items-center">
+            <SelectTrigger className="h-8">
+              <SelectValue placeholder="Status" className="text-gray-400  ">
+                <span className="flex gap-2 items-center ">
                   <span
                     className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
                   ></span>
@@ -547,7 +558,7 @@ export default function MemberTableView() {
       meta: "Activation Date",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Activation Date</p>
+          <p className="text-nowrap">Activation Date</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("activated_on")}
@@ -571,7 +582,7 @@ export default function MemberTableView() {
       meta: "Last Check In",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Last Check In</p>
+          <p className="text-nowrap">Last Check In</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("check_in")}
@@ -595,7 +606,7 @@ export default function MemberTableView() {
       meta: "Last Login",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Last Login</p>
+          <p className="text-nowrap">Last Login</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("last_online")}
@@ -614,20 +625,9 @@ export default function MemberTableView() {
         );
       },
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <DataTableRowActions
-          row={row.original.id}
-          data={row?.original}
-          refetch={refetch}
-          handleEditMember={handleEditForm}
-        />
-      ),
-    },
+    ...(member !== "read" ? [actionsColumn] : []),
   ];
-
+  
   const table = useReactTable({
     data: memberTableData as MemberTableDatatypes[],
     columns,
@@ -726,7 +726,7 @@ export default function MemberTableView() {
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
         <div className="flex items-center flex-1 space-x-2 mb-2 lg:mb-0">
           <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
@@ -741,13 +741,13 @@ export default function MemberTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
+          {member !=="read"&&<Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={handleOpenForm}
           >
             <PlusIcon className="size-4" />
             Create New
-          </Button>
+          </Button>}
           <DataTableViewOptions table={table} action={handleExportSelected} />
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
@@ -764,7 +764,7 @@ export default function MemberTableView() {
             orientation="horizontal"
             className="relative z-30 cursor-grab"
           ></ScrollBar>
-          <Table className="w-full overflow-x-scroll">
+          <Table className="w-full overflow-x-scroll ">
             <TableHeader className="bg-secondary/80">
               {table?.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -774,9 +774,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

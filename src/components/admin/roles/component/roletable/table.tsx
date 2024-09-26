@@ -1,4 +1,4 @@
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
   ExpandedState,
@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getRolesType,  resourceTypes } from "@/app/types";
+import { getRolesType, resourceTypes } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RootState, AppDispatch } from "@/app/store";
 import { useSelector, useDispatch } from "react-redux";
@@ -34,6 +34,8 @@ import { useGetResourcesQuery, useGetRolesQuery } from "@/services/rolesApi";
 import { RoleForm } from "./../../roleform/form";
 
 export default function RoleTableView() {
+  const { role } = JSON.parse(localStorage.getItem("accessLevels") as string)
+
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [expanded, setExpanded] = useState<ExpandedState>(true);
@@ -49,8 +51,8 @@ export default function RoleTableView() {
 
   const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(
     undefined
-  ); 
-  
+  );
+
   const {
     data: resourceData,
     isLoading,
@@ -72,7 +74,7 @@ export default function RoleTableView() {
       cell: ({ row }) => {
         return (
           <div
-            className={`flex items-center gap-2 text-ellipsis whitespace-nowrap overflow-hidden ${row.original.is_parent && " font-bold"}`}
+            className={`flex items-center gap-2 text-ellipsis whitespace-nowrap overflow-hidden ${row.original.is_parent && " font-semibold"}`}
             style={{
               paddingLeft: `${row.depth * 2}rem`,
             }}
@@ -91,7 +93,9 @@ export default function RoleTableView() {
                 )}
               </button>
             )}
-            {row?.original?.name}
+            <span className="text-gray-500">
+              {row?.original?.name}
+            </span>
           </div>
         );
       },
@@ -221,7 +225,7 @@ export default function RoleTableView() {
 
   return (
     <div className="w-full ">
-      <div className="flex items-center justify-between px-5 ">
+      <div className="flex items-center justify-between px-3 ">
         <div className="flex flex-1 items-center space-x-2">
           <div className="flex items-center  relative">
             <Select
@@ -253,7 +257,7 @@ export default function RoleTableView() {
             </Select>
           </div>
           <div className="">
-            <Button
+            {role !== "read" && <Button
               variant={"outline"}
               className={`gap-1 justify-center text-gray-500 font-normal border-primary items-center flex px-3 disabled:cursor-not-allowed`}
               disabled={!selectedRoleId}
@@ -261,16 +265,16 @@ export default function RoleTableView() {
             >
               <i className="fa-regular fa-edit h-4 w-4"></i>
               Edit
-            </Button>
+            </Button>}
           </div>
         </div>
-        <Button
+        {role !== "read" && <Button
           className="bg-primary m-4 text-black gap-1 "
           onClick={handleAddRole}
         >
           <PlusIcon className="h-4 w-4" />
           Create New
-        </Button>
+        </Button>}
       </div>
       {isRoleFound ? (
         <div className="rounded-none border border-border ">
@@ -281,13 +285,13 @@ export default function RoleTableView() {
                 {table?.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
+                      <TableHead key={header.id} className="font-bold">
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     ))}
                   </TableRow>

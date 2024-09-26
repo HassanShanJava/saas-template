@@ -6,7 +6,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { visibleFor } from "@/constants/meal_plans";
+import { visibleFor, mealTypes } from "@/constants/meal_plans";
 
 import {
   Form,
@@ -89,15 +89,6 @@ import {
 import { deleteCognitoImage, UploadCognitoImage } from "@/utils/lib/s3Service";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
-const mealTypes = [
-  { key: "breakfast", label: "Breakfast" },
-  { key: "morning_snack", label: "Morning Snack" },
-  { key: "lunch", label: "Lunch" },
-  { key: "afternoon_snack", label: "Afternoon Snack" },
-  { key: "dinner", label: "Dinner" },
-  { key: "evening_snack", label: "Evening Snack" },
-];
-
 const chartData = [
   { food_component: "protein", percentage: 0, fill: "#8BB738" },
   { food_component: "fats", percentage: 0, fill: "#E8A239" },
@@ -148,12 +139,13 @@ interface searchCretiriaType {
 }
 
 const initialMeal = {
-  breakfast: [],
-  morning_snack: [],
-  lunch: [],
-  afternoon_snack: [],
-  dinner: [],
-  evening_snack: [],
+  // changed according to enums
+  "breakfast": [],
+  "morning_snack": [],
+  "lunch": [],
+  "afternoon_snack": [],
+  "dinner": [],
+  "evening_snack": [],
 };
 
 const initialFoodValue = {
@@ -210,7 +202,6 @@ const MealPlanForm = ({
   useEffect(() => {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(searchCretiria)) {
-      console.log({ key, value });
       if (value !== undefined && value !== null && value !== "all") {
         params.append(key, value);
       }
@@ -285,12 +276,12 @@ const MealPlanForm = ({
     const createMealsState = () => {
       // Initialize the state structure
       const mealsState: Record<string, any[]> = {
-        breakfast: [],
-        morning_snack: [],
-        lunch: [],
-        afternoon_snack: [],
-        dinner: [],
-        evening_snack: [],
+        "breakfast": [],
+        "morning_snack": [],
+        "lunch": [],
+        "afternoon_snack": [],
+        "dinner": [],
+        "evening_snack": [],
       };
 
       if (data?.meals) {
@@ -321,7 +312,6 @@ const MealPlanForm = ({
 
     if (action == "edit" && data) {
       const mealsState = createMealsState();
-      console.log({ mealsState });
       setMeals(mealsState);
       reset(data as mealPlanDataType);
       setPieChart([
@@ -618,7 +608,7 @@ const MealPlanForm = ({
 
     return meals[mealType].map((meal, index) => (
       <tr key={index}>
-        <td className="p-3 w-96">{meal.name}</td>
+        <td className="p-3 w-96 capitalize">{meal.name}</td>
         <td className="p-3">{meal.quantity}</td>
         <td className="p-3">{meal.calories} kcal</td>
         <td className="p-3">{meal.carbs} g</td>
@@ -749,7 +739,7 @@ const MealPlanForm = ({
 
                           <FileInput className="flex flex-col gap-2  ">
                             {files?.length == 0 &&
-                            watcher?.profile_img == null ? (
+                              watcher?.profile_img == null ? (
                               <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
                                 <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
                               </div>
@@ -761,10 +751,10 @@ const MealPlanForm = ({
                                   <img
                                     src={
                                       watcher?.profile_img !== "" &&
-                                      watcher?.profile_img
+                                        watcher?.profile_img
                                         ? VITE_VIEW_S3_URL +
-                                          "/" +
-                                          watcher?.profile_img
+                                        "/" +
+                                        watcher?.profile_img
                                         : ""
                                     }
                                     loading="lazy"
@@ -813,7 +803,7 @@ const MealPlanForm = ({
                           </SelectTrigger>
                           <SelectContent>
                             {visibleFor.map((visiblity, index) => (
-                              <SelectItem key={index} value={visiblity.value}>
+                              <SelectItem key={index} value={visiblity.label}>
                                 {visiblity.label}
                               </SelectItem>
                             ))}
@@ -864,7 +854,6 @@ const MealPlanForm = ({
                           }
                           defaultValue={watch("member_id") || []} // Ensure defaultValue is always an array
                           onValueChange={(selectedValues) => {
-                            console.log("Selected Values: ", selectedValues); // Debugging step
                             onChange(selectedValues); // Pass selected values to state handler
                           }}
                           placeholder={"Select members"}

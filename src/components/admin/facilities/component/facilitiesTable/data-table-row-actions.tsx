@@ -35,16 +35,19 @@ interface DataTableRowActionsProps<TData> {
   status?: boolean;
   name: string;
   min_limit: number;
+
 }
 
 export function DataTableRowActions<TData>({
   data,
   refetch,
   handleEdit,
+  access
 }: {
   data: DataTableRowActionsProps<TData>;
   refetch?: any;
   handleEdit?: any;
+  access:string
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const [updateCredits, { isLoading: updateLoading }] =
@@ -104,10 +107,10 @@ export function DataTableRowActions<TData>({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            <DropdownMenuItem onClick={() => setIsDelete(true)}>
+            {access=="full_access"&&<DropdownMenuItem onClick={() => setIsDelete(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
-            </DropdownMenuItem>
+            </DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
       </Dialog>

@@ -90,6 +90,7 @@ const initialValue = {
 };
 
 export default function ExerciseTableView() {
+  const { exercise } = JSON.parse(localStorage.getItem("accessLevels") as string)
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isOpen, setOpen] = useState(false);
   const orgId =
@@ -258,13 +259,27 @@ export default function ExerciseTableView() {
     setIsDialogOpen(true);
   };
 
+  const actionsColumn: ColumnDef<ExerciseResponseViewType> = {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={exercise}
+        row={row.original.id}
+        data={row?.original}
+        refetch={refetch}
+        hanleEditExercise={handleEditExercise}
+      />
+    ),
+  };
+
   const columns: ColumnDef<ExerciseResponseViewType>[] = [
     {
       accessorKey: "exercise_name",
       meta: "Exercise Name",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Exercise Name</p>
+          <p className="text-nowrap">Exercise Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("exercise_name")}
@@ -287,7 +302,7 @@ export default function ExerciseTableView() {
                     {displayValue(
                       `${row.original.exercise_name}`.length > 8
                         ? `${row.original.exercise_name}`.substring(0, 8) +
-                            "..."
+                        "..."
                         : `${row.original.exercise_name}`
                     )}
                   </p>
@@ -307,7 +322,7 @@ export default function ExerciseTableView() {
       meta: "Exercise Category",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Exercise Category</p>
+          <p className="text-nowrap">Exercise Category</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("category_name")}
@@ -331,7 +346,7 @@ export default function ExerciseTableView() {
       meta: "Visible For",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Visible For</p>
+          <p className="text-nowrap">Visible For</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("visible_for")}
@@ -355,7 +370,7 @@ export default function ExerciseTableView() {
       meta: "Exercise Type",
       header: () => (
         <div className="flex  gap-2">
-          <p>Exercise Type</p>
+          <p className="text-nowrap">Exercise Type</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("exercise_type")}
@@ -379,7 +394,7 @@ export default function ExerciseTableView() {
       meta: "Difficulty",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Difficulty</p>
+          <p className="text-nowrap">Difficulty</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("difficulty")}
@@ -422,18 +437,7 @@ export default function ExerciseTableView() {
         );
       },
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <DataTableRowActions
-          row={row.original.id}
-          data={row?.original}
-          refetch={refetch}
-          hanleEditExercise={handleEditExercise}
-        />
-      ),
-    },
+    ...(exercise !== "read" ? [actionsColumn] : []),
   ];
   
   const table = useReactTable({
@@ -536,7 +540,7 @@ export default function ExerciseTableView() {
   return (
     <>
       <div className="w-full space-y-4">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
           <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
             <div className="flex items-center relative w-full lg:w-auto">
               <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
@@ -551,13 +555,13 @@ export default function ExerciseTableView() {
 
           {/* Buttons Container */}
           <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-            <Button
+            {exercise!=="read" &&<Button
               className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
               onClick={handleRoute}
             >
               <PlusIcon className="size-4" />
               Create New
-            </Button>
+            </Button>}
             {/* <DataTableViewOptions table={table} /> */}
             <button
               className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
@@ -583,9 +587,9 @@ export default function ExerciseTableView() {
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                         </TableHead>
                       );
                     })}

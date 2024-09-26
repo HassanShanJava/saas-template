@@ -1,6 +1,6 @@
 const DashboardHeader = () => {
   return (
-    <header className="sticky top-16 bg-white p-4 z-30">
+    <header className="sticky top-16 bg-white p-4">
       <nav>
         <ul className="flex justify-between items-center">
           <li className="flex gap-1 justify-center items-center">

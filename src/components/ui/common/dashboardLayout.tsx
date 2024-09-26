@@ -36,7 +36,9 @@ const DashboardLayout: React.FC = () => {
           }
 
           // If the parent has children, filter out the children with access_type == "no_access"
-          const filteredChildren = sidepanel.children.filter((child: any) => child.access_type !== "no_access");
+          const filteredChildren = sidepanel.children.filter(
+            (child: any) => child.access_type !== "no_access"
+          );
 
           // If after filtering, no children are left, we filter out the parent as well
           if (filteredChildren.length === 0) {
@@ -56,10 +58,11 @@ const DashboardLayout: React.FC = () => {
 
   const isActiveLink = (targetPath: string): boolean => {
     const currentPath = location.pathname;
-    return currentPath === targetPath;
+    // return currentPath === targetPath;
+    return currentPath.startsWith(targetPath);
   };
 
-  console.log({ sidePanel })
+  console.log({ sidePanel });
 
   return (
     <div className="font-poppins flex h-full w-full relative ">
@@ -92,29 +95,29 @@ const DashboardLayout: React.FC = () => {
           style={{ direction: "ltr" }}
           className="flex flex-col gap-2 px-2 py-2 "
         >
-          {sidePanel && sidePanel?.map((item: any, i: number) => (
-            <>
-              {item.children && item.children?.length == 0 && (
-                <Link
-                  key={i}
-                  to={item.link}
-                  className={`flex items-center gap-2 rounded-md p-1 transition-colors  ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-primary hover:bg-primary" : "hover:bg-hoverprimary  "}`}
-                >
-                  <div
-                    className={` w-7 h-7 ${isActiveLink(item.link) ? "bg-[#3ED13E]" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
+          {sidePanel &&
+            sidePanel?.map((item: any, i: number) => (
+              <>
+                {item.children && item.children?.length == 0 && (
+                  <Link
+                    key={i}
+                    to={item.link}
+                    className={`flex items-center gap-2 rounded-md p-1 transition-colors  ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-primary hover:bg-primary" : "hover:bg-hoverprimary  "}`}
                   >
-                    <i
-                      className={`${item.icon} text-md ${isActiveLink(item.link) ? "" : "text-gray-500 stroke-current"}`}
-                    ></i>
-                  </div>
-                  <span className={`${!isSidebarOpen && "hidden"}`}>
-                    {item.name}
-                  </span>
-                </Link>
-              )}
+                    <div
+                      className={` w-7 h-7 ${isActiveLink(item.link) ? "bg-[#3ED13E]" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
+                    >
+                      <i
+                        className={`${item.icon} text-md ${isActiveLink(item.link) ? "" : "text-gray-500 stroke-current"}`}
+                      ></i>
+                    </div>
+                    <span className={`${!isSidebarOpen && "hidden"}`}>
+                      {item.name}
+                    </span>
+                  </Link>
+                )}
 
-              {item.children
-                && item.children?.length > 0 && (
+                {item.children && item.children?.length > 0 && (
                   <Accordion type="single" collapsible>
                     <AccordionItem value="item-1 !border-none" id="accordion">
                       <AccordionTrigger
@@ -137,23 +140,23 @@ const DashboardLayout: React.FC = () => {
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="ml-7 flex flex-col  gap-1 mt-2 [data-state=closed]:animate-accordion-up [data-state=open]:animate-accordion-down ">
-                          {item.children && item.children?.map((child: any, index: number) => (
-                            <Link
-                              key={index}
-                              to={child.link}
-                              className={`justify-start rounded-md px-3  py-1 ${isActiveLink(child.link) ? "bg-hoverprimary" : "hover:bg-muted"} ${!isSidebarOpen && "hidden"}`}
-                            >
-                              {child.name}
-                            </Link>
-                          ))}
+                          {item.children &&
+                            item.children?.map((child: any, index: number) => (
+                              <Link
+                                key={index}
+                                to={child.link}
+                                className={`justify-start rounded-md px-3  py-1 ${isActiveLink(child.link) ? "bg-hoverprimary" : "hover:bg-muted"} ${!isSidebarOpen && "hidden"}`}
+                              >
+                                {child.name}
+                              </Link>
+                            ))}
                         </div>
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
                 )}
-            </>
-          )
-          )}
+              </>
+            ))}
         </nav>
       </div>
       <div className="relative flex-1 overflow-y-auto max-h-screen w-[calc(100%-275px)]">

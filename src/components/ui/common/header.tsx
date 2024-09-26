@@ -75,7 +75,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="font-poppins sticky top-0 z-5  0 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
+    <header className="font-poppins sticky top-0 z-30  0 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
       <div className="flex w-full justify-between items-center gap-4">
         <div className="flex flex-row h-full justify-between items-center gap-4">
           <div className="w-full">

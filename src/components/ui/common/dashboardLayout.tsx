@@ -13,11 +13,13 @@ import {
 } from "@/components/ui/accordion";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
+import { resourceTypes } from "@/app/types";
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
-  const [seperatePanel, setSeperatePanel] = useState<"pos" | null>(null)
-  const [sidePanel, setSidePanel] = useState([]);
+  const [seperatePanelCode, setSeperatePanelCode] = useState<"pos" | null>(null)
+  const [seperatePanel, setSeperatePanel] = useState<resourceTypes[]>([])
+  const [sidePanel, setSidePanel] = useState<resourceTypes[]>([]);
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
@@ -55,23 +57,32 @@ const DashboardLayout: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const posPanel = sidePanel.find((item: resourceTypes) => item.is_root && item.code == "pos");
+    if (seperatePanelCode == "pos" && posPanel?.children) {
+      setSeperatePanel(posPanel.children);
+    } else {
+      setSeperatePanel([]);
+    }
+  }, [seperatePanelCode])
+
   const isActiveLink = (targetPath: string): boolean => {
     const currentPath = location.pathname;
     return currentPath === targetPath;
   };
 
-  console.log({ seperatePanel })
+  console.log({ sidePanel, seperatePanel, seperatePanelCode })
 
   return (
     <div className="font-poppins flex h-full w-full relative ">
       <div
-        className={`bg-white border-r text-black shadow-md transition-all duration-300  max-h-screen custom-scrollbar-right ${isSidebarOpen ? "w-full max-w-[275px]" : "max-w-16"}`}
+        className={`bg-white border-r text-black shadow-md transition-all duration-300  min-h-screen  custom-scrollbar-right ${isSidebarOpen ? "w-full max-w-[275px]" : "max-w-16"}`}
       >
         <div
           style={{ direction: "ltr" }}
           className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white "
         >
-          <Link to="#" className="flex items-center gap-2 font-semibold ">
+          {!seperatePanelCode && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => setSeperatePanelCode(null)}>
             <img
               src={dashboardsvg}
               className={`h-8 w-9 ${!isSidebarOpen && "hidden"}`}
@@ -83,7 +94,19 @@ const DashboardLayout: React.FC = () => {
             >
               {orgName}
             </span>
-          </Link>
+          </Link>}
+
+          {seperatePanelCode == 'pos' && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => setSeperatePanelCode(null)}>
+            <i className="rounded-[50%] fa fa-arrow-left px-2 py-0.5 text-lg border-2 border-primary text-primary"></i>
+            <span
+              className={`${!isSidebarOpen && "hidden"} text-2xl text-center font-extrabold`}
+              style={{ fontFamily: "Jockey One" }}
+            >
+              Back to Gym
+            </span>
+          </Link>}
+
+
           {/* Uncomment the button if needed */}
           {/* <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
               <MenuIcon className="h-6 w-6" />
@@ -93,13 +116,13 @@ const DashboardLayout: React.FC = () => {
           style={{ direction: "ltr" }}
           className="flex flex-col gap-2 px-2 py-2 "
         >
-          {sidePanel && sidePanel?.map((item: any, i: number) => (
+          {!seperatePanelCode && sidePanel && sidePanel?.map((item: any, i: number) => (
             <>
               {item.children && item.children?.length == 0 && (
                 <Link
                   key={i}
                   to={item.link}
-                  onClick={() => setSeperatePanel(item.code == "pos" ? item.code : null)}
+                  onClick={() => setSeperatePanelCode(item.code == "pos" ? item.code : null)}
                   className={`flex items-center gap-2 rounded-md p-1 transition-colors  ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-primary hover:bg-primary" : "hover:bg-hoverprimary  "}`}
                 >
                   <div
@@ -118,7 +141,8 @@ const DashboardLayout: React.FC = () => {
               {item.children
                 && item.children?.length > 0 && (
                   <Accordion type="single" collapsible>
-                    <AccordionItem value="item-1 !border-none" id="accordion">
+                    <AccordionItem value="item-1 !border-none" id="accordion" onClick={() => setSeperatePanelCode(item.code == "pos" ? item.code : null)}
+                    >
                       <AccordionTrigger
                         className={`flex items-center gap-2 rounded-md p-1 transition-colors !no-underline ${isSidebarOpen ? "justify-between text-sm" : "justify-center text-lg "} `}
                       >
@@ -143,7 +167,7 @@ const DashboardLayout: React.FC = () => {
                             <Link
                               key={index}
                               to={child.link}
-                              onClick={() => setSeperatePanel(item.code == "pos" ? item.code : null)}
+                              onClick={() => setSeperatePanelCode(item.code == "pos" ? item.code : null)}
                               className={`justify-start rounded-md px-3  py-1 ${isActiveLink(child.link) ? "bg-hoverprimary" : "hover:bg-muted"} ${!isSidebarOpen && "hidden"}`}
                             >
                               {child.name}
@@ -157,11 +181,31 @@ const DashboardLayout: React.FC = () => {
             </>
           )
           )}
+          {seperatePanelCode == "pos" && (
+            seperatePanel.map((item,i) => (
+              <Link
+                key={i}
+                to={item.link}
+                className={`flex items-center gap-2 rounded-md p-1 transition-colors  ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-primary hover:bg-primary" : "hover:bg-hoverprimary  "}`}
+              >
+                <div
+                  className={` w-7 h-7 ${isActiveLink(item.link) ? "bg-[#3ED13E]" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
+                >
+                  <i
+                    className={`${item.icon} text-md ${isActiveLink(item.link) ? "" : "text-gray-500 stroke-current"}`}
+                  ></i>
+                </div>
+                <span className={`${!isSidebarOpen && "hidden"}`}>
+                  {item.name}
+                </span>
+              </Link>
+            ))
+          )}
         </nav>
       </div>
-      <div className="relative flex-1 overflow-y-auto max-h-screen w-[calc(100%-275px)]">
+      <div className="relative flex-1 overflow-y-auto   w-[calc(100%-275px)]">
         <Header />
-        <main className=" bg-outletcolor  relative ">
+        <main className=" bg-outletcolor  relative min-h-screen">
           <div className="   w-full mx-auto">
             <Outlet />
             <Toaster />

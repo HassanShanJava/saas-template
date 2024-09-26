@@ -304,10 +304,8 @@ const WorkoutPlanForm = () => {
         } else {
           toast({
             variant: "destructive",
-            // title: "Error in form Submission",
             description: `Failed to create workout`,
           });
-          // throw new Error("No workout_id received after update");
         }
       } else {
         // Create new workout
@@ -489,8 +487,8 @@ const WorkoutPlanForm = () => {
             <StepperIndicator
               activeStep={activeStep}
               labels={[
-                { key: 1, label: "Plan Information & Details" },
-                { key: 2, label: "Training & Exercise Details" },
+                { key: 1, label: "Plan Information" },
+                { key: 2, label: "Training & Exercise" },
               ]}
               lastKey={LAST_STEP}
             />

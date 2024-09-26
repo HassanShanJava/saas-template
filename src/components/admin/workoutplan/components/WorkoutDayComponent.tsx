@@ -293,7 +293,7 @@ export default function WorkoutDayComponent({
           <>
             <i className="text-gray-500">
               <i className="fa fa-plus text-primary mr-2"></i>
-              Add workout.
+              Add workout day.
             </i>
           </>
         )}

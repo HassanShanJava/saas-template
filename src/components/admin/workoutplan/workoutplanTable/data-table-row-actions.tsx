@@ -24,11 +24,13 @@ import { useDeleteWorkoutMutation } from "@/services/workoutService";
 import { useNavigate } from "react-router-dom";
 
 export function DataTableRowActions({
+  access,
   row,
   data,
   refetch,
   handleEdit,
 }: {
+  access: string;
   row: number;
   data: WorkoutPlanView & { id: number };
   refetch?: any;
@@ -94,10 +96,12 @@ export function DataTableRowActions({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            <DropdownMenuItem onClick={() => setIsDelete(true)}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
+            {access === "full_access" && (
+              <DropdownMenuItem onClick={() => setIsDelete(true)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </Dialog>

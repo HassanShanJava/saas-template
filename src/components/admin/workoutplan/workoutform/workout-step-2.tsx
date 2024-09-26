@@ -20,6 +20,7 @@ import {
   FormProvider,
   useFieldArray,
   useForm,
+  useWatch,
 } from "react-hook-form";
 import {
   FloatingInput,
@@ -133,7 +134,11 @@ interface ExerciseFilter {
 
 const WorkoutStep2: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<SelectedDay | null>(null);
-
+  const {
+    data: exercises,
+    isLoading: exerciseLoadingforday,
+    refetch: refetchDayExercise,
+  } = useGetExerciseByWorkoutDayIdQuery(selectedDay?.id ?? 0);
   const [loadingState, setLoadingState] = useState<LoadingState>({
     isAdding: false,
     isUpdating: false,
@@ -194,7 +199,8 @@ const WorkoutStep2: React.FC = () => {
     { isLoading: addExerciseLoading, isError: addExerciseError },
   ] = useAddExerciseInWorkoutMutation();
   const [isAddingExercise, setIsAddingExercise] = useState(false);
-  const [deleteExercise] = useDeleteExerciseInWorkoutdayMutation();
+  const [deleteExercise, { isLoading: deleteExerciseLoading }] =
+    useDeleteExerciseInWorkoutdayMutation();
   const [updateExercise] = useUpdateExerciseInWorkoutMutation();
 
   useEffect(() => {
@@ -425,14 +431,19 @@ const WorkoutStep2: React.FC = () => {
   const handleExerciseDuplicate = async (exercise: Exercise, index: number) => {
     try {
       console.log("exercise", exercise);
+      setIsAddingExercise(true);
+
       const response = await addExerciseInWorkout({
         ...exercise,
         exercise_type: exercise.exercise_type || ExerciseTypeEnum.time_based,
       }).unwrap();
-      toast({
-        title: "Exercise duplicated",
-        description: "The exercise has been successfully duplicated.",
-      });
+      if (response) {
+        toast({
+          variant: "success",
+          title: "Exercise duplicated",
+          description: "The exercise has been successfully duplicated.",
+        });
+      }
     } catch (error) {
       console.error("Failed to duplicate exercise:", error);
       toast({
@@ -440,11 +451,13 @@ const WorkoutStep2: React.FC = () => {
         title: "Duplication failed",
         description: "There was an error duplicating the exercise.",
       });
+    } finally {
+      setIsAddingExercise(false);
+      refetchDayExercise();
     }
   };
 
   function handleExerciseAdd(exercise: Exercise) {
-    // setExercises((exercises) => [...exercises, exercise]);
     if (!selectedDay?.id) {
       toast({
         variant: "destructive",
@@ -480,10 +493,9 @@ const WorkoutStep2: React.FC = () => {
       .then((response: getWorkoutdayExerciseResponse) => {
         const newExercise: Exercise = {
           ...response,
-          intensity_value: response.intensity_value ?? null, // Convert undefined to null
+          intensity_value: response.intensity_value ?? null,
           exercise_type: response.exercise_type || ExerciseTypeEnum.time_based, // Provide a default value
         };
-        // setExercises((prevExercises) => [...prevExercises, newExercise]);
         toast({
           variant: "success",
           description: "Exercise added successfully.",
@@ -498,6 +510,7 @@ const WorkoutStep2: React.FC = () => {
       })
       .finally(() => {
         setIsAddingExercise(false);
+        refetchDayExercise();
       });
   }
 
@@ -521,16 +534,11 @@ const WorkoutStep2: React.FC = () => {
     // );
     // form.reset(data);
   }
-  const isLastSet =
-    formValues.seconds_per_set?.length === 1 ||
-    formValues.rest_between_set?.length === 1 ||
-    formValues.repetitions_per_set?.length === 1;
-
-  const {
-    data: exercises,
-    isLoading,
-    refetch,
-  } = useGetExerciseByWorkoutDayIdQuery(selectedDay?.id ?? 0);
+  const secondsPerSet = useWatch({
+    control: form.control,
+    name: "seconds_per_set",
+  });
+  const isOnlyOneSet = secondsPerSet?.length === 1;
 
   return (
     <div className="mt-4 space-y-4 mb-20">
@@ -539,14 +547,28 @@ const WorkoutStep2: React.FC = () => {
         Training & Exercise Details
       </p>
       <div className="w-full flex gap-5">
-        <div className="w-[40%] h-[32rem] bg-[#EEE] rounded-xl space-y-2 custom-scrollbar overflow-hidden">
+        <div className="w-[35%] h-[32rem] bg-[#EEE] rounded-xl space-y-2 custom-scrollbar overflow-hidden">
           {!showSearchResults ? (
             <div className="p-3">
               {[...Array(noOfWeeks).keys()].map((week: any, i: number) => (
                 <Accordion type="single" defaultValue="item-1" collapsible>
                   <AccordionItem value="item-1" className="!border-none">
                     <AccordionTrigger className="h-0 !no-underline !bg-transparent">
-                      <span className="font-semibold">Week {i + 1}</span>
+                      <span className="font-semibold flex gap-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">
+                                <i className="fa-solid fa-circle-info text-gray-500"></i>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>To add more weeks, go to the previous step.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        Week {i + 1}
+                      </span>
                     </AccordionTrigger>
                     <AccordionContent className="space-y-3">
                       <span className="text-sm">Days</span>
@@ -719,7 +741,7 @@ const WorkoutStep2: React.FC = () => {
                 </div>
               </div>
               <div className="px-3 pb-6 space-y-3">
-                {isLoading ? (
+                {exerciseLoadingforday ? (
                   <Spinner />
                 ) : (
                   Exercises?.data.map((e) => {
@@ -847,6 +869,16 @@ const WorkoutStep2: React.FC = () => {
                   }}
                 />
               ))} */}
+              {addExerciseLoading && (
+                <span className="flex items-center gap-2 justify-center text-sm">
+                  <Spinner /> Adding Exercise
+                </span>
+              )}
+              {selectedDay?.id !== 0 && exerciseLoadingforday && (
+                <span className="flex items-center gap-2 justify-center text-sm">
+                  <Spinner /> Loading Exercises
+                </span>
+              )}
               {exercises && exercises.length > 0 ? (
                 exercises.map((exercise: Exercise, i: number) => (
                   <WorkoutDayExerciseComponent
@@ -865,6 +897,7 @@ const WorkoutStep2: React.FC = () => {
                       form.reset(exercise);
                       setSelectedExerciseIndex(i);
                     }}
+                    isDeleteLoading={deleteExerciseLoading}
                   />
                 ))
               ) : (
@@ -877,7 +910,7 @@ const WorkoutStep2: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="w-[30%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 custom-scrollbar flex flex-col">
+        <div className="w-[35%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 custom-scrollbar flex flex-col">
           <FormProvider {...form}>
             <form
               noValidate
@@ -895,7 +928,9 @@ const WorkoutStep2: React.FC = () => {
                       setSelectedExerciseIndex(undefined);
                     }}
                   >
-                    <i className="fa-solid fa-trash-can"></i>
+                    <i
+                      className={`fa-solid fa-trash-can ${currExercise === null ? "opacity-50 cursor-not-allowed" : ""}`}
+                    ></i>
                   </button>
 
                   {isDirty && (
@@ -923,7 +958,7 @@ const WorkoutStep2: React.FC = () => {
                           : `${VITE_VIEW_S3_URL}/download.png`
                       }
                       alt="Exercise Image"
-                      className="w-4/5 object-contain relative"
+                      className="w-4/5 object-contain relative h-[130px]"
                     />
                   </div>
                   <div className="relative">
@@ -1137,7 +1172,7 @@ const WorkoutStep2: React.FC = () => {
                             type="button"
                             variant={"ghost"}
                             onClick={() => {
-                              if (!isLastSet) {
+                              if (!isOnlyOneSet) {
                                 form.setValue(
                                   "seconds_per_set",
                                   formValues.seconds_per_set.filter(
@@ -1158,8 +1193,8 @@ const WorkoutStep2: React.FC = () => {
                                 );
                               }
                             }}
-                            disabled={isLastSet}
-                            className={`text-red-500 hover:text-red-700 ${isLastSet ? "opacity-50 cursor-not-allowed" : ""}`}
+                            disabled={isOnlyOneSet}
+                            className={`text-red-500 hover:text-red-700 ${isOnlyOneSet ? "opacity-50 cursor-not-allowed" : ""}`}
                           >
                             <i className="fa-regular fa-trash-can text-red-500" />
                           </Button>

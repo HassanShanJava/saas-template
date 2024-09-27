@@ -67,7 +67,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import {
   useGetWorkoutByIdQuery,
-  useVerifyWorkoutCreationQuery,
+  useVerifyWorkoutCreationMutation,
 } from "@/services/workoutService";
 import { initialValue } from "@/constants/workout/index";
 export type ContextProps = { form: UseFormReturn<Workout> };
@@ -83,11 +83,10 @@ const WorkoutPlanForm = () => {
     +parseInt(location.pathname.split("/").slice(-2, -1)[0])
   );
   const [deleteWorkout, { isLoading: isDeleting }] = useDeleteWorkoutMutation();
-  const {
-    data: verifyData,
-    isLoading: isVerifyLoading,
-    isError: isVerifyError,
-  } = useVerifyWorkoutCreationQuery(workoutId ? parseInt(workoutId) : 0);
+  const [
+    verifyWorkout,
+    { isLoading: isVerifyLoading, isError: isVerifyError },
+  ] = useVerifyWorkoutCreationMutation();
 
   // Extract mode from query parameters
   // Extract mode from query parameters
@@ -377,19 +376,52 @@ const WorkoutPlanForm = () => {
     navigate(newUrl);
   };
 
-  function handleVerifyWorkout() {
-    if (verifyData?.status === 200) {
-      toast({
-        variant: "success",
-        description: "Workout saved successfully!",
-      });
-    } else {
-      toast({
-        variant: "destructive",
-        description: "Each day must have at least one exercise and one day.",
-      });
+  const handleVerifyWorkout = async () => {
+    try {
+      if (workoutIdState) {
+        const payload = {
+          id: workoutIdState,
+        };
+        const verifyData = await verifyWorkout(payload).unwrap();
+        console.log(verifyData?.status, verifyData?.status === 200);
+        if (verifyData?.status === 200) {
+          toast({
+            variant: "success",
+            description: "Workout saved successfully!",
+          });
+          navigate("/admin/workoutplans"); // Navigate to admin/workoutplans on success
+        } else {
+          toast({
+            variant: "destructive",
+            description:
+              "Each day must have at least one exercise and one day.",
+          });
+        }
+      } else {
+        toast({
+          variant: "destructive",
+          description: "Failed to verify workout.",
+        });
+      }
+    } catch (error) {
+      console.error("Verification error:", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          description:
+            typedError.data?.detail ||
+            "An error occurred during verification. Please try again.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          description:
+            "An error occurred during verification. Please try again.",
+        });
+      }
     }
-  }
+  };
   return (
     <Sheet open={true}>
       <SheetContent
@@ -438,7 +470,7 @@ const WorkoutPlanForm = () => {
                     type="submit"
                     className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
                     onClick={handleVerifyWorkout}
-                    loading={isVerifyError}
+                    loading={isVerifyLoading}
                     disabled={isSubmitting || workoutidDataLoading}
                   >
                     {!isVerifyLoading && (

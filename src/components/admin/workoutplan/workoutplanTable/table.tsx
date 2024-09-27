@@ -621,7 +621,7 @@ export default function WorkoutPlansTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : WorkoutTableData.length == 0 ? (
+              ) : totalRecords ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}

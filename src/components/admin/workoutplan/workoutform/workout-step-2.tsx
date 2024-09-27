@@ -555,6 +555,9 @@ const WorkoutStep2: React.FC = () => {
       cleanedExercise.repetitions_per_set =
         dataexercise.repetitions_per_set?.map(Number);
       cleanedExercise.seconds_per_set = [];
+      cleanedExercise.met_id = null;
+      cleanedExercise.speed = 0;
+      cleanedExercise.distance = 0;
     } else if (dataexercise.exercise_type === ExerciseTypeEnum.time_based) {
       cleanedExercise.repetitions_per_set = [];
       cleanedExercise.rest_between_set =
@@ -596,8 +599,10 @@ const WorkoutStep2: React.FC = () => {
       sets: cleanedExercise.rest_between_set?.length ?? 0,
       distance: cleanedExercise.distance,
       speed: cleanedExercise.speed,
+      met_id: cleanedExercise.met_id,
     };
 
+    console.log("Exercise api", exerciseDatapayloadupdate);
     updateExercise(exerciseDatapayloadupdate)
       .unwrap()
       .then((response) => {
@@ -619,7 +624,13 @@ const WorkoutStep2: React.FC = () => {
         refetchDayExercise();
       });
   }
-
+  const watcher = watch();
+  console.log(
+    "form values check log",
+    formValues?.seconds_per_set?.length <= 1,
+    formValues.seconds_per_set,
+    watcher
+  );
   return (
     <div className="mt-4 space-y-4 mb-20">
       <p className="text-black/80 text-[1.37em] font-bold">
@@ -1019,7 +1030,8 @@ const WorkoutStep2: React.FC = () => {
                 <div className="flex gap-2">
                   <button
                     className="text-red-500"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
                       setCurrExercise(null);
                       setSelectedExerciseIndex(undefined);
                     }}
@@ -1391,7 +1403,7 @@ const WorkoutStep2: React.FC = () => {
                                 );
                               }
                             }}
-                            disabled={isOnlyOneSet}
+                            disabled={formValues?.rest_between_set?.length <= 1}
                             className={`text-red-500 hover:text-red-700 ${isOnlyOneSet ? "opacity-50 cursor-not-allowed" : ""}`}
                           >
                             <i className="fa-regular fa-trash-can text-red-500" />

@@ -683,6 +683,7 @@ const MemberForm = ({
                       label="Email Address*"
                       {...register("email", {
                         required: "Required",
+                        setValueAs: (value) => value.toLowerCase(),
                         maxLength: {
                           value: 50,
                           message: "Should be 50 characters or less",

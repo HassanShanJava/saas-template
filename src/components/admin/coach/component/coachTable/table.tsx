@@ -532,11 +532,6 @@ export default function CoachTableView() {
     },
   });
 
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
-  }
-
   function handleCoachStatus(value: string) {
     setFilter((prev) => ({
       ...prev,

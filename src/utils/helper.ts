@@ -87,6 +87,16 @@ export const coachMapper = ({
   "Last Login": displayDateTime(last_online) || "",
 });
 
+export const initialValue = {
+  limit: 10,
+  offset: 0,
+  sort_order: "desc",
+  // sort_key: "created_at",
+  sort_key: "id",
+};
+
+export const displayValue = (value: string | undefined | null) =>
+  value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
 
 // Function to extract all links

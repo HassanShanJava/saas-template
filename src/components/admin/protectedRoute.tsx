@@ -25,7 +25,9 @@ const ProtectedRoute = () => {
           }
 
           // If the parent has children, filter out the children with access_type == "no_access"
-          const filteredChildren = sidepanel.children.filter((child: any) => child.access_type !== "no_access");
+          const filteredChildren = sidepanel.children.filter(
+            (child: any) => child.access_type !== "no_access"
+          );
 
           // If after filtering, no children are left, we filter out the parent as well
           if (filteredChildren.length === 0) {
@@ -36,7 +38,7 @@ const ProtectedRoute = () => {
           sidepanel.children = filteredChildren;
           return true;
         });
-        const links = extractLinks(filteredPanel)
+        const links = extractLinks(filteredPanel);
         setSidePanel(links);
       } catch (error) {
         console.error("Error decoding Base64 string:", error);
@@ -44,12 +46,12 @@ const ProtectedRoute = () => {
     }
   }, [sidepanel]);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const location = useLocation();
   // Redirect to login if not authenticated and trying to access a protected route
-   // Redirect to login if not authenticated and trying to access a protected route
-   if (!isAuthenticated && location.pathname !== "/") {
+  // Redirect to login if not authenticated and trying to access a protected route
+  if (!isAuthenticated && location.pathname !== "/") {
     return <Navigate to="/" />;
   }
 
@@ -58,11 +60,20 @@ const ProtectedRoute = () => {
     return <Navigate to="/admin/dashboard" />;
   }
 
+  // Check if the current path is not in the links array and redirect to the first available link
+  if (isAuthenticated) {
+    if (
+      sidePanel.some(
+        (link) =>
+          link == location.pathname || location.pathname.startsWith(link)
+      )
+    ) {
+      return <Outlet />;
+    } else if (sidePanel.length > 0) {
+      return <NotFoundPage />;
+    }
+  }
   return <Outlet />;
-  
 };
-
-
-
 
 export default ProtectedRoute;

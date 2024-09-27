@@ -30,7 +30,6 @@ import WorkoutStep1 from "./components/admin/workoutplan/workoutform/workout-ste
 import WorkoutStep2 from "./components/admin/workoutplan/workoutform/workout-step-2";
 import ForgotPasword from "./components/app/login/forgot_password";
 
-
 // pos
 import Sell from "./components/admin/pos/sell";
 import CounterManagement from "./components/admin/pos/counter_management";
@@ -73,11 +72,23 @@ function App() {
 
             <Route path="/admin/mealplans" element={<MealPlans />} />
             <Route path="/admin/foods" element={<FoodsNutrition />} />
+            <Route path="/admin/workoutplans" element={<WorkoutPlan />} />
+
+            <Route path="/admin/workoutplans/" element={<WorkoutPlan />}>
+              <Route path="add/" element={<WorkoutPlanForm />}>
+                <Route path="step/1/:workoutId?" element={<WorkoutStep1 />} />
+                <Route path="step/2/:workoutId?" element={<WorkoutStep2 />} />
+              </Route>
+            </Route>
+
             <Route path="/admin/pos/sell" element={<Sell />} />
             <Route path="/admin/pos/salesHistory" element={<SaleHistory />} />
             <Route path="/admin/pos/register" element={<Register />} />
             <Route path="/admin/pos/cash" element={<CashManagement />} />
-            <Route path="/admin/pos/paymentMethods" element={<PaymentMethods />} />
+            <Route
+              path="/admin/pos/paymentMethods"
+              element={<PaymentMethods />}
+            />
             <Route path="/admin/pos/counter" element={<CounterManagement />} />
             <Route path="/notfound" element={<NotFoundPage />} />
             <Route path="*" element={<Navigate to="/notfound" replace />} />

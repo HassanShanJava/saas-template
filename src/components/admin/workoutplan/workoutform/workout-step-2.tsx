@@ -1,16 +1,26 @@
 import {
   ExerciseResponseServerViewType,
+  ExerciseTypeEnum,
   IntensityEnum,
   Workout,
   WorkoutIntensityEnum,
   createExerciseInputTypes,
   difficultyEnum,
+  getWorkoutdayExerciseResponse,
 } from "@/app/types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 import {
   Controller,
   FormProvider,
   useFieldArray,
   useForm,
+  useWatch,
 } from "react-hook-form";
 import {
   FloatingInput,
@@ -19,10 +29,10 @@ import {
 import {
   createdByOptions,
   difficultyOptions,
-  useGetAllWorkoutDayQuery,
   workout_day_data,
-  workout_day_exercise_data,
 } from "@/lib/constants/workout";
+
+import { useGetAllWorkoutDayQuery } from "@/constants/workout/index";
 import React, { useEffect, useState } from "react";
 import WorkoutDayComponent, {
   WorkoutDay,
@@ -55,24 +65,51 @@ import {
 import { ExerciseItem, exerciseTypeOptions } from "@/constants/exercise";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
-import { current } from "@reduxjs/toolkit";
 import WorkoutDayExerciseComponent, {
   Exercise,
 } from "../components/WorkoutDayExerciseComponent";
 import { Label } from "@/components/ui/label";
 import expandTop from "@/assets/expand-top.svg";
 import filterRemove from "@/assets/filter-remove.svg";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import { ContextProps } from "./workout-form";
 import { useSelector } from "react-redux";
 import { Spinner } from "@/components/ui/spinner/spinner";
 import { RootState } from "@/app/store";
+const { VITE_VIEW_S3_URL } = import.meta.env;
+
+interface SelectedDay {
+  id?: number;
+  week: number;
+  day: number;
+  day_name?: string;
+}
+
+import {
+  useAddWorkoutDayMutation,
+  useDeleteWorkoutDayMutation,
+  useGetAllExerciseForWorkoutQuery,
+  useUpdateWorkoutDayMutation,
+  useAddExerciseInWorkoutMutation,
+  useGetExerciseByWorkoutDayIdQuery,
+  useDeleteExerciseInWorkoutdayMutation,
+  useUpdateExerciseInWorkoutMutation,
+} from "@/services/workoutService";
+import { useDebounce } from "@/hooks/use-debounce";
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 export interface WorkoutWeek {
   week: number;
   days: WorkoutDay[];
 }
-
+interface LoadingState {
+  isAdding: boolean;
+  isUpdating: boolean;
+  isDeleting: boolean;
+  currentAddingDay: number | null;
+  currentUpdatingDay: number | null;
+  currentDeletingDay: number | null;
+}
 export interface ExerciseForm {
   exercise_type: string;
   seconds_per_set: number[];
@@ -83,19 +120,35 @@ export interface ExerciseForm {
   met_id: number | null;
   exercise_intensity: IntensityEnum | null;
   intensity_value: number | null;
-  thumbnail_male?: string;
+  gif_url?: string;
   notes: string;
 }
 
 interface ExerciseFilter {
-  primary_muscle_ids?: number[];
+  primary_muscle?: number[];
   category?: number;
   difficulty?: difficultyEnum;
-  equipment_ids?: number[];
-  primary_joint_ids?: number[];
+  equipments?: number[];
+  primary_joints?: number[];
+  search_key?: string;
 }
 
 const WorkoutStep2: React.FC = () => {
+  const [selectedDay, setSelectedDay] = useState<SelectedDay | null>(null);
+  const {
+    data: exercises,
+    isLoading: exerciseLoadingforday,
+    refetch: refetchDayExercise,
+  } = useGetExerciseByWorkoutDayIdQuery(selectedDay?.id ?? 0);
+  const [loadingState, setLoadingState] = useState<LoadingState>({
+    isAdding: false,
+    isUpdating: false,
+    isDeleting: false,
+    currentAddingDay: null,
+    currentUpdatingDay: null,
+    currentDeletingDay: null,
+  });
+  const { workoutId } = useParams<{ workoutId: string }>(); // Extract workoutId
   const { form: form1 } = useOutletContext<ContextProps>();
   const noOfWeeks = form1.getValues("weeks");
   const [days, setDays] = useState(() =>
@@ -106,10 +159,11 @@ const WorkoutStep2: React.FC = () => {
   );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [query, setQuery] = useState<string>("");
-  const [exercises, setExercises] = useState<Exercise[]>(
-    workout_day_exercise_data as Exercise[]
-  );
+  // const [exercises, setExercises] = useState<Exercise[]>([] as Exercise[]);
+  // workout_day_exercise_data as Exercise[]
   const [exerciseFilterOpen, setExerciseFilterOpen] = useState<boolean>(true);
   const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<number>();
   const [currExercise, setCurrExercise] = useState<Exercise | null>(null);
@@ -118,16 +172,38 @@ const WorkoutStep2: React.FC = () => {
   const [filterData, setFilter] = useState<ExerciseFilter>({});
   const [uid, setUid] = useState<number>(1e4);
 
-  const { data: WorkoutDays } = useGetAllWorkoutDayQuery();
+  const { data: WorkoutDays } = useGetAllWorkoutDayQuery(workoutId as string);
   const { data: CategoryData } = useGetAllCategoryQuery();
   const { data: EquipmentData } = useGetAllEquipmentsQuery();
   const { data: MuscleData } = useGetAllMuscleQuery();
   const { data: JointsData } = useGetAllJointsQuery();
   const { data: MetsData } = useGetAllMetQuery();
-  const { data: Exercises, isLoading } = useGetAllExercisesQuery({
-    org_id: orgId,
-    query: query,
-  });
+  const { data: Exercises, isLoading: isWorkoutQueryLoading } =
+    useGetAllExerciseForWorkoutQuery({
+      org_id: orgId,
+      query: query,
+    });
+
+  const [addWorkoutDay, { isLoading: addDayLoading, isError: addDayError }] =
+    useAddWorkoutDayMutation();
+  const [
+    updateWorkoutDay,
+    { isLoading: updateDayLoading, isError: updateDayError },
+  ] = useUpdateWorkoutDayMutation();
+  const [
+    deleteWorkoutDay,
+    { isLoading: deleteDayLoading, isError: deleteDayError },
+  ] = useDeleteWorkoutDayMutation();
+
+  const [
+    addExerciseInWorkout,
+    { isLoading: addExerciseLoading, isError: addExerciseError },
+  ] = useAddExerciseInWorkoutMutation();
+  const [isAddingExercise, setIsAddingExercise] = useState(false);
+  const [deleteExercise, { isLoading: deleteExerciseLoading }] =
+    useDeleteExerciseInWorkoutdayMutation();
+  const [updateExercise, { isLoading: updateExerciseLoading }] =
+    useUpdateExerciseInWorkoutMutation();
 
   useEffect(() => {
     if (WorkoutDays) {
@@ -154,20 +230,24 @@ const WorkoutStep2: React.FC = () => {
         }
       }
     }
+    if (debouncedSearchTerm) {
+      params.append("search_key", debouncedSearchTerm);
+    }
     const newQuery = params.toString();
     setQuery(newQuery);
-  }, [filterData]);
+  }, [filterData, debouncedSearchTerm]);
 
+  console.log("Workout id", workoutId);
   const Exercise_info: ExerciseItem[] = [
     {
       type: "multiselect",
-      name: "primary_muscle_ids",
+      name: "primary_muscle",
       label: "Primary Muscle*",
       required: true,
       options: MuscleData,
     },
     {
-      type: "select",
+      type: "multiselect",
       name: "category",
       label: "Category",
       required: true,
@@ -181,22 +261,15 @@ const WorkoutStep2: React.FC = () => {
       options: difficultyOptions,
     },
     {
-      type: "select",
-      name: "created_by",
-      label: "Created By",
-      required: true,
-      options: createdByOptions,
-    },
-    {
       type: "multiselect",
-      name: "equipment_ids",
+      name: "equipments",
       label: "Equipments*",
       required: true,
       options: EquipmentData,
     },
     {
       type: "multiselect",
-      name: "primary_joint_ids",
+      name: "primary_joints",
       label: "Primary Joints*",
       required: true,
       options: JointsData,
@@ -217,40 +290,230 @@ const WorkoutStep2: React.FC = () => {
   const formValues = watch();
 
   function handleAddDay(idx: number, day_name: string) {
-    console.log("onSave", day_name);
-    setDays((days) =>
-      days.map((day, i) =>
-        i === idx ? { ...day, day_name: day_name, id: uid } : day
-      )
-    );
-    setUid((uid) => uid + 1);
+    setLoadingState((prevState) => ({
+      ...prevState,
+      isAdding: true,
+      currentAddingDay: idx,
+    }));
+    const newDay = {
+      day_name: day_name,
+      week: Math.floor(idx / 7) + 1,
+      day: (idx % 7) + 1,
+      workout_id: Number(workoutId) || 0,
+    };
+    console.log("onSave", day_name, newDay);
+
+    addWorkoutDay(newDay)
+      .unwrap()
+      .then(() => {
+        setDays((days) =>
+          days.map((day, i) =>
+            i === idx ? { ...day, day_name: day_name, id: uid } : day
+          )
+        );
+        setUid((uid) => uid + 1);
+        toast({
+          variant: "success",
+          description: "Workout Day Added",
+        });
+        setLoadingState((prevState) => ({
+          ...prevState,
+          isAdding: false,
+          currentAddingDay: null,
+        }));
+      })
+      .catch((error) => {
+        console.error("Failed to add workout day:", error);
+        toast({
+          variant: "destructive",
+          description: "Failed to Add Workout Day",
+        });
+      })
+      .finally(() => {
+        setLoadingState((prevState) => ({
+          ...prevState,
+          isAdding: false,
+          currentAddingDay: null,
+        }));
+      });
   }
 
-  function handleDelete(idx: number) {
-    setDays((days) =>
-      days.map((day, i) =>
-        i === idx ? { week: Math.floor(i / 7) + 1, day: (i % 7) + 1 } : day
-      )
-    );
+  function handleDelete(idx: number, id: number) {
+    setLoadingState((prevState) => ({
+      ...prevState,
+      isDeleting: true,
+      currentDeletingDay: idx,
+    }));
+
+    if (!id) {
+      return;
+    }
+    deleteWorkoutDay(Number(id))
+      .unwrap()
+      .then(() => {
+        setDays((days) =>
+          days.map((day, i) =>
+            i === idx ? { week: Math.floor(i / 7) + 1, day: (i % 7) + 1 } : day
+          )
+        );
+        toast({
+          variant: "success",
+          description: "Workout Day Deleted",
+        });
+        setLoadingState((prevState) => ({
+          ...prevState,
+          isDeleting: false,
+          currentDeletingDay: null,
+        }));
+      })
+      .catch(() => {
+        toast({
+          variant: "destructive",
+          description: "Failed to delete the day",
+        });
+      })
+      .finally(() => {
+        setLoadingState((prevState) => ({
+          ...prevState,
+          isDeleting: false,
+          currentDeletingDay: null,
+        }));
+      });
   }
 
   function handleUpdate(idx: number, id: number, day_name: string) {
-    setDays((days) =>
-      days.map((day, i) => (i === idx ? { ...day, day_name: day_name } : day))
-    );
+    setLoadingState((prevState) => ({
+      ...prevState,
+      isUpdating: true,
+      currentUpdatingDay: idx,
+    }));
+
+    const updatedDay = {
+      id: id,
+      day_name: day_name,
+      week: Math.floor(idx / 7) + 1,
+      day: (idx % 7) + 1,
+      workout_id: Number(workoutId) || 0,
+    };
+
+    updateWorkoutDay(updatedDay)
+      .unwrap()
+      .then(() => {
+        setDays((days) =>
+          days.map((day, i) =>
+            i === idx ? { ...day, day_name: day_name } : day
+          )
+        );
+        toast({
+          variant: "success",
+          description: "Workout Day Updated",
+        });
+        setLoadingState((prevState) => ({
+          ...prevState,
+          isUpdating: false,
+          currentUpdatingDay: null,
+        }));
+      })
+      .catch((error) => {
+        console.error("Failed to update workout day:", error);
+        toast({
+          variant: "destructive",
+          description: "Failed to update Workout Day",
+        });
+      })
+      .finally(() => {
+        setLoadingState((prevState) => ({
+          ...prevState,
+          isUpdating: false,
+          currentUpdatingDay: null,
+        }));
+      });
   }
 
-  function handleExerciseDuplicate(id: number) {
-    const exercise = exercises.find((e) => e.id === id);
-    if (exercise) setExercises((exercises) => [...exercises, exercise]);
-  }
+  const handleExerciseDuplicate = async (exercise: Exercise, index: number) => {
+    try {
+      console.log("exercise", exercise);
+      setIsAddingExercise(true);
+
+      const response = await addExerciseInWorkout({
+        ...exercise,
+        exercise_type: exercise.exercise_type || ExerciseTypeEnum.time_based,
+      }).unwrap();
+      if (response) {
+        toast({
+          variant: "success",
+          title: "Exercise duplicated",
+          description: "The exercise has been successfully duplicated.",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to duplicate exercise:", error);
+      toast({
+        variant: "destructive",
+        title: "Duplication failed",
+        description: "There was an error duplicating the exercise.",
+      });
+    } finally {
+      setIsAddingExercise(false);
+      refetchDayExercise();
+    }
+  };
 
   function handleExerciseAdd(exercise: Exercise) {
-    setExercises((exercises) => [...exercises, exercise]);
-  }
+    if (!selectedDay?.id) {
+      toast({
+        variant: "destructive",
+        description: "Please select a day before adding an exercise.",
+      });
+      return;
+    }
+    console.log("exercise", exercise);
+    setIsAddingExercise(true);
 
-  function handleExerciseDelete(index: number, id: number) {
-    setExercises((exercises) => exercises.filter((_, i) => i !== index));
+    const exerciseData = {
+      exercise_id: exercise.id,
+      workout_day_id: selectedDay?.id,
+      exercise_type: exercise.exercise_type,
+      sets: exercise.sets,
+      seconds_per_set: exercise.seconds_per_set,
+      repetitions_per_set: exercise.repetitions_per_set,
+      rest_between_set: exercise.rest_between_set,
+      exercise_intensity:
+        exercise.exercise_intensity ?? IntensityEnum.max_intensity,
+      intensity_value: exercise.intensity_value ?? null,
+      notes: "",
+      distance: exercise.distance,
+      speed: exercise.speed,
+      met_id: exercise.met_id,
+    };
+
+    addExerciseInWorkout({
+      ...exerciseData,
+      exercise_type: exerciseData.exercise_type ?? ExerciseTypeEnum.time_based,
+    })
+      .unwrap()
+      .then((response: getWorkoutdayExerciseResponse) => {
+        const newExercise: Exercise = {
+          ...response,
+          intensity_value: response.intensity_value ?? null,
+          exercise_type: response.exercise_type || ExerciseTypeEnum.time_based, // Provide a default value
+        };
+        toast({
+          variant: "success",
+          description: "Exercise added successfully.",
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to add exercise:", error);
+        toast({
+          variant: "destructive",
+          description: "Failed to add exercise. Please try again.",
+        });
+      })
+      .finally(() => {
+        setIsAddingExercise(false);
+        refetchDayExercise();
+      });
   }
 
   function handleFilterChange(field: string, value: any) {
@@ -260,14 +523,114 @@ const WorkoutStep2: React.FC = () => {
     }));
   }
 
-  function onSubmit(data: any) {
-    const idx = selectedExerciseIndex;
-    setExercises((exercises) =>
-      exercises.map((exercise, i) => (i === idx ? { ...data } : exercise))
-    );
-    form.reset(data);
+  function handleDaySelect(day: WorkoutDay) {
+    if (day.id) {
+      setSelectedDay((prevDay) => (prevDay?.id === day.id ? null : day));
+    }
   }
 
+  function onSubmit(data: Exercise) {
+    const processedExercise = processExercise(data);
+    // Your submit logic here, using processedExercise
+    console.log(processedExercise);
+  }
+  const secondsPerSet = useWatch({
+    control: form.control,
+    name: "seconds_per_set",
+  });
+  const isOnlyOneSet = secondsPerSet?.length === 1;
+  function processExercise(dataexercise: Exercise) {
+    console.log("dataexercise", dataexercise);
+    // Remove unwanted properties
+    const { ...cleanedExercise } = dataexercise;
+
+    // Convert distance and speed to numbers, default to 0 if not present
+    cleanedExercise.distance = parseFloat(String(dataexercise.distance)) || 0;
+    cleanedExercise.speed = parseFloat(String(dataexercise.speed)) || 0;
+
+    // Process based on exercise_type
+    if (dataexercise.exercise_type === ExerciseTypeEnum.repetition_based) {
+      cleanedExercise.rest_between_set =
+        dataexercise.rest_between_set?.map(Number);
+      cleanedExercise.repetitions_per_set =
+        dataexercise.repetitions_per_set?.map(Number);
+      cleanedExercise.seconds_per_set = [];
+      cleanedExercise.met_id = null;
+      cleanedExercise.speed = 0;
+      cleanedExercise.distance = 0;
+    } else if (dataexercise.exercise_type === ExerciseTypeEnum.time_based) {
+      cleanedExercise.repetitions_per_set = [];
+      cleanedExercise.rest_between_set =
+        dataexercise.rest_between_set?.map(Number);
+      cleanedExercise.seconds_per_set =
+        dataexercise.seconds_per_set?.map(Number);
+      cleanedExercise.exercise_intensity = IntensityEnum.max_intensity;
+      cleanedExercise.intensity_value = 0;
+    }
+    if (cleanedExercise.exercise_intensity === IntensityEnum.max_intensity) {
+      cleanedExercise.intensity_value = 0;
+    }
+    // Return the modified object with only the required fields
+    console.log({
+      id: cleanedExercise.id || 0,
+      exercise_type: cleanedExercise.exercise_type || "Time Based",
+      sets: cleanedExercise.sets || 0,
+      seconds_per_set: cleanedExercise.seconds_per_set || [0],
+      repetitions_per_set: cleanedExercise.repetitions_per_set || [0],
+      rest_between_set: cleanedExercise.rest_between_set || [0],
+      exercise_intensity: cleanedExercise.exercise_intensity || "irm",
+      intensity_value: cleanedExercise.intensity_value || 0,
+      notes: cleanedExercise.notes || "",
+      exercise_id: cleanedExercise.exercise_id || 0,
+    });
+
+    const exerciseDatapayloadupdate = {
+      id: cleanedExercise.id || 0,
+      exercise_type:
+        cleanedExercise.exercise_type || ExerciseTypeEnum.time_based,
+      seconds_per_set: cleanedExercise.seconds_per_set || [0],
+      repetitions_per_set: cleanedExercise.repetitions_per_set || [0],
+      rest_between_set: cleanedExercise.rest_between_set || [0],
+      exercise_intensity:
+        cleanedExercise.exercise_intensity || IntensityEnum.max_intensity,
+      intensity_value: cleanedExercise.intensity_value || 0,
+      notes: cleanedExercise.notes || "",
+      exercise_id: cleanedExercise.exercise_id || 0,
+      sets: cleanedExercise.rest_between_set?.length ?? 0,
+      distance: cleanedExercise.distance,
+      speed: cleanedExercise.speed,
+      met_id: cleanedExercise.met_id,
+    };
+
+    console.log("Exercise api", exerciseDatapayloadupdate);
+    updateExercise(exerciseDatapayloadupdate)
+      .unwrap()
+      .then((response) => {
+        toast({
+          variant: "success",
+          description: "Exercise Updated successfully.",
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to update exercise:", error);
+        toast({
+          variant: "destructive",
+          description: "Failed to update exercise. Please try again.",
+        });
+      })
+      .finally(() => {
+        setCurrExercise(null);
+        setSelectedExerciseIndex(undefined);
+        refetchDayExercise();
+      });
+  }
+  const watcher = watch();
+  console.log(
+    "form values check log",
+    formValues?.seconds_per_set?.length <= 1,
+    formValues.seconds_per_set,
+    watcher
+  );
   return (
     <div className="mt-4 space-y-4 mb-20">
       <p className="text-black/80 text-[1.37em] font-bold">
@@ -275,30 +638,68 @@ const WorkoutStep2: React.FC = () => {
         Training & Exercise Details
       </p>
       <div className="w-full flex gap-5">
-        <div className="w-[33.3%] h-[32rem] bg-[#EEE] rounded-xl space-y-2 custom-scrollbar">
+        <div className="w-[35%] h-[32rem] bg-[#EEE] rounded-xl space-y-2 custom-scrollbar overflow-hidden">
           {!showSearchResults ? (
             <div className="p-3">
               {[...Array(noOfWeeks).keys()].map((week: any, i: number) => (
                 <Accordion type="single" defaultValue="item-1" collapsible>
                   <AccordionItem value="item-1" className="!border-none">
                     <AccordionTrigger className="h-0 !no-underline !bg-transparent">
-                      <span className="font-semibold">Week {i + 1}</span>
+                      <span className="font-semibold flex gap-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">
+                                <i className="fa-solid fa-circle-info text-gray-500"></i>
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>To add more weeks, go to the previous step.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        Week {i + 1}
+                      </span>
                     </AccordionTrigger>
                     <AccordionContent className="space-y-3">
                       <span className="text-sm">Days</span>
-                      {[...Array(7).keys()].map((_, j: number) => (
-                        <WorkoutDayComponent
-                          key={i * 7 + j}
-                          day={days[i * 7 + j]}
-                          onSave={(day_name) =>
-                            handleAddDay(i * 7 + j, day_name)
-                          }
-                          onDelete={() => handleDelete(i * 7 + j)}
-                          onUpdate={(id, day_name) =>
-                            handleUpdate(i * 7 + j, id, day_name)
-                          }
-                        />
-                      ))}
+                      {[...Array(7).keys()].map((_, j: number) => {
+                        const index = i * 7 + j; // Calculate the index for the current day
+
+                        const isCreating =
+                          loadingState.isAdding &&
+                          loadingState.currentAddingDay === index;
+                        const isUpdating =
+                          loadingState.isUpdating &&
+                          loadingState.currentUpdatingDay === index;
+                        const isDeleting =
+                          loadingState.isDeleting &&
+                          loadingState.currentDeletingDay === index;
+
+                        return (
+                          <div className="space-y-2 px-1">
+                            <WorkoutDayComponent
+                              key={i * 7 + j}
+                              day={days[i * 7 + j]}
+                              onSave={(day_name) =>
+                                handleAddDay(i * 7 + j, day_name)
+                              }
+                              onDelete={(id) => handleDelete(i * 7 + j, id)}
+                              onUpdate={(id, day_name) =>
+                                handleUpdate(i * 7 + j, id, day_name)
+                              }
+                              onSelect={(day) => handleDaySelect(day)}
+                              isSelected={
+                                selectedDay?.week === days[i * 7 + j].week &&
+                                selectedDay?.day === days[i * 7 + j].day
+                              }
+                              isCreating={isCreating}
+                              isUpdating={isUpdating}
+                              isDeleting={isDeleting}
+                            />
+                          </div>
+                        );
+                      })}
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
@@ -306,7 +707,7 @@ const WorkoutStep2: React.FC = () => {
             </div>
           ) : (
             <>
-              <div className="sticky z-40 top-0 p-3 bg-[#EEE] space-y-2 custom-scrollbar">
+              <div className="sticky z-30 top-0 p-3 bg-[#EEE] space-y-2 custom-scrollbar">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold">Search Exercise</span>
                   <Button
@@ -335,7 +736,7 @@ const WorkoutStep2: React.FC = () => {
                   </Button>
                 </div>
                 {exerciseFilterOpen && (
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {Exercise_info.map((element) => {
                       if (element.type == "select") {
                         return (
@@ -382,13 +783,14 @@ const WorkoutStep2: React.FC = () => {
                           <MultiSelect
                             key={element.label}
                             options={element.options ?? []}
+                            dotruncate={true}
                             defaultValue={(() => {
                               return (
                                 filterData[
                                   element.name as
-                                    | "primary_muscle_ids"
-                                    | "primary_joint_ids"
-                                    | "equipment_ids"
+                                    | "primary_muscle"
+                                    | "primary_joints"
+                                    | "equipments"
                                 ] || []
                               );
                             })()}
@@ -411,8 +813,9 @@ const WorkoutStep2: React.FC = () => {
                     <FloatingLabelInput
                       id="search"
                       placeholder="Search by Exercise Name"
-                      // onChange={(event) => setInputValue(event.target.value)}
-                      className="text-gray-400 bg-transparent border border-black/25"
+                      onChange={(event) => setSearchTerm(event.target.value)}
+                      value={searchTerm}
+                      className="text-black bg-transparent border border-black/25"
                     />
                   </div>
                   <Button
@@ -429,61 +832,121 @@ const WorkoutStep2: React.FC = () => {
                 </div>
               </div>
               <div className="px-3 pb-6 space-y-3">
-                {isLoading ? (
+                {isWorkoutQueryLoading ? (
                   <Spinner />
                 ) : (
-                  // Exercises?.data.map((e) => {
-                  //   const exercise: ExerciseResponseServerViewType =
-                  //     e as unknown as ExerciseResponseServerViewType;
-                  //   return (
-                  //     <div
-                  //       onClick={() => {
-                  //         handleExerciseAdd(
-                  //           exercise as unknown as ExerciseResponseServerViewType
-                  //         );
-                  //       }}
-                  //       className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer"
-                  //     >
-                  //       <div className="flex justify-between items-center relative space-x-1 ">
-                  //         <div className="flex gap-1 w-full">
-                  //           <img
-                  //             id="avatar"
-                  //             src={exercise.thumbnail_male}
-                  //             alt="Exercise Image"
-                  //             className="h-[20px] w-12 object-contain relative"
-                  //           />
-                  //           <span className="text-sm truncate">
-                  //             {exercise.exercise_name} -{" "}
-                  //             {exercise.equipments
-                  //               .map((e) => e.name)
-                  //               .join(", ")}
-                  //           </span>
-                  //         </div>
-                  //       </div>
-                  //     </div>
-                  //   );
-                  // })
-                  <></>
+                  Exercises?.data.map((e) => {
+                    const exercise: ExerciseResponseServerViewType =
+                      e as unknown as ExerciseResponseServerViewType;
+                    return (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="w-full">
+                            <div
+                              onClick={() => {
+                                handleExerciseAdd(
+                                  exercise as unknown as ExerciseResponseServerViewType
+                                );
+                              }}
+                              className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer"
+                            >
+                              <div className="flex justify-between items-center relative space-x-1 ">
+                                <div className="flex gap-3 w-full">
+                                  <img
+                                    id="avatar"
+                                    src={
+                                      exercise.gif_url
+                                        ? `${VITE_VIEW_S3_URL}/${exercise.gif_url}`
+                                        : `${VITE_VIEW_S3_URL}/download.png`
+                                    }
+                                    alt="Exercise Image"
+                                    className="h-[20px] w-12 object-contain relative"
+                                  />
+                                  <span className="text-sm truncate">
+                                    {exercise.exercise_name} -{" "}
+                                    {exercise.equipments
+                                      .map((e) => e.name)
+                                      .join(", ")}
+                                  </span>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className="cursor-help">
+                                          <i className="fa-solid fa-circle-info text-gray-500"></i>
+                                        </span>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>
+                                          click to add exercise in workout day.
+                                        </p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          {/* <TooltipContent>
+                            <p>click to add exercise in workout day.</p>
+                          </TooltipContent> */}
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  })
+                  // <></>
                 )}
               </div>
             </>
           )}
         </div>
-        <div className="w-[33.3%] h-[32rem] bg-[#EEE] rounded-xl p-3 relative custom-scrollbar">
+        <div className="w-[30%] h-[32rem] bg-[#EEE] rounded-xl p-3 relative custom-scrollbar">
           <div className="space-y-2">
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <span className="font-semibold">Exercise</span>
-              <Button
-                onClick={() => setShowSearchResults(true)}
-                className="font-normal h-auto p-0 hover:bg-transparent"
-                variant="ghost"
-              >
-                <i className="fa fa-plus "></i>
-                Add Exercise
-              </Button>
+              {selectedDay ? (
+                <Button
+                  onClick={() => setShowSearchResults(true)}
+                  className="font-normal h-auto p-0 hover:bg-transparent gap-2"
+                  variant="ghost"
+                >
+                  <i className="fa fa-plus "></i>
+                  Add Exercise
+                </Button>
+              ) : (
+                // <span className="text-sm text-gray-500 italic">
+                //   Select a day to add exercises
+                // </span>
+                <></>
+              )}
             </div>
+            {/* {selectedDay && (
+              <div className="text-sm text-gray-600 bg-primary/20 p-2 rounded-md">
+                Selected: Week {selectedDay.week}, Day {selectedDay.day} -{" "}
+                {selectedDay.day_name?.slice(0, 8) + "..."}
+                {/* (ID: {selectedDay.id}) */}
+            {/* </div> */}
+            {/* )} */}
+            {selectedDay && (
+              <div className="text-sm text-gray-600 bg-primary/20 p-2 rounded-md">
+                Selected: Week {selectedDay.week}, Day {selectedDay.day} -{" "}
+                {selectedDay.day_name && selectedDay.day_name.length > 8 ? (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        {selectedDay.day_name.slice(0, 8) + "..."}
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{selectedDay.day_name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ) : (
+                  selectedDay.day_name
+                )}
+              </div>
+            )}
             <div className="space-y-2">
-              {exercises.map((exercise, i) => (
+              {/* {exercises?.map((exercise: Exercise, i: number) => (
                 <WorkoutDayExerciseComponent
                   key={i}
                   exercise={exercise}
@@ -507,43 +970,205 @@ const WorkoutStep2: React.FC = () => {
                       form.reset(exercise);
                       setSelectedExerciseIndex(i);
                     }
+                    console.log("exercise", exercise);
                   }}
                 />
-              ))}
+              ))} */}
+              {addExerciseLoading && (
+                <span className="flex items-center gap-2 justify-center text-sm">
+                  <Spinner /> Adding Exercise
+                </span>
+              )}
+              {selectedDay !== null && exerciseLoadingforday && (
+                <span className="flex items-center gap-2 justify-center text-sm">
+                  <Spinner /> Loading Exercises
+                </span>
+              )}
+              {exercises && exercises.length > 0 ? (
+                exercises.map((exercise: Exercise, i: number) => (
+                  <WorkoutDayExerciseComponent
+                    key={i}
+                    exercise={exercise}
+                    selected={i === selectedExerciseIndex}
+                    onDuplicate={() => handleExerciseDuplicate(exercise, i)}
+                    // onDelete={(id) => handleExerciseDelete(i, id)}
+                    onDelete={() => {
+                      setCurrExercise(null);
+                      setSelectedExerciseIndex(undefined);
+                      if (exercise.id !== undefined) {
+                        deleteExercise(exercise.id);
+                      }
+                    }}
+                    onClick={() => {
+                      setCurrExercise(exercise);
+                      form.reset(exercise);
+                      setSelectedExerciseIndex(i);
+                    }}
+                    isDeleteLoading={deleteExerciseLoading}
+                  />
+                ))
+              ) : (
+                <div className="text-center text-gray-500 mt-4">
+                  {selectedDay
+                    ? "No exercises found for this workout"
+                    : "Select a day to add exercises"}
+                </div>
+              )}{" "}
             </div>
           </div>
         </div>
-        <div className="w-[33.3%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 custom-scrollbar flex flex-col">
+        <div className="w-[35%] h-[32rem] bg-[#EEE] rounded-xl p-3 space-y-2 custom-scrollbar flex flex-col">
           <FormProvider {...form}>
             <form
               noValidate
               className="pb-4 space-y-3"
-              onSubmit={handleSubmit(onSubmit)}
+              // onSubmit={handleSubmit(onSubmit)}
               action="#"
             >
               <div className="flex justify-between">
                 <span className="font-semibold">Exercise Details</span>
-                {isDirty && (
-                  <Button
-                    type="submit"
-                    onClick={() => {
-                      return;
+                <div className="flex gap-2">
+                  <button
+                    className="text-red-500"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrExercise(null);
+                      setSelectedExerciseIndex(undefined);
                     }}
-                    className="h-auto p-0"
-                    variant="ghost"
                   >
-                    <i className="fa-regular fa-floppy-disk h-4 w-4"></i>
-                  </Button>
-                )}
+                    <i
+                      className={`fa-solid fa-trash-can ${currExercise === null ? "opacity-50 cursor-not-allowed" : ""}`}
+                    ></i>
+                  </button>
+
+                  {
+                    <LoadingButton
+                      type="submit"
+                      onClick={handleSubmit((data: ExerciseForm) =>
+                        onSubmit(data as Exercise)
+                      )}
+                      // onClick={(e) => {
+                      //   e.preventDefault();
+                      //   if (selectedExerciseIndex !== undefined) {
+                      //     const formData = form.getValues();
+                      //     const processedData = processExercise({
+                      //       ...formData,
+                      //       exercise_name: "",
+                      //       exercise_type:
+                      //         formData.exercise_type as ExerciseTypeEnum,
+                      //       exercise_intensity:
+                      //         formData.exercise_intensity || undefined,
+                      //     });
+                      //     if (processedData !== undefined) {
+                      //       const {
+                      //         repetition,
+                      //         rest,
+                      //         oneRepMax,
+                      //         secondsPerSet,
+                      //       } = processedData;
+                      //       let isValid = true;
+                      //       let errorField = "";
+                      //       let errorMessage = "";
+
+                      //       if (repetition < 1 || repetition > 100) {
+                      //         isValid = false;
+                      //         errorField = "repetition";
+                      //         errorMessage =
+                      //           "Repetitions must be between 1 and 100";
+                      //       } else if (rest < 0 || rest > 3600) {
+                      //         isValid = false;
+                      //         errorField = "rest";
+                      //         errorMessage =
+                      //           "Rest time must be between 0 and 3600 seconds";
+                      //       } else if (oneRepMax < 0 || oneRepMax > 100) {
+                      //         isValid = false;
+                      //         errorField = "oneRepMax";
+                      //         errorMessage = "1RM must be between 0 and 100";
+                      //       } else if (
+                      //         secondsPerSet < 10 ||
+                      //         secondsPerSet > 3600
+                      //       ) {
+                      //         isValid = false;
+                      //         errorField = "secondsPerSet";
+                      //         errorMessage =
+                      //           "Seconds per set must be between 10 and 3600";
+                      //       }
+
+                      //       if (isValid) {
+                      //         onSubmit(processedData as Exercise);
+                      //       } else {
+                      //         setActiveStep(2); // Highlight the third container
+                      //         setError(errorField, {
+                      //           type: "manual",
+                      //           message: errorMessage,
+                      //         });
+                      //       }
+                      //     } else {
+                      //       console.log("Processing failed");
+                      //     }
+                      //   } else {
+                      //     console.log("No exercise selected");
+                      //   }
+                      // }}
+                      disabled={selectedExerciseIndex === undefined}
+                      className="h-auto p-0"
+                      variant="ghost"
+                      loading={updateExerciseLoading}
+                    >
+                      <i className="fa-regular fa-floppy-disk h-4 w-4"></i>
+                    </LoadingButton>
+                    // <LoadingButton
+                    //   type="submit"
+                    //   onClick={() => {
+                    //     if (selectedExerciseIndex !== undefined) {
+                    //       console.log(
+                    //         "Selected Exercise Data (Current Form State):",
+                    //         form.getValues()
+                    //       );
+                    //       const processedData = processExercise({
+                    //         ...form.getValues(),
+                    //         exercise_name: "", // Assuming 'name' exists in ExerciseForm
+                    //         exercise_type: form.getValues()
+                    //           .exercise_type as ExerciseTypeEnum,
+                    //         exercise_intensity:
+                    //           form.getValues().exercise_intensity || undefined,
+                    //       });
+                    //       console.log(
+                    //         "Processed Exercise Data:",
+                    //         processedData
+                    //       );
+                    //       console.log(
+                    //         "Original Exercise Data:",
+                    //         exercises
+                    //           ? exercises[selectedExerciseIndex]
+                    //           : "No original data"
+                    //       );
+                    //     } else {
+                    //       console.log("No exercise selected");
+                    //     }
+                    //   }}
+                    //   disabled={selectedExerciseIndex === undefined}
+                    //   className="h-auto p-0"
+                    //   variant="ghost"
+                    //   loading={updateExerciseLoading}
+                    // >
+                    //   <i className="fa-regular fa-floppy-disk h-4 w-4"></i>
+                    // </LoadingButton>
+                  }
+                </div>
               </div>
               {currExercise !== null ? (
                 <>
                   <div className="flex justify-center">
                     <img
                       id="avatar"
-                      src={formValues.thumbnail_male}
+                      src={
+                        formValues.gif_url
+                          ? `${VITE_VIEW_S3_URL}/${formValues.gif_url}`
+                          : `${VITE_VIEW_S3_URL}/download.png`
+                      }
                       alt="Exercise Image"
-                      className="w-4/5 object-contain relative"
+                      className="w-4/5 object-contain relative h-[130px]"
                     />
                   </div>
                   <div className="relative">
@@ -668,7 +1293,7 @@ const WorkoutStep2: React.FC = () => {
                                 min="10"
                               />
                               {errors?.seconds_per_set?.[i] && (
-                                <p className="text-xs leading-snug text-red-500 mr-4">
+                                <p className="text-xs leading-snug  pt-3 text-red-500 mr-4">
                                   {errors?.seconds_per_set?.[i]?.message}
                                 </p>
                               )}
@@ -715,7 +1340,7 @@ const WorkoutStep2: React.FC = () => {
                                 max="100"
                               />
                               {errors?.repetitions_per_set?.[i] && (
-                                <p className="text-xs leading-snug text-red-500 mr-4">
+                                <p className="text-xs leading-snug  pt-3 text-red-500 mr-4">
                                   {errors?.repetitions_per_set?.[i]?.message}
                                 </p>
                               )}
@@ -747,38 +1372,42 @@ const WorkoutStep2: React.FC = () => {
                               min="0"
                             />
                             {errors?.rest_between_set?.[i] && (
-                              <p className="text-xs leading-snug text-red-500 mr-4">
+                              <p className="text-xs leading-snug pt-3 text-red-500 mr-4">
                                 {errors?.rest_between_set?.[i]?.message}
                               </p>
                             )}
                           </div>
 
-                          <button
+                          <Button
                             type="button"
+                            variant={"ghost"}
                             onClick={() => {
-                              form.setValue(
-                                "seconds_per_set",
-                                formValues.seconds_per_set.filter(
-                                  (_, index) => index !== i
-                                )
-                              );
-                              form.setValue(
-                                "rest_between_set",
-                                formValues.rest_between_set.filter(
-                                  (_, index) => index !== i
-                                )
-                              );
-                              form.setValue(
-                                "repetitions_per_set",
-                                formValues.repetitions_per_set.filter(
-                                  (_, index) => index !== i
-                                )
-                              );
+                              if (!isOnlyOneSet) {
+                                form.setValue(
+                                  "seconds_per_set",
+                                  formValues.seconds_per_set.filter(
+                                    (_, index) => index !== i
+                                  )
+                                );
+                                form.setValue(
+                                  "rest_between_set",
+                                  formValues.rest_between_set.filter(
+                                    (_, index) => index !== i
+                                  )
+                                );
+                                form.setValue(
+                                  "repetitions_per_set",
+                                  formValues.repetitions_per_set.filter(
+                                    (_, index) => index !== i
+                                  )
+                                );
+                              }
                             }}
-                            className="text-red-500 hover:text-red-700"
+                            disabled={formValues?.rest_between_set?.length <= 1}
+                            className={`text-red-500 hover:text-red-700 ${isOnlyOneSet ? "opacity-50 cursor-not-allowed" : ""}`}
                           >
                             <i className="fa-regular fa-trash-can text-red-500" />
-                          </button>
+                          </Button>
                         </React.Fragment>
                       );
                     })}
@@ -800,16 +1429,16 @@ const WorkoutStep2: React.FC = () => {
                         0,
                       ]);
                     }}
-                    className="gap-2 items-center justify-center px-4 py-2 rounded hover:bg-transparent"
+                    className="gap-2 items-center justify-center px-4 py-2 rounded hover:bg-primary"
                   >
                     <i className="fa-solid fa-plus"></i> Add
                   </Button>
                   {formValues.exercise_type === "Time Based" ? (
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-3 gap-2 ">
                       <div>
                         <Controller
                           name="met_id"
-                          rules={{ required: "Required" }}
+                          // rules={{ required: "Required" }}
                           control={control}
                           render={({
                             field: { onChange, value, onBlur },
@@ -820,8 +1449,9 @@ const WorkoutStep2: React.FC = () => {
                               defaultValue={value ? String(value) : undefined}
                             >
                               <SelectTrigger
+                                className="border border-black/25"
                                 floatingLabel="MET"
-                                labelClassname="bg-transparent"
+                                labelClassname="bg-[#EEE]"
                                 name="goals"
                               >
                                 <SelectValue placeholder="MET" />
@@ -861,8 +1491,8 @@ const WorkoutStep2: React.FC = () => {
                           type="number"
                           id="distance"
                           label="Distance(KM)"
-                          labelClassname="bg-transparent text-xs"
-                          className="bg-transparent"
+                          labelClassname="bg-[#EEE] text-xs"
+                          className=" border border-black/25 bg-transparent"
                         />
                         {errors.distance?.message && (
                           <span className="text-red-500 text-xs mt-[5px]">
@@ -886,8 +1516,8 @@ const WorkoutStep2: React.FC = () => {
                           id="speed"
                           type="number"
                           label="Speed(KM/H)"
-                          labelClassname="bg-transparent text-xs"
-                          className="bg-transparent"
+                          labelClassname="bg-[#EEE] text-xs"
+                          className=" border border-black/25 bg-transparent"
                         />
                         {errors.speed?.message && (
                           <span className="text-red-500 text-xs mt-[5px]">
@@ -978,12 +1608,17 @@ const WorkoutStep2: React.FC = () => {
                   )}
                   <div className="font-poppins">
                     <div className="relative">
-                      <FloatingInput
+                      <FloatingLabelInput
                         id="notes"
                         type="textarea"
                         rows={1}
                         placeholder="Notes"
-                        {...register("notes")}
+                        {...register("notes", {
+                          maxLength: {
+                            value: 350,
+                            message: "Notes cannot exceed 100 characters",
+                          },
+                        })}
                         className="bg-transparent border border-black/25"
                       />
                     </div>
@@ -996,7 +1631,10 @@ const WorkoutStep2: React.FC = () => {
                 </>
               ) : (
                 <span className="flex flex-grow justify-center items-center">
-                  No exercise selected
+                  <div className="text-center">
+                    No exercise selected, please select an exercise to update
+                    it.
+                  </div>
                 </span>
               )}
             </form>

@@ -30,7 +30,6 @@ import WorkoutStep1 from "./components/admin/workoutplan/workoutform/workout-ste
 import WorkoutStep2 from "./components/admin/workoutplan/workoutform/workout-step-2";
 import ForgotPasword from "./components/app/login/forgot_password";
 
-
 // pos
 import Sell from "./components/admin/pos/sell";
 import CounterManagement from "./components/admin/pos/counter_management";
@@ -38,6 +37,7 @@ import PaymentMethods from "./components/admin/pos/payment_methods";
 import CashManagement from "./components/admin/pos/cash_management";
 import Register from "./components/admin/pos/register";
 import SaleHistory from "./components/admin/pos/sales_history";
+import CounterSelection from "./components/admin/pos/counter_management/counter-selection"
 
 function App() {
   const loading = useSelector((state: RootState) =>
@@ -85,6 +85,7 @@ function App() {
           <Route path="/notfound" element={<NotFoundPage />} />
           <Route path="*" element={<Navigate to="/notfound" replace />} />
         </Route>
+        <Route path="/counter-selection" element={<CounterSelection />} />
       </Routes>
       <Loader open={loading} />
     </>

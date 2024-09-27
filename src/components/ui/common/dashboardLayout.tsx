@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./header";
 import { Toaster } from "@/components/ui/toaster";
 import "./style.css";
@@ -14,15 +14,22 @@ import {
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { resourceTypes } from "@/app/types";
+import { useDispatch } from "react-redux";
+import { setCode } from "@/features/counter/counterSlice";
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch()
+
   const [seperatePanelCode, setSeperatePanelCode] = useState<"pos" | null>(null)
   const [seperatePanel, setSeperatePanel] = useState<resourceTypes[]>([])
   const [sidePanel, setSidePanel] = useState<resourceTypes[]>([]);
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
+  const { code } = useSelector((state: RootState) => state.counter);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
   // Use useEffect to fetch and set sidePanel from localStorage
@@ -31,58 +38,47 @@ const DashboardLayout: React.FC = () => {
     if (sidepanel) {
       try {
         const decodedSidepanel = JSON.parse(atob(sidepanel));
-        console.log({ decodedSidepanel });
-        const filteredPanel = decodedSidepanel.filter((sidepanel: any) => {
-          // If the parent has no children, handle based on the parent's access_type
-          if (!sidepanel.children || sidepanel.children.length === 0) {
-            return sidepanel.access_type !== "no_access";
-          }
-
-          // If the parent has children, filter out the children with access_type == "no_access"
-          const filteredChildren = sidepanel.children.filter((child: any) => child.access_type !== "no_access");
-
-          // If after filtering, no children are left, we filter out the parent as well
-          if (filteredChildren.length === 0) {
-            return false; // Filter out the parent if all children have "no_access"
-          }
-
-          // Otherwise, keep the parent and assign the filtered children
-          sidepanel.children = filteredChildren;
-          return true;
-        });
-        setSidePanel(filteredPanel);
+        setSidePanel(decodedSidepanel);
       } catch (error) {
-        console.error("Error decoding Base64 string:", error);
+        console.error("Error decoding Base64 string sidepanel:", error);
       }
     }
   }, []);
 
   useEffect(() => {
-    const posPanel = sidePanel.find((item: resourceTypes) => item.is_root && item.code == "pos");
-    if (seperatePanelCode == "pos" && posPanel?.children) {
-      setSeperatePanel(posPanel.children);
-    } else {
-      setSeperatePanel([]);
+    if (code == "pos" ) {
+      // const posPanel = sidePanel.find((item: resourceTypes) => item.is_root && item.code == "pos");
+      const  posPanel = localStorage.getItem(" posPanel");
+      if ( posPanel) {
+        try {
+          const decodedPosPanel = JSON.parse(atob( posPanel));
+          setSeperatePanel(decodedPosPanel);
+        } catch (error) {
+          console.error("Error decoding Base64 string posPanel:", error);
+        }
+      } 
     }
-  }, [seperatePanelCode])
+  }, [code])
 
   const isActiveLink = (targetPath: string): boolean => {
     const currentPath = location.pathname;
     return currentPath === targetPath;
   };
 
-  console.log({ sidePanel, seperatePanel, seperatePanelCode })
-
+  console.log({ sidePanel, seperatePanel, seperatePanelCode, code })
   return (
     <div className="font-poppins flex h-full w-full relative ">
-      <div
+      <nav
         className={`bg-white border-r text-black shadow-md transition-all duration-300  min-h-screen  custom-scrollbar-right ${isSidebarOpen ? "w-full max-w-[275px]" : "max-w-16"}`}
       >
         <div
           style={{ direction: "ltr" }}
           className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white "
         >
-          {!seperatePanelCode && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => setSeperatePanelCode(null)}>
+          {!code && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => {
+            setSeperatePanelCode(null)
+            dispatch(setCode(null))
+          }}>
             <img
               src={dashboardsvg}
               className={`h-8 w-9 ${!isSidebarOpen && "hidden"}`}
@@ -96,7 +92,7 @@ const DashboardLayout: React.FC = () => {
             </span>
           </Link>}
 
-          {seperatePanelCode == 'pos' && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => setSeperatePanelCode(null)}>
+          {code == 'pos' && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => dispatch(setCode(null))}>
             <i className="rounded-[50%] fa fa-arrow-left px-2 py-0.5 text-lg border-2 border-primary text-primary"></i>
             <span
               className={`${!isSidebarOpen && "hidden"} text-2xl text-center font-extrabold`}
@@ -112,11 +108,11 @@ const DashboardLayout: React.FC = () => {
               <MenuIcon className="h-6 w-6" />
             </Button> */}
         </div>
-        <nav
+        <div
           style={{ direction: "ltr" }}
           className="flex flex-col gap-2 px-2 py-2 "
         >
-          {!seperatePanelCode && sidePanel && sidePanel?.map((item: any, i: number) => (
+          {!code && sidePanel && sidePanel?.map((item: any, i: number) => (
             <>
               {item.children && item.children?.length == 0 && (
                 <Link
@@ -141,7 +137,10 @@ const DashboardLayout: React.FC = () => {
               {item.children
                 && item.children?.length > 0 && (
                   <Accordion type="single" collapsible>
-                    <AccordionItem value="item-1 !border-none" id="accordion" onClick={() => setSeperatePanelCode(item.code == "pos" ? item.code : null)}
+                    <AccordionItem value="item-1 !border-none" id="accordion" onClick={() => {
+                      setSeperatePanelCode(item.code == "pos" ? item.code : null)
+                      item.code == "pos" && navigate(item.link)
+                    }}
                     >
                       <AccordionTrigger
                         className={`flex items-center gap-2 rounded-md p-1 transition-colors !no-underline ${isSidebarOpen ? "justify-between text-sm" : "justify-center text-lg "} `}
@@ -181,8 +180,8 @@ const DashboardLayout: React.FC = () => {
             </>
           )
           )}
-          {seperatePanelCode == "pos" && (
-            seperatePanel.map((item,i) => (
+          {code == "pos" && (
+            seperatePanel.map((item, i) => (
               <Link
                 key={i}
                 to={item.link}
@@ -201,8 +200,8 @@ const DashboardLayout: React.FC = () => {
               </Link>
             ))
           )}
-        </nav>
-      </div>
+        </div>
+      </nav>
       <div className="relative flex-1 overflow-y-auto   w-[calc(100%-275px)]">
         <Header />
         <main className=" bg-outletcolor  relative min-h-screen">

@@ -5,8 +5,8 @@ const Sell = () => {
   return (
     <div className="w-full p-5 ">
       <Card className="p-3">
-        Sell
-        {counter_number && (<p className="p-2 font-bold">Selected counter: {counter_number}</p>)}
+        
+        <p>{counter_number && (<p className="p-2 font-bold">Selected counter: {counter_number}</p>)}</p>
       </Card>
     </div>
   );

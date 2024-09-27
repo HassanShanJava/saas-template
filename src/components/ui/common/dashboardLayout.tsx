@@ -46,17 +46,16 @@ const DashboardLayout: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (code == "pos" ) {
-      // const posPanel = sidePanel.find((item: resourceTypes) => item.is_root && item.code == "pos");
-      const  posPanel = localStorage.getItem(" posPanel");
-      if ( posPanel) {
-        try {
-          const decodedPosPanel = JSON.parse(atob( posPanel));
-          setSeperatePanel(decodedPosPanel);
-        } catch (error) {
-          console.error("Error decoding Base64 string posPanel:", error);
-        }
-      } 
+    const posPanel = localStorage.getItem("posPanel");
+    if (code == "pos" && posPanel) {
+
+      try {
+        const decodedPosPanel = JSON.parse(atob(posPanel));
+        setSeperatePanel(decodedPosPanel.children);
+      } catch (error) {
+        console.error("Error decoding Base64 string posPanel:", error);
+      }
+
     }
   }, [code])
 
@@ -180,25 +179,41 @@ const DashboardLayout: React.FC = () => {
             </>
           )
           )}
-          {code == "pos" && (
-            seperatePanel.map((item, i) => (
-              <Link
-                key={i}
-                to={item.link}
-                className={`flex items-center gap-2 rounded-md p-1 transition-colors  ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-primary hover:bg-primary" : "hover:bg-hoverprimary  "}`}
+          {code == "pos" && seperatePanel && (
+            <>
+              {seperatePanel.map((item, i) => (
+                <Link
+                  key={i}
+                  to={item.link}
+                  className={`flex items-center gap-2 rounded-md p-1 transition-colors  ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-primary hover:bg-primary" : "hover:bg-hoverprimary  "}`}
+                >
+                  <div
+                    className={` w-7 h-7 ${isActiveLink(item.link) ? "bg-[#3ED13E]" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
+                  >
+                    <i
+                      className={`${item.icon} text-md ${isActiveLink(item.link) ? "" : "text-gray-500 stroke-current"}`}
+                    ></i>
+                  </div>
+                  <span className={`${!isSidebarOpen && "hidden"}`}>
+                    {item.name}
+                  </span>
+                </Link>
+              ))}
+              <div
+                className={`flex items-center gap-2 rounded-md p-1 transition-colors    hover:bg-hoverprimary  `}
               >
                 <div
-                  className={` w-7 h-7 ${isActiveLink(item.link) ? "bg-[#3ED13E]" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
+                  className={` w-7 h-7  bg-gray-100 rounded-lg justify-center flex items-center`}
                 >
                   <i
-                    className={`${item.icon} text-md ${isActiveLink(item.link) ? "" : "text-gray-500 stroke-current"}`}
+                    className={` text-md   text-gray-500 stroke-current`}
                   ></i>
                 </div>
                 <span className={`${!isSidebarOpen && "hidden"}`}>
-                  {item.name}
+                  Close Counter
                 </span>
-              </Link>
-            ))
+              </div>
+            </>
           )}
         </div>
       </nav>

@@ -18,6 +18,7 @@ import { useToast } from "../use-toast";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import userimg from "@/assets/userSvg.svg";
+import { setCode, setCounter } from "@/features/counter/counterSlice";
 const Breadcrumb = ({
   currentPath,
   targetPath,
@@ -65,6 +66,8 @@ export const Header = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleLogout = () => {
+    dispatch(setCode(null))
+    dispatch(setCounter(null)) 
     dispatch(logout());
     toast({
       variant: "success",
@@ -174,6 +177,37 @@ export const Header = () => {
                 currentPath={location.pathname}
                 targetPath="/admin/memberships"
                 title="System Settings"
+              />
+              
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/pos/sell"
+                title="Point of Sale"
+              />
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/pos/register"
+                title="Point of Sale"
+              />
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/pos/counter"
+                title="Point of Sale"
+              />
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/pos/salesHistory"
+                title="Point of Sale"
+              />
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/pos/paymentMethods"
+                title="Point of Sale"
+              />
+              <PageTitle
+                currentPath={location.pathname}
+                targetPath="/admin/pos/cash"
+                title="Point of Sale"
               />
               <PageTitle
                 currentPath={location.pathname}
@@ -319,6 +353,12 @@ export const Header = () => {
               currentPath={location.pathname}
               targetPath="/admin/memberships"
               title="Memberships"
+              pageSetting="System Setting"
+            />
+            <Breadcrumb
+              currentPath={location.pathname}
+              targetPath="/admin/incomeCategory"
+              title="Income Categories"
               pageSetting="System Setting"
             />
           </div>

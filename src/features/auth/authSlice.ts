@@ -69,18 +69,16 @@ const authSlice = createSlice({
     builder.addCase(login.fulfilled, (state, { payload }) => {
       state.loading = false;
       state.isLoggedIn = true;
-      state.userInfo = { user: payload.user, sidepanel: payload.sidepanel, accessLevels: payload.accessLevels, pospanel:payload.posPanel };
+      state.userInfo = { user: payload.user, sidepanel: payload.sidepanel, accessLevels: payload.accessLevels, pospanel:payload.pospanel };
       state.userToken = payload.token.access_token;
       state.error = null;
-      const stringifiedData = JSON.stringify(payload.sidepanel);
-      const encodedData = btoa(stringifiedData);
-      const posPanel = payload.sidepanel.find((item: resourceTypes) => item.is_root && item.code == "pos")
+      
 
-      console.log(payload.accessLevels, "accessLevels")
-      localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); // Set userInfo in local storage
-      localStorage.setItem("sidepanel", encodedData); // Set sidepanel in local storage
-      localStorage.setItem("accessLevels", JSON.stringify(payload.accessLevels)); // Set sidepanel in local storage
-      localStorage.setItem("userToken", payload.token.access_token); // Set userToken in local storage
+      localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); 
+      localStorage.setItem("sidepanel", payload.sidepanel); 
+      localStorage.setItem("posPanel", payload.pospanel); 
+      localStorage.setItem("accessLevels", JSON.stringify(payload.accessLevels)); 
+      localStorage.setItem("userToken", payload.token.access_token);
     });
     builder.addCase(login.rejected, (state, { payload }) => {
       state.loading = false;
@@ -162,8 +160,8 @@ export const login = createAsyncThunk(
         localStorage.setItem("accessLevels", JSON.stringify(accessLevels)); 
 
         // 7. set pospanel and sidepanel in redux state
-        payload.sidepanel = filterUserResource;
-        payload.pospanel = posPanel;
+        payload.sidepanel = encodedData;
+        payload.pospanel = encodedPosPanel;
         payload.accessLevels = accessLevels;
       }
       localStorage.setItem("userToken", data.token?.access_token);

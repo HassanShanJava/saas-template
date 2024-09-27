@@ -13,13 +13,13 @@ const CounterSelection = () => {
     }
 
     return (
-        <div className=''>
-            <Card className="w-full p-5">
+        <div className='min-h-screen bg-outletcolor p-5'>
+            <Card className="w-full p-5 space-y-4">
                 <p>Please select counter to start selling</p>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-3 ">
 
                     {[1, 2, 3, 4, 5, 6].map((item: any, i: number) => (
-                        <div key={i} onClick={() => selectCounter(item)} className="cursor-pointer w-full h-32 flex justify-center items-center rouned-md bg-outletcolor">
+                        <div key={i} onClick={() => selectCounter(item)} className="cursor-pointer rounded-md w-full h-32 flex justify-center items-center rouned-md bg-outletcolor">
                             <p className="text-center text-lg ">Counter {item}</p>
                         </div>
                     ))}

@@ -15,9 +15,9 @@ const IdleLogoutHandler = () => {
     const isAuthenticated = Boolean(localStorage.getItem("userToken"));
 
     if (!isAuthenticated) return; // Do nothing if the user is not logged in
-    dispatch(logout());
     dispatch(setCode(null))
     dispatch(setCounter(null))
+    dispatch(logout());
     // Clear session (e.g., remove token from localStorage)
     // Redirect to login page
     toast({

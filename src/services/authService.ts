@@ -1,3 +1,4 @@
+import { resourceTypes } from "@/app/types";
 import axios from "axios";
 const { VITE_API_URL } = import.meta.env;
 
@@ -19,7 +20,7 @@ export async function loginUser(email: string, password: string, persona?: strin
 }
 
 
-export async function getUserResource(role_id: number, token:string) {
+export async function getUserResource(role_id: number, token: string) {
   return await client.get(
     `role?role_id=${role_id}`,
     {

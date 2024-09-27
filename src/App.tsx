@@ -93,6 +93,8 @@ function App() {
             <Route path="/notfound" element={<NotFoundPage />} />
             <Route path="*" element={<Navigate to="/notfound" replace />} />
           </Route>
+          <Route path="/notfound" element={<NotFoundPage />} />
+          <Route path="*" element={<Navigate to="/notfound" replace />} />
         </Route>
       </Routes>
       <Loader open={loading} />

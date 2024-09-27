@@ -33,19 +33,56 @@ export const Roles = apiSlice.injectEndpoints({
           },
           providesTags: ["Roles"],
         }),
+        transformResponse: (resp: resourceTypes[]) => {
+          // Sorting function
+          const sortByIndex = (a: resourceTypes, b: resourceTypes) =>
+            a.index - b.index;
+
+          // Recursive sorting function for children
+          const sortResources = (resources: resourceTypes[]): resourceTypes[] =>
+            resources
+              .map((resource) => ({
+                ...resource,
+                children: resource.children
+                  ? sortResources([...resource.children].sort(sortByIndex))
+                  : undefined, // recursively sort children if present
+              }))
+              .sort(sortByIndex); // sort the main array by index
+
+          const allResourceData = sortResources(resp);
+
+          return allResourceData;
+        },
       }),
       getAllResources: builder.query<TranformedResourceRsp, void>({
         query: () => ({
           url: `/role/resource`,
-          method: "GET",  
+          method: "GET",
           headers: {
             Accept: "application/json",
           },
           providesTags: ["Roles"],
         }),
         transformResponse: (resp: resourceTypes[]) => {
-          const count: number = resp.filter((item) => !item.is_parent).length;
-          const allResourceData: resourceTypes[] = resp;
+          // Sorting function
+          const sortByIndex = (a: resourceTypes, b: resourceTypes) =>
+            a.index - b.index;
+
+          // Recursive sorting function for children
+          const sortResources = (resources: resourceTypes[]): resourceTypes[] =>
+            resources
+              .map((resource) => ({
+                ...resource,
+                children: resource.children
+                  ? sortResources([...resource.children].sort(sortByIndex))
+                  : undefined, // recursively sort children if present
+              }))
+              .sort(sortByIndex); // sort the main array by index
+
+          // Sort and count non-parent items
+          const allResourceData = sortResources(resp);
+          const count = allResourceData.filter((item) => !item.is_parent).length;
+
           return { allResourceData, count };
         },
       }),

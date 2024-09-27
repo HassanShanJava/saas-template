@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
+  const [seperatePanel, setSeperatePanel] = useState<"pos" | null>(null);
   const [sidePanel, setSidePanel] = useState([]);
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
@@ -62,7 +63,7 @@ const DashboardLayout: React.FC = () => {
     return currentPath.startsWith(targetPath);
   };
 
-  console.log({ sidePanel });
+  console.log({ seperatePanel });
 
   return (
     <div className="font-poppins flex h-full w-full relative ">
@@ -102,6 +103,9 @@ const DashboardLayout: React.FC = () => {
                   <Link
                     key={i}
                     to={item.link}
+                    onClick={() =>
+                      setSeperatePanel(item.code == "pos" ? item.code : null)
+                    }
                     className={`flex items-center gap-2 rounded-md p-1 transition-colors  ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-primary hover:bg-primary" : "hover:bg-hoverprimary  "}`}
                   >
                     <div
@@ -145,6 +149,11 @@ const DashboardLayout: React.FC = () => {
                               <Link
                                 key={index}
                                 to={child.link}
+                                onClick={() =>
+                                  setSeperatePanel(
+                                    item.code == "pos" ? item.code : null
+                                  )
+                                }
                                 className={`justify-start rounded-md px-3  py-1 ${isActiveLink(child.link) ? "bg-hoverprimary" : "hover:bg-muted"} ${!isSidebarOpen && "hidden"}`}
                               >
                                 {child.name}
@@ -161,7 +170,7 @@ const DashboardLayout: React.FC = () => {
       </div>
       <div className="relative flex-1 overflow-y-auto max-h-screen w-[calc(100%-275px)]">
         <Header />
-        <main className=" bg-outletcolor  h-[90vh] relative ">
+        <main className=" bg-outletcolor  relative ">
           <div className="   w-full mx-auto">
             <Outlet />
             <Toaster />

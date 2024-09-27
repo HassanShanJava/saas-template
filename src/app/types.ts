@@ -113,6 +113,7 @@ export interface resourceTypes {
   access_type?: string;
   children?: resourceTypes[];
   is_parent: boolean;
+  index:number;
   is_root: boolean;
   link: string;
   icon: string;

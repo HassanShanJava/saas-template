@@ -74,8 +74,8 @@ const authSlice = createSlice({
       console.log(payload.accessLevels, "accessLevels")
       localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); // Set userInfo in local storage
       localStorage.setItem("sidepanel", encodedData); // Set sidepanel in local storage
-      localStorage.setItem("accessLevels", JSON.stringify(payload.accessLevels)); // Set sidepanel in local storage
       localStorage.setItem("userToken", payload.token.access_token); // Set userToken in local storage
+      localStorage.setItem("accessLevels", JSON.stringify(payload.accessLevels)); // Set sidepanel in local storage
     });
     builder.addCase(login.rejected, (state, { payload }) => {
       state.loading = false;

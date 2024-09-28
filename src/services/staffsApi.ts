@@ -58,6 +58,16 @@ export const StaffApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Staffs"],
     }),
+    getStaffList: builder.query<{id:number,name:string}[], number>({
+      query: (org_id) => ({
+        url: `/staff/list?org_id=${org_id}`,
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      }),
+      providesTags: ["Staffs"],
+    }),
     deleteStaff: builder.mutation<any, number>({
       query: (staffId) => ({
         url: `/staff/${staffId}`,
@@ -87,6 +97,7 @@ export const StaffApi = apiSlice.injectEndpoints({
 
 export const {
   useGetStaffCountQuery,
+  useGetStaffListQuery,
   useGetStaffByIdQuery,
   useAddStaffMutation,
   useGetStaffsQuery,

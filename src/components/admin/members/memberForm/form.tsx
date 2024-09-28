@@ -333,11 +333,13 @@ const MemberForm = ({
   useEffect(() => {
     if (action == "edit") {
       const memberpayload = { ...memberData };
+      
       memberpayload.coach_id = memberData?.coaches.every(
         (item) => item.id === 0 && item.name.trim() === ""
       )
         ? []
         : memberData?.coaches.map((item) => item.id);
+
       if (
         memberpayload?.mobile_number &&
         [0, 2, 3, 4].includes(memberpayload.mobile_number?.length)

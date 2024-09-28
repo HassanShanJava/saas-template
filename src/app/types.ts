@@ -1,6 +1,29 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
+export interface counterTableType {
+  data: counterDataType[];
+  total_counts: number;
+  filtered_counts: number;
+}
+
+export interface counterDataType {
+  id?: number;
+  name: string;
+  assigned_cashier:{
+    id:number,
+    name:string
+  }[]
+  status?:string;
+}
+
+export interface CreateCounter{
+  id?: number;
+  name?:string;
+  assigned_cashier?:number[];
+  status?:string;
+}
+
 export interface mealPlanTableType {
   data: mealPlanDataType[];
   total_counts: number;

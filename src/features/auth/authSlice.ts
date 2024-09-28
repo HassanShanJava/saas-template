@@ -73,6 +73,7 @@ const authSlice = createSlice({
       state.userInfo = { user: payload.user, sidepanel: payload.sidepanel, accessLevels: payload.accessLevels, pospanel:payload.pospanel };
       state.userToken = payload.token.access_token;
       state.error = null;
+      console.log({payload},"payload")
       localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); 
       localStorage.setItem("sidepanel", payload.sidepanel); 
       localStorage.setItem("posPanel", payload.pospanel); 

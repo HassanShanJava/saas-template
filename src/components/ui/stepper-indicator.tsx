@@ -5,14 +5,18 @@ import React, { Fragment } from "react";
 
 interface StepperIndicatorProps {
   activeStep: number;
-  lastKey?:number
+  lastKey?: number;
   labels: {
-    label:string;
-    key:number;
-  }[]
+    label: string;
+    key: number;
+  }[];
 }
 
-const StepperIndicator = ({ activeStep, labels, lastKey }: StepperIndicatorProps) => {
+const StepperIndicator = ({
+  activeStep,
+  labels,
+  lastKey,
+}: StepperIndicatorProps) => {
   return (
     <div className="w-full flex justify-center items-center px-8 pb-8">
       {labels.map((label, step) => (
@@ -21,13 +25,19 @@ const StepperIndicator = ({ activeStep, labels, lastKey }: StepperIndicatorProps
             <div
               className={clsx(
                 "w-[40px] h-[40px] flex justify-center items-center m-[5px] border-[2px] rounded-full",
-                label.key <  activeStep && "bg-primary text-white",
+                label.key < activeStep && "bg-primary text-white",
                 label.key === activeStep && "border-primary text-primary"
               )}
             >
-              {label.key >= activeStep ?label.key : <Check className="h-5 w-5" />}
+              {label.key >= activeStep ? (
+                label.key
+              ) : (
+                <Check className="h-5 w-5" />
+              )}
             </div>
-            <span className="absolute text-center text-xs font-semibold  w-28 -right-8">{label.label}</span>
+            <span className="absolute text-center text-xs font-semibold  w-32 -right-8">
+              {label.label}
+            </span>
           </div>
 
           {label.key !== lastKey && (

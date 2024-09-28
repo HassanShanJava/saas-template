@@ -124,7 +124,6 @@ export const Exercise = apiSlice.injectEndpoints({
         }),
         providesTags: ["Exercise"],
       }),
-
       deleteExercise: builder.mutation<deleteExerciseResponse, number>({
         query: (ExerciseId) => ({
           url: `/exercise/${ExerciseId}`,

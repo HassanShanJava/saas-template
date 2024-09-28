@@ -73,14 +73,26 @@ function App() {
 
             <Route path="/admin/mealplans" element={<MealPlans />} />
             <Route path="/admin/foods" element={<FoodsNutrition />} />
-            <Route path="/admin/pos/sell" element={<Sell />} />
-            <Route path="/admin/pos/salesHistory" element={<SaleHistory />} />
-            <Route path="/admin/pos/register" element={<Register />} />
-            <Route path="/admin/pos/cash" element={<CashManagement />} />
-            <Route path="/admin/pos/paymentMethods" element={<PaymentMethods />} />
-            <Route path="/admin/pos/counter" element={<CounterManagement />} />
-            <Route path="/notfound" element={<NotFoundPage />} />
-            <Route path="*" element={<Navigate to="/notfound" replace />} />
+            <Route path="/admin/workoutplans" element={<WorkoutPlan />} />
+
+            <Route path="/admin/workoutplans/" element={<WorkoutPlan />}>
+              <Route path="add/" element={<WorkoutPlanForm />}>
+                <Route path="step/1/:workoutId?" element={<WorkoutStep1 />} />
+                <Route path="step/2/:workoutId?" element={<WorkoutStep2 />} />
+              </Route>
+            </Route>
+
+            <Route path="/admin/pos/">
+              <Route path="sell" element={<Sell />} />
+              <Route path="salesHistory" element={<SaleHistory />} />
+              <Route path="register" element={<Register />} />
+              <Route path="cash" element={<CashManagement />} />
+              <Route
+                path="paymentMethods"
+                element={<PaymentMethods />}
+              />
+              <Route path="counter" element={<CounterManagement />} />
+            </Route>
           </Route>
           <Route path="/notfound" element={<NotFoundPage />} />
           <Route path="*" element={<Navigate to="/notfound" replace />} />

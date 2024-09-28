@@ -1,8 +1,6 @@
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NotFoundPage from "../PageNotFound";
-import AuthenticationPage from "../app/login/login";
-import DashboardLayout from "../ui/common/dashboardLayout";
 import { extractLinks } from "@/utils/helper";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
@@ -26,12 +24,12 @@ const ProtectedRoute = () => {
     }
   }, [sidepanel]);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const location = useLocation();
   // Redirect to login if not authenticated and trying to access a protected route
-   // Redirect to login if not authenticated and trying to access a protected route
-   if (!isAuthenticated && location.pathname !== "/") {
+  // Redirect to login if not authenticated and trying to access a protected route
+  if (!isAuthenticated && location.pathname !== "/") {
     return <Navigate to="/" />;
   }
 
@@ -40,11 +38,20 @@ const ProtectedRoute = () => {
     return <Navigate to="/admin/dashboard" />;
   }
 
+  // Check if the current path is not in the links array and redirect to the first available link
+  if (isAuthenticated) {
+    if (
+      sidePanel.some(
+        (link) =>
+          link == location.pathname || location.pathname.startsWith(link)
+      )
+    ) {
+      return <Outlet />;
+    } else if (sidePanel.length > 0) {
+      return <NotFoundPage />;
+    }
+  }
   return <Outlet />;
-  
 };
-
-
-
 
 export default ProtectedRoute;

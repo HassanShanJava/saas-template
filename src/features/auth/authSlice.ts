@@ -50,6 +50,7 @@ const authSlice = createSlice({
       localStorage.removeItem("accessLevels");
       localStorage.removeItem("counter_number");
       localStorage.removeItem("code");
+      localStorage.removeItem("backPage");
       state.userToken = null;
       state.userInfo = null;
       state.error = null;

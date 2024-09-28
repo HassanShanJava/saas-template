@@ -73,8 +73,8 @@ export const processAndUploadImages = async (
   // Define the delete function
   const deleteExistingImage = async (url?: string | null) => {
     if (url) {
-      const fileName = url.split("/").pop() ?? ""; // Extract file name from URL
-      return await deleteCognitoImage(fileName);
+      // const fileName = url.split("/").pop() ?? ""; // Extract file name from URL
+      return await deleteCognitoImage(url);
     }
     return { success: true }; // No image to delete
   };

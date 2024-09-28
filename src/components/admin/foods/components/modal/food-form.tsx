@@ -420,8 +420,8 @@ const FoodForm = ({
                           }}
                           defaultValue={value}
                         >
-                          <SelectTrigger floatingLabel={"Weight Unit*"}>
-                            <SelectValue placeholder={"Select weight unit"} />
+                          <SelectTrigger floatingLabel={"Unit*"}>
+                            <SelectValue placeholder={"Select unit"} />
                           </SelectTrigger>
                           <SelectContent>
                             {weights.map((unit, i) => (

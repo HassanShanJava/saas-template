@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, Outlet, redirect, useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./header";
 import { Toaster } from "@/components/ui/toaster";
 import "./style.css";
@@ -15,8 +15,9 @@ import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { resourceTypes } from "@/app/types";
 import { useDispatch } from "react-redux";
-import { setCode, setCounter } from "@/features/counter/counterSlice";
+import { backPageCount, resetBackPageCount, setCode, setCounter } from "@/features/counter/counterSlice";
 import { Button } from "../button";
+import { extractLinks } from "@/utils/helper";
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
@@ -25,11 +26,12 @@ const DashboardLayout: React.FC = () => {
 
   const [seperatePanelCode, setSeperatePanelCode] = useState<"pos" | null>(null)
   const [seperatePanel, setSeperatePanel] = useState<resourceTypes[]>([])
+  const [backtogym, setBacktogym] = useState<string>('')
   const [sidePanel, setSidePanel] = useState<resourceTypes[]>([]);
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
-  const { code } = useSelector((state: RootState) => state.counter);
+  const { code, back } = useSelector((state: RootState) => state.counter);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
@@ -39,7 +41,9 @@ const DashboardLayout: React.FC = () => {
     if (sidepanel) {
       try {
         const decodedSidepanel = JSON.parse(atob(sidepanel));
+        const links = extractLinks(decodedSidepanel)
         setSidePanel(decodedSidepanel);
+        setBacktogym(links[0])
       } catch (error) {
         console.error("Error decoding Base64 string sidepanel:", error);
       }
@@ -65,17 +69,26 @@ const DashboardLayout: React.FC = () => {
     return currentPath === targetPath;
   };
 
+  const closePOSPanel = () => {
+    // goes back to route perivous to pos counter selectedion
+    navigate(-back - 2);
+    dispatch(setCode(null));
+    dispatch(setCounter(null));
+    dispatch(resetBackPageCount())
+
+  }
+
   console.log({ sidePanel, seperatePanel, seperatePanelCode, code })
   return (
     <div className="font-poppins flex h-full w-full relative ">
       <nav
-        className={`bg-white border-r text-black shadow-md transition-all duration-300  min-h-screen  custom-scrollbar-right ${isSidebarOpen ? "w-full max-w-[275px]" : "max-w-16"}`}
+        className={`bg-white border-r text-black shadow-md transition-all duration-300  h-screen  custom-scrollbar-right ${isSidebarOpen ? "w-full max-w-[275px]" : "max-w-16"}`}
       >
         <div
           style={{ direction: "ltr" }}
           className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white "
         >
-          {!code && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => {
+          {code !== "pos" && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => {
             setSeperatePanelCode(null)
             dispatch(setCode(null))
           }}>
@@ -92,11 +105,7 @@ const DashboardLayout: React.FC = () => {
             </span>
           </Link>}
 
-          {code == 'pos' && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => {
-            navigate(-2)
-            dispatch(setCode(null))
-            dispatch(setCounter(null))
-          }}>
+          {code == 'pos' && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={closePOSPanel}>
             <i className="rounded-[50%] fa fa-arrow-left px-2 py-0.5 text-lg border-2 border-primary text-primary"></i>
             <span
               className={`${!isSidebarOpen && "hidden"} text-2xl text-center font-extrabold`}
@@ -116,7 +125,7 @@ const DashboardLayout: React.FC = () => {
           style={{ direction: "ltr" }}
           className="flex flex-col gap-2 px-2 py-2 "
         >
-          {!code && sidePanel && sidePanel?.map((item: any, i: number) => (
+          {code !== "pos" && sidePanel && sidePanel?.map((item: any, i: number) => (
             <>
               {item.children && item.children?.length == 0 && (
                 <Link
@@ -190,6 +199,7 @@ const DashboardLayout: React.FC = () => {
                 <Link
                   key={i}
                   to={item.link}
+                  onClick={() => dispatch(backPageCount(1))}
                   className={`flex items-center gap-2 rounded-md p-1 transition-colors  ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-primary hover:bg-primary" : "hover:bg-hoverprimary  "}`}
                 >
                   <div
@@ -205,6 +215,7 @@ const DashboardLayout: React.FC = () => {
                 </Link>
               ))}
               <Button
+                onClick={closePOSPanel}
                 className={`flex items-center gap-2 rounded-md p-1 text-gray-900 transition-colors    hover:bg-primary  `}
               >
                 <span className={`text-sm ${!isSidebarOpen && "hidden"}`}>
@@ -215,10 +226,10 @@ const DashboardLayout: React.FC = () => {
           )}
         </div>
       </nav>
-      <div className="relative flex-1 overflow-y-auto   w-[calc(100%-275px)]">
+      <div className=" flex-1 overflow-y-auto h-screen   w-[calc(100%-275px)]">
         <Header />
-        <main className=" bg-outletcolor  relative min-h-screen">
-          <div className="   w-full mx-auto">
+        <main className="bg-outletcolor min-h-screen ">
+          <div className="w-full mx-auto">
             <Outlet />
             <Toaster />
           </div>

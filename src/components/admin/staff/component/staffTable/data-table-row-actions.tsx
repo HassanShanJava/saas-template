@@ -14,13 +14,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ErrorType, staffTypesResponseList } from "@/app/types";
-import { useNavigate } from "react-router-dom";
 import { useDeleteStaffMutation } from "@/services/staffsApi";
 import warning from "@/assets/warning.svg";
 import { RootState } from "@/app/store";
@@ -41,7 +39,6 @@ export function DataTableRowActions({
 
   const [isdelete, setIsDelete] = React.useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const [deleteCoach, { isLoading: deletingcoach }] = useDeleteStaffMutation();
   const deleteRow = async () => {

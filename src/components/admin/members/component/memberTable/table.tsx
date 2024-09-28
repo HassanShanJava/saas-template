@@ -525,7 +525,7 @@ export default function MemberTableView() {
                 membership_plan_id: membership_plan_id,
               })
             }
-            disabled={statusLabel.hide}
+            disabled={statusLabel.hide || member == "read"}
           >
             <SelectTrigger className="h-8">
               <SelectValue placeholder="Status" className="text-gray-400  ">
@@ -627,7 +627,7 @@ export default function MemberTableView() {
     },
     ...(member !== "read" ? [actionsColumn] : []),
   ];
-  
+
   const table = useReactTable({
     data: memberTableData as MemberTableDatatypes[],
     columns,
@@ -741,7 +741,7 @@ export default function MemberTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          {member !=="read"&&<Button
+          {member !== "read" && <Button
             className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
             onClick={handleOpenForm}
           >

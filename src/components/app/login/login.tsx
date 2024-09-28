@@ -78,25 +78,7 @@ export default function AuthenticationPage() {
 
       const sidepanel = localStorage.getItem("sidepanel");
       const decodedSidepanel = JSON.parse(atob(sidepanel as string));
-      const filteredPanel = decodedSidepanel.filter((sidepanel: any) => {
-        // If the parent has no children, handle based on the parent's access_type
-        if (!sidepanel.children || sidepanel.children.length === 0) {
-          return sidepanel.access_type !== "no_access";
-        }
-  
-        // If the parent has children, filter out the children with access_type == "no_access"
-        const filteredChildren = sidepanel.children.filter((child: any) => child.access_type !== "no_access");
-  
-        // If after filtering, no children are left, we filter out the parent as well
-        if (filteredChildren.length === 0) {
-          return false; // Filter out the parent if all children have "no_access"
-        }
-  
-        // Otherwise, keep the parent and assign the filtered children
-        sidepanel.children = filteredChildren;
-        return true;
-      });
-      const links = extractLinks(filteredPanel)
+      const links = extractLinks(decodedSidepanel)
       toast({
         variant: "success",
         title: "LogIn",

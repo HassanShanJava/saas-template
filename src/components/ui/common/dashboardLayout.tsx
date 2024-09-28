@@ -15,12 +15,13 @@ import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { resourceTypes } from "@/app/types";
 import { useDispatch } from "react-redux";
-import { setCode } from "@/features/counter/counterSlice";
+import { setCode, setCounter } from "@/features/counter/counterSlice";
+import { Button } from "../button";
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const [seperatePanelCode, setSeperatePanelCode] = useState<"pos" | null>(null)
   const [seperatePanel, setSeperatePanel] = useState<resourceTypes[]>([])
@@ -91,7 +92,11 @@ const DashboardLayout: React.FC = () => {
             </span>
           </Link>}
 
-          {code == 'pos' && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => dispatch(setCode(null))}>
+          {code == 'pos' && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => {
+            navigate(-2)
+            dispatch(setCode(null))
+            dispatch(setCounter(null))
+          }}>
             <i className="rounded-[50%] fa fa-arrow-left px-2 py-0.5 text-lg border-2 border-primary text-primary"></i>
             <span
               className={`${!isSidebarOpen && "hidden"} text-2xl text-center font-extrabold`}
@@ -199,20 +204,13 @@ const DashboardLayout: React.FC = () => {
                   </span>
                 </Link>
               ))}
-              <div
-                className={`flex items-center gap-2 rounded-md p-1 transition-colors    hover:bg-hoverprimary  `}
+              <Button
+                className={`flex items-center gap-2 rounded-md p-1 text-gray-900 transition-colors    hover:bg-primary  `}
               >
-                <div
-                  className={` w-7 h-7  bg-gray-100 rounded-lg justify-center flex items-center`}
-                >
-                  <i
-                    className={` text-md   text-gray-500 stroke-current`}
-                  ></i>
-                </div>
-                <span className={`${!isSidebarOpen && "hidden"}`}>
+                <span className={`text-sm ${!isSidebarOpen && "hidden"}`}>
                   Close Counter
                 </span>
-              </div>
+              </Button>
             </>
           )}
         </div>

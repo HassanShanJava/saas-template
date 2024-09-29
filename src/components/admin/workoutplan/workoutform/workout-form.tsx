@@ -451,13 +451,6 @@ const WorkoutPlanForm = () => {
                     className="w-[100px] px-2 text-center flex items-center gap-2 border-primary"
                     type="button"
                     variant={"outline"}
-                    // onClick={() => {
-                    //   const newActive = activeStep - 1;
-                    //   setActiveStep(newActive);
-                    //   navigate(
-                    //     `/admin/workoutplans/add/step/${newActive}/${workoutIdState}`
-                    //   );
-                    // }}
                     onClick={() => navigateToStep(activeStep - 1)}
                   >
                     <i className="fa fa-arrow-left-long "></i>

@@ -280,41 +280,6 @@ const WorkoutStep1: React.FC = () => {
               )}
             </div>
             <div className="h-min">
-              {/* <Controller
-                name="weeks"
-                rules={{ required: "Required" }}
-                control={control}
-                render={({
-                  field: { onChange, value, onBlur },
-                  fieldState: { invalid, error },
-                }) => (
-                  <Select
-                    onValueChange={(value) => onChange(Number(value))}
-                    value={
-                      (value ? String(value) : value) as string | undefined
-                    }
-                  >
-                    <SelectTrigger floatingLabel="Weeks*" name="weeks">
-                      <SelectValue placeholder="Weeks" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 20 }, (_, i) => ({
-                        label: String(i + 1),
-                        value: String(i + 1),
-                      })).map((st: any, index: number) => (
-                        <SelectItem key={index} value={st.value}>
-                          {st.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.weeks?.message && (
-                <span className="text-red-500 text-xs mt-[5px]">
-                  {errors.weeks?.message}
-                </span>
-              )} */}
               <Controller
                 name="weeks"
                 control={control}

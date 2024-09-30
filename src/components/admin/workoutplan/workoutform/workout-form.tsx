@@ -331,6 +331,8 @@ const WorkoutPlanForm = () => {
       } catch (error) {
         console.error("Failed to delete workout:", error);
       }
+    } else {
+      navigate("/admin/workoutplans");
     }
   };
 

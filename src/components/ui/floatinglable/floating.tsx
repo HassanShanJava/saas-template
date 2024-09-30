@@ -27,7 +27,7 @@ export interface FloatingLabelInputProps extends CommonProps {
 const FloatingInput = React.forwardRef<
   HTMLInputElement | HTMLTextAreaElement,
   FloatingLabelInputProps
->(({ className, type, ...props }, ref) => {
+>(({ className, type, error, ...props }, ref) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -46,7 +46,8 @@ const FloatingInput = React.forwardRef<
         className={cn(
           "peer",
           "flex w-full font-poppins rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-          className
+          className,
+          error && "border-red-500 focus-visible:ring-red-500"
         )}
         ref={textareaRef}
         {...props}
@@ -95,42 +96,29 @@ FloatingLabel.displayName = "FloatingLabel";
 const FloatingLabelInput = React.forwardRef<
   React.ElementRef<typeof FloatingInput>,
   React.PropsWithoutRef<FloatingLabelInputProps>
->(
-  (
-    {
-      id,
-      label,
-      error,
-      type,
-      rows,
-      labelClassname = "",
-      ...props
-    },
-    ref
-  ) => {
-    const isTextarea = type === "textarea";
+>(({ id, label, error, type, rows, labelClassname = "", ...props }, ref) => {
+  const isTextarea = type === "textarea";
 
-    return (
-      <div className="font-poppins ">
-        <div className="relative">
-          <FloatingInput ref={ref} id={id} type={type} rows={rows} {...props} />
-          <FloatingLabel
-            htmlFor={id}
-            isTextarea={isTextarea}
-            className={labelClassname}
-          >
-            {label}
-          </FloatingLabel>
-        </div>
-        {error && (
-          <span className="text-destructive font-poppins block !mt-[5px] text-xs">
-            {error}
-          </span>
-        )}
+  return (
+    <div className="font-poppins ">
+      <div className="relative">
+        <FloatingInput ref={ref} id={id} type={type} rows={rows} {...props} />
+        <FloatingLabel
+          htmlFor={id}
+          isTextarea={isTextarea}
+          className={labelClassname}
+        >
+          {label}
+        </FloatingLabel>
       </div>
-    );
-  }
-);
+      {error && (
+        <span className="text-destructive font-poppins block !mt-[5px] text-xs">
+          {error}
+        </span>
+      )}
+    </div>
+  );
+});
 FloatingLabelInput.displayName = "FloatingLabelInput";
 
 export { FloatingInput, FloatingLabel, FloatingLabelInput };

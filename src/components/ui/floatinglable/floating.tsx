@@ -13,8 +13,8 @@ type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 type CommonProps = Omit<InputProps, "onAbort"> &
   Omit<TextareaProps, "onAbort"> & {
     onAbort?:
-      | ((event: React.SyntheticEvent<Element, Event>) => void)
-      | undefined;
+    | ((event: React.SyntheticEvent<Element, Event>) => void)
+    | undefined;
   };
 
 export interface FloatingLabelInputProps extends CommonProps {
@@ -22,6 +22,7 @@ export interface FloatingLabelInputProps extends CommonProps {
   error?: string;
   autoComplete?: string;
   labelClassname?: string;
+  icon?: React.ReactNode;
 }
 
 const FloatingInput = React.forwardRef<
@@ -103,6 +104,7 @@ const FloatingLabelInput = React.forwardRef<
       error,
       type,
       rows,
+      icon,
       labelClassname = "",
       ...props
     },
@@ -113,6 +115,13 @@ const FloatingLabelInput = React.forwardRef<
     return (
       <div className="font-poppins ">
         <div className="relative">
+
+          {icon && (
+            <div className="absolute inset-y-0 flex items-center">
+              {icon}
+            </div>
+          )}
+
           <FloatingInput ref={ref} id={id} type={type} rows={rows} {...props} />
           <FloatingLabel
             htmlFor={id}

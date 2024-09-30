@@ -401,11 +401,6 @@ export default function CounterTableView() {
     }
   };
 
-
-
-
-
-
   return (
     <div className="w-full space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">

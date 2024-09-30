@@ -29,7 +29,7 @@ const OpenRegister: React.FC = () => {
       console.log("Opening balance:", data.openingBalance);
       toast({
         variant: "success",
-        description: "Register opened successfully",
+        description: "Store open successfully",
       });
     }, 1000);
   };

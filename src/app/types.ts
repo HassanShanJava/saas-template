@@ -10,18 +10,18 @@ export interface counterTableType {
 export interface counterDataType {
   id?: number;
   name: string;
-  assigned_cashier:{
-    id:number,
-    name:string
-  }[]
-  status?:string;
+  assigned_cashier: {
+    id: number;
+    name: string;
+  }[];
+  status?: string;
 }
 
-export interface CreateCounter{
+export interface CreateCounter {
   id?: number;
-  name?:string;
-  assigned_cashier?:number[];
-  status?:string;
+  name?: string;
+  assigned_cashier?: number[];
+  status?: string;
 }
 
 export interface mealPlanTableType {
@@ -136,7 +136,7 @@ export interface resourceTypes {
   access_type?: string;
   children?: resourceTypes[];
   is_parent: boolean;
-  index:number;
+  index: number;
   is_root: boolean;
   link: string;
   icon: string;
@@ -1384,4 +1384,21 @@ export interface workoutDayExerciseInput {
   distance?: number | null;
   speed?: number | null;
   met_id?: number | null;
+}
+
+export interface RegisterSession {
+  sessionId: string;
+  openingTime: string;
+  openingBalance: number;
+  closingTime: string;
+  closingBalance: number;
+  discrepancy: number;
+  created_by: string;
+  notes: string;
+}
+
+export interface RegisterationTableType {
+  data: RegisterSession[];
+  total_counts: number;
+  filtered_counts: number;
 }

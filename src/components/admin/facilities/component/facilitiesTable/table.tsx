@@ -365,7 +365,7 @@ export default function FacilitiesTableView() {
             }
             disabled={facilities == "read"}
           >
-            <SelectTrigger className="h-8">
+            <SelectTrigger className="h-8 max-w-36">
               <SelectValue placeholder="Status" className="text-gray-400">
                 <span className="flex gap-2 items-center">
                   <span

@@ -35,7 +35,7 @@ const ProtectedRoute = () => {
 
   // Redirect to dashboard if authenticated and trying to access the login page
   if (isAuthenticated && location.pathname === "/") {
-    return <Navigate to="/admin/dashboard" />;
+    return <Navigate to={sidePanel[0]} />;
   }
 
   // Check if the current path is not in the links array and redirect to the first available link

@@ -78,6 +78,8 @@ const DashboardLayout: React.FC = () => {
 
   }
 
+  const goBack=()=>navigate('/')
+
   console.log({ sidePanel, seperatePanel, seperatePanelCode, code })
   return (
     <div className="font-poppins flex h-full w-full relative ">
@@ -105,7 +107,7 @@ const DashboardLayout: React.FC = () => {
             </span>
           </Link>}
 
-          {code == 'pos' && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={closePOSPanel}>
+        {code == 'pos' && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={()=>goBack}>
             <i className="rounded-[50%] fa fa-arrow-left px-2 py-0.5 text-lg border-2 border-primary text-primary"></i>
             <span
               className={`${!isSidebarOpen && "hidden"} text-2xl text-center font-extrabold`}

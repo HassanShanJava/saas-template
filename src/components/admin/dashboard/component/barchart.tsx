@@ -57,11 +57,11 @@ const SimpleBarChart = () => {
     <Card className="p-2">
       <Card
         style={{ backgroundColor: "#200119", padding: "10px" }}
-        className="h-[40vh] w-full max-w-2xl rounded-xl"
+        className="h-[40vh] max-h-[300px] w-full max-w-2xl rounded-xl"
       >
-        <CardContent className="p-0 justify-center flex items-center">
+        <CardContent className="p-0 justify-center flex items-center ">
           <BarChart
-            width={400}
+            width={460}
             height={200}
             data={data}
             margin={{
@@ -91,7 +91,7 @@ const SimpleBarChart = () => {
             <Bar
               dataKey="uv"
               fill="#ffffff"
-              barSize={14}
+              barSize={10}
               shape={<CustomBar />}
             />
           </BarChart>

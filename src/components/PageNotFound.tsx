@@ -1,31 +1,19 @@
+import { RootState } from "@/app/store";
 import { extractLinks } from "@/utils/helper";
 import React from "react";
 import { FaHome, FaFrown } from "react-icons/fa";
 import { GiRollingDices } from "react-icons/gi";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 const NotFoundPage = () => {
+  const orgId = useSelector(
+    (state: RootState) => state.auth.userInfo?.user?.org_id
+  );
   const sidepanel = localStorage.getItem("sidepanel");
   const decodedSidepanel = JSON.parse(atob(sidepanel as string));
-  const filteredPanel = decodedSidepanel.filter((sidepanel: any) => {
-    // If the parent has no children, handle based on the parent's access_type
-    if (!sidepanel.children || sidepanel.children.length === 0) {
-      return sidepanel.access_type !== "no_access";
-    }
-
-    // If the parent has children, filter out the children with access_type == "no_access"
-    const filteredChildren = sidepanel.children.filter((child: any) => child.access_type !== "no_access");
-
-    // If after filtering, no children are left, we filter out the parent as well
-    if (filteredChildren.length === 0) {
-      return false; // Filter out the parent if all children have "no_access"
-    }
-
-    // Otherwise, keep the parent and assign the filtered children
-    sidepanel.children = filteredChildren;
-    return true;
-  });
-  const links = extractLinks(filteredPanel)
+  const links = extractLinks(decodedSidepanel)
+  console.log({links})
   return (
     <div style={containerStyle}>
       <div style={iconContainerStyle}>
@@ -36,7 +24,7 @@ const NotFoundPage = () => {
       <p style={messageStyle}>
         It seems like the page you're looking for doesn't exist.
       </p>
-      <Link to={links[0]} style={linkStyle} className="text-primar">
+      <Link to={orgId == 21 ? "/admin/dashboard" : links[0]} style={linkStyle} className="text-primar">
         <FaHome style={homeIconStyle} className="text-primary" />{" "}
         <span className="text-primary">Go back to Home</span>
       </Link>

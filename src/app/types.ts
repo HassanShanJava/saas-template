@@ -113,6 +113,7 @@ export interface resourceTypes {
   access_type?: string;
   children?: resourceTypes[];
   is_parent: boolean;
+  index:number;
   is_root: boolean;
   link: string;
   icon: string;
@@ -1267,7 +1268,7 @@ export interface exercises {
   notes?: string;
   distance: number;
   speed: number;
-  met_value?: number | null;
+  met_id?: number | null;
   id: number;
   exercise_name: string;
   gif_url: string;
@@ -1306,7 +1307,7 @@ export interface exerciseByWorkoutDayUpdateResponse {
   distance?: number;
   sets?: number;
   speed?: number;
-  met_value?: number;
+  met_id?: number;
   seconds_per_set?: number[];
   notes?: string;
   repetitions_per_set?: number[];
@@ -1340,7 +1341,7 @@ export interface getWorkoutdayExerciseResponse {
   notes?: string;
   distance?: number;
   speed?: number;
-  met_value?: number;
+  met_id?: number;
   id: number;
   exercise_name: string;
   gif_url: string;
@@ -1359,5 +1360,5 @@ export interface workoutDayExerciseInput {
   notes?: string;
   distance?: number | null;
   speed?: number | null;
-  met_value?: number | null;
+  met_id?: number | null;
 }

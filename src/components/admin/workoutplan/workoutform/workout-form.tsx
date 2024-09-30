@@ -34,6 +34,8 @@ import {
   FormMessage,
   FormControl,
 } from "@/components/ui/form";
+import { useLocation } from "react-router-dom"; // Import useLocation
+
 import { useEffect, useState } from "react";
 import { useRef } from "react";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
@@ -63,10 +65,15 @@ import {
 import { processAndUploadImages } from "@/constants/workout";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { useGetWorkoutByIdQuery } from "@/services/workoutService";
+import {
+  useGetWorkoutByIdQuery,
+  useVerifyWorkoutCreationMutation,
+} from "@/services/workoutService";
 import { initialValue } from "@/constants/workout/index";
 export type ContextProps = { form: UseFormReturn<Workout> };
 const WorkoutPlanForm = () => {
+  const location = useLocation(); // Use useLocation to get the current location
+
   const { workoutId } = useParams<{ workoutId: string }>(); // Extract workoutId
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -76,7 +83,16 @@ const WorkoutPlanForm = () => {
     +parseInt(location.pathname.split("/").slice(-2, -1)[0])
   );
   const [deleteWorkout, { isLoading: isDeleting }] = useDeleteWorkoutMutation();
+  const [
+    verifyWorkout,
+    { isLoading: isVerifyLoading, isError: isVerifyError },
+  ] = useVerifyWorkoutCreationMutation();
 
+  // Extract mode from query parameters
+  // Extract mode from query parameters
+  const queryParams = new URLSearchParams(location.search);
+  const mode = queryParams.get("mode") || "add";
+  const [formMode, setFormMode] = useState(mode);
   const {
     data: workoutdataStep1,
     error: workoutError,
@@ -129,11 +145,13 @@ const WorkoutPlanForm = () => {
       (activeStep === 2 && !isSubmitted && !isSubmitting)
     ) {
       setActiveStep(1);
-      navigate("/admin/workoutplans/add/step/1");
+      navigate(`/admin/workoutplans/add/step/1?${queryParams.toString()}`);
     } else {
       // Navigate to the current step, including workoutId if it exists
       const workoutIdPart = workoutIdState ? `/${workoutIdState}` : "";
-      navigate(`/admin/workoutplans/add/step/${activeStep}${workoutIdPart}`);
+      navigate(
+        `/admin/workoutplans/add/step/${activeStep}${workoutIdPart}?${queryParams.toString()}`
+      );
     }
 
     if (workoutdataStep1 && !isSubmitted) {
@@ -179,44 +197,28 @@ const WorkoutPlanForm = () => {
       );
 
       if (daysWithExercises.length === 0) {
-        // toast.error(
-        //   "The workout must have at least one day with one exercise."
-        // // );
         toast({
           variant: "destructive",
-          // title: "Error in form Submission",
           description: `The workout must have at least one day with one exercise.`,
         });
       } else if (
         formData.days.length > 1 &&
         daysWithExercises.length !== formData.days.length
       ) {
-        // toast.error(
-        //   "If there are multiple days, each day must have at least one exercise."
-        // );
         toast({
           variant: "destructive",
-          // title: "Error in form Submission",
           description: `If there are multiple days, each day must have at least one exercise.`,
         });
       } else {
         try {
-          // Save the form with all values
-          // await saveWorkoutForm(formData);
-          // toast.success("Workout saved successfully!");
           toast({
             variant: "success",
-            // title: "Error in form Submission",
             description: `Workout saved successfully!`,
           });
-          // Close the form or navigate away
-          // ...
         } catch (error) {
           console.error("Failed to save workout:", error);
-          // toast.error("Failed to save workout. Please try again.");
           toast({
             variant: "destructive",
-            // title: "Error in form Submission",
             description: `Failed to save workout. Please try again.`,
           });
         }
@@ -224,10 +226,8 @@ const WorkoutPlanForm = () => {
     } else {
       toast({
         variant: "destructive",
-        // title: "Error in form Submission",
         description: `Workout data is not available. Please try again.`,
       });
-      // toast.error("Workout data is not available. Please try again.");
     }
 
     setIsSubmitting(false);
@@ -261,34 +261,6 @@ const WorkoutPlanForm = () => {
         workout_name: data.workout_name.toLowerCase(),
       };
       delete payload.file;
-      // console.log("final Payload", payload);
-      // const resp=await createWorkout(payload).unwrap();
-      // if (resp) {
-      //   console.log({ resp });
-      // }
-
-      // let resp;
-      // if (workoutIdState) {
-      //   resp = await updateWorkout({ id: workoutIdState, ...payload }).unwrap(); // Use your update mutation here
-      //   console.log("updated data", { payload });
-      //   if (resp) {
-      //     setWorkoutIdState(resp.workout_id); // Set the workout ID
-      //     const newActiveStep = 2;
-      //     console.log("resp id", resp.workout_id, workoutIdState, workoutId);
-      //     navigate(
-      //       `/admin/workoutplans/add/step/${newActiveStep}/${resp.workout_id}`
-      //     ); // Navigate to step 2 with ID
-      //   }
-      // } else {
-      //   // Create new workout
-      //   resp = await createWorkout(payload).unwrap();
-      //   if (resp) {
-      //     setWorkoutIdState(resp.id); // Set the workout ID
-      //     const newActiveStep = 2;
-      //     console.log("resp id", resp.id, workoutIdState, workoutId);
-      //     navigate(`/admin/workoutplans/add/step/${newActiveStep}/${resp.id}`); // Navigate to step 2 with ID
-      //   }
-      // }
 
       let resp;
       if (workoutIdState) {
@@ -299,15 +271,13 @@ const WorkoutPlanForm = () => {
           const newActiveStep = 2;
           console.log("resp id", resp.workout_id, workoutIdState, workoutId);
           navigate(
-            `/admin/workoutplans/add/step/${newActiveStep}/${resp.workout_id}`
+            `/admin/workoutplans/add/step/${newActiveStep}/${resp.workout_id}?${queryParams.toString()}`
           );
         } else {
           toast({
             variant: "destructive",
-            // title: "Error in form Submission",
             description: `Failed to create workout`,
           });
-          // throw new Error("No workout_id received after update");
         }
       } else {
         // Create new workout
@@ -316,12 +286,12 @@ const WorkoutPlanForm = () => {
           setWorkoutIdState(resp.id);
           const newActiveStep = 2;
           console.log("resp id", resp.id, workoutIdState, workoutId);
-          navigate(`/admin/workoutplans/add/step/${newActiveStep}/${resp.id}`);
+          navigate(
+            `/admin/workoutplans/add/step/${newActiveStep}/${resp.id}?${queryParams.toString()}`
+          );
         } else {
-          // throw new Error("No id received after creation");
           toast({
             variant: "destructive",
-            // title: "Error in form Submission",
             description: `Failed to create workout`,
           });
         }
@@ -353,7 +323,7 @@ const WorkoutPlanForm = () => {
     });
   };
   const handleClose = async () => {
-    if (workoutIdState) {
+    if (formMode === "add" && workoutIdState) {
       try {
         await deleteWorkout(workoutIdState).unwrap();
         toast({
@@ -399,6 +369,59 @@ const WorkoutPlanForm = () => {
       }
     }
   }, [workoutError, navigate]);
+
+  const navigateToStep = (step: number) => {
+    const newUrl = `/admin/workoutplans/add/step/${step}/${workoutIdState}?${queryParams.toString()}`;
+    setActiveStep(step);
+    navigate(newUrl);
+  };
+
+  const handleVerifyWorkout = async () => {
+    try {
+      if (workoutIdState) {
+        const payload = {
+          id: workoutIdState,
+        };
+        const verifyData = await verifyWorkout(payload).unwrap();
+        console.log(verifyData?.status, verifyData?.status === 200);
+        if (verifyData?.status === 200) {
+          toast({
+            variant: "success",
+            description: "Workout saved successfully!",
+          });
+          navigate("/admin/workoutplans"); // Navigate to admin/workoutplans on success
+        } else {
+          toast({
+            variant: "destructive",
+            description:
+              "Each day must have at least one exercise and one day.",
+          });
+        }
+      } else {
+        toast({
+          variant: "destructive",
+          description: "Failed to verify workout.",
+        });
+      }
+    } catch (error) {
+      console.error("Verification error:", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          description:
+            typedError.data?.detail ||
+            "An error occurred during verification. Please try again.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          description:
+            "An error occurred during verification. Please try again.",
+        });
+      }
+    }
+  };
   return (
     <Sheet open={true}>
       <SheetContent
@@ -412,28 +435,30 @@ const WorkoutPlanForm = () => {
                 <p className="font-semibold">Workout Plans</p>
               </div>
               <div className="flex justify-center space-x-[20px]">
-                <Button
+                <LoadingButton
                   type="button"
                   className="w-[100px] text-center flex items-center gap-2 border-primary"
                   variant={"outline"}
                   onClick={handleClose}
+                  loading={isDeleting}
                 >
                   <i className="fa fa-xmark "></i>
                   Cancel
-                </Button>
+                </LoadingButton>
 
                 {activeStep !== 1 && (
                   <Button
                     className="w-[100px] px-2 text-center flex items-center gap-2 border-primary"
                     type="button"
                     variant={"outline"}
-                    onClick={() => {
-                      const newActive = activeStep - 1;
-                      setActiveStep(newActive);
-                      navigate(
-                        `/admin/workoutplans/add/step/${newActive}/${workoutIdState}`
-                      );
-                    }}
+                    // onClick={() => {
+                    //   const newActive = activeStep - 1;
+                    //   setActiveStep(newActive);
+                    //   navigate(
+                    //     `/admin/workoutplans/add/step/${newActive}/${workoutIdState}`
+                    //   );
+                    // }}
+                    onClick={() => navigateToStep(activeStep - 1)}
                   >
                     <i className="fa fa-arrow-left-long "></i>
                     Previous
@@ -444,11 +469,11 @@ const WorkoutPlanForm = () => {
                   <LoadingButton
                     type="submit"
                     className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                    onClick={handleSubmit(onSubmit)}
-                    loading={isSubmitting}
+                    onClick={handleVerifyWorkout}
+                    loading={isVerifyLoading}
                     disabled={isSubmitting || workoutidDataLoading}
                   >
-                    {!isSubmitting && (
+                    {!isVerifyLoading && (
                       <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                     )}
                     Save
@@ -462,7 +487,8 @@ const WorkoutPlanForm = () => {
                         await onSubmit(data);
                         console.log("Step of action active", activeStep, data);
                         const newActive = activeStep + 1;
-                        setActiveStep(newActive);
+                        // setActiveStep(newActive);
+                        navigateToStep(activeStep + 1);
                       }, onError)();
                     }}
                     loading={
@@ -489,8 +515,8 @@ const WorkoutPlanForm = () => {
             <StepperIndicator
               activeStep={activeStep}
               labels={[
-                { key: 1, label: "Plan Information & Details" },
-                { key: 2, label: "Training & Exercise Details" },
+                { key: 1, label: "Plan Information" },
+                { key: 2, label: "Training & Exercise" },
               ]}
               lastKey={LAST_STEP}
             />

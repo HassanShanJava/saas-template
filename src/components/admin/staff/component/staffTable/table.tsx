@@ -494,7 +494,7 @@ export default function StaffTableView() {
                 country_id: row.original?.country_id,
               })
             }
-            disabled={value == "pending"}
+            disabled={value == "pending" || staff == "read"}
           >
             <SelectTrigger className="h-8">
               <SelectValue placeholder="Status" className="text-gray-400">

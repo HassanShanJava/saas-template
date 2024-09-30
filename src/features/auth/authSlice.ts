@@ -1,3 +1,4 @@
+import { resourceTypes } from "@/app/types";
 import { getUserResource, loginUser } from "@/services/authService";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface User {
@@ -14,6 +15,7 @@ interface AuthState {
   userInfo: {
     user: User;
     sidepanel: Array<any>;
+    pospanel: Array<any>;
     accessLevels: Record<string, string>;
   } | null;
   error: string | null;
@@ -46,6 +48,9 @@ const authSlice = createSlice({
       localStorage.removeItem("userInfo");
       localStorage.removeItem("sidepanel");
       localStorage.removeItem("accessLevels");
+      localStorage.removeItem("counter_number");
+      localStorage.removeItem("code");
+      localStorage.removeItem("backPage");
       state.userToken = null;
       state.userInfo = null;
       state.error = null;
@@ -65,16 +70,14 @@ const authSlice = createSlice({
     builder.addCase(login.fulfilled, (state, { payload }) => {
       state.loading = false;
       state.isLoggedIn = true;
-      state.userInfo = { user: payload.user, sidepanel: payload.sidepanel, accessLevels: payload.accessLevels };
+      state.userInfo = { user: payload.user, sidepanel: payload.sidepanel, accessLevels: payload.accessLevels, pospanel:payload.pospanel };
       state.userToken = payload.token.access_token;
       state.error = null;
-      const stringifiedData = JSON.stringify(payload.sidepanel);
-      const encodedData = btoa(stringifiedData);
-      console.log(payload.accessLevels, "accessLevels")
-      localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); // Set userInfo in local storage
-      localStorage.setItem("sidepanel", encodedData); // Set sidepanel in local storage
-      localStorage.setItem("accessLevels", JSON.stringify(payload.accessLevels)); // Set sidepanel in local storage
-      localStorage.setItem("userToken", payload.token.access_token); // Set userToken in local storage
+      localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); 
+      localStorage.setItem("sidepanel", payload.sidepanel); 
+      localStorage.setItem("posPanel", payload.pospanel); 
+      localStorage.setItem("accessLevels", JSON.stringify(payload.accessLevels)); 
+      localStorage.setItem("userToken", payload.token.access_token);
     });
     builder.addCase(login.rejected, (state, { payload }) => {
       state.loading = false;
@@ -98,15 +101,67 @@ export const login = createAsyncThunk(
       }: { data: { token: { access_token: string }; user?: any } } =
         await loginUser(email, password);
 
-      const { data: userRoles } = await getUserResource(data.user.role_id, data.token.access_token)
-      console.log({ userRoles });
-      const accessLevels = extractAccessCodes(userRoles)
-      if (userRoles && accessLevels) {
-        const stringifiedData = JSON.stringify(userRoles);
+      const { data: userResource } = await getUserResource(data.user.role_id, data.token.access_token)
+      const payload: Record<string, any> = { ...data }
+      const accessLevels = extractAccessCodes(userResource)
+      if (userResource && accessLevels) {
+        const sortByIndex = (a: resourceTypes, b: resourceTypes) =>
+          a.index - b.index;
+
+        // Recursive sorting function for children
+        const sortResources = (resources: resourceTypes[]): resourceTypes[] =>
+          resources
+            .map((resource) => ({
+              ...resource,
+              children: resource.children
+                ? sortResources([...resource.children].sort(sortByIndex))
+                : undefined, // recursively sort children if present
+            }))
+            .sort(sortByIndex); // sort the main array by index
+
+        // 1. sort the sidepanel based on the index field
+        const sortUserResource = sortResources(userResource)
+
+        // 2. filter any resources that have no_access
+        const filterUserResource = sortUserResource.filter((sidepanel: any) => {
+          // If the parent has no children, handle based on the parent's access_type
+          if (!sidepanel.children || sidepanel.children.length === 0) {
+            return sidepanel.access_type !== "no_access";
+          }
+
+          // If the parent has children, filter out the children with access_type == "no_access"
+          const filteredChildren = sidepanel.children.filter((child: any) => child.access_type !== "no_access");
+
+          // If after filtering, no children are left, we filter out the parent as well
+          if (filteredChildren.length === 0) {
+            return false; // Filter out the parent if all children have "no_access"
+          }
+
+          // Otherwise, keep the parent and assign the filtered children
+          sidepanel.children = filteredChildren;
+          return true;
+        })
+
+        // 3. extract the pos sidepanel if possible
+        const posPanel = filterUserResource.find((item: resourceTypes) => item.is_root && item.code == "pos")
+        
+        // 4. set sidepanel in localstorage as base64 encoded 
+        const stringifiedData = JSON.stringify(filterUserResource);
         const encodedData = btoa(stringifiedData);
         localStorage.setItem("sidepanel", encodedData);
-        localStorage.setItem("accessLevels", JSON.stringify(accessLevels)); // Set sidepanel in local storage
+        
+        // 5. set pos sidepanel in localstorage as base64 encoded
+        const posPanelStringified = JSON.stringify(posPanel)
+        const encodedPosPanel = btoa(posPanelStringified);
+        localStorage.setItem("posPanel", encodedPosPanel);
 
+        // 6. set accessLevels in local storage
+        localStorage.setItem("accessLevels", JSON.stringify(accessLevels)); 
+
+        // 7. set pospanel and sidepanel in redux state
+        payload.sidepanel = encodedData;
+        payload.pospanel = encodedPosPanel;
+        payload.accessLevels = accessLevels;
       }
       localStorage.setItem("userToken", data.token?.access_token);
       if (rememberme) {
@@ -118,7 +173,7 @@ export const login = createAsyncThunk(
         if (localStorage.getItem("password") != null)
           localStorage.removeItem("password");
       }
-      return { ...data, sidepanel: userRoles, accessLevels: accessLevels };
+      return payload;
     } catch (e: any) {
       console.log(e);
       localStorage.removeItem("password");

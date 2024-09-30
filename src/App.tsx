@@ -37,6 +37,7 @@ import PaymentMethods from "./components/admin/pos/payment_methods";
 import CashManagement from "./components/admin/pos/cash_management";
 import Register from "./components/admin/pos/register";
 import SaleHistory from "./components/admin/pos/sales_history";
+import CounterSelection from "./components/admin/pos/counter_management/counter-selection"
 
 function App() {
   const loading = useSelector((state: RootState) =>
@@ -81,19 +82,22 @@ function App() {
               </Route>
             </Route>
 
-            <Route path="/admin/pos/sell" element={<Sell />} />
-            <Route path="/admin/pos/salesHistory" element={<SaleHistory />} />
-            <Route path="/admin/pos/register" element={<Register />} />
-            <Route path="/admin/pos/cash" element={<CashManagement />} />
-            <Route
-              path="/admin/pos/paymentMethods"
-              element={<PaymentMethods />}
-            />
-            <Route path="/admin/pos/counter" element={<CounterManagement />} />
-            <Route path="/notfound" element={<NotFoundPage />} />
-            <Route path="*" element={<Navigate to="/notfound" replace />} />
+            <Route path="/admin/pos/">
+              <Route path="sell" element={<Sell />} />
+              <Route path="salesHistory" element={<SaleHistory />} />
+              <Route path="register" element={<Register />} />
+              <Route path="cash" element={<CashManagement />} />
+              <Route
+                path="paymentMethods"
+                element={<PaymentMethods />}
+              />
+              <Route path="counter" element={<CounterManagement />} />
+            </Route>
           </Route>
+          <Route path="/notfound" element={<NotFoundPage />} />
+          <Route path="*" element={<Navigate to="/notfound" replace />} />
         </Route>
+        <Route path="/counter-selection" element={<CounterSelection />} />
       </Routes>
       <Loader open={loading} />
     </>

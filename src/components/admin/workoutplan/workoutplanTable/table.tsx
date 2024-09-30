@@ -51,13 +51,20 @@ import {
   workoutGoals,
   workoutLevels,
 } from "@/lib/constants/workout";
-import { useGetAllWorkoutQuery, useUpdateWorkoutgridMutation } from "@/services/workoutService";
+import {
+  useGetAllWorkoutQuery,
+  useUpdateWorkoutgridMutation,
+} from "@/services/workoutService";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { LevelsOptions} from "@/utils/Enums";
+import { LevelsOptions } from "@/utils/Enums";
 import Pagination from "@/components/ui/table/pagination-table";
 import usePagination from "@/hooks/use-pagination";
 export default function WorkoutPlansTableView() {
+  const { workout } = JSON.parse(
+    localStorage.getItem("accessLevels") as string
+  );
+
   const navigate = useNavigate();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -157,7 +164,7 @@ export default function WorkoutPlansTableView() {
   const WorkoutTableData = useMemo(() => {
     return (workoutdata?.data ?? []) as WorkoutPlanView[];
   }, [workoutdata]);
-    const [updateGrid]=useUpdateWorkoutgridMutation();
+  const [updateGrid] = useUpdateWorkoutgridMutation();
 
   type UpdatePayload = {
     id: number;
@@ -212,6 +219,18 @@ export default function WorkoutPlansTableView() {
     }
   };
 
+  const actionsColumn: ColumnDef<WorkoutPlanView> = {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={workout}
+        row={row.original.id}
+        data={row?.original}
+        refetch={refetch}
+      />
+    ),
+  };
   const columns: ColumnDef<WorkoutPlanView>[] = [
     {
       accessorKey: "Plan name",
@@ -273,10 +292,11 @@ export default function WorkoutPlansTableView() {
         let goals = row.original.goals;
         return (
           <Select
-            value={goals} 
+            value={goals}
             onValueChange={(newValue) => {
               handleUpdate({ id: id, weeks: weeks, goals: newValue }, "goal");
             }}
+            disabled={workout === "read"}
           >
             <SelectTrigger className="w-[200px]">
               <SelectValue className="text-gray-400">
@@ -297,7 +317,7 @@ export default function WorkoutPlansTableView() {
             </SelectContent>
           </Select>
         );
-      },  
+      },
     },
     {
       accessorKey: "level",
@@ -321,14 +341,15 @@ export default function WorkoutPlansTableView() {
         return (
           <>
             <Select
-               defaultValue={level as difficultyEnum}
-               onValueChange={(e: difficultyEnum ) => {
-                if(e){
+              defaultValue={level as difficultyEnum}
+              onValueChange={(e: difficultyEnum) => {
+                if (e) {
                   handleUpdate({ id: id, weeks: weeks, level: e }, "level");
                 }
               }}
+              disabled={workout === "read"}
             >
-              <SelectTrigger  className="w-[150px]">
+              <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="Status" className="text-gray-400">
                   <span className="flex gap-2 items-center">
                     <span>{level}</span>
@@ -398,21 +419,7 @@ export default function WorkoutPlansTableView() {
         );
       },
     },
-    {
-      accessorKey: "action",
-      header: ({ table }) => <span>Actions</span>,
-      cell: ({ row }) => {
-        return (
-          <DataTableRowActions
-            row={row.original.id}
-            data={row?.original}
-            refetch={refetch}
-          />
-        );
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
+    ...(workout !== "read" ? [actionsColumn] : []),
   ];
 
   const table = useReactTable({
@@ -542,13 +549,15 @@ export default function WorkoutPlansTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
-            className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
-            onClick={() => handleOpen()}
-          >
-            <PlusIcon className="size-4" />
-            Create New
-          </Button>
+          {workout !== "read" && (
+            <Button
+              className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
+              onClick={() => handleOpen()}
+            >
+              <PlusIcon className="size-4" />
+              Create New
+            </Button>
+          )}
           <button
             className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}
@@ -612,7 +621,7 @@ export default function WorkoutPlansTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : WorkoutTableData.length == 0 ? (
+              ) : totalRecords ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}

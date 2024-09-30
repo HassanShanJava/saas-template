@@ -1,5 +1,6 @@
 import { ExerciseTypeEnum, IntensityEnum } from "@/app/types";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner/spinner";
 import { cn } from "@/lib/utils";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
@@ -30,6 +31,7 @@ interface WorkoutDayExerciseyProps {
   onDuplicate: (exercise: Exercise, id: number) => void;
   onDelete: (id: number) => void;
   onClick: () => void;
+  isDeleteLoading: boolean;
   //onUpdate: (id: number, updatedDay: WorkoutDayOptional) => void;
 }
 export default function WorkoutDayExerciseComponent({
@@ -38,10 +40,10 @@ export default function WorkoutDayExerciseComponent({
   onDelete,
   onClick,
   selected,
+  isDeleteLoading,
 }: WorkoutDayExerciseyProps) {
   return (
     <div
-      onClick={onClick}
       className={cn(
         "border border-black/25 rounded-lg p-2 cursor-pointer hover:border-primary",
         selected && "border-primary"
@@ -65,7 +67,10 @@ export default function WorkoutDayExerciseComponent({
             {/* {exercise.equipments.map((e) => e.name).join(", ")} */}
           </span>
         </div>
-        <div className="flex gap-x-1 align-center">
+        <div className="flex gap-x-4 align-center ">
+          <Button onClick={onClick} className="h-auto p-0" variant="ghost">
+            <i className="fa fa-pencil" aria-hidden="true"></i>
+          </Button>
           <Button
             onClick={() => {
               onDuplicate(exercise, exercise?.id || 0);
@@ -82,7 +87,11 @@ export default function WorkoutDayExerciseComponent({
             className="h-auto p-0"
             variant="ghost"
           >
-            <i className="fa-regular fa-trash-can"></i>
+            {selected && isDeleteLoading ? (
+              <Spinner className="h-4 w-4" /> // Show spinner when deleting
+            ) : (
+              <i className="fa-regular fa-trash-can"></i>
+            )}
           </Button>
         </div>
       </div>

@@ -24,6 +24,9 @@ interface WorkoutQueryParams {
   include_days?: boolean;
   include_days_and_exercises?: boolean;
 }
+interface verifyWorkout {
+  id: number;
+}
 export const workoutApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     addWorkout: builder.mutation<workoutResponse, Workout>({
@@ -211,6 +214,21 @@ export const workoutApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Workout"],
     }),
+    verifyWorkoutCreation: builder.mutation<
+      { message: string; status: number },
+      verifyWorkout
+    >({
+      query: (workoutId) => ({
+        url: `/workout/verify`,
+        method: "POST",
+        body: workoutId,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }),
+      invalidatesTags: ["Workout"],
+    }),
   }),
 });
 
@@ -228,5 +246,6 @@ export const {
   useAddExerciseInWorkoutMutation,
   useUpdateExerciseInWorkoutMutation,
   useGetExerciseByWorkoutDayIdQuery,
-  useDeleteExerciseInWorkoutdayMutation
+  useDeleteExerciseInWorkoutdayMutation,
+  useVerifyWorkoutCreationMutation,
 } = workoutApi;

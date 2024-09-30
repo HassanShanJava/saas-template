@@ -363,6 +363,7 @@ export default function FacilitiesTableView() {
             onValueChange={(e) =>
               handleStatusChange({ status: e, id: id, org_id: org_id })
             }
+            disabled={facilities == "read"}
           >
             <SelectTrigger className="h-8">
               <SelectValue placeholder="Status" className="text-gray-400">
@@ -387,7 +388,7 @@ export default function FacilitiesTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    ...(facilities !== "read" ? [actionsColumn] : []),  
+    ...(facilities !== "read" ? [actionsColumn] : []),
   ];
 
   const table = useReactTable({
@@ -935,8 +936,8 @@ const CreditForm = ({
                                   <span className="flex gap-2 items-center">
                                     <span
                                       className={`w-2 h-2 rounded-full ${field.value == "active"
-                                          ? "bg-green-500"
-                                          : "bg-blue-500"
+                                        ? "bg-green-500"
+                                        : "bg-blue-500"
                                         }`}
                                     ></span>
                                     {field.value == "active"

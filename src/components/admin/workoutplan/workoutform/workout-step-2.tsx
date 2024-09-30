@@ -913,7 +913,7 @@ const WorkoutStep2: React.FC = () => {
                 <></>
               )}
             </div>
-            {selectedDay && (
+            {/* {selectedDay && (
               <div className="text-sm text-gray-600 bg-primary/20 p-2 rounded-md">
                 Selected: Week {selectedDay.week}, Day {selectedDay.day} -{" "}
                 {selectedDay.day_name && selectedDay.day_name.length > 8 ? (
@@ -931,7 +931,7 @@ const WorkoutStep2: React.FC = () => {
                   selectedDay.day_name
                 )}
               </div>
-            )}
+            )} */}
             <div className="space-y-2">
               {addExerciseLoading && (
                 <span className="flex items-center gap-2 justify-center text-sm">
@@ -968,7 +968,7 @@ const WorkoutStep2: React.FC = () => {
               ) : (
                 <div className="text-center text-gray-500 mt-4">
                   {selectedDay
-                    ? "No exercises found for this workout"
+                    ? "No exercise found for this workout day"
                     : "Select a day to add exercises"}
                 </div>
               )}{" "}
@@ -1484,10 +1484,7 @@ const WorkoutStep2: React.FC = () => {
                 </>
               ) : (
                 <span className="flex flex-grow justify-center items-center">
-                  <div className="text-center">
-                    No exercise selected, please select an exercise to update
-                    it.
-                  </div>
+                  <div className="text-center">No exercise Selected</div>
                 </span>
               )}
             </form>

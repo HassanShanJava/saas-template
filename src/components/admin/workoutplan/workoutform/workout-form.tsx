@@ -322,23 +322,16 @@ const WorkoutPlanForm = () => {
       description: "Please fill all the mandatory fields",
     });
   };
+
   const handleClose = async () => {
     if (formMode === "add" && workoutIdState) {
       try {
         await deleteWorkout(workoutIdState).unwrap();
-        toast({
-          variant: "success",
-          description: "Workout deleted successfully",
-        });
+        navigate("/admin/workoutplans");
       } catch (error) {
         console.error("Failed to delete workout:", error);
-        toast({
-          variant: "destructive",
-          description: "Failed to delete workout",
-        });
       }
     }
-    navigate("/admin/workoutplans");
   };
 
   console.log(
@@ -474,7 +467,7 @@ const WorkoutPlanForm = () => {
                 ) : (
                   <LoadingButton
                     type="button"
-                    className="w-[130px] bg-primary text-black text-center flex items-center gap-2"
+                    className="w-[200px] bg-primary text-black text-center flex items-center gap-2"
                     onClick={() => {
                       form.handleSubmit(async (data) => {
                         await onSubmit(data);
@@ -495,7 +488,7 @@ const WorkoutPlanForm = () => {
                       <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                     )}
                     <i className="fa fa-arrow-right-long "></i>
-                    Next
+                    Save & Next
                   </LoadingButton>
                 )}
               </div>

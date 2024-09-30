@@ -23,7 +23,7 @@ const Dashboard = () => {
       {/* dashborad tiles */}
       <CardComponent />
       
-      <div className="grid grid-cols-2 gap-x-6 px-4">
+      <div className="grid grid-cols-2 gap-x-6 px-4 ">
       {/* dashborad graphs  */}
         <SimpleBarChart />
         <SplineChart />

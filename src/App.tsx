@@ -32,12 +32,12 @@ import ForgotPasword from "./components/app/login/forgot_password";
 
 // pos
 import Sell from "./components/admin/pos/sell";
-import CounterManagement from "./components/admin/pos/counter_management";
-import PaymentMethods from "./components/admin/pos/payment_methods";
+import CounterManagement from "./components/admin/counter_management";
+import PaymentMethods from "./components/admin/payment_methods";
 import CashManagement from "./components/admin/pos/cash_management";
 import Register from "./components/admin/pos/register";
 import SaleHistory from "./components/admin/pos/sales_history";
-import CounterSelection from "./components/admin/pos/counter_management/counter-selection"
+import CounterSelection from "./components/admin/counter_management/counter-selection"
 
 function App() {
   const loading = useSelector((state: RootState) =>
@@ -87,12 +87,12 @@ function App() {
               <Route path="salesHistory" element={<SaleHistory />} />
               <Route path="register" element={<Register />} />
               <Route path="cash" element={<CashManagement />} />
-              <Route
-                path="paymentMethods"
-                element={<PaymentMethods />}
-              />
-              <Route path="counter" element={<CounterManagement />} />
             </Route>
+            <Route
+              path="/admin/paymentMethods"
+              element={<PaymentMethods />}
+            />
+            <Route path="/admin/counter" element={<CounterManagement />} />
           </Route>
           <Route path="/notfound" element={<NotFoundPage />} />
           <Route path="*" element={<Navigate to="/notfound" replace />} />

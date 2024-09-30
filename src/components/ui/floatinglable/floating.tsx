@@ -13,8 +13,8 @@ type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 type CommonProps = Omit<InputProps, "onAbort"> &
   Omit<TextareaProps, "onAbort"> & {
     onAbort?:
-      | ((event: React.SyntheticEvent<Element, Event>) => void)
-      | undefined;
+    | ((event: React.SyntheticEvent<Element, Event>) => void)
+    | undefined;
   };
 
 export interface FloatingLabelInputProps extends CommonProps {
@@ -22,6 +22,7 @@ export interface FloatingLabelInputProps extends CommonProps {
   error?: string;
   autoComplete?: string;
   labelClassname?: string;
+  icon?: React.ReactNode;
 }
 
 const FloatingInput = React.forwardRef<
@@ -96,20 +97,46 @@ FloatingLabel.displayName = "FloatingLabel";
 const FloatingLabelInput = React.forwardRef<
   React.ElementRef<typeof FloatingInput>,
   React.PropsWithoutRef<FloatingLabelInputProps>
->(({ id, label, error, type, rows, labelClassname = "", ...props }, ref) => {
-  const isTextarea = type === "textarea";
+>(
+  (
+    {
+      id,
+      label,
+      error,
+      type,
+      rows,
+      icon,
+      labelClassname = "",
+      ...props
+    },
+    ref
+  ) => {
+    const isTextarea = type === "textarea";
 
-  return (
-    <div className="font-poppins ">
-      <div className="relative">
-        <FloatingInput ref={ref} id={id} type={type} rows={rows} {...props} />
-        <FloatingLabel
-          htmlFor={id}
-          isTextarea={isTextarea}
-          className={labelClassname}
-        >
-          {label}
-        </FloatingLabel>
+    return (
+      <div className="font-poppins ">
+        <div className="relative">
+
+          {icon && (
+            <div className="absolute inset-y-0 flex items-center">
+              {icon}
+            </div>
+          )}
+
+          <FloatingInput ref={ref} id={id} type={type} rows={rows} {...props} />
+          <FloatingLabel
+            htmlFor={id}
+            isTextarea={isTextarea}
+            className={labelClassname}
+          >
+            {label}
+          </FloatingLabel>
+        </div>
+        {error && (
+          <span className="text-destructive font-poppins block !mt-[5px] text-xs">
+            {error}
+          </span>
+        )}
       </div>
       {error && (
         <span className="text-destructive font-poppins block !mt-[5px] text-xs">

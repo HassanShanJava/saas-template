@@ -296,8 +296,8 @@ export default function CounterTableView() {
             // }
             disabled={pos_count == "read"}
           >
-            <SelectTrigger className="h-8">
-              <SelectValue placeholder="Status" className="text-gray-400">
+            <SelectTrigger className="h-8 max-w-36">
+              <SelectValue placeholder="Status" className="text-gray-400 max-w-48 ">
                 <span className="flex gap-2 items-center">
                   <span
                     className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}

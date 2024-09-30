@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/card";
 interface OpenRegisterFormInputs {
   openingBalance: number;
-  notes?: string;
 }
 
 const OpenRegister: React.FC = () => {
@@ -81,12 +80,7 @@ const OpenRegister: React.FC = () => {
               })}
               error={errors.openingBalance?.message}
             />
-            <FloatingLabelInput
-              id="notes"
-              type="textarea"
-              label="Notes (optional)"
-              {...register("notes")}
-            />
+
             <div className="flex justify-center items-center">
               <Button
                 type="submit"

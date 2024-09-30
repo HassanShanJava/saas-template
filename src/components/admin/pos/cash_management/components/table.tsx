@@ -36,17 +36,8 @@ import Pagination from "@/components/ui/table/pagination-table";
 import { registerSessionsList } from "@/constants/cash_register";
 import usePagination from "@/hooks/use-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
-
-const downloadCSV = (data: RegisterSession[], fileName: string) => {
-  const csv = Papa.unparse(data);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
+import { sessionMapper, downloadCSV } from "@/utils/helper";
+import TableFilters from "@/components/ui/table/data-table-filter";
 
 interface searchCretiriaType {
   limit: number;
@@ -128,7 +119,7 @@ export default function CashregisterViewTable() {
       });
       return;
     }
-    downloadCSV(selectedRows, "selected_data.csv");
+    downloadCSV(selectedRows, "cash_register.csv", sessionMapper);
   };
 
   const columns: ColumnDef<RegisterSession>[] = [
@@ -456,6 +447,15 @@ export default function CashregisterViewTable() {
     setSearchCriteria,
   });
 
+  const filterDisplay = [
+    {
+      type: "select",
+      name: "visible_for",
+      label: "Discrepancy",
+      // options: visibleFor.map((item) => ({ id: item.value, name: item.label })),
+      // function: handleVisiblity,
+    },
+  ];
   console.log("limit here", searchCriteria.limit, searchCriteria.offset);
   return (
     <div className="w-full space-y-4">
@@ -568,6 +568,16 @@ export default function CashregisterViewTable() {
           isLastPage={isLastPage}
         />
       )}
+
+      <TableFilters
+        isOpen={openFilter}
+        setOpen={setOpenFilter}
+        initialValue={initialValue}
+        filterData={filterData}
+        setFilter={setFilter}
+        setSearchCriteria={setSearchCriteria}
+        filterDisplay={filterDisplay}
+      />
     </div>
   );
 }

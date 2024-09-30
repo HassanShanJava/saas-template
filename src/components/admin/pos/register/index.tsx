@@ -7,7 +7,7 @@ const Register = () => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="w-full p-5">
-      <Card className="p-4 h-[500px] flex flex-col ">
+      <Card className="p-4 h-[550px] flex flex-col ">
         <div className="flex items-center justify-between mb-4">
           <CardHeader className="border-b w-full flex justify-between items-start flex-row">
             <h2 className="text-xl font-semibold">Register</h2>

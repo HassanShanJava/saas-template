@@ -1615,7 +1615,7 @@ const WorkoutStep2: React.FC = () => {
                         placeholder="Notes"
                         {...register("notes", {
                           maxLength: {
-                            value: 350,
+                            value: 100,
                             message: "Notes cannot exceed 100 characters",
                           },
                         })}

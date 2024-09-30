@@ -13,8 +13,8 @@ type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 type CommonProps = Omit<InputProps, "onAbort"> &
   Omit<TextareaProps, "onAbort"> & {
     onAbort?:
-    | ((event: React.SyntheticEvent<Element, Event>) => void)
-    | undefined;
+      | ((event: React.SyntheticEvent<Element, Event>) => void)
+      | undefined;
   };
 
 export interface FloatingLabelInputProps extends CommonProps {
@@ -99,16 +99,7 @@ const FloatingLabelInput = React.forwardRef<
   React.PropsWithoutRef<FloatingLabelInputProps>
 >(
   (
-    {
-      id,
-      label,
-      error,
-      type,
-      rows,
-      icon,
-      labelClassname = "",
-      ...props
-    },
+    { id, label, error, type, rows, icon, labelClassname = "", ...props },
     ref
   ) => {
     const isTextarea = type === "textarea";
@@ -116,11 +107,8 @@ const FloatingLabelInput = React.forwardRef<
     return (
       <div className="font-poppins ">
         <div className="relative">
-
           {icon && (
-            <div className="absolute inset-y-0 flex items-center">
-              {icon}
-            </div>
+            <div className="absolute inset-y-0 flex items-center">{icon}</div>
           )}
 
           <FloatingInput ref={ref} id={id} type={type} rows={rows} {...props} />
@@ -138,14 +126,9 @@ const FloatingLabelInput = React.forwardRef<
           </span>
         )}
       </div>
-      {error && (
-        <span className="text-destructive font-poppins block !mt-[5px] text-xs">
-          {error}
-        </span>
-      )}
-    </div>
-  );
-});
+    );
+  }
+);
 FloatingLabelInput.displayName = "FloatingLabelInput";
 
 export { FloatingInput, FloatingLabel, FloatingLabelInput };

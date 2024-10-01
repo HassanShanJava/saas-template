@@ -80,5 +80,6 @@ export const apiSlice = createApi({
     "Members",
     "Reset",
     "Workout",
+    "Counter"
   ],
 });

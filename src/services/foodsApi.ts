@@ -21,8 +21,8 @@ export const Foods = apiSlice.injectEndpoints({
           headers: {
             Accept: "application/json",
           },
+          providesTags: ["Foods"],
         }),
-        providesTags: ["Foods"],
       }),
       createFoods: builder.mutation<any, CreateFoodTypes>({
         query: (fooddata) => ({
@@ -63,6 +63,7 @@ export const Foods = apiSlice.injectEndpoints({
           headers: {
             Accept: "application/json",
           },
+          
         }),
         providesTags: ["Foods"],
       }),

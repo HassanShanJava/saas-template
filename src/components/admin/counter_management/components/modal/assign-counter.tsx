@@ -1,4 +1,4 @@
-import { counterDataType } from "@/app/types";
+import { counterDataType, ErrorType } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
+import { useUpdateCountersMutation } from "@/services/counterApi";
 import { useEffect, useState } from "react";
 
 interface AssignCounterForm {
@@ -35,17 +36,46 @@ const AssignCounter = ({
 }: AssignCounterForm) => {
   const { toast } = useToast();
   const [cashiers, setCashiers] = useState<any[]>([]);
-
+  console.log({ data })
   useEffect(() => {
     if (data) {
-      setCashiers(data.assigned_cashier)
+      setCashiers(data.staff)
     }
   }, [data, setData])
 
 
-  const unassignCashier = (id: number) => {
+  const [updateCounter] = useUpdateCountersMutation()
+  const unassignCashier = async (id: number) => {
     const newCashierList = cashiers.filter((user) => user.id != id)
-    setCashiers(newCashierList)
+    const payload = { id: data?.id, name: data?.name, status: data?.status, staff: newCashierList }
+
+    try {
+      const resp = await updateCounter(payload).unwrap();
+      if (resp) {
+        console.log({ resp });
+        refetch();
+        toast({
+          variant: "success",
+          title: "Counter Updated Successfully",
+        });
+      }
+    } catch (error) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: typedError.data?.detail,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
   }
 
   return (
@@ -56,8 +86,8 @@ const AssignCounter = ({
       >
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>
-              Assigned Cashiers for {data?.name}
+            <SheetTitle >
+              Assigned Cashiers for <span className="capitalize">{data?.name}</span>
             </SheetTitle>
             <SheetDescription>
               <Separator className=" h-[1px] font-thin rounded-full" />

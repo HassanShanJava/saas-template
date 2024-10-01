@@ -21,6 +21,7 @@ import React from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { counterDataType, CreateCounter, ErrorType } from "@/app/types";
 import warning from "@/assets/warning.svg";
+import { useDeleteCounterMutation } from "@/services/counterApi";
 
 export function DataTableRowActions({
   data,
@@ -28,23 +29,25 @@ export function DataTableRowActions({
   handleEdit,
   access
 }: {
-  data?: counterDataType;
+  data: counterDataType;
   refetch?: any;
   handleEdit?: any;
   access: string
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const { toast } = useToast();
-
+  const [deleteCounter] = useDeleteCounterMutation()
   const deleteRow = async () => {
     try {
-      // if (resp) {
-      //   refetch();
-      //   toast({
-      //     variant: "success",
-      //     title: "Counter Deleted Successfully",
-      //   });
-      // }
+
+      const resp = await deleteCounter(data?.id as number).unwrap();
+      if (resp) {
+        refetch();
+        toast({
+          variant: "success",
+          title: "Counter Deleted Successfully",
+        });
+      }
       return;
     } catch (error) {
       console.error("Error", { error });

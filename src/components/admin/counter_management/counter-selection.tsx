@@ -3,7 +3,12 @@ import { setCode, setCounter } from '@/features/counter/counterSlice'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import cashcounter from '@/assets/cashier-counter.svg'
+import { useGetCountersQuery } from '@/services/counterApi'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/app/store'
+import { useEffect } from 'react'
 const CounterSelection = () => {
+    const { userInfo } = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const selectCounter = (counter_number: number) => {
@@ -11,7 +16,16 @@ const CounterSelection = () => {
         dispatch(setCode("pos"))
         navigate('/admin/pos/sell')
     }
-
+    const { data: assignedCounter } = useGetCountersQuery({ query: `staff_id=${userInfo?.user?.id}&status=active` })
+    useEffect(() => {
+        if (assignedCounter?.data.length == 0) {
+            const singleCounter = assignedCounter?.data[0]
+            console.log(assignedCounter?.data, "assignedCounter.data")
+            // dispatch(setCounter(singleCounter.id ?? null))
+            dispatch(setCode("pos"))
+            navigate('/admin/pos/sell')
+        }
+    }, [assignedCounter])
     return (
         <div className='min-h-screen bg-outletcolor p-5'>
             <Card className="w-full p-5 space-y-4 max-w-2xl mx-auto ">
@@ -20,7 +34,7 @@ const CounterSelection = () => {
 
                     {[1, 2, 3, 4, 5, 6].map((item: any, i: number) => (
                         <div key={i} onClick={() => selectCounter(item)} className="cursor-pointer rounded-md size-48 flex flex-col justify-center items-center rouned-md bg-outletcolor">
-                            <img src={cashcounter} alt='/' className='p-0 size-36'/>
+                            <img src={cashcounter} alt='/' className='p-0 size-36' />
                             <p className="text-center text-lg ">Counter {item}</p>
                         </div>
                     ))}

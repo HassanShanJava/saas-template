@@ -1402,3 +1402,23 @@ export interface RegisterationTableType {
   total_counts: number;
   filtered_counts: number;
 }
+
+export interface Salehistory {
+  id: number;
+  receiptNumber: string;
+  type: "Receipt" | "Refund";
+  taxRate: number;
+  taxName: string;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  status: "Paid" | "Unpaid" | "Partially Paid";
+  created_by: string;
+  created_at: string;
+}
+
+export interface SaleshistoryTableType {
+  data: Salehistory[];
+  total_counts: number;
+  filtered_counts: number;
+}

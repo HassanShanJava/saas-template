@@ -309,7 +309,11 @@ export default function CashregisterViewTable() {
           <div className="flex gap-2 items-center justify-between w-fit">
             <div className="">
               <p className="capitalize cursor-pointer">
-                <span>{displayValue(row.original.discrepancy.toString())}</span>
+                <span
+                  className={`${row.original.discrepancy !== 0 ? "text-red-500" : "text-black"}`}
+                >
+                  {displayValue(row.original.discrepancy.toString())}
+                </span>
               </p>
             </div>
           </div>

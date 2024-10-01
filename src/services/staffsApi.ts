@@ -7,9 +7,9 @@ import {
 import { apiSlice } from "@/features/api/apiSlice";
 
 
-interface staffInput{
-	query:string,
-	org_id:number
+interface staffInput {
+  query: string,
+  org_id: number
 }
 
 export const StaffApi = apiSlice.injectEndpoints({
@@ -58,7 +58,7 @@ export const StaffApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Staffs"],
     }),
-    getStaffList: builder.query<{id:number,name:string}[], number>({
+    getStaffList: builder.query<{ value: number, label: string }[], number>({
       query: (org_id) => ({
         url: `/staff/list?org_id=${org_id}`,
         method: "GET",
@@ -67,6 +67,9 @@ export const StaffApi = apiSlice.injectEndpoints({
         },
       }),
       providesTags: ["Staffs"],
+      transformResponse: (resp: { id: number, name: string }[]) => {
+        return resp?.map((staff: { id: number, name: string }) => ({ value: staff.id, label: staff.name }))
+      }
     }),
     deleteStaff: builder.mutation<any, number>({
       query: (staffId) => ({

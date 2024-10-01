@@ -66,16 +66,7 @@ const CounterForm = ({
 }: counterForm) => {
     const orgId =
         useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-    const { data: staffList } = useGetStaffListQuery(orgId);
-    const [staffOptions, setOptions] = useState<Record<string, any>[]>([])
-
-
-    useEffect(() => {
-        if (staffList) {
-            const newStaffList = staffList?.map((staff: any) => ({ value: staff.id, label: staff.name }));
-            setOptions(newStaffList);
-        }
-    }, [staffList])
+    const { data: staffOptions } = useGetStaffListQuery(orgId);
 
     const [createCounter] = useCreateCountersMutation();
     const [updateCounter] = useUpdateCountersMutation();

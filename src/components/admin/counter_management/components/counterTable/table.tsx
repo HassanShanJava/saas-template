@@ -62,6 +62,7 @@ import AssignCounter from "../modal/assign-counter";
 import CounterForm from "../modal/counter-form";
 import { useGetCountersQuery, useUpdateCountersMutation } from "@/services/counterApi";
 import TableFilters from "@/components/ui/table/data-table-filter";
+import { useGetStaffListQuery } from "@/services/staffsApi";
 
 const downloadCSV = (data: counterDataType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -97,6 +98,7 @@ export default function CounterTableView() {
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
   const [action, setAction] = useState<"add" | "edit">("add");
+  const { data: staffList } = useGetStaffListQuery(orgId);
 
   // counter form
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
@@ -453,6 +455,13 @@ export default function CounterTableView() {
     }));
   }
 
+  function handleStaffId(value: number) {
+    setFilter((prev) => ({
+      ...prev,
+      staff_id: value,
+    }));
+  }
+
   const filterDisplay = [
     {
       type: "select",
@@ -462,6 +471,13 @@ export default function CounterTableView() {
         { id: "inactive", name: "Inactive" },
         { id: "active", name: "Active" },
       ],
+      function: handleCounterStatus,
+    },
+    {
+      type: "combobox",
+      name: "staff_id",
+      label: "Staff",
+      options: staffList,
       function: handleCounterStatus,
     },
   ];

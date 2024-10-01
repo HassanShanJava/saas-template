@@ -5,6 +5,7 @@ import {
   VisibilityState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
   getSortedRowModel,
   useReactTable,
@@ -152,16 +153,16 @@ export default function SaleshistoryRegisterViewTable() {
           className="translate-y-[2px]"
         />
       ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value: any) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-          className="translate-y-[2px]"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
+      cell: ({ row }) => {
+        return (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value: any) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+            className="translate-y-[2px]"
+          />
+        );
+      },
     },
     {
       accessorKey: "recieptnumber",
@@ -182,6 +183,21 @@ export default function SaleshistoryRegisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex gap-2 items-center justify-between w-fit">
+            {row.getCanExpand() && row.original.refunditems && (
+              <button
+                {...{
+                  onClick: row.getToggleExpandedHandler(),
+                }}
+                className="flex gap-1 items-center"
+              >
+                {row.getIsExpanded() ? (
+                  <i className="fa fa-angle-down w-3 h-3"></i>
+                ) : (
+                  <i className="fa fa-angle-right w-3 h-3"></i>
+                )}
+              </button>
+            )}
+
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>{displayValue(row.original.receiptNumber)}</span>
@@ -503,8 +519,10 @@ export default function SaleshistoryRegisterViewTable() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getRowCanExpand: () => true,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    getExpandedRowModel: getExpandedRowModel(),
     state: {
       sorting,
       columnVisibility,
@@ -596,19 +614,74 @@ export default function SaleshistoryRegisterViewTable() {
                 </TableRow>
               ) : table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
+                  <>
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                    {row.getIsExpanded() && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={row.getAllCells().length}
+                          className="pr-40"
+                        >
+                          <span className="border-primary border-b-4">
+                            Refund Details
+                          </span>
+                          <div className="flex flex-row">
+                            {/* Refund Item Details */}
+                            <div className="w-full">ID: {row.original.id}</div>
+                            <div className="w-full">
+                              Receipt: {row.original.receiptNumber}
+                            </div>
+                            <div className="w-full ">
+                              Type: {row.original.type}
+                            </div>
+                            <div className="w-full">
+                              Status: {row.original.status}
+                            </div>
+                            <div className="w-full">
+                              Tax: Rs {row.original.taxAmount}
+                            </div>
+                            <div className="w-full ">
+                              Discount: Rs {row.original.discountAmount}
+                            </div>
+                            <div className="w-full">
+                              Total: Rs {row.original.totalAmount}
+                            </div>
+                            <div className="w-full">
+                              Tax Rate: {row.original.taxRate}%
+                            </div>
+                            <div className="w-full">
+                              Tax Name: {row.original.taxName}
+                            </div>
+                            <div className="w-full">
+                              Created At: {row.original.created_at}
+                            </div>
+                            <div className="w-full">
+                              Created By: {row.original.created_by}
+                            </div>
+
+                            {/* Action Button */}
+                            <div className="w-full text-right">
+                              <button className="text-gray-500 hover:text-gray-700">
+                                &#x22EE; {/* Vertical ellipsis (three dots) */}
+                              </button>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
                 ))
               ) : saleshistoryTableData.length > 0 ? (
                 <TableRow>

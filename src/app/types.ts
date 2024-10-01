@@ -1403,6 +1403,19 @@ export interface RegisterationTableType {
   filtered_counts: number;
 }
 
+export interface refundhistory {
+  id: number;
+  receiptNumber: string;
+  type: "Receipt" | "Refund";
+  taxRate: number;
+  taxName: string;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  status: "Paid" | "Unpaid" | "Partially Paid";
+  created_by: string;
+  created_at: string;
+}
 export interface Salehistory {
   id: number;
   receiptNumber: string;
@@ -1415,6 +1428,7 @@ export interface Salehistory {
   status: "Paid" | "Unpaid" | "Partially Paid";
   created_by: string;
   created_at: string;
+  refunditems?: refundhistory[];
 }
 
 export interface SaleshistoryTableType {

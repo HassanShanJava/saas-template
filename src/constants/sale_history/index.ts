@@ -4,6 +4,7 @@ export const salesData: SaleshistoryTableType = {
   data: [
     {
       id: 1,
+      user: "user1",
       receiptNumber: "R001",
       type: "Receipt",
       taxAmount: 5.0,
@@ -24,6 +25,7 @@ export const salesData: SaleshistoryTableType = {
           totalAmount: 10.0,
           status: "Paid",
           taxRate: 12,
+          user: "user1",
           taxName: "gold",
           created_at: "2024-09-21 10:00:00",
           created_by: "Waqar",
@@ -34,6 +36,7 @@ export const salesData: SaleshistoryTableType = {
           type: "Refund",
           taxAmount: 0.0,
           discountAmount: 2.0,
+          user: "user1",
           totalAmount: 20.0,
           status: "Paid",
           taxRate: 12,
@@ -45,6 +48,8 @@ export const salesData: SaleshistoryTableType = {
     },
     {
       id: 2,
+      user: "user1",
+
       receiptNumber: "R002",
       type: "Refund",
       taxAmount: 0.0,
@@ -60,6 +65,8 @@ export const salesData: SaleshistoryTableType = {
       id: 3,
       receiptNumber: "R003",
       type: "Receipt",
+      user: "user1",
+
       taxAmount: 4.5,
       discountAmount: 0.0,
       totalAmount: 200.0,
@@ -74,6 +81,8 @@ export const salesData: SaleshistoryTableType = {
       receiptNumber: "R004",
       type: "Receipt",
       taxAmount: 3.0,
+      user: "user1",
+
       discountAmount: 1.0,
       totalAmount: 150.0,
       status: "Partially Paid",
@@ -87,6 +96,8 @@ export const salesData: SaleshistoryTableType = {
       receiptNumber: "R005",
       type: "Refund",
       taxAmount: 0.0,
+      user: "user1",
+
       discountAmount: 5.0,
       totalAmount: 30.0,
       status: "Paid",
@@ -105,6 +116,7 @@ export const salesData: SaleshistoryTableType = {
       taxName: "gold",
       created_at: "2024-09-20 08:00:00",
       created_by: "Waqar",
+      user: "user1",
 
       totalAmount: 250.0,
       status: "Paid",
@@ -114,6 +126,8 @@ export const salesData: SaleshistoryTableType = {
       receiptNumber: "R007",
       type: "Receipt",
       taxAmount: 2.0,
+      user: "user1",
+
       discountAmount: 0.5,
       totalAmount: 75.0,
       status: "Unpaid",
@@ -127,6 +141,8 @@ export const salesData: SaleshistoryTableType = {
       receiptNumber: "R008",
       type: "Refund",
       taxAmount: 0.0,
+      user: "user1",
+
       discountAmount: 2.0,
       totalAmount: 10.0,
       status: "Paid",
@@ -139,6 +155,8 @@ export const salesData: SaleshistoryTableType = {
       id: 9,
       receiptNumber: "R009",
       type: "Receipt",
+      user: "user1",
+
       taxAmount: 7.5,
       discountAmount: 0.0,
       totalAmount: 300.0,
@@ -153,6 +171,7 @@ export const salesData: SaleshistoryTableType = {
           receiptNumber: "R103",
           type: "Refund",
           taxAmount: 0.0,
+          user: "user1",
           discountAmount: 5.0,
           totalAmount: 30.0,
           status: "Paid",
@@ -170,6 +189,8 @@ export const salesData: SaleshistoryTableType = {
       taxAmount: 8.0,
       discountAmount: 4.0,
       totalAmount: 350.0,
+      user: "user1",
+
       taxRate: 12,
       taxName: "gold",
       created_at: "2024-09-20 08:00:00",
@@ -182,6 +203,8 @@ export const salesData: SaleshistoryTableType = {
       receiptNumber: "R011",
       type: "Receipt",
       taxAmount: 5.5,
+      user: "user1",
+
       discountAmount: 1.0,
       taxRate: 12,
       taxName: "gold",
@@ -194,6 +217,8 @@ export const salesData: SaleshistoryTableType = {
     {
       id: 12,
       receiptNumber: "R012",
+      user: "user1",
+
       type: "Refund",
       taxAmount: 0.0,
       discountAmount: 3.0,
@@ -209,6 +234,8 @@ export const salesData: SaleshistoryTableType = {
       id: 13,
       receiptNumber: "R013",
       type: "Receipt",
+      user: "user1",
+
       taxAmount: 9.0,
       taxRate: 12,
       taxName: "gold",
@@ -223,6 +250,8 @@ export const salesData: SaleshistoryTableType = {
       id: 14,
       receiptNumber: "R014",
       type: "Refund",
+      user: "user1",
+
       taxAmount: 0.0,
       taxRate: 12,
       taxName: "gold",
@@ -241,6 +270,7 @@ export const salesData: SaleshistoryTableType = {
       created_by: "Waqar",
       taxRate: 12,
       taxName: "gold",
+      user: "user1",
 
       discountAmount: 2.0,
       totalAmount: 220.0,
@@ -253,6 +283,8 @@ export const salesData: SaleshistoryTableType = {
       taxName: "gold",
       created_at: "2024-09-20 08:00:00",
       created_by: "Waqar",
+      user: "user1",
+
       type: "Receipt",
 
       taxAmount: 4.0,
@@ -265,6 +297,8 @@ export const salesData: SaleshistoryTableType = {
       receiptNumber: "R017",
       type: "Refund",
       taxRate: 12,
+      user: "user1",
+
       taxName: "gold",
       created_at: "2024-09-20 08:00:00",
       created_by: "Waqar",
@@ -278,6 +312,8 @@ export const salesData: SaleshistoryTableType = {
       receiptNumber: "R018",
       type: "Receipt",
       taxRate: 12,
+      user: "user1",
+
       taxName: "gold",
 
       created_at: "2024-09-20 08:00:00",
@@ -291,6 +327,8 @@ export const salesData: SaleshistoryTableType = {
       id: 19,
       receiptNumber: "R019",
       type: "Receipt",
+      user: "user1",
+
       taxAmount: 7.0,
       discountAmount: 2.0,
       taxRate: 12,
@@ -304,6 +342,7 @@ export const salesData: SaleshistoryTableType = {
           id: 104,
           receiptNumber: "R104",
           type: "Refund",
+          user: "user1",
           taxAmount: 0.0,
           discountAmount: 3.0,
           totalAmount: 25.0,
@@ -321,6 +360,7 @@ export const salesData: SaleshistoryTableType = {
           discountAmount: 1.0,
           totalAmount: 15.0,
           status: "Paid",
+          user: "user1",
           taxRate: 12,
           taxName: "gold",
           created_at: "2024-09-25 09:00:00",
@@ -332,6 +372,8 @@ export const salesData: SaleshistoryTableType = {
       id: 20,
       receiptNumber: "R020",
       type: "Receipt",
+      user: "user1",
+
       created_at: "2024-09-20 08:00:00",
       created_by: "Waqar",
       taxAmount: 4.5,
@@ -346,6 +388,8 @@ export const salesData: SaleshistoryTableType = {
       id: 21,
       receiptNumber: "R021",
       type: "Refund",
+      user: "user1",
+
       created_at: "2024-09-20 08:00:00",
       created_by: "Waqar",
       taxAmount: 0.0,
@@ -363,6 +407,8 @@ export const salesData: SaleshistoryTableType = {
       created_at: "2024-09-20 08:00:00",
       created_by: "Waqar",
       taxAmount: 8.0,
+      user: "user1",
+
       discountAmount: 5.0,
       taxRate: 12,
       taxName: "gold",
@@ -375,6 +421,8 @@ export const salesData: SaleshistoryTableType = {
       receiptNumber: "R023",
       type: "Receipt",
       taxRate: 12,
+      user: "user1",
+
       taxName: "gold",
 
       created_at: "2024-09-20 08:00:00",
@@ -387,6 +435,8 @@ export const salesData: SaleshistoryTableType = {
     {
       id: 24,
       receiptNumber: "R024",
+      user: "user1",
+
       type: "Receipt",
       taxRate: 12,
       taxName: "gold",
@@ -405,6 +455,8 @@ export const salesData: SaleshistoryTableType = {
       taxName: "gold",
       created_at: "2024-09-20 08:00:00",
       created_by: "Waqar",
+      user: "user1",
+
       taxAmount: 0.0,
       discountAmount: 7.0,
       totalAmount: 40.0,

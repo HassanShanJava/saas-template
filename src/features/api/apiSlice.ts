@@ -43,8 +43,8 @@ const baseQueryWithReauth: BaseQueryFn<
       localStorage.setItem("userToken", newAccessToken);
       result = await baseQuery(args, api, extraOptions);
     } else {
-      api.dispatch(setCode(null))
-      api.dispatch(setCounter(null))
+      api.dispatch(setCode(null));
+      api.dispatch(setCounter(null));
       api.dispatch(logout());
     }
   }
@@ -80,6 +80,7 @@ export const apiSlice = createApi({
     "Members",
     "Reset",
     "Workout",
-    "Counter"
+    "Counter",
+    "register",
   ],
 });

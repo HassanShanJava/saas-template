@@ -178,7 +178,7 @@ export default function SaleshistoryRegisterViewTable() {
       meta: "Reciept Number",
       header: () => (
         <div className="flex items-center gap-2">
-          <p className="text-nowrap">Reciept Number</p>
+          <p className="text-nowrap">Txn Number</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("recieptnumber")}
@@ -219,11 +219,35 @@ export default function SaleshistoryRegisterViewTable() {
       enableHiding: false,
     },
     {
+      accessorKey: "user",
+      meta: "user",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Member</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("user")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.user)}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "type",
       meta: "Type",
       header: () => (
         <div className="flex items-center gap-2">
-          <p className="text-nowrap">Reciept Type</p>
+          <p className="text-nowrap">Type</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("reciept_type")}
@@ -238,60 +262,6 @@ export default function SaleshistoryRegisterViewTable() {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original.type)}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "date",
-      meta: "date",
-      header: () => (
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Creation Date</p>
-          <button
-            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("date")}
-          >
-            <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-            ></i>
-          </button>
-        </div>
-      ),
-      cell: ({ row }) => {
-        return (
-          <div className="flex gap-2 items-center justify-between w-fit">
-            <div className="">
-              <p className="capitalize cursor-pointer">
-                <span>{displayDateTime(row?.original.created_at)}</span>
-              </p>
-            </div>
-          </div>
-        );
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      accessorKey: "taxamount",
-      meta: "Tax amount",
-      header: () => (
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Tax Amount</p>
-          <button
-            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("taxamount")}
-          >
-            <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-            ></i>
-          </button>
-        </div>
-      ),
-      cell: ({ row }) => {
-        return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.taxAmount.toString())}
           </div>
         );
       },
@@ -330,11 +300,36 @@ export default function SaleshistoryRegisterViewTable() {
       },
     },
     {
+      accessorKey: "taxamount",
+      meta: "Tax amount",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Tax Amount</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("taxamount")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.taxAmount.toString())}
+          </div>
+        );
+      },
+    },
+
+    {
       accessorKey: "discountedamount",
       meta: "Discounted Amount",
       header: () => (
         <div className="flex items-center gap-2">
-          <p className="text-nowrap">Discounted Amount</p>
+          <p className="text-nowrap">Discount Amount</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("discountedamount")}
@@ -516,6 +511,36 @@ export default function SaleshistoryRegisterViewTable() {
       enableSorting: false,
       enableHiding: false,
     },
+    {
+      accessorKey: "date",
+      meta: "date",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Created Date</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("date")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex gap-2 items-center justify-between w-fit">
+            <div className="">
+              <p className="capitalize cursor-pointer text-nowrap">
+                <span>{displayDateTime(row?.original.created_at)}</span>
+              </p>
+            </div>
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
 
     ...(pos_sale_history !== "read" ? [actionsColumn] : []),
   ];
@@ -629,7 +654,7 @@ export default function SaleshistoryRegisterViewTable() {
                       data-state={row.getIsSelected() && "selected"}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
+                        <TableCell key={cell.id} className="h-24">
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
@@ -640,13 +665,21 @@ export default function SaleshistoryRegisterViewTable() {
                     {row.getIsExpanded() && (
                       <TableRow>
                         {/* Refund Item Details */}
-                        <TableCell key={row.original.id}></TableCell>
                         <TableCell
                           key={row.original.id}
-                          className="flex gap-2 items-center justify-between w-fit"
+                          className="h-16"
+                        ></TableCell>
+                        <TableCell
+                          key={row.original.id}
+                          className="flex gap-2 items-center justify-between w-fit h-16"
                         >
                           <div className="h-3 w-3"></div>
                           {row.original.receiptNumber}
+                        </TableCell>
+                        <TableCell key={row.original.user}>
+                          <span className="capitalize cursor-pointer">
+                            {row.original.user}
+                          </span>
                         </TableCell>
                         <TableCell key={row.original.type}>
                           <span className="capitalize cursor-pointer">
@@ -654,7 +687,7 @@ export default function SaleshistoryRegisterViewTable() {
                           </span>
                         </TableCell>
                         <TableCell key={row.original.created_at}>
-                          <span className="capitalize cursor-pointer">
+                          <span className="capitalize cursor-pointer text-nowrap">
                             {row.original.created_at}
                           </span>
                         </TableCell>
@@ -713,36 +746,6 @@ export default function SaleshistoryRegisterViewTable() {
                             </DropdownMenu>
                           </Dialog>
                         </TableCell>
-                        {/* <div className="w-full">
-                          Status: {row.original.status}
-                        </div>
-                        <div className="w-full">
-                          Tax: Rs {row.original.taxAmount}
-                        </div>
-                        <div className="w-full ">
-                          Discount: Rs {row.original.discountAmount}
-                        </div>
-                        <div className="w-full">
-                          Total: Rs {row.original.totalAmount}
-                        </div>
-                        <div className="w-full">
-                          Tax Rate: {row.original.taxRate}%
-                        </div>
-                        <div className="w-full">
-                          Tax Name: {row.original.taxName}
-                        </div>
-                        <div className="w-full">
-                          Created At: {row.original.created_at}
-                        </div>
-                        <div className="w-full">
-                          Created By: {row.original.created_by}
-                        </div> */}
-                        {/* Action Button */}
-                        {/* <div className="w-full text-right">
-                          <button className="text-gray-500 hover:text-gray-700"> */}
-                        {/* &#x22EE; Vertical ellipsis (three dots) */}
-                        {/* </button> */}
-                        {/* </div> */}
                       </TableRow>
                     )}
                   </>

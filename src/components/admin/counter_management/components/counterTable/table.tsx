@@ -283,20 +283,20 @@ export default function CounterTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: "is_open",
-      meta: "Counter Open",
-      header: () => <p className="text-nowrap">Counter Open</p>,
-      cell: ({ row }) => {
-        return (
-          <p className="h-8" >
-            {row.original?.is_open?"Open":"Close"}
-          </p>
-        );
-      },
-      enableSorting: false,
-      enableHiding: false,
-    },
+    // {
+    //   accessorKey: "is_open",
+    //   meta: "Counter Open",
+    //   header: () => <p className="text-nowrap">Counter Open</p>,
+    //   cell: ({ row }) => {
+    //     return (
+    //       <p className="h-8" >
+    //         {row.original?.is_open?"Open":"Close"}
+    //       </p>
+    //     );
+    //   },
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
     {
       accessorKey: "status",
       meta: "Status",
@@ -482,8 +482,8 @@ export default function CounterTableView() {
       name: "status",
       label: "Status",
       options: [
-        { id: "inactive", name: "Inactive" },
         { id: "active", name: "Active" },
+        { id: "inactive", name: "Inactive" },
       ],
       function: handleCounterStatus,
     },
@@ -492,7 +492,7 @@ export default function CounterTableView() {
       name: "staff_id",
       label: "Staff",
       options: staffList,
-      function: handleCounterStatus,
+      function: handleStaffId,
     },
   ];
 

@@ -654,7 +654,7 @@ export default function MembershipsTableView() {
     },
     {
       type: "combobox",
-      name: "group",
+      name: "group_id",
       label: "Group",
       options: groupData,
       function: handleGroup,

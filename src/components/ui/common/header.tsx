@@ -21,8 +21,6 @@ const pageTitles = [
   { targetPath: "/admin/dashboard", title: "Dashboard" },
   { targetPath: "/admin/members", title: "Members" },
   { targetPath: "/admin/coach", title: "Coach" },
-  { targetPath: "/admin/exercise", title: "Exercise" },
-  { targetPath: "/admin/coach/addcoach", title: "Add Coach" },
   { targetPath: "/admin/workoutplans", title: "Workout Plans" },
   { targetPath: "/admin/exercise", title: "Exercises" },
   { targetPath: "/admin/facilities", title: "System Settings" },

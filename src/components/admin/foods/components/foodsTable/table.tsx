@@ -421,10 +421,6 @@ export default function FoodsTableView() {
     },
   });
 
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
-  }
 
   const handleOpen = () => {
     setAction("add");

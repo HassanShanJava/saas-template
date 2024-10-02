@@ -6,7 +6,7 @@ export const counterList:counterTableType = {
             "id": 101,
             "name": "COUNTER 1",
             "status": "active",
-            "assigned_cashier": [
+            "staff": [
                 {
                     "id": 1,
                     "name": "hassan"
@@ -21,7 +21,7 @@ export const counterList:counterTableType = {
             "id": 102,
             "name": "COUNTER 2",
             "status": "inactive",
-            "assigned_cashier": [
+            "staff": [
                 {
                     "id": 3,
                     "name": "ali"
@@ -32,13 +32,13 @@ export const counterList:counterTableType = {
             "id": 103,
             "name": "COUNTER 3",
             "status": "active",
-            "assigned_cashier": []
+            "staff": []
         },
         {
             "id": 104,
             "name": "COUNTER 4",
             "status": "inactive",
-            "assigned_cashier": [
+            "staff": [
                 {
                     "id": 4,
                     "name": "khan"
@@ -49,7 +49,7 @@ export const counterList:counterTableType = {
             "id": 105,
             "name": "COUNTER 5",
             "status": "active",
-            "assigned_cashier": [
+            "staff": [
                 {
                     "id": 5,
                     "name": "sara"
@@ -64,7 +64,7 @@ export const counterList:counterTableType = {
             "id": 106,
             "name": "COUNTER 6",
             "status": "inactive",
-            "assigned_cashier": [
+            "staff": [
                 {
                     "id": 7,
                     "name": "usman"
@@ -75,7 +75,7 @@ export const counterList:counterTableType = {
             "id": 107,
             "name": "COUNTER 7",
             "status": "active",
-            "assigned_cashier": [
+            "staff": [
                 {
                     "id": 8,
                     "name": "kiran"
@@ -86,13 +86,13 @@ export const counterList:counterTableType = {
             "id": 108,
             "name": "COUNTER 8",
             "status": "inactive",
-            "assigned_cashier": []
+            "staff": []
         },
         {
             "id": 109,
             "name": "COUNTER 9",
             "status": "active",
-            "assigned_cashier": [
+            "staff": [
                 {
                     "id": 9,
                     "name": "danish"
@@ -103,7 +103,7 @@ export const counterList:counterTableType = {
             "id": 110,
             "name": "COUNTER 10",
             "status": "inactive",
-            "assigned_cashier": [
+            "staff": [
                 {
                     "id": 10,
                     "name": "waqas"
@@ -114,7 +114,7 @@ export const counterList:counterTableType = {
             "id": 111,
             "name": "COUNTER 11",
             "status": "active",
-            "assigned_cashier": [
+            "staff": [
                 {
                     "id": 11,
                     "name": "maria"
@@ -125,7 +125,7 @@ export const counterList:counterTableType = {
             "id": 112,
             "name": "COUNTER 12",
             "status": "inactive",
-            "assigned_cashier": [
+            "staff": [
                 {
                     "id": 12,
                     "name": "zain"
@@ -140,7 +140,7 @@ export const counterList:counterTableType = {
             "id": 113,
             "name": "COUNTER 13",
             "status": "active",
-            "assigned_cashier": [
+            "staff": [
                 {
                     "id": 14,
                     "name": "asma"
@@ -151,7 +151,7 @@ export const counterList:counterTableType = {
             "id": 114,
             "name": "COUNTER 14",
             "status": "inactive",
-            "assigned_cashier": [
+            "staff": [
                 {
                     "id": 15,
                     "name": "faisal"

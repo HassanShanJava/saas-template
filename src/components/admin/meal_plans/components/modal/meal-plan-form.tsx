@@ -652,7 +652,7 @@ const MealPlanForm = ({
                       </span>{" "}
                       <span className="text-gray-400 font-semibold">/</span>
                       <span className="pl-1 text-primary font-semibold ">
-                        {data ? "Edit" : "Add"} Meal Plan
+                        {data ? "Edit" : "Create"} Meal Plan
                       </span>
                     </div>
                   </div>

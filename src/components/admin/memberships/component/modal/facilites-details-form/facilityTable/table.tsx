@@ -394,10 +394,7 @@ export default function FacilityTableView({
     onPaginationChange: setPagination,
   });
 
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
-  }
+  
 
   return (
     <div className="w-full space-y-4">

@@ -10,18 +10,21 @@ export interface counterTableType {
 export interface counterDataType {
   id?: number;
   name: string;
-  assigned_cashier: {
-    id: number;
-    name: string;
-  }[];
+  staff: {
+    id: number,
+    name: string
+  }[]
+  staff_ids?: number[];
   status?: string;
 }
 
 export interface CreateCounter {
-  id?: number;
+  id?: number | null;
   name?: string;
-  assigned_cashier?: number[];
+  staff_ids?: number[];
   status?: string;
+  staff_id?: number | null;
+  is_open?: boolean
 }
 
 export interface mealPlanTableType {

@@ -60,6 +60,9 @@ import { displayValue } from "@/utils/helper";
 import { counterList } from "@/constants/counter";
 import AssignCounter from "../modal/assign-counter";
 import CounterForm from "../modal/counter-form";
+import { useGetCountersQuery, useUpdateCountersMutation } from "@/services/counterApi";
+import TableFilters from "@/components/ui/table/data-table-filter";
+import { useGetStaffListQuery } from "@/services/staffsApi";
 
 const downloadCSV = (data: counterDataType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -78,8 +81,8 @@ interface searchCretiriaType {
   sort_order: string;
   sort_key?: string;
   search_key?: string;
-  total_nutrition?: number;
-  fat?: number;
+  counter_name?: string;
+  staff_id?: number;
 }
 
 const initialValue = {
@@ -95,13 +98,14 @@ export default function CounterTableView() {
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
   const [action, setAction] = useState<"add" | "edit">("add");
+  const { data: staffList } = useGetStaffListQuery(orgId);
 
   // counter form
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  
+
   // assign counter form
   const [assignCounter, setAssignCounter] = useState<boolean>(false);
-  
+
   const [searchCretiria, setSearchCretiria] =
     useState<searchCretiriaType>(initialValue);
   const [query, setQuery] = useState("");
@@ -117,12 +121,13 @@ export default function CounterTableView() {
       const newCriteria = { ...prev };
 
       if (debouncedInputValue.trim() !== "") {
-        newCriteria.search_key = debouncedInputValue;
+        // search counter name
+        newCriteria.counter_name = debouncedInputValue;
         newCriteria.offset = 0;
         newCriteria.sort_key = "id";
         newCriteria.sort_order = "desc";
       } else {
-        delete newCriteria.search_key;
+        delete newCriteria.counter_name;
       }
 
       return newCriteria;
@@ -139,7 +144,6 @@ export default function CounterTableView() {
       }
     }
     const newQuery = params.toString();
-    console.log({ newQuery });
     setQuery(newQuery);
   }, [searchCretiria]);
 
@@ -160,7 +164,21 @@ export default function CounterTableView() {
     });
   };
 
+  const {
+    data: counterList,
+    isLoading,
+    refetch,
+    error,
+    isError,
+  } = useGetCountersQuery(
+    { query: query },
+    {
+      skip: query == "",
+    }
+  );
 
+  const [updateCounter] = useUpdateCountersMutation()
+  console.log({ counterList })
 
   const handleCloseDailog = () => setIsDialogOpen(false);
 
@@ -197,7 +215,7 @@ export default function CounterTableView() {
         access={pos_count}
         handleEdit={handleEdit}
         data={row.original}
-      // refetch={refetch}
+        refetch={refetch}
       />
     ),
     enableSorting: false,
@@ -257,7 +275,7 @@ export default function CounterTableView() {
       header: () => <p className="text-nowrap">Assigned Cashiers</p>,
       cell: ({ row }) => {
         return (
-          <Button className="h-8" onClick={()=>handleViewCashier(row?.original)}>
+          <Button className="h-8" onClick={() => handleViewCashier(row?.original)}>
             View Cashiers
           </Button>
         );
@@ -284,16 +302,16 @@ export default function CounterTableView() {
 
       cell: ({ row }) => {
         const value =
-          row.original?.status != null ? row.original?.status + "" : "false";
+          row.original?.status != null ? row.original?.status : "inactive";
         const statusLabel = status.filter((r) => r.value === value)[0];
         const id = Number(row.original.id);
 
         return (
           <Select
             defaultValue={value}
-            // onValueChange={(e) =>
-            //   handleStatusChange({ status: e, id: id, org_id: org_id })
-            // }
+            onValueChange={(e) =>
+              handleStatusChange({ status: e, id: id })
+            }
             disabled={pos_count == "read"}
           >
             <SelectTrigger className="h-8 max-w-36">
@@ -338,11 +356,39 @@ export default function CounterTableView() {
     },
   });
 
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
-  }
-
+  const handleStatusChange = async (payload: {
+    status: string;
+    id: number;
+  }) => {
+    console.log({ payload });
+    try {
+      const resp = await updateCounter(payload).unwrap();
+      if (resp) {
+        console.log({ resp });
+        refetch();
+        toast({
+          variant: "success",
+          title: "Counter Updated Successfully",
+        });
+      }
+    } catch (error) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: typedError.data?.detail,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
+  };
   const handleOpen = () => {
     setAction("add");
     setIsDialogOpen(true);
@@ -353,7 +399,7 @@ export default function CounterTableView() {
     setData(data);
     setIsDialogOpen(true);
   };
-  
+
   const handleViewCashier = (data: counterDataType) => {
     setData(data)
     setAssignCounter(true);
@@ -400,6 +446,43 @@ export default function CounterTableView() {
       }));
     }
   };
+
+
+  function handleCounterStatus(value: string) {
+    setFilter((prev) => ({
+      ...prev,
+      status: value,
+    }));
+  }
+
+  function handleStaffId(value: number) {
+    setFilter((prev) => ({
+      ...prev,
+      staff_id: value,
+    }));
+  }
+
+  const filterDisplay = [
+    {
+      type: "select",
+      name: "status",
+      label: "Status",
+      options: [
+        { id: "inactive", name: "Inactive" },
+        { id: "active", name: "Active" },
+      ],
+      function: handleCounterStatus,
+    },
+    {
+      type: "combobox",
+      name: "staff_id",
+      label: "Staff",
+      options: staffList,
+      function: handleCounterStatus,
+    },
+  ];
+
+
 
   return (
     <div className="w-full space-y-4">
@@ -621,7 +704,7 @@ export default function CounterTableView() {
         setOpen={setAssignCounter}
         data={data}
         setData={setData}
-      // refetch={refetch}
+        refetch={refetch}
       />
 
       <CounterForm
@@ -631,8 +714,19 @@ export default function CounterTableView() {
         setAction={setAction}
         data={data}
         setData={setData}
-      // refetch={refetch}
+        refetch={refetch}
       />
+
+      <TableFilters
+        isOpen={openFilter}
+        setOpen={setOpenFilter}
+        initialValue={initialValue}
+        filterData={filterData}
+        setFilter={setFilter}
+        setSearchCriteria={setSearchCretiria}
+        filterDisplay={filterDisplay}
+      />
+
 
     </div>
   );

@@ -46,8 +46,8 @@ const AssignCounter = ({
 
   const [updateCounter] = useUpdateCountersMutation()
   const unassignCashier = async (id: number) => {
-    const newCashierList = cashiers.filter((user) => user.id != id)
-    const payload = { id: data?.id, name: data?.name, status: data?.status, staff: newCashierList }
+    const newCashierList = cashiers.filter((user) => user.id != id).map((user) =>user.id)
+    const payload = { id: data?.id, name: data?.name, status: data?.status, staff_ids: newCashierList }
 
     try {
       const resp = await updateCounter(payload).unwrap();
@@ -59,6 +59,7 @@ const AssignCounter = ({
           title: "Counter Updated Successfully",
         });
       }
+      setOpen(false)
     } catch (error) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {

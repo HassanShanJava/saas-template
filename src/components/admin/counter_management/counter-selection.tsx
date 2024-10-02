@@ -20,17 +20,17 @@ const CounterSelection = () => {
         return Array.isArray(assignedCounter?.data) ? assignedCounter?.data : [];
     }, [assignedCounter]);
 
-    const [assignCounter] = useUpdateCountersMutation()
+    const [assignCounter, { isLoading: isUpdating }] = useUpdateCountersMutation()
 
     const assignSingleCounter = async (counter: counterDataType) => {
-        if (counter.staff && counter.staff.length === 1) {
+        if ((counter.staff && counter.staff.length === 1)) {
             // staff array
             const singleCounter = counter.staff[0];
             console.log({ singleCounter }, "assignedCounter.data");
-
+            
             try {
                 const payload = {
-                    id: singleCounter.id,
+                    id: counter.id,
                     staff_id: userInfo?.user?.id,
                     is_open: true,
                 };
@@ -41,7 +41,7 @@ const CounterSelection = () => {
                         variant: "success",
                         title: "Counter Opened Successfully",
                     })
-                    dispatch(setCounter(singleCounter.id as number));
+                    dispatch(setCounter(counter.id as number));
                     dispatch(setCode("pos"));
                     navigate('/admin/pos/sell');
                 } else {
@@ -73,24 +73,54 @@ const CounterSelection = () => {
     useEffect(() => {
         if (assignedCounterData?.length === 1) {
             assignSingleCounter(assignedCounterData[0]);
+        } else if (assignedCounterData?.length > 1) {
+            const findOpenedCounter = assignedCounterData.find((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)
+            assignSingleCounter(findOpenedCounter as counterDataType);
         }
     }, [assignedCounterData, assignCounter, dispatch, navigate, userInfo]);
 
     console.log({ assignedCounterData })
     return (
         <div className='min-h-screen bg-outletcolor p-5'>
-            {(!isLoading) && <Card className="w-full p-5 space-y-4 max-w-2xl mx-auto ">
-                <p>Please select counter to start selling</p>
-                <div className="grid grid-cols-3 gap-3 w-fit mx-auto justify-center items-center  ">
+            {!isLoading && (
+                <>
+                    {assignedCounterData.length > 1 ? (
+                        <Card className="w-full p-5 space-y-4 max-w-2xl mx-auto">
+                            <p>Please select a counter to start selling</p>
+                            <div className="grid grid-cols-3 gap-3 w-fit mx-auto justify-center items-center">
+                                {assignedCounterData.map((item: any, i: number) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => assignSingleCounter(item)}
+                                        className={`cursor-pointer rounded-md size-48 flex flex-col justify-center items-center bg-outletcolor ${item.is_open ? "bg-black/10 cursor-not-allowed" : ""
+                                            }`}
+                                    >
+                                        <img src={cashcounter} alt="/" className="p-0 size-28" />
+                                        <p className="text-center text-lg">Counter {item.name}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        </Card>
+                    ) : (
+                        assignedCounterData.length === 0 && (
+                            <Card className="w-full p-5 space-y-4 max-w-2xl mx-auto">
+                                <p className="w-full text-center">
+                                    No Counter has been assigned to you.
+                                    <br />
+                                    Please contact your admin supervisor.
+                                </p>
+                            </Card>
+                        )
+                    )}
+                </>
+            )}
 
-                    {assignedCounterData && assignedCounterData.length > 0 && assignedCounterData.map((item: any, i: number) => (
-                        <button key={i} onClick={() => assignSingleCounter(item)} className={`${item.is_open && "bg-black/10 cursor-not-allowed "}cursor-pointer rounded-md size-48 flex flex-col justify-center items-center rouned-md bg-outletcolor`}>
-                            <img src={cashcounter} alt='/' className='p-0 size-36' />
-                            <p className="text-center text-lg ">Counter {item.name}</p>
-                        </button>
-                    ))}
+            {assignedCounterData.length === 1 && (
+                <div className="fixed top-0 left-0 z-40 w-full h-screen flex justify-center items-center bg-black/40">
+                    <i className="animate-spin text-primary text-3xl font-bold text-main fas fa-spinner"></i>
                 </div>
-            </Card>}
+            )}
+
         </div>
     )
 }

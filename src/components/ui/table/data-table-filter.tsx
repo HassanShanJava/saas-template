@@ -80,7 +80,7 @@ const TableFilters = ({
                       }}
                     >
                       <SelectTrigger className="capitalize" floatingLabel={element.label}>
-                        <SelectValue  placeholder={"Select " + element.label} />
+                        <SelectValue placeholder={"Select " + element.label} />
                       </SelectTrigger>
                       <SelectContent className="capitalize">
                         {element.options?.map((st: any, index: number) => (
@@ -95,6 +95,7 @@ const TableFilters = ({
                 if (element.type == "combobox") {
                   return (
                     <Combobox
+                      defaultValue={filterData[element.name]}
                       setFilter={element.function}
                       list={element.options}
                       name={element.name}
@@ -126,7 +127,7 @@ const TableFilters = ({
                       type={"number"}
                       min={0}
                       id={element.name}
-                      name={element.name}
+                      name={element.label}
                       label={element.label}
                       onChange={element.function}
                     />
@@ -173,7 +174,7 @@ const TableFilters = ({
                     ...prev,
                     ...filterData,
                     offset: 0,
-                    sort_key:"id",
+                    sort_key: "id",
                     sort_order: "desc",
                   }));
                   setOpen(false);
@@ -197,14 +198,15 @@ interface comboboxType {
     label: string;
     value: string;
   }[];
+  defaultValue?: string;
   setFilter?: any;
   name?: string;
 }
 
-function Combobox({ list, setFilter, name }: comboboxType) {
+function Combobox({ list, setFilter, name, defaultValue }: comboboxType) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
-  console.log({ value, list });
+  const [value, setValue] = useState(list?.find((list) => list.value == defaultValue)?.label ?? "");
+  console.log({ value, list, defaultValue });
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
@@ -215,8 +217,8 @@ function Combobox({ list, setFilter, name }: comboboxType) {
           className="w-full justify-between font-normal"
         >
           {value
-            ? list && list?.find((list) => list.label === value)?.label
-            : "Select " + name + "..."}
+            ? list && list?.find((list) => list.label == value)?.label
+            : "Select " + name?.toLowerCase()}
           <ChevronsDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -236,8 +238,8 @@ function Combobox({ list, setFilter, name }: comboboxType) {
                       setValue(currentValue == value ? "" : currentValue);
                       setFilter(
                         list &&
-                          list?.find((list) => list.label === currentValue)
-                            ?.value
+                        list?.find((list) => list.label === currentValue)
+                          ?.value
                       );
                       setOpen(false);
                     }}

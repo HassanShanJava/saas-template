@@ -95,7 +95,7 @@ const DashboardLayout: React.FC = () => {
 
   const closePOSPanel = () => {
     closeCounter()
-    navigate('/', { replace: true });
+    navigate('/counter-selection', { replace: true });
     dispatch(setCode(null));
     dispatch(setCounter(null));
     dispatch(resetBackPageCount())

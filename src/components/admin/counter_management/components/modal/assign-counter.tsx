@@ -101,7 +101,10 @@ const AssignCounter = ({
                 <div className="flex flex-col justify-between items-center gap-2">
                   {cashiers.length > 0 ? cashiers?.map((item: any) => (
                     <div onClick={() => unassignCashier(item.id)} className="cursor-pointer flex items-center justify-between w-full p-2 border border-transparent hover:border-primary rounded-md">
-                      <Label htmlFor="remove_cashier" className="capitalize">{item.name}</Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="remove_cashier" className="capitalize">{item.name}</Label>
+                        <span className="text-blue-400">{data?.staff_id==item.id&&"In Use"}</span>
+                      </div>
                       <i className="fa fa-xmark"></i>
                     </div>
                   )) : (

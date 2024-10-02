@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import { useGetlastRegisterSessionQuery } from "@/services/registerApi";
+import { useGetRegisterData } from "@/constants/counter_register";
 const Register = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { code, counter_number } = useSelector(
@@ -14,6 +15,13 @@ const Register = () => {
   // useEffect(() => {
 
   // }, [counterData, setIsOpen]);
+  const {
+    data: sessiondata,
+    isDayExceed,
+    isLoading,
+    isRegisterOpen,
+  } = useGetRegisterData(counter_number as number);
+
   return (
     <div className="w-full p-5">
       <Card className="p-4 h-[550px] flex flex-col ">
@@ -23,7 +31,7 @@ const Register = () => {
           </CardHeader>
         </div>
         <div className="flex-1 overflow-y-auto">
-          {isOpen ? <CloseRegister /> : <OpenRegister />}
+          {isRegisterOpen ? <CloseRegister /> : <OpenRegister />}
         </div>
       </Card>
     </div>

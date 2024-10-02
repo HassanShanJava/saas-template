@@ -1445,14 +1445,15 @@ export interface SaleshistoryTableType {
 }
 
 export interface counterRegisterSession {
-  counter_id: number;
-  opening_balance: number;
+  counter_id?: number;
+  opening_balance?: number;
   id?: number;
   closing_balance?: number;
   opening_time?: string;
   closing_time?: string;
   discrepancy?: number;
   notes?: string;
+  total_amount?: number;
 }
 
 export interface registerSessionStorage {

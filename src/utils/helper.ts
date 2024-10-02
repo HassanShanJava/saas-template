@@ -135,3 +135,7 @@ export function extractLinks(data: any[]) {
 
   return links;
 }
+
+export const saveToLocalStorage = (key: string, value: any) => {
+  localStorage.setItem(key, JSON.stringify(value));
+};

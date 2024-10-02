@@ -15,21 +15,20 @@ import { RootState } from "@/app/store";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { useSession } from "@/hooks/use-Session";
 import { time } from "console";
-import { displayValue } from "@/utils/helper";
+import {
+  displayDateTime,
+  displayValue,
+  saveToLocalStorage,
+} from "@/utils/helper";
 import { Skeleton } from "@/components/ui/skeleton";
 interface OpenRegisterFormInputs {
   opening_balance: number;
 }
 
-
 const OpenRegister: React.FC = () => {
   const { code, counter_number } = useSelector(
     (state: RootState) => state.counter
   );
-  // Function to save data to localStorage
-  const saveToLocalStorage = (key: string, value: registerSessionStorage) => {
-    localStorage.setItem(key, JSON.stringify(value));
-  };
 
   const {
     register,
@@ -69,7 +68,7 @@ const OpenRegister: React.FC = () => {
           isOpen: true,
           isContinue: false,
           sessionId: resp.id ?? 1,
-          opening_balance: resp.opening_balance,
+          opening_balance: resp.opening_balance as number,
           opening_time: resp.opening_time as string,
         };
         if (resp) {
@@ -148,7 +147,7 @@ const OpenRegister: React.FC = () => {
                 </p>
                 <p className="text-lg flex gap-2">
                   <strong>Opening Time:</strong>{" "}
-                  {displayValue(counterData?.opening_time?.toString())}
+                  {displayDateTime(counterData?.opening_time?.toString())}
                 </p>
                 <p className="text-lg flex gap-2">
                   <strong>Opening Balance:</strong>{" "}
@@ -156,7 +155,7 @@ const OpenRegister: React.FC = () => {
                 </p>
                 <p className="text-lg flex gap-2">
                   <strong>Closing Time:</strong>{" "}
-                  {displayValue(counterData?.closing_time?.toString())}
+                  {displayDateTime(counterData?.closing_time?.toString())}
                 </p>
                 <p className="text-lg flex gap-2">
                   <strong>Closing Balance:</strong>{" "}

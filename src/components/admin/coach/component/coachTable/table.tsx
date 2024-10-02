@@ -192,7 +192,6 @@ export default function CoachTableView() {
     id: number;
     org_id: number;
   }) => {
-    console.log("handle change status", { payload });
 
     try {
       if (payload.coach_status == "pending") {
@@ -437,7 +436,7 @@ export default function CoachTableView() {
             onValueChange={(e: any) =>
               handleStatusChange({ coach_status: e, id: id, org_id: org_id })
             }
-            disabled={value == "pending"}
+            disabled={value == "pending" || coach == "read"}
           >
             <SelectTrigger className="h-8">
               <SelectValue placeholder="Status" className="text-gray-400 ">
@@ -531,11 +530,6 @@ export default function CoachTableView() {
       rowSelection,
     },
   });
-
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
-  }
 
   function handleCoachStatus(value: string) {
     setFilter((prev) => ({

@@ -208,7 +208,7 @@ const FoodForm = ({
                       </span>{" "}
                       <span className="text-gray-400 font-semibold">/</span>
                       <span className="pl-1 text-primary font-semibold ">
-                        Add food
+                        {action == "add" ? "Create " : "Edit "} Food
                       </span>
                     </div>
                   </div>
@@ -312,13 +312,13 @@ const FoodForm = ({
                         />
                         {errors[item.name as keyof CreateFoodTypes]
                           ?.message && (
-                          <span className="text-red-500 text-xs mt-[5px]">
-                            {
-                              errors[item.name as keyof CreateFoodTypes]
-                                ?.message
-                            }
-                          </span>
-                        )}
+                            <span className="text-red-500 text-xs mt-[5px]">
+                              {
+                                errors[item.name as keyof CreateFoodTypes]
+                                  ?.message
+                              }
+                            </span>
+                          )}
                       </div>
                     );
                   }
@@ -420,8 +420,8 @@ const FoodForm = ({
                           }}
                           defaultValue={value}
                         >
-                          <SelectTrigger floatingLabel={"Weight Unit*"}>
-                            <SelectValue placeholder={"Select weight unit"} />
+                          <SelectTrigger floatingLabel={"Unit*"}>
+                            <SelectValue placeholder={"Select unit"} />
                           </SelectTrigger>
                           <SelectContent>
                             {weights.map((unit, i) => (

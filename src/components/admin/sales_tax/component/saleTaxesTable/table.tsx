@@ -770,7 +770,7 @@ const SaleTaxesForm = ({
       ...prev,
       percentage: 1,
       name: "",
-      statu: "active",
+      status: "active",
     }));
   };
   console.log(form.formState.errors);

@@ -3,12 +3,9 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Separator } from "@/components/ui/separator";
 import { useDispatch } from "react-redux";
 import { logout } from "@/features/auth/authSlice";
@@ -18,6 +15,45 @@ import { useToast } from "../use-toast";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import userimg from "@/assets/userSvg.svg";
+import { setCode, setCounter } from "@/features/counter/counterSlice";
+
+const pageTitles = [
+  { targetPath: "/admin/dashboard", title: "Dashboard" },
+  { targetPath: "/admin/members", title: "Members" },
+  { targetPath: "/admin/coach", title: "Coach" },
+  { targetPath: "/admin/exercise", title: "Exercise" },
+  { targetPath: "/admin/coach/addcoach", title: "Add Coach" },
+  { targetPath: "/admin/workoutplans", title: "Workout Plans" },
+  { targetPath: "/admin/exercise", title: "Exercises" },
+  { targetPath: "/admin/facilities", title: "System Settings" },
+  { targetPath: "/admin/saleTaxes", title: "System Settings" },
+  { targetPath: "/admin/incomeCategory", title: "System Settings" },
+  { targetPath: "/admin/memberships", title: "System Settings" },
+  { targetPath: "/admin/counter", title: "System Settings" },
+  { targetPath: "/admin/paymentMethods", title: "System Settings" },
+  { targetPath: "/admin/pos/sell", title: "Point of Sale" },
+  { targetPath: "/admin/pos/register", title: "Point of Sale" },
+  { targetPath: "/admin/pos/salesHistory", title: "Point of Sale" },
+  { targetPath: "/admin/pos/cash", title: "Point of Sale" },
+  { targetPath: "/admin/roles", title: "Roles & Access Management" },
+  { targetPath: "/admin/staff", title: "Staff" },
+  { targetPath: "/admin/mealplans", title: "Meal Plans" },
+  { targetPath: "/admin/foods", title: "Foods & Nutritions" },
+];
+
+const breadcrumbs = [
+  { targetPath: "/admin/facilities", title: "Facilities", pageSetting: "System Setting" },
+  { targetPath: "/admin/incomeCategory", title: "Income Categories", pageSetting: "System Setting" },
+  { targetPath: "/admin/saleTaxes", title: "Sales Tax", pageSetting: "System Setting" },
+  { targetPath: "/admin/memberships", title: "Memberships", pageSetting: "System Setting" },
+  { targetPath: "/admin/counter", title: "Counter Management", pageSetting: "System Setting" },
+  { targetPath: "/admin/paymentMethods", title: "Payment Methods", pageSetting: "System Setting" },
+  { targetPath: "/admin/pos/register", title: "Registry Session Management", pageSetting: "Point of Sales" },
+  { targetPath: "/admin/pos/cash", title: "Cash Registry", pageSetting: "Point of Sales" },
+  { targetPath: "/admin/pos/salesHistory", title: "Sales History", pageSetting: "Point of Sales" },
+  { targetPath: "/admin/pos/sell", title: "Sell", pageSetting: "Point of Sales" },
+];
+
 const Breadcrumb = ({
   currentPath,
   targetPath,
@@ -64,7 +100,10 @@ export const Header = () => {
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch<AppDispatch>();
 
+
   const handleLogout = () => {
+    dispatch(setCode(null))
+    dispatch(setCounter(null))
     dispatch(logout());
     toast({
       variant: "success",
@@ -75,252 +114,30 @@ export const Header = () => {
   };
 
   return (
-    <header className="font-poppins sticky top-0 z-5  0 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
+    <header className="font-poppins sticky top-0 z-30  0 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
       <div className="flex w-full justify-between items-center gap-4">
         <div className="flex flex-row h-full justify-between items-center gap-4">
           <div className="w-full">
             <h1 className="text-2xl pt-2 font-bold pl-7">
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/dashboard"
-                title="Dashboard"
-              />
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/members"
-                title="Members"
-              />
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/members/addmember"
-                title="Add Member"
-              />
-              <PageTitle
-                currentPath={location.pathname.replace(
-                  //eslint-disable-next-line
-                  /(\/[^\/]+\/editmember)\/\d+$/,
-                  "$1"
-                )}
-                targetPath="/admin/members/editmember"
-                title="Edit Member"
-              />
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/coach"
-                title="Coach"
-              />
-
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/exercise"
-                title="Exercise"
-              />
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/coach/addcoach"
-                title="Add Coach"
-              />
-              {/* <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/exercise"
-                title="Exercises"
-              />
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/exercise/addexercise"
-                title="Add Exercise"
-              /> */}
-              <PageTitle
-                currentPath={location.pathname.replace(
-                  //eslint-disable-next-line
-                  /(\/[^\/]+\/editcoach)\/\d+$/,
-                  "$1"
-                )}
-                targetPath="/admin/coach/editcoach"
-                title="Edit Coach"
-              />
-
-              <PageTitle
-                currentPath={location.pathname.replace(
-                  //eslint-disable-next-line
-                  /(\/[^\/]+\/editstaff)\/\d+$/,
-                  "$1"
-                )}
-                targetPath="/admin/staff/editstaff"
-                title="Edit Staff"
-              />
-
-              {/* <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/leads"
-                title="Leads"
-              /> */}
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/facilities"
-                title="System Settings"
-              />
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/saleTaxes"
-                title="System Settings"
-              />
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/incomeCategory"
-                title="System Settings"
-              />
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/memberships"
-                title="System Settings"
-              />
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/roles"
-                title="Roles & Access Management"
-              />
-              {/* <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/leads"
-                title="Leads"
-              />
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/leads/addlead"
-                title="Leads"
-              /> */}
-              {/* <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/events"
-                title="Events"
-              />
-              <PageTitle
+              {pageTitles.map(({ targetPath, title }, index) => (
+                <PageTitle
+                  key={index}
                   currentPath={location.pathname}
-                targetPath="/admin/events/addevents"
-                title="Events"
-              /> */}
-
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/staff"
-                title="Staff"
-              />
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/staff/addstaff"
-                title="Add Staff"
-              />
-
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/mealplans"
-                title="Meal Plans"
-              />
-              <PageTitle
-                currentPath={location.pathname}
-                targetPath="/admin/foods"
-                title="Food/ Nutrition"
-              />
+                  targetPath={targetPath}
+                  title={title}
+                />
+              ))}
             </h1>
 
-            <Breadcrumb
-              currentPath={location.pathname}
-              targetPath="/admin/members/addmember"
-              title="Add Member"
-              pageSetting="Dashboard"
-            />
-
-            <Breadcrumb
-              currentPath={location.pathname}
-              targetPath="/admin/exercise/addexercise"
-              title="Add Exercise"
-              pageSetting="Dashboard"
-            />
-
-            <Breadcrumb
-              currentPath={location.pathname.replace(
-                //eslint-disable-next-line
-                /(\/[^\/]+\/editmember)\/\d+$/,
-                "$1"
-              )}
-              targetPath="/admin/members/editmember"
-              title="Edit Member"
-              pageSetting="Dashboard"
-            />
-
-            <Breadcrumb
-              currentPath={location.pathname.replace(
-                //eslint-disable-next-line
-                /(\/[^\/]+\/editstaff)\/\d+$/,
-                "$1"
-              )}
-              targetPath="/admin/staff/editstaff"
-              title="Edit Staff"
-              pageSetting="Dashboard"
-            />
-
-            <Breadcrumb
-              currentPath={location.pathname.replace(
-                //eslint-disable-next-line
-                /(\/[^\/]+\/editcoach)\/\d+$/,
-                "$1"
-              )}
-              targetPath="/admin/coach/editcoach"
-              title="Edit Coach"
-              pageSetting="Dashboard"
-            />
-            <Breadcrumb
-              currentPath={location.pathname.replace(
-                //eslint-disable-next-line
-                /(\/[^\/]+\/addcoach)\/\d+$/,
-                "$1"
-              )}
-              targetPath="/admin/coach/addcoach"
-              title="Add Coach"
-              pageSetting="Dashboard"
-            />
-
-            <Breadcrumb
-              currentPath={location.pathname}
-              targetPath="/admin/staff/addstaff"
-              title="Add Staff"
-              pageSetting="Dashboard"
-            />
-            <Breadcrumb
-              currentPath={location.pathname}
-              targetPath="/admin/leads/addlead"
-              title="Lead data"
-            />
-            <Breadcrumb
-              currentPath={location.pathname}
-              targetPath="/admin/events/addevents"
-              title="Add Event"
-            />
-            <Breadcrumb
-              currentPath={location.pathname}
-              targetPath="/admin/facilities"
-              title="Facilities"
-              pageSetting="System Setting"
-            />
-            <Breadcrumb
-              currentPath={location.pathname}
-              targetPath="/admin/incomeCategory"
-              title="Income Categories"
-              pageSetting="System Setting"
-            />
-            <Breadcrumb
-              currentPath={location.pathname}
-              targetPath="/admin/saleTaxes"
-              title="Sales Tax"
-              pageSetting="System Setting"
-            />
-            <Breadcrumb
-              currentPath={location.pathname}
-              targetPath="/admin/memberships"
-              title="Memberships"
-              pageSetting="System Setting"
-            />
+            {breadcrumbs.map(({ targetPath, title, pageSetting }, index) => (
+              <Breadcrumb
+                key={index}
+                currentPath={location.pathname}
+                targetPath={targetPath}
+                title={title}
+                pageSetting={pageSetting}
+              />
+            ))}
           </div>
         </div>
 

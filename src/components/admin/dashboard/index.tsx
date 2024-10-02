@@ -19,13 +19,18 @@ import CardComponent from "./component/card-component";
 
 const Dashboard = () => {
   return (
-    <div className="grid gap-6  p-3 2xl:!max-w-[1400px]">
+    <div className="grid gap-6 py-6 px-3 2xl:!max-w-[1400px] mx-auto ">
+      {/* dashborad tiles */}
       <CardComponent />
-      <div className="grid grid-cols-2 gap-6 p-4">
+      
+      <div className="grid grid-cols-2 gap-x-6 px-4 ">
+      {/* dashborad graphs  */}
         <SimpleBarChart />
         <SplineChart />
       </div>
-      <div className="p-2">
+
+      {/* client table */}
+      <div className="px-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl font-bold">Clients</CardTitle>

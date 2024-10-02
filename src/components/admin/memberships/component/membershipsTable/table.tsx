@@ -526,6 +526,7 @@ export default function MembershipsTableView() {
             onValueChange={(e) =>
               handleStatusChange({ status: e, id: id, org_id: org_id })
             }
+            disabled={membership=="read"}
           >
             <SelectTrigger className="h-8">
               <SelectValue placeholder="Status" className="text-gray-400">
@@ -653,7 +654,7 @@ export default function MembershipsTableView() {
     },
     {
       type: "combobox",
-      name: "group",
+      name: "group_id",
       label: "Group",
       options: groupData,
       function: handleGroup,

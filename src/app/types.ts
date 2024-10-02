@@ -1,6 +1,34 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
+export interface counterTableType {
+  data: counterDataType[];
+  total_counts: number;
+  filtered_counts: number;
+}
+
+export interface counterDataType {
+  id?: number;
+  name: string;
+  staff: {
+    id: number,
+    name: string
+  }[]
+  staff_ids?: number[];
+  staff_id?: number | null;
+  status?: string;
+  is_open?:boolean;
+}
+
+export interface CreateCounter {
+  id?: number | null;
+  name?: string;
+  staff_ids?: number[];
+  status?: string;
+  staff_id?: number | null;
+  is_open?: boolean
+}
+
 export interface mealPlanTableType {
   data: mealPlanDataType[];
   total_counts: number;
@@ -113,7 +141,7 @@ export interface resourceTypes {
   access_type?: string;
   children?: resourceTypes[];
   is_parent: boolean;
-  index:number;
+  index: number;
   is_root: boolean;
   link: string;
   icon: string;
@@ -970,6 +998,11 @@ export interface EquipmentApiResponse {
   equipment_name: string;
 }
 
+export interface EquipmentApiResponseServer {
+  id: number;
+  name: string;
+}
+
 export interface CategoryApiResponse {
   id: number;
   category_name: string;
@@ -1000,7 +1033,7 @@ export enum difficultyEnum {
   Novice = "Novice",
   Beginner = "Beginner",
   Intermediate = "Intermediate",
-  Advance = "Advance",
+  Advanced = "Advanced",
   Expert = "Expert",
 }
 export enum IntensityEnum {
@@ -1146,7 +1179,7 @@ export interface ExerciseResponseServerViewType {
   image_url_female?: string;
   image_url_male?: string;
   category_id: number;
-  equipments: EquipmentApiResponse[];
+  equipments: EquipmentApiResponseServer[];
   primary_muscles: muscleserverResponse[];
   secondary_muscles?: muscleserverResponse[];
   primary_joints: JointApiResponse[];
@@ -1174,12 +1207,186 @@ export interface deleteExerciseInput {
 }
 
 export interface Workout {
-  name: string;
+  workout_name: string;
+  org_id: number;
   description?: string;
-  visiblefor: string | undefined;
-  goal: string;
+  visible_for: string | undefined;
+  goals: string;
   level: string;
   weeks: number;
-  member_ids: number[];
   img_url?: string;
+  members: number[];
+  file?: File[];
+}
+
+export interface Workoutupdate {
+  id: number;
+  workout_name: string;
+  description?: string;
+  goals: string;
+  img_url?: string;
+  level: string;
+  visible_for: string | undefined;
+  weeks: number;
+  members: number[];
+}
+export interface workoutResponse {
+  status_code: string;
+  id: number;
+  message: string;
+}
+
+export interface WorkoutUpdateResponse {
+  status: string;
+  workout_id: number;
+  message: string;
+}
+
+interface members {
+  member_id: number;
+}
+
+export interface WorkoutPlanView {
+  id: number;
+  workout_name: string;
+  description?: string;
+  goals: string;
+  image_url?: string;
+  level: difficultyEnum;
+  visible_for: VisibilityEnum;
+  weeks: number;
+  members: members[];
+  org_id: number;
+}
+
+export interface WorkoutPlansTableResponse {
+  data: WorkoutPlanView[];
+  total_counts: number;
+  filtered_counts: number;
+}
+
+export type Option = {
+  id: string;
+  name: string;
+};
+
+export type MultiSelectOption = {
+  name: number;
+  label: string;
+};
+
+export interface days {
+  workout_id: number;
+  day_name: string;
+  week: number;
+  day: number;
+  id?: number;
+  exercises?: exercises[]; // Assuming exercises have their own structure
+}
+export interface exercises {
+  workout_day_id: number;
+  exercise_id: number;
+  exercise_type: string;
+  sets: number;
+  seconds_per_set: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  exercise_intensity: string;
+  intensity_value: number;
+  notes?: string;
+  distance: number;
+  speed: number;
+  met_id?: number | null;
+  id: number;
+  exercise_name: string;
+  gif_url: string;
+  video_url_male?: string;
+  video_url_female?: string;
+  thumbnail_male?: string;
+  thumbnail_female?: string;
+}
+export interface WorkoutDatabyId {
+  workout_name: string;
+  org_id: number;
+  description?: string;
+  visible_for: VisibilityEnum;
+  goals: string;
+  level: difficultyEnum;
+  weeks: number;
+  img_url?: string;
+  id: number;
+  members: members[];
+  days: days[];
+}
+
+export interface workoutUpdateStatus {
+  id: number;
+  goals?: string;
+  level?: difficultyEnum;
+  weeks: number;
+}
+
+export interface exerciseByWorkoutDayUpdateResponse {
+  workout_day_id: number;
+  id: number;
+  exercise_type?: ExerciseTypeEnum;
+  intensity_value?: number;
+  exercise_id: number;
+  distance?: number;
+  sets?: number;
+  speed?: number;
+  met_id?: number;
+  seconds_per_set?: number[];
+  notes?: string;
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  exercise_intensity?: IntensityEnum;
+}
+
+export interface exerciseByWorkoutDayUpdateInput {
+  id: number;
+  exercise_type?: ExerciseTypeEnum;
+  sets: number;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  exercise_intensity?: IntensityEnum;
+  intensity_value?: number;
+  notes?: string;
+  exercise_id: number;
+}
+
+export interface getWorkoutdayExerciseResponse {
+  workout_day_id: number;
+  exercise_id: number;
+  exercise_type?: ExerciseTypeEnum;
+  sets: number;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  exercise_intensity?: IntensityEnum;
+  intensity_value?: number;
+  notes?: string;
+  distance?: number;
+  speed?: number;
+  met_id?: number;
+  id: number;
+  exercise_name: string;
+  gif_url: string;
+}
+
+export interface workoutDayExerciseInput {
+  workout_day_id?: number;
+  exercise_id?: number;
+  exercise_type: ExerciseTypeEnum;
+  sets?: number | null;
+  seconds_per_set?: number[];
+  repetitions_per_set?: number[];
+  rest_between_set?: number[];
+  exercise_intensity?: IntensityEnum;
+  intensity_value?: number | null;
+  notes?: string;
+  distance?: number | null;
+  speed?: number | null;
+  met_id?: number | null;
 }

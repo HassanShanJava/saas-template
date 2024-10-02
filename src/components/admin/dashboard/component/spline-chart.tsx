@@ -16,8 +16,8 @@ export default function SplineChart() {
           (+5) more in 2021
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <FilledtimeseriesChart className="aspect-[9/4]" />
+      <CardContent className="px-2 py-0">
+        <FilledtimeseriesChart className=" h-[50vh] max-h-[300px] p-0" />
       </CardContent>
     </Card>
   );

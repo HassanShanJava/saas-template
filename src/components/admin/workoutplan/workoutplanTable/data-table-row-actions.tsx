@@ -15,31 +15,36 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import warning from "@/assets/warning.svg";
-
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { createMembershipType, ErrorType } from "@/app/types";
-import { useDeleteMembershipsMutation } from "@/services/membershipsApi";
+import { ErrorType, WorkoutPlanView } from "@/app/types";
+import { useDeleteWorkoutMutation } from "@/services/workoutService";
+import { useNavigate } from "react-router-dom";
 
 export function DataTableRowActions({
+  access,
+  row,
   data,
   refetch,
   handleEdit,
 }: {
-  data: createMembershipType & { id: number };
+  access: string;
+  row: number;
+  data: WorkoutPlanView & { id: number };
   refetch?: any;
   handleEdit?: any;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
-  const [deleteMembership, { isLoading: deleteLoading }] =
-    useDeleteMembershipsMutation();
-  const { toast } = useToast();
+  const navigate = useNavigate(); // Use the navigate hook
 
+  const { toast } = useToast();
+  const [deleteWorkout, { isLoading: isdeletingWorkout }] =
+    useDeleteWorkoutMutation();
   const deleteRow = async () => {
     try {
-      const resp = await deleteMembership(data.id).unwrap();
+      const resp = await deleteWorkout(data.id).unwrap();
       if (resp) {
         refetch();
         toast({
@@ -66,6 +71,10 @@ export function DataTableRowActions({
       }
     }
   };
+  const handleEditClick = (data: WorkoutPlanView & { id: number }) => {
+    // Navigate to the edit route with the specific ID
+    navigate(`/admin/workoutplans/add/step/1/${data.id}?mode=edit`);
+  };
 
   return (
     <>
@@ -82,15 +91,17 @@ export function DataTableRowActions({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-4">
             <DialogTrigger asChild>
-              <DropdownMenuItem onClick={() => handleEdit(data)}>
+              <DropdownMenuItem onClick={() => handleEditClick(data)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            <DropdownMenuItem onClick={() => setIsDelete(true)}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
+            {access === "full_access" && (
+              <DropdownMenuItem onClick={() => setIsDelete(true)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </Dialog>
@@ -98,12 +109,11 @@ export function DataTableRowActions({
         <AlertDialog open={isdelete} onOpenChange={() => setIsDelete(false)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
               <AlertDialogDescription>
                 <div className="flex flex-col items-center  justify-center gap-4">
                   <img src={warning} alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this membership
+                    Please confirm if you want to delete this workout
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

@@ -39,10 +39,7 @@ import {
   workoutLevels,
 } from "@/lib/constants/workout";
 import { cn } from "@/lib/utils";
-import {
-  useGetCountriesQuery,
-  useGetMembersListQuery,
-} from "@/services/memberAPi";
+import { useGetMembersListQuery } from "@/services/memberAPi";
 import { Check, ChevronDownIcon, ImageIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -66,32 +63,36 @@ const { VITE_VIEW_S3_URL } = import.meta.env;
 import uploadimg from "@/assets/upload.svg";
 
 const WorkoutStep1: React.FC = () => {
-  const dropzone = {
+  const dropzoneOptions = {
     accept: {
-      "image/*": [".jpg", ".jpeg", ".png"],
+      "image/": [".jpg", ".jpeg", ".png"],
     },
     multiple: true,
     maxFiles: 1,
     maxSize: 1 * 1024 * 1024,
   } satisfies DropzoneOptions;
   const { form } = useOutletContext<ContextProps>();
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { data: countries } = useGetCountriesQuery();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { data: memberList } = useGetMembersListQuery(orgId);
-  const [files, setFiles] = useState<File[]>([]); // State for managing uploaded files
+  const fileInput = form.getValues("file");
+  const [files, setFiles] = useState<File[] | null>(fileInput ?? []);
+
   const {
     control,
     formState: { errors },
     register,
     watch,
+    setValue,
   } = form;
   console.log("errors", errors);
-  const fileWatcher = watch("img_url"); // Watch for profile_img field value
   const watcher = watch();
   const { trigger } = form;
+  const onFileChange = (value: File[] | null) => {
+    const fileArray = value ?? []; // Ensure it's an array
+    setFiles(fileArray);
+    setValue("file", fileArray);
+  };
   return (
     <FormProvider {...form}>
       <div className="mt-4 space-y-4">
@@ -99,341 +100,323 @@ const WorkoutStep1: React.FC = () => {
           {" "}
           Plan information and Details
         </p>
-        <div className="grid grid-cols-3 grid-rows-4 grid-flow-col gap-4">
+        <div className="grid grid-cols-[1fr_1fr_1fr] gap-x-8 gap-y-4">
           {/* <!-- Column 1: Name and Description --> \*/}
-          <div className="h-min">
-            <FloatingLabelInput
-              id="name"
-              label="Name*"
-              error={errors.name?.message}
-              maxLength={41}
-              {...register("name", {
-                required: "Required",
-                maxLength: {
-                  value: 40,
-                  message: "Name cannot exceed 40 characters",
-                },
-              })}
-            />
-          </div>
-          <div className="row-span-2">
-            <FloatingLabelInput
-              id="description"
-              label="Description"
-              type="textarea"
-              rows={4}
-              className="col-span-2"
-              {...register("description")}
-              error={errors.description?.message}
-            />
-            {/*<AutosizeTextarea
-								placeholder="description"
-								id="description"
-								minHeight={94}
-								maxHeight={600}
-								className="h-full"
-							/>*/}
-          </div>
-          <div className="h-min">
-            <Controller
-              name="member_ids"
-              control={control}
-              render={({
-                field: { onChange, value, onBlur },
-                fieldState: { invalid, error },
-              }) => (
-                <MultiSelect
-                  floatingLabel="Assign Members"
-                  key="Assign Members"
-                  options={memberList || []}
-                  defaultValue={value || []} // Ensure defaultValue is always an array
-                  onValueChange={(selectedValues) => onChange(selectedValues)}
-                  placeholder="Assign Members"
-                  variant="inverted"
-                  maxCount={1}
-                  className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                />
-              )}
-            />
-          </div>
-          {/* <!-- Column 2: Visibility and Repetition --> */}
-          <div className="h-min">
-            <Controller
-              name="goal"
-              rules={{ required: "Required" }}
-              control={control}
-              render={({
-                field: { onChange, value, onBlur },
-                fieldState: { invalid, error },
-              }) => (
-                <Select
-                  onValueChange={(value) => onChange(value)}
-                  defaultValue={value}
-                >
-                  <SelectTrigger floatingLabel="Goal*" name="goals">
-                    <SelectValue placeholder="Select Goal" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {workoutGoals.map((st: any, index: number) => (
-                      <SelectItem key={index} value={st.value}>
-                        {st.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.goal?.message && (
-              <span className="text-red-500 text-xs mt-[5px]">
-                {errors.goal?.message}
-              </span>
-            )}
-          </div>
-          <div className="h-min">
-            <Controller
-              name="level"
-              rules={{ required: "Required" }}
-              control={control}
-              render={({
-                field: { onChange, value, onBlur },
-                fieldState: { invalid, error },
-              }) => (
-                <Select
-                  onValueChange={(value) => onChange(value)}
-                  defaultValue={value}
-                >
-                  <SelectTrigger floatingLabel="Level*" name="level">
-                    <SelectValue placeholder="Select Level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {workoutLevels.map((st: any, index: number) => (
-                      <SelectItem key={index} value={st.value}>
-                        {st.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.level?.message && (
-              <span className="text-red-500 text-xs mt-[5px]">
-                {errors.level?.message}
-              </span>
-            )}
-          </div>
-          <div className="h-min">
-            <Controller
-              name="visiblefor"
-              rules={{ required: "Required" }}
-              control={control}
-              render={({
-                field: { onChange, value, onBlur },
-                fieldState: { invalid, error },
-              }) => (
-                <Select
-                  onValueChange={(value) => onChange(value)}
-                  defaultValue={value}
-                >
-                  <SelectTrigger floatingLabel="Visible For*" name="visiblefor">
-                    <SelectValue placeholder="Select Visible For" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {visibleFor.map((st: any, index: number) => (
-                      <SelectItem key={index} value={st.value}>
-                        {st.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.visiblefor?.message && (
-              <span className="text-red-500 text-xs mt-[5px]">
-                {errors.visiblefor?.message}
-              </span>
-            )}
-          </div>
-          <div className="h-min">
-            <Controller
-              name="weeks"
-              rules={{ required: "Required" }}
-              control={control}
-              render={({
-                field: { onChange, value, onBlur },
-                fieldState: { invalid, error },
-              }) => (
-                <Select
-                  onValueChange={(value) => onChange(Number(value))}
-                  defaultValue={
-                    (value ? String(value) : value) as string | undefined
-                  }
-                >
-                  <SelectTrigger floatingLabel="Weeks*" name="weeks">
-                    <SelectValue placeholder="Weeks" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 20 }, (_, i) => ({
-                      label: String(i + 1),
-                      value: String(i + 1),
-                    })).map((st: any, index: number) => (
-                      <SelectItem key={index} value={st.value}>
-                        {st.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.weeks?.message && (
-              <span className="text-red-500 text-xs mt-[5px]">
-                {errors.weeks?.message}
-              </span>
-            )}
-          </div>
-          {/* <!-- Column 3: Image Upload --> */}
-          {/*<div className="p-4">
-						<div className="mb-4">
-							<div className="justify-center items-center flex flex-col">
-								<div className="flex flex-col items-center justify-center p-4 border rounded h-52 w-52">
-									{selectedImage ? (
-										<img
-											src={URL.createObjectURL(selectedImage)}
-											alt="Selected"
-											className="h-full w-full object-cover"
-										/>
-									) : (
-										<ImageIcon className="w-12 h-12 text-gray-400" />
-									)}
-								</div>
-								<input
-									type="file"
-									accept="image/*"
-									onChange={handleImageChange}
-									className="hidden"
-									id="image-upload"
-								/>
-								<label htmlFor="image-upload">
-									<Button
-										variant="ghost"
-										className="mt-2 gap-2 border-dashed border-2 text-xs"
-									>
-										<FiUpload className="text-primary w-5 h-5" /> Image
-									</Button>
-								</label>
-							</div>
-						</div>
-					</div>*/}
-          <div className="row-span-4 h-min">
-            <div>
-              {/* <div className="justify-center items-center flex flex-col">
-                <div className="flex flex-col items-center justify-center p-4 border rounded h-32 w-32">
-                  {selectedImage ? (
-                    <img
-                      src={URL.createObjectURL(selectedImage)}
-                      alt="Selected"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <ImageIcon className="w-12 h-12 text-gray-400" />
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={() => {
-                    return;
-                  }}
-                  className="hidden"
-                  ref={fileInputRef}
-                />
-                <Button
-                  variant="ghost"
-                  className="px-2 mt-2 gap-1 border-dashed border-2 font-normal text-xs hover:bg-green-100"
-                  onClick={() => {
-                    return;
-                  }}
-                >
-                  <FiUpload className="text-primary w-5 h-5" /> Upload Picture
-                </Button>
-              </div> */}
-              {/* <Controller
-                name={"profile_image"}
+          <div className="space-y-4">
+            <div className="h-min">
+              <FloatingLabelInput
+                id="name"
+                label="Name*"
+                error={errors.workout_name?.message}
+                maxLength={41}
+                {...register("workout_name", {
+                  required: "Required",
+                  maxLength: {
+                    value: 40,
+                    message: "Name cannot exceed 40 characters",
+                  },
+                  pattern: {
+                    value: /^[A-Za-z0-9\s'-]+$/,
+                    message: "Name contains invalid characters",
+                  },
+                  validate: (value) => {
+                    if (/[<>&%$#@,/|~^()\[\]{}*+=`]/.test(value)) {
+                      return "Name contains disallowed special characters";
+                    }
+                    return true;
+                  },
+                })}
+              />
+            </div>
+            <div className="row-span-2">
+              <FloatingLabelInput
+                id="description"
+                label="description"
+                type="textarea"
+                rows={4}
+                maxLength={350}
+                className="col-span-2"
+                {...register("description", {
+                  maxLength: {
+                    value: 350,
+                    message: "Description cannot exceed 350 characters",
+                  },
+                  pattern: {
+                    value: /^[A-Za-z0-9\s.,\-_]+$/,
+                    message: "Description contains invalid characters",
+                  },
+                  validate: (value) => {
+                    if (/[<>&%$#@/|~^()\[\]{}*+=`]/.test(value || "")) {
+                      return "Description contains disallowed special characters";
+                    }
+                    return true;
+                  },
+                })}
+                error={errors.description?.message}
+              />
+            </div>
+            <div className="h-min">
+              <Controller
+                name="members"
                 control={control}
                 render={({
                   field: { onChange, value, onBlur },
                   fieldState: { invalid, error },
                 }) => (
-                  <div className="">
-                    <FileUploader
-                      value={files}
-                      onValueChange={setFiles}
-                      dropzoneOptions={dropzone}
-                    >
-                      {files &&
-                        files?.map((file, i) => (
-                          <div className="h-[180px] ">
-                            <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
-                              <FileUploaderItem
-                                key={i}
-                                index={i}
-                                className="h-full  p-0 rounded-md overflow-hidden relative "
-                                aria-roledescription={`file ${i + 1} containing ${file.name}`}
-                              >
-                                <img
-                                  src={URL.createObjectURL(file)}
-                                  alt={file.name}
-                                  className="object-contain max-h-[180px]"
-                                />
-                              </FileUploaderItem>
-                            </FileUploaderContent>
-                          </div>
-                        ))}
-
-                      <FileInput className="flex flex-col gap-2  ">
-                        {files?.length == 0 && watcher?.profile_img == null ? (
-                          <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
-                            <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
-                          </div>
-                        ) : (
-                          files?.length == 0 &&
-                          watcher?.profile_img && (
-                            <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
-                              <img
-                                src={
-                                  watcher?.profile_img !== "" &&
-                                  watcher?.profile_img
-                                    ? VITE_VIEW_S3_URL +
-                                      "/" +
-                                      watcher?.profile_img
-                                    : ""
-                                }
-                                loading="lazy"
-                                className="object-contain max-h-[180px] "
-                              />
-                            </div>
-                          )
-                        )}
-
-                        <div className="flex items-center  justify-start gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
-                          <img src={uploadimg} className="size-10" />
-                          <span className="text-sm">
-                            {watcher.profile_img
-                              ? "Change Image"
-                              : "Upload Image"}
-                          </span>
-                        </div>
-                      </FileInput>
-                    </FileUploader>
-
-                    {errors.profile_img?.message && files?.length == 0 && (
-                      <span className="text-red-500 text-xs mt-[5px]">
-                        {errors.profile_img?.message}
-                      </span>
-                    )}
-                  </div>
+                  <MultiSelect
+                    floatingLabel="Assign Members"
+                    key="Assign Members"
+                    options={memberList || []}
+                    defaultValue={value || []} // Ensure defaultValue is always an array
+                    onValueChange={(selectedValues) => onChange(selectedValues)}
+                    placeholder="Assign Members"
+                    variant="inverted"
+                    maxCount={1}
+                    className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  />
                 )}
-              /> */}
+              />
             </div>
+          </div>
+          <div className="space-y-4">
+            {/* <!-- Column 2: Visibility and Repetition --> */}
+            <div className="h-min">
+              <Controller
+                name="goals"
+                rules={{ required: "Required" }}
+                control={control}
+                render={({
+                  field: { onChange, value, onBlur },
+                  fieldState: { invalid, error },
+                }) => (
+                  <Select
+                    onValueChange={(value) => onChange(value)}
+                    value={value}
+                  >
+                    <SelectTrigger floatingLabel="Goal*" name="goals">
+                      <SelectValue placeholder="Select Goal" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {workoutGoals.map((st: any, index: number) => (
+                        <SelectItem key={index} value={st.label}>
+                          {st.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.goals?.message && (
+                <span className="text-red-500 text-xs mt-[5px]">
+                  {errors.goals?.message}
+                </span>
+              )}
+            </div>
+            <div className="h-min">
+              <Controller
+                name="level"
+                rules={{ required: "Required" }}
+                control={control}
+                render={({
+                  field: { onChange, value, onBlur },
+                  fieldState: { invalid, error },
+                }) => (
+                  <Select
+                    onValueChange={(value) => onChange(value)}
+                    value={value}
+                  >
+                    <SelectTrigger floatingLabel="Level*" name="level">
+                      <SelectValue placeholder="Select Level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {workoutLevels.map((st: any, index: number) => (
+                        <SelectItem key={index} value={st.label}>
+                          {st.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.level?.message && (
+                <span className="text-red-500 text-xs mt-[5px]">
+                  {errors.level?.message}
+                </span>
+              )}
+            </div>
+            <div className="h-min">
+              <Controller
+                name="visible_for"
+                rules={{ required: "Required" }}
+                control={control}
+                render={({
+                  field: { onChange, value, onBlur },
+                  fieldState: { invalid, error },
+                }) => (
+                  <Select
+                    onValueChange={(value) => onChange(value)}
+                    value={value}
+                  >
+                    <SelectTrigger
+                      floatingLabel="Visible For*"
+                      name="visible_for"
+                    >
+                      <SelectValue placeholder="Select Visible For" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {visibleFor.map((st: any, index: number) => (
+                        <SelectItem key={index} value={st.value}>
+                          {st.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.visible_for?.message && (
+                <span className="text-red-500 text-xs mt-[5px]">
+                  {errors.visible_for?.message}
+                </span>
+              )}
+            </div>
+            <div className="h-min">
+              {/* <Controller
+                name="weeks"
+                rules={{ required: "Required" }}
+                control={control}
+                render={({
+                  field: { onChange, value, onBlur },
+                  fieldState: { invalid, error },
+                }) => (
+                  <Select
+                    onValueChange={(value) => onChange(Number(value))}
+                    value={
+                      (value ? String(value) : value) as string | undefined
+                    }
+                  >
+                    <SelectTrigger floatingLabel="Weeks*" name="weeks">
+                      <SelectValue placeholder="Weeks" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 20 }, (_, i) => ({
+                        label: String(i + 1),
+                        value: String(i + 1),
+                      })).map((st: any, index: number) => (
+                        <SelectItem key={index} value={st.value}>
+                          {st.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.weeks?.message && (
+                <span className="text-red-500 text-xs mt-[5px]">
+                  {errors.weeks?.message}
+                </span>
+              )} */}
+              <Controller
+                name="weeks"
+                control={control}
+                rules={{
+                  required: "Required",
+                  min: {
+                    value: 1,
+                    message: "Minimum 1 week",
+                  },
+                  max: {
+                    value: 20,
+                    message: "Maximum 20 weeks",
+                  },
+                }}
+                render={({ field: { onChange, value, ref } }) => (
+                  <FloatingLabelInput
+                    id="weeks"
+                    label="Weeks*"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={20}
+                    value={value}
+                    onChange={(e) => onChange(parseInt(e.target.value, 10))}
+                    error={errors.weeks?.message}
+                    ref={ref}
+                  />
+                )}
+              />
+            </div>
+          </div>
+          <div className="space-y-4">
+            <Controller
+              name={"file"}
+              control={control}
+              render={({ field }) => (
+                <div className="">
+                  <FileUploader
+                    value={files}
+                    onValueChange={onFileChange}
+                    dropzoneOptions={dropzoneOptions}
+                  >
+                    {files &&
+                      files?.map((file, i) => (
+                        <div className="h-[145px] ">
+                          <FileUploaderContent className="flex items-center  justify-center  flex-row gap-2 bg-gray-100 ">
+                            <FileUploaderItem
+                              key={i}
+                              index={i}
+                              className="h-[145px] w-full p-0 rounded-md overflow-hidden relative bg-gray-100 flex items-center justify-center" // Ensure the background doesn't shrink
+                              aria-roledescription={`file ${i + 1} containing ${file.name}`}
+                            >
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={file.name}
+                                className="object-contain max-h-[145px] max-w-full mx-auto" // Ensures the image stays within the container and is centered
+                              />
+                            </FileUploaderItem>
+                          </FileUploaderContent>
+                        </div>
+                      ))}
+
+                    <FileInput className="flex flex-col gap-2  ">
+                      {files?.length == 0 && watcher?.img_url == null ? (
+                        <div className="flex items-center justify-center h-[145px] w-full border bg-background rounded-md ">
+                          <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
+                        </div>
+                      ) : (
+                        files?.length == 0 &&
+                        watcher?.img_url && (
+                          <div className="flex items-center justify-center h-[145px] w-full border bg-background rounded-md ">
+                            <img
+                              src={
+                                watcher?.img_url !== "" && watcher?.img_url
+                                  ? VITE_VIEW_S3_URL + "/" + watcher?.img_url
+                                  : watcher.img_url
+                              }
+                              loading="lazy"
+                              className="object-contain max-h-[145px] m-5 border-t border-b"
+                            />
+                          </div>
+                        )
+                      )}
+                      <div className="flex items-center  justify-center gap-1 w-full border-dashed border-2 border-gray-200 rounded-md px-2 py-1">
+                        <img src={uploadimg} className="size-10" />
+                        <span className="text-sm">
+                          {watcher.img_url || files?.length
+                            ? "Change Image"
+                            : "Upload Image"}
+                        </span>
+                      </div>
+                    </FileInput>
+                  </FileUploader>
+
+                  {errors.img_url?.message && files?.length == 0 && (
+                    <span className="text-red-500 text-xs mt-[5px]">
+                      {errors.img_url?.message}
+                    </span>
+                  )}
+                </div>
+              )}
+            />
           </div>
         </div>
       </div>

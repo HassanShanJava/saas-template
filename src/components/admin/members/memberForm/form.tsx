@@ -333,11 +333,13 @@ const MemberForm = ({
   useEffect(() => {
     if (action == "edit") {
       const memberpayload = { ...memberData };
+      
       memberpayload.coach_id = memberData?.coaches.every(
         (item) => item.id === 0 && item.name.trim() === ""
       )
         ? []
         : memberData?.coaches.map((item) => item.id);
+
       if (
         memberpayload?.mobile_number &&
         [0, 2, 3, 4].includes(memberpayload.mobile_number?.length)
@@ -683,6 +685,7 @@ const MemberForm = ({
                       label="Email Address*"
                       {...register("email", {
                         required: "Required",
+                        setValueAs: (value) => value.toLowerCase(),
                         maxLength: {
                           value: 50,
                           message: "Should be 50 characters or less",

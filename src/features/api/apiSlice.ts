@@ -7,6 +7,7 @@ import {
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
 import { logout, tokenReceived } from "../auth/authSlice";
+import { setCode, setCounter } from "../counter/counterSlice";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -42,6 +43,8 @@ const baseQueryWithReauth: BaseQueryFn<
       localStorage.setItem("userToken", newAccessToken);
       result = await baseQuery(args, api, extraOptions);
     } else {
+      api.dispatch(setCode(null))
+      api.dispatch(setCounter(null))
       api.dispatch(logout());
     }
   }
@@ -76,5 +79,7 @@ export const apiSlice = createApi({
     "MealPlans",
     "Members",
     "Reset",
+    "Workout",
+    "Counter"
   ],
 });

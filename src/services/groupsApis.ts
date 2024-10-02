@@ -18,6 +18,7 @@ export const Groups = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
+        providesTags: ["Groups"],
         transformResponse: (resp: groupRespType[]) => {
           return resp.map((item) => ({
             value: item.id,
@@ -25,7 +26,6 @@ export const Groups = apiSlice.injectEndpoints({
             id: item.id
           }));
         },
-        providesTags: ["Groups"],
       }),
       createGroup: builder.mutation<groupRespType, groupCreateType>({
         query: (membershipsydata) => ({

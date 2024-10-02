@@ -15,7 +15,9 @@ export interface counterDataType {
     name: string
   }[]
   staff_ids?: number[];
+  staff_id?: number | null;
   status?: string;
+  is_open?:boolean;
 }
 
 export interface CreateCounter {

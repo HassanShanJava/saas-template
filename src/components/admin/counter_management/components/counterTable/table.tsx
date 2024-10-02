@@ -270,7 +270,7 @@ export default function CounterTableView() {
       enableHiding: false,
     },
     {
-      accessorKey: "assigned_cashier",
+      accessorKey: "staff",
       meta: "Assigned Cashiers",
       header: () => <p className="text-nowrap">Assigned Cashiers</p>,
       cell: ({ row }) => {
@@ -278,6 +278,20 @@ export default function CounterTableView() {
           <Button className="h-8" onClick={() => handleViewCashier(row?.original)}>
             View Cashiers
           </Button>
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "is_open",
+      meta: "Counter Open",
+      header: () => <p className="text-nowrap">Counter Open</p>,
+      cell: ({ row }) => {
+        return (
+          <p className="h-8" >
+            {row.original?.is_open?"Open":"Close"}
+          </p>
         );
       },
       enableSorting: false,

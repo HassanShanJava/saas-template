@@ -18,6 +18,8 @@ import { useDispatch } from "react-redux";
 import { backPageCount, resetBackPageCount, setCode, setCounter } from "@/features/counter/counterSlice";
 import { Button } from "../button";
 import { extractLinks } from "@/utils/helper";
+import { useUpdateCountersMutation } from "@/services/counterApi";
+import { toast } from "../use-toast";
 
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
@@ -31,7 +33,7 @@ const DashboardLayout: React.FC = () => {
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
-  const { code, back } = useSelector((state: RootState) => state.counter);
+  const { code, counter_number } = useSelector((state: RootState) => state.counter);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
@@ -69,7 +71,30 @@ const DashboardLayout: React.FC = () => {
     return currentPath === targetPath;
   };
 
+
+  const [assignCounter] = useUpdateCountersMutation()
+  
+  const closeCounter = async () => {
+    try {
+      const payload = {
+        id: counter_number,
+        staff_id: null,
+        is_open: false,
+      };
+      const resp = await assignCounter(payload).unwrap();
+      if(resp){
+        toast({
+          variant: "success",
+          title: "Counter Closed Successfully",
+        })
+      }
+    } catch (error) {
+      console.error("Error assigning counter:", error);
+    }
+  }
+
   const closePOSPanel = () => {
+    closeCounter()
     navigate('/', { replace: true });
     dispatch(setCode(null));
     dispatch(setCounter(null));
@@ -78,6 +103,7 @@ const DashboardLayout: React.FC = () => {
   }
 
   const goBack = () => {
+    closeCounter()
     dispatch(setCode(null));
     dispatch(setCounter(null));
     dispatch(resetBackPageCount())

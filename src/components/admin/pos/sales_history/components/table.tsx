@@ -11,6 +11,14 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -44,6 +52,7 @@ import { DataTableViewOptions } from "./data-table-view-options";
 import { sessionMapper, downloadCSV } from "@/utils/helper";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { salesData } from "@/constants/sale_history";
+import { Button } from "@/components/ui/button";
 
 interface searchCretiriaType {
   limit: number;
@@ -630,55 +639,110 @@ export default function SaleshistoryRegisterViewTable() {
                     </TableRow>
                     {row.getIsExpanded() && (
                       <TableRow>
+                        {/* Refund Item Details */}
+                        <TableCell key={row.original.id}></TableCell>
                         <TableCell
-                          colSpan={row.getAllCells().length}
-                          className="pr-40"
+                          key={row.original.id}
+                          className="flex gap-2 items-center justify-between w-fit"
                         >
-                          <span className="border-primary border-b-4">
-                            Refund Details
-                          </span>
-                          <div className="flex flex-row">
-                            {/* Refund Item Details */}
-                            <div className="w-full">ID: {row.original.id}</div>
-                            <div className="w-full">
-                              Receipt: {row.original.receiptNumber}
-                            </div>
-                            <div className="w-full ">
-                              Type: {row.original.type}
-                            </div>
-                            <div className="w-full">
-                              Status: {row.original.status}
-                            </div>
-                            <div className="w-full">
-                              Tax: Rs {row.original.taxAmount}
-                            </div>
-                            <div className="w-full ">
-                              Discount: Rs {row.original.discountAmount}
-                            </div>
-                            <div className="w-full">
-                              Total: Rs {row.original.totalAmount}
-                            </div>
-                            <div className="w-full">
-                              Tax Rate: {row.original.taxRate}%
-                            </div>
-                            <div className="w-full">
-                              Tax Name: {row.original.taxName}
-                            </div>
-                            <div className="w-full">
-                              Created At: {row.original.created_at}
-                            </div>
-                            <div className="w-full">
-                              Created By: {row.original.created_by}
-                            </div>
-
-                            {/* Action Button */}
-                            <div className="w-full text-right">
-                              <button className="text-gray-500 hover:text-gray-700">
-                                &#x22EE; {/* Vertical ellipsis (three dots) */}
-                              </button>
-                            </div>
-                          </div>
+                          <div className="h-3 w-3"></div>
+                          {row.original.receiptNumber}
                         </TableCell>
+                        <TableCell key={row.original.type}>
+                          <span className="capitalize cursor-pointer">
+                            {row.original.type}
+                          </span>
+                        </TableCell>
+                        <TableCell key={row.original.created_at}>
+                          <span className="capitalize cursor-pointer">
+                            {row.original.created_at}
+                          </span>
+                        </TableCell>
+                        <TableCell key={row.original.taxAmount}>
+                          <span className="capitalize cursor-pointer">
+                            {row.original.taxAmount}
+                          </span>
+                        </TableCell>
+                        <TableCell key={row.original.taxRate}>
+                          <span className="capitalize cursor-pointer">
+                            {row.original.taxName} {row.original.taxRate}%
+                          </span>
+                        </TableCell>
+                        <TableCell key={row.original.discountAmount}>
+                          <span className="capitalize cursor-pointer">
+                            {row.original.discountAmount}
+                          </span>
+                        </TableCell>
+                        <TableCell key={row.original.totalAmount}>
+                          <span className="capitalize cursor-pointer">
+                            {row.original.totalAmount}
+                          </span>
+                        </TableCell>
+                        <TableCell key={row.original.status}>
+                          <span className="capitalize cursor-pointer">
+                            {row.original.status}
+                          </span>
+                        </TableCell>
+                        <TableCell key={row.original.created_by}>
+                          <span className="capitalize cursor-pointer">
+                            {row.original.created_by}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Dialog>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+                                >
+                                  <MoreVertical className="h-4 w-4" />
+                                  <span className="sr-only">Open menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-4">
+                                <DialogTrigger asChild>
+                                  <DropdownMenuItem
+                                  // onClick={() => handleEdit(data)}
+                                  >
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    View
+                                  </DropdownMenuItem>
+                                </DialogTrigger>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </Dialog>
+                        </TableCell>
+                        {/* <div className="w-full">
+                          Status: {row.original.status}
+                        </div>
+                        <div className="w-full">
+                          Tax: Rs {row.original.taxAmount}
+                        </div>
+                        <div className="w-full ">
+                          Discount: Rs {row.original.discountAmount}
+                        </div>
+                        <div className="w-full">
+                          Total: Rs {row.original.totalAmount}
+                        </div>
+                        <div className="w-full">
+                          Tax Rate: {row.original.taxRate}%
+                        </div>
+                        <div className="w-full">
+                          Tax Name: {row.original.taxName}
+                        </div>
+                        <div className="w-full">
+                          Created At: {row.original.created_at}
+                        </div>
+                        <div className="w-full">
+                          Created By: {row.original.created_by}
+                        </div> */}
+                        {/* Action Button */}
+                        {/* <div className="w-full text-right">
+                          <button className="text-gray-500 hover:text-gray-700"> */}
+                        {/* &#x22EE; Vertical ellipsis (three dots) */}
+                        {/* </button> */}
+                        {/* </div> */}
                       </TableRow>
                     )}
                   </>

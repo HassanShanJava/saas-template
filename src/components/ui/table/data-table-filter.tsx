@@ -99,6 +99,7 @@ const TableFilters = ({
                       setFilter={element.function}
                       list={element.options}
                       name={element.name}
+                      label={element.label}
                     />
                   );
                 }
@@ -127,7 +128,7 @@ const TableFilters = ({
                       type={"number"}
                       min={0}
                       id={element.name}
-                      name={element.label}
+                      name={element.name}
                       label={element.label}
                       onChange={element.function}
                     />
@@ -201,9 +202,10 @@ interface comboboxType {
   defaultValue?: string;
   setFilter?: any;
   name?: string;
+  label?: string;
 }
 
-function Combobox({ list, setFilter, name, defaultValue }: comboboxType) {
+function Combobox({ list, setFilter, name, defaultValue,label }: comboboxType) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(list?.find((list) => list.value == defaultValue)?.label ?? "");
   console.log({ value, list, defaultValue });
@@ -218,13 +220,13 @@ function Combobox({ list, setFilter, name, defaultValue }: comboboxType) {
         >
           {value
             ? list && list?.find((list) => list.label == value)?.label
-            : "Select " + name?.toLowerCase()}
+            : "Select " + label?.toLowerCase()}
           <ChevronsDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[330px] p-0">
         <Command>
-          <CommandInput placeholder={`Search ${name}`} />
+          <CommandInput placeholder={`Search ${label}`} />
           <CommandEmpty>No list found.</CommandEmpty>
           <CommandList className="custom-scrollbar">
             <CommandGroup>

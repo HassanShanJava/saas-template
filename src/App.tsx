@@ -39,6 +39,11 @@ import Register from "./components/admin/pos/register";
 import SaleHistory from "./components/admin/pos/sales_history";
 import CounterSelection from "./components/admin/counter_management/counter-selection"
 
+import { createPluginStore, PluginProvider } from "react-pluggable";
+import PaymentMethodsPlugin from "./plugins/PaymentMethodsPlugin";
+
+const pluginStore = createPluginStore();
+pluginStore.install(new PaymentMethodsPlugin)
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -48,6 +53,7 @@ function App() {
 
   return (
     <>
+      <PluginProvider pluginStore={pluginStore}>
       <IdleLogoutHandler />
       <Routes>
         <Route path="/reset_password/:token" element={<ResetPassword />} />
@@ -88,10 +94,7 @@ function App() {
               <Route path="register" element={<Register />} />
               <Route path="cash" element={<CashManagement />} />
             </Route>
-            <Route
-              path="/admin/paymentMethods"
-              element={<PaymentMethods />}
-            />
+            <Route path="/admin/paymentMethods" element={<PaymentMethods />} />
             <Route path="/admin/counter" element={<CounterManagement />} />
           </Route>
           <Route path="/notfound" element={<NotFoundPage />} />
@@ -100,6 +103,7 @@ function App() {
         <Route path="/counter-selection" element={<CounterSelection />} />
       </Routes>
       <Loader open={loading} />
+      </PluginProvider>
     </>
   );
 }

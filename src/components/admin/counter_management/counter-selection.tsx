@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card'
 import { setCode, setCounter } from '@/features/counter/counterSlice'
 import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import cashcounter from '@/assets/cashier-counter.svg'
 import { useGetCountersQuery, useUpdateCountersMutation } from '@/services/counterApi'
 import { useSelector } from 'react-redux'
@@ -11,6 +11,7 @@ import { counterDataType, ErrorType } from '@/app/types'
 import { toast } from '@/components/ui/use-toast'
 const CounterSelection = () => {
     const { userInfo } = useSelector((state: RootState) => state.auth);
+    const { counter_number } = useSelector((state: RootState) => state.counter);
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
@@ -27,7 +28,7 @@ const CounterSelection = () => {
             // staff array
             const singleCounter = counter.staff[0];
             console.log({ singleCounter }, "assignedCounter.data");
-            
+
             try {
                 const payload = {
                     id: counter.id,
@@ -71,9 +72,10 @@ const CounterSelection = () => {
     };
 
     useEffect(() => {
-        if (assignedCounterData?.length === 1) {
+        if (counter_number == null && assignedCounterData?.length === 1) {
             assignSingleCounter(assignedCounterData[0]);
-        } else if (assignedCounterData?.length > 1) {
+        } else if (counter_number == null && assignedCounterData?.length > 0 && assignedCounterData.some((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)) {
+            console.log("already opened counterk")
             const findOpenedCounter = assignedCounterData.find((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)
             assignSingleCounter(findOpenedCounter as counterDataType);
         }
@@ -86,17 +88,24 @@ const CounterSelection = () => {
                 <>
                     {assignedCounterData.length > 1 ? (
                         <Card className="w-full p-5 space-y-4 max-w-2xl mx-auto">
-                            <p>Please select a counter to start selling</p>
-                            <div className="grid grid-cols-3 gap-3 w-fit mx-auto justify-center items-center">
+                            <div className='flex justify-between items-center gap-2'>
+                                <p>Please select a counter to start selling</p>
+                                <Link to={"/"} className='text-primary'>
+                                    <i className="rounded-[50%] fa fa-arrow-left px-2 py-0.5 mr-2 text-base border-2 border-primary text-primary"></i>
+                                    Back to gym
+                                </Link>
+
+                            </div>
+                            <div className="grid grid-cols-3 gap-10 w-fit mx-auto justify-center items-center">
                                 {assignedCounterData.map((item: any, i: number) => (
                                     <button
                                         key={i}
                                         onClick={() => assignSingleCounter(item)}
-                                        className={`cursor-pointer rounded-md size-48 flex flex-col justify-center items-center bg-outletcolor ${item.is_open ? "bg-black/10 cursor-not-allowed" : ""
+                                        className={`cursor-pointer rounded-md size-52 flex flex-col justify-center items-center bg-outletcolor ${item.is_open ? "bg-black/10 cursor-not-allowed" : ""
                                             }`}
                                     >
                                         <img src={cashcounter} alt="/" className="p-0 size-28" />
-                                        <p className="text-center text-lg">Counter {item.name}</p>
+                                        <p className="text-center text-lg capitalize">{item.name}</p>
                                     </button>
                                 ))}
                             </div>
@@ -115,7 +124,7 @@ const CounterSelection = () => {
                 </>
             )}
 
-            {assignedCounterData.length === 1 && (
+            {(assignedCounterData.length === 1 || assignedCounterData.some((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)) && (
                 <div className="fixed top-0 left-0 z-40 w-full h-screen flex justify-center items-center bg-black/40">
                     <i className="animate-spin text-primary text-3xl font-bold text-main fas fa-spinner"></i>
                 </div>

@@ -8,7 +8,6 @@ import {
   useOpenRegisterMutation,
 } from "@/services/registerApi";
 import { ErrorType, registerSessionStorage } from "@/app/types";
-
 // registerSessionStorage;
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
@@ -21,6 +20,7 @@ import {
   saveToLocalStorage,
 } from "@/utils/helper";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from "react-router-dom";
 interface OpenRegisterFormInputs {
   opening_balance: number;
 }
@@ -29,7 +29,7 @@ const OpenRegister: React.FC = () => {
   const { code, counter_number } = useSelector(
     (state: RootState) => state.counter
   );
-
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -77,6 +77,7 @@ const OpenRegister: React.FC = () => {
             title: "Store opened successfully",
           });
           saveToLocalStorage("registerSession", sessionData);
+          navigate("/admin/pos/sell");
         }
       }
     } catch (error: unknown) {

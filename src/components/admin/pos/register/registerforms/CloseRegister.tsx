@@ -13,7 +13,7 @@ import { displayDateTime, displayValue } from "@/utils/helper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorType } from "@/app/types";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
-
+import { AlertDiscrepancy } from "./../components/close-register";
 interface CloseRegisterFormInputs {
   closing_balance: number;
   notes?: string;
@@ -131,7 +131,7 @@ const CloseRegister: React.FC = () => {
                   {displayDateTime(counterData?.opening_time?.toString())}
                 </p>
                 <p className="text-lg flex gap-2">
-                  <strong>Total Cash Recieved in this Session:</strong>{" "}
+                  <strong>Total Cash Recieved:</strong>{" "}
                   {displayValue(counterData?.total_amount?.toString())}
                 </p>
               </div>

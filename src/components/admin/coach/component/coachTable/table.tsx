@@ -73,13 +73,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import usePagination from "@/hooks/use-pagination";
+import Pagination from "@/components/ui/table/pagination-table";
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 
-interface searchCretiriaType {
+interface searchCriteriaType {
   limit: number;
   offset: number;
   sort_order: string;
@@ -102,8 +104,8 @@ export default function CoachTableView() {
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
-  const [searchCretiria, setSearchCretiria] =
-    useState<searchCretiriaType>(initialValue);
+  const [searchCriteria, setSearchCriteria] =
+    useState<searchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
 
   // search input
@@ -113,7 +115,7 @@ export default function CoachTableView() {
   const [filterData, setFilter] = useState({});
 
   useEffect(() => {
-    setSearchCretiria((prev) => {
+    setSearchCriteria((prev) => {
       const newCriteria = { ...prev };
 
       if (debouncedInputValue.trim() !== "") {
@@ -128,11 +130,11 @@ export default function CoachTableView() {
       return newCriteria;
     });
     console.log({ debouncedInputValue });
-  }, [debouncedInputValue, setSearchCretiria]);
+  }, [debouncedInputValue, setSearchCriteria]);
 
   useEffect(() => {
     const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(searchCretiria)) {
+    for (const [key, value] of Object.entries(searchCriteria)) {
       console.log({ key, value });
       if (value !== undefined && value !== null) {
         params.append(key, value);
@@ -141,7 +143,7 @@ export default function CoachTableView() {
     const newQuery = params.toString();
     console.log({ newQuery });
     setQuery(newQuery);
-  }, [searchCretiria]);
+  }, [searchCriteria]);
 
   const {
     data: coachData,
@@ -234,7 +236,7 @@ export default function CoachTableView() {
     value == null || value == "" ? "N/A" : value;
 
   const toggleSortOrder = (key: string) => {
-    setSearchCretiria((prev) => {
+    setSearchCriteria((prev) => {
       const newSortOrder =
         prev.sort_key === key
           ? prev.sort_order === "desc"
@@ -298,7 +300,7 @@ export default function CoachTableView() {
             onClick={() => toggleSortOrder("id")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -324,7 +326,7 @@ export default function CoachTableView() {
             onClick={() => toggleSortOrder("first_name")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -391,7 +393,7 @@ export default function CoachTableView() {
             onClick={() => toggleSortOrder("activated_on")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -415,7 +417,7 @@ export default function CoachTableView() {
             onClick={() => toggleSortOrder("coach_status")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -475,7 +477,7 @@ export default function CoachTableView() {
             onClick={() => toggleSortOrder("check_in")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -499,7 +501,7 @@ export default function CoachTableView() {
             onClick={() => toggleSortOrder("last_online")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -553,52 +555,18 @@ export default function CoachTableView() {
   ];
 
   const totalRecords = coachData?.filtered_counts || 0;
-  const lastPageOffset = Math.max(
-    0,
-    Math.floor((totalRecords - 1) / searchCretiria.limit) * searchCretiria.limit
-  );
-  const isLastPage = searchCretiria.offset >= lastPageOffset;
-  console.log(
+  const {
+    handleLimitChange,
+    handleNextPage,
+    handlePrevPage,
+    handleFirstPage,
+    handleLastPage,
     isLastPage,
-    searchCretiria.offset,
-    lastPageOffset,
-    "lastPageOffset"
-  );
-
-  const nextPage = () => {
-    if (!isLastPage) {
-      setSearchCretiria((prev) => ({
-        ...prev,
-        offset: prev.offset + prev.limit,
-      }));
-    }
-  };
-
-  // Function to go to the previous page
-  const prevPage = () => {
-    setSearchCretiria((prev) => ({
-      ...prev,
-      offset: Math.max(0, prev.offset - prev.limit),
-    }));
-  };
-
-  // Function to go to the first page
-  const firstPage = () => {
-    setSearchCretiria((prev) => ({
-      ...prev,
-      offset: 0,
-    }));
-  };
-
-  // Function to go to the last page
-  const lastPage = () => {
-    if (!isLastPage) {
-      setSearchCretiria((prev) => ({
-        ...prev,
-        offset: lastPageOffset,
-      }));
-    }
-  };
+  } = usePagination<searchCriteriaType>({
+    totalRecords,
+    searchCriteria,
+    setSearchCriteria,
+  });
 
   const handleOpenForm = (coachData: coachUpdateInput | null = null) => {
     setEditCoach(coachData);
@@ -608,16 +576,16 @@ export default function CoachTableView() {
   const [open, setOpen] = useState<boolean>(false);
   const [editCoach, setEditCoach] = useState<coachUpdateInput | null>(null);
   return (
-    <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
-        <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
+    <div className="w-full space-y-4 ">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 ">
+        <div className="flex  flex-1 space-x-2  lg:mb-0">
           <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
             <FloatingLabelInput
               id="search"
               placeholder="Search by name"
               onChange={(event) => setInputValue(event.target.value)}
-              className=" w-80 lg:w-64 pl-8 text-gray-400"
+              className=" w-80 lg:w-64 pl-8 text-sm placeholder:text-sm text-gray-400 h-8"
             />
           </div>
         </div>
@@ -625,7 +593,7 @@ export default function CoachTableView() {
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
           {coach !== "read" && <Button
-            className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
+            className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
             onClick={() => handleOpenForm()}
           >
             <PlusIcon className="size-4" />
@@ -633,7 +601,7 @@ export default function CoachTableView() {
           </Button>}
           <DataTableViewOptions table={table} action={handleExportSelected} />
           <button
-            className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
+            className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}
           >
             <i className="fa fa-filter"></i>
@@ -722,103 +690,17 @@ export default function CoachTableView() {
 
       {/* pagination */}
       {coachTableData.length > 0 && (
-        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium">Items per page:</p>
-              <Select
-                value={searchCretiria.limit.toString()}
-                onValueChange={(value) => {
-                  const newSize = Number(value);
-                  setSearchCretiria((prev) => ({
-                    ...prev,
-                    limit: newSize,
-                    offset: 0, // Reset offset when page size changes
-                  }));
-                }}
-              >
-                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-                  <SelectValue>{searchCretiria.limit}</SelectValue>
-                </SelectTrigger>
-                <SelectContent side="bottom">
-                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={pageSize.toString()}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Separator
-              orientation="vertical"
-              className="h-11 w-[1px] bg-gray-300"
-            />
-            <span>
-              {" "}
-              {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${coachData?.filtered_counts} Items  `}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center space-x-2">
-              <Separator
-                orientation="vertical"
-                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
-                onClick={firstPage}
-                disabled={searchCretiria.offset === 0}
-              >
-                <DoubleArrowLeftIcon className="h-4 w-4" />
-              </Button>
-
-              <Separator
-                orientation="vertical"
-                className="h-11 w-[0.5px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-                onClick={prevPage}
-                disabled={searchCretiria.offset === 0}
-              >
-                <ChevronLeftIcon className="h-4 w-4" />
-              </Button>
-
-              <Separator
-                orientation="vertical"
-                className="h-11 w-[1px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-                onClick={nextPage}
-                disabled={isLastPage}
-              >
-                <ChevronRightIcon className="h-4 w-4" />
-              </Button>
-
-              <Separator
-                orientation="vertical"
-                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-                onClick={lastPage}
-                disabled={isLastPage}
-              >
-                <DoubleArrowRightIcon className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+        <Pagination
+          limit={searchCriteria.limit}
+          offset={searchCriteria.offset}
+          totalItems={totalRecords}
+          onLimitChange={handleLimitChange}
+          onNextPage={handleNextPage}
+          onPrevPage={handlePrevPage}
+          onFirstPage={handleFirstPage}
+          onLastPage={handleLastPage}
+          isLastPage={isLastPage}
+        />
       )}
 
       <TableFilters
@@ -827,7 +709,7 @@ export default function CoachTableView() {
         initialValue={initialValue}
         filterData={filterData}
         setFilter={setFilter}
-        setSearchCriteria={setSearchCretiria}
+        setSearchCriteria={setSearchCriteria}
         filterDisplay={filterDisplay}
       />
 

@@ -225,14 +225,14 @@ export default function RoleTableView() {
 
   return (
     <div className="w-full ">
-      <div className="flex items-center justify-between px-3 ">
+      <div className="flex items-center justify-between px-3 py-4 ">
         <div className="flex flex-1 items-center space-x-2">
           <div className="flex items-center  relative">
             <Select
               onValueChange={(value) => setSelectedRoleId(Number(value))}
               defaultValue={undefined}
             >
-              <SelectTrigger className="w-[220px]">
+              <SelectTrigger className="w-[220px] h-8 ">
                 <SelectValue placeholder="Select a Role" />
               </SelectTrigger>
               <SelectContent>
@@ -259,7 +259,7 @@ export default function RoleTableView() {
           <div className="">
             {role !== "read" && <Button
               variant={"outline"}
-              className={`gap-1 justify-center text-gray-500 font-normal border-primary items-center flex px-3 disabled:cursor-not-allowed`}
+              className={`h-8 gap-1 justify-center text-gray-500 font-normal border-primary items-center flex px-3 disabled:cursor-not-allowed`}
               disabled={!selectedRoleId}
               onClick={handleEditRole}
             >
@@ -269,7 +269,7 @@ export default function RoleTableView() {
           </div>
         </div>
         {role !== "read" && <Button
-          className="bg-primary m-4 text-black gap-1 "
+          className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2 "
           onClick={handleAddRole}
         >
           <PlusIcon className="h-4 w-4" />
@@ -277,7 +277,7 @@ export default function RoleTableView() {
         </Button>}
       </div>
       {isRoleFound ? (
-        <div className="rounded-none border border-border ">
+        <div className="rounded-none border border-border pb-4">
           <ScrollArea className="w-full relative  space-y-0">
             <ScrollBar orientation="vertical" />
             <Table className="w-full h-full max-h-96 overflow-y-auto relative custom-scrollbar">

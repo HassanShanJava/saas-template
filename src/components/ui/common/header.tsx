@@ -65,7 +65,7 @@ const Breadcrumb = ({
 }) => {
   if (!isActiveLink(currentPath, targetPath)) return null;
   return (
-    <div className="pl-7 pb-4 text-sm">
+    <div className="pl-7  text-sm">
       <span className="text-gray-400 pr-1 font-semibold text-sm">
         {pageSetting}
       </span>{" "}
@@ -115,8 +115,8 @@ export const Header = () => {
     <header className="font-poppins sticky top-0 z-30  0 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
       <div className="flex w-full justify-between items-center gap-4">
         <div className="flex flex-row h-full justify-between items-center gap-4">
-          <div className="w-full">
-            <h1 className="text-2xl pt-2 font-bold pl-7">
+          <div className="w-full flex flex-col my-0">
+            <h1 className="text-2xl  font-bold  pl-7 ">
               {pageTitles.map(({ targetPath, title }, index) => (
                 <PageTitle
                   key={index}
@@ -126,16 +126,17 @@ export const Header = () => {
                 />
               ))}
             </h1>
-
-            {breadcrumbs.map(({ targetPath, title, pageSetting }, index) => (
-              <Breadcrumb
-                key={index}
-                currentPath={location.pathname}
-                targetPath={targetPath}
-                title={title}
-                pageSetting={pageSetting}
-              />
-            ))}
+            <div>
+              {breadcrumbs.map(({ targetPath, title, pageSetting }, index) => (
+                <Breadcrumb
+                  key={index}
+                  currentPath={location.pathname}
+                  targetPath={targetPath}
+                  title={title}
+                  pageSetting={pageSetting}
+                />
+              ))}
+            </div>
           </div>
         </div>
 

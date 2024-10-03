@@ -1454,6 +1454,7 @@ export interface counterRegisterSession {
   discrepancy?: number;
   notes?: string;
   total_amount?: number;
+  refund_amount?: number;
 }
 
 export interface registerSessionStorage {

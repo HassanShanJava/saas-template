@@ -1,6 +1,9 @@
 import { counterRegisterSession } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
-
+interface RegisterQueryInput {
+  query: string;
+  counter_id: number;
+}
 export const Register = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
@@ -44,6 +47,8 @@ export const Register = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["register"],
       }),
+
+      // getAllRegisterSession: builder.query<number,RegisterQueryInput>({}),
     };
   },
 });

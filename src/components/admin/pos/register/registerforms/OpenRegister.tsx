@@ -8,6 +8,12 @@ import {
   useOpenRegisterMutation,
 } from "@/services/registerApi";
 import { ErrorType, registerSessionStorage } from "@/app/types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 // registerSessionStorage;
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
@@ -164,7 +170,24 @@ const OpenRegister: React.FC = () => {
                 </p>
                 <p className="text-lg flex gap-2">
                   <strong>Notes:</strong>{" "}
-                  {displayValue(counterData?.notes?.toString())}
+                  {counterData?.notes && counterData.notes.length > 30 ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <span className="capitalize">
+                            {counterData.notes.slice(0, 30) + "..."}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {displayValue(counterData.notes.toString())}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    <span className="capitalize">
+                      {displayValue(counterData?.notes?.toString())}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>

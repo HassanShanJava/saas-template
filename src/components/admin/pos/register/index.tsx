@@ -19,6 +19,7 @@ const Register = () => {
     isRegisterOpen,
   } = useGetRegisterData(counter_number as number);
 
+  console.log("register check", isRegisterOpen);
   return (
     <div className="w-full p-5">
       <Card className="p-4 h-fit flex flex-col justify-center">

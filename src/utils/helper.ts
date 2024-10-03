@@ -42,11 +42,11 @@ const capitalizeFirstLetter = (str: string) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
 export const membersMapper = (member: MemberTableDatatypes) => ({
   "Member Id": member.own_member_id,
-  "Member Name": `${capitalizeFirstLetter(member.first_name?.toUpperCase() || "")} ${capitalizeFirstLetter(member.last_name?.toUpperCase() || "")}`,
+  "Member Name": `${capitalizeFirstLetter(member.first_name || "")} ${capitalizeFirstLetter(member.last_name || "")}`,
   "Business Name": capitalizeFirstLetter(member.business_name || ""),
-  "Membership Plan": capitalizeFirstLetter(
-    member.membership_plan_id?.toString() || ""
-  ),
+  // "Membership Plan": capitalizeFirstLetter(
+  //   member.membership_plan_id?.toString() || ""
+  // ),
   Status: capitalizeFirstLetter(member.client_status || ""),
   "Activation Date": displayDate(member.activated_on) || "",
   "Last Check In": displayDateTime(member.check_in) || "",

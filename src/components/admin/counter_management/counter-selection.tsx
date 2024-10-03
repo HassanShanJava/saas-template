@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card'
-import { setCode, setCounter } from '@/features/counter/counterSlice'
+import { resetBackPageCount, setCode, setCounter } from '@/features/counter/counterSlice'
 import { useDispatch } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import cashcounter from '@/assets/cashier-counter.svg'
@@ -90,7 +90,11 @@ const CounterSelection = () => {
                         <Card className="w-full p-5 space-y-4 max-w-2xl mx-auto">
                             <div className='flex justify-between items-center gap-2'>
                                 <p>Please select a counter to start selling</p>
-                                <Link to={"/"} className='text-primary'>
+                                <Link to={"/"} className='text-primary' onClick={() => {
+                                    dispatch(setCode(null));
+                                    dispatch(setCounter(null));
+                                    dispatch(resetBackPageCount())
+                                }}>
                                     <i className="rounded-[50%] fa fa-arrow-left px-2 py-0.5 mr-2 text-base border-2 border-primary text-primary"></i>
                                     Back to gym
                                 </Link>

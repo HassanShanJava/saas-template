@@ -26,7 +26,6 @@ const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [seperatePanelCode, setSeperatePanelCode] = useState<"pos" | null>(null)
   const [seperatePanel, setSeperatePanel] = useState<resourceTypes[]>([])
   const [backtogym, setBacktogym] = useState<string>('')
   const [sidePanel, setSidePanel] = useState<resourceTypes[]>([]);
@@ -102,7 +101,6 @@ const DashboardLayout: React.FC = () => {
   const closePOSPanel = () => {
     closeCounter()
     navigate('/counter-selection', { replace: true });
-
   }
 
   return (
@@ -115,7 +113,6 @@ const DashboardLayout: React.FC = () => {
           className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white "
         >
           {code !== "pos" && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => {
-            setSeperatePanelCode(null)
             dispatch(setCode(null))
           }}>
             <img
@@ -161,7 +158,7 @@ const DashboardLayout: React.FC = () => {
                 <Link
                   key={i}
                   to={item.link}
-                  onClick={() => setSeperatePanelCode(item.code == "pos" ? item.code : null)}
+                  onClick={() => dispatch(setCode(item.code == "pos" ? item.code : null))}
                   className={`flex items-center gap-2 rounded-md p-1 transition-colors  ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-primary hover:bg-primary" : "hover:bg-hoverprimary  "}`}
                 >
                   <div
@@ -181,7 +178,7 @@ const DashboardLayout: React.FC = () => {
                 && item.children?.length > 0 && (
                   <Accordion type="single" collapsible>
                     <AccordionItem value="item-1 !border-none" id="accordion" onClick={() => {
-                      setSeperatePanelCode(item.code == "pos" ? item.code : null)
+                      dispatch(setCode(item.code == "pos" ? item.code : null))
                       item.code == "pos" && navigate(item.link)
                     }}
                     >
@@ -209,7 +206,7 @@ const DashboardLayout: React.FC = () => {
                             <Link
                               key={index}
                               to={child.link}
-                              onClick={() => setSeperatePanelCode(item.code == "pos" ? item.code : null)}
+                              onClick={() => dispatch(setCode(item.code == "pos" ? item.code : null))}
                               className={`justify-start rounded-md px-3  py-1 ${isActiveLink(child.link) ? "bg-hoverprimary" : "hover:bg-muted"} ${!isSidebarOpen && "hidden"}`}
                             >
                               {child.name}

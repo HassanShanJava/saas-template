@@ -29,11 +29,11 @@ const PaymentMethods = () => {
 
   return (
     <div className="w-full p-5">
-      <Card className="space-y-5 p-10">
+      <Card className="space-y-2 p-5">
         <h1 className="font-semibold text-xl">Payment Methods</h1>
         <Separator />
         {plugins.map(plugin => (
-          <div className="w-full flex justify-between bg-secondary p-5 rounded-2xl">
+          <div className="w-full flex justify-between items-center bg-secondary py-3 px-5 rounded-2xl">
             <Label htmlFor={""+plugin.id}>{plugin.name}</Label> 
             <Switch id={""+plugin.id} checked={plugin.enabled} onCheckedChange={enabled => handlePluginChange(plugin.id, enabled)} /> 
           </div>

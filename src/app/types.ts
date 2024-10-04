@@ -1465,3 +1465,8 @@ export interface registerSessionStorage {
   opening_balance: number;
   opening_time: string;
 }
+export interface PaymentMethodPlugin {
+  id: number,
+  name: string,
+  enabled: boolean
+}

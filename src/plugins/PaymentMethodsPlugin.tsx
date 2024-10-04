@@ -1,10 +1,6 @@
+import { PaymentMethodPlugin } from "@/app/types";
 import { IPlugin, PluginStore } from "react-pluggable";
 
-interface PaymentMethodPlugin {
-  id: number,
-  name: string,
-  enabled: boolean
-}
 class PaymentMethodsPlugin implements IPlugin {
   namespace = "PaymentMethods";
   pluginStore: PluginStore;

@@ -594,7 +594,7 @@ export default function SaleshistoryRegisterViewTable() {
   console.log("limit here", searchCriteria.limit, searchCriteria.offset);
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 ">
         <div></div>
         {/* Buttons Container */}
 
@@ -602,7 +602,7 @@ export default function SaleshistoryRegisterViewTable() {
           <DataTableViewOptions table={table} action={handleExportSelected} />
 
           <button
-            className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
+            className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}
           >
             <i className="fa fa-filter"></i>

@@ -110,14 +110,14 @@ const OpenRegister: React.FC = () => {
       onSubmit={handleSubmit(onSubmit, onError)}
       className="space-x-3 p-1 w-full"
     >
-      <div className="flex flex-row  justify-center items-start w-full">
+      <div className="flex flex-col-reverse slg:flex-row gap-4  justify-center items-center w-full">
         {/* Last Closure Details */}
-        <div className="w-[50%] flex flex-col items-center justify-center">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+        <div className="w-full flex slg:w-[50%] flex-col items-center justify-center">
+          <h2 className="text-2xl font-bold text-center text-gray-800">
             Last Closure Details
           </h2>
           {isLoading ? (
-            <div className="p-6 rounded-md w-full h-full flex flex-col items-center justify-center">
+            <div className="p-3 rounded-md w-full h-full flex flex-col items-center justify-center">
               <div>
                 <div className=" flex gap-2">
                   <Skeleton className="h-4 w-[100px]" /> {/* Label */}
@@ -146,30 +146,34 @@ const OpenRegister: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className=" p-6 rounded-md w-full h-full flex flex-col items-center justify-center">
-              <div>
+            <div className=" p-3 rounded-md w-full h-full flex flex-col items-center justify-center">
+              <div className="gap-1.5 flex flex-col">
                 <p className=" text-sm flex gap-2">
-                  <span className="text-sm">Session ID:</span>{" "}
+                  <span className="text-sm font-semibold">Session ID:</span>{" "}
                   {displayValue(counterData?.id?.toString())}
                 </p>
                 <p className=" text-sm flex gap-2">
-                  <span className="text-sm">Opening Time:</span>{" "}
+                  <span className="text-sm font-semibold">Opening Time:</span>{" "}
                   {displayDateTime(counterData?.opening_time?.toString())}
                 </p>
                 <p className=" text-sm flex gap-2">
-                  <span className="text-sm">Opening Balance:</span>{" "}
+                  <span className="text-sm font-semibold">
+                    Opening Balance:
+                  </span>{" "}
                   {displayValue(counterData?.opening_balance?.toString())}
                 </p>
                 <p className="text-sm flex gap-2">
-                  <span className="text-sm">Closing Time:</span>{" "}
+                  <span className="text-sm font-semibold">Closing Time:</span>{" "}
                   {displayDateTime(counterData?.closing_time?.toString())}
                 </p>
                 <p className="text-sm flex gap-2">
-                  <span className="text-sm">Closing Balance:</span>{" "}
+                  <span className="text-sm font-semibold">
+                    Closing Balance:
+                  </span>{" "}
                   {displayValue(counterData?.closing_balance?.toString())}
                 </p>
                 <p className="text-sm flex gap-2">
-                  <span className="text-sm">Notes:</span>{" "}
+                  <span className="text-sm font-semibold">Notes:</span>{" "}
                   {counterData?.notes && counterData.notes.length > 30 ? (
                     <TooltipProvider>
                       <Tooltip>
@@ -195,7 +199,7 @@ const OpenRegister: React.FC = () => {
         </div>
 
         {/* Open Register Form */}
-        <div className="w-[50%] flex flex-col items-center rounded-lg shadow-md ">
+        <div className="w-full slg:w-[50%]  flex flex-col items-center rounded-lg shadow-md ">
           <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
             Open Register
           </h2>
@@ -218,7 +222,7 @@ const OpenRegister: React.FC = () => {
             <div className="flex justify-center items-center">
               <LoadingButton
                 type="submit"
-                className="mt-6 w-40  text-white transition duration-300"
+                className="bg-primary text-sm mt-6 w-40   text-white transition flex items-center gap-1  lg:mb-0 h-8 px-2 duration-300"
                 loading={openRegisterLoading}
                 disabled={openRegisterLoading}
               >

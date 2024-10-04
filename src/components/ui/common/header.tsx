@@ -40,16 +40,56 @@ const pageTitles = [
 ];
 
 const breadcrumbs = [
-  { targetPath: "/admin/facilities", title: "Facilities", pageSetting: "System Setting" },
-  { targetPath: "/admin/incomeCategory", title: "Income Categories", pageSetting: "System Setting" },
-  { targetPath: "/admin/saleTaxes", title: "Sales Tax", pageSetting: "System Setting" },
-  { targetPath: "/admin/memberships", title: "Memberships", pageSetting: "System Setting" },
-  { targetPath: "/admin/counter", title: "Counter Management", pageSetting: "System Setting" },
-  { targetPath: "/admin/paymentMethods", title: "Payment Methods", pageSetting: "System Setting" },
-  { targetPath: "/admin/pos/register", title: "Registry Session Management", pageSetting: "Point of Sales" },
-  { targetPath: "/admin/pos/cash", title: "Cash Registry", pageSetting: "Point of Sales" },
-  { targetPath: "/admin/pos/salesHistory", title: "Sales History", pageSetting: "Point of Sales" },
-  { targetPath: "/admin/pos/sell", title: "Sell", pageSetting: "Point of Sales" },
+  {
+    targetPath: "/admin/facilities",
+    title: "Facilities",
+    pageSetting: "System Setting",
+  },
+  {
+    targetPath: "/admin/incomeCategory",
+    title: "Income Categories",
+    pageSetting: "System Setting",
+  },
+  {
+    targetPath: "/admin/saleTaxes",
+    title: "Sales Tax",
+    pageSetting: "System Setting",
+  },
+  {
+    targetPath: "/admin/memberships",
+    title: "Memberships",
+    pageSetting: "System Setting",
+  },
+  {
+    targetPath: "/admin/counter",
+    title: "Counter Management",
+    pageSetting: "System Setting",
+  },
+  {
+    targetPath: "/admin/paymentMethods",
+    title: "Payment Methods",
+    pageSetting: "System Setting",
+  },
+  {
+    targetPath: "/admin/pos/register",
+    title: "Register Session management",
+    pageSetting: "Point of Sales",
+  },
+  {
+    targetPath: "/admin/pos/cash",
+    title: "Cash Registry",
+    pageSetting: "Point of Sales",
+  },
+  {
+    targetPath: "/admin/pos/salesHistory",
+    title: "Sales History",
+    pageSetting: "Point of Sales",
+  },
+  {
+    targetPath: "/admin/pos/sell",
+    title: "Sell",
+    pageSetting: "Point of Sales",
+  },
 ];
 
 const Breadcrumb = ({
@@ -69,8 +109,8 @@ const Breadcrumb = ({
       <span className="text-gray-400 pr-1 font-semibold text-sm">
         {pageSetting}
       </span>{" "}
-      <span className="text-gray-400 font-semibold">/</span>
-      <span className="pl-1 text-primary font-semibold text-sm ">{title}</span>
+      <span className="text-gray-400 font-semibold ">/</span>
+      <span className="pl-1 text-primary font-semibold text-sm">{title}</span>
     </div>
   );
 };
@@ -98,10 +138,9 @@ export const Header = () => {
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch<AppDispatch>();
 
-
   const handleLogout = () => {
-    dispatch(setCode(null))
-    dispatch(setCounter(null))
+    dispatch(setCode(null));
+    dispatch(setCounter(null));
     dispatch(logout());
     toast({
       variant: "success",

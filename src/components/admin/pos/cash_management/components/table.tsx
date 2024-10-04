@@ -209,7 +209,7 @@ export default function CashregisterViewTable() {
           <div className="flex gap-2 items-center justify-between w-fit">
             <div className="">
               <p className="capitalize cursor-pointer">
-                <span>{displayValue(row.original.id.toString())}</span>
+                <span>{displayValue(row.original.id?.toString())}</span>
               </p>
             </div>
           </div>
@@ -264,7 +264,7 @@ export default function CashregisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(row.original.opening_balance.toString())}
+                  {displayValue(row.original.opening_balance?.toString())}
                 </span>
               </p>
             </div>
@@ -320,7 +320,7 @@ export default function CashregisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(row.original.closing_balance.toString())}
+                  {displayValue(row.original.closing_balance?.toString())}
                 </span>
               </p>
             </div>
@@ -531,7 +531,7 @@ export default function CashregisterViewTable() {
   console.log("limit here", searchCriteria.limit, searchCriteria.offset);
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3">
         <div></div>
         {/* Buttons Container */}
 
@@ -539,7 +539,7 @@ export default function CashregisterViewTable() {
           <DataTableViewOptions table={table} action={handleExportSelected} />
 
           <button
-            className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
+            className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}
           >
             <i className="fa fa-filter"></i>

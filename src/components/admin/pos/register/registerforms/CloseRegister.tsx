@@ -152,19 +152,19 @@ const CloseRegister: React.FC = () => {
             {isLoading ? (
               <div className="p-6 rounded-md w-full h-full flex flex-col items-center justify-center">
                 <div>
-                  <div className="text-lg flex gap-2">
+                  <div className="flex gap-2">
                     <Skeleton className="h-4 w-[100px]" /> {/* Label */}
                     <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                   </div>
-                  <div className="text-lg flex gap-2 mt-2">
+                  <div className="flex gap-2 mt-2">
                     <Skeleton className="h-4 w-[130px]" /> {/* Label */}
                     <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                   </div>
-                  <div className="text-lg flex gap-2 mt-2">
+                  <div className="flex gap-2 mt-2">
                     <Skeleton className="h-4 w-[150px]" /> {/* Label */}
                     <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                   </div>
-                  <div className="text-lg flex gap-2 mt-2">
+                  <div className="flex gap-2 mt-2">
                     <Skeleton className="h-4 w-[150px]" /> {/* Label */}
                     <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                   </div>
@@ -173,20 +173,20 @@ const CloseRegister: React.FC = () => {
             ) : (
               <div className=" p-6 rounded-md w-full h-full flex flex-col items-center justify-center">
                 <div>
-                  <p className="text-lg flex gap-2">
-                    <strong>Session ID:</strong>{" "}
+                  <p className="text-sm flex gap-2">
+                    <span className="text-sm">Session ID:</span>{" "}
                     {displayValue(counterData?.id?.toString())}
                   </p>
-                  <p className="text-lg flex gap-2">
-                    <strong>Opening Time:</strong>{" "}
+                  <p className="text-sm flex gap-2">
+                    <span className="text-sm">Opening Time:</span>{" "}
                     {displayDateTime(counterData?.opening_time?.toString())}
                   </p>
-                  <p className="text-lg flex gap-2">
-                    <strong>Total Cash Recieved:</strong>{" "}
+                  <p className="text-sm flex gap-2">
+                    <span className="text-sm">Total Cash Recieved:</span>{" "}
                     {displayValue(counterData?.total_amount?.toString())}
                   </p>
-                  <p className="text-lg flex gap-2">
-                    <strong>Total Refund Amount:</strong>{" "}
+                  <p className="text-sm flex gap-2">
+                    <span className="text-sm">Total Refund Amount:</span>{" "}
                     {displayValue(counterData?.refund_amount?.toString())}
                   </p>
                 </div>
@@ -235,11 +235,11 @@ const CloseRegister: React.FC = () => {
               <div className="flex justify-center items-center">
                 <LoadingButton
                   type="submit"
-                  className="mt-6 w-[40%]  text-white transition duration-300"
+                  className="mt-6 w-40  text-white transition duration-300"
                   loading={closeRegisterLoading}
                   disabled={closeRegisterLoading}
                 >
-                  Close Register
+                  {closeRegisterLoading ? `Closing...` : `Close Register`}
                 </LoadingButton>
               </div>
             </div>

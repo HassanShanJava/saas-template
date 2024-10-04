@@ -46,7 +46,6 @@ import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import { displayDateTime, displayValue } from "@/utils/helper";
 import Pagination from "@/components/ui/table/pagination-table";
-import { registerSessionsList } from "@/constants/cash_register";
 import usePagination from "@/hooks/use-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { sessionMapper, downloadCSV } from "@/utils/helper";
@@ -318,7 +317,7 @@ export default function SaleshistoryRegisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.taxAmount.toString())}
+            {displayValue(row?.original.taxAmount.toFixed(2).toString())}
           </div>
         );
       },
@@ -346,7 +345,9 @@ export default function SaleshistoryRegisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(row.original.discountAmount.toString())}
+                  {displayValue(
+                    row.original.discountAmount.toFixed(2).toString()
+                  )}
                 </span>
               </p>
             </div>
@@ -377,7 +378,9 @@ export default function SaleshistoryRegisterViewTable() {
           <div className="flex gap-2 items-center justify-between w-fit">
             <div className="">
               <p className="capitalize cursor-pointer">
-                <span>{displayValue(row.original.totalAmount.toString())}</span>
+                <span>
+                  {displayValue(row.original.totalAmount.toFixed(2).toString())}
+                </span>
               </p>
             </div>
           </div>
@@ -686,29 +689,25 @@ export default function SaleshistoryRegisterViewTable() {
                             {row.original.type}
                           </span>
                         </TableCell>
-                        <TableCell key={row.original.created_at}>
-                          <span className="capitalize cursor-pointer text-nowrap">
-                            {row.original.created_at}
-                          </span>
-                        </TableCell>
-                        <TableCell key={row.original.taxAmount}>
-                          <span className="capitalize cursor-pointer">
-                            {row.original.taxAmount}
-                          </span>
-                        </TableCell>
+
                         <TableCell key={row.original.taxRate}>
                           <span className="capitalize cursor-pointer">
                             {row.original.taxName} {row.original.taxRate}%
                           </span>
                         </TableCell>
+                        <TableCell key={row.original.taxAmount}>
+                          <span className="capitalize cursor-pointer">
+                            {row.original.taxAmount.toFixed(2)}
+                          </span>
+                        </TableCell>
                         <TableCell key={row.original.discountAmount}>
                           <span className="capitalize cursor-pointer">
-                            {row.original.discountAmount}
+                            {row.original.discountAmount.toFixed(2)}
                           </span>
                         </TableCell>
                         <TableCell key={row.original.totalAmount}>
                           <span className="capitalize cursor-pointer">
-                            {row.original.totalAmount}
+                            {row.original.totalAmount.toFixed(2)}
                           </span>
                         </TableCell>
                         <TableCell key={row.original.status}>
@@ -719,6 +718,11 @@ export default function SaleshistoryRegisterViewTable() {
                         <TableCell key={row.original.created_by}>
                           <span className="capitalize cursor-pointer">
                             {row.original.created_by}
+                          </span>
+                        </TableCell>
+                        <TableCell key={row.original.created_at}>
+                          <span className="capitalize cursor-pointer text-nowrap">
+                            {row.original.created_at}
                           </span>
                         </TableCell>
                         <TableCell>

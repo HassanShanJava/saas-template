@@ -1392,14 +1392,16 @@ export interface workoutDayExerciseInput {
 }
 
 export interface RegisterSession {
-  sessionId: string;
-  openingTime: string;
-  openingBalance: number;
-  closingTime: string;
-  closingBalance: number;
-  discrepancy: number;
+  counter_id: number;
+  opening_balance: number;
+  id: number;
+  closing_balance: number;
+  opening_time: string;
+  closing_time: string;
+  discrepancy?: number;
+  notes?: string;
   created_by: string;
-  notes: string;
+  created_date: string;
 }
 
 export interface RegisterationTableType {

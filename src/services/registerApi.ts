@@ -1,4 +1,4 @@
-import { counterRegisterSession } from "@/app/types";
+import { counterRegisterSession, RegisterationTableType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 interface RegisterQueryInput {
   query: string;
@@ -9,7 +9,7 @@ export const Register = apiSlice.injectEndpoints({
     return {
       getlastRegisterSession: builder.query<counterRegisterSession, number>({
         query: (counter_id) => ({
-          url: `/pos/counter/register/last_session?counter_id=${counter_id}`,
+          url: `/pos/counter/register/last_session/${counter_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -47,8 +47,19 @@ export const Register = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["register"],
       }),
-
-      // getAllRegisterSession: builder.query<number,RegisterQueryInput>({}),
+      getAllRegisterSession: builder.query<
+        RegisterationTableType,
+        RegisterQueryInput
+      >({
+        query: (SearchCriteria) => ({
+          url: `/pos/counter/register/${SearchCriteria.counter_id}?${SearchCriteria.query}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        providesTags: ["register"],
+      }),
     };
   },
 });
@@ -57,4 +68,5 @@ export const {
   useCloseRegisterMutation,
   useOpenRegisterMutation,
   useGetlastRegisterSessionQuery,
+  useGetAllRegisterSessionQuery,
 } = Register;

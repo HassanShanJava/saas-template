@@ -89,23 +89,25 @@ export const coachMapper = ({
 });
 
 export const sessionMapper = ({
-  sessionId,
-  openingTime,
-  openingBalance,
-  closingTime,
-  closingBalance,
+  id,
+  opening_time,
+  opening_balance,
+  closing_time,
+  closing_balance,
   discrepancy,
   notes,
   created_by,
+  created_date,
 }: RegisterSession) => ({
-  "Session ID": sessionId,
-  "Opening Time": displayDateTime(openingTime) || "",
-  "Opening Balance": displayValue(openingBalance.toString()) || "",
-  "Closing Time": displayDateTime(closingTime) || "",
-  "Closing Balance": displayValue(closingBalance.toString()) || "",
-  Discrepancy: displayValue(discrepancy.toString()) || "",
-  Notes: capitalizeFirstLetter(notes),
+  "Session ID": id,
+  "Opening Time": displayDateTime(opening_time) || "",
+  "Opening Balance": displayValue(opening_balance.toString()) || "",
+  "Closing Time": displayDateTime(closing_time) || "",
+  "Closing Balance": displayValue(closing_balance.toString()) || "",
+  Discrepancy: displayValue(discrepancy?.toString()) || "",
+  Notes: capitalizeFirstLetter(notes?.toString() as string),
   "Created By": capitalizeFirstLetter(created_by),
+  "Created Date": displayDateTime(created_date) || "",
 });
 
 export const initialValue = {

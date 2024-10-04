@@ -119,27 +119,27 @@ const OpenRegister: React.FC = () => {
           {isLoading ? (
             <div className="p-6 rounded-md w-full h-full flex flex-col items-center justify-center">
               <div>
-                <div className="text-lg flex gap-2">
+                <div className=" flex gap-2">
                   <Skeleton className="h-4 w-[100px]" /> {/* Label */}
                   <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                 </div>
-                <div className="text-lg flex gap-2 mt-2">
+                <div className=" flex gap-2 mt-2">
                   <Skeleton className="h-4 w-[130px]" /> {/* Label */}
                   <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                 </div>
-                <div className="text-lg flex gap-2 mt-2">
+                <div className=" flex gap-2 mt-2">
                   <Skeleton className="h-4 w-[150px]" /> {/* Label */}
                   <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                 </div>
-                <div className="text-lg flex gap-2 mt-2">
+                <div className=" flex gap-2 mt-2">
                   <Skeleton className="h-4 w-[120px]" /> {/* Label */}
                   <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                 </div>
-                <div className="text-lg flex gap-2 mt-2">
+                <div className=" flex gap-2 mt-2">
                   <Skeleton className="h-4 w-[140px]" /> {/* Label */}
                   <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                 </div>
-                <div className="text-lg flex gap-2 mt-2">
+                <div className=" flex gap-2 mt-2">
                   <Skeleton className="h-4 w-[80px]" /> {/* Label */}
                   <Skeleton className="h-4 w-[200px]" /> {/* Value */}
                 </div>
@@ -148,28 +148,28 @@ const OpenRegister: React.FC = () => {
           ) : (
             <div className=" p-6 rounded-md w-full h-full flex flex-col items-center justify-center">
               <div>
-                <p className="text-lg flex gap-2">
-                  <strong>Session ID:</strong>{" "}
+                <p className=" text-sm flex gap-2">
+                  <span className="text-sm">Session ID:</span>{" "}
                   {displayValue(counterData?.id?.toString())}
                 </p>
-                <p className="text-lg flex gap-2">
-                  <strong>Opening Time:</strong>{" "}
+                <p className=" text-sm flex gap-2">
+                  <span className="text-sm">Opening Time:</span>{" "}
                   {displayDateTime(counterData?.opening_time?.toString())}
                 </p>
-                <p className="text-lg flex gap-2">
-                  <strong>Opening Balance:</strong>{" "}
+                <p className=" text-sm flex gap-2">
+                  <span className="text-sm">Opening Balance:</span>{" "}
                   {displayValue(counterData?.opening_balance?.toString())}
                 </p>
-                <p className="text-lg flex gap-2">
-                  <strong>Closing Time:</strong>{" "}
+                <p className="text-sm flex gap-2">
+                  <span className="text-sm">Closing Time:</span>{" "}
                   {displayDateTime(counterData?.closing_time?.toString())}
                 </p>
-                <p className="text-lg flex gap-2">
-                  <strong>Closing Balance:</strong>{" "}
+                <p className="text-sm flex gap-2">
+                  <span className="text-sm">Closing Balance:</span>{" "}
                   {displayValue(counterData?.closing_balance?.toString())}
                 </p>
-                <p className="text-lg flex gap-2">
-                  <strong>Notes:</strong>{" "}
+                <p className="text-sm flex gap-2">
+                  <span className="text-sm">Notes:</span>{" "}
                   {counterData?.notes && counterData.notes.length > 30 ? (
                     <TooltipProvider>
                       <Tooltip>
@@ -218,7 +218,7 @@ const OpenRegister: React.FC = () => {
             <div className="flex justify-center items-center">
               <LoadingButton
                 type="submit"
-                className="mt-6 w-[40%]  text-white transition duration-300"
+                className="mt-6 w-40  text-white transition duration-300"
                 loading={openRegisterLoading}
                 disabled={openRegisterLoading}
               >

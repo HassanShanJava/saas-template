@@ -74,8 +74,8 @@ const CounterSelection = () => {
     useEffect(() => {
         if (counter_number == null && assignedCounterData?.length === 1) {
             assignSingleCounter(assignedCounterData[0]);
-        } else if (counter_number == null && assignedCounterData?.length > 0 && assignedCounterData.some((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)) {
-            console.log("already opened counterk")
+        } else if (assignedCounterData?.length > 0 && assignedCounterData.some((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)) {
+            console.log("already opened counterk", { counter_number })
             const findOpenedCounter = assignedCounterData.find((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)
             assignSingleCounter(findOpenedCounter as counterDataType);
         }

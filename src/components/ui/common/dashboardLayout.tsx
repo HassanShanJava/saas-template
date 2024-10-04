@@ -84,7 +84,6 @@ const DashboardLayout: React.FC = () => {
       const resp = await assignCounter(payload).unwrap();
       if (resp) {
 
-
         dispatch(setCode(null));
         dispatch(setCounter(null));
         dispatch(resetBackPageCount())
@@ -100,7 +99,7 @@ const DashboardLayout: React.FC = () => {
 
   const closePOSPanel = () => {
     closeCounter()
-    navigate('/counter-selection', { replace: true });
+    navigate('/', { replace: true });
   }
 
   return (

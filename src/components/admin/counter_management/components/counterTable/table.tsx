@@ -232,11 +232,11 @@ export default function CounterTableView() {
         <div className="flex items-center gap-2">
           <p className="text-nowrap">Counter Name</p>
           <button
-            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            className=" size-5 transition-transform duration-1000 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("name")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort   ${searchCriteria.sort_order == "desc" ? "rotate-0" : "rotate-180"}`}
             ></i>
           </button>
         </div>

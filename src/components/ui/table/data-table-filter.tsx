@@ -212,19 +212,23 @@ function Combobox({ list, setFilter, name, defaultValue, label }: comboboxType) 
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="capitalize w-full justify-between font-normal"
-        >
-          {value
-            ? list && list?.find((list) => list.label == value)?.label
-            : "Select " + label?.toLowerCase()}
-          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+        <div className="relative">
+          <span className="absolute p-0 text-[11px] left-2 -top-1.5 px-1 bg-white capitalize">{label}</span>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="border-[1px] hover:bg-transparent w-full justify-between font-normal capitalize"
+          >
+            {value
+              ? list && list?.find((list) => list.label == value)?.label
+              : "Select " + label?.toLowerCase()}
+            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </div>
+
       </PopoverTrigger>
-      <PopoverContent className="w-[330px] p-0">
+      <PopoverContent className="w-[330px] max-h-28 p-0" side="bottom">
         <Command>
           <CommandInput placeholder={`Search ${label}`} />
           <CommandEmpty>No list found.</CommandEmpty>
@@ -250,7 +254,7 @@ function Combobox({ list, setFilter, name, defaultValue, label }: comboboxType) 
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        value === item.value ? "opacity-100" : "opacity-0"
+                        value === item.label ? "opacity-100" : "opacity-0"
                       )}
                     />
                     {item.label}

@@ -407,13 +407,13 @@ export default function MembershipsTableView() {
         <div className="flex  items-center gap-2">
           <p className="text-nowrap">Net Price</p>
           <button
-          className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          onClick={() => toggleSortOrder("net_price")}
-        >
-          <i
-            className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-          ></i>
-        </button>
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("net_price")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
         </div>
       ),
       cell: ({ row }) => {
@@ -526,7 +526,7 @@ export default function MembershipsTableView() {
             onValueChange={(e) =>
               handleStatusChange({ status: e, id: id, org_id: org_id })
             }
-            disabled={membership=="read"}
+            disabled={membership == "read"}
           >
             <SelectTrigger className="h-8">
               <SelectValue placeholder="Status" className="text-gray-400">
@@ -551,7 +551,7 @@ export default function MembershipsTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    ...(membership !== "read" ? [actionsColumn] : []),  
+    ...(membership !== "read" ? [actionsColumn] : []),
   ];
 
   const table = useReactTable({
@@ -660,6 +660,13 @@ export default function MembershipsTableView() {
       function: handleGroup,
     },
     {
+      type: "combobox",
+      name: "income_category_id",
+      label: "Income Category",
+      options: incomeCatData?.map(item => ({ value: item.id, label: item.name })),
+      function: handleIncomeCategory,
+    },
+    {
       type: "percentage",
       name: "discount",
       label: "Discount Percentage",
@@ -671,13 +678,7 @@ export default function MembershipsTableView() {
       label: "Total Amount",
       function: handleTotalAmount,
     },
-    {
-      type: "select",
-      name: "income_category_id",
-      label: "Income Category",
-      options: incomeCatData,
-      function: handleIncomeCategory,
-    },
+    
   ];
 
   const totalRecords = membershipsData?.filtered_counts || 0;

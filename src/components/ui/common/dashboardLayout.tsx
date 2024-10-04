@@ -65,6 +65,13 @@ const DashboardLayout: React.FC = () => {
     }
   }, [code])
 
+
+  useEffect(() => {
+    if (!location.pathname.includes("pos")) {
+      closeCounter()
+    }
+  }, [location])
+
   const isActiveLink = (targetPath: string): boolean => {
     const currentPath = location.pathname;
     return currentPath === targetPath;

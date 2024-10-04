@@ -681,7 +681,7 @@ const ExerciseForm = ({
                                 <img
                                   src={
                                     existingMaleImage
-                                      ? `${VITE_VIEW_S3_URL}/${existingMaleImage}`
+                                      ? (existingMaleImage.includes(VITE_VIEW_S3_URL) ? existingMaleImage : `${VITE_VIEW_S3_URL}/${existingMaleImage}`)
                                       : ""
                                   }
                                   alt="Existing Male Image"
@@ -771,7 +771,7 @@ const ExerciseForm = ({
                                 <img
                                   src={
                                     existingFemaleImage
-                                      ? `${VITE_VIEW_S3_URL}/${existingFemaleImage}`
+                                      ? (existingFemaleImage.includes(VITE_VIEW_S3_URL) ? existingFemaleImage : `${VITE_VIEW_S3_URL}/${existingFemaleImage}`)
                                       : ""
                                   }
                                   alt="Existing Female Image"
@@ -860,7 +860,7 @@ const ExerciseForm = ({
                                 <img
                                   src={
                                     existingGIf
-                                      ? `${VITE_VIEW_S3_URL}/${existingGIf}`
+                                      ? (existingGIf.includes(VITE_VIEW_S3_URL) ? existingGIf : `${VITE_VIEW_S3_URL}/${existingGIf}`)
                                       : ""
                                   }
                                   alt="Existing GIF"

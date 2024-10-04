@@ -309,7 +309,6 @@ export default function CoachTableView() {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original?.own_coach_id)}
-            {/* {`${orgName?.slice(0, 2)}-${row?.original?.id}`} */}
           </div>
         );
       },
@@ -337,7 +336,7 @@ export default function CoachTableView() {
             <div className="size-8 flex gap-2 items-center justify-between">
               {row.original.profile_img ? (
                 <img
-                  src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
+                  src={(row.original.profile_img.includes(VITE_VIEW_S3_URL) ? row.original.profile_img : `${VITE_VIEW_S3_URL}/${row.original.profile_img}`)}
                   loading="lazy"
                   className="size-8 bg-gray-100 object-contain rounded-sm "
                 />

@@ -37,9 +37,10 @@ import {
   useGetGroupQuery,
 } from "@/services/groupsApis";
 import { useToast } from "@/components/ui/use-toast";
-import { Check, ChevronsDown } from "lucide-react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -554,7 +555,7 @@ function Combobox({ list, setFilter, name }: comboboxType) {
           {value
             ? list && list?.find((list) => list.label === value)?.label
             : "Select " + name + "..."}
-          <ChevronsDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[330px] p-0">

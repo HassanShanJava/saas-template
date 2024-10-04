@@ -78,6 +78,13 @@ const DashboardLayout: React.FC = () => {
     }
   }, [code]);
 
+
+  useEffect(() => {
+    if (!location.pathname.includes("pos")) {
+      closeCounter()
+    }
+  }, [location])
+
   const isActiveLink = (targetPath: string): boolean => {
     const currentPath = location.pathname;
     return currentPath === targetPath;
@@ -109,9 +116,9 @@ const DashboardLayout: React.FC = () => {
   };
 
   const closePOSPanel = () => {
-    closeCounter();
-    navigate("/counter-selection", { replace: true });
-  };
+    closeCounter()
+    navigate('/', { replace: true });
+  }
 
   return (
     <div className="font-poppins flex h-full w-full relative ">

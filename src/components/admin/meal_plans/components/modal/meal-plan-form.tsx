@@ -752,9 +752,7 @@ const MealPlanForm = ({
                                     src={
                                       watcher?.profile_img !== "" &&
                                         watcher?.profile_img
-                                        ? VITE_VIEW_S3_URL +
-                                        "/" +
-                                        watcher?.profile_img
+                                        ? (watcher.profile_img.includes(VITE_VIEW_S3_URL) ? watcher.profile_img : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`)
                                         : ""
                                     }
                                     loading="lazy"

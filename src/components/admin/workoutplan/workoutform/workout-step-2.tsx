@@ -856,7 +856,7 @@ const WorkoutStep2: React.FC = () => {
                                     id="avatar"
                                     src={
                                       exercise.gif_url
-                                        ? `${VITE_VIEW_S3_URL}/${exercise.gif_url}`
+                                        ? (exercise.gif_url.includes(VITE_VIEW_S3_URL) ? exercise.gif_url : `${VITE_VIEW_S3_URL}/${exercise.gif_url}`)
                                         : `${VITE_VIEW_S3_URL}/download.png`
                                     }
                                     alt="Exercise Image"
@@ -1164,7 +1164,7 @@ const WorkoutStep2: React.FC = () => {
                       id="avatar"
                       src={
                         formValues.gif_url
-                          ? `${VITE_VIEW_S3_URL}/${formValues.gif_url}`
+                          ? (formValues.gif_url.includes(VITE_VIEW_S3_URL) ? formValues.gif_url : `${VITE_VIEW_S3_URL}/${formValues.gif_url}`)
                           : `${VITE_VIEW_S3_URL}/download.png`
                       }
                       alt="Exercise Image"

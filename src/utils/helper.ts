@@ -1,6 +1,7 @@
 import {
   CoachTableDataTypes,
   MemberTableDatatypes,
+  RegisterSession,
   staffTypesResponseList,
 } from "@/app/types";
 import Papa from "papaparse";
@@ -87,24 +88,42 @@ export const coachMapper = ({
   "Last Login": displayDateTime(last_online) || "",
 });
 
+export const sessionMapper = ({
+  sessionId,
+  openingTime,
+  openingBalance,
+  closingTime,
+  closingBalance,
+  discrepancy,
+  notes,
+  created_by,
+}: RegisterSession) => ({
+  "Session ID": sessionId,
+  "Opening Time": displayDateTime(openingTime) || "",
+  "Opening Balance": displayValue(openingBalance.toString()) || "",
+  "Closing Time": displayDateTime(closingTime) || "",
+  "Closing Balance": displayValue(closingBalance.toString()) || "",
+  Discrepancy: displayValue(discrepancy.toString()) || "",
+  Notes: capitalizeFirstLetter(notes),
+  "Created By": capitalizeFirstLetter(created_by),
+});
+
 export const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  // sort_key: "created_at",
   sort_key: "id",
 };
 
 export const displayValue = (value: string | undefined | null) =>
   value == null || value == undefined || value.trim() == "" ? "N/A" : value;
 
-
 // Function to extract all links
 export function extractLinks(data: any[]) {
   let links: string[] = [];
 
   data.forEach((item: any) => {
-    if (item.link && item.link != '/') {
+    if (item.link && item.link != "/") {
       links.push(item.link); // Add current link
     }
 
@@ -116,3 +135,7 @@ export function extractLinks(data: any[]) {
 
   return links;
 }
+
+export const saveToLocalStorage = (key: string, value: any) => {
+  localStorage.setItem(key, JSON.stringify(value));
+};

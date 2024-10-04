@@ -11,13 +11,13 @@ export interface counterDataType {
   id?: number;
   name: string;
   staff: {
-    id: number,
-    name: string
-  }[]
+    id: number;
+    name: string;
+  }[];
   staff_ids?: number[];
   staff_id?: number | null;
   status?: string;
-  is_open?:boolean;
+  is_open?: boolean;
 }
 
 export interface CreateCounter {
@@ -26,7 +26,7 @@ export interface CreateCounter {
   staff_ids?: number[];
   status?: string;
   staff_id?: number | null;
-  is_open?: boolean
+  is_open?: boolean;
 }
 
 export interface mealPlanTableType {
@@ -1389,4 +1389,79 @@ export interface workoutDayExerciseInput {
   distance?: number | null;
   speed?: number | null;
   met_id?: number | null;
+}
+
+export interface RegisterSession {
+  sessionId: string;
+  openingTime: string;
+  openingBalance: number;
+  closingTime: string;
+  closingBalance: number;
+  discrepancy: number;
+  created_by: string;
+  notes: string;
+}
+
+export interface RegisterationTableType {
+  data: RegisterSession[];
+  total_counts: number;
+  filtered_counts: number;
+}
+
+export interface refundhistory {
+  id: number;
+  receiptNumber: string;
+  user: string;
+  type: "Receipt" | "Refund";
+  taxRate: number;
+  taxName: string;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  status: "Paid" | "Unpaid" | "Partially Paid";
+  created_by: string;
+  created_at: string;
+}
+export interface Salehistory {
+  id: number;
+  receiptNumber: string;
+  type: "Receipt" | "Refund";
+  user: string;
+  taxRate: number;
+  taxName: string;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  status: "Paid" | "Unpaid" | "Partially Paid";
+  created_by: string;
+  created_at: string;
+  refunditems?: refundhistory[];
+}
+
+export interface SaleshistoryTableType {
+  data: Salehistory[];
+  total_counts: number;
+  filtered_counts: number;
+}
+
+export interface counterRegisterSession {
+  counter_id?: number;
+  opening_balance?: number;
+  id?: number;
+  closing_balance?: number;
+  opening_time?: string;
+  closing_time?: string;
+  discrepancy?: number;
+  notes?: string;
+  total_amount?: number;
+  refund_amount?: number;
+}
+
+export interface registerSessionStorage {
+  time: string;
+  isOpen: boolean;
+  isContinue: boolean;
+  sessionId: number;
+  opening_balance: number;
+  opening_time: string;
 }

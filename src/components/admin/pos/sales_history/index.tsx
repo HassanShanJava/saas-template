@@ -1,13 +1,14 @@
 import { Card } from "@/components/ui/card";
+import SaleshistoryRegisterViewTable from "./components/table";
 
-const SalesHistory = () => {
+const CashManagement = () => {
   return (
     <div className="w-full p-5">
-      <Card>
-        Sales History
+      <Card className="py-3">
+        <SaleshistoryRegisterViewTable />
       </Card>
     </div>
   );
 };
 
-export default SalesHistory;
+export default CashManagement;

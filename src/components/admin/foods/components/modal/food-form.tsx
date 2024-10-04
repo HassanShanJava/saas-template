@@ -372,7 +372,7 @@ const FoodForm = ({
                               <img
                                 src={
                                   watcher?.img_url !== "" && watcher?.img_url
-                                    ? VITE_VIEW_S3_URL + "/" + watcher?.img_url
+                                    ? (watcher?.img_url.includes(VITE_VIEW_S3_URL) ? watcher?.img_url : `${VITE_VIEW_S3_URL}/${watcher?.img_url}`)
                                     : ""
                                 }
                                 loading="lazy"

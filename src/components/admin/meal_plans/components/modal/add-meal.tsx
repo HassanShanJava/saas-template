@@ -182,7 +182,7 @@ const FoodForm = ({
                     >
                       <div key={food.id} className="flex items-center gap-2">
                         <img
-                          src={VITE_VIEW_S3_URL + "/" + food.img_url}
+                          src={(food?.img_url && food?.img_url.includes(VITE_VIEW_S3_URL) ? food?.img_url : `${VITE_VIEW_S3_URL}/${food.img_url}`)}
                           className="size-9 rounded-sm object-contain"
                         />
                         <div>
@@ -216,7 +216,7 @@ const FoodForm = ({
               {/* image */}
               <div className="flex items-center gap-2">
                 <img
-                  src={VITE_VIEW_S3_URL + "/" + selectedFood.img_url}
+                  src={(selectedFood.img_url.includes(VITE_VIEW_S3_URL) ? selectedFood.img_url : `${VITE_VIEW_S3_URL}/${selectedFood.img_url}`)}
                   className="size-9 rounded-sm object-contain"
                 />
                 <div>
@@ -262,7 +262,7 @@ const FoodForm = ({
                   min={1}
                   max={20}
                   onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (e.key == '.' || e.key =='+'||e.key =='-' ) {
+                    if (e.key == '.' || e.key == '+' || e.key == '-') {
                       e.preventDefault();
                       return;
                     }

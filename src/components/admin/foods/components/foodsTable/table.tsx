@@ -239,7 +239,7 @@ export default function FoodsTableView() {
           <div className="flex gap-2 items-center justify-between w-fit">
             {row.original.img_url ? (
               <img
-                src={VITE_VIEW_S3_URL + "/" + row.original.img_url}
+                src={(row.original.img_url.includes(VITE_VIEW_S3_URL) ? row.original.img_url : `${VITE_VIEW_S3_URL}/${row.original.img_url}`)}
                 alt={row.original.name}
                 loading="lazy"
                 className="size-8 bg-gray-100 object-cover rounded-sm "

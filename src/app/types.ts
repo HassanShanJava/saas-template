@@ -1390,3 +1390,9 @@ export interface workoutDayExerciseInput {
   speed?: number | null;
   met_id?: number | null;
 }
+
+export interface PaymentMethodPlugin {
+  id: number,
+  name: string,
+  enabled: boolean
+}

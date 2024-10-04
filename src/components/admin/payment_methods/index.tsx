@@ -5,11 +5,12 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { usePluginStore } from "react-pluggable";
 import { toast } from "../../ui/use-toast";
+import { PaymentMethodPlugin } from "@/app/types";
 
 
 const PaymentMethods = () => {
   const pluginStore = usePluginStore();
-  const [plugins,setPlugins] = useState(pluginStore.executeFunction(`PaymentMethods.getPlugins`));
+  const [plugins,setPlugins] = useState<PaymentMethodPlugin[]>(pluginStore.executeFunction(`PaymentMethods.getPlugins`));
 
   function handlePluginChange(id: number, enabled: boolean) {
     if (!enabled) {

@@ -31,7 +31,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { Check, ChevronsDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -205,7 +205,7 @@ interface comboboxType {
   label?: string;
 }
 
-function Combobox({ list, setFilter, name, defaultValue,label }: comboboxType) {
+function Combobox({ list, setFilter, name, defaultValue, label }: comboboxType) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(list?.find((list) => list.value == defaultValue)?.label ?? "");
   console.log({ value, list, defaultValue });
@@ -216,12 +216,12 @@ function Combobox({ list, setFilter, name, defaultValue,label }: comboboxType) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between font-normal"
+          className="capitalize w-full justify-between font-normal"
         >
           {value
             ? list && list?.find((list) => list.label == value)?.label
             : "Select " + label?.toLowerCase()}
-          <ChevronsDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[330px] p-0">
@@ -233,6 +233,7 @@ function Combobox({ list, setFilter, name, defaultValue,label }: comboboxType) {
               {list &&
                 list?.map((item) => (
                   <CommandItem
+                    className="capitalize"
                     key={item.value}
                     value={item.value}
                     onSelect={(currentValue) => {

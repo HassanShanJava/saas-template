@@ -3,8 +3,10 @@ import { Card } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetMembersListQuery } from "@/services/memberAPi";
 import { Check, ChevronsUpDown, Search } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 
 import {
   Command,
@@ -21,22 +23,10 @@ import {
 } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useGetMembershipsQuery } from "@/services/membershipsApi";
 
 
-const productCategories = [
-  {
-    type: "memberships",
-    label: "Memberships",
-  },
-  {
-    type: "events",
-    label: "Events",
-  },
-  {
-    type: "products",
-    label: "Products",
-  },
-]
+
 
 const Sell = () => {
   const orgId = useSelector(
@@ -45,6 +35,29 @@ const Sell = () => {
   const counter_number = JSON.parse(localStorage.getItem("counter_number") as string);
 
   const [selectedProductCategory, setProductCategory] = useState<string>('')
+  const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId as number, query: "" })
+
+  const memberhsipListData = useMemo(() => {
+    return Array.isArray(memberhsipList?.data) ? memberhsipList?.data : [];
+  }, [memberhsipList]);
+
+  const productCategories = [
+    {
+      type: "memberships",
+      label: "Memberships",
+      products: memberhsipListData,
+    },
+    {
+      type: "events",
+      label: "Events",
+      products: [],
+    },
+    {
+      type: "products",
+      label: "Products",
+      products: [],
+    },
+  ]
 
   const { data: memberList } = useGetMembersListQuery(orgId as number)
   console.log({ memberList })
@@ -66,13 +79,33 @@ const Sell = () => {
 
 
 
-            <div className="mt-4 flex gap-2">
-              {productCategories?.map((category, i: number) => (
-                <div key={i} onClick={() => setProductCategory(category.type)} className="cursor-pointer bg-gray-200 rounded-sm w-44 h-28 flex justify-center     items-center">
-                  <p className="text-nowrap capitalize ">{category.label}</p>
-                </div>
+
+            <Tabs defaultValue="memberships" className="w-full mt-4 ">
+              <TabsList variant="underline">
+                {productCategories.map((category) => (
+                  <TabsTrigger key={category.type} value={category.type} variant="underline">
+                    {category.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              {productCategories.map((category) => (
+                <TabsContent className="m-0  w-full " key={category.type} value={category.type}>
+                  {category.products.length > 0 ? (
+                    <div className="mt-2 grid grid-cols-2 gap-2 items-center">
+                      {category.products.map((product) => (
+                        <div className=" text-sm cursor-pointer flex gap-2 bg-gray-100 justify-between p-2 rounded-sm ">
+                          <span className="capitalize">{product.name}</span>
+                          <span>Rs. {product.net_price}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="col-span-2 text-sm text-center w-full p-2 mt-2">No products found</p>
+                  )}
+                </TabsContent>
               ))}
-            </div>
+            </Tabs>
+
           </div>
 
           <div className="h-full flex flex-col justify-between  rounded-sm bg-gray-100 p-2"  >

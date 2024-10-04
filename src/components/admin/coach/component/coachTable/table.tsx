@@ -309,7 +309,6 @@ export default function CoachTableView() {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original?.own_coach_id)}
-            {/* {`${orgName?.slice(0, 2)}-${row?.original?.id}`} */}
           </div>
         );
       },

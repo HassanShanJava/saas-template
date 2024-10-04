@@ -10,7 +10,7 @@ import { PaymentMethodPlugin } from "@/app/types";
 
 const PaymentMethods = () => {
   const pluginStore = usePluginStore();
-  const [plugins,setPlugins] = useState<PaymentMethodPlugin[]>(pluginStore.executeFunction(`PaymentMethods.getPlugins`));
+  const [plugins, setPlugins] = useState<PaymentMethodPlugin[]>(pluginStore.executeFunction(`PaymentMethods.getPlugins`));
 
   function handlePluginChange(id: number, enabled: boolean) {
     if (!enabled) {
@@ -24,7 +24,7 @@ const PaymentMethods = () => {
       }
     }
     // Todo: call a mutation to change the plugin on the server
-    setPlugins(plugins => plugins.map(plugin => plugin.id === id ? {...plugin, enabled} : plugin));
+    setPlugins(plugins => plugins.map(plugin => plugin.id === id ? { ...plugin, enabled } : plugin));
   }
 
   return (
@@ -34,12 +34,14 @@ const PaymentMethods = () => {
         <Separator />
         {plugins.map(plugin => (
           <div className="w-full flex justify-between items-center bg-secondary py-3 px-5 rounded-2xl">
-            <Label htmlFor={""+plugin.id}>{plugin.name}</Label> 
-            <Switch id={""+plugin.id} checked={plugin.enabled} onCheckedChange={enabled => handlePluginChange(plugin.id, enabled)} /> 
+            <Label htmlFor={"" + plugin.id}>{plugin.name}</Label>
+            <Switch id={"" + plugin.id} checked={plugin.enabled} onCheckedChange={enabled => handlePluginChange(plugin.id, enabled)} />
           </div>
-        ))} 
+        ))}
 
-        <p className="text-gray-400 text-center">For more payment method options you can search and install a plugin from <a className="text-blue-500 underline hover:text-blue-700">FitnFi Marketplace</a></p>
+        <div className="pt-10">
+          <p className="text-gray-400 text-center">For more payment method options <br/> you can search and install a plugin from <a className="text-blue-500 underline hover:text-blue-700">FitnFi Marketplace</a></p>
+        </div>
       </Card>
     </div>
   );

@@ -23,7 +23,7 @@ const CounterSelection = () => {
 
     const [assignCounter, { isLoading: isUpdating }] = useUpdateCountersMutation()
 
-    const assignSingleCounter = async (counter: counterDataType) => {
+    const assignSingleCounter = async (counter: counterDataType, toastMsg?: string) => {
         if ((counter.staff && counter.staff.length === 1)) {
             // staff array
             const singleCounter = counter.staff[0];
@@ -40,7 +40,7 @@ const CounterSelection = () => {
                     console.log({ resp })
                     toast({
                         variant: "success",
-                        title: "Counter Opened Successfully",
+                        title: toastMsg,
                     })
                     dispatch(setCounter(counter.id as number));
                     dispatch(setCode("pos"));
@@ -73,11 +73,11 @@ const CounterSelection = () => {
 
     useEffect(() => {
         if (counter_number == null && assignedCounterData?.length === 1) {
-            assignSingleCounter(assignedCounterData[0]);
+            assignSingleCounter(assignedCounterData[0], "Counter Opened Successfully");
         } else if (assignedCounterData?.length > 0 && assignedCounterData.some((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)) {
             console.log("already opened counterk", { counter_number })
             const findOpenedCounter = assignedCounterData.find((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)
-            assignSingleCounter(findOpenedCounter as counterDataType);
+            assignSingleCounter(findOpenedCounter as counterDataType, "Counter Already Open");
         }
     }, [assignedCounterData, assignCounter, dispatch, navigate, userInfo]);
 
@@ -104,7 +104,7 @@ const CounterSelection = () => {
                                 {assignedCounterData.map((item: any, i: number) => (
                                     <button
                                         key={i}
-                                        onClick={() => assignSingleCounter(item)}
+                                        onClick={() => assignSingleCounter(item, "Counter Opened Successfully")}
                                         className={`cursor-pointer rounded-md size-52 flex flex-col justify-center items-center bg-outletcolor ${item.is_open ? "bg-black/10 cursor-not-allowed" : ""
                                             }`}
                                     >

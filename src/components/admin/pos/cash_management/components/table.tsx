@@ -38,6 +38,8 @@ import { DataTableViewOptions } from "./data-table-view-options";
 import { sessionMapper, downloadCSV } from "@/utils/helper";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { useGetAllRegisterSessionQuery } from "@/services/registerApi";
+import { discrepancy } from "@/constants/cash_register";
+import { formatDate } from "@/utils/helper";
 
 interface searchCretiriaType {
   limit: number;
@@ -518,14 +520,39 @@ export default function CashregisterViewTable() {
     searchCriteria,
     setSearchCriteria,
   });
+  const handleDiscrepancy = (value: string) => {
+    setFilter((prev) => ({
+      ...prev,
+      discrepancy: value,
+    }));
+  };
+
+  const handleDateRange = (dates: { start_date: string; end_date: string }) => {
+    setFilter((prev) => ({
+      ...prev,
+      start_date: formatDate(dates.start_date), // Format start_date
+      end_date: formatDate(dates.end_date), // Format end_date
+    }));
+  };
 
   const filterDisplay = [
     {
       type: "select",
-      name: "visible_for",
+      name: "discrepancy",
       label: "Discrepancy",
-      // options: visibleFor.map((item) => ({ id: item.value, name: item.label })),
-      // function: handleVisiblity,
+      options: discrepancy.map((item) => ({
+        id: item.value,
+        name: item.label,
+      })),
+      function: handleDiscrepancy,
+    },
+    {
+      type: "date-range",
+      name: "dateRange",
+      label: "Date Range",
+      function: handleDateRange,
+
+      // Your function to handle date range selection
     },
   ];
   console.log("limit here", searchCriteria.limit, searchCriteria.offset);

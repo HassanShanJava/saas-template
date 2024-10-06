@@ -49,8 +49,6 @@ const CloseRegister: React.FC = () => {
     watch,
   } = useForm<CloseRegisterFormInputs>();
 
-  const expectedCLosingBalance = 120000;
-
   const onSubmit: SubmitHandler<CloseRegisterFormInputs> = (data) => {
     setData(data);
     const calculatedDiscrepancy =
@@ -101,11 +99,11 @@ const CloseRegister: React.FC = () => {
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="space-x-3 p-1 w-full ">
-        <div className="flex flex-col-reverse slg:flex-row gap-4  justify-center items-center w-full">
+        <div className="flex flex-col-reverse slg:flex-row justify-center items-start w-full gap-4">
           {/* Last Closure Details */}
 
-          <div className="w-full flex slg:w-[50%] flex-col items-center justify-center">
-            <h2 className="text-2xl font-bold text-center text-gray-800">
+          <div className="w-full slg:w-[50%] flex flex-col items-center rounded-lg mb-6 lg:mb-0">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
               Current Session Details
             </h2>
             {isLoading ? (

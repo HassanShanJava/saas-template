@@ -141,3 +141,21 @@ export function extractLinks(data: any[]) {
 export const saveToLocalStorage = (key: string, value: any) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
+
+export const formatDate = (date: Date | string | null): string | null => {
+  if (!date) return null; // Handle null or undefined dates
+
+  const d = new Date(date);
+
+  // Check if the date is valid
+  if (isNaN(d.getTime())) {
+    console.error("Invalid date:", date);
+    return null; // Return null for invalid dates
+  }
+
+  const year: number = d.getFullYear();
+  const month: string = String(d.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+  const day: string = String(d.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};

@@ -29,7 +29,7 @@ export function AlertDiscrepancy({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Discrepancy Detected</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogDescription className="bg-yellow-200 p-4 rounded text-yellow-600 text-sm">
             Warning: There's a discrepancy of {discrepancy} in the closing
             balance. Do you want to proceed?
           </AlertDialogDescription>

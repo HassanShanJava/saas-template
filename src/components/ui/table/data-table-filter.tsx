@@ -38,6 +38,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { MultiSelect } from "../multiselect/multiselectCheckbox";
+import { DatePickerWithRange } from "../date-range/date-rangePicker";
 
 interface filtertypes {
   isOpen: boolean;
@@ -79,7 +80,10 @@ const TableFilters = ({
                         element.function(value);
                       }}
                     >
-                      <SelectTrigger className="capitalize" floatingLabel={element.label}>
+                      <SelectTrigger
+                        className="capitalize"
+                        floatingLabel={element.label}
+                      >
                         <SelectValue placeholder={"Select " + element.label} />
                       </SelectTrigger>
                       <SelectContent className="capitalize">
@@ -103,6 +107,31 @@ const TableFilters = ({
                     />
                   );
                 }
+                if (element.type == "date-range") {
+                  return (
+                    <div className="w-full " key={element.name}>
+                      {/* {" "}
+                      <div className="flex justify-center items-center pb-2 text-base">
+                        <span className="text-base ">Select a Date Range</span>
+                      </div> */}
+                      {/* Ensure full width */}
+                      <DatePickerWithRange
+                        name={element.name}
+                        value={{
+                          start_date: filterData.start_date, // Access start_date directly
+                          end_date: filterData.end_date, // Access end_date directly
+                        }}
+                        onValueChange={(dates) => {
+                          // Call your updated function
+                          element.function(dates);
+                        }}
+                        label={"Select " + element.label}
+                        className="w-full" // Ensure full width
+                      />
+                    </div>
+                  );
+                }
+
                 if (element.type == "percentage") {
                   return (
                     <FloatingLabelInput
@@ -205,15 +234,25 @@ interface comboboxType {
   label?: string;
 }
 
-function Combobox({ list, setFilter, name, defaultValue, label }: comboboxType) {
+function Combobox({
+  list,
+  setFilter,
+  name,
+  defaultValue,
+  label,
+}: comboboxType) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(list?.find((list) => list.value == defaultValue)?.label ?? "");
+  const [value, setValue] = useState(
+    list?.find((list) => list.value == defaultValue)?.label ?? ""
+  );
   console.log({ value, list, defaultValue });
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
         <div className="relative">
-          <span className="absolute p-0 text-[11px] left-2 -top-1.5 px-1 bg-white capitalize">{label}</span>
+          <span className="absolute p-0 text-[11px] left-2 -top-1.5 px-1 bg-white capitalize">
+            {label}
+          </span>
           <Button
             variant="outline"
             role="combobox"
@@ -226,7 +265,6 @@ function Combobox({ list, setFilter, name, defaultValue, label }: comboboxType) 
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </div>
-
       </PopoverTrigger>
       <PopoverContent className="w-[330px] max-h-28 p-0" side="bottom">
         <Command>
@@ -245,8 +283,8 @@ function Combobox({ list, setFilter, name, defaultValue, label }: comboboxType) 
                       setValue(currentValue == value ? "" : currentValue);
                       setFilter(
                         list &&
-                        list?.find((list) => list.label === currentValue)
-                          ?.value
+                          list?.find((list) => list.label === currentValue)
+                            ?.value
                       );
                       setOpen(false);
                     }}

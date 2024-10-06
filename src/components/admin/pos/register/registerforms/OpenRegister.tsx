@@ -14,12 +14,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-// registerSessionStorage;
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
-import { useSession } from "@/hooks/use-Session";
-import { time } from "console";
 import {
   displayDateTime,
   displayValue,
@@ -110,9 +107,11 @@ const OpenRegister: React.FC = () => {
       onSubmit={handleSubmit(onSubmit, onError)}
       className="space-x-3 p-1 w-full"
     >
-      <div className="flex flex-col-reverse slg:flex-row gap-4  justify-center items-center w-full">
+      <div className="flex flex-col-reverse slg:flex-row justify-center items-start w-full">
+        {" "}
         {/* Last Closure Details */}
-        <div className="w-full flex slg:w-[50%] flex-col items-center justify-center">
+        <div className="w-full slg:w-[50%] flex flex-col items-center rounded-lg mb-6 lg:mb-0">
+          {" "}
           <h2 className="text-2xl font-bold text-center text-gray-800">
             Last Closure Details
           </h2>
@@ -197,7 +196,6 @@ const OpenRegister: React.FC = () => {
             </div>
           )}
         </div>
-
         {/* Open Register Form */}
         <div className="w-full slg:w-[50%]  flex flex-col items-center rounded-lg shadow-md ">
           <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">

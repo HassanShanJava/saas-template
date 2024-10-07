@@ -55,7 +55,7 @@ const Sell = () => {
   const memberhsipListData = useMemo(() => {
     return Array.isArray(memberhsipList?.data) ? memberhsipList?.data : [];
   }, [memberhsipList]);
-
+  console.log({ productPayload })
   const productCategories = [
     {
       type: "memberships",
@@ -126,6 +126,25 @@ const Sell = () => {
 
   const { data: memberList } = useGetMembersListQuery(orgId as number)
   console.log({ memberList })
+
+
+  const roundToTwoDecimals = (value) => Math.floor(value * 100) / 100;
+
+  const subtotal = productPayload.reduce(
+    (acc, product) => acc + product.price * product.quantity,
+    0
+  );
+
+  const totalDiscount = productPayload.reduce(
+    (acc, product) => acc + product.discount * product.quantity,
+    0
+  );
+
+  const taxRate = 0.10; // 10% tax rate (adjust as needed)
+  const tax = subtotal * taxRate;
+
+  const total = subtotal - totalDiscount + tax;
+
   return (
     <>
       <div className="w-full p-5 ">
@@ -193,22 +212,24 @@ const Sell = () => {
               <div className="space-y-2 px-2">
                 <div className="w-full flex gap-2 items-center justify-between">
                   <p>Subtotal</p>
-                  <p>Rs. 0.0</p>
+                  <p>Rs. {roundToTwoDecimals(subtotal)}</p> {/* Display Subtotal */}
                 </div>
                 <div className="w-full flex gap-2 items-center justify-between">
-                  <p>Discount  </p>
-                  <p>Rs. 0.0</p>
+                  <p>Discount</p>
+                  <p>Rs. {roundToTwoDecimals(totalDiscount)}</p> {/* Display Discount */}
                 </div>
                 <div className="w-full flex gap-2 items-center justify-between">
-                  <p>Tax  </p>
-                  <p>Rs. 0.0</p>
+                  <p>Tax</p>
+                  <p>Rs. {roundToTwoDecimals(tax)}</p> {/* Display Tax */}
                 </div>
-                <Button className="w-full bg-primary text-black rounded-sm " onClick={() => setShowCheckout(true)}>
+                <div className="w-full flex gap-2 items-center justify-between font-bold">
+                  <p>Total</p>
+                  <p>Rs. {roundToTwoDecimals(total)}</p> {/* Display Total */}
+                </div>
+                <Button className="w-full bg-primary text-black rounded-sm" onClick={() => setShowCheckout(true)}>
                   Pay
                 </Button>
-
               </div>
-
 
             </div>
 
@@ -218,132 +239,9 @@ const Sell = () => {
       </div>
       <div >
         {showCheckout && (
-          <div className="px-3 py-4">
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div>
-                <h1 className="text-3xl font-bold mb-6">Checkout</h1>
-                <div className="bg-white  p-6 rounded-lg">
-                  <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <i
-                          className="fa fa-image rounded-md"
-                          style={{ aspectRatio: "80/80", objectFit: "cover" }}
-                        />
-                      </div>
-                      <div className="flex-1 ml-4">
-                        <h3 className="text-lg font-medium">Product Name</h3>
-                        <p className="text-gray-500 ">Quantity: 2</p>
-                      </div>
-                      <div className="text-lg font-bold">$99.99</div>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between items-center">
-                      <div>Subtotal</div>
-                      <div className="font-bold">$99.99</div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div>Shipping</div>
-                      <div className="font-bold">$9.99</div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div>Tax</div>
-                      <div className="font-bold">$10.00</div>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between items-center">
-                      <div className="text-xl font-bold">Total</div>
-                      <div className="text-xl font-bold">$119.98</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h2 className="text-2xl font-bold mb-6">Billing &amp; Shipping</h2>
-                <form className="space-y-6">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" />
-                    </div>
-                    <div>
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" placeholder="Doe" />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="john@example.com" />
-                  </div>
-                  <div>
-                    <Label htmlFor="address">Address</Label>
-                    <Input id="address" placeholder="123 Main St" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="city">City</Label>
-                      <Input id="city" placeholder="New York" />
-                    </div>
-                    <div>
-                      <Label htmlFor="state">State</Label>
-                      <Input id="state" placeholder="NY" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="zip">Zip Code</Label>
-                      <Input id="zip" type="number" placeholder="10001" />
-                    </div>
-                    <div>
-                      <Label htmlFor="country">Country</Label>
-                      <Input id="country" placeholder="United States" />
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-
-
-            <div className="bg-gray-50  py-12 px-6 md:px-12 lg:px-24 mt-6">
-              <h2 className="text-2xl font-bold ">Payment</h2>
-
-              <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <RadioGroup defaultValue="card">
-                    <div className="flex items-center space-x-4">
-                      <RadioGroupItem value="card" id="card" />
-                      <Label htmlFor="card" className="flex items-center space-x-2">
-                        <span>Credit/Debit Card</span>
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-4 mt-4">
-                      <RadioGroupItem value="paypal" id="paypal" />
-                      <Label htmlFor="paypal" className="flex items-center space-x-2">
-                        <span>PayPal</span>
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-                <div>
-                  <form className="space-y-6">
-                    <div>
-                      <Label htmlFor="cardNumber">Card Number</Label>
-                      <Input id="cardNumber" type="text" placeholder="4111 1111 1111 1111" />
-                    </div>
-                    
-                  </form>
-                </div>
-              </div>
-
-              <div className="mt-8 flex justify-end">
-                <Button size="lg" onClick={()=>setShowCheckout(false)}>Place Order</Button>
-              </div>
-            </div>
-          </div>
+          <Checkout setShowCheckout={setShowCheckout} />
         )}
+
 
       </div>
     </>
@@ -405,5 +303,136 @@ export function CustomerCombobox({ list }: { list: { value: number, label: strin
         </Command>
       </PopoverContent>
     </Popover>
+  )
+}
+
+
+function Checkout({ setShowCheckout }: any) {
+  return (
+    <div className="px-3 py-4">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div>
+          <h1 className="text-3xl font-bold mb-6">Checkout</h1>
+          <div className="bg-white  p-6 rounded-lg">
+            <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <i
+                    className="fa fa-image rounded-md"
+                    style={{ aspectRatio: "80/80", objectFit: "cover" }}
+                  />
+                </div>
+                <div className="flex-1 ml-4">
+                  <h3 className="text-lg font-medium">Product Name</h3>
+                  <p className="text-gray-500 ">Quantity: 2</p>
+                </div>
+                <div className="text-lg font-bold">$99.99</div>
+              </div>
+              <Separator />
+              <div className="flex justify-between items-center">
+                <div>Subtotal</div>
+                <div className="font-bold">$99.99</div>
+              </div>
+              <div className="flex justify-between items-center">
+                <div>Shipping</div>
+                <div className="font-bold">$9.99</div>
+              </div>
+              <div className="flex justify-between items-center">
+                <div>Tax</div>
+                <div className="font-bold">$10.00</div>
+              </div>
+              <Separator />
+              <div className="flex justify-between items-center">
+                <div className="text-xl font-bold">Total</div>
+                <div className="text-xl font-bold">$119.98</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-2xl font-bold mb-6">Billing &amp; Shipping</h2>
+          <form className="space-y-6">
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="firstName">First Name</Label>
+                <Input id="firstName" />
+              </div>
+              <div>
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input id="lastName" placeholder="Doe" />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" placeholder="john@example.com" />
+            </div>
+            <div>
+              <Label htmlFor="address">Address</Label>
+              <Input id="address" placeholder="123 Main St" />
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="city">City</Label>
+                <Input id="city" placeholder="New York" />
+              </div>
+              <div>
+                <Label htmlFor="state">State</Label>
+                <Input id="state" placeholder="NY" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="zip">Zip Code</Label>
+                <Input id="zip" type="number" placeholder="10001" />
+              </div>
+              <div>
+                <Label htmlFor="country">Country</Label>
+                <Input id="country" placeholder="United States" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+
+      <div className="bg-gray-50  py-12 px-6 md:px-12 lg:px-24 mt-6">
+        <h2 className="text-2xl font-bold ">Payment</h2>
+
+        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <RadioGroup defaultValue="card">
+              <div className="flex items-center space-x-4">
+                <RadioGroupItem value="card" id="card" />
+                <Label htmlFor="card" className="flex items-center space-x-2">
+                  <span>Credit/Debit Card</span>
+                </Label>
+              </div>
+              <div className="flex items-center space-x-4 mt-4">
+                <RadioGroupItem value="paypal" id="paypal" />
+                <Label htmlFor="paypal" className="flex items-center space-x-2">
+                  <span>PayPal</span>
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+          <div>
+            <form className="space-y-6">
+              <div>
+                <Label htmlFor="cardNumber">Card Number</Label>
+                <Input id="cardNumber" type="text" placeholder="4111 1111 1111 1111" />
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <div className="mt-8 flex justify-end">
+          <Button size="lg" onClick={() => setShowCheckout(false)}>Place Order</Button>
+        </div>
+      </div>
+    </div>
   )
 }

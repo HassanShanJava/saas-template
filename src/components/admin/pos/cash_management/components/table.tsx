@@ -26,18 +26,20 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RegisterSession } from "@/app/types";
+import { ErrorType, RegisterSession } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import { displayDateTime, displayValue } from "@/utils/helper";
 import Pagination from "@/components/ui/table/pagination-table";
-import { registerSessionsList } from "@/constants/cash_register";
 import usePagination from "@/hooks/use-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { sessionMapper, downloadCSV } from "@/utils/helper";
 import TableFilters from "@/components/ui/table/data-table-filter";
+import { useGetAllRegisterSessionQuery } from "@/services/registerApi";
+import { discrepancy } from "@/constants/cash_register";
+import { formatDate } from "@/utils/helper";
 
 interface searchCretiriaType {
   limit: number;
@@ -55,6 +57,12 @@ const initialValue = {
 };
 
 export default function CashregisterViewTable() {
+  const counter_number =
+    useSelector((state: RootState) => state.counter?.counter_number) || 0;
+
+  // const { code, counter_number } = useSelector(
+  //   (state: RootState) => state.counter
+  // );
   const { pos_cash_management } = JSON.parse(
     localStorage.getItem("accessLevels") as string
   );
@@ -67,17 +75,26 @@ export default function CashregisterViewTable() {
   const [openFilter, setOpenFilter] = useState(false);
   const [filterData, setFilter] = useState<Record<string, any>>({});
 
-  useEffect(() => {
+  React.useEffect(() => {
     const params = new URLSearchParams();
+    // Iterate through the search criteria
     for (const [key, value] of Object.entries(searchCriteria)) {
-      console.log({ key, value });
       if (value !== undefined && value !== null) {
-        params.append(key, value);
+        // Check if the value is an array
+        if (Array.isArray(value)) {
+          value.forEach((val) => {
+            params.append(key, val); // Append each array element as a separate query parameter
+          });
+        } else {
+          params.append(key, value); // For non-array values
+        }
       }
     }
+
+    // Create the final query string
     const newQuery = params.toString();
     console.log({ newQuery });
-    setQuery(newQuery);
+    setQuery(newQuery); // Update the query state for API call
   }, [searchCriteria]);
 
   const toggleSortOrder = (key: string) => {
@@ -96,11 +113,38 @@ export default function CashregisterViewTable() {
       };
     });
   };
+
+  const {
+    data: registerSessionData,
+    isLoading: isRegisterSessionLoading,
+    refetch,
+    error,
+    isError,
+  } = useGetAllRegisterSessionQuery(
+    {
+      counter_id: counter_number,
+      query: query,
+    },
+    {
+      skip: query == "",
+    }
+  );
+
+  React.useEffect(() => {
+    if (isError) {
+      const typedError = error as ErrorType;
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: typedError.data?.detail ?? "Internal Server Errors",
+      });
+    }
+  }, [isError]);
   const cashregisterTableData = React.useMemo(() => {
-    return Array.isArray(registerSessionsList?.data)
-      ? registerSessionsList?.data
+    return Array.isArray(registerSessionData?.data)
+      ? registerSessionData?.data
       : [];
-  }, [registerSessionsList]);
+  }, [registerSessionData]);
 
   const { toast } = useToast();
 
@@ -154,7 +198,7 @@ export default function CashregisterViewTable() {
           <p className="text-nowrap">Session ID</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("sessionid")}
+            onClick={() => toggleSortOrder("id")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -167,7 +211,7 @@ export default function CashregisterViewTable() {
           <div className="flex gap-2 items-center justify-between w-fit">
             <div className="">
               <p className="capitalize cursor-pointer">
-                <span>{displayValue(row.original.sessionId)}</span>
+                <span>{displayValue(row.original.id?.toString())}</span>
               </p>
             </div>
           </div>
@@ -184,7 +228,7 @@ export default function CashregisterViewTable() {
           <p className="text-nowrap">Opening Time</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("openningtime")}
+            onClick={() => toggleSortOrder("opening_time")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -195,7 +239,7 @@ export default function CashregisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayDateTime(row?.original.openingTime)}
+            {displayDateTime(row?.original.opening_time)}
           </div>
         );
       },
@@ -208,7 +252,7 @@ export default function CashregisterViewTable() {
           <p className="text-nowrap">Opening Balance</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("openingbalance")}
+            onClick={() => toggleSortOrder("opening_balance")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -222,7 +266,7 @@ export default function CashregisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(row.original.openingBalance.toString())}
+                  {displayValue(row.original.opening_balance?.toString())}
                 </span>
               </p>
             </div>
@@ -240,7 +284,7 @@ export default function CashregisterViewTable() {
           <p className="text-nowrap">Closing Time</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("closingtime")}
+            onClick={() => toggleSortOrder("closing_time")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -251,7 +295,7 @@ export default function CashregisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayDateTime(row?.original.closingTime)}
+            {displayDateTime(row?.original.closing_time)}
           </div>
         );
       },
@@ -264,7 +308,7 @@ export default function CashregisterViewTable() {
           <p className="text-nowrap">Closing Balance</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("closingbalance")}
+            onClick={() => toggleSortOrder("closing_balance")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -278,7 +322,7 @@ export default function CashregisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(row.original.closingBalance.toString())}
+                  {displayValue(row.original.closing_balance?.toString())}
                 </span>
               </p>
             </div>
@@ -312,7 +356,7 @@ export default function CashregisterViewTable() {
                 <span
                   className={`${row.original.discrepancy !== 0 ? "text-red-500" : "text-black"}`}
                 >
-                  {displayValue(row.original.discrepancy.toString())}
+                  {displayValue(row.original.discrepancy?.toString())}
                 </span>
               </p>
             </div>
@@ -370,6 +414,32 @@ export default function CashregisterViewTable() {
       enableHiding: false,
     },
     {
+      accessorKey: "createddate",
+      meta: "CreatedDate",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Created Date</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("created_date")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayDateTime(row?.original.created_date)}
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: "createdBy",
       meta: "CreatedBy",
       header: () => (
@@ -377,7 +447,7 @@ export default function CashregisterViewTable() {
           <p className="text-nowrap">Created By</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("createdBy")}
+            onClick={() => toggleSortOrder("created_by")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -436,7 +506,7 @@ export default function CashregisterViewTable() {
     },
   });
 
-  const totalRecords = registerSessionsList?.filtered_counts || 0;
+  const totalRecords = registerSessionData?.filtered_counts || 0;
 
   const {
     handleLimitChange,
@@ -450,20 +520,43 @@ export default function CashregisterViewTable() {
     searchCriteria,
     setSearchCriteria,
   });
+  const handleDiscrepancy = (value: string) => {
+    setFilter((prev) => ({
+      ...prev,
+      discrepancy: value,
+    }));
+  };
+
+  const handleDateRange = (dates: { start_date: string; end_date: string }) => {
+    setFilter((prev) => ({
+      ...prev,
+      start_date: formatDate(dates.start_date), // Format start_date
+      end_date: formatDate(dates.end_date), // Format end_date
+    }));
+  };
 
   const filterDisplay = [
     {
       type: "select",
-      name: "visible_for",
+      name: "discrepancy",
       label: "Discrepancy",
-      // options: visibleFor.map((item) => ({ id: item.value, name: item.label })),
-      // function: handleVisiblity,
+      options: discrepancy.map((item) => ({
+        id: item.value,
+        name: item.label,
+      })),
+      function: handleDiscrepancy,
+    },
+    {
+      type: "date-range",
+      name: "dateRange",
+      label: "Date Range",
+      function: handleDateRange,
     },
   ];
   console.log("limit here", searchCriteria.limit, searchCriteria.offset);
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3">
         <div></div>
         {/* Buttons Container */}
 
@@ -471,7 +564,7 @@ export default function CashregisterViewTable() {
           <DataTableViewOptions table={table} action={handleExportSelected} />
 
           <button
-            className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
+            className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}
           >
             <i className="fa fa-filter"></i>
@@ -504,8 +597,7 @@ export default function CashregisterViewTable() {
               ))}
             </TableHeader>
             <TableBody>
-              {/* {isLoading ? ( */}
-              {false ? (
+              {isRegisterSessionLoading ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -520,27 +612,29 @@ export default function CashregisterViewTable() {
                 </TableRow>
               ) : table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
+                  <>
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="h-24">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </>
                 ))
-              ) : cashregisterTableData.length > 0 ? (
+              ) : registerSessionData?.total_counts == 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No data found.
+                    No register closure records found.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -549,7 +643,7 @@ export default function CashregisterViewTable() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No records found.
+                    No records found for the search Criteria.
                   </TableCell>
                 </TableRow>
               )}

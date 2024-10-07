@@ -26,35 +26,36 @@ export function useGetRegisterData(counter_id: number): {
   } = useGetlastRegisterSessionQuery(counter_id);
 
   useEffect(() => {
-    console.log("Is Data Loading:", isDataLoading);
-    console.log("Counter Data:", counterData);
-
     const localSession = localStorage.getItem("registerSession");
+
     if (localSession) {
+      // Local session data is available
       const session = JSON.parse(localSession);
       setData(session);
-      if (counterData && !isDataLoading && !error) {
-        if (counterData.closing_time) {
-          setIsRegisterOpen(false);
-          localStorage.removeItem("registerSession"); // Remove the session if closed
-          setData(null);
-        } else {
-          setIsRegisterOpen(true); // Check this condition
-        }
-      }
 
+      // Check if 24 hours have passed
       if (has24HoursPassed(Number(session.time))) {
         setIsDayExceed(true);
       } else {
         setIsDayExceed(false);
       }
 
-      setIsLoading(false);
+      // If API has loaded, use it to verify local storage data
+      if (counterData && !isDataLoading && !error) {
+        if (counterData.closing_time) {
+          // Register is closed, clear local session
+          setIsRegisterOpen(false);
+          localStorage.removeItem("registerSession");
+          setData(null);
+        } else {
+          // Register is open, keep session from local storage
+          setIsRegisterOpen(true);
+        }
+      }
     } else if (counterData && !isDataLoading && !error) {
-      console.log("Counter Data:", counterData);
-      console.log("Closing Time:", counterData.closing_time);
-
+      // No local session, use API data
       if (!counterData.closing_time) {
+        // Register is open, save session to local storage
         const sessionData = {
           time: Date.now().toString(),
           isOpen: true,
@@ -68,31 +69,17 @@ export function useGetRegisterData(counter_id: number): {
         setData(sessionData);
         setIsRegisterOpen(true);
       } else {
-        console.log(
-          "Register is closed. Closing Time:",
-          counterData.closing_time
-        );
-        setIsRegisterOpen(false); // This should correctly set the state to false
+        // Register is closed, no need for session
+        setIsRegisterOpen(false);
         setData(null);
         localStorage.removeItem("registerSession");
       }
 
-      // Check if 24 hours have passed since the stored time in localStorage
-      if (localStorage.getItem("registerSession")) {
-        const storedSession = JSON.parse(
-          localStorage.getItem("registerSession")!
-        );
-        if (has24HoursPassed(Number(storedSession.time))) {
-          setIsDayExceed(true);
-        } else {
-          setIsDayExceed(false);
-        }
-      } else {
-        setIsDayExceed(false);
-      }
-
-      setIsLoading(false);
+      setIsDayExceed(false); // Reset day exceed if register is open
     }
+
+    // Stop loading when everything is processed
+    setIsLoading(isDataLoading || error ? true : false);
   }, [counterData, isDataLoading, error]);
 
   return {

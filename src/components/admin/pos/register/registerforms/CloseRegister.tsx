@@ -49,8 +49,6 @@ const CloseRegister: React.FC = () => {
     watch,
   } = useForm<CloseRegisterFormInputs>();
 
-  const expectedCLosingBalance = 120000;
-
   const onSubmit: SubmitHandler<CloseRegisterFormInputs> = (data) => {
     setData(data);
     const calculatedDiscrepancy =
@@ -96,97 +94,60 @@ const CloseRegister: React.FC = () => {
       }
     }
   };
-  // const onSubmit: SubmitHandler<CloseRegisterFormInputs> = async (data) => {
-  //   try {
-  //     const payload = {
-  //       id: counterData?.id as number,
-  //       closing_balance: data.closing_balance,
-  //       notes: data.notes,
-  //     };
-  //     const resp = await closeRegister(payload).unwrap();
-  //     if (resp) {
-  //       toast({
-  //         variant: "success",
-  //         title: "Store closed successfully",
-  //       });
-  //       const discrepancy = data.closing_balance - expectedCLosingBalance;
-  //       if (discrepancy !== 0) {
-  //         setDiscrepancyWarning(
-  //           `Warning: There's a discrepancy of ${discrepancy} in the closing balance.`
-  //         );
-  //       } else {
-  //         setDiscrepancyWarning(null);
-  //       }
-  //       localStorage.removeItem("registerSession");
-  //     }
-  //   } catch (error: unknown) {
-  //     console.error("Error", { error });
-  //     if (error && typeof error === "object" && "data" in error) {
-  //       const typedError = error as ErrorType;
-  //       toast({
-  //         variant: "destructive",
-  //         title: "Error in form Submission",
-  //         description: `${typedError.data?.detail}`,
-  //       });
-  //     } else {
-  //       toast({
-  //         variant: "destructive",
-  //         title: "Error in form Submission",
-  //         description: `Something Went Wrong.`,
-  //       });
-  //     }
-  //   }
-  // };
 
   console.log("data", counterData?.total_amount?.toString());
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="space-x-3 p-1 w-full ">
-        <div className="flex flex-row  justify-center items-start w-full">
+        <div className="flex flex-col-reverse slg:flex-row justify-center items-start w-full gap-4">
           {/* Last Closure Details */}
 
-          <div className="w-[50%] flex flex-col items-center justify-center">
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+          <div className="w-full slg:w-[50%] flex flex-col items-center rounded-lg mb-6 lg:mb-0">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
               Current Session Details
             </h2>
             {isLoading ? (
-              <div className="p-6 rounded-md w-full h-full flex flex-col items-center justify-center">
+              <div className="p-3 rounded-md w-full h-full flex flex-col items-center justify-center">
                 <div>
-                  <div className="text-lg flex gap-2">
+                  <div className="flex gap-2">
                     <Skeleton className="h-4 w-[100px]" /> {/* Label */}
                     <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                   </div>
-                  <div className="text-lg flex gap-2 mt-2">
+                  <div className="flex gap-2 mt-2">
                     <Skeleton className="h-4 w-[130px]" /> {/* Label */}
                     <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                   </div>
-                  <div className="text-lg flex gap-2 mt-2">
+                  <div className="flex gap-2 mt-2">
                     <Skeleton className="h-4 w-[150px]" /> {/* Label */}
                     <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                   </div>
-                  <div className="text-lg flex gap-2 mt-2">
+                  <div className="flex gap-2 mt-2">
                     <Skeleton className="h-4 w-[150px]" /> {/* Label */}
                     <Skeleton className="h-4 w-[150px]" /> {/* Value */}
                   </div>
                 </div>
               </div>
             ) : (
-              <div className=" p-6 rounded-md w-full h-full flex flex-col items-center justify-center">
-                <div>
-                  <p className="text-lg flex gap-2">
-                    <strong>Session ID:</strong>{" "}
+              <div className="p-3 rounded-md w-full h-full flex flex-col items-center justify-center">
+                <div className="gap-1.5 flex flex-col">
+                  <p className="text-sm flex gap-2">
+                    <span className="text-sm font-semibold">Session ID:</span>{" "}
                     {displayValue(counterData?.id?.toString())}
                   </p>
-                  <p className="text-lg flex gap-2">
-                    <strong>Opening Time:</strong>{" "}
+                  <p className="text-sm flex gap-2">
+                    <span className="text-sm font-semibold">Opening Time:</span>{" "}
                     {displayDateTime(counterData?.opening_time?.toString())}
                   </p>
-                  <p className="text-lg flex gap-2">
-                    <strong>Total Cash Recieved:</strong>{" "}
+                  <p className="text-sm flex gap-2">
+                    <span className="text-sm font-semibold">
+                      Total Cash Recieved:
+                    </span>{" "}
                     {displayValue(counterData?.total_amount?.toString())}
                   </p>
-                  <p className="text-lg flex gap-2">
-                    <strong>Total Refund Amount:</strong>{" "}
+                  <p className="text-sm flex gap-2">
+                    <span className="text-sm font-semibold">
+                      Total Refund Amount:
+                    </span>{" "}
                     {displayValue(counterData?.refund_amount?.toString())}
                   </p>
                 </div>
@@ -195,7 +156,7 @@ const CloseRegister: React.FC = () => {
           </div>
 
           {/* Open Register Form */}
-          <div className="w-[50%] flex flex-col items-center rounded-lg shadow-md ">
+          <div className="w-full slg:w-[50%]  flex flex-col items-center rounded-lg shadow-md ">
             <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
               Close Register
             </h2>
@@ -235,11 +196,11 @@ const CloseRegister: React.FC = () => {
               <div className="flex justify-center items-center">
                 <LoadingButton
                   type="submit"
-                  className="mt-6 w-[40%]  text-white transition duration-300"
+                  className="bg-primary text-sm mt-6 w-40   text-white transition flex items-center gap-1  lg:mb-0 h-8 px-2 duration-300"
                   loading={closeRegisterLoading}
                   disabled={closeRegisterLoading}
                 >
-                  Close Register
+                  {closeRegisterLoading ? `Closing...` : `Close Register`}
                 </LoadingButton>
               </div>
             </div>

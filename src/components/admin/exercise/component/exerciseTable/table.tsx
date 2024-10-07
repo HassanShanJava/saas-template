@@ -135,7 +135,6 @@ export default function ExerciseTableView() {
     const params = new URLSearchParams();
     // Iterate through the search criteria
     for (const [key, value] of Object.entries(searchCriteria)) {
-      console.log("just checking here", [key, value]);
       if (value !== undefined && value !== null) {
         // Check if the value is an array
         if (Array.isArray(value)) {

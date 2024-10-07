@@ -89,23 +89,25 @@ export const coachMapper = ({
 });
 
 export const sessionMapper = ({
-  sessionId,
-  openingTime,
-  openingBalance,
-  closingTime,
-  closingBalance,
+  id,
+  opening_time,
+  opening_balance,
+  closing_time,
+  closing_balance,
   discrepancy,
   notes,
   created_by,
+  created_date,
 }: RegisterSession) => ({
-  "Session ID": sessionId,
-  "Opening Time": displayDateTime(openingTime) || "",
-  "Opening Balance": displayValue(openingBalance.toString()) || "",
-  "Closing Time": displayDateTime(closingTime) || "",
-  "Closing Balance": displayValue(closingBalance.toString()) || "",
-  Discrepancy: displayValue(discrepancy.toString()) || "",
-  Notes: capitalizeFirstLetter(notes),
+  "Session ID": id,
+  "Opening Time": displayDateTime(opening_time) || "",
+  "Opening Balance": displayValue(opening_balance.toString()) || "",
+  "Closing Time": displayDateTime(closing_time) || "",
+  "Closing Balance": displayValue(closing_balance.toString()) || "",
+  Discrepancy: displayValue(discrepancy?.toString()) || "",
+  Notes: capitalizeFirstLetter(notes?.toString() as string),
   "Created By": capitalizeFirstLetter(created_by),
+  "Created Date": displayDateTime(created_date) || "",
 });
 
 export const initialValue = {
@@ -138,4 +140,22 @@ export function extractLinks(data: any[]) {
 
 export const saveToLocalStorage = (key: string, value: any) => {
   localStorage.setItem(key, JSON.stringify(value));
+};
+
+export const formatDate = (date: Date | string | null): string | null => {
+  if (!date) return null; // Handle null or undefined dates
+
+  const d = new Date(date);
+
+  // Check if the date is valid
+  if (isNaN(d.getTime())) {
+    console.error("Invalid date:", date);
+    return null; // Return null for invalid dates
+  }
+
+  const year: number = d.getFullYear();
+  const month: string = String(d.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+  const day: string = String(d.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 };

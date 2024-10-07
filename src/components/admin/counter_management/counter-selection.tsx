@@ -75,7 +75,7 @@ const CounterSelection = () => {
         if (counter_number == null && assignedCounterData?.length === 1) {
             assignSingleCounter(assignedCounterData[0], "Counter Opened Successfully");
         } else if (assignedCounterData?.length > 0 && assignedCounterData.some((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)) {
-            console.log("already opened counterk", { counter_number })
+            console.log("already opened counter", { counter_number })
             const findOpenedCounter = assignedCounterData.find((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)
             assignSingleCounter(findOpenedCounter as counterDataType, "Counter Already Open");
         }
@@ -117,6 +117,16 @@ const CounterSelection = () => {
                     ) : (
                         assignedCounterData.length === 0 && (
                             <Card className="w-full p-5 space-y-4 max-w-2xl mx-auto">
+                                <div className='flex justify-end items-center'>
+                                    <Link to={"/"} className='text-primary' onClick={() => {
+                                        dispatch(setCode(null));
+                                        dispatch(setCounter(null));
+                                        dispatch(resetBackPageCount())
+                                    }}>
+                                        <i className="rounded-[50%] fa fa-arrow-left px-2 py-0.5 mr-2 text-base border-2 border-primary text-primary"></i>
+                                        Back to gym
+                                    </Link>
+                                </div>
                                 <p className="w-full text-center">
                                     No Counter has been assigned to you.
                                     <br />

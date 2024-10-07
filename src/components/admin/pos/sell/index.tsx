@@ -32,7 +32,7 @@ const Sell = () => {
   const orgId = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_id
   );
-  const counter_number = JSON.parse(localStorage.getItem("counter_number") as string);
+  const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
 
   const [productList, setProductList] = useState<Record<string, any>[]>([])
   const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId as number, query: "" })

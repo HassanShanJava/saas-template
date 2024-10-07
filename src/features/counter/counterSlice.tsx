@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface CounterState {
-    counter_number?: number | null ;
+    counter_number?: number | null;
     code?: string | null
     back: number
 }
@@ -18,7 +18,7 @@ const counterSlice = createSlice({
     reducers: {
         setCounter: (state, action: PayloadAction<number | null>) => {
             state.counter_number = action.payload;
-            localStorage.setItem('counter_number', String(action.payload))
+            localStorage.setItem('counter_number', String(action.payload == null ? "" : action.payload))
         },
         setCode: (state, action: PayloadAction<string | null>) => {
             state.code = action.payload;

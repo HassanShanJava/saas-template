@@ -525,13 +525,6 @@ export default function WorkoutPlansTableView() {
     },
   ];
 
-  console.log(
-    "workout data",
-    workoutdata?.data,
-    WorkoutTableData,
-    "Total Records",
-    { totalRecords }
-  );
   return (
     <div className="w-full space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3">

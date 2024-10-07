@@ -16,7 +16,6 @@ const status = [
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
 ];
 
-
 import {
   Tooltip,
   TooltipContent,
@@ -60,7 +59,10 @@ import { displayValue } from "@/utils/helper";
 import { counterList } from "@/constants/counter";
 import AssignCounter from "../modal/assign-counter";
 import CounterForm from "../modal/counter-form";
-import { useGetCountersQuery, useUpdateCountersMutation } from "@/services/counterApi";
+import {
+  useGetCountersQuery,
+  useUpdateCountersMutation,
+} from "@/services/counterApi";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { useGetStaffListQuery } from "@/services/staffsApi";
 import usePagination from "@/hooks/use-pagination";
@@ -95,7 +97,9 @@ const initialValue = {
 };
 
 export default function CounterTableView() {
-  const { pos_count } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const { pos_count } = JSON.parse(
+    localStorage.getItem("accessLevels") as string
+  );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -179,8 +183,8 @@ export default function CounterTableView() {
     }
   );
 
-  const [updateCounter] = useUpdateCountersMutation()
-  console.log({ counterList })
+  const [updateCounter] = useUpdateCountersMutation();
+  console.log({ counterList });
 
   const handleCloseDailog = () => setIsDialogOpen(false);
 
@@ -244,17 +248,18 @@ export default function CounterTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex gap-2 items-center justify-between w-fit">
-
             <div className="">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <p className="capitalize cursor-pointer">
-                      <span>{displayValue(
-                        `${row.original.name}`.length > 15
-                          ? `${row.original.name}`.substring(0, 15) + "..."
-                          : `${row.original.name}`
-                      )}</span>
+                      <span>
+                        {displayValue(
+                          `${row.original.name}`.length > 15
+                            ? `${row.original.name}`.substring(0, 15) + "..."
+                            : `${row.original.name}`
+                        )}
+                      </span>
                     </p>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -277,7 +282,10 @@ export default function CounterTableView() {
       header: () => <p className="text-nowrap">Assigned Cashiers</p>,
       cell: ({ row }) => {
         return (
-          <Button className="h-8" onClick={() => handleViewCashier(row?.original)}>
+          <Button
+            className="h-8"
+            onClick={() => handleViewCashier(row?.original)}
+          >
             View Cashiers
           </Button>
         );
@@ -325,13 +333,14 @@ export default function CounterTableView() {
         return (
           <Select
             defaultValue={value}
-            onValueChange={(e) =>
-              handleStatusChange({ status: e, id: id })
-            }
+            onValueChange={(e) => handleStatusChange({ status: e, id: id })}
             disabled={pos_count == "read"}
           >
             <SelectTrigger className="h-8 max-w-36">
-              <SelectValue placeholder="Status" className="text-gray-400 max-w-48 ">
+              <SelectValue
+                placeholder="Status"
+                className="text-gray-400 max-w-48 "
+              >
                 <span className="flex gap-2 items-center">
                   <span
                     className={`${statusLabel?.color} rounded-[50%] w-4 h-4`}
@@ -417,9 +426,9 @@ export default function CounterTableView() {
   };
 
   const handleViewCashier = (data: counterDataType) => {
-    setData(data)
+    setData(data);
     setAssignCounter(true);
-  }
+  };
 
   const totalRecords = counterList?.filtered_counts || 0;
   const {
@@ -435,20 +444,12 @@ export default function CounterTableView() {
     setSearchCriteria,
   });
 
-  function handleCounterStatus(value: string) {
+  function handleFilterChange(field: string, value: string | number) {
     setFilter((prev) => ({
       ...prev,
-      status: value,
+      [field]: value,
     }));
   }
-
-  function handleStaffId(value: number) {
-    setFilter((prev) => ({
-      ...prev,
-      staff_id: value,
-    }));
-  }
-
   const filterDisplay = [
     {
       type: "select",
@@ -458,18 +459,16 @@ export default function CounterTableView() {
         { id: "active", name: "Active" },
         { id: "inactive", name: "Inactive" },
       ],
-      function: handleCounterStatus,
+      function: (value: string) => handleFilterChange("status", value),
     },
     {
       type: "combobox",
       name: "staff_id",
       label: "Staff",
       options: staffList,
-      function: handleStaffId,
+      function: (value: string) => handleFilterChange("staff_id", value),
     },
   ];
-
-
 
   return (
     <div className="w-full space-y-4">
@@ -481,19 +480,22 @@ export default function CounterTableView() {
               id="search"
               placeholder="Search by name"
               onChange={(event) => setInputValue(event.target.value)}
-              className=" w-80 lg:w-64 pl-8 text-sm placeholder:text-sm text-gray-400 h-8"/>
+              className=" w-80 lg:w-64 pl-8 text-sm placeholder:text-sm text-gray-400 h-8"
+            />
           </div>
         </div>
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          {pos_count !== "read" && <Button
-            className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
-            onClick={handleOpen}
-          >
-            <PlusIcon className="size-4" />
-            Create New
-          </Button>}
+          {pos_count !== "read" && (
+            <Button
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+              onClick={handleOpen}
+            >
+              <PlusIcon className="size-4" />
+              Create New
+            </Button>
+          )}
           <button
             className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}
@@ -518,9 +520,9 @@ export default function CounterTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -558,8 +560,8 @@ export default function CounterTableView() {
                     ))}
                   </TableRow>
                 ))
-                // ) : isLoading ? (
-              ) : false ? (
+              ) : // ) : isLoading ? (
+              false ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -598,7 +600,6 @@ export default function CounterTableView() {
         />
       )}
 
-
       <AssignCounter
         isOpen={assignCounter}
         setOpen={setAssignCounter}
@@ -626,8 +627,6 @@ export default function CounterTableView() {
         setSearchCriteria={setSearchCriteria}
         filterDisplay={filterDisplay}
       />
-
-
     </div>
   );
 }

@@ -17,7 +17,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import ExerciseFilters from "./data-table-filter";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -71,6 +70,7 @@ import {
 } from "@/constants/exercise";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
+import TableFilters from "@/components/ui/table/data-table-filter";
 
 interface searchCriteriaType {
   limit: number;
@@ -92,7 +92,9 @@ const initialValue = {
 };
 
 export default function ExerciseTableView() {
-  const { exercise } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const { exercise } = JSON.parse(
+    localStorage.getItem("accessLevels") as string
+  );
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isOpen, setOpen] = useState(false);
   const orgId =
@@ -303,7 +305,7 @@ export default function ExerciseTableView() {
                     {displayValue(
                       `${row.original.exercise_name}`.length > 8
                         ? `${row.original.exercise_name}`.substring(0, 8) +
-                        "..."
+                            "..."
                         : `${row.original.exercise_name}`
                     )}
                   </p>
@@ -467,31 +469,40 @@ export default function ExerciseTableView() {
   const filterDisplay = [
     {
       type: "multiselect",
-      name: "Exercise category",
-      label: "category",
+      name: "category",
+      label: "Exercise category",
       options: CategoryData,
-      function: handleFilterChange,
+      function: (value: string) => handleFilterChange("category", value),
     },
     {
       type: "multiselect",
       name: "visible_for",
-      label: "visible_for",
-      options: visibilityOptions,
-      function: handleFilterChange,
+      label: "Visible for",
+      options: visibilityOptions.map((item) => ({
+        value: item.value,
+        label: item.label,
+      })),
+      function: (value: string) => handleFilterChange("visible_for", value),
     },
     {
       type: "select",
       name: "exercise_type",
-      label: "exercise_type",
-      options: exerciseTypeOptions,
-      function: handleFilterChange,
+      label: "Exercise Type",
+      options: exerciseTypeOptions.map((item) => ({
+        id: item.value,
+        name: item.label,
+      })),
+      function: (value: string) => handleFilterChange("exercise_type", value),
     },
     {
       type: "select",
       name: "difficulty",
       label: "difficulty",
-      options: difficultyTypeoptions,
-      function: handleFilterChange,
+      options: difficultyTypeoptions.map((item) => ({
+        id: item.label,
+        name: item.label,
+      })),
+      function: (value: string) => handleFilterChange("difficulty", value),
     },
   ];
   console.log({ searchCriteria });
@@ -511,7 +522,6 @@ export default function ExerciseTableView() {
     setSearchCriteria,
   });
 
-
   return (
     <>
       <div className="w-full space-y-4">
@@ -524,20 +534,21 @@ export default function ExerciseTableView() {
                 placeholder="Search by name"
                 onChange={(event) => setInputValue(event.target.value)}
                 className=" w-80 lg:w-64 pl-8 text-sm placeholder:text-sm text-gray-400 h-8"
-            
               />
             </div>
           </div>
 
           {/* Buttons Container */}
           <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-            {exercise !== "read" && <Button
-              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
-              onClick={handleRoute}
-            >
-              <PlusIcon className="size-4" />
-              Create New
-            </Button>}
+            {exercise !== "read" && (
+              <Button
+                className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+                onClick={handleRoute}
+              >
+                <PlusIcon className="size-4" />
+                Create New
+              </Button>
+            )}
             {/* <DataTableViewOptions table={table} /> */}
             <button
               className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
@@ -563,9 +574,9 @@ export default function ExerciseTableView() {
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
                         </TableHead>
                       );
                     })}
@@ -640,7 +651,7 @@ export default function ExerciseTableView() {
             isLastPage={isLastPage}
           />
         )}
-        <ExerciseFilters
+        <TableFilters
           isOpen={openFilter}
           setOpen={setOpenFilter}
           initialValue={initialValue}

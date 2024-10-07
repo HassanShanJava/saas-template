@@ -29,7 +29,7 @@ const PaymentMethods = () => {
 
   return (
     <div className="w-full p-5">
-      <Card className="space-y-2 p-5">
+      <Card className="space-y-2 px-5 py-4">
         <h1 className="font-semibold text-xl">Payment Methods</h1>
         <Separator />
         {plugins.map(plugin => (

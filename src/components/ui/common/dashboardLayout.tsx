@@ -35,7 +35,7 @@ import { useUpdateCountersMutation } from "@/services/counterApi";
 import { toast } from "../use-toast";
 
 const DashboardLayout: React.FC = () => {
-  const location = useLocation();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -80,13 +80,20 @@ const DashboardLayout: React.FC = () => {
 
 
   useEffect(() => {
-    if (!location.pathname.includes("pos")) {
-      closeCounter()
+    console.log({ pathname, code, counter_number },pathname.includes("pos") && counter_number == null, "pathname")
+    if (pathname.includes("pos") && counter_number == null) {
+      dispatch(setCode("pos"));
+      navigate("counter-selection", { replace: true })
+      // <Navigate to="/counter-selection" />
+      console.log({ counter_number }, "counterselection")
+    } else if (!pathname.includes("pos")) {
+      dispatch(setCounter(null));
+      dispatch(resetBackPageCount());
     }
-  }, [location])
+  }, [pathname, counter_number])
 
   const isActiveLink = (targetPath: string): boolean => {
-    const currentPath = location.pathname;
+    const currentPath = pathname;
     return currentPath === targetPath;
   };
 
@@ -95,7 +102,7 @@ const DashboardLayout: React.FC = () => {
   const closeCounter = async () => {
     try {
       const payload = {
-        id: counter_number,
+        id: counter_number ?? Number(localStorage.getItem('counter_number') as string),
         staff_id: null,
         is_open: false,
       };
@@ -129,14 +136,13 @@ const DashboardLayout: React.FC = () => {
           style={{ direction: "ltr" }}
           className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white "
         >
-          {code !== "pos" && (
-            <Link
-              to="#"
+          {code !== "pos" &&
+            (<Link
+              to="/"
               className="flex items-center gap-2 font-semibold "
               onClick={() => {
-                dispatch(setCode(null));
-              }}
-            >
+                dispatch(setCode(null))
+              }}>
               <img
                 src={dashboardsvg}
                 className={`h-8 w-9 ${!isSidebarOpen && "hidden"}`}
@@ -149,7 +155,7 @@ const DashboardLayout: React.FC = () => {
                 {orgName}
               </span>
             </Link>
-          )}
+            )}
 
           {code == "pos" && (
             <Link

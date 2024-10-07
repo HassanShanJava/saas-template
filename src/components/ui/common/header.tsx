@@ -16,6 +16,7 @@ import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import userimg from "@/assets/userSvg.svg";
 import { setCode, setCounter } from "@/features/counter/counterSlice";
+import { Badge } from "../badge";
 
 const pageTitles = [
   { targetPath: "/admin/dashboard", title: "Dashboard" },
@@ -133,6 +134,8 @@ const isActiveLink = (currentPath: string, targetPath: string) =>
 
 export const Header = () => {
   const location = useLocation();
+  const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
+
   const { toast } = useToast();
   const navigate = useNavigate();
   const { userInfo } = useSelector((state: RootState) => state.auth);
@@ -153,7 +156,7 @@ export const Header = () => {
   return (
     <header className="font-poppins sticky top-0 z-30  0 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
       <div className="flex w-full justify-between items-center gap-4">
-        <div className="flex flex-row h-full justify-between items-center gap-4">
+        <div className="w-[calc(100%-280px)] flex flex-row h-full justify-between items-center ">
           <div className="w-full flex flex-col my-0">
             <h1 className="text-2xl  font-bold  pl-7 ">
               {pageTitles.map(({ targetPath, title }, index) => (
@@ -165,7 +168,7 @@ export const Header = () => {
                 />
               ))}
             </h1>
-            <div>
+            <div className="flex">
               {breadcrumbs.map(({ targetPath, title, pageSetting }, index) => (
                 <Breadcrumb
                   key={index}
@@ -177,9 +180,12 @@ export const Header = () => {
               ))}
             </div>
           </div>
+
+          {counter_number && <Badge className=" text-white  mx-0"><span className="text-nowrap">Opened Counter: {counter_number}</span></Badge>}
+
         </div>
 
-        <div className="flex flex-row justify-center items-center gap-3">
+        <div className="w-full max-w-[280px] flex flex-row justify-center items-center gap-3">
           <Separator orientation="vertical" className="h-10" />
           <div className="flex flex-row justify-center items-center gap-4">
             <div className="w-8 h-8 border-[1px] border-gray-400 rounded-full justify-center flex items-center">

@@ -54,55 +54,55 @@ function App() {
   return (
     <>
       <PluginProvider pluginStore={pluginStore}>
-      <IdleLogoutHandler />
-      <Routes>
-        <Route path="/reset_password/:token" element={<ResetPassword />} />
-        <Route path="/forgot_password" element={<ForgotPasword />} />
-        <Route path="/" element={<ProtectedRoute />}>
-          <Route path="/" index element={<AuthenticationPage />} />
-          <Route element={<DashboardLayout />}>
-            <Route path="/admin/dashboard" element={<Dashboard />} />
-            <Route path="/admin/members" element={<MemberPage />} />
-            {/* <Route path="/admin/system_settings" element={<SystemSettings />} /> */}
-            {/* <Route path="/admin/leads"  element={<Leads />} /> */}
-            {/* <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}
-            <Route path="/admin/facilities" element={<Facilities />} />
-            <Route path="/admin/saleTaxes" element={<SaleTaxes />} />
-            <Route path="/admin/incomeCategory" element={<IncomeCategory />} />
-            <Route path="/admin/memberships" element={<Memberships />} />
-            {/* <Route path="/admin/events" element={<Events />} /> */}
-            <Route path="/admin/coach" element={<Coach />} />
+        <IdleLogoutHandler />
+        <Routes>
+          <Route path="/reset_password/:token" element={<ResetPassword />} />
+          <Route path="/forgot_password" element={<ForgotPasword />} />
+          <Route path="/" element={<ProtectedRoute />}>
+            <Route path="/" index element={<AuthenticationPage />} />
+            <Route element={<DashboardLayout />}>
+              <Route path="/admin/dashboard" element={<Dashboard />} />
+              <Route path="/admin/members" element={<MemberPage />} />
+              {/* <Route path="/admin/system_settings" element={<SystemSettings />} /> */}
+              {/* <Route path="/admin/leads"  element={<Leads />} /> */}
+              {/* <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}
+              <Route path="/admin/facilities" element={<Facilities />} />
+              <Route path="/admin/saleTaxes" element={<SaleTaxes />} />
+              <Route path="/admin/incomeCategory" element={<IncomeCategory />} />
+              <Route path="/admin/memberships" element={<Memberships />} />
+              {/* <Route path="/admin/events" element={<Events />} /> */}
+              <Route path="/admin/coach" element={<Coach />} />
 
-            <Route path="/admin/roles" element={<RolesAndAccess />} />
-            <Route path="/admin/staff" element={<Staff />} />
-            <Route path="/admin/exercise" element={<Exercise />} />
+              <Route path="/admin/roles" element={<RolesAndAccess />} />
+              <Route path="/admin/staff" element={<Staff />} />
+              <Route path="/admin/exercise" element={<Exercise />} />
 
-            <Route path="/admin/mealplans" element={<MealPlans />} />
-            <Route path="/admin/foods" element={<FoodsNutrition />} />
-            <Route path="/admin/workoutplans" element={<WorkoutPlan />} />
+              <Route path="/admin/mealplans" element={<MealPlans />} />
+              <Route path="/admin/foods" element={<FoodsNutrition />} />
+              <Route path="/admin/workoutplans" element={<WorkoutPlan />} />
 
-            <Route path="/admin/workoutplans/" element={<WorkoutPlan />}>
-              <Route path="add/" element={<WorkoutPlanForm />}>
-                <Route path="step/1/:workoutId?" element={<WorkoutStep1 />} />
-                <Route path="step/2/:workoutId?" element={<WorkoutStep2 />} />
+              <Route path="/admin/workoutplans/" element={<WorkoutPlan />}>
+                <Route path="add/" element={<WorkoutPlanForm />}>
+                  <Route path="step/1/:workoutId?" element={<WorkoutStep1 />} />
+                  <Route path="step/2/:workoutId?" element={<WorkoutStep2 />} />
+                </Route>
               </Route>
-            </Route>
 
-            <Route path="/admin/pos/">
-              <Route path="sell" element={<Sell />} />
-              <Route path="salesHistory" element={<SaleHistory />} />
-              <Route path="register" element={<Register />} />
-              <Route path="cash" element={<CashManagement />} />
+              <Route path="/admin/pos/">
+                <Route path="sell" element={<Sell />} />
+                <Route path="salesHistory" element={<SaleHistory />} />
+                <Route path="register" element={<Register />} />
+                <Route path="cash" element={<CashManagement />} />
+              </Route>
+              <Route path="/admin/paymentMethods" element={<PaymentMethods />} />
+              <Route path="/admin/counter" element={<CounterManagement />} />
             </Route>
-            <Route path="/admin/paymentMethods" element={<PaymentMethods />} />
-            <Route path="/admin/counter" element={<CounterManagement />} />
+            <Route path="/notfound" element={<NotFoundPage />} />
+            <Route path="*" element={<Navigate to="/notfound" replace />} />
           </Route>
-          <Route path="/notfound" element={<NotFoundPage />} />
-          <Route path="*" element={<Navigate to="/notfound" replace />} />
-        </Route>
-        <Route path="/counter-selection" element={<CounterSelection />} />
-      </Routes>
-      <Loader open={loading} />
+          <Route path="/counter-selection" element={<CounterSelection />} />
+        </Routes>
+        <Loader open={loading} />
       </PluginProvider>
     </>
   );

@@ -82,6 +82,8 @@ import {
 } from "@/services/incomeCategoryApi";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Separator } from "@/components/ui/separator";
+import usePagination from "@/hooks/use-pagination";
+import Pagination from "@/components/ui/table/pagination-table";
 
 const downloadCSV = (data: incomeCategoryTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -94,7 +96,7 @@ const downloadCSV = (data: incomeCategoryTableType[], fileName: string) => {
   document.body.removeChild(link);
 };
 
-interface searchCretiriaType {
+interface searchCriteriaType {
   limit: number;
   offset: number;
   sort_order: string;
@@ -107,7 +109,7 @@ export default function IncomeCategoryTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  const [searchCretiria, setSearchCretiria] = useState<searchCretiriaType>({
+  const [searchCriteria, setSearchCriteria] = useState<searchCriteriaType>({
     limit: 10,
     offset: 0,
     sort_order: "desc",
@@ -118,7 +120,7 @@ export default function IncomeCategoryTableView() {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(searchCretiria)) {
+    for (const [key, value] of Object.entries(searchCriteria)) {
       console.log({ key, value });
       if (value !== undefined && value !== null) {
         params.append(key, value);
@@ -127,7 +129,7 @@ export default function IncomeCategoryTableView() {
     const newQuery = params.toString();
     console.log({ newQuery });
     setQuery(newQuery);
-  }, [searchCretiria]);
+  }, [searchCriteria]);
 
   const {
     data: incomeCategoryData,
@@ -156,7 +158,7 @@ export default function IncomeCategoryTableView() {
   });
 
   const toggleSortOrder = (key: string) => {
-    setSearchCretiria((prev) => {
+    setSearchCriteria((prev) => {
       const newSortOrder =
         prev.sort_key === key
           ? prev.sort_order === "desc"
@@ -244,7 +246,7 @@ export default function IncomeCategoryTableView() {
             onClick={() => toggleSortOrder("name")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -288,7 +290,7 @@ export default function IncomeCategoryTableView() {
             onClick={() => toggleSortOrder("sale_tax_id")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -349,55 +351,27 @@ export default function IncomeCategoryTableView() {
   };
 
   const totalRecords = incomeCategoryData?.filtered_counts || 0;
-  const lastPageOffset = Math.max(
-    0,
-    Math.floor((totalRecords - 1) / searchCretiria.limit) * searchCretiria.limit
-  );
-  const isLastPage = searchCretiria.offset >= lastPageOffset;
-
-  const nextPage = () => {
-    if (!isLastPage) {
-      setSearchCretiria((prev) => ({
-        ...prev,
-        offset: prev.offset + prev.limit,
-      }));
-    }
-  };
-
-  // Function to go to the previous page
-  const prevPage = () => {
-    setSearchCretiria((prev) => ({
-      ...prev,
-      offset: Math.max(0, prev.offset - prev.limit),
-    }));
-  };
-
-  // Function to go to the first page
-  const firstPage = () => {
-    setSearchCretiria((prev) => ({
-      ...prev,
-      offset: 0,
-    }));
-  };
-
-  // Function to go to the last page
-  const lastPage = () => {
-    if (!isLastPage) {
-      setSearchCretiria((prev) => ({
-        ...prev,
-        offset: lastPageOffset,
-      }));
-    }
-  };
+  const {
+    handleLimitChange,
+    handleNextPage,
+    handlePrevPage,
+    handleFirstPage,
+    handleLastPage,
+    isLastPage,
+  } = usePagination<searchCriteriaType>({
+    totalRecords,
+    searchCriteria,
+    setSearchCriteria,
+  });
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center justify-between px-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3">
         <div className="flex flex-1 items-center  ">
           <p className="font-semibold text-2xl">Income Categories</p>
         </div>
         {inc_cat !== "read" && <Button
-          className="bg-primary m-4 text-black gap-1 font-semibold"
+          className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
           onClick={handleAddIncomeCategory}
         >
           <PlusIcon className="h-4 w-4" />
@@ -485,103 +459,17 @@ export default function IncomeCategoryTableView() {
 
       {/* pagination */}
       {incomeCategorytableData.length > 0 && (
-        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium">Items per page:</p>
-              <Select
-                value={searchCretiria.limit.toString()}
-                onValueChange={(value) => {
-                  const newSize = Number(value);
-                  setSearchCretiria((prev) => ({
-                    ...prev,
-                    limit: newSize,
-                    offset: 0, // Reset offset when page size changes
-                  }));
-                }}
-              >
-                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-                  <SelectValue>{searchCretiria.limit}</SelectValue>
-                </SelectTrigger>
-                <SelectContent side="bottom">
-                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={pageSize.toString()}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Separator
-              orientation="vertical"
-              className="h-11 w-[1px] bg-gray-300"
-            />
-            <span>
-              {" "}
-              {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${incomeCategoryData?.filtered_counts} Items  `}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center space-x-2">
-              <Separator
-                orientation="vertical"
-                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
-                onClick={firstPage}
-                disabled={searchCretiria.offset === 0}
-              >
-                <DoubleArrowLeftIcon className="h-4 w-4" />
-              </Button>
-
-              <Separator
-                orientation="vertical"
-                className="h-11 w-[0.5px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-                onClick={prevPage}
-                disabled={searchCretiria.offset === 0}
-              >
-                <ChevronLeftIcon className="h-4 w-4" />
-              </Button>
-
-              <Separator
-                orientation="vertical"
-                className="h-11 w-[1px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-                onClick={nextPage}
-                disabled={isLastPage}
-              >
-                <ChevronRightIcon className="h-4 w-4" />
-              </Button>
-
-              <Separator
-                orientation="vertical"
-                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-                onClick={lastPage}
-                disabled={isLastPage}
-              >
-                <DoubleArrowRightIcon className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+        <Pagination
+          limit={searchCriteria.limit}
+          offset={searchCriteria.offset}
+          totalItems={totalRecords}
+          onLimitChange={handleLimitChange}
+          onNextPage={handleNextPage}
+          onPrevPage={handlePrevPage}
+          onFirstPage={handleFirstPage}
+          onLastPage={handleLastPage}
+          isLastPage={isLastPage}
+        />
       )}
 
       {/* <LoadingDialog open={isLoading} text={"Loading data..."} /> */}

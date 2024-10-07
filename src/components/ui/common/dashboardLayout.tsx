@@ -118,7 +118,7 @@ const DashboardLayout: React.FC = () => {
           style={{ direction: "ltr" }}
           className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white "
         >
-          {code !== "pos" && <Link to="#" className="flex items-center gap-2 font-semibold " onClick={() => {
+          {code !== "pos" && <Link to="/" className="flex items-center gap-2 font-semibold " onClick={() => {
             dispatch(setCode(null))
           }}>
             <img

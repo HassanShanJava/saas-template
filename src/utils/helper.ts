@@ -117,8 +117,12 @@ export const initialValue = {
   sort_key: "id",
 };
 
-export const displayValue = (value: string | undefined | null) =>
-  value == null || value == undefined || value.trim() == "" ? "N/A" : value;
+export const displayValue = (value: string | undefined | null) => {
+  console.log(value === null || value == undefined || value.trim() == "", {value});
+  return value === null || value == undefined || value.trim() == ""
+    ? "N/A"
+    : value;
+};
 
 // Function to extract all links
 export function extractLinks(data: any[]) {

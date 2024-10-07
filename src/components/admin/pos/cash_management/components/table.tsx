@@ -383,6 +383,7 @@ export default function CashregisterViewTable() {
         </div>
       ),
       cell: ({ row }) => {
+        console.log(row?.original?.notes, "row?.original?.notes");
         return (
           <div className="flex gap-2 items-center justify-between w-fit">
             <div className="">
@@ -392,9 +393,9 @@ export default function CashregisterViewTable() {
                     <p className="capitalize cursor-pointer">
                       <span>
                         {displayValue(
-                          `${row.original.notes}`.length > 15
-                            ? `${row.original.notes}`.substring(0, 15) + "..."
-                            : `${row.original.notes}`
+                          `${row?.original?.notes}`.length > 15
+                            ? `${row?.original?.notes}`.substring(0, 15) + "..."
+                            : row?.original?.notes
                         )}
                       </span>
                     </p>
@@ -462,7 +463,7 @@ export default function CashregisterViewTable() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="capitalize cursor-pointer">
+                    <p className="capitalize cursor-pointer text-nowrap">
                       <span>
                         {displayValue(
                           `${row.original.created_by}`.length > 15

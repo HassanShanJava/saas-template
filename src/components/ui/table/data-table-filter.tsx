@@ -179,7 +179,6 @@ const TableFilters = ({
                   );
                 }
               })}
-
             <div className="gap-3 flex">
               <Button
                 type="submit"
@@ -197,29 +196,49 @@ const TableFilters = ({
                 type="submit"
                 onClick={() => {
                   const dateRangeFilter = filterDisplay?.find(
-                    (element: any) => (element.type = "date-range")
+                    (element: any) => element.type == "date-range"
                   );
+
+                  let isValidDateRange = true; // To track the validity of the date range
+
                   if (dateRangeFilter) {
                     const { start_date, end_date } = filterData;
-                    if (!start_date || !end_date) {
+
+                    // If one date is present and the other is missing, show the error toast
+                    if (
+                      (start_date && !end_date) ||
+                      (!start_date && end_date)
+                    ) {
                       toast({
                         variant: "destructive",
                         description: "Must be a valid date range.",
                       });
+                      isValidDateRange = false; // Set to false if invalid
                       return;
                     }
+
+                    // If both dates are missing, log the message and skip applying the date range
+                    if (!start_date && !end_date) {
+                      isValidDateRange = false; // Set to false if no date range is provided
+                    }
                   }
+
+                  // Proceed with applying other filters regardless of the date range validity
                   setSearchCriteria((prev: any) => ({
                     ...prev,
-                    ...filterData,
+                    ...filterData, // Apply all filter data
+                    ...(isValidDateRange
+                      ? {}
+                      : { start_date: undefined, end_date: undefined }), // Only apply date range if valid
                     offset: 0,
                     sort_key: "id",
                     sort_order: "desc",
                   }));
+
+                  // Close the side panel after applying filters
                   setOpen(false);
-                  console.log("FIltered Data", filterData);
                 }}
-                className="bg-primary  text-black space-x-2 font-semibold w-full"
+                className="bg-primary text-black space-x-2 font-semibold w-full"
               >
                 <i className="fa fa-filter "></i>
                 Apply filters

@@ -77,9 +77,27 @@ export function useGetRegisterData(counter_id: number): {
 
       setIsDayExceed(false); // Reset day exceed if register is open
     }
-
+    if (
+      error &&
+      "data" in error &&
+      (error as any).data?.detail === "Last session not found"
+    ) {
+      setIsRegisterOpen(false);
+      setIsLoading(false);
+      setIsDayExceed(false); // Reset day exceed since we are forcing register open
+    } else {
+      // Stop loading when everything is processed
+      setIsLoading(
+        isDataLoading ||
+          (!!error &&
+            !(
+              "data" in error &&
+              (error as any).data?.detail === "Last session not found"
+            ))
+      );
+    }
     // Stop loading when everything is processed
-    setIsLoading(isDataLoading || error ? true : false);
+    // setIsLoading(isDataLoading || error ? true : false);
   }, [counterData, isDataLoading, error]);
 
   return {

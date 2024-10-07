@@ -96,7 +96,9 @@ const initialValue = {
 };
 
 export default function MealPlansTableView() {
-  const { meal_plan } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const { meal_plan } = JSON.parse(
+    localStorage.getItem("accessLevels") as string
+  );
   const { toast } = useToast();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -215,7 +217,7 @@ export default function MealPlansTableView() {
     },
     enableSorting: false,
     enableHiding: false,
-  }
+  };
 
   const columns: ColumnDef<mealPlanDataType>[] = [
     {
@@ -238,7 +240,11 @@ export default function MealPlansTableView() {
           <div className="size-8 flex gap-2 items-center justify-between w-fit">
             {row.original.profile_img ? (
               <img
-                src={(row.original.profile_img.includes(VITE_VIEW_S3_URL) ? row.original.profile_img : `${VITE_VIEW_S3_URL}/${row.original.profile_img}`)}
+                src={
+                  row.original.profile_img.includes(VITE_VIEW_S3_URL)
+                    ? row.original.profile_img
+                    : `${VITE_VIEW_S3_URL}/${row.original.profile_img}`
+                }
                 alt={row.original.name}
                 loading="lazy"
                 className="size-8 bg-gray-100 object-cover rounded-sm "
@@ -251,11 +257,13 @@ export default function MealPlansTableView() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <p className="capitalize cursor-pointer">
-                      <span>{displayValue(
-                        `${row.original.name}`.length > 8
-                          ? `${row.original.name}`.substring(0, 8) + "..."
-                          : `${row.original.name}`
-                      )}</span>
+                      <span>
+                        {displayValue(
+                          `${row.original.name}`.length > 8
+                            ? `${row.original.name}`.substring(0, 8) + "..."
+                            : `${row.original.name}`
+                        )}
+                      </span>
                     </p>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -412,6 +420,13 @@ export default function MealPlansTableView() {
     }));
   };
 
+  function handleFilterChange(field: string, value: string | number) {
+    setFilter((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
+
   const filterDisplay = [
     {
       type: "select",
@@ -462,19 +477,21 @@ export default function MealPlansTableView() {
               placeholder="Search by name"
               onChange={(event) => setInputValue(event.target.value)}
               className=" w-80 lg:w-64 pl-8 text-sm placeholder:text-sm text-gray-400 h-8"
-              />
+            />
           </div>
         </div>
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          {meal_plan !== "read" && <Button
-            className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
-            onClick={handleOpen}
-          >
-            <PlusIcon className="size-4" />
-            Create New
-          </Button>}
+          {meal_plan !== "read" && (
+            <Button
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+              onClick={handleOpen}
+            >
+              <PlusIcon className="size-4" />
+              Create New
+            </Button>
+          )}
           <button
             className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}
@@ -499,9 +516,9 @@ export default function MealPlansTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

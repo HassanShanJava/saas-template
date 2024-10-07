@@ -25,7 +25,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
-import Checkout from "./checkout";
 import { Label } from "@/components/ui/label";
 import { FileInput } from "@/components/ui/file-uploader";
 import { Input } from "@/components/ui/input";

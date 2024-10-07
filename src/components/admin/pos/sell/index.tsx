@@ -62,7 +62,7 @@ const Sell = () => {
   console.log({ memberList })
   return (
     <div className="w-full p-5 ">
-      <Card className="p-3 max-w-[1100px] mx-auto">
+      <Card className="px-3 py-4 max-w-[1100px] mx-auto">
         <p className="w-full">{counter_number && (<p className="p-2 font-bold">Selected counter: {counter_number}</p>)}</p>
         <div className="grid grid-cols-2 justify-start items-start gap-3">
           <div className="min-h-36  p-2">

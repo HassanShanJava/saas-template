@@ -14,21 +14,21 @@ import { FaFileCsv } from "react-icons/fa";
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
-action?: () => void; 
+  action?: () => void;
 }
 
 export function DataTableViewOptions<TData>({
   table,
-  action =()=>null,
+  action = () => null,
 }: DataTableViewOptionsProps<TData>) {
   function handleClick() {
     action();
   }
   return (
     <div className="flex justify-between items-center gap-3">
-      <Button className="text-black" onClick={handleClick}>
-        {" "}
-        Export CSV <FaFileCsv className="h-4 w-4 text-black" />
+      <Button className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2" onClick={handleClick}>
+        <FaFileCsv className="size-3.5 text-black" />
+        Export CSV
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

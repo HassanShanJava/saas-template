@@ -551,8 +551,6 @@ export default function CashregisterViewTable() {
       name: "dateRange",
       label: "Date Range",
       function: handleDateRange,
-
-      // Your function to handle date range selection
     },
   ];
   console.log("limit here", searchCriteria.limit, searchCriteria.offset);

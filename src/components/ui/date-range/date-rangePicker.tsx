@@ -1,8 +1,7 @@
 import * as React from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -30,16 +29,22 @@ export function DatePickerWithRange({
   label = "Pick a date",
   className,
 }: DatePickerWithRangeProps) {
+  const [open, setOpen] = React.useState(false);
+
   const handleDateChange = (range: DateRange | undefined) => {
     onValueChange({
       start_date: range?.from,
       end_date: range?.to,
     });
+
+    if (range?.from && range?.to) {
+      setOpen(false);
+    }
   };
 
   return (
     <div className={cn("grid gap-2", className)}>
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             id={name}

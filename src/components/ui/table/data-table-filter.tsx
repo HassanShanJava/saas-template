@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { MultiSelect } from "../multiselect/multiselectCheckbox";
 import { DatePickerWithRange } from "../date-range/date-rangePicker";
+import { toast } from "../use-toast";
 
 interface filtertypes {
   isOpen: boolean;
@@ -110,11 +111,6 @@ const TableFilters = ({
                 if (element.type == "date-range") {
                   return (
                     <div className="w-full " key={element.name}>
-                      {/* {" "}
-                      <div className="flex justify-center items-center pb-2 text-base">
-                        <span className="text-base ">Select a Date Range</span>
-                      </div> */}
-                      {/* Ensure full width */}
                       <DatePickerWithRange
                         name={element.name}
                         value={{
@@ -200,6 +196,19 @@ const TableFilters = ({
               <Button
                 type="submit"
                 onClick={() => {
+                  const dateRangeFilter = filterDisplay?.find(
+                    (element: any) => (element.type = "date-range")
+                  );
+                  if (dateRangeFilter) {
+                    const { start_date, end_date } = filterData;
+                    if (!start_date || !end_date) {
+                      toast({
+                        variant: "destructive",
+                        description: "Must be a valid date range.",
+                      });
+                      return;
+                    }
+                  }
                   setSearchCriteria((prev: any) => ({
                     ...prev,
                     ...filterData,

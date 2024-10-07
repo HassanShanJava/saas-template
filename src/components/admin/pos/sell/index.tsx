@@ -128,7 +128,7 @@ const Sell = () => {
   console.log({ memberList })
 
 
-  const roundToTwoDecimals = (value) => Math.floor(value * 100) / 100;
+  const roundToTwoDecimals = (value:any) => Math.floor(value * 100) / 100;
 
   const subtotal = productPayload.reduce(
     (acc, product) => acc + product.price * product.quantity,

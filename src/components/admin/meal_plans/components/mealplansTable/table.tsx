@@ -401,25 +401,6 @@ export default function MealPlansTableView() {
     setIsDialogOpen(true);
   };
 
-  const handleVisiblity = (value: string) => {
-    setFilter((prev) => ({
-      ...prev,
-      visible_for: value,
-    }));
-  };
-  const handleFoods = (value: any) => {
-    setFilter((prev) => ({
-      ...prev,
-      food_id: value,
-    }));
-  };
-  const handleMembers = (value: any) => {
-    setFilter((prev) => ({
-      ...prev,
-      member_id: value,
-    }));
-  };
-
   function handleFilterChange(field: string, value: string | number) {
     setFilter((prev) => ({
       ...prev,
@@ -433,7 +414,7 @@ export default function MealPlansTableView() {
       name: "visible_for",
       label: "Visible For",
       options: visibleFor.map((item) => ({ id: item.value, name: item.label })),
-      function: handleVisiblity,
+      function: (value: string) => handleFilterChange("visible_for", value),
     },
     {
       type: "multiselect",
@@ -442,14 +423,14 @@ export default function MealPlansTableView() {
       options:
         foodData?.data &&
         foodData?.data.map((food) => ({ value: food.id, label: food.name })),
-      function: handleFoods,
+      function: (value: string) => handleFilterChange("food_id", value),
     },
     {
       type: "multiselect",
       name: "member_id",
       label: "Members",
       options: membersData,
-      function: handleMembers,
+      function: (value: string) => handleFilterChange("member_id", value),
     },
   ];
 

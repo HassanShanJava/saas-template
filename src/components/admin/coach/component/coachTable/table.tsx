@@ -540,6 +540,8 @@ export default function CoachTableView() {
       [field]: value,
     }));
   }
+
+  
   const filterDisplay = [
     {
       type: "select",

@@ -94,7 +94,7 @@ const status = [
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 export default function MemberTableView() {
-  const { member } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const { member } = JSON.parse(localStorage.getItem("accessLevels") as string);
   const [action, setAction] = useState<"add" | "edit">("add");
   const [open, setOpen] = useState<boolean>(false);
   const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
@@ -369,7 +369,11 @@ export default function MemberTableView() {
             <div className="size-8 flex gap-2 items-center justify-between">
               {row.original.profile_img ? (
                 <img
-                  src={(row.original.profile_img.includes(VITE_VIEW_S3_URL) ? row.original.profile_img : `${VITE_VIEW_S3_URL}/${row.original.profile_img}`)}
+                  src={
+                    row.original.profile_img.includes(VITE_VIEW_S3_URL)
+                      ? row.original.profile_img
+                      : `${VITE_VIEW_S3_URL}/${row.original.profile_img}`
+                  }
                   loading="lazy"
                   className="size-8 bg-gray-100 object-contain rounded-sm "
                 />
@@ -387,9 +391,9 @@ export default function MemberTableView() {
                         `${row.original.first_name} ${row.original.last_name}`
                           .length > 12
                           ? `${row.original.first_name} ${row.original.last_name}`.substring(
-                            0,
-                            12
-                          ) + "..."
+                              0,
+                              12
+                            ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -434,20 +438,20 @@ export default function MemberTableView() {
                   <p className="capitalize cursor-pointer">
                     {/* Display the truncated name */}
                     {!row.original.is_business &&
-                      row.original.business_id == undefined
+                    row.original.business_id == undefined
                       ? "N/A"
                       : displayValue(
-                        `${row.original.business_name}`.length > 15
-                          ? `${row.original.business_name}`.substring(0, 15) +
-                          "..."
-                          : `${row.original.business_name}`
-                      )}
+                          `${row.original.business_name}`.length > 15
+                            ? `${row.original.business_name}`.substring(0, 15) +
+                                "..."
+                            : `${row.original.business_name}`
+                        )}
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="capitalize text-sm">
                     {!row.original.is_business &&
-                      row.original.business_id == undefined
+                    row.original.business_id == undefined
                       ? "N/A"
                       : displayValue(`${row.original.business_name}`)}
                   </p>
@@ -646,17 +650,10 @@ export default function MemberTableView() {
     },
   });
 
-  function handleMembershipplan(value: string) {
+  function handleFilterChange(field: string, value: string | number) {
     setFilter((prev) => ({
       ...prev,
-      membership_plan: value,
-    }));
-  }
-
-  function handleMemberStatus(value: string) {
-    setFilter((prev) => ({
-      ...prev,
-      status: value,
+      [field]: value,
     }));
   }
 
@@ -666,7 +663,7 @@ export default function MemberTableView() {
       name: "membership_plan",
       label: "Membership",
       options: membershipPlans,
-      function: handleMembershipplan,
+      function: (value: string) => handleFilterChange("membership_plan", value),
     },
 
     {
@@ -678,7 +675,7 @@ export default function MemberTableView() {
         { id: "inactive", name: "Inactive" },
         { id: "active", name: "Active" },
       ],
-      function: handleMemberStatus,
+      function: (value: string) => handleFilterChange("status", value),
     },
   ];
 
@@ -713,13 +710,15 @@ export default function MemberTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          {member !== "read" && <Button
-            className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
-            onClick={handleOpenForm}
-          >
-            <PlusIcon className="size-4" />
-            Create New
-          </Button>}
+          {member !== "read" && (
+            <Button
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+              onClick={handleOpenForm}
+            >
+              <PlusIcon className="size-4" />
+              Create New
+            </Button>
+          )}
           <DataTableViewOptions table={table} action={handleExportSelected} />
           <button
             className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
@@ -746,9 +745,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

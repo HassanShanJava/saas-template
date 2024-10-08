@@ -739,7 +739,7 @@ const MealPlanForm = ({
 
                           <FileInput className="flex flex-col gap-2  ">
                             {files?.length == 0 &&
-                              watcher?.profile_img == null ? (
+                              !watcher?.profile_img ? (
                               <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
                                 <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
                               </div>

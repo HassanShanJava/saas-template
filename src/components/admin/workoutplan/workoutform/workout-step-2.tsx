@@ -853,7 +853,11 @@ const WorkoutStep2: React.FC = () => {
                                     id="avatar"
                                     src={
                                       exercise.gif_url
-                                        ? (exercise.gif_url.includes(VITE_VIEW_S3_URL) ? exercise.gif_url : `${VITE_VIEW_S3_URL}/${exercise.gif_url}`)
+                                        ? exercise.gif_url.includes(
+                                            VITE_VIEW_S3_URL
+                                          )
+                                          ? exercise.gif_url
+                                          : `${VITE_VIEW_S3_URL}/${exercise.gif_url}`
                                         : `${VITE_VIEW_S3_URL}/download.png`
                                     }
                                     alt="Exercise Image"
@@ -1001,11 +1005,11 @@ const WorkoutStep2: React.FC = () => {
                         onSubmit(data as Exercise)
                       )}
                       disabled={selectedExerciseIndex === undefined}
-                      className="h-auto p-0"
+                      className={`h-auto p-1  gap-1 justify-center items-center flex ${selectedExerciseIndex === undefined ? "cursor-not-allowed" : ""}`}
                       variant="ghost"
                       loading={updateExerciseLoading}
                     >
-                      <i className="fa-regular fa-floppy-disk h-4 w-4"></i>
+                      <i className={`fa-regular fa-floppy-disk text-lg`}></i>
                     </LoadingButton>
                   }
                 </div>
@@ -1017,7 +1021,9 @@ const WorkoutStep2: React.FC = () => {
                       id="avatar"
                       src={
                         formValues.gif_url
-                          ? (formValues.gif_url.includes(VITE_VIEW_S3_URL) ? formValues.gif_url : `${VITE_VIEW_S3_URL}/${formValues.gif_url}`)
+                          ? formValues.gif_url.includes(VITE_VIEW_S3_URL)
+                            ? formValues.gif_url
+                            : `${VITE_VIEW_S3_URL}/${formValues.gif_url}`
                           : `${VITE_VIEW_S3_URL}/download.png`
                       }
                       alt="Exercise Image"

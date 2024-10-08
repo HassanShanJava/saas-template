@@ -475,6 +475,7 @@ export default function FoodsTableView() {
       return newFilter;
     });
   };
+  
   const filterDisplay = [
     {
       type: "select",

@@ -134,22 +134,22 @@ const WorkoutStep1: React.FC = () => {
                 label="description"
                 type="textarea"
                 rows={4}
-                maxLength={350}
+                maxLength={351}
                 className="col-span-2"
                 {...register("description", {
                   maxLength: {
                     value: 350,
-                    message: "Description cannot exceed 350 characters",
+                    message: "Description cannot exceed 350 characters.",
                   },
-                  pattern: {
-                    value: /^[A-Za-z0-9\s.,\-_]+$/,
-                    message: "Description contains invalid characters",
-                  },
-                  validate: (value) => {
-                    if (/[<>&%$#@/|~^()\[\]{}*+=`]/.test(value || "")) {
-                      return "Description contains disallowed special characters";
-                    }
-                    return true;
+                  validate: {
+                    patternCheck: (value) =>
+                      value === "" ||
+                      /^[A-Za-z0-9\s.,\-_]+$/.test(value as string) ||
+                      "Description contains invalid characters",
+                    customCheck: (value) =>
+                      value === "" ||
+                      !/[<>&%$#@/|~^()\[\]{}*+=:`]/.test(value || "") ||
+                      "Description contains disallowed special characters",
                   },
                 })}
                 error={errors.description?.message}
@@ -354,7 +354,9 @@ const WorkoutStep1: React.FC = () => {
                             <img
                               src={
                                 watcher?.img_url !== "" && watcher?.img_url
-                                  ? (watcher?.img_url.includes(VITE_VIEW_S3_URL) ? watcher?.img_url : `${VITE_VIEW_S3_URL}/${watcher?.img_url}`)
+                                  ? watcher?.img_url.includes(VITE_VIEW_S3_URL)
+                                    ? watcher?.img_url
+                                    : `${VITE_VIEW_S3_URL}/${watcher?.img_url}`
                                   : watcher.img_url
                               }
                               loading="lazy"

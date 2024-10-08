@@ -436,6 +436,9 @@ const WorkoutPlanForm = () => {
                   variant={"outline"}
                   onClick={handleClose}
                   loading={isDeleting}
+                  disabled={
+                    isSubmittedcode || AddworkoutLoading || updateLoading
+                  }
                 >
                   <i className="fa fa-xmark "></i>
                   Cancel

@@ -163,3 +163,5 @@ export const formatDate = (date: Date | string | null): string | null => {
 
   return `${year}-${month}-${day}`;
 };
+
+export const roundToTwoDecimals = (value:any) => Math.floor(value * 100) / 100;

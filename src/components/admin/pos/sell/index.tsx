@@ -30,7 +30,7 @@ import { FileInput } from "@/components/ui/file-uploader";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import { roundToTwoDecimals } from "@/utils/helper";
 
 interface payload {
   discount: number;
@@ -94,19 +94,19 @@ const Sell = () => {
     };
 
     setProductPayload((prevPayload) => {
-      const existingProduct = prevPayload.find((p) => p.id === product.id);
+      const existingProduct = prevPayload.find((prod) => prod.id === product.id);
 
       if (existingProduct) {
         // If product with the same id exists, update quantity, price, and discount
-        return prevPayload.map((p) =>
-          p.id === product.id
+        return prevPayload.map((prod) =>
+          prod.id === product.id
             ? {
-              ...p,
-              quantity: p.quantity + 1, // Increment quantity
-              price: Math.floor((p.price + finalPrice) * 100) / 100, // Add the price of the new addition after discount (rounded)
-              discount: Math.floor((p.discount + discountAmount) * 100) / 100, // Add the applied discount amount (rounded)
+              ...prod,
+              quantity: prod.quantity + 1, // Increment quantity
+              price: Math.floor((prod.price + finalPrice) * 100) / 100, // Add the price of the new addition after discount (rounded)
+              discount: Math.floor((prod.discount + discountAmount) * 100) / 100, // Add the applied discount amount (rounded)
             }
-            : p
+            : prod
         );
       }
 
@@ -128,7 +128,7 @@ const Sell = () => {
   console.log({ memberList })
 
 
-  const roundToTwoDecimals = (value:any) => Math.floor(value * 100) / 100;
+
 
   const subtotal = productPayload.reduce(
     (acc, product) => acc + product.price * product.quantity,

@@ -431,7 +431,7 @@ const MemberForm = ({
     if (action == "edit") {
       const memberpayload = { ...memberData };
       memberpayload.coach_ids = memberData?.coaches.every(
-        (item) => item.id === 0 && item.name.trim() === ""
+        (item) => item.id === 0 && item.name?.trim() === ""
       )
         ? []
         : memberData?.coaches.map((item) => item.id);
@@ -1536,7 +1536,7 @@ const MemberForm = ({
                     type="button"
                     onClick={handleAddPlan}
                     variant={"ghost"}
-                    className="text-primary"
+                    className="text-primary !hover:bg-none !hover:text-primary"
                   >
                     + Assign more Membership
                   </Button>

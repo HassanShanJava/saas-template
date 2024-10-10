@@ -1,3 +1,15 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { RootState } from "@/app/store";
 import { Card } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
@@ -32,6 +44,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { roundToTwoDecimals } from "@/utils/helper";
 import { useDebounce } from "@/hooks/use-debounce";
+import { MemberTableDatatypes } from "@/app/types";
+import { has24HoursPassed, useGetRegisterData } from "@/constants/counter_register";
+import { useNavigate } from "react-router-dom";
 
 interface payload {
   discount: number;
@@ -52,13 +67,27 @@ interface searchCriteriaType {
 
 
 const Sell = () => {
-
+  const { opening_time, isOpen } = JSON.parse(localStorage.getItem("registerSession") as string);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
+
   const [productPayload, setProductPayload] = useState<payload[]>([])
   const [showCheckout, setShowCheckout] = useState<boolean>(false)
+  const [dayExceeded, setDayExceeded] = useState<boolean>(false)
+  const navigate = useNavigate()
 
+
+
+  useEffect(() => {
+    if (has24HoursPassed(opening_time)) {
+      setDayExceeded(true)
+    }
+
+    if (!isOpen) {
+      navigate(`/admin/pos/register`)
+    }
+  }, [isOpen, opening_time])
 
   // search product
   const [searchCriteria, setSearchCriteria] = useState<searchCriteriaType>({});
@@ -109,7 +138,6 @@ const Sell = () => {
   const memberhsipListData = useMemo(() => {
     return Array.isArray(memberhsipList?.data) ? memberhsipList?.data : [];
   }, [memberhsipList]);
-  console.log({ productPayload })
 
 
   // product lists by category
@@ -180,7 +208,13 @@ const Sell = () => {
     return existingDiscount + newDiscount;
   };
 
-  const { data: memberList } = useGetAllMemberQuery({ org_id: orgId, query: "" })
+  const { data: memberList2 } = useGetAllMemberQuery({ org_id: orgId, query: "" })
+  const { data: memberList } = useGetMembersListQuery(orgId)
+
+  const memberListData = useMemo(() => {
+    return Array.isArray(memberList2?.data) ? memberList2?.data : [];
+  }, [memberList2]);
+
 
 
 
@@ -199,105 +233,124 @@ const Sell = () => {
   const tax = subtotal * taxRate;
   const total = subtotal - totalDiscount + tax;
 
-  console.log({ customer })
+  console.log({ productPayload, memberhsipListData, memberList2, customer })
+
   return (
     <div className="w-full p-5 ">
 
-      {!showCheckout && <Card className=" h-[90vh] px-3 py-4 max-w-[1100px] mx-auto">
-        <div className="grid grid-cols-2 justify-start items-start gap-3">
-          <div className="min-h-36  p-2">
-            <FloatingLabelInput
-              id="search"
-              placeholder="Search by products name"
-              onChange={(event) => setInputValue(event.target.value)}
-              className="w-full pl-8 text-gray-400 rounded-sm"
-              icon={<Search className="size-4 text-gray-400 absolute  z-10 left-2" />}
-            />
+      {!showCheckout && (
+        <Card className=" h-[90vh] px-3 py-4 max-w-[1100px] mx-auto">
+          <div className="grid grid-cols-2 justify-start items-start gap-3">
+            <div className="min-h-36  p-2">
+              <FloatingLabelInput
+                id="search"
+                placeholder="Search by products name"
+                onChange={(event) => setInputValue(event.target.value)}
+                className="w-full pl-8 text-gray-400 rounded-sm"
+                icon={<Search className="size-4 text-gray-400 absolute  z-10 left-2" />}
+              />
 
-            <Tabs defaultValue="memberships" className="w-full mt-4 ">
-              <TabsList variant="underline">
+              <Tabs defaultValue="membership_plans" className="w-full mt-4 ">
+                <TabsList variant="underline">
+                  {productCategories.map((category) => (
+                    <TabsTrigger key={category.type} value={category.type} variant="underline">
+                      {category.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
                 {productCategories.map((category) => (
-                  <TabsTrigger key={category.type} value={category.type} variant="underline">
-                    {category.label}
-                  </TabsTrigger>
+                  <TabsContent className="m-0  w-full " key={category.type} value={category.type}>
+                    {category.products.length > 0 ? (
+                      <div className="mt-2 w-full flex  gap-10 justify-center items-center">
+                        {category.products.map((product: Record<string, any>) => (
+                          <div onClick={() => addProduct(product, category?.type)} className="size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
+                            <span className="capitalize">{product.name}</span>
+                            <span>Rs. {product.net_price}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="col-span-2 text-sm text-center w-full p-2 mt-2">No products found</p>
+                    )}
+                  </TabsContent>
                 ))}
-              </TabsList>
-              {productCategories.map((category) => (
-                <TabsContent className="m-0  w-full " key={category.type} value={category.type}>
-                  {category.products.length > 0 ? (
-                    <div className="mt-2 w-full flex  gap-10 justify-center items-center">
-                      {category.products.map((product: Record<string, any>) => (
-                        <div onClick={() => addProduct(product, category?.type)} className="size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
-                          <span className="capitalize">{product.name}</span>
-                          <span>Rs. {product.net_price}</span>
+              </Tabs>
+            </div>
+
+            <div className="h-full flex flex-col justify-between space-y-2 rounded-sm bg-gray-100 p-2"  >
+              <CustomerCombobox list={memberListData} setCustomer={setCustomer} customer={customer} />
+
+              <div className="rounded-sm bg-white/90 mx-1">
+
+                {productPayload.map(product => (
+                  <>
+                    <div className=" flex justify-between items-center gap-2  p-2 ">
+                      <div>
+                        <p className="capitalize">{product.name}</p>
+                        {product.discount && <p className="line-through text-sm text-gray-500 text-right">
+                          Rs. {product.price + product.discount}
+                        </p>}
+                        <p className="text-sm">Rs. {product.price}</p>
+                      </div>
+
+                      <div className="inline-flex items-center ">
+                        <div
+                          className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                          <i className="fa fa-minus"></i>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="col-span-2 text-sm text-center w-full p-2 mt-2">No products found</p>
-                  )}
-                </TabsContent>
-              ))}
-            </Tabs>
-          </div>
+                        <div
+                          className=" border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-0 select-none">
+                          {product.quantity}
+                        </div>
+                        <div
+                          className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                          <i className="fa fa-plus"></i>
+                        </div>
+                      </div>
 
-          <div className="h-full flex flex-col justify-between space-y-2 rounded-sm bg-gray-100 p-2"  >
-            <CustomerCombobox list={memberList} setCustomer={setCustomer} customer={customer} />
 
-            <div className="rounded-sm bg-white/90 mx-1">
+                    </div >
+                    <Separator className=" h-[1px] font-thin rounded-full" />
+                  </>
+                ))}
 
-              {productPayload.map(product => (
-                <>
-                  <div className=" flex justify-between items-center gap-2  p-2 ">
-                    <div>
-                      <p className="capitalize">{product.name}</p>
-                      <p>Qty. {product.quantity}</p>
-                    </div>
-                    <div>
-                      {product.discount && <p className="line-through text-sm text-gray-500 text-right">
-                        Rs. {product.price + product.discount}
-                      </p>}
-                      <p>Rs. {product.price}</p>
-                    </div>
+                <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
+                  <div className="w-full flex gap-2  items-center justify-between">
+                    <p>Subtotal</p>
+                    <p>Rs. {roundToTwoDecimals(subtotal)}</p> {/* Display Subtotal */}
                   </div>
-                  <Separator className=" h-[1px] font-thin rounded-full" />
-                </>
-              ))}
-            </div>
+                  <div className="w-full flex gap-2 items-center justify-between">
+                    <p>Discount</p>
+                    <p>Rs. {roundToTwoDecimals(totalDiscount)} </p> {/* Display Discount */}
+                  </div>
+                  <div className="w-full flex gap-2 items-center justify-between">
+                    <p>Tax</p>
+                    <p>Rs. {roundToTwoDecimals(tax)}</p> {/* Display Tax */}
+                  </div>
+                  <div className="w-full flex gap-2 items-center justify-between font-bold">
+                    <p>Total</p>
+                    <p>Rs. {roundToTwoDecimals(total)}</p> {/* Display Total */}
+                  </div>
+                  <Button className="w-full bg-primary text-black rounded-sm" onClick={() => setShowCheckout(true)}>
+                    Pay
+                  </Button>
+                </div>
 
-            <div className="space-y-2 px-2">
-              <div className="w-full flex gap-2 items-center justify-between">
-                <p>Subtotal</p>
-                <p>Rs. {roundToTwoDecimals(subtotal)}</p> {/* Display Subtotal */}
               </div>
-              <div className="w-full flex gap-2 items-center justify-between">
-                <p>Discount</p>
-                <p>Rs. {roundToTwoDecimals(totalDiscount)} </p> {/* Display Discount */}
-              </div>
-              <div className="w-full flex gap-2 items-center justify-between">
-                <p>Tax</p>
-                <p>Rs. {roundToTwoDecimals(tax)}</p> {/* Display Tax */}
-              </div>
-              <div className="w-full flex gap-2 items-center justify-between font-bold">
-                <p>Total</p>
-                <p>Rs. {roundToTwoDecimals(total)}</p> {/* Display Total */}
-              </div>
-              <Button className="w-full bg-primary text-black rounded-sm" onClick={() => setShowCheckout(true)}>
-                Pay
-              </Button>
+
+
             </div>
 
           </div>
-
-
-        </div>
-      </Card>}
+        </Card>
+      )}
 
 
       {showCheckout && (
         <Checkout setShowCheckout={setShowCheckout} />
       )}
 
+      <DayExceeded isOpen={dayExceeded} onClose={() => setDayExceeded(false)} onContinue={() => setDayExceeded(false)} />
 
     </div>
 
@@ -309,8 +362,8 @@ export default Sell;
 
 
 interface customerComboboxTypes {
-  list: Record<string,any>[];
-  setCustomer: (customer: any) => void;
+  list: MemberTableDatatypes[];
+  setCustomer: any;
   customer: any;
 }
 
@@ -454,4 +507,36 @@ function Checkout({ setShowCheckout }: any) {
       </div>
     </div>
   )
+}
+
+
+
+interface DayExceededProps {
+  isOpen: boolean,
+  onClose: any,
+  onContinue: any,
+}
+
+export function DayExceeded({
+  isOpen,
+  onClose,
+  onContinue,
+}: DayExceededProps) {
+  return (
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Register is Open more than 24 Hours</AlertDialogTitle>
+          <AlertDialogDescription className="bg-yellow-100 p-4 rounded text-yellow-800 text-sm">
+            Warning: There's a discrepancy of  in the closing
+            balance. Do you want to proceed?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={onContinue}>Continue</AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 }

@@ -646,7 +646,7 @@ const MemberForm = ({
     <Sheet open={open}>
       <SheetContent
         hideCloseButton
-        className="!max-w-[1300px] py-0 custom-scrollbar"
+        className="w-full !max-w-[1120px] py-0 custom-scrollbar"
       >
         <FormProvider {...form}>
           <form

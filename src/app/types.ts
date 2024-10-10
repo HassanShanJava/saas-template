@@ -1,6 +1,55 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
+export interface createTransaction {
+  "batch_id": number;
+  "member_id": number;
+  "member_name": string;
+  "member_email": string;
+  "member_address": string;
+  "member_gender": string;
+  "staff_id": number;
+  "staff_name": string;
+  "receipt_number": string;
+  "notes": string;
+  "tax_number": number;
+  "total_amount": number;
+  "status": string;
+  "transaction_type": string;
+  "products": {
+    "item_id": number;
+    "description": string;
+    "quantity": number;
+    "price": number;
+    "tax_rate": number;
+    "discount": number;
+    "sub_total": number;
+    "total": number;
+    "tax_amount": number;
+  }[]
+  "membership_plans": {
+    "item_id": number;
+    "description": string;
+    "quantity": number;
+    "price": number;
+    "tax_rate": number;
+    "discount": number;
+    "sub_total": number;
+    "total": number;
+    "tax_amount": number;
+  }[]
+  "events": {
+    "item_id": number;
+    "description": string;
+    "quantity": number;
+    "price": number;
+    "tax_rate": number;
+    "discount": number;
+    "sub_total": number;
+    "total": number;
+    "tax_amount": number;
+  }[]
+}
 export interface counterTableType {
   data: counterDataType[];
   total_counts: number;

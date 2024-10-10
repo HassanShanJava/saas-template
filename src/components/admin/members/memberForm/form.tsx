@@ -9,6 +9,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { PhoneNumberUtil } from "google-libphonenumber";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +29,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-
 import {
   MultiSelector,
   MultiSelectorContent,
@@ -143,6 +143,14 @@ const coachsSchema = z.object({
   name: z.string(),
 });
 
+interface membership_planids {
+  membership_plan_id?: number | null;
+  auto_renewal?: boolean;
+  prolongation_period?: number;
+  auto_renew_days?: number;
+  inv_days_cycle?: number;
+}
+
 const initialValues: MemberInputTypes = {
   own_member_id: "",
   profile_img: "",
@@ -163,13 +171,9 @@ const initialValues: MemberInputTypes = {
   zipcode: "",
   address_1: "",
   address_2: "",
-  coach_id: [] as z.infer<typeof coachsSchema>[],
-  membership_plan_id: undefined,
+  coach_ids: [] as z.infer<typeof coachsSchema>[],
   send_invitation: true,
-  auto_renewal: false,
-  prolongation_period: undefined,
-  auto_renew_days: undefined,
-  inv_days_cycle: undefined,
+  membership_plans: undefined,
 };
 
 interface memberFormTypes {
@@ -268,6 +272,99 @@ const MemberForm = ({
   const { data: membershipPlans } = useGetMembershipListQuery(orgId);
   const [addMember] = useAddMemberMutation();
   const [editMember] = useUpdateMemberMutation();
+  const [membershipPlansdata, setMembershipPlansdata] = useState<
+    membership_planids[]
+  >([
+    {
+      membership_plan_id: undefined,
+      auto_renewal: false,
+      prolongation_period: undefined,
+      auto_renew_days: undefined,
+      inv_days_cycle: undefined,
+    },
+  ]);
+
+  const handleAddPlan = () => {
+    setMembershipPlansdata([
+      ...membershipPlansdata,
+      {
+        membership_plan_id: undefined,
+        auto_renewal: false,
+        prolongation_period: undefined,
+        auto_renew_days: undefined,
+        inv_days_cycle: undefined,
+      },
+    ]);
+  };
+
+  const handleRemovePlan = (index: number) => {
+    console.log("Before removal:", membershipPlansdata);
+
+    if (membershipPlansdata.length > 1) {
+      const updatedPlans = [...membershipPlansdata]; // Create a shallow copy
+      updatedPlans.splice(index, 1); // Remove the exact item
+      console.log("After removal:", updatedPlans);
+      setMembershipPlansdata(updatedPlans); // Update the state
+    }
+  };
+
+  const handleMembershipPlanChange = (
+    index: number,
+    field: string,
+    value: any
+  ) => {
+    const updatedPlans = [...membershipPlansdata];
+    updatedPlans[index] = { ...updatedPlans[index], [field]: value };
+
+    if (field === "membership_plan_id") {
+      const selectedPlan = membershipPlans.find(
+        (item: any) => item.id === value
+      );
+
+      if (selectedPlan) {
+        const renewalDetails = selectedPlan?.renewal_details as renewalData;
+        // Set the auto_renewal and related fields based on the selected plan
+        updatedPlans[index] = {
+          ...updatedPlans[index],
+          auto_renewal: selectedPlan?.auto_renewal,
+          prolongation_period: renewalDetails?.prolongation_period || undefined,
+          auto_renew_days: renewalDetails?.days_before || undefined,
+          inv_days_cycle: renewalDetails?.next_invoice || undefined,
+        };
+      }
+    }
+
+    if (field === "auto_renewal") {
+      if (!value) {
+        updatedPlans[index] = {
+          ...updatedPlans[index],
+          auto_renewal: false,
+          prolongation_period: undefined,
+          auto_renew_days: undefined,
+          inv_days_cycle: undefined,
+        };
+      } else {
+        const selectedPlan = membershipPlans.find(
+          (item: any) => item.id === updatedPlans[index].membership_plan_id
+        );
+
+        if (selectedPlan) {
+          const renewalDetails = selectedPlan?.renewal_details as renewalData;
+          // Set the auto_renewal and related fields based on the selected plan
+          updatedPlans[index] = {
+            ...updatedPlans[index],
+            auto_renewal: true,
+            prolongation_period:
+              renewalDetails?.prolongation_period || undefined,
+            auto_renew_days: renewalDetails?.days_before || undefined,
+            inv_days_cycle: renewalDetails?.next_invoice || undefined,
+          };
+        }
+      }
+    }
+
+    setMembershipPlansdata(updatedPlans);
+  };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -333,8 +430,7 @@ const MemberForm = ({
   useEffect(() => {
     if (action == "edit") {
       const memberpayload = { ...memberData };
-      
-      memberpayload.coach_id = memberData?.coaches.every(
+      memberpayload.coach_ids = memberData?.coaches.every(
         (item) => item.id === 0 && item.name.trim() === ""
       )
         ? []
@@ -346,6 +442,7 @@ const MemberForm = ({
       ) {
         memberpayload.mobile_number = `+1`;
       }
+      setMembershipPlansdata(memberpayload?.membership_plans || []);
 
       reset(memberpayload);
       // setAvatar(memberpayload.profile_img as string);
@@ -364,6 +461,15 @@ const MemberForm = ({
     if (total >= 0 && action === "add") {
       form.setValue("own_member_id", `${orgName?.slice(0, 2)}-${total + 1}`);
       form.clearErrors();
+      setMembershipPlansdata([
+        {
+          membership_plan_id: null,
+          auto_renewal: false,
+          prolongation_period: undefined,
+          auto_renew_days: undefined,
+          inv_days_cycle: undefined,
+        },
+      ]);
     }
   }, [open, memberCountData]);
 
@@ -416,25 +522,6 @@ const MemberForm = ({
   ]);
 
   console.log({ emailAutoFill });
-  // set auto_renewal
-  const handleMembershipPlanChange = (value: number) => {
-    setValue("membership_plan_id", value);
-
-    const data =
-      membershipPlans &&
-      membershipPlans?.filter((item: any) => item.id == value)[0];
-    const renewalDetails = data?.renewal_details as renewalData;
-
-    setValue("auto_renewal", data?.auto_renewal);
-    if (data?.auto_renewal && renewalDetails) {
-      setValue(
-        "prolongation_period",
-        renewalDetails?.prolongation_period as number
-      );
-      setValue("auto_renew_days", renewalDetails?.days_before as number);
-      setValue("inv_days_cycle", renewalDetails?.next_invoice as number);
-    }
-  };
 
   function handleClose() {
     setAvatar(null);
@@ -458,11 +545,11 @@ const MemberForm = ({
       business_id: data.is_business ? null : data.business_id,
     };
 
-    if (!updatedData.auto_renew_days) {
-      setValue("prolongation_period", undefined);
-      setValue("auto_renew_days", undefined);
-      setValue("inv_days_cycle", undefined);
-    }
+    // if (!updatedData.auto_renew_days) {
+    //   setValue("prolongation_period", undefined);
+    //   setValue("auto_renew_days", undefined);
+    //   setValue("inv_days_cycle", undefined);
+    // }
 
     if (selectedImage) {
       try {
@@ -486,8 +573,13 @@ const MemberForm = ({
     }
     try {
       if (action == "add") {
-        console.log({ updatedData }, "add");
-        const resp = await addMember(updatedData).unwrap();
+        const payload = {
+          ...updatedData,
+          membership_plans: membershipPlansdata,
+        };
+        console.log({ payload }, "add");
+
+        const resp = await addMember(payload).unwrap();
         if (resp) {
           toast({
             variant: "success",
@@ -543,14 +635,7 @@ const MemberForm = ({
     if (autoFill) {
       const { id, org_id, ...payload } = autoFill;
       payload.own_member_id = watcher.own_member_id;
-      payload.coach_id = [];
-      payload.coaches = [];
-      payload.membership_plan_id = undefined;
-      payload.auto_renewal = false;
-      payload.auto_renew_days = undefined;
-      payload.prolongation_period = undefined;
-      payload.inv_days_cycle = undefined;
-      payload.send_invitation = true;
+
       payload.is_business = false;
       payload.business_id = null;
       payload.client_status = "pending";
@@ -677,7 +762,7 @@ const MemberForm = ({
                 </div>
                 <div className="relative ">
                   {action == "add" ||
-                    (action == "edit" && watcher.client_status == "pending") ? (
+                  (action == "edit" && watcher.client_status == "pending") ? (
                     <FloatingLabelInput
                       id="email"
                       className=""
@@ -824,15 +909,13 @@ const MemberForm = ({
                                 variant={"outline"}
                                 type="button"
                                 className={cn(
-                                  "w-full pl-3 text-gray-800 text-left font-normal hover:bg-transparent border-[1px]",  
+                                  "w-full pl-3 text-gray-800 text-left font-normal hover:bg-transparent border-[1px]"
                                 )}
                               >
                                 {(value as Date) ? (
                                   format(value as Date, "dd-MM-yyyy")
                                 ) : (
-                                  <span >
-                                    Select date of birth
-                                  </span>
+                                  <span>Select date of birth</span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
@@ -1003,7 +1086,7 @@ const MemberForm = ({
                 </div>
                 <div className="relative ">
                   <Controller
-                    name={"coach_id" as keyof MemberInputTypes}
+                    name={"coach_ids" as keyof MemberInputTypes}
                     // rules={{ required: "Required" }}
                     control={control}
                     render={({
@@ -1015,7 +1098,7 @@ const MemberForm = ({
                         options={
                           coachesData as { value: number; label: string }[]
                         }
-                        defaultValue={watch("coach_id") || []} // Ensure defaultValue is always an array
+                        defaultValue={watch("coach_ids") || []} // Ensure defaultValue is always an array
                         onValueChange={(selectedValues) => {
                           console.log("Selected Values: ", selectedValues); // Debugging step
                           onChange(selectedValues); // Pass selected values to state handler
@@ -1027,9 +1110,9 @@ const MemberForm = ({
                       />
                     )}
                   />
-                  {errors.coach_id?.message && (
+                  {errors.coach_ids?.message && (
                     <span className="text-red-500 text-xs mt-[5px]">
-                      {errors.coach_id?.message}
+                      {errors.coach_ids?.message}
                     </span>
                   )}
                 </div>
@@ -1084,7 +1167,10 @@ const MemberForm = ({
                         <SelectTrigger className="capitalize  font-normal text-gray-800">
                           <SelectValue placeholder="Select Business" />
                         </SelectTrigger>
-                        <SelectContent side="bottom" className="capitalize max-h-52">
+                        <SelectContent
+                          side="bottom"
+                          className="capitalize max-h-52"
+                        >
                           {/* <Button variant={"link"} className="gap-2 text-black">
                             <PlusIcon className="text-black w-5 h-5" /> Add New
                             business
@@ -1180,15 +1266,14 @@ const MemberForm = ({
                                 role="combobox"
                                 className={cn(
                                   "font-normal text-gray-800 border-[1px] justify-between hover:bg-transparent hover:text-gray-800",
-                                  !value &&
-                                  "  focus:border-primary "
+                                  !value && "  focus:border-primary "
                                 )}
                               >
                                 {value
                                   ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === value // Compare with numeric value
-                                  )?.country // Display country name if selected
+                                      (country: CountryTypes) =>
+                                        country.id === value // Compare with numeric value
+                                    )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -1258,187 +1343,204 @@ const MemberForm = ({
                   Membership and Auto Renewal
                 </h1>
               </div>
-              <div className="grid grid-cols-12 gap-3">
-                <div className="relative col-span-4">
-                  <Controller
-                    name={"membership_plan_id" as keyof MemberInputTypes}
-                    rules={{ required: "Required" }}
-                    control={control}
-                    render={({
-                      field: { onChange, value, onBlur },
-                      fieldState: { invalid, error },
-                    }) => (
-                      <>
-                        <Select
-                          onValueChange={(value) =>
-                            handleMembershipPlanChange(Number(value))
-                          }
-                          defaultValue={value?.toString()}
-                        >
-                          <FormControl>
-                            <SelectTrigger
-                              name="membership_plan_id"
-                              className={`font-normal capitalize text-gray-800`}
-                            >
-                              <SelectValue placeholder="Select membership plan*" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="capitalize max-h-52">
-                            {membershipPlans && membershipPlans?.length > 0 ? (
-                              membershipPlans.map(
-                                (sourceval: membeshipsTableType) => {
-                                  console.log({ sourceval });
-                                  return (
+              <div className="flex gap-2 flex-col">
+                {membershipPlansdata?.map(
+                  (plan: membership_planids, index: number) => (
+                    <>
+                      {membershipPlansdata?.length > 1 && index > 0 && (
+                        <div className="pt-2">
+                          <Separator />
+                        </div>
+                      )}
+
+                      <div className="font-semibold text-base pt-1 text-black pb-3">
+                        Membership Plan {index + 1}
+                      </div>
+                      <div className="grid grid-cols-12 gap-3" key={index}>
+                        <div className="relative col-span-4">
+                          <Select
+                            onValueChange={(value) =>
+                              handleMembershipPlanChange(
+                                index,
+                                "membership_plan_id",
+                                Number(value)
+                              )
+                            }
+                            value={plan.membership_plan_id?.toString()}
+                          >
+                            <FormControl>
+                              <SelectTrigger
+                                className={`font-normal capitalize text-gray-800`}
+                              >
+                                <SelectValue placeholder="Select membership plan" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="capitalize max-h-52">
+                              {membershipPlans && membershipPlans.length > 0 ? (
+                                membershipPlans.map(
+                                  (sourceval: membeshipsTableType) => (
                                     <SelectItem
                                       key={sourceval.id}
                                       value={sourceval.id?.toString()}
                                     >
                                       {sourceval.name}
                                     </SelectItem>
-                                  );
-                                }
+                                  )
+                                )
+                              ) : (
+                                <p>No Membership plan found</p>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="relative col-span-2 flex justify-center items-center gap-2">
+                          <Switch
+                            id="airplane-mode"
+                            checked={plan.auto_renewal}
+                            onCheckedChange={(value) =>
+                              handleMembershipPlanChange(
+                                index,
+                                "auto_renewal",
+                                value
                               )
-                            ) : (
-                              <>
-                                <p className="2">No Membership plan found</p>
-                              </>
-                            )}
-                          </SelectContent>
-                        </Select>
-                        {watcher.membership_plan_id ? <></> : <FormMessage />}
-                      </>
-                    )}
-                  />
-                  {errors.membership_plan_id?.message && (
-                    <span className="text-red-500 text-xs mt-[5px]">
-                      {errors.membership_plan_id?.message}
-                    </span>
-                  )}
-                </div>
-
-                <div className="h-full relative col-span-2">
-                  <Controller
-                    name={"auto_renewal" as keyof MemberInputTypes}
-                    control={control}
-                    render={({
-                      field: { onChange, value, onBlur },
-                      fieldState: { invalid, error },
-                    }) => (
-                      <div className="h-10 flex items-center gap-3">
-                        <>
-                          <Checkbox
-                            checked={value as boolean}
-                            onCheckedChange={onChange}
-                            disabled={watcher.membership_plan_id == undefined}
+                            }
+                            disabled={!plan.membership_plan_id}
                           />
-                        </>
-                        <Label className="!mt-0">Auto renewal</Label>
-                      </div>
-                    )}
-                  />
-                </div>
-
-                {watcher.auto_renewal && (
-                  <>
-                    <div className="relative col-span-6">
-                      <div className="flex h-10 items-center gap-3">
-                        <Label className="text-base">
-                          Prolongation period*
-                        </Label>
-                        <div className="relative pb-3">
-                          <FloatingLabelInput
-                            id="prolongation_period"
-                            type="number"
-                            min={1}
-                            max={12}
-                            className="w-16"
-                            {...register("prolongation_period", {
-                              valueAsNumber: true,
-                              required: watcher.auto_renewal && "Required",
-                              min: {
-                                value: 1,
-                                message:
-                                  "Pro. Period must be between 1 and 12.",
-                              },
-                              max: {
-                                value: 12,
-                                message:
-                                  "Pro. Period must be between 1 and 12.",
-                              },
-                            })}
-                            error={errors.prolongation_period?.message}
-                          />
+                          <Label className="!mt-0">Auto renewal</Label>
                         </div>
-                      </div>
-                    </div>
 
-                    <div className="relative col-span-5">
-                      <div className="flex h-10 items-center gap-3">
-                        <Label className="text-sm">
-                          Auto renewal takes place*
-                        </Label>
-                        <div className="relative pt-3">
-                          <FloatingLabelInput
-                            id="auto_renew_days"
-                            type="number"
-                            min={1}
-                            max={15}
-                            className="w-16"
-                            {...register("auto_renew_days", {
-                              valueAsNumber: true,
-                              required: watcher.auto_renewal && "Required",
-                              min: {
-                                value: 1,
-                                message: "Days must be between 1 and 15.",
-                              },
-                              max: {
-                                value: 15,
-                                message: "Days must be between 1 and 15.",
-                              },
-                            })}
-                            error={errors.auto_renew_days?.message}
-                          />
-                        </div>
-                        <Label className="text-xs text-black/60">
-                          days before contracts runs out.
-                        </Label>
-                      </div>
-                    </div>
+                        {plan.auto_renewal && (
+                          <>
+                            {/* Row for Prolongation Period */}
+                            <div className="relative col-span-6 flex items-center gap-3">
+                              <Label className="text-base">
+                                Prolongation period*
+                              </Label>
+                              <FloatingLabelInput
+                                id="prolongation_period"
+                                type="number"
+                                min={1}
+                                max={12}
+                                className="w-16"
+                                value={plan.prolongation_period}
+                                onChange={(e) =>
+                                  handleMembershipPlanChange(
+                                    index,
+                                    "prolongation_period",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </div>
 
-                    <div className="relative col-span-7">
-                      <div className="flex h-10 items-center gap-3">
-                        <Label className="text-sm">
-                          Next invoice will be created *
-                        </Label>
-                        <div className="relative pt-3">
-                          <FloatingLabelInput
-                            id="inv_days_cycle"
-                            type="number"
-                            min={1}
-                            max={15}
-                            className="w-16"
-                            {...register("inv_days_cycle", {
-                              valueAsNumber: true,
-                              required: watcher.auto_renewal && "Required",
-                              min: {
-                                value: 1,
-                                message: "Days must be between 1 and 15.",
-                              },
-                              max: {
-                                value: 15,
-                                message: "Days must be between 1 and 15.",
-                              },
-                            })}
-                            error={errors.inv_days_cycle?.message}
-                          />
-                        </div>
-                        <Label className="text-xs text-black/60">
-                          days before contracts runs out.
-                        </Label>
+                            {/* Row for Auto Renewal Days */}
+                            <div className="relative col-span-6 flex items-center gap-3">
+                              <Label className="text-base">
+                                Auto renewal takes place*
+                              </Label>
+                              <FloatingLabelInput
+                                id="auto_renew_days"
+                                type="number"
+                                min={1}
+                                max={15}
+                                className="w-16"
+                                value={plan.auto_renew_days}
+                                onChange={(e) =>
+                                  handleMembershipPlanChange(
+                                    index,
+                                    "auto_renew_days",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                              <span className="text-sm text-black/60">
+                                days before contract runs out.
+                              </span>
+                            </div>
+
+                            {/* Row for Next Invoice */}
+                            <div className="relative col-span-6 flex items-center gap-3">
+                              <Label className="text-base pr-4">
+                                Next invoice will be <br />
+                                created*
+                              </Label>
+                              <FloatingLabelInput
+                                id="inv_days_cycle"
+                                type="number"
+                                min={1}
+                                max={15}
+                                className="w-16"
+                                value={plan.inv_days_cycle}
+                                onChange={(e) =>
+                                  handleMembershipPlanChange(
+                                    index,
+                                    "inv_days_cycle",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                              <span className="text-sm text-black/60">
+                                days before contract runs out.
+                              </span>
+                              {membershipPlansdata?.length > 1 && (
+                                <Button
+                                  type="button"
+                                  className="text-red-500"
+                                  variant={"ghost"}
+                                  onClick={() => handleRemovePlan(index)}
+                                >
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <i className="fa-solid fa-trash"></i>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        Delete Membership plan
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </Button>
+                              )}
+                            </div>
+                          </>
+                        )}
+
+                        {!plan.auto_renewal &&
+                          membershipPlansdata?.length > 1 && (
+                            <Button
+                              type="button"
+                              className="text-red-500"
+                              variant={"ghost"}
+                              onClick={() => handleRemovePlan(index)}
+                            >
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <i className="fa-solid fa-trash"></i>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    Delete Membership plan
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </Button>
+                          )}
                       </div>
-                    </div>
-                  </>
+                    </>
+                  )
                 )}
+
+                <div>
+                  <Button
+                    type="button"
+                    onClick={handleAddPlan}
+                    variant={"ghost"}
+                    className="text-primary"
+                  >
+                    + Assign more Membership
+                  </Button>
+                </div>
               </div>
             </SheetDescription>
           </form>
@@ -1457,7 +1559,9 @@ const MemberForm = ({
                   <AlertDialogTitle className="text-lg font-medium w-full text-center">
                     The email is already registered in the system.
                     <br />
-                    <span className="">Would you like to auto-fill the details?</span>
+                    <span className="">
+                      Would you like to auto-fill the details?
+                    </span>
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

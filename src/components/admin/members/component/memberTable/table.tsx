@@ -94,7 +94,7 @@ const status = [
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 export default function MemberTableView() {
-  const { member } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const { member } = JSON.parse(localStorage.getItem("accessLevels") as string);
   const [action, setAction] = useState<"add" | "edit">("add");
   const [open, setOpen] = useState<boolean>(false);
   const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
@@ -234,9 +234,6 @@ export default function MemberTableView() {
     console.log({ selectedRows }, typeof selectedRows);
     const updatedSelectedRows = selectedRows.map((row) => ({
       ...row,
-      membership_plan_id: membershipPlans.filter(
-        (plan: any) => plan.id == row.membership_plan_id
-      )[0].name,
     }));
 
     downloadCSV(updatedSelectedRows, "members_list.csv", membersMapper);
@@ -251,7 +248,6 @@ export default function MemberTableView() {
     source_id: number;
     country_id: number;
     business_id: number;
-    membership_plan_id: number;
   }) => {
     try {
       const resp = await updateMember(payload).unwrap();
@@ -459,36 +455,6 @@ export default function MemberTableView() {
       },
     },
     {
-      accessorFn: (row) => row.membership_plan_id,
-      id: "membership_plan_id",
-      meta: "Membership Plan",
-      header: () => (
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Membership Plan</p>
-          <button
-            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("membership_plan_id")}
-          >
-            <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-            ></i>
-          </button>
-        </div>
-      ),
-      cell: ({ row }) => {
-        const mebershipName =
-          membershipPlans &&
-          membershipPlans.filter(
-            (plan: any) => plan.id == row.original.membership_plan_id
-          )[0];
-        return (
-          <div className="capitalize text-nowrap flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(mebershipName?.name ?? "")}
-          </div>
-        );
-      },
-    },
-    {
       accessorKey: "client_status",
       meta: "Status",
       header: () => (
@@ -512,7 +478,6 @@ export default function MemberTableView() {
         const source_id = Number(row.original.source_id);
         const country_id = Number(row.original.country_id);
         const business_id = Number(row.original?.business_id);
-        const membership_plan_id = Number(row.original?.membership_plan_id);
         return (
           <Select
             defaultValue={value}
@@ -524,7 +489,6 @@ export default function MemberTableView() {
                 source_id: source_id,
                 country_id: country_id,
                 business_id: business_id,
-                membership_plan_id: membership_plan_id,
               })
             }
             disabled={statusLabel.hide || member == "read"}
@@ -695,7 +659,6 @@ export default function MemberTableView() {
     searchCriteria,
     setSearchCriteria,
   });
-
   return (
     <div className="w-full space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3">
@@ -713,13 +676,15 @@ export default function MemberTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          {member !== "read" && <Button
-            className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
-            onClick={handleOpenForm}
-          >
-            <PlusIcon className="size-4" />
-            Create New
-          </Button>}
+          {member !== "read" && (
+            <Button
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+              onClick={handleOpenForm}
+            >
+              <PlusIcon className="size-4" />
+              Create New
+            </Button>
+          )}
           <DataTableViewOptions table={table} action={handleExportSelected} />
           <button
             className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"

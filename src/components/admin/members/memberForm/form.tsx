@@ -144,7 +144,7 @@ const coachsSchema = z.object({
 });
 
 interface membership_planids {
-  membership_plan_id?: number;
+  membership_plan_id?: number | null;
   auto_renewal?: boolean;
   prolongation_period?: number;
   auto_renew_days?: number;
@@ -171,13 +171,9 @@ const initialValues: MemberInputTypes = {
   zipcode: "",
   address_1: "",
   address_2: "",
-  coach_id: [] as z.infer<typeof coachsSchema>[],
+  coach_ids: [] as z.infer<typeof coachsSchema>[],
   send_invitation: true,
-  membership_plan_id: undefined,
-  auto_renewal: false,
-  prolongation_period: undefined,
-  auto_renew_days: undefined,
-  inv_days_cycle: undefined,
+  membership_plans: undefined,
 };
 
 interface memberFormTypes {
@@ -319,6 +315,54 @@ const MemberForm = ({
   ) => {
     const updatedPlans = [...membershipPlansdata];
     updatedPlans[index] = { ...updatedPlans[index], [field]: value };
+
+    if (field === "membership_plan_id") {
+      const selectedPlan = membershipPlans.find(
+        (item: any) => item.id === value
+      );
+
+      if (selectedPlan) {
+        const renewalDetails = selectedPlan?.renewal_details as renewalData;
+        // Set the auto_renewal and related fields based on the selected plan
+        updatedPlans[index] = {
+          ...updatedPlans[index],
+          auto_renewal: selectedPlan?.auto_renewal,
+          prolongation_period: renewalDetails?.prolongation_period || undefined,
+          auto_renew_days: renewalDetails?.days_before || undefined,
+          inv_days_cycle: renewalDetails?.next_invoice || undefined,
+        };
+      }
+    }
+
+    if (field === "auto_renewal") {
+      if (!value) {
+        updatedPlans[index] = {
+          ...updatedPlans[index],
+          auto_renewal: false,
+          prolongation_period: undefined,
+          auto_renew_days: undefined,
+          inv_days_cycle: undefined,
+        };
+      } else {
+        const selectedPlan = membershipPlans.find(
+          (item: any) => item.id === updatedPlans[index].membership_plan_id
+        );
+
+        if (selectedPlan) {
+          const renewalDetails = selectedPlan?.renewal_details as renewalData;
+          // Set the auto_renewal and related fields based on the selected plan
+          updatedPlans[index] = {
+            ...updatedPlans[index],
+            auto_renewal: true,
+            prolongation_period:
+              renewalDetails?.prolongation_period || undefined,
+            auto_renew_days: renewalDetails?.days_before || undefined,
+            inv_days_cycle: renewalDetails?.next_invoice || undefined,
+          };
+        }
+      }
+    }
+
     setMembershipPlansdata(updatedPlans);
   };
 
@@ -386,8 +430,7 @@ const MemberForm = ({
   useEffect(() => {
     if (action == "edit") {
       const memberpayload = { ...memberData };
-
-      memberpayload.coach_id = memberData?.coaches.every(
+      memberpayload.coach_ids = memberData?.coaches.every(
         (item) => item.id === 0 && item.name.trim() === ""
       )
         ? []
@@ -399,6 +442,7 @@ const MemberForm = ({
       ) {
         memberpayload.mobile_number = `+1`;
       }
+      setMembershipPlansdata(memberpayload?.membership_plans || []);
 
       reset(memberpayload);
       // setAvatar(memberpayload.profile_img as string);
@@ -417,6 +461,15 @@ const MemberForm = ({
     if (total >= 0 && action === "add") {
       form.setValue("own_member_id", `${orgName?.slice(0, 2)}-${total + 1}`);
       form.clearErrors();
+      setMembershipPlansdata([
+        {
+          membership_plan_id: null,
+          auto_renewal: false,
+          prolongation_period: undefined,
+          auto_renew_days: undefined,
+          inv_days_cycle: undefined,
+        },
+      ]);
     }
   }, [open, memberCountData]);
 
@@ -469,25 +522,6 @@ const MemberForm = ({
   ]);
 
   console.log({ emailAutoFill });
-  // set auto_renewal
-  // const handleMembershipPlanChange = (value: number) => {
-  //   setValue("membership_plan_id", value);
-
-  //   const data =
-  //     membershipPlans &&
-  //     membershipPlans?.filter((item: any) => item.id == value)[0];
-  //   const renewalDetails = data?.renewal_details as renewalData;
-
-  //   setValue("auto_renewal", data?.auto_renewal);
-  //   if (data?.auto_renewal && renewalDetails) {
-  //     setValue(
-  //       "prolongation_period",
-  //       renewalDetails?.prolongation_period as number
-  //     );
-  //     setValue("auto_renew_days", renewalDetails?.days_before as number);
-  //     setValue("inv_days_cycle", renewalDetails?.next_invoice as number);
-  //   }
-  // };
 
   function handleClose() {
     setAvatar(null);
@@ -511,11 +545,11 @@ const MemberForm = ({
       business_id: data.is_business ? null : data.business_id,
     };
 
-    if (!updatedData.auto_renew_days) {
-      setValue("prolongation_period", undefined);
-      setValue("auto_renew_days", undefined);
-      setValue("inv_days_cycle", undefined);
-    }
+    // if (!updatedData.auto_renew_days) {
+    //   setValue("prolongation_period", undefined);
+    //   setValue("auto_renew_days", undefined);
+    //   setValue("inv_days_cycle", undefined);
+    // }
 
     if (selectedImage) {
       try {
@@ -539,8 +573,13 @@ const MemberForm = ({
     }
     try {
       if (action == "add") {
-        console.log({ updatedData }, "add");
-        const resp = await addMember(updatedData).unwrap();
+        const payload = {
+          ...updatedData,
+          membership_plans: membershipPlansdata,
+        };
+        console.log({ payload }, "add");
+
+        const resp = await addMember(payload).unwrap();
         if (resp) {
           toast({
             variant: "success",
@@ -596,14 +635,7 @@ const MemberForm = ({
     if (autoFill) {
       const { id, org_id, ...payload } = autoFill;
       payload.own_member_id = watcher.own_member_id;
-      payload.coach_id = [];
-      payload.coaches = [];
-      payload.membership_plan_id = undefined;
-      payload.auto_renewal = false;
-      payload.auto_renew_days = undefined;
-      payload.prolongation_period = undefined;
-      payload.inv_days_cycle = undefined;
-      payload.send_invitation = true;
+
       payload.is_business = false;
       payload.business_id = null;
       payload.client_status = "pending";
@@ -1054,7 +1086,7 @@ const MemberForm = ({
                 </div>
                 <div className="relative ">
                   <Controller
-                    name={"coach_id" as keyof MemberInputTypes}
+                    name={"coach_ids" as keyof MemberInputTypes}
                     // rules={{ required: "Required" }}
                     control={control}
                     render={({
@@ -1066,7 +1098,7 @@ const MemberForm = ({
                         options={
                           coachesData as { value: number; label: string }[]
                         }
-                        defaultValue={watch("coach_id") || []} // Ensure defaultValue is always an array
+                        defaultValue={watch("coach_ids") || []} // Ensure defaultValue is always an array
                         onValueChange={(selectedValues) => {
                           console.log("Selected Values: ", selectedValues); // Debugging step
                           onChange(selectedValues); // Pass selected values to state handler
@@ -1078,9 +1110,9 @@ const MemberForm = ({
                       />
                     )}
                   />
-                  {errors.coach_id?.message && (
+                  {errors.coach_ids?.message && (
                     <span className="text-red-500 text-xs mt-[5px]">
-                      {errors.coach_id?.message}
+                      {errors.coach_ids?.message}
                     </span>
                   )}
                 </div>

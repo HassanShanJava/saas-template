@@ -248,7 +248,6 @@ export default function MemberTableView() {
     source_id: number;
     country_id: number;
     business_id: number;
-    membership_plan_id: number;
   }) => {
     try {
       const resp = await updateMember(payload).unwrap();
@@ -479,7 +478,6 @@ export default function MemberTableView() {
         const source_id = Number(row.original.source_id);
         const country_id = Number(row.original.country_id);
         const business_id = Number(row.original?.business_id);
-        const membership_plan_id = Number(row.original?.membership_plan_id);
         return (
           <Select
             defaultValue={value}
@@ -491,7 +489,6 @@ export default function MemberTableView() {
                 source_id: source_id,
                 country_id: country_id,
                 business_id: business_id,
-                membership_plan_id: membership_plan_id,
               })
             }
             disabled={statusLabel.hide || member == "read"}

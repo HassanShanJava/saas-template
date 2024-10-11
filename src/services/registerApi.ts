@@ -15,7 +15,7 @@ export const Register = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
-        providesTags: ["register"],
+        providesTags: ["Register"],
       }),
       openRegister: builder.mutation<
         counterRegisterSession,
@@ -30,7 +30,7 @@ export const Register = apiSlice.injectEndpoints({
             "Content-Type": "application/json",
           },
         }),
-        invalidatesTags: ["register"],
+        invalidatesTags: ["Register"],
       }),
       closeRegister: builder.mutation<
         counterRegisterSession,
@@ -45,7 +45,7 @@ export const Register = apiSlice.injectEndpoints({
             "Content-Type": "application/json",
           },
         }),
-        invalidatesTags: ["register"],
+        invalidatesTags: ["Register"],
       }),
       getAllRegisterSession: builder.query<
         RegisterationTableType,
@@ -58,7 +58,7 @@ export const Register = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
-        providesTags: ["register"],
+        providesTags: ["Register"],
       }),
     };
   },

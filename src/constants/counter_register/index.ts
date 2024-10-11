@@ -2,10 +2,11 @@ import { registerSessionStorage } from "@/app/types";
 import { useGetlastRegisterSessionQuery } from "@/services/registerApi";
 import { useEffect, useState } from "react";
 import { saveToLocalStorage } from "@/utils/helper";
+const { VITE_REGISTER_MAX_HOUR } = import.meta.env;
 
-const has24HoursPassed = (storedTime: number) => {
+export const has24HoursPassed = (storedTime: number) => {
   const currentTime = Date.now();
-  return currentTime - storedTime > 24 * 60 * 60 * 1000;
+  return currentTime - storedTime > VITE_REGISTER_MAX_HOUR * 60 * 60 * 1000;
 };
 
 export function useGetRegisterData(counter_id: number): {
@@ -77,6 +78,8 @@ export function useGetRegisterData(counter_id: number): {
 
       setIsDayExceed(false); // Reset day exceed if register is open
     }
+
+
     if (
       error &&
       "data" in error &&
@@ -89,11 +92,11 @@ export function useGetRegisterData(counter_id: number): {
       // Stop loading when everything is processed
       setIsLoading(
         isDataLoading ||
-          (!!error &&
-            !(
-              "data" in error &&
-              (error as any).data?.detail === "Last session not found"
-            ))
+        (!!error &&
+          !(
+            "data" in error &&
+            (error as any).data?.detail === "Last session not found"
+          ))
       );
     }
     // Stop loading when everything is processed

@@ -1,9 +1,21 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { RootState } from "@/app/store";
 import { Card } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { useGetMembersListQuery } from "@/services/memberAPi";
+import { useGetAllMemberQuery, useGetMembersListQuery } from "@/services/memberAPi";
 import { Check, ChevronsUpDown, Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -30,7 +42,11 @@ import { FileInput } from "@/components/ui/file-uploader";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import { roundToTwoDecimals } from "@/utils/helper";
+import { useDebounce } from "@/hooks/use-debounce";
+import { MemberTableDatatypes } from "@/app/types";
+import { has24HoursPassed, useGetRegisterData } from "@/constants/counter_register";
+import { useNavigate } from "react-router-dom";
 
 interface payload {
   discount: number;
@@ -42,23 +58,92 @@ interface payload {
 }
 
 
+interface searchCriteriaType {
+  search_key?: string;
+}
+
+
+
+
 
 const Sell = () => {
-  const orgId = useSelector(
-    (state: RootState) => state.auth.userInfo?.user?.org_id
-  );
+  const { opening_time, isOpen } = JSON.parse(localStorage.getItem("registerSession") as string);
+  const orgId =
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
 
   const [productPayload, setProductPayload] = useState<payload[]>([])
   const [showCheckout, setShowCheckout] = useState<boolean>(false)
-  const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId as number, query: "" })
+  const [dayExceeded, setDayExceeded] = useState<boolean>(false)
+  const navigate = useNavigate()
+
+
+
+  useEffect(() => {
+    if (has24HoursPassed(opening_time)) {
+      setDayExceeded(true)
+    }
+
+    if (!isOpen) {
+      navigate(`/admin/pos/register`)
+    }
+  }, [isOpen, opening_time])
+
+  // search product
+  const [searchCriteria, setSearchCriteria] = useState<searchCriteriaType>({});
+  const [query, setQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const debouncedInputValue = useDebounce(inputValue, 500);
+
+  // select customer
+  const [customer, setCustomer] = useState<Record<string, any>>({});
+
+
+  useEffect(() => {
+    setSearchCriteria((prev) => {
+      const newCriteria = { ...prev };
+      if (debouncedInputValue.trim() !== "") {
+        newCriteria.search_key = debouncedInputValue;
+      } else {
+        delete newCriteria.search_key;
+      }
+
+      return newCriteria;
+    });
+    console.log({ debouncedInputValue });
+  }, [debouncedInputValue, setSearchCriteria]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchCriteria)) {
+      console.log({ key, value });
+      if (value !== undefined && value !== null) {
+        if (Array.isArray(value)) {
+          value.forEach((val) => {
+            params.append(key, val); // Append each array element as a separate query parameter
+          });
+        } else {
+          params.append(key, value); // For non-array values
+        }
+      }
+    }
+    const newQuery = params.toString();
+    console.log({ newQuery });
+    setQuery(newQuery);
+  }, [searchCriteria]);
+
+  const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId, query: query })
+
+
   const memberhsipListData = useMemo(() => {
     return Array.isArray(memberhsipList?.data) ? memberhsipList?.data : [];
   }, [memberhsipList]);
 
+
+  // product lists by category
   const productCategories = [
     {
-      type: "memberships",
+      type: "membership_plans",
       label: "Memberships",
       products: memberhsipListData,
     },
@@ -77,7 +162,6 @@ const Sell = () => {
 
 
   const addProduct = (product: any, type: string) => {
-    console.log({ product });
 
     // Calculate the discount amount
     const discountPercentage = product.discount || 0; // Percentage discount from the product
@@ -94,19 +178,19 @@ const Sell = () => {
     };
 
     setProductPayload((prevPayload) => {
-      const existingProduct = prevPayload.find((p) => p.id === product.id);
+      const existingProduct = prevPayload.find((prod) => prod.id === product.id);
 
       if (existingProduct) {
         // If product with the same id exists, update quantity, price, and discount
-        return prevPayload.map((p) =>
-          p.id === product.id
+        return prevPayload.map((prod) =>
+          prod.id === product.id
             ? {
-              ...p,
-              quantity: p.quantity + 1, // Increment quantity
-              price: Math.floor((p.price + finalPrice) * 100) / 100, // Add the price of the new addition after discount (rounded)
-              discount: Math.floor((p.discount + discountAmount) * 100) / 100, // Add the applied discount amount (rounded)
+              ...prod,
+              quantity: prod.quantity + 1, // Increment quantity
+              price: Math.floor((prod.price + finalPrice) * 100) / 100, // Add the price of the new addition after discount (rounded)
+              discount: Math.floor((prod.discount + discountAmount) * 100) / 100, // Add the applied discount amount (rounded)
             }
-            : p
+            : prod
         );
       }
 
@@ -124,24 +208,49 @@ const Sell = () => {
     return existingDiscount + newDiscount;
   };
 
-  const { data: memberList } = useGetMembersListQuery(orgId as number)
-  console.log({ memberList })
-  return (
-    <>
-      <div className="w-full p-5 ">
+  const { data: memberList2 } = useGetAllMemberQuery({ org_id: orgId, query: "" })
+  const { data: memberList } = useGetMembersListQuery(orgId)
 
-        {!showCheckout && <Card className=" h-[90vh] px-3 py-4 max-w-[1100px] mx-auto">
+  const memberListData = useMemo(() => {
+    return Array.isArray(memberList2?.data) ? memberList2?.data : [];
+  }, [memberList2]);
+
+
+
+
+
+  const subtotal = productPayload.reduce(
+    (acc, product) => acc + product.price * product.quantity,
+    0
+  );
+
+  const totalDiscount = productPayload.reduce(
+    (acc, product) => acc + product.discount * product.quantity,
+    0
+  );
+
+  const taxRate = 0.10; // 10% tax rate (adjust as needed)
+  const tax = subtotal * taxRate;
+  const total = subtotal - totalDiscount + tax;
+
+  console.log({ productPayload, memberhsipListData, memberList2, customer })
+
+  return (
+    <div className="w-full p-5 ">
+
+      {!showCheckout && (
+        <Card className=" h-[90vh] px-3 py-4 max-w-[1100px] mx-auto">
           <div className="grid grid-cols-2 justify-start items-start gap-3">
             <div className="min-h-36  p-2">
               <FloatingLabelInput
                 id="search"
                 placeholder="Search by products name"
-                // onChange={(event) => setInputValue(event.target.value)}
+                onChange={(event) => setInputValue(event.target.value)}
                 className="w-full pl-8 text-gray-400 rounded-sm"
                 icon={<Search className="size-4 text-gray-400 absolute  z-10 left-2" />}
               />
 
-              <Tabs defaultValue="memberships" className="w-full mt-4 ">
+              <Tabs defaultValue="membership_plans" className="w-full mt-4 ">
                 <TabsList variant="underline">
                   {productCategories.map((category) => (
                     <TabsTrigger key={category.type} value={category.type} variant="underline">
@@ -169,7 +278,7 @@ const Sell = () => {
             </div>
 
             <div className="h-full flex flex-col justify-between space-y-2 rounded-sm bg-gray-100 p-2"  >
-              <CustomerCombobox list={memberList} />
+              <CustomerCombobox list={memberListData} setCustomer={setCustomer} customer={customer} />
 
               <div className="rounded-sm bg-white/90 mx-1">
 
@@ -178,175 +287,73 @@ const Sell = () => {
                     <div className=" flex justify-between items-center gap-2  p-2 ">
                       <div>
                         <p className="capitalize">{product.name}</p>
-                        <p>Qty. {product.quantity}</p>
+                        {product.discount && <p className="line-through text-sm text-gray-500 text-right">
+                          Rs. {product.price + product.discount}
+                        </p>}
+                        <p className="text-sm">Rs. {product.price}</p>
                       </div>
-                      <div>
-                        <p>Rs. {product.price}</p>
-                        <p>Rs. {product.discount}</p>
+
+                      <div className="inline-flex items-center ">
+                        <div
+                          className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                          <i className="fa fa-minus"></i>
+                        </div>
+                        <div
+                          className=" border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-0 select-none">
+                          {product.quantity}
+                        </div>
+                        <div
+                          className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                          <i className="fa fa-plus"></i>
+                        </div>
                       </div>
-                    </div>
+
+
+                    </div >
                     <Separator className=" h-[1px] font-thin rounded-full" />
                   </>
                 ))}
-              </div>
 
-              <div className="space-y-2 px-2">
-                <div className="w-full flex gap-2 items-center justify-between">
-                  <p>Subtotal</p>
-                  <p>Rs. 0.0</p>
+                <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
+                  <div className="w-full flex gap-2  items-center justify-between">
+                    <p>Subtotal</p>
+                    <p>Rs. {roundToTwoDecimals(subtotal)}</p> {/* Display Subtotal */}
+                  </div>
+                  <div className="w-full flex gap-2 items-center justify-between">
+                    <p>Discount</p>
+                    <p>Rs. {roundToTwoDecimals(totalDiscount)} </p> {/* Display Discount */}
+                  </div>
+                  <div className="w-full flex gap-2 items-center justify-between">
+                    <p>Tax</p>
+                    <p>Rs. {roundToTwoDecimals(tax)}</p> {/* Display Tax */}
+                  </div>
+                  <div className="w-full flex gap-2 items-center justify-between font-bold">
+                    <p>Total</p>
+                    <p>Rs. {roundToTwoDecimals(total)}</p> {/* Display Total */}
+                  </div>
+                  <Button className="w-full bg-primary text-black rounded-sm" onClick={() => setShowCheckout(true)}>
+                    Pay
+                  </Button>
                 </div>
-                <div className="w-full flex gap-2 items-center justify-between">
-                  <p>Discount  </p>
-                  <p>Rs. 0.0</p>
-                </div>
-                <div className="w-full flex gap-2 items-center justify-between">
-                  <p>Tax  </p>
-                  <p>Rs. 0.0</p>
-                </div>
-                <Button className="w-full bg-primary text-black rounded-sm " onClick={() => setShowCheckout(true)}>
-                  Pay
-                </Button>
 
               </div>
 
 
             </div>
-
 
           </div>
-        </Card>}
-      </div>
-      <div >
-        {showCheckout && (
-          <div className="px-3 py-4">
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div>
-                <h1 className="text-3xl font-bold mb-6">Checkout</h1>
-                <div className="bg-white  p-6 rounded-lg">
-                  <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <i
-                          className="fa fa-image rounded-md"
-                          style={{ aspectRatio: "80/80", objectFit: "cover" }}
-                        />
-                      </div>
-                      <div className="flex-1 ml-4">
-                        <h3 className="text-lg font-medium">Product Name</h3>
-                        <p className="text-gray-500 ">Quantity: 2</p>
-                      </div>
-                      <div className="text-lg font-bold">$99.99</div>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between items-center">
-                      <div>Subtotal</div>
-                      <div className="font-bold">$99.99</div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div>Shipping</div>
-                      <div className="font-bold">$9.99</div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div>Tax</div>
-                      <div className="font-bold">$10.00</div>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between items-center">
-                      <div className="text-xl font-bold">Total</div>
-                      <div className="text-xl font-bold">$119.98</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h2 className="text-2xl font-bold mb-6">Billing &amp; Shipping</h2>
-                <form className="space-y-6">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" />
-                    </div>
-                    <div>
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" placeholder="Doe" />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="john@example.com" />
-                  </div>
-                  <div>
-                    <Label htmlFor="address">Address</Label>
-                    <Input id="address" placeholder="123 Main St" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="city">City</Label>
-                      <Input id="city" placeholder="New York" />
-                    </div>
-                    <div>
-                      <Label htmlFor="state">State</Label>
-                      <Input id="state" placeholder="NY" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="zip">Zip Code</Label>
-                      <Input id="zip" type="number" placeholder="10001" />
-                    </div>
-                    <div>
-                      <Label htmlFor="country">Country</Label>
-                      <Input id="country" placeholder="United States" />
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
+        </Card>
+      )}
 
 
-            <div className="bg-gray-50  py-12 px-6 md:px-12 lg:px-24 mt-6">
-              <h2 className="text-2xl font-bold ">Payment</h2>
+      {showCheckout && (
+        <Checkout setShowCheckout={setShowCheckout} />
+      )}
 
-              <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <RadioGroup defaultValue="card">
-                    <div className="flex items-center space-x-4">
-                      <RadioGroupItem value="card" id="card" />
-                      <Label htmlFor="card" className="flex items-center space-x-2">
-                        <span>Credit/Debit Card</span>
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-4 mt-4">
-                      <RadioGroupItem value="paypal" id="paypal" />
-                      <Label htmlFor="paypal" className="flex items-center space-x-2">
-                        <span>PayPal</span>
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-                <div>
-                  <form className="space-y-6">
-                    <div>
-                      <Label htmlFor="cardNumber">Card Number</Label>
-                      <Input id="cardNumber" type="text" placeholder="4111 1111 1111 1111" />
-                    </div>
-                    
-                  </form>
-                </div>
-              </div>
+      <DayExceeded isOpen={dayExceeded} onClose={() => setDayExceeded(false)} onContinue={() => setDayExceeded(false)} />
 
-              <div className="mt-8 flex justify-end">
-                <Button size="lg" onClick={()=>setShowCheckout(false)}>Place Order</Button>
-              </div>
-            </div>
-          </div>
-        )}
+    </div>
 
-      </div>
-    </>
   );
 };
 
@@ -354,12 +361,16 @@ export default Sell;
 
 
 
+interface customerComboboxTypes {
+  list: MemberTableDatatypes[];
+  setCustomer: any;
+  customer: any;
+}
 
-
-export function CustomerCombobox({ list }: { list: { value: number, label: string }[] | undefined }) {
+export function CustomerCombobox({ list, setCustomer, customer }: customerComboboxTypes) {
+  const modifiedList = list?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-  console.log({ value })
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -371,7 +382,7 @@ export function CustomerCombobox({ list }: { list: { value: number, label: strin
           className="capitalize w-full justify-between bg-white rounded-sm border-[1px]"
         >
           {value
-            ? list?.find((customer: any) => customer.value == value)?.label
+            ? modifiedList?.find((customer: any) => customer.value == value)?.label
             : "Select customer..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -382,12 +393,14 @@ export function CustomerCombobox({ list }: { list: { value: number, label: strin
           <CommandList className="w-[500px]">
             <CommandEmpty>No customer found.</CommandEmpty>
             <CommandGroup className="">
-              {list?.map((customer: any) => (
+              {modifiedList?.map((customer: any) => (
                 <CommandItem
                   key={customer.value + ""}
                   value={customer.value + ""}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue)
+                    const customer = list?.find((item: any) => item.id == currentValue)
+                    setCustomer(customer)
                     setOpen(false)
                   }}
                 >
@@ -406,4 +419,124 @@ export function CustomerCombobox({ list }: { list: { value: number, label: strin
       </PopoverContent>
     </Popover>
   )
+}
+
+
+function Checkout({ setShowCheckout }: any) {
+  return (
+    <div className=" ">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div>
+          <h1 className="text-3xl font-bold mb-6">Checkout</h1>
+          <div className="bg-white  p-6 rounded-lg">
+            <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+
+
+                <div className="flex-1 ">
+                  <h3 className="text-lg font-medium">Product Name</h3>
+                  <p className="text-gray-500 ">Quantity: 2</p>
+                </div>
+                <div className="text-lg font-bold">99.99</div>
+              </div>
+              <Separator />
+              <div className="flex justify-between items-center">
+                <div>Subtotal</div>
+                <div className="font-bold">99.99</div>
+              </div>
+              <div className="flex justify-between items-center">
+                <div>Discount</div>
+                <div className="font-bold">9.99</div>
+              </div>
+              <div className="flex justify-between items-center">
+                <div>Tax</div>
+                <div className="font-bold">10.00</div>
+              </div>
+              <Separator />
+              <div className="flex justify-between items-center">
+                <div className="text-xl font-bold">Total</div>
+                <div className="text-xl font-bold">119.98</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-between">
+          <div>
+
+            <h2 className="text-2xl font-bold ">Payment</h2>
+
+            <div className="mt-5 h-full flex flex-col  justify-between gap-6">
+              <div>
+                <RadioGroup defaultValue="card">
+                  <div className="flex items-center space-x-4 mt-4">
+                    <RadioGroupItem value="paypal" id="paypal" />
+                    <Label htmlFor="paypal" className="flex items-center space-x-2">
+                      <span>Cash</span>
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center space-x-4">
+                    <RadioGroupItem value="card" id="card" />
+                    <Label htmlFor="card" className="flex items-center space-x-2">
+                      <span>Credit/Debit Card</span>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <div>
+                <FloatingLabelInput
+                  id="description"
+                  label="Notes"
+                  type="textarea"
+                  rows={7}
+                  className="custom-scrollbar col-span-2 peer-placeholder-shown:top-[10%]"
+                />
+              </div>
+
+            </div>
+          </div>
+
+          <div className="mt-8 flex justify-end">
+            <Button size="lg" onClick={() => setShowCheckout(false)}>Place Order</Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
+
+interface DayExceededProps {
+  isOpen: boolean,
+  onClose: any,
+  onContinue: any,
+}
+
+export function DayExceeded({
+  isOpen,
+  onClose,
+  onContinue,
+}: DayExceededProps) {
+  return (
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Register is Open more than 24 Hours</AlertDialogTitle>
+          <AlertDialogDescription className="bg-yellow-100 p-4 rounded text-yellow-800 text-sm">
+            Warning: There's a discrepancy of  in the closing
+            balance. Do you want to proceed?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={onContinue}>Continue</AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 }

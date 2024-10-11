@@ -1,6 +1,55 @@
 import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
+export interface createTransaction {
+  "batch_id": number;
+  "member_id": number;
+  "member_name": string;
+  "member_email": string;
+  "member_address": string;
+  "member_gender": string;
+  "staff_id": number;
+  "staff_name": string;
+  "receipt_number": string;
+  "notes": string;
+  "tax_number": number;
+  "total_amount": number;
+  "status": string;
+  "transaction_type": string;
+  "products": {
+    "item_id": number;
+    "description": string;
+    "quantity": number;
+    "price": number;
+    "tax_rate": number;
+    "discount": number;
+    "sub_total": number;
+    "total": number;
+    "tax_amount": number;
+  }[]
+  "membership_plans": {
+    "item_id": number;
+    "description": string;
+    "quantity": number;
+    "price": number;
+    "tax_rate": number;
+    "discount": number;
+    "sub_total": number;
+    "total": number;
+    "tax_amount": number;
+  }[]
+  "events": {
+    "item_id": number;
+    "description": string;
+    "quantity": number;
+    "price": number;
+    "tax_rate": number;
+    "discount": number;
+    "sub_total": number;
+    "total": number;
+    "tax_amount": number;
+  }[]
+}
 export interface counterTableType {
   data: counterDataType[];
   total_counts: number;
@@ -453,6 +502,14 @@ enum genderEnum {
   female = "female",
   other = "other",
 }
+
+interface membership_planids {
+  membership_plan_id?: number | null;
+  auto_renewal?: boolean;
+  prolongation_period?: number;
+  auto_renew_days?: number;
+  inv_days_cycle?: number;
+}
 export interface MemberInputTypes {
   profile_img?: string;
   own_member_id?: string;
@@ -477,14 +534,10 @@ export interface MemberInputTypes {
   created_at?: string | null;
   created_by?: number | null;
   org_id?: number;
-  coach_id?: any[];
-  membership_plan_id: number | undefined;
+  coach_ids?: any[];
   send_invitation?: boolean;
   status?: string;
-  auto_renewal?: boolean;
-  prolongation_period?: number;
-  auto_renew_days?: number;
-  inv_days_cycle?: number;
+  membership_plans?: membership_planids[];
 }
 
 export interface MemberResponseTypes {
@@ -512,7 +565,7 @@ export interface MemberResponseTypes {
   created_by?: number | null;
   org_id: number;
   coach_id?: any[] | null;
-  membership_plan_id: number | undefined;
+  membership_plans?: membership_planids[];
   send_invitation?: boolean | null;
   client_status?: string | null;
   is_deleted: boolean;
@@ -559,13 +612,8 @@ export interface MemberTableDatatypes {
   created_at?: string | null;
   created_by?: number | null;
   org_id: number;
-  coach_id?: any[];
-  membership_plan_id: number | undefined;
-  send_invitation?: boolean;
-  auto_renewal?: boolean;
-  prolongation_period?: number;
-  auto_renew_days?: number;
-  inv_days_cycle?: number;
+  coach_ids?: any[];
+  membership_plans?: membership_planids[];
   check_in?: string | null;
   coaches: {
     id: number;
@@ -603,12 +651,8 @@ export interface MemberTableResponseDatatypes {
   created_by?: number | null;
   org_id: number;
   coach_id?: any[];
-  membership_plan_id: number | undefined;
   send_invitation?: boolean;
-  auto_renewal?: boolean;
-  prolongation_period?: number;
-  auto_renew_days?: number;
-  inv_days_cycle?: number;
+  membership_plans?: membership_planids[];
   check_in?: string | null;
   coaches: {
     id: number;

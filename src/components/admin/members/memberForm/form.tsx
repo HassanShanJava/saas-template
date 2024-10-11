@@ -339,9 +339,9 @@ const MemberForm = ({
         updatedPlans[index] = {
           ...updatedPlans[index],
           auto_renewal: false,
-          prolongation_period: undefined,
-          auto_renew_days: undefined,
-          inv_days_cycle: undefined,
+          // prolongation_period: undefined,
+          // auto_renew_days: undefined,
+          // inv_days_cycle: undefined,
         };
       } else {
         const selectedPlan = membershipPlans.find(
@@ -431,7 +431,7 @@ const MemberForm = ({
     if (action == "edit") {
       const memberpayload = { ...memberData };
       memberpayload.coach_ids = memberData?.coaches.every(
-        (item) => item.id === 0 && item.name.trim() === ""
+        (item) => item.id === 0 && item.name?.trim() === ""
       )
         ? []
         : memberData?.coaches.map((item) => item.id);
@@ -1549,7 +1549,7 @@ const MemberForm = ({
                     type="button"
                     onClick={handleAddPlan}
                     variant={"ghost"}
-                    className="text-primary"
+                    className="text-primary !hover:bg-none !hover:text-primary"
                   >
                     + Assign more Membership
                   </Button>

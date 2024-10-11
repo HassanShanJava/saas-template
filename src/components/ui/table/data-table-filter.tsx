@@ -133,6 +133,7 @@ const TableFilters = ({
                     <FloatingLabelInput
                       type={"number"}
                       min={0}
+                      defaultValue={filterData[element.name]}
                       max={100}
                       name={element.name}
                       label={element.label}

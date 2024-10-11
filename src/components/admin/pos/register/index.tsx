@@ -34,7 +34,7 @@ const Register = () => {
   // Once loading is complete, show the correct component
   return (
     <div className="w-full p-5">
-      <Card className="p-4  h-[90vh] flex flex-col justify-center">
+      <Card className="p-4  h-fit flex flex-col justify-center">
         <div className="flex-1 overflow-y-auto">
           {isRegisterOpen ? <CloseRegister /> : <OpenRegister />}
         </div>

@@ -10,7 +10,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-const displayValue = (value: any) => (value === null || value === "" ? "N/A" : value);
+const displayValue = (value: any) =>
+  value === null || value === "" ? "N/A" : value;
 import {
   Tooltip,
   TooltipContent,
@@ -96,7 +97,7 @@ const initialValue = {
 };
 
 export default function FoodsTableView() {
-  const { food } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const { food } = JSON.parse(localStorage.getItem("accessLevels") as string);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -239,7 +240,11 @@ export default function FoodsTableView() {
           <div className="flex gap-2 items-center justify-between w-fit">
             {row.original.img_url ? (
               <img
-                src={(row.original.img_url.includes(VITE_VIEW_S3_URL) ? row.original.img_url : `${VITE_VIEW_S3_URL}/${row.original.img_url}`)}
+                src={
+                  row.original.img_url.includes(VITE_VIEW_S3_URL)
+                    ? row.original.img_url
+                    : `${VITE_VIEW_S3_URL}/${row.original.img_url}`
+                }
                 alt={row.original.name}
                 loading="lazy"
                 className="size-8 bg-gray-100 object-cover rounded-sm "
@@ -252,11 +257,13 @@ export default function FoodsTableView() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <p className="capitalize cursor-pointer">
-                      <span>{displayValue(
-                        `${row.original.name}`.length > 15
-                          ? `${row.original.name}`.substring(0, 15) + "..."
-                          : `${row.original.name}`
-                      )}</span>
+                      <span>
+                        {displayValue(
+                          `${row.original.name}`.length > 15
+                            ? `${row.original.name}`.substring(0, 15) + "..."
+                            : `${row.original.name}`
+                        )}
+                      </span>
                     </p>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -296,11 +303,13 @@ export default function FoodsTableView() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <p className="capitalize cursor-pointer">
-                    <span>{displayValue(
-                      `${row.original.brand}`.length > 8
-                        ? `${row.original.brand}`.substring(0, 8) + "..."
-                        : `${row.original.brand}`
-                    )}</span>
+                    <span>
+                      {displayValue(
+                        `${row.original.brand}`.length > 8
+                          ? `${row.original.brand}`.substring(0, 8) + "..."
+                          : `${row.original.brand}`
+                      )}
+                    </span>
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -423,7 +432,6 @@ export default function FoodsTableView() {
     },
   });
 
-
   const handleOpen = () => {
     setAction("add");
     setIsDialogOpen(true);
@@ -449,62 +457,46 @@ export default function FoodsTableView() {
     setSearchCriteria,
   });
 
-  const handleTotalNutritions = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
+  const handleFilterChange = (
+    field: string,
+    value: string | React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newValue = typeof value === "string" ? value : value.target.value;
+
     setFilter((prev) => {
       const newFilter = { ...prev };
 
-      if (value.trim() == "") {
-        delete newFilter.total_nutrition;
+      if (newValue.trim() === "") {
+        delete newFilter[field];
       } else {
-        newFilter.total_nutrition = value;
+        newFilter[field] = newValue;
       }
 
       return newFilter;
     });
   };
-
-  const handleFat = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setFilter((prev) => {
-      const newFilter = { ...prev };
-
-      if (value.trim() == "") {
-        delete newFilter.total_fat;
-      } else {
-        newFilter.total_fat = value;
-      }
-
-      return newFilter;
-    });
-  };
-
-  const handleCategory = (value: string) => {
-    setFilter((prev) => ({
-      ...prev,
-      category: value,
-    }));
-  };
-
+  
   const filterDisplay = [
     {
       type: "select",
       name: "category",
       label: "Food Category",
       options: categories.map((item) => ({ id: item.label, name: item.label })),
-      function: handleCategory,
+      function: (value: string) => handleFilterChange("category", value),
     },
     {
       type: "number",
       name: "total_nutrition",
       label: "Total Nutrition",
-      function: handleTotalNutritions,
+      function: (e: React.ChangeEvent<HTMLInputElement>) =>
+        handleFilterChange("total_nutrition", e),
     },
     {
       type: "number",
-      name: "fat",
+      name: "total_fat",
       label: "Total Fat",
-      function: handleFat,
+      function: (e: React.ChangeEvent<HTMLInputElement>) =>
+        handleFilterChange("total_fat", e),
     },
   ];
 
@@ -525,13 +517,15 @@ export default function FoodsTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          {food !== "read" && <Button
-            className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
-            onClick={handleOpen}
-          >
-            <PlusIcon className="size-4" />
-            Create New
-          </Button>}
+          {food !== "read" && (
+            <Button
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+              onClick={handleOpen}
+            >
+              <PlusIcon className="size-4" />
+              Create New
+            </Button>
+          )}
           <button
             className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}
@@ -556,9 +550,9 @@ export default function FoodsTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

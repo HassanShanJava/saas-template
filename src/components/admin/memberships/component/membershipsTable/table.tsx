@@ -105,11 +105,14 @@ interface searchCriteriaType {
 }
 
 export default function MembershipsTableView() {
-  const { membership } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const { membership } = JSON.parse(
+    localStorage.getItem("accessLevels") as string
+  );
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const [searchCriteria, setSearchCriteria] = useState<searchCriteriaType>(initialValue);
+  const [searchCriteria, setSearchCriteria] =
+    useState<searchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
   const [openFilter, setOpenFilter] = useState(false);
   const [filterData, setFilter] = useState<Record<string, any>>({});
@@ -300,7 +303,6 @@ export default function MembershipsTableView() {
     ),
   };
 
-
   const columns: ColumnDef<membeshipsTableType>[] = [
     {
       accessorKey: "name",
@@ -324,11 +326,13 @@ export default function MembershipsTableView() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <p className="capitalize cursor-pointer">
-                    <span>{displayValue(
-                      `${row.original.name}`.length > 8
-                        ? `${row.original.name}`.substring(0, 8) + "..."
-                        : `${row.original.name}`
-                    )}</span>
+                    <span>
+                      {displayValue(
+                        `${row.original.name}`.length > 8
+                          ? `${row.original.name}`.substring(0, 8) + "..."
+                          : `${row.original.name}`
+                      )}
+                    </span>
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -374,7 +378,9 @@ export default function MembershipsTableView() {
       cell: ({ row }) => {
         const { duration_no, duration_type } = row.original
           .access_time as AccessTime;
-        return <span className="text-nowrap">{`${duration_no} ${durationLabels[duration_type]}`}</span>;
+        return (
+          <span className="text-nowrap">{`${duration_no} ${durationLabels[duration_type]}`}</span>
+        );
       },
       enableSorting: false,
       enableHiding: false,
@@ -398,7 +404,9 @@ export default function MembershipsTableView() {
         const incomeCat = incomeCatData?.filter(
           (item) => item.id == row.original.income_category_id
         )[0];
-        return <span className="text-nowrap capitalize">{`${incomeCat?.name}`}</span>;
+        return (
+          <span className="text-nowrap capitalize">{`${incomeCat?.name}`}</span>
+        );
       },
       enableSorting: false,
       enableHiding: false,
@@ -473,7 +481,9 @@ export default function MembershipsTableView() {
         const saleTax = salesTaxData?.filter(
           (item) => item.id == incomeCat?.sale_tax_id
         )[0];
-        return <span className="text-nowrap">{`SRB (${saleTax?.percentage.toFixed(2)}%) `}</span>;
+        return (
+          <span className="text-nowrap">{`SRB (${saleTax?.percentage.toFixed(2)}%) `}</span>
+        );
       },
       enableSorting: false,
       enableHiding: false,
@@ -583,64 +593,34 @@ export default function MembershipsTableView() {
     setData(undefined);
   };
 
-  const handleStatus = (value: string) => {
-    console.log("value of status", value);
-    setFilter((prev) => ({
-      ...prev,
-      status: value,
-    }));
-  };
-  const handleGroup = (value: number) => {
-    setFilter((prev) => ({
-      ...prev,
-      group_id: value,
-    }));
-  };
-  const handleDiscountPrecentage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value, name } = e.target;
-    let numericValue = Number(value);
-    if (numericValue > 99) {
-      numericValue = 100;
-      // Update the input field with the capped value
-      if (name) {
-        const inputElement = document.getElementById(name) as HTMLInputElement;
-        if (inputElement) {
-          inputElement.value = String(numericValue);
-        }
-      }
+  const handleFilterChange = (
+    field: string,
+    value: string | number | React.ChangeEvent<HTMLInputElement>
+  ) => {
+    let newValue;
+    // Check if the value is coming from an input event or passed directly
+    if (typeof value === "string" || typeof value === "number") {
+      newValue = value;
+    } else {
+      newValue = value.target.value;
     }
 
+    if (field === "discount_percentage") {
+      newValue = Math.min(Number(newValue), 100); // Capping the discount percentage to 100
+    }
+
+    // Update the filter state based on field and value
     setFilter((prev) => {
       const newFilter = { ...prev };
 
-      if (value.trim() == "") {
-        delete newFilter.discount_percentage;
+      if (String(newValue).trim() === "") {
+        delete newFilter[field];
       } else {
-        newFilter.discount_percentage = value;
-      }
-      console.log({ newFilter });
-      return newFilter;
-    });
-  };
-  const handleTotalAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setFilter((prev) => {
-      const newFilter = { ...prev };
-
-      if (value.trim() == "") {
-        delete newFilter.total_amount;
-      } else {
-        newFilter.total_amount = value;
+        newFilter[field] = newValue;
       }
 
       return newFilter;
     });
-  };
-  const handleIncomeCategory = (value: number) => {
-    setFilter((prev) => ({
-      ...prev,
-      income_category_id: value,
-    }));
   };
 
   const filterDisplay = [
@@ -652,35 +632,40 @@ export default function MembershipsTableView() {
         { id: "active", name: "Active" },
         { id: "inactive", name: "Inactive" },
       ],
-      function: handleStatus,
+      function: (value: string) => handleFilterChange("status", value),
     },
     {
       type: "combobox",
       name: "group_id",
       label: "Group",
       options: groupData,
-      function: handleGroup,
+      function: (value: number) => handleFilterChange("group_id", value),
     },
     {
       type: "combobox",
       name: "income_category_id",
       label: "Income Category",
-      options: incomeCatData?.map(item => ({ value: item.id, label: item.name })),
-      function: handleIncomeCategory,
+      options: incomeCatData?.map((item) => ({
+        value: item.id,
+        label: item.name,
+      })),
+      function: (value: number) =>
+        handleFilterChange("income_category_id", value),
     },
     {
       type: "percentage",
-      name: "discount",
+      name: "discount_percentage",
       label: "Discount Percentage",
-      function: handleDiscountPrecentage,
+      function: (e: React.ChangeEvent<HTMLInputElement>) =>
+        handleFilterChange("discount_percentage", e),
     },
     {
       type: "number",
       name: "total_amount",
       label: "Total Amount",
-      function: handleTotalAmount,
+      function: (e: React.ChangeEvent<HTMLInputElement>) =>
+        handleFilterChange("total_amount", e),
     },
-
   ];
 
   const totalRecords = membershipsData?.filtered_counts || 0;
@@ -714,13 +699,15 @@ export default function MembershipsTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          {membership !== "read" && <Button
-            className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
-            onClick={handleOpen}
-          >
-            <PlusIcon className="size-4" />
-            Create New
-          </Button>}
+          {membership !== "read" && (
+            <Button
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+              onClick={handleOpen}
+            >
+              <PlusIcon className="size-4" />
+              Create New
+            </Button>
+          )}
           <button
             className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}
@@ -745,9 +732,9 @@ export default function MembershipsTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

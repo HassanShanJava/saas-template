@@ -73,12 +73,12 @@ const breadcrumbs = [
   },
   {
     targetPath: "/admin/pos/register",
-    title: "Register Session management",
+    title: "Register",
     pageSetting: "Point of Sales",
   },
   {
     targetPath: "/admin/pos/cash",
-    title: "Cash Registry",
+    title: "Cash Management",
     pageSetting: "Point of Sales",
   },
   {
@@ -134,7 +134,10 @@ const isActiveLink = (currentPath: string, targetPath: string) =>
 
 export const Header = () => {
   const location = useLocation();
-  const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
+  const counter_number =
+    (localStorage.getItem("counter_number") as string) == ""
+      ? null
+      : Number(localStorage.getItem("counter_number") as string);
 
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -154,9 +157,9 @@ export const Header = () => {
   };
 
   return (
-    <header className="font-poppins sticky top-0 z-30  0 flex h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
-      <div className="flex w-full justify-between items-center gap-4">
-        <div className="w-[calc(100%-280px)] flex flex-row h-full justify-between items-center ">
+    <header className="font-poppins sticky top-0 z-30  0 flex h-32 slg:h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
+      <div className="flex w-full justify-between items-start gap-4 flex-col slg:flex-row slg:items-center">
+        <div className="w-full slg:!w-[calc(100%-280px)] flex flex-row h-full justify-between items-center ">
           <div className="w-full flex flex-col my-0">
             <h1 className="text-2xl  font-bold  pl-7 ">
               {pageTitles.map(({ targetPath, title }, index) => (
@@ -168,7 +171,7 @@ export const Header = () => {
                 />
               ))}
             </h1>
-            <div className="flex">
+            <div className="flex ">
               {breadcrumbs.map(({ targetPath, title, pageSetting }, index) => (
                 <Breadcrumb
                   key={index}
@@ -181,11 +184,16 @@ export const Header = () => {
             </div>
           </div>
 
-          {counter_number && <Badge className=" text-white  mx-0"><span className="text-nowrap">Opened Counter: {counter_number}</span></Badge>}
-
+          {counter_number && (
+            <Badge className=" text-white  mx-2">
+              <span className="text-nowrap">
+                Opened Counter: {counter_number}
+              </span>
+            </Badge>
+          )}
         </div>
 
-        <div className="w-full max-w-[280px] flex flex-row justify-center items-center gap-3">
+        <div className="w-full slg:max-w-[280px] flex flex-row justify-end slg:justify-center items-center gap-3 px-2 slg:px-0">
           <Separator orientation="vertical" className="h-10" />
           <div className="flex flex-row justify-center items-center gap-4">
             <div className="w-8 h-8 border-[1px] border-gray-400 rounded-full justify-center flex items-center">

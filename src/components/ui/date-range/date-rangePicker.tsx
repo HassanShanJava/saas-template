@@ -50,7 +50,7 @@ export function DatePickerWithRange({
             id={name}
             variant={"outline"}
             className={cn(
-              "w-full justify-start text-left font-normal"
+              "w-full justify-start text-left font-normal h-8"
               // !value.start_date && "text-muted-foreground"
             )}
           >
@@ -65,7 +65,7 @@ export function DatePickerWithRange({
                 format(value.start_date, "LLL dd, y")
               )
             ) : (
-              <span>{label}</span>
+              <span className="font-medium">{label}</span>
             )}
           </Button>
         </PopoverTrigger>

@@ -101,11 +101,11 @@ export const sessionMapper = ({
 }: RegisterSession) => ({
   "Session ID": id,
   "Opening Time": displayDateTime(opening_time) || "",
-  "Opening Balance": displayValue(opening_balance.toString()) || "",
+  "Opening Balance": displayValue(opening_balance?.toString()) || "",
   "Closing Time": displayDateTime(closing_time) || "",
-  "Closing Balance": displayValue(closing_balance.toString()) || "",
+  "Closing Balance": displayValue(closing_balance?.toString()) || "",
   Discrepancy: displayValue(discrepancy?.toString()) || "",
-  Notes: capitalizeFirstLetter(notes?.toString() as string),
+  Notes: capitalizeFirstLetter(notes?.toString() || "N/A"),
   "Created By": capitalizeFirstLetter(created_by),
   "Created Date": displayDateTime(created_date) || "",
 });

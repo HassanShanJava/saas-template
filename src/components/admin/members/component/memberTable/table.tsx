@@ -365,7 +365,11 @@ export default function MemberTableView() {
             <div className="size-8 flex gap-2 items-center justify-between">
               {row.original.profile_img ? (
                 <img
-                  src={(row.original.profile_img.includes(VITE_VIEW_S3_URL) ? row.original.profile_img : `${VITE_VIEW_S3_URL}/${row.original.profile_img}`)}
+                  src={
+                    row.original.profile_img.includes(VITE_VIEW_S3_URL)
+                      ? row.original.profile_img
+                      : `${VITE_VIEW_S3_URL}/${row.original.profile_img}`
+                  }
                   loading="lazy"
                   className="size-8 bg-gray-100 object-contain rounded-sm "
                 />
@@ -383,9 +387,9 @@ export default function MemberTableView() {
                         `${row.original.first_name} ${row.original.last_name}`
                           .length > 12
                           ? `${row.original.first_name} ${row.original.last_name}`.substring(
-                            0,
-                            12
-                          ) + "..."
+                              0,
+                              12
+                            ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -430,20 +434,20 @@ export default function MemberTableView() {
                   <p className="capitalize cursor-pointer">
                     {/* Display the truncated name */}
                     {!row.original.is_business &&
-                      row.original.business_id == undefined
+                    row.original.business_id == undefined
                       ? "N/A"
                       : displayValue(
-                        `${row.original.business_name}`.length > 15
-                          ? `${row.original.business_name}`.substring(0, 15) +
-                          "..."
-                          : `${row.original.business_name}`
-                      )}
+                          `${row.original.business_name}`.length > 15
+                            ? `${row.original.business_name}`.substring(0, 15) +
+                                "..."
+                            : `${row.original.business_name}`
+                        )}
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="capitalize text-sm">
                     {!row.original.is_business &&
-                      row.original.business_id == undefined
+                    row.original.business_id == undefined
                       ? "N/A"
                       : displayValue(`${row.original.business_name}`)}
                   </p>
@@ -610,17 +614,10 @@ export default function MemberTableView() {
     },
   });
 
-  function handleMembershipplan(value: string) {
+  function handleFilterChange(field: string, value: string | number) {
     setFilter((prev) => ({
       ...prev,
-      membership_plan: value,
-    }));
-  }
-
-  function handleMemberStatus(value: string) {
-    setFilter((prev) => ({
-      ...prev,
-      status: value,
+      [field]: value,
     }));
   }
 
@@ -630,7 +627,7 @@ export default function MemberTableView() {
       name: "membership_plan",
       label: "Membership",
       options: membershipPlans,
-      function: handleMembershipplan,
+      function: (value: string) => handleFilterChange("membership_plan", value),
     },
 
     {
@@ -642,7 +639,7 @@ export default function MemberTableView() {
         { id: "inactive", name: "Inactive" },
         { id: "active", name: "Active" },
       ],
-      function: handleMemberStatus,
+      function: (value: string) => handleFilterChange("status", value),
     },
   ];
 
@@ -711,9 +708,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

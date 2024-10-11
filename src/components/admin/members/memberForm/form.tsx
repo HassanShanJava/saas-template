@@ -339,9 +339,9 @@ const MemberForm = ({
         updatedPlans[index] = {
           ...updatedPlans[index],
           auto_renewal: false,
-          prolongation_period: undefined,
-          auto_renew_days: undefined,
-          inv_days_cycle: undefined,
+          // prolongation_period: undefined,
+          // auto_renew_days: undefined,
+          // inv_days_cycle: undefined,
         };
       } else {
         const selectedPlan = membershipPlans.find(
@@ -431,7 +431,7 @@ const MemberForm = ({
     if (action == "edit") {
       const memberpayload = { ...memberData };
       memberpayload.coach_ids = memberData?.coaches.every(
-        (item) => item.id === 0 && item.name.trim() === ""
+        (item) => item.id === 0 && item.name?.trim() === ""
       )
         ? []
         : memberData?.coaches.map((item) => item.id);
@@ -590,9 +590,21 @@ const MemberForm = ({
           handleClose();
         }
       } else {
-        console.log({ ...updatedData, id: memberData?.id as number }, "update");
-        const resp = await editMember({
+        console.log(
+          {
+            ...updatedData,
+            id: memberData?.id as number,
+            membership_plans: membershipPlansdata,
+          },
+          "update"
+        );
+        const payload = {
           ...updatedData,
+          membership_plans: membershipPlansdata,
+        };
+        console.log("Payload as final", payload);
+        const resp = await editMember({
+          ...payload,
           id: memberData?.id as number,
         }).unwrap();
         if (resp) {
@@ -635,7 +647,6 @@ const MemberForm = ({
     if (autoFill) {
       const { id, org_id, ...payload } = autoFill;
       payload.own_member_id = watcher.own_member_id;
-
       payload.is_business = false;
       payload.business_id = null;
       payload.client_status = "pending";
@@ -717,7 +728,9 @@ const MemberForm = ({
                         avatar
                           ? String(avatar)
                           : watcher.profile_img
-                            ? (watcher.profile_img.includes(VITE_VIEW_S3_URL) ? watcher.profile_img : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`)
+                            ? watcher.profile_img.includes(VITE_VIEW_S3_URL)
+                              ? watcher.profile_img
+                              : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
                             : profileimg
                       }
                       alt={profileimg}
@@ -1536,7 +1549,7 @@ const MemberForm = ({
                     type="button"
                     onClick={handleAddPlan}
                     variant={"ghost"}
-                    className="text-primary"
+                    className="text-primary !hover:bg-none !hover:text-primary"
                   >
                     + Assign more Membership
                   </Button>

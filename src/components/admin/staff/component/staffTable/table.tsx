@@ -109,7 +109,7 @@ const initialValue = {
   sort_key: "id",
 };
 export default function StaffTableView() {
-  const { staff } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const { staff } = JSON.parse(localStorage.getItem("accessLevels") as string);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const orgName = useSelector(
@@ -286,7 +286,7 @@ export default function StaffTableView() {
         refetch={refetch}
       />
     ),
-  }
+  };
 
   const columns: ColumnDef<staffTypesResponseList>[] = [
     {
@@ -361,7 +361,11 @@ export default function StaffTableView() {
             <div className="size-8 flex gap-2 items-center justify-between">
               {row.original.profile_img ? (
                 <img
-                  src={(row.original.profile_img.includes(VITE_VIEW_S3_URL) ? row.original.profile_img : `${VITE_VIEW_S3_URL}/${row.original.profile_img}`)}
+                  src={
+                    row.original.profile_img.includes(VITE_VIEW_S3_URL)
+                      ? row.original.profile_img
+                      : `${VITE_VIEW_S3_URL}/${row.original.profile_img}`
+                  }
                   loading="lazy"
                   className="size-8 bg-gray-100 object-contain rounded-sm "
                 />
@@ -382,9 +386,9 @@ export default function StaffTableView() {
                         `${row.original.first_name ?? ""} ${row.original.last_name ?? ""}`
                           .length > 8
                           ? `${row.original.first_name ?? ""} ${row.original.last_name ?? ""}`.substring(
-                            0,
-                            8
-                          ) + "..."
+                              0,
+                              8
+                            ) + "..."
                           : `${row.original.first_name ?? ""} ${row.original.last_name ?? ""}`
                       )}
                     </p>
@@ -572,8 +576,6 @@ export default function StaffTableView() {
       },
     },
     ...(staff !== "read" ? [actionsColumn] : []),
-
-
   ];
 
   const table = useReactTable({
@@ -597,17 +599,17 @@ export default function StaffTableView() {
     // setFilters
   }
 
-  function handleStaffStatus(value: string) {
-    setFilter((prev) => ({
-      ...prev,
-      status: value,
-    }));
-  }
-
   function handleRoleName(value: string) {
     setFilter((prev) => ({
       ...prev,
       role_id: value,
+    }));
+  }
+
+  function handleFilterChange(field: string, value: string | number) {
+    setFilter((prev) => ({
+      ...prev,
+      [field]: value,
     }));
   }
 
@@ -621,7 +623,7 @@ export default function StaffTableView() {
         { id: "inactive", name: "Inactive" },
         { id: "active", name: "Active" },
       ],
-      function: handleStaffStatus,
+      function: (value: string) => handleFilterChange("status", value),
     },
     {
       type: "multiselect",
@@ -630,7 +632,7 @@ export default function StaffTableView() {
       options:
         rolesData &&
         rolesData.map((role) => ({ value: role.id, label: role.name })),
-      function: handleRoleName,
+      function: (value: string) => handleFilterChange("role_id", value),
     },
   ];
 
@@ -683,13 +685,15 @@ export default function StaffTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          {staff !== "read" && <Button
-            className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
-            onClick={() => handleOpenForm()}
-          >
-            <PlusIcon className="size-4" />
-            Create New
-          </Button>}
+          {staff !== "read" && (
+            <Button
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+              onClick={() => handleOpenForm()}
+            >
+              <PlusIcon className="size-4" />
+              Create New
+            </Button>
+          )}
           <DataTableViewOptions table={table} action={handleExportSelected} />
           <button
             className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
@@ -715,9 +719,9 @@ export default function StaffTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

@@ -81,6 +81,7 @@ const Sell = () => {
 
   useEffect(() => {
     if (has24HoursPassed(opening_time)) {
+      console.log({ opening_time }, has24HoursPassed(opening_time))
       setDayExceeded(true)
     }
 
@@ -204,9 +205,7 @@ const Sell = () => {
   };
 
 
-  const calculateDiscount = (existingDiscount: number, newDiscount: number): number => {
-    return existingDiscount + newDiscount;
-  };
+  
 
   const { data: memberList2 } = useGetAllMemberQuery({ org_id: orgId, query: "" })
   const { data: memberList } = useGetMembersListQuery(orgId)
@@ -235,12 +234,17 @@ const Sell = () => {
 
   console.log({ productPayload, memberhsipListData, memberList2, customer })
 
+  const handleCloseDayExceeded = () => {
+    setDayExceeded(false)
+    navigate(`/admin/pos/register`)
+  }
+
   return (
     <div className="w-full p-5 ">
 
       {!showCheckout && (
-        <Card className=" h-[90vh] px-3 py-4 max-w-[1100px] mx-auto">
-          <div className="grid grid-cols-2 justify-start items-start gap-3">
+        <Card className=" h-fit px-3 py-4 max-w-[1100px] mx-auto">
+          <div className="grid grid-cols-1  slg:grid-cols-2 justify-start items-start gap-3">
             <div className="min-h-36  p-2">
               <FloatingLabelInput
                 id="search"
@@ -261,11 +265,13 @@ const Sell = () => {
                 {productCategories.map((category) => (
                   <TabsContent className="m-0  w-full " key={category.type} value={category.type}>
                     {category.products.length > 0 ? (
-                      <div className="mt-2 w-full flex  gap-10 justify-center items-center">
+                      <div className="mt-4 w-full flex flex-wrap gap-4 justify-center items-center">
                         {category.products.map((product: Record<string, any>) => (
-                          <div onClick={() => addProduct(product, category?.type)} className="size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
+                          <div onClick={() => addProduct(product, category?.type)} className="relative group hover:bg-primary/20 hover:text-black/60 size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
                             <span className="capitalize">{product.name}</span>
                             <span>Rs. {product.net_price}</span>
+
+                            <span className="absolute invisible group-hover:visible  bottom-0   text-black/80 text-sm z-20 p-1">Add</span>
                           </div>
                         ))}
                       </div>
@@ -277,42 +283,46 @@ const Sell = () => {
               </Tabs>
             </div>
 
-            <div className="h-full flex flex-col justify-between space-y-2 rounded-sm bg-gray-100 p-2"  >
-              <CustomerCombobox list={memberListData} setCustomer={setCustomer} customer={customer} />
+            <div className="h-full flex flex-col justify-start space-y-2 rounded-sm bg-gray-100 p-2"  >
+              <>
+                <CustomerCombobox list={memberListData} setCustomer={setCustomer} customer={customer} />
+                <div className="bg-white/90">
+
+                  {productPayload.map(product => (
+                    <>
+                      <div className=" flex  justify-between items-center gap-2  p-2 ">
+                        <div>
+                          <p className="capitalize">{product.name}</p>
+                          {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-right">
+                            Rs. {product.price + product.discount}
+                          </p>}
+                          <p className="text-sm">Rs. {product.price}</p>
+                        </div>
+
+                        <div className="inline-flex items-center ">
+                          <div
+                            className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                            <i className="fa fa-minus"></i>
+                          </div>
+                          <div
+                            className=" border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-0 select-none">
+                            {product.quantity}
+                          </div>
+                          <div
+                            className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                            <i className="fa fa-plus"></i>
+                          </div>
+                        </div>
+
+
+                      </div >
+                      <Separator className=" h-[1px] font-thin rounded-full" />
+                    </>
+                  ))}
+                </div>
+              </>
 
               <div className="rounded-sm bg-white/90 mx-1">
-
-                {productPayload.map(product => (
-                  <>
-                    <div className=" flex justify-between items-center gap-2  p-2 ">
-                      <div>
-                        <p className="capitalize">{product.name}</p>
-                        {product.discount && <p className="line-through text-sm text-gray-500 text-right">
-                          Rs. {product.price + product.discount}
-                        </p>}
-                        <p className="text-sm">Rs. {product.price}</p>
-                      </div>
-
-                      <div className="inline-flex items-center ">
-                        <div
-                          className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
-                          <i className="fa fa-minus"></i>
-                        </div>
-                        <div
-                          className=" border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-0 select-none">
-                          {product.quantity}
-                        </div>
-                        <div
-                          className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
-                          <i className="fa fa-plus"></i>
-                        </div>
-                      </div>
-
-
-                    </div >
-                    <Separator className=" h-[1px] font-thin rounded-full" />
-                  </>
-                ))}
 
                 <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
                   <div className="w-full flex gap-2  items-center justify-between">
@@ -350,7 +360,8 @@ const Sell = () => {
         <Checkout setShowCheckout={setShowCheckout} />
       )}
 
-      <DayExceeded isOpen={dayExceeded} onClose={() => setDayExceeded(false)} onContinue={() => setDayExceeded(false)} />
+
+      <DayExceeded isOpen={dayExceeded} onClose={handleCloseDayExceeded} onContinue={() => setDayExceeded(false)} />
 
     </div>
 
@@ -528,12 +539,11 @@ export function DayExceeded({
         <AlertDialogHeader>
           <AlertDialogTitle>Register is Open more than 24 Hours</AlertDialogTitle>
           <AlertDialogDescription className="bg-yellow-100 p-4 rounded text-yellow-800 text-sm">
-            Warning: There's a discrepancy of  in the closing
-            balance. Do you want to proceed?
+            Do you want to continue with this register session or close to create a new session?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={onClose}>Close</AlertDialogCancel>
           <AlertDialogCancel onClick={onContinue}>Continue</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>

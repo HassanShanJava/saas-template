@@ -80,7 +80,7 @@ const OpenRegister: React.FC = () => {
             title: "Store opened successfully",
           });
           saveToLocalStorage("registerSession", sessionData);
-          navigate("/admin/pos/sell");
+          navigate("/admin/pos/sell/");
         }
       }
     } catch (error: unknown) {

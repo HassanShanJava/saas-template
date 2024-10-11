@@ -117,9 +117,8 @@ export const initialValue = {
   sort_key: "id",
 };
 
-export const displayValue = (value: string | undefined | null) => {
-  console.log(value === null || value == undefined || value.trim() == "", {value});
-  return value === null || value == undefined || value.trim() == ""
+export const displayValue = (value: string | number | undefined | null) => {
+  return value === null || value == undefined || typeof value == "string" && value.trim() == ""
     ? "N/A"
     : value;
 };
@@ -164,4 +163,4 @@ export const formatDate = (date: Date | string | null): string | null => {
   return `${year}-${month}-${day}`;
 };
 
-export const roundToTwoDecimals = (value:any) => Math.floor(value * 100) / 100;
+export const roundToTwoDecimals = (value: any) => Math.floor(value * 100) / 100;

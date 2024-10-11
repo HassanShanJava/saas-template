@@ -10,7 +10,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-const displayValue = (value: any) => (value === null ? "N/A" : value);
 import {
   Tooltip,
   TooltipContent,
@@ -61,7 +60,7 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useDebounce } from "@/hooks/use-debounce";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
-import { roundToTwoDecimals } from "@/utils/helper";
+import { displayValue, roundToTwoDecimals } from "@/utils/helper";
 
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
@@ -444,7 +443,7 @@ export default function MembershipsTableView() {
       cell: ({ row }) => {
         const { discount } = row.original;
 
-        return <span>{`${discount?.toFixed(2)}%`}</span>;
+        return <span>{`${roundToTwoDecimals(discount)} %`}</span>;
       },
       enableSorting: false,
       enableHiding: false,

@@ -1,8 +1,10 @@
 import { RootState } from "@/app/store";
+import { resetBackPageCount, setCode, setCounter } from "@/features/counter/counterSlice";
 import { extractLinks } from "@/utils/helper";
 import React from "react";
 import { FaHome, FaFrown } from "react-icons/fa";
 import { GiRollingDices } from "react-icons/gi";
+import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -10,10 +12,11 @@ const NotFoundPage = () => {
   const orgId = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_id
   );
+  const dispatch = useDispatch();
   const sidepanel = localStorage.getItem("sidepanel");
   const decodedSidepanel = JSON.parse(atob(sidepanel as string));
   const links = extractLinks(decodedSidepanel)
-  console.log({links})
+  console.log({ links })
   return (
     <div style={containerStyle}>
       <div style={iconContainerStyle}>
@@ -24,7 +27,11 @@ const NotFoundPage = () => {
       <p style={messageStyle}>
         It seems like the page you're looking for doesn't exist.
       </p>
-      <Link to={orgId == 21 ? "/admin/dashboard" : links[0]} style={linkStyle} className="text-primar">
+      <Link to={links[0]} onClick={() => {
+        dispatch(setCode(null));
+        dispatch(setCounter(null));
+        dispatch(resetBackPageCount());
+      }} style={linkStyle} className="text-primar">
         <FaHome style={homeIconStyle} className="text-primary" />{" "}
         <span className="text-primary">Go back to Home</span>
       </Link>

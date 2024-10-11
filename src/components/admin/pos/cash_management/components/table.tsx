@@ -40,6 +40,8 @@ import TableFilters from "@/components/ui/table/data-table-filter";
 import { useGetAllRegisterSessionQuery } from "@/services/registerApi";
 import { discrepancy } from "@/constants/cash_register";
 import { formatDate } from "@/utils/helper";
+import { DatePickerWithRange } from "@/components/ui/date-range/date-rangePicker";
+import { Filter } from "lucide-react";
 
 interface searchCretiriaType {
   limit: number;
@@ -47,6 +49,8 @@ interface searchCretiriaType {
   sort_order: string;
   sort_key?: string;
   search_key?: string;
+  start_date?: string;
+  end_date?: string;
 }
 
 const initialValue = {
@@ -60,9 +64,6 @@ export default function CashregisterViewTable() {
   const counter_number =
     useSelector((state: RootState) => state.counter?.counter_number) || 0;
 
-  // const { code, counter_number } = useSelector(
-  //   (state: RootState) => state.counter
-  // );
   const { pos_cash_management } = JSON.parse(
     localStorage.getItem("accessLevels") as string
   );
@@ -79,7 +80,7 @@ export default function CashregisterViewTable() {
     const params = new URLSearchParams();
     // Iterate through the search criteria
     for (const [key, value] of Object.entries(searchCriteria)) {
-      if (value !== undefined && value !== null) {
+      if (value !== undefined && value !== null && value !== "") {
         // Check if the value is an array
         if (Array.isArray(value)) {
           value.forEach((val) => {
@@ -94,7 +95,13 @@ export default function CashregisterViewTable() {
     // Create the final query string
     const newQuery = params.toString();
     console.log({ newQuery });
-    setQuery(newQuery); // Update the query state for API call
+    if (
+      (searchCriteria.start_date && searchCriteria.end_date) ||
+      (!searchCriteria.start_date && !searchCriteria.end_date)
+    ) {
+      setQuery(newQuery); // Update the query state for API call
+    }
+    // setQuery(newQuery); // Update the query state for API call
   }, [searchCriteria]);
 
   const toggleSortOrder = (key: string) => {
@@ -140,6 +147,7 @@ export default function CashregisterViewTable() {
       });
     }
   }, [isError]);
+
   const cashregisterTableData = React.useMemo(() => {
     return Array.isArray(registerSessionData?.data)
       ? registerSessionData?.data
@@ -528,11 +536,30 @@ export default function CashregisterViewTable() {
     }));
   };
 
-  const handleDateRange = (dates: { start_date: string; end_date: string }) => {
+  const handleDateRange = (dates: {
+    start_date: Date | undefined;
+    end_date: Date | undefined;
+  }) => {
+    const formattedStartDate = dates.start_date
+      ? formatDate(dates.start_date)
+      : "";
+    const formattedEndDate = dates.end_date ? formatDate(dates.end_date) : "";
+
     setFilter((prev) => ({
       ...prev,
-      start_date: formatDate(dates.start_date), // Format start_date
-      end_date: formatDate(dates.end_date), // Format end_date
+      start_date: formattedStartDate,
+      end_date: formattedEndDate,
+    }));
+
+    setSearchCriteria((prev: any) => ({
+      ...prev,
+      start_date: formattedStartDate || undefined,
+      // Only set end_date if start_date is present
+      end_date:
+        formattedStartDate && !formattedEndDate ? undefined : formattedEndDate,
+      offset: 0,
+      sort_key: "id",
+      sort_order: "desc",
     }));
   };
 
@@ -547,12 +574,6 @@ export default function CashregisterViewTable() {
       })),
       function: handleDiscrepancy,
     },
-    {
-      type: "date-range",
-      name: "dateRange",
-      label: "Date Range",
-      function: handleDateRange,
-    },
   ];
   console.log("limit here", searchCriteria.limit, searchCriteria.offset);
   return (
@@ -562,6 +583,20 @@ export default function CashregisterViewTable() {
         {/* Buttons Container */}
 
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
+          <div className="text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2">
+            <DatePickerWithRange
+              name={"Date Range"}
+              value={{
+                start_date: filterData.start_date, // Access start_date directly
+                end_date: filterData.end_date, // Access end_date directly
+              }}
+              onValueChange={(dates) => {
+                handleDateRange(dates);
+              }}
+              label={"Select date range "}
+              className="w-full" // Ensure full width
+            />
+          </div>
           <DataTableViewOptions table={table} action={handleExportSelected} />
 
           <button

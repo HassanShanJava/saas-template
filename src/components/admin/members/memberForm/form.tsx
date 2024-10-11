@@ -590,9 +590,21 @@ const MemberForm = ({
           handleClose();
         }
       } else {
-        console.log({ ...updatedData, id: memberData?.id as number }, "update");
-        const resp = await editMember({
+        console.log(
+          {
+            ...updatedData,
+            id: memberData?.id as number,
+            membership_plans: membershipPlansdata,
+          },
+          "update"
+        );
+        const payload = {
           ...updatedData,
+          membership_plans: membershipPlansdata,
+        };
+        console.log("Payload as final", payload);
+        const resp = await editMember({
+          ...payload,
           id: memberData?.id as number,
         }).unwrap();
         if (resp) {
@@ -635,7 +647,6 @@ const MemberForm = ({
     if (autoFill) {
       const { id, org_id, ...payload } = autoFill;
       payload.own_member_id = watcher.own_member_id;
-
       payload.is_business = false;
       payload.business_id = null;
       payload.client_status = "pending";
@@ -717,7 +728,9 @@ const MemberForm = ({
                         avatar
                           ? String(avatar)
                           : watcher.profile_img
-                            ? (watcher.profile_img.includes(VITE_VIEW_S3_URL) ? watcher.profile_img : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`)
+                            ? watcher.profile_img.includes(VITE_VIEW_S3_URL)
+                              ? watcher.profile_img
+                              : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
                             : profileimg
                       }
                       alt={profileimg}

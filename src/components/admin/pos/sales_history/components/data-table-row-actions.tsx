@@ -25,6 +25,7 @@ import {
   ErrorType,
   Salehistory,
   SaleshistoryTableType,
+  salesReportInterface,
 } from "@/app/types";
 import warning from "@/assets/warning.svg";
 
@@ -34,7 +35,7 @@ export function DataTableRowActions({
   handleEdit,
   access,
 }: {
-  data?: Salehistory;
+  data?: salesReportInterface;
   refetch?: any;
   handleEdit?: any;
   access: string;

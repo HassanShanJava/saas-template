@@ -1,54 +1,53 @@
-import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
 export interface createTransaction {
-  "batch_id": number;
-  "member_id": number;
-  "member_name": string;
-  "member_email": string;
-  "member_address": string;
-  "member_gender": string;
-  "staff_id": number;
-  "staff_name": string;
-  "receipt_number": string;
-  "notes": string;
-  "tax_number": number;
-  "total_amount": number;
-  "status": string;
-  "transaction_type": string;
-  "products": {
-    "item_id": number;
-    "description": string;
-    "quantity": number;
-    "price": number;
-    "tax_rate": number;
-    "discount": number;
-    "sub_total": number;
-    "total": number;
-    "tax_amount": number;
-  }[]
-  "membership_plans": {
-    "item_id": number;
-    "description": string;
-    "quantity": number;
-    "price": number;
-    "tax_rate": number;
-    "discount": number;
-    "sub_total": number;
-    "total": number;
-    "tax_amount": number;
-  }[]
-  "events": {
-    "item_id": number;
-    "description": string;
-    "quantity": number;
-    "price": number;
-    "tax_rate": number;
-    "discount": number;
-    "sub_total": number;
-    "total": number;
-    "tax_amount": number;
-  }[]
+  batch_id: number;
+  member_id: number;
+  member_name: string;
+  member_email: string;
+  member_address: string;
+  member_gender: string;
+  staff_id: number;
+  staff_name: string;
+  receipt_number: string;
+  notes: string;
+  tax_number: number;
+  total_amount: number;
+  status: string;
+  transaction_type: string;
+  products: {
+    item_id: number;
+    description: string;
+    quantity: number;
+    price: number;
+    tax_rate: number;
+    discount: number;
+    sub_total: number;
+    total: number;
+    tax_amount: number;
+  }[];
+  membership_plans: {
+    item_id: number;
+    description: string;
+    quantity: number;
+    price: number;
+    tax_rate: number;
+    discount: number;
+    sub_total: number;
+    total: number;
+    tax_amount: number;
+  }[];
+  events: {
+    item_id: number;
+    description: string;
+    quantity: number;
+    price: number;
+    tax_rate: number;
+    discount: number;
+    sub_total: number;
+    total: number;
+    tax_amount: number;
+  }[];
 }
 export interface counterTableType {
   data: counterDataType[];
@@ -1512,7 +1511,46 @@ export interface registerSessionStorage {
   opening_time: string;
 }
 export interface PaymentMethodPlugin {
-  id: number,
-  name: string,
-  enabled: boolean
+  id: number;
+  name: string;
+  enabled: boolean;
+}
+
+export enum statusEnum {
+  Sale = "Sale",
+  Refund = "Refund",
+}
+
+export enum typeTransactionEnum {
+  Paid = "Paid",
+  Unpaid = "Unpaid",
+  Partially_Paid = "Partially Paid",
+}
+export interface salesReportInterface {
+  id: number;
+  batch_id: number;
+  member_id: number;
+  member_name: string;
+  member_email: string;
+  member_address: string;
+  member_gender: genderEnum;
+  staff_id: number;
+  staff_name: string;
+  reciept_number: string;
+  notes: string;
+  tax_number: number;
+  total: number;
+  subtotal: number;
+  tax_amt: number;
+  discount_amt: number;
+  main_transaction_id: number;
+  transaction_type: statusEnum;
+  status: typeTransactionEnum;
+  transaction_date: string;
+}
+
+export interface salesReportTableTypes {
+  data: salesReportInterface[];
+  total_counts: number;
+  filtered_counts: number;
 }

@@ -39,6 +39,7 @@ import {
   RegisterSession,
   Salehistory,
   SaleshistoryTableType,
+  salesReportInterface,
 } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
@@ -52,6 +53,7 @@ import { sessionMapper, downloadCSV } from "@/utils/helper";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { salesData } from "@/constants/sale_history";
 import { Button } from "@/components/ui/button";
+import { useGetAlltransactionQuery } from "@/services/registerApi";
 
 interface searchCretiriaType {
   limit: number;
@@ -69,6 +71,9 @@ const initialValue = {
 };
 
 export default function SaleshistoryRegisterViewTable() {
+  const counter_number =
+    useSelector((state: RootState) => state.counter?.counter_number) || 0;
+
   const { pos_sale_history } = JSON.parse(
     localStorage.getItem("accessLevels") as string
   );
@@ -80,6 +85,21 @@ export default function SaleshistoryRegisterViewTable() {
   const [query, setQuery] = useState("");
   const [openFilter, setOpenFilter] = useState(false);
   const [filterData, setFilter] = useState<Record<string, any>>({});
+  const {
+    data: salesHistoryData,
+    isLoading: salesDataLoading,
+    refetch,
+    error,
+    isError,
+  } = useGetAlltransactionQuery(
+    {
+      counter_id: counter_number,
+      query: query,
+    },
+    {
+      skip: query == "",
+    }
+  );
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -111,8 +131,8 @@ export default function SaleshistoryRegisterViewTable() {
     });
   };
   const saleshistoryTableData = React.useMemo(() => {
-    return Array.isArray(salesData?.data) ? salesData?.data : [];
-  }, [salesData]);
+    return Array.isArray(salesHistoryData?.data) ? salesHistoryData?.data : [];
+  }, [salesHistoryData]);
 
   const { toast } = useToast();
 
@@ -134,7 +154,7 @@ export default function SaleshistoryRegisterViewTable() {
     // downloadCSV(selectedRows, "sale_history.csv", sessionMapper);
   };
 
-  const actionsColumn: ColumnDef<Salehistory> = {
+  const actionsColumn: ColumnDef<salesReportInterface> = {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
@@ -148,7 +168,7 @@ export default function SaleshistoryRegisterViewTable() {
     ),
   };
 
-  const columns: ColumnDef<Salehistory>[] = [
+  const columns: ColumnDef<salesReportInterface>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -191,7 +211,7 @@ export default function SaleshistoryRegisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex gap-2 items-center justify-between w-fit">
-            {row.getCanExpand() && row.original.refunditems && (
+            {/* {row.getCanExpand() && row.original.refunditems && (
               <button
                 {...{
                   onClick: row.getToggleExpandedHandler(),
@@ -204,11 +224,11 @@ export default function SaleshistoryRegisterViewTable() {
                   <i className="fa fa-angle-right w-3 h-3"></i>
                 )}
               </button>
-            )}
+            )} */}
 
             <div className="">
               <p className="capitalize cursor-pointer">
-                <span>{displayValue(row.original.receiptNumber)}</span>
+                <span>{displayValue(row.original.reciept_number)}</span>
               </p>
             </div>
           </div>
@@ -236,7 +256,7 @@ export default function SaleshistoryRegisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.user)}
+            {displayValue(row?.original.member_name)}
           </div>
         );
       },
@@ -260,7 +280,7 @@ export default function SaleshistoryRegisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.type)}
+            {displayValue(row?.original.transaction_type)}
           </div>
         );
       },
@@ -286,14 +306,17 @@ export default function SaleshistoryRegisterViewTable() {
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             <p className="capitalize cursor-pointer">
               <span>
-                {displayValue(
-                  `${row.original.taxName}`.length > 15
+                {/* {displayValue(
+                  `${row.original.}`.length > 15
                     ? `${row.original.taxName}`.substring(0, 15) + "..."
                     : `${row.original.taxName}`
-                )}
+                )} */}
+                N/A
               </span>
             </p>
-            {displayValue(row?.original.taxRate.toString())}%
+            {/* {displayValue(row?.original.taxRate.toString())}%
+             */}
+            N/A %
           </div>
         );
       },
@@ -317,7 +340,7 @@ export default function SaleshistoryRegisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.taxAmount.toFixed(2).toString())}
+            {displayValue(row?.original.tax_amt.toFixed(2).toString())}
           </div>
         );
       },
@@ -346,7 +369,7 @@ export default function SaleshistoryRegisterViewTable() {
               <p className="capitalize cursor-pointer">
                 <span>
                   {displayValue(
-                    row.original.discountAmount.toFixed(2).toString()
+                    row.original.discount_amt.toFixed(2).toString()
                   )}
                 </span>
               </p>
@@ -379,7 +402,7 @@ export default function SaleshistoryRegisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(row.original.totalAmount.toFixed(2).toString())}
+                  {displayValue(row.original.subtotal.toFixed(2).toString())}
                 </span>
               </p>
             </div>
@@ -491,18 +514,20 @@ export default function SaleshistoryRegisterViewTable() {
                   <TooltipTrigger asChild>
                     <p className="capitalize cursor-pointer">
                       <span>
-                        {displayValue(
+                        {/* {displayValue(
                           `${row.original.created_by}`.length > 15
                             ? `${row.original.created_by}`.substring(0, 15) +
                                 "..."
                             : `${row.original.created_by}`
-                        )}
+                        )} */}
+                        N/A
                       </span>
                     </p>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="capitalize text-sm">
-                      {displayValue(`${row?.original?.created_by}`)}
+                      {/* {displayValue(`${row?.original?.created_by}`)} */}
+                      N/A
                     </p>
                   </TooltipContent>
                 </Tooltip>
@@ -535,7 +560,10 @@ export default function SaleshistoryRegisterViewTable() {
           <div className="flex gap-2 items-center justify-between w-fit">
             <div className="">
               <p className="capitalize cursor-pointer text-nowrap">
-                <span>{displayDateTime(row?.original.created_at)}</span>
+                <span>
+                  {/* {displayDateTime(row?.original.created_at)} */}
+                  N/A
+                </span>
               </p>
             </div>
           </div>
@@ -550,7 +578,7 @@ export default function SaleshistoryRegisterViewTable() {
 
   // saleshistoryTableData
   const table = useReactTable({
-    data: saleshistoryTableData as Salehistory[],
+    data: saleshistoryTableData as salesReportInterface[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -665,9 +693,8 @@ export default function SaleshistoryRegisterViewTable() {
                         </TableCell>
                       ))}
                     </TableRow>
-                    {row.getIsExpanded() && (
+                    {/* {row.getIsExpanded() && (
                       <TableRow>
-                        {/* Refund Item Details */}
                         <TableCell
                           key={row.original.id}
                           className="h-16"
@@ -740,7 +767,6 @@ export default function SaleshistoryRegisterViewTable() {
                               <DropdownMenuContent align="end" className="w-4">
                                 <DialogTrigger asChild>
                                   <DropdownMenuItem
-                                  // onClick={() => handleEdit(data)}
                                   >
                                     <Pencil className="mr-2 h-4 w-4" />
                                     View
@@ -751,7 +777,7 @@ export default function SaleshistoryRegisterViewTable() {
                           </Dialog>
                         </TableCell>
                       </TableRow>
-                    )}
+                    )} */}
                   </>
                 ))
               ) : saleshistoryTableData.length > 0 ? (

@@ -1,9 +1,14 @@
-import { counterRegisterSession, RegisterationTableType } from "@/app/types";
+import {
+  counterRegisterSession,
+  RegisterationTableType,
+  salesReportTableTypes,
+} from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 interface RegisterQueryInput {
   query: string;
   counter_id: number;
 }
+
 export const Register = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
@@ -60,6 +65,18 @@ export const Register = apiSlice.injectEndpoints({
         }),
         providesTags: ["Register"],
       }),
+      getAlltransaction: builder.query<
+        salesReportTableTypes,
+        RegisterQueryInput
+      >({
+        query: (SearchCriteria) => ({
+          url: `/pos/counter/${SearchCriteria.counter_id}/transactions?${SearchCriteria.query}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+      }),
     };
   },
 });
@@ -69,4 +86,5 @@ export const {
   useOpenRegisterMutation,
   useGetlastRegisterSessionQuery,
   useGetAllRegisterSessionQuery,
+  useGetAlltransactionQuery,
 } = Register;

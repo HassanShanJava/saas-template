@@ -67,7 +67,7 @@ interface searchCriteriaType {
 
 
 const Sell = () => {
-  const { opening_time, isOpen } = JSON.parse(localStorage.getItem("registerSession") as string);
+  const { time, isOpen } = JSON.parse(localStorage.getItem("registerSession") as string);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
@@ -80,15 +80,15 @@ const Sell = () => {
 
 
   useEffect(() => {
-    if (has24HoursPassed(opening_time)) {
-      console.log({ opening_time }, has24HoursPassed(opening_time))
+    // console.log({ opening_time }, has24HoursPassed(opening_time))
+    if (has24HoursPassed(Number(time))) {
       setDayExceeded(true)
     }
 
     if (!isOpen) {
       navigate(`/admin/pos/register`)
     }
-  }, [isOpen, opening_time])
+  }, [isOpen, time])
 
   // search product
   const [searchCriteria, setSearchCriteria] = useState<searchCriteriaType>({});
@@ -205,7 +205,7 @@ const Sell = () => {
   };
 
 
-  
+
 
   const { data: memberList2 } = useGetAllMemberQuery({ org_id: orgId, query: "" })
   const { data: memberList } = useGetMembersListQuery(orgId)
@@ -533,18 +533,19 @@ export function DayExceeded({
   onClose,
   onContinue,
 }: DayExceededProps) {
+  console.log({ isOpen }, "isOpen")
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
+    <AlertDialog open={isOpen} >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Register is Open more than 24 Hours</AlertDialogTitle>
-          <AlertDialogDescription className="bg-yellow-100 p-4 rounded text-yellow-800 text-sm">
+          <AlertDialogDescription className="text-sm">
             Do you want to continue with this register session or close to create a new session?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose}>Close</AlertDialogCancel>
-          <AlertDialogCancel onClick={onContinue}>Continue</AlertDialogCancel>
+          <AlertDialogCancel className="bg-primary text-black border-transparent hover:" onClick={onContinue}>Continue</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

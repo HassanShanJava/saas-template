@@ -1,4 +1,3 @@
-import React from "react";
 import { useIdleTimer } from "react-idle-timer";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
@@ -6,7 +5,7 @@ const { VITE_MAX_IDLE_TIME } = import.meta.env;
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/store";
 import { logout } from "@/features/auth/authSlice";
-import { setCode, setCounter } from "@/features/counter/counterSlice";
+import { resetBackPageCount, setCode, setCounter } from "@/features/counter/counterSlice";
 const IdleLogoutHandler = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -17,9 +16,9 @@ const IdleLogoutHandler = () => {
     if (!isAuthenticated) return; // Do nothing if the user is not logged in
     dispatch(setCode(null))
     dispatch(setCounter(null))
+    dispatch(resetBackPageCount())
     dispatch(logout());
-    // Clear session (e.g., remove token from localStorage)
-    // Redirect to login page
+
     toast({
       variant: "destructive",
       title: "Session Timeout",
@@ -28,7 +27,7 @@ const IdleLogoutHandler = () => {
     navigate("/");
   };
   const timer = VITE_MAX_IDLE_TIME * 60 * 1000;
-  console.log("timer", timer / 1000);
+
   const idleTimer = useIdleTimer({
     timeout: timer, // 15 minutes in milliseconds
     onIdle: handleOnIdle,

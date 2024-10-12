@@ -6,7 +6,8 @@ const { VITE_REGISTER_MAX_HOUR } = import.meta.env;
 
 export const has24HoursPassed = (storedTime: number) => {
   const currentTime = Date.now();
-  return currentTime - storedTime > VITE_REGISTER_MAX_HOUR * 60 * 60 * 1000;
+  console.log(currentTime , storedTime , VITE_REGISTER_MAX_HOUR * 60 * 60 * 1000)
+  return (currentTime - storedTime) > VITE_REGISTER_MAX_HOUR * 60 * 60 * 1000;
 };
 
 export function useGetRegisterData(counter_id: number): {

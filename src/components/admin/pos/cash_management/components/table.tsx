@@ -41,7 +41,9 @@ import { useGetAllRegisterSessionQuery } from "@/services/registerApi";
 import { discrepancy } from "@/constants/cash_register";
 import { formatDate } from "@/utils/helper";
 import { DatePickerWithRange } from "@/components/ui/date-range/date-rangePicker";
-import { Filter } from "lucide-react";
+import { Filter, Search } from "lucide-react";
+import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
+import { useDebounce } from "@/hooks/use-debounce";
 
 interface searchCretiriaType {
   limit: number;
@@ -69,6 +71,8 @@ export default function CashregisterViewTable() {
   );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const [inputValue, setInputValue] = useState("");
+  const debouncedInputValue = useDebounce(inputValue, 500);
 
   const [searchCriteria, setSearchCriteria] =
     useState<searchCretiriaType>(initialValue);
@@ -76,7 +80,25 @@ export default function CashregisterViewTable() {
   const [openFilter, setOpenFilter] = useState(false);
   const [filterData, setFilter] = useState<Record<string, any>>({});
 
-  React.useEffect(() => {
+  useEffect(() => {
+    setSearchCriteria((prev) => {
+      const newCriteria = { ...prev };
+
+      if (debouncedInputValue.trim() !== "") {
+        newCriteria.search_key = debouncedInputValue;
+        newCriteria.offset = 0;
+        newCriteria.sort_key = "id";
+        newCriteria.sort_order = "desc";
+      } else {
+        delete newCriteria.search_key;
+      }
+
+      return newCriteria;
+    });
+    console.log({ debouncedInputValue });
+  }, [debouncedInputValue, setSearchCriteria]);
+
+  useEffect(() => {
     const params = new URLSearchParams();
     // Iterate through the search criteria
     for (const [key, value] of Object.entries(searchCriteria)) {
@@ -579,7 +601,17 @@ export default function CashregisterViewTable() {
   return (
     <div className="w-full space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3">
-        <div></div>
+        <div className="flex  flex-1 space-x-2  lg:mb-0">
+          <div className="flex items-center relative w-full lg:w-auto">
+            <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
+            <FloatingLabelInput
+              id="search"
+              placeholder="Search by name"
+              onChange={(event) => setInputValue(event.target.value)}
+              className=" w-80 lg:w-64 pl-8 text-sm placeholder:text-sm text-gray-400 h-8"
+            />
+          </div>
+        </div>
         {/* Buttons Container */}
 
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">

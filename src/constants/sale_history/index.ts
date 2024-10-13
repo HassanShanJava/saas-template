@@ -1,5 +1,30 @@
 import { SaleshistoryTableType } from "@/app/types";
 
+export const typeValues = [
+  {
+    value: "Sale",
+    label: "Sale",
+  },
+  {
+    value: "Refund",
+    label: "Refund",
+  },
+];
+
+export const statusValues = [
+  {
+    value: "Paid",
+    label: "Paid",
+  },
+  {
+    value: "Unpaid",
+    label: "Unpaid",
+  },
+  {
+    value: "Partially Paid",
+    label: "Partially Paid",
+  },
+];
 export const salesData: SaleshistoryTableType = {
   data: [
     {

@@ -30,7 +30,7 @@ const pageTitles = [
   { targetPath: "/admin/memberships", title: "System Settings" },
   { targetPath: "/admin/counter", title: "System Settings" },
   { targetPath: "/admin/paymentMethods", title: "System Settings" },
-  { targetPath: "/admin/pos/sell", title: "Point of Sale" },
+  { targetPath: "/admin/pos/sell/", title: "Point of Sale" },
   { targetPath: "/admin/pos/register", title: "Point of Sale" },
   { targetPath: "/admin/pos/salesHistory", title: "Point of Sale" },
   { targetPath: "/admin/pos/cash", title: "Point of Sale" },
@@ -87,7 +87,7 @@ const breadcrumbs = [
     pageSetting: "Point of Sales",
   },
   {
-    targetPath: "/admin/pos/sell",
+    targetPath: "/admin/pos/sell/",
     title: "Sell",
     pageSetting: "Point of Sales",
   },
@@ -130,7 +130,7 @@ const PageTitle = ({
 };
 
 const isActiveLink = (currentPath: string, targetPath: string) =>
-  currentPath === targetPath;
+  currentPath === targetPath || currentPath.includes(targetPath);
 
 export const Header = () => {
   const location = useLocation();

@@ -89,7 +89,7 @@ function App() {
               </Route>
 
               <Route path="/admin/pos/">
-                <Route path="sell" element={<Sell />} />
+                <Route path="sell/:transactionId?" element={<Sell />} />
                 <Route path="salesHistory" element={<SaleHistory />} />
                 <Route path="register" element={<Register />} />
                 <Route path="cash" element={<CashManagement />} />

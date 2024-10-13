@@ -44,7 +44,7 @@ const CounterSelection = () => {
                     })
                     dispatch(setCounter(counter.id as number));
                     dispatch(setCode("pos"));
-                    navigate('/admin/pos/sell');
+                    navigate('/admin/pos/sell/');
                 } else {
                     throw resp.error
                 }

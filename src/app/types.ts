@@ -1526,6 +1526,19 @@ export enum typeTransactionEnum {
   Unpaid = "Unpaid",
   Partially_Paid = "Partially Paid",
 }
+
+export interface lineItems {
+  item_id: number;
+  item_type: string;
+  description: string;
+  quantity: number;
+  price: number;
+  tax_rate: number;
+  discount: number;
+  sub_total: number;
+  total: number;
+  tax_amount: number;
+}
 export interface salesReportInterface {
   id: number;
   batch_id: number;
@@ -1547,6 +1560,7 @@ export interface salesReportInterface {
   transaction_type: statusEnum;
   status: typeTransactionEnum;
   transaction_date: string;
+  items?: lineItems[];
 }
 
 export interface salesReportTableTypes {

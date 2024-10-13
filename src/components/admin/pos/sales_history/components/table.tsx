@@ -36,6 +36,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  lineItems,
   RegisterSession,
   Salehistory,
   SaleshistoryTableType,
@@ -58,6 +59,7 @@ import { Search } from "lucide-react";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useDebounce } from "@/hooks/use-debounce";
 import { DatePickerWithRange } from "@/components/ui/date-range/date-rangePicker";
+import { Separator } from "@/components/ui/separator";
 
 interface searchCretiriaType {
   limit: number;
@@ -253,7 +255,7 @@ export default function SaleshistoryRegisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex gap-2 items-center justify-between w-fit">
-            {/* {row.getCanExpand() && row.original.refunditems && (
+            {row.getCanExpand() && (
               <button
                 {...{
                   onClick: row.getToggleExpandedHandler(),
@@ -266,7 +268,7 @@ export default function SaleshistoryRegisterViewTable() {
                   <i className="fa fa-angle-right w-3 h-3"></i>
                 )}
               </button>
-            )} */}
+            )}
 
             <div className="">
               <p className="capitalize cursor-pointer">
@@ -278,6 +280,30 @@ export default function SaleshistoryRegisterViewTable() {
       },
       enableSorting: false,
       enableHiding: false,
+    },
+    {
+      accessorKey: "user",
+      meta: "user",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">SRB Number</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("tax_number")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.tax_number)}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "user",
@@ -304,30 +330,6 @@ export default function SaleshistoryRegisterViewTable() {
       },
     },
     {
-      accessorKey: "type",
-      meta: "Type",
-      header: () => (
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Type</p>
-          <button
-            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("reciept_type")}
-          >
-            <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-            ></i>
-          </button>
-        </div>
-      ),
-      cell: ({ row }) => {
-        return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.transaction_type)}
-          </div>
-        );
-      },
-    },
-    {
       accessorKey: "taxamount",
       meta: "Tax amount",
       header: () => (
@@ -335,7 +337,7 @@ export default function SaleshistoryRegisterViewTable() {
           <p className="text-nowrap">Tax Amount</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("taxamount")}
+            onClick={() => toggleSortOrder("tax_amt")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -351,7 +353,6 @@ export default function SaleshistoryRegisterViewTable() {
         );
       },
     },
-
     {
       accessorKey: "discountedamount",
       meta: "Discounted Amount",
@@ -360,7 +361,7 @@ export default function SaleshistoryRegisterViewTable() {
           <p className="text-nowrap">Discount Amount</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("discountedamount")}
+            onClick={() => toggleSortOrder("discount_amt")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -387,6 +388,31 @@ export default function SaleshistoryRegisterViewTable() {
       enableHiding: false,
     },
     {
+      accessorKey: "type",
+      meta: "Type",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Type</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("transaction_type")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.transaction_type)}
+          </div>
+        );
+      },
+    },
+
+    {
       accessorKey: "totalamount",
       meta: "total amount",
       header: () => (
@@ -394,7 +420,7 @@ export default function SaleshistoryRegisterViewTable() {
           <p className="text-nowrap">Total Amount</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("totalamount")}
+            onClick={() => toggleSortOrder("total")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -426,7 +452,7 @@ export default function SaleshistoryRegisterViewTable() {
           <p className="text-nowrap">Status</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("recieptnumber")}
+            onClick={() => toggleSortOrder("status")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -456,7 +482,7 @@ export default function SaleshistoryRegisterViewTable() {
           <p className="text-nowrap">Created By</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("createdBy")}
+            onClick={() => toggleSortOrder("created_by")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -473,20 +499,19 @@ export default function SaleshistoryRegisterViewTable() {
                   <TooltipTrigger asChild>
                     <p className="capitalize cursor-pointer">
                       <span>
-                        {/* {displayValue(
-                          `${row.original.created_by}`.length > 15
-                            ? `${row.original.created_by}`.substring(0, 15) +
+                        {displayValue(
+                          `${row.original.staff_name}`.length > 15
+                            ? `${row.original.staff_name}`.substring(0, 15) +
                                 "..."
-                            : `${row.original.created_by}`
-                        )} */}
+                            : `${row.original.staff_name}`
+                        )}
                         N/A
                       </span>
                     </p>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="capitalize text-sm">
-                      {/* {displayValue(`${row?.original?.created_by}`)} */}
-                      N/A
+                      {displayValue(`${row?.original?.staff_name}`)}
                     </p>
                   </TooltipContent>
                 </Tooltip>
@@ -506,7 +531,7 @@ export default function SaleshistoryRegisterViewTable() {
           <p className="text-nowrap">Created Date</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("date")}
+            onClick={() => toggleSortOrder("transaction_date")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -519,10 +544,7 @@ export default function SaleshistoryRegisterViewTable() {
           <div className="flex gap-2 items-center justify-between w-fit">
             <div className="">
               <p className="capitalize cursor-pointer text-nowrap">
-                <span>
-                  {/* {displayDateTime(row?.original.created_at)} */}
-                  N/A
-                </span>
+                <span>{displayDateTime(row?.original.transaction_date)}</span>
               </p>
             </div>
           </div>
@@ -722,91 +744,143 @@ export default function SaleshistoryRegisterViewTable() {
                         </TableCell>
                       ))}
                     </TableRow>
-                    {/* {row.getIsExpanded() && (
+                    {row.original.transaction_type === "Sale" ? (
                       <TableRow>
-                        <TableCell
-                          key={row.original.id}
-                          className="h-16"
-                        ></TableCell>
-                        <TableCell
-                          key={row.original.id}
-                          className="flex gap-2 items-center justify-between w-fit h-16"
-                        >
-                          <div className="h-3 w-3"></div>
-                          {row.original.receiptNumber}
-                        </TableCell>
-                        <TableCell key={row.original.user}>
-                          <span className="capitalize cursor-pointer">
-                            {row.original.user}
-                          </span>
-                        </TableCell>
-                        <TableCell key={row.original.type}>
-                          <span className="capitalize cursor-pointer">
-                            {row.original.type}
-                          </span>
-                        </TableCell>
-
-                        <TableCell key={row.original.taxRate}>
-                          <span className="capitalize cursor-pointer">
-                            {row.original.taxName} {row.original.taxRate}%
-                          </span>
-                        </TableCell>
-                        <TableCell key={row.original.taxAmount}>
-                          <span className="capitalize cursor-pointer">
-                            {row.original.taxAmount.toFixed(2)}
-                          </span>
-                        </TableCell>
-                        <TableCell key={row.original.discountAmount}>
-                          <span className="capitalize cursor-pointer">
-                            {row.original.discountAmount.toFixed(2)}
-                          </span>
-                        </TableCell>
-                        <TableCell key={row.original.totalAmount}>
-                          <span className="capitalize cursor-pointer">
-                            {row.original.totalAmount.toFixed(2)}
-                          </span>
-                        </TableCell>
-                        <TableCell key={row.original.status}>
-                          <span className="capitalize cursor-pointer">
-                            {row.original.status}
-                          </span>
-                        </TableCell>
-                        <TableCell key={row.original.created_by}>
-                          <span className="capitalize cursor-pointer">
-                            {row.original.created_by}
-                          </span>
-                        </TableCell>
-                        <TableCell key={row.original.created_at}>
-                          <span className="capitalize cursor-pointer text-nowrap">
-                            {row.original.created_at}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Dialog>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
-                                >
-                                  <MoreVertical className="h-4 w-4" />
-                                  <span className="sr-only">Open menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-4">
-                                <DialogTrigger asChild>
-                                  <DropdownMenuItem
-                                  >
-                                    <Pencil className="mr-2 h-4 w-4" />
-                                    View
-                                  </DropdownMenuItem>
-                                </DialogTrigger>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </Dialog>
+                        <TableCell colSpan={12}>
+                          <div className="py-4">
+                            <h3 className="text-lg font-bold">Sale Details</h3>
+                            {/* Line items */}
+                            <div className="grid grid-cols-12 py-2 font-semibold">
+                              <span className="col-span-1">Qty</span>
+                              <span className="col-span-2">Item Type</span>
+                              <span className="col-span-3">Description</span>
+                              <span className="col-span-2">Price</span>
+                              <span className="col-span-1">Discount</span>
+                              <span className="col-span-2">Tax (Rate)</span>
+                              <span className="col-span-1 text-right">
+                                Total
+                              </span>
+                            </div>
+                            {row.original.items?.map(
+                              (item: lineItems, i: number) => (
+                                <div key={i} className="grid grid-cols-12 py-2">
+                                  <span className="col-span-1">
+                                    {item.quantity}
+                                  </span>
+                                  <span className="col-span-2">
+                                    {item.item_type}
+                                  </span>
+                                  <span className="col-span-3">
+                                    {item.description}
+                                  </span>
+                                  <span className="col-span-2">
+                                    Rs {item.price.toFixed(2)}
+                                  </span>
+                                  <span className="col-span-1">
+                                    Rs {item.discount.toFixed(2)}
+                                  </span>
+                                  <span className="col-span-2">
+                                    Rs {item.tax_amount.toFixed(2)} (
+                                    {item.tax_rate}%)
+                                  </span>
+                                  <span className="col-span-1 text-right">
+                                    Rs {item.total.toFixed(2)}
+                                  </span>
+                                </div>
+                              )
+                            )}
+                            <Separator />
+                            {/* Subtotal, Tax, and Total */}
+                            <div className="grid grid-cols-5">
+                              <div className="col-span-2">Note</div>
+                              <div className="col-span-3">
+                                <div className="flex justify-between py-2">
+                                  <span>Subtotal</span>
+                                  <span>
+                                    Rs {row.original.subtotal.toFixed(2)}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between py-2">
+                                  <span>Total Tax</span>
+                                  <span>
+                                    Rs {row.original.tax_amt.toFixed(2)}
+                                  </span>
+                                </div>
+                                <Separator />
+                                <div className="flex justify-between py-2">
+                                  <span>Sale Total</span>
+                                  <span>
+                                    Rs {row.original.total.toFixed(2)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </TableCell>
                       </TableRow>
-                    )} */}
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={12}>
+                          <div className="py-4">
+                            <h3 className="text-lg font-bold">
+                              Refund Details
+                            </h3>
+                            {/* Line items */}
+                            <div className="grid grid-cols-12 py-2 font-semibold">
+                              <span className="col-span-1">Qty</span>
+                              <span className="col-span-2">Item Type</span>
+                              <span className="col-span-3">Description</span>
+                              <span className="col-span-2">Price</span>
+                              <span className="col-span-1">Discount</span>
+                              <span className="col-span-2">Tax (Rate)</span>
+                              <span className="col-span-1 text-right">
+                                Total
+                              </span>
+                            </div>
+                            {row.original.items?.map(
+                              (item: lineItems, i: number) => (
+                                <div key={i} className="grid grid-cols-12 py-2">
+                                  <span className="col-span-1">
+                                    {item.quantity}
+                                  </span>
+                                  <span className="col-span-2">
+                                    {item.item_type}
+                                  </span>
+                                  <span className="col-span-3">
+                                    {item.description}
+                                  </span>
+                                  <span className="col-span-2">
+                                    Rs {item.price.toFixed(2)}
+                                  </span>
+                                  <span className="col-span-1">
+                                    Rs {item.discount.toFixed(2)}
+                                  </span>
+                                  <span className="col-span-2">
+                                    Rs {item.tax_amount.toFixed(2)} (
+                                    {item.tax_rate}%)
+                                  </span>
+                                  <span className="col-span-1 text-right">
+                                    Rs {item.total.toFixed(2)}
+                                  </span>
+                                </div>
+                              )
+                            )}
+                            <Separator />
+                            <div className="grid grid-cols-5">
+                              <div className="col-span-2">Note</div>
+                              <div className="col-span-3">
+                                <div className="flex justify-between py-2">
+                                  <span>Refund Amount</span>
+                                  <span>
+                                    Rs {row.original.total.toFixed(2)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </>
                 ))
               ) : saleshistoryTableData.length > 0 ? (

@@ -47,6 +47,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { MemberTableDatatypes } from "@/app/types";
 import { has24HoursPassed, useGetRegisterData } from "@/constants/counter_register";
 import { useNavigate } from "react-router-dom";
+import { toast } from "@/components/ui/use-toast";
 
 interface payload {
   discount: number;
@@ -67,7 +68,7 @@ interface searchCriteriaType {
 
 
 const Sell = () => {
-  const { time, isOpen } = JSON.parse(localStorage.getItem("registerSession") as string);
+  const { time, isOpen, isContinue, continueDate } = localStorage.getItem("registerSession") ? JSON.parse(localStorage.getItem("registerSession") as string) : { time: null, isOpen: false, isContinue: false, continueDate: null };
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
@@ -80,15 +81,27 @@ const Sell = () => {
 
 
   useEffect(() => {
-    // console.log({ opening_time }, has24HoursPassed(opening_time))
-    if (has24HoursPassed(Number(time))) {
+    const now = new Date();
+    const hasContinueDatePassed = continueDate
+      ? new Date(continueDate).setHours(0, 0, 0, 0) !== now.setHours(0, 0, 0, 0)
+      : false;
+
+    if (time && has24HoursPassed(Number(time))) {
+    }
+
+    if (isContinue && hasContinueDatePassed) {
       setDayExceeded(true)
     }
 
+
     if (!isOpen) {
+      toast({
+        variant: "success",
+        title: "Please open register before selling.",
+      })
       navigate(`/admin/pos/register`)
     }
-  }, [isOpen, time])
+  }, [isOpen, time, isContinue, continueDate])
 
   // search product
   const [searchCriteria, setSearchCriteria] = useState<searchCriteriaType>({});
@@ -239,6 +252,15 @@ const Sell = () => {
     navigate(`/admin/pos/register`)
   }
 
+  const handleContinueDayExceeded = () => {
+    const registerData = JSON.parse(localStorage.getItem("registerSession") as string);
+    registerData.isContinue = true;
+    registerData.continueDate = new Date();
+    console.log({ registerData })
+    localStorage.setItem("registerSession", JSON.stringify(registerData))
+    setDayExceeded(false)
+  }
+
   return (
     <div className="w-full p-5 ">
 
@@ -361,7 +383,7 @@ const Sell = () => {
       )}
 
 
-      <DayExceeded isOpen={dayExceeded} onClose={handleCloseDayExceeded} onContinue={() => setDayExceeded(false)} />
+      <DayExceeded isOpen={dayExceeded} onClose={handleCloseDayExceeded} onContinue={handleContinueDayExceeded} closeModal={() => setDayExceeded(false)} />
 
     </div>
 
@@ -372,65 +394,7 @@ export default Sell;
 
 
 
-interface customerComboboxTypes {
-  list: MemberTableDatatypes[];
-  setCustomer: any;
-  customer: any;
-}
 
-export function CustomerCombobox({ list, setCustomer, customer }: customerComboboxTypes) {
-  const modifiedList = list?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
-  const [open, setOpen] = useState(false)
-  const [value, setValue] = useState("")
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="capitalize w-full justify-between bg-white rounded-sm border-[1px]"
-        >
-          {value
-            ? modifiedList?.find((customer: any) => customer.value == value)?.label
-            : "Select customer..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className=" w-[500px] p-0">
-        <Command>
-          <CommandInput placeholder="Search customer..." />
-          <CommandList className="w-[500px]">
-            <CommandEmpty>No customer found.</CommandEmpty>
-            <CommandGroup className="">
-              {modifiedList?.map((customer: any) => (
-                <CommandItem
-                  key={customer.value + ""}
-                  value={customer.value + ""}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
-                    const customer = list?.find((item: any) => item.id == currentValue)
-                    setCustomer(customer)
-                    setOpen(false)
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === customer.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {customer.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  )
-}
 
 
 function Checkout({ setShowCheckout }: any) {
@@ -520,22 +484,22 @@ function Checkout({ setShowCheckout }: any) {
   )
 }
 
-
-
 interface DayExceededProps {
   isOpen: boolean,
   onClose: any,
   onContinue: any,
+  closeModal: any,
 }
 
 export function DayExceeded({
   isOpen,
   onClose,
   onContinue,
+  closeModal
 }: DayExceededProps) {
   console.log({ isOpen }, "isOpen")
   return (
-    <AlertDialog open={isOpen} >
+    <AlertDialog open={isOpen} onOpenChange={closeModal}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Register is Open more than 24 Hours</AlertDialogTitle>
@@ -550,4 +514,64 @@ export function DayExceeded({
       </AlertDialogContent>
     </AlertDialog>
   );
+}
+
+interface customerComboboxTypes {
+  list: MemberTableDatatypes[];
+  setCustomer: any;
+  customer: any;
+}
+
+export function CustomerCombobox({ list, setCustomer, customer }: customerComboboxTypes) {
+  const modifiedList = list?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState("")
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="capitalize w-full justify-between bg-white rounded-sm border-[1px]"
+        >
+          {value
+            ? modifiedList?.find((customer: any) => customer.value == value)?.label
+            : "Select customer..."}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className=" w-[500px] p-0">
+        <Command>
+          <CommandInput placeholder="Search customer..." />
+          <CommandList className="w-[500px]">
+            <CommandEmpty>No customer found.</CommandEmpty>
+            <CommandGroup className="">
+              {modifiedList?.map((customer: any) => (
+                <CommandItem
+                  key={customer.value + ""}
+                  value={customer.value + ""}
+                  onSelect={(currentValue) => {
+                    setValue(currentValue === value ? "" : currentValue)
+                    const customer = list?.find((item: any) => item.id == currentValue)
+                    setCustomer(customer)
+                    setOpen(false)
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === customer.value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {customer.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
 }

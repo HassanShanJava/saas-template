@@ -62,6 +62,7 @@ export function useGetRegisterData(counter_id: number): {
           time: Date.now().toString(),
           isOpen: true,
           isContinue: false,
+          continueDate:null,
           sessionId: counterData.id ?? 1,
           opening_balance: counterData.opening_balance as number,
           opening_time: counterData.opening_time as string,

@@ -35,6 +35,7 @@ import { useUpdateCountersMutation } from "@/services/counterApi";
 import { toast } from "../use-toast";
 
 const DashboardLayout: React.FC = () => {
+  const { isOpen } = JSON.parse(localStorage.getItem("registerSession") as string);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -80,7 +81,7 @@ const DashboardLayout: React.FC = () => {
 
 
   useEffect(() => {
-    console.log({ pathname, code, counter_number },pathname.includes("pos") && counter_number == null, "pathname")
+    console.log({ pathname, code, counter_number }, pathname.includes("pos") && counter_number == null, "pathname")
     if (pathname.includes("pos") && counter_number == null) {
       dispatch(setCode("pos"));
       navigate("counter-selection", { replace: true })
@@ -100,7 +101,10 @@ const DashboardLayout: React.FC = () => {
   const [assignCounter] = useUpdateCountersMutation();
 
   const closeCounter = async () => {
+
+
     try {
+
       const payload = {
         id: counter_number ?? Number(localStorage.getItem('counter_number') as string),
         staff_id: null,
@@ -123,6 +127,13 @@ const DashboardLayout: React.FC = () => {
   };
 
   const closePOSPanel = () => {
+    if (isOpen) {
+      toast({
+        variant: "destructive",
+        title: "Cannot close counter while register is open",
+      })
+      return;
+    }
     closeCounter()
     navigate('/', { replace: true });
   }
@@ -158,13 +169,20 @@ const DashboardLayout: React.FC = () => {
             )}
 
           {code == "pos" && (
-            <Link
-              to="/"
-              className="flex items-center gap-2 font-semibold "
+            <div
+              className="flex items-center gap-2 font-semibold cursor-pointer"
               onClick={() => {
+                if (isOpen) {
+                  toast({
+                    variant: "destructive",
+                    title: "Cannot close counter while register is open",
+                  })
+                  return;
+                }
                 dispatch(setCode(null));
                 dispatch(setCounter(null));
                 dispatch(resetBackPageCount());
+                navigate("/", { replace: true })
               }}
             >
               <i className="rounded-[50%] fa fa-arrow-left px-2 py-0.5 text-lg border-2 border-primary text-primary"></i>
@@ -174,7 +192,7 @@ const DashboardLayout: React.FC = () => {
               >
                 Back to Gym
               </span>
-            </Link>
+            </div>
           )}
 
           {/* Uncomment the button if needed */}

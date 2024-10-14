@@ -1,7 +1,7 @@
 import { JSONObject } from "@/types/hook-stepper";
 
-export interface sellForm{
-  discount?:number
+export interface sellForm {
+  discount?: number;
 }
 
 export interface createTransaction {
@@ -1553,7 +1553,7 @@ export interface salesReportInterface {
   member_gender: genderEnum;
   staff_id: number;
   staff_name: string;
-  reciept_number: string;
+  receipt_number: string;
   notes: string;
   tax_number: number;
   total: number;

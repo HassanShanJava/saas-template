@@ -272,7 +272,7 @@ export default function SaleshistoryRegisterViewTable() {
 
             <div className="">
               <p className="capitalize cursor-pointer">
-                <span>{displayValue(row.original.reciept_number)}</span>
+                <span>{displayValue(row.original.receipt_number)}</span>
               </p>
             </div>
           </div>
@@ -505,7 +505,6 @@ export default function SaleshistoryRegisterViewTable() {
                                 "..."
                             : `${row.original.staff_name}`
                         )}
-                        N/A
                       </span>
                     </p>
                   </TooltipTrigger>
@@ -714,8 +713,7 @@ export default function SaleshistoryRegisterViewTable() {
               ))}
             </TableHeader>
             <TableBody>
-              {/* {isLoading ? ( */}
-              {false ? (
+              {salesDataLoading ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -744,12 +742,12 @@ export default function SaleshistoryRegisterViewTable() {
                         </TableCell>
                       ))}
                     </TableRow>
-                    {row.original.transaction_type === "Sale" ? (
+                    {/* {row.getIsExpanded() &&
+                    row.original.transaction_type === "Sale" ? (
                       <TableRow>
                         <TableCell colSpan={12}>
                           <div className="py-4">
                             <h3 className="text-lg font-bold">Sale Details</h3>
-                            {/* Line items */}
                             <div className="grid grid-cols-12 py-2 font-semibold">
                               <span className="col-span-1">Qty</span>
                               <span className="col-span-2">Item Type</span>
@@ -790,7 +788,6 @@ export default function SaleshistoryRegisterViewTable() {
                               )
                             )}
                             <Separator />
-                            {/* Subtotal, Tax, and Total */}
                             <div className="grid grid-cols-5">
                               <div className="col-span-2">Note</div>
                               <div className="col-span-3">
@@ -825,7 +822,6 @@ export default function SaleshistoryRegisterViewTable() {
                             <h3 className="text-lg font-bold">
                               Refund Details
                             </h3>
-                            {/* Line items */}
                             <div className="grid grid-cols-12 py-2 font-semibold">
                               <span className="col-span-1">Qty</span>
                               <span className="col-span-2">Item Type</span>
@@ -880,6 +876,160 @@ export default function SaleshistoryRegisterViewTable() {
                           </div>
                         </TableCell>
                       </TableRow>
+                    )} */}
+
+                    {row.getIsExpanded() && (
+                      <>
+                        {row.original.transaction_type === "Sale" ? (
+                          <TableRow>
+                            <TableCell colSpan={12}>
+                              <div className="py-4">
+                                <h3 className="text-lg font-bold">
+                                  Sale Details
+                                </h3>
+                                {/* Line items */}
+                                <div className="grid grid-cols-12 py-2 font-semibold">
+                                  <span className="col-span-1">Qty</span>
+                                  <span className="col-span-2">Item Type</span>
+                                  <span className="col-span-3">
+                                    Description
+                                  </span>
+                                  <span className="col-span-2">Price</span>
+                                  <span className="col-span-1">Discount</span>
+                                  <span className="col-span-2">Tax (Rate)</span>
+                                  <span className="col-span-1 text-right">
+                                    Total
+                                  </span>
+                                </div>
+                                {row.original.items?.map(
+                                  (item: lineItems, i: number) => (
+                                    <div
+                                      key={i}
+                                      className="grid grid-cols-12 py-2"
+                                    >
+                                      <span className="col-span-1">
+                                        {item.quantity}
+                                      </span>
+                                      <span className="col-span-2">
+                                        {item.item_type}
+                                      </span>
+                                      <span className="col-span-3">
+                                        {item.description}
+                                      </span>
+                                      <span className="col-span-2">
+                                        Rs {item.price.toFixed(2)}
+                                      </span>
+                                      <span className="col-span-1">
+                                        Rs {item.discount.toFixed(2)}
+                                      </span>
+                                      <span className="col-span-2">
+                                        Rs {item.tax_amount.toFixed(2)} (
+                                        {item.tax_rate}%)
+                                      </span>
+                                      <span className="col-span-1 text-right">
+                                        Rs {item.total.toFixed(2)}
+                                      </span>
+                                    </div>
+                                  )
+                                )}
+                                <Separator />
+                                {/* Subtotal, Tax, and Total */}
+                                <div className="grid grid-cols-5">
+                                  <div className="col-span-2">Note : </div>
+                                  <div className="col-span-3">
+                                    <div className="flex justify-between py-2">
+                                      <span>Subtotal</span>
+                                      <span>
+                                        Rs {row.original.subtotal.toFixed(2)}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between py-2">
+                                      <span>Total Tax</span>
+                                      <span>
+                                        Rs {row.original.tax_amt.toFixed(2)}
+                                      </span>
+                                    </div>
+                                    <Separator />
+                                    <div className="flex justify-between py-2">
+                                      <span>Sale Total</span>
+                                      <span>
+                                        Rs {row.original.total.toFixed(2)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={12}>
+                              <div className="py-4">
+                                <h3 className="text-lg font-bold">
+                                  Refund Details
+                                </h3>
+                                {/* Line items */}
+                                <div className="grid grid-cols-12 py-2 font-semibold">
+                                  <span className="col-span-1">Qty</span>
+                                  <span className="col-span-2">Item Type</span>
+                                  <span className="col-span-3">
+                                    Description
+                                  </span>
+                                  <span className="col-span-2">Price</span>
+                                  <span className="col-span-1">Discount</span>
+                                  <span className="col-span-2">Tax (Rate)</span>
+                                  <span className="col-span-1 text-right">
+                                    Total
+                                  </span>
+                                </div>
+                                {row.original.items?.map(
+                                  (item: lineItems, i: number) => (
+                                    <div
+                                      key={i}
+                                      className="grid grid-cols-12 py-2"
+                                    >
+                                      <span className="col-span-1">
+                                        {item.quantity}
+                                      </span>
+                                      <span className="col-span-2">
+                                        {item.item_type}
+                                      </span>
+                                      <span className="col-span-3">
+                                        {item.description}
+                                      </span>
+                                      <span className="col-span-2">
+                                        Rs {item.price.toFixed(2)}
+                                      </span>
+                                      <span className="col-span-1">
+                                        Rs {item.discount.toFixed(2)}
+                                      </span>
+                                      <span className="col-span-2">
+                                        Rs {item.tax_amount.toFixed(2)} (
+                                        {item.tax_rate}%)
+                                      </span>
+                                      <span className="col-span-1 text-right">
+                                        Rs {item.total.toFixed(2)}
+                                      </span>
+                                    </div>
+                                  )
+                                )}
+                                <Separator />
+                                <div className="grid grid-cols-5">
+                                  <div className="col-span-2">Note</div>
+                                  <div className="col-span-3">
+                                    <div className="flex justify-between py-2">
+                                      <span>Refund Amount</span>
+                                      <span>
+                                        Rs {row.original.total.toFixed(2)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </>
                     )}
                   </>
                 ))

@@ -35,7 +35,7 @@ import { useUpdateCountersMutation } from "@/services/counterApi";
 import { toast } from "../use-toast";
 
 const DashboardLayout: React.FC = () => {
-  const { isOpen } = JSON.parse(localStorage.getItem("registerSession") as string);
+  const { isOpen } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { isOpen: false };
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -51,7 +51,7 @@ const DashboardLayout: React.FC = () => {
   );
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
-
+  
   // Use useEffect to fetch and set sidePanel from localStorage
   useEffect(() => {
     const sidepanel = localStorage.getItem("sidepanel");

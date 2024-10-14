@@ -44,10 +44,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { roundToTwoDecimals } from "@/utils/helper";
 import { useDebounce } from "@/hooks/use-debounce";
-import { MemberTableDatatypes } from "@/app/types";
+import { MemberTableDatatypes, sellForm } from "@/app/types";
 import { has24HoursPassed, useGetRegisterData } from "@/constants/counter_register";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
+import { useForm } from "react-hook-form";
 
 interface payload {
   discount: number;
@@ -68,7 +69,7 @@ interface searchCriteriaType {
 
 
 const Sell = () => {
-  const { time, isOpen, isContinue, continueDate } = localStorage.getItem("registerSession") ? JSON.parse(localStorage.getItem("registerSession") as string) : { time: null, isOpen: false, isContinue: false, continueDate: null };
+  const { time, isOpen, isContinue, continueDate } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { time: null, isOpen: false, isContinue: false, continueDate: null };
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
@@ -78,6 +79,22 @@ const Sell = () => {
   const [dayExceeded, setDayExceeded] = useState<boolean>(false)
   const navigate = useNavigate()
 
+  const form = useForm<sellForm>({
+    mode: "all",
+  });
+
+  const {
+    control,
+    watch,
+    register,
+    setValue,
+    getValues,
+    handleSubmit,
+    clearErrors,
+    reset,
+    formState: { isSubmitting, errors },
+  } = form;
+  const watcher = watch();
 
 
   useEffect(() => {
@@ -85,6 +102,15 @@ const Sell = () => {
     const hasContinueDatePassed = continueDate
       ? new Date(continueDate).setHours(0, 0, 0, 0) !== now.setHours(0, 0, 0, 0)
       : false;
+
+    if (!isOpen) {
+      toast({
+        variant: "success",
+        title: "Please open register before selling.",
+      })
+      navigate(`/admin/pos/register`)
+      return;
+    }
 
     if (time && has24HoursPassed(Number(time))) {
     }
@@ -94,13 +120,7 @@ const Sell = () => {
     }
 
 
-    if (!isOpen) {
-      toast({
-        variant: "success",
-        title: "Please open register before selling.",
-      })
-      navigate(`/admin/pos/register`)
-    }
+
   }, [isOpen, time, isContinue, continueDate])
 
   // search product
@@ -110,7 +130,7 @@ const Sell = () => {
   const debouncedInputValue = useDebounce(inputValue, 500);
 
   // select customer
-  const [customer, setCustomer] = useState<Record<string, any>>({});
+  const [customer, setCustomer] = useState<Record<string, any> | null>(null);
 
 
   useEffect(() => {
@@ -213,9 +233,50 @@ const Sell = () => {
     });
   };
 
-  const updateProduct = (product: any, qty: number) => {
-    console.log({ product });
+  const updateProductQuantity = (productId: number, action: 'increment' | 'decrement') => {
+    setProductPayload((prevPayload) => {
+      return prevPayload
+        .map((product) => {
+          if (product.id === productId) {
+            const discountPercentage = product.discount / product.price; // Calculate discount percentage based on current price and discount
+            const unitPrice = Math.floor((product.price / product.quantity) * 100) / 100; // Get the price per unit
+            const unitDiscount = Math.floor((unitPrice * discountPercentage) * 100) / 100; // Calculate per unit discount
+
+            // If action is increment
+            if (action === 'increment') {
+              const newQuantity = product.quantity + 1;
+              return {
+                ...product,
+                quantity: newQuantity,
+                price: Math.floor((product.price + unitPrice) * 100) / 100, // Update total price
+                discount: Math.floor((product.discount + unitDiscount) * 100) / 100, // Update total discount
+              };
+            }
+
+            // If action is decrement
+            if (action === 'decrement') {
+              const newQuantity = product.quantity - 1;
+
+              // If the new quantity is zero, return null to remove the product
+              if (newQuantity === 0) {
+                return null;
+              }
+
+              // Otherwise, update the product's quantity, price, and discount
+              return {
+                ...product,
+                quantity: newQuantity,
+                price: Math.floor((product.price - unitPrice) * 100) / 100, // Update total price
+                discount: Math.floor((product.discount - unitDiscount) * 100) / 100, // Update total discount
+              };
+            }
+          }
+          return product;
+        })
+        .filter((product) => product !== null); // Remove products with quantity 0
+    });
   };
+
 
 
 
@@ -241,6 +302,12 @@ const Sell = () => {
     0
   );
 
+  useEffect(() => {
+    if (totalDiscount) {
+      setValue("discount", totalDiscount)
+    }
+  }, [totalDiscount])
+
   const taxRate = 0.10; // 10% tax rate (adjust as needed)
   const tax = subtotal * taxRate;
   const total = subtotal - totalDiscount + tax;
@@ -261,6 +328,24 @@ const Sell = () => {
     setDayExceeded(false)
   }
 
+
+  const paymentCheckout = () => {
+    if (productPayload.length == 0) {
+      toast({
+        variant: "destructive",
+        title: "Please add products to the register",
+      })
+      return;
+    }
+
+    if (!customer) {
+      toast({
+        variant: "destructive",
+        title: "Please select a customer",
+      })
+      return;
+    }
+  }
   return (
     <div className="w-full p-5 ">
 
@@ -323,6 +408,7 @@ const Sell = () => {
 
                         <div className="inline-flex items-center ">
                           <div
+                            onClick={() => updateProductQuantity(product.id, "decrement")}
                             className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
                             <i className="fa fa-minus"></i>
                           </div>
@@ -331,6 +417,7 @@ const Sell = () => {
                             {product.quantity}
                           </div>
                           <div
+                            onClick={() => updateProductQuantity(product.id, "increment")}
                             className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
                             <i className="fa fa-plus"></i>
                           </div>
@@ -353,7 +440,14 @@ const Sell = () => {
                   </div>
                   <div className="w-full flex gap-2 items-center justify-between">
                     <p>Discount</p>
-                    <p>Rs. {roundToTwoDecimals(totalDiscount)} </p> {/* Display Discount */}
+                    <FloatingLabelInput
+                      type="number"
+                      id="discount"
+                      defaultValue={watcher.discount}
+                      placeholder="Enter discount amount"
+                      className="text-right w-32  text-gray-400 rounded-sm"
+                      {...register("discount", { valueAsNumber: true })}
+                    />
                   </div>
                   <div className="w-full flex gap-2 items-center justify-between">
                     <p>Tax</p>
@@ -363,7 +457,7 @@ const Sell = () => {
                     <p>Total</p>
                     <p>Rs. {roundToTwoDecimals(total)}</p> {/* Display Total */}
                   </div>
-                  <Button className="w-full bg-primary text-black rounded-sm" onClick={() => setShowCheckout(true)}>
+                  <Button className="w-full bg-primary text-black rounded-sm" onClick={paymentCheckout}>
                     Pay
                   </Button>
                 </div>
@@ -497,7 +591,6 @@ export function DayExceeded({
   onContinue,
   closeModal
 }: DayExceededProps) {
-  console.log({ isOpen }, "isOpen")
   return (
     <AlertDialog open={isOpen} onOpenChange={closeModal}>
       <AlertDialogContent>

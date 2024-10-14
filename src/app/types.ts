@@ -1,5 +1,9 @@
 import { JSONObject } from "@/types/hook-stepper";
 
+export interface sellForm{
+  discount?:number
+}
+
 export interface createTransaction {
   batch_id: number;
   member_id: number;

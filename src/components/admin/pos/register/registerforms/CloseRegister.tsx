@@ -64,6 +64,7 @@ const CloseRegister: React.FC = () => {
           id: counterData?.id as number,
           closing_balance: data?.closing_balance,
           notes: data?.notes?.toLowerCase(),
+          counter_id: counter_number as number,
         };
         const resp = await closeRegister(payload).unwrap();
         if (resp) {

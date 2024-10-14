@@ -20,10 +20,10 @@ export const statusValues = [
     value: "Unpaid",
     label: "Unpaid",
   },
-  {
-    value: "Partially Paid",
-    label: "Partially Paid",
-  },
+  // {
+  //   value: "Partially Paid",
+  //   label: "Partially Paid",
+  // },
 ];
 export const salesData: SaleshistoryTableType = {
   data: [

@@ -2,6 +2,7 @@ import {
   CoachTableDataTypes,
   MemberTableDatatypes,
   RegisterSession,
+  salesReportInterface,
   staffTypesResponseList,
 } from "@/app/types";
 import Papa from "papaparse";
@@ -38,7 +39,11 @@ export const downloadCSV = <T>(
   link.click();
   document.body.removeChild(link);
 };
-const capitalizeFirstLetter = (str: string) =>
+
+export function replaceUnderscoreWithSpace(inputString: string) {
+  return inputString.replace(/_/g, " "); // Replace all underscores with spaces
+}
+export const capitalizeFirstLetter = (str: string) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
 export const membersMapper = (member: MemberTableDatatypes) => ({
   "Member Id": member.own_member_id,
@@ -110,6 +115,28 @@ export const sessionMapper = ({
   "Created Date": displayDateTime(created_date) || "",
 });
 
+export const SaleHistoryMapper = ({
+  receipt_number,
+  tax_number,
+  member_name,
+  tax_amt,
+  discount_amt,
+  total,
+  status,
+  staff_name,
+  transaction_date,
+}: salesReportInterface) => ({
+  "TXN Number": receipt_number,
+  "SRB Number": displayValue(tax_number) || "",
+  "Member Name": capitalizeFirstLetter(member_name) || "",
+  "Tax Amount": displayValue(tax_amt) || "",
+  "Discount Amount": displayValue(discount_amt) || "",
+  "Total Amount": displayValue(total) || "",
+  Status: capitalizeFirstLetter(status),
+  "Created By": capitalizeFirstLetter(staff_name),
+  "Created Date": displayDateTime(transaction_date) || "",
+});
+
 export const initialValue = {
   limit: 10,
   offset: 0,
@@ -118,7 +145,9 @@ export const initialValue = {
 };
 
 export const displayValue = (value: string | number | undefined | null) => {
-  return value === null || value == undefined || typeof value == "string" && value.trim() == ""
+  return value === null ||
+    value == undefined ||
+    (typeof value == "string" && value.trim() == "")
     ? "N/A"
     : value;
 };

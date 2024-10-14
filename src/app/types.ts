@@ -1540,8 +1540,15 @@ export interface lineItems {
   tax_rate: number;
   discount: number;
   sub_total: number;
+  tax_type: string;
   total: number;
   tax_amount: number;
+}
+
+export interface paymentOptions {
+  payment_method_id: number;
+  payment_method: string;
+  amount: number;
 }
 export interface salesReportInterface {
   id: number;
@@ -1565,6 +1572,7 @@ export interface salesReportInterface {
   status: typeTransactionEnum;
   transaction_date: string;
   items?: lineItems[];
+  payments?: paymentOptions[];
 }
 
 export interface salesReportTableTypes {

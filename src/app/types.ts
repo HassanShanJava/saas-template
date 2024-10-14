@@ -1,7 +1,48 @@
 import { JSONObject } from "@/types/hook-stepper";
 
-export interface sellForm{
-  discount?:number
+enum genderEnum {
+  male = "male",
+  female = "female",
+  other = "other",
+}
+
+interface sellItem {
+  item_id: number
+  item_type: string
+  description: string
+  quantity: number
+  price: number
+  tax_rate: number
+  discount: number
+  sub_total: number
+  total: number
+  tax_amount: number
+}
+
+export interface sellForm {
+  id?: number
+  discount_amt?: number;
+  batch_id?: number | null;
+  member_id?: number | null;
+  member_name?: string | null;
+  member_email?: string | null;
+  member_address?: string | null;
+  member_gender?: genderEnum | null;
+  notes?: string;
+  staff_id?: number | null
+  staff_name?: string
+  receipt_number?: string
+  tax_number?: number | null
+  total?: number | null
+  subtotal?: number | null
+  tax_amt?: number | null
+  main_transaction_id?: number | null
+  status?: "Unpaid" | "Paid" | "Partially Paid"
+  transaction_type?: "Refund" | "Sale"
+  membership_plans?: sellItem[]
+  events?: sellItem[]
+  products?: sellItem[]
+
 }
 
 export interface createTransaction {
@@ -500,11 +541,6 @@ export interface LeadResponseTypes {
   org_id: number;
 }
 
-enum genderEnum {
-  male = "male",
-  female = "female",
-  other = "other",
-}
 
 interface membership_planids {
   membership_plan_id?: number | null;

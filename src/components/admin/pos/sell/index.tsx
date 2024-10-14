@@ -48,7 +48,11 @@ import { MemberTableDatatypes, sellForm } from "@/app/types";
 import { has24HoursPassed, useGetRegisterData } from "@/constants/counter_register";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { set } from "date-fns";
+import { register } from "module";
+import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
+import { useGetIncomeCategorListQuery } from "@/services/incomeCategoryApi";
 
 interface payload {
   discount: number;
@@ -69,7 +73,31 @@ interface searchCriteriaType {
 
 
 const Sell = () => {
-  const { time, isOpen, isContinue, continueDate } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { time: null, isOpen: false, isContinue: false, continueDate: null };
+  const { time, isOpen, isContinue, continueDate, sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { time: null, isOpen: false, isContinue: false, continueDate: null, sessionId: null };
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+  console.log({userInfo})
+  const initialValues: sellForm = {
+    staff_id: userInfo?.user.id,
+    staff_name: userInfo?.user.first_name,
+    discount_amt: undefined,
+    batch_id: sessionId,
+    member_id: null,
+    member_name: null,
+    member_email: null,
+    member_address: null,
+    member_gender: null,
+    notes: "",
+    receipt_number: "",
+    tax_number: null,
+    total: null,
+    subtotal: null,
+    tax_amt: null,
+    status: "Unpaid",
+    transaction_type: "Sale",
+    membership_plans: [],
+    events: [],
+    products: [],
+  }
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
@@ -81,6 +109,7 @@ const Sell = () => {
 
   const form = useForm<sellForm>({
     mode: "all",
+    defaultValues: initialValues,
   });
 
   const {
@@ -166,6 +195,9 @@ const Sell = () => {
     setQuery(newQuery);
   }, [searchCriteria]);
 
+
+  const { data: incomeCatData } = useGetIncomeCategorListQuery(orgId);
+  const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
   const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId, query: query })
 
 
@@ -207,8 +239,8 @@ const Sell = () => {
       name: product.name, // replace with actual name if available
       type: type, // map the product's type
       quantity: 1, // default quantity
-      price: finalPrice, // price after discount (rounded)
       discount: discountAmount, // how much discount is applied in terms of value (rounded)
+      price: finalPrice, // price after discount (rounded)
     };
 
     setProductPayload((prevPayload) => {
@@ -304,9 +336,18 @@ const Sell = () => {
 
   useEffect(() => {
     if (totalDiscount) {
-      setValue("discount", totalDiscount)
+      setValue("discount_amt", totalDiscount)
     }
-  }, [totalDiscount])
+
+    if (customer) {
+      setValue("member_id", customer.id)
+      setValue("member_name", customer.first_name + " " + customer.last_name)
+      setValue("member_email", customer.email)
+      setValue("member_address", customer.address_1+", "+customer.address_2)
+      setValue("member_gender", customer.gender)
+    }
+
+  }, [totalDiscount, customer]);
 
   const taxRate = 0.10; // 10% tax rate (adjust as needed)
   const tax = subtotal * taxRate;
@@ -345,141 +386,165 @@ const Sell = () => {
       })
       return;
     }
+
+    setShowCheckout(true);
   }
+
+  console.log({ watcher })
   return (
-    <div className="w-full p-5 ">
+    <FormProvider {...form} >
+      <div className="p-5">
 
-      {!showCheckout && (
-        <Card className=" h-fit px-3 py-4 max-w-[1100px] mx-auto">
-          <div className="grid grid-cols-1  slg:grid-cols-2 justify-start items-start gap-3">
-            <div className="min-h-36  p-2">
-              <FloatingLabelInput
-                id="search"
-                placeholder="Search by products name"
-                onChange={(event) => setInputValue(event.target.value)}
-                className="w-full pl-8 text-gray-400 rounded-sm"
-                icon={<Search className="size-4 text-gray-400 absolute  z-10 left-2" />}
-              />
+        {!showCheckout && (
+          <Card className=" h-fit px-3 py-4 max-w-[1100px] mx-auto">
+            <div className="grid grid-cols-1  slg:grid-cols-2 justify-start items-start gap-3">
+              <div className="min-h-36  p-2">
+                <FloatingLabelInput
+                  id="search"
+                  placeholder="Search by products name"
+                  onChange={(event) => setInputValue(event.target.value)}
+                  className="w-full pl-8 text-gray-400 rounded-sm"
+                  icon={<Search className="size-4 text-gray-400 absolute  z-10 left-2" />}
+                />
 
-              <Tabs defaultValue="membership_plans" className="w-full mt-4 ">
-                <TabsList variant="underline">
+                <Tabs defaultValue="membership_plans" className="w-full mt-4 ">
+                  <TabsList variant="underline">
+                    {productCategories.map((category) => (
+                      <TabsTrigger key={category.type} value={category.type} variant="underline">
+                        {category.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
                   {productCategories.map((category) => (
-                    <TabsTrigger key={category.type} value={category.type} variant="underline">
-                      {category.label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-                {productCategories.map((category) => (
-                  <TabsContent className="m-0  w-full " key={category.type} value={category.type}>
-                    {category.products.length > 0 ? (
-                      <div className="mt-4 w-full flex flex-wrap gap-4 justify-center items-center">
-                        {category.products.map((product: Record<string, any>) => (
-                          <div onClick={() => addProduct(product, category?.type)} className="relative group hover:bg-primary/20 hover:text-black/60 size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
-                            <span className="capitalize">{product.name}</span>
-                            <span>Rs. {product.net_price}</span>
+                    <TabsContent className="m-0  w-full " key={category.type} value={category.type}>
+                      {category.products.length > 0 ? (
+                        <div className="mt-4 w-full flex flex-wrap gap-4 justify-center items-center">
+                          {category.products.map((product: Record<string, any>) => (
+                            <div onClick={() => addProduct(product, category?.type)} className="relative group hover:bg-primary/20 hover:text-black/60 size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
+                              <span className="capitalize">{product.name}</span>
+                              <span>Rs. {product.net_price}</span>
 
-                            <span className="absolute invisible group-hover:visible  bottom-0   text-black/80 text-sm z-20 p-1">Add</span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="col-span-2 text-sm text-center w-full p-2 mt-2">No products found</p>
-                    )}
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </div>
-
-            <div className="h-full flex flex-col justify-start space-y-2 rounded-sm bg-gray-100 p-2"  >
-              <>
-                <CustomerCombobox list={memberListData} setCustomer={setCustomer} customer={customer} />
-                <div className="bg-white/90">
-
-                  {productPayload.map(product => (
-                    <>
-                      <div className=" flex  justify-between items-center gap-2  p-2 ">
-                        <div>
-                          <p className="capitalize">{product.name}</p>
-                          {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-right">
-                            Rs. {product.price + product.discount}
-                          </p>}
-                          <p className="text-sm">Rs. {product.price}</p>
+                              <span className="absolute invisible group-hover:visible  bottom-0   text-black/80 text-sm z-20 p-1">Add</span>
+                            </div>
+                          ))}
                         </div>
-
-                        <div className="inline-flex items-center ">
-                          <div
-                            onClick={() => updateProductQuantity(product.id, "decrement")}
-                            className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
-                            <i className="fa fa-minus"></i>
-                          </div>
-                          <div
-                            className=" border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-0 select-none">
-                            {product.quantity}
-                          </div>
-                          <div
-                            onClick={() => updateProductQuantity(product.id, "increment")}
-                            className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
-                            <i className="fa fa-plus"></i>
-                          </div>
-                        </div>
-
-
-                      </div >
-                      <Separator className=" h-[1px] font-thin rounded-full" />
-                    </>
+                      ) : (
+                        <p className="col-span-2 text-sm text-center w-full p-2 mt-2">No products found</p>
+                      )}
+                    </TabsContent>
                   ))}
-                </div>
-              </>
+                </Tabs>
+              </div>
 
-              <div className="rounded-sm bg-white/90 mx-1">
-
-                <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
-                  <div className="w-full flex gap-2  items-center justify-between">
-                    <p>Subtotal</p>
-                    <p>Rs. {roundToTwoDecimals(subtotal)}</p> {/* Display Subtotal */}
-                  </div>
-                  <div className="w-full flex gap-2 items-center justify-between">
-                    <p>Discount</p>
-                    <FloatingLabelInput
-                      type="number"
-                      id="discount"
-                      defaultValue={watcher.discount}
-                      placeholder="Enter discount amount"
-                      className="text-right w-32  text-gray-400 rounded-sm"
-                      {...register("discount", { valueAsNumber: true })}
+              <div className="h-full flex flex-col justify-start space-y-2 rounded-sm bg-gray-100 p-2"  >
+                <>
+                  <div className="item-center flex gap-3">
+                    <RetriveSaleCombobox
+                      label={"Retrive Sale"}
+                      list={memberListData}
+                      setCustomer={setCustomer}
+                      customer={customer}
                     />
+                    <Button className="w-full justify-center items-center gap-2">
+                      <i className="fa-regular fa-clock"></i>
+                      Park Sale
+                    </Button>
                   </div>
-                  <div className="w-full flex gap-2 items-center justify-between">
-                    <p>Tax</p>
-                    <p>Rs. {roundToTwoDecimals(tax)}</p> {/* Display Tax */}
+
+                  <CustomerCombobox
+                    label={"Search customer"}
+                    list={memberListData}
+                    setCustomer={setCustomer}
+                    customer={customer}
+                  />
+                  <div className="bg-white/90">
+
+                    {productPayload.map(product => (
+                      <>
+                        <div className=" flex  justify-between items-center gap-2  p-2 ">
+                          <div>
+                            <p className="capitalize">{product.name}</p>
+                            {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-right">
+                              Rs. {product.price + product.discount}
+                            </p>}
+                            <p className="text-sm">Rs. {product.price}</p>
+                          </div>
+
+                          <div className="inline-flex items-center ">
+                            <div
+                              onClick={() => updateProductQuantity(product.id, "decrement")}
+                              className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                              <i className="fa fa-minus"></i>
+                            </div>
+                            <div
+                              className=" border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-0 select-none">
+                              {product.quantity}
+                            </div>
+                            <div
+                              onClick={() => updateProductQuantity(product.id, "increment")}
+                              className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                              <i className="fa fa-plus"></i>
+                            </div>
+                          </div>
+
+
+                        </div >
+                        <Separator className=" h-[1px] font-thin rounded-full" />
+                      </>
+                    ))}
                   </div>
-                  <div className="w-full flex gap-2 items-center justify-between font-bold">
-                    <p>Total</p>
-                    <p>Rs. {roundToTwoDecimals(total)}</p> {/* Display Total */}
+                </>
+
+                <div className="rounded-sm bg-white/90 mx-1">
+
+                  <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
+                    <div className="w-full flex gap-2  items-center justify-between">
+                      <p>Subtotal</p>
+                      <p>Rs. {roundToTwoDecimals(subtotal)}</p> {/* Display Subtotal */}
+                    </div>
+                    <div className="w-full flex gap-2 items-center justify-between">
+                      <p>Discount</p>
+                      <FloatingLabelInput
+                        type="number"
+                        id="discount_amt"
+                        defaultValue={watcher.discount_amt}
+                        placeholder="Enter discount amount"
+                        className="text-right w-fit  text-gray-400 rounded-sm"
+                        {...register("discount_amt", { valueAsNumber: true })}
+                      />
+                    </div>
+                    <div className="w-full flex gap-2 items-center justify-between">
+                      <p>Tax</p>
+                      <p>Rs. {roundToTwoDecimals(tax)}</p> {/* Display Tax */}
+                    </div>
+                    <div className="w-full flex gap-2 items-center justify-between font-bold">
+                      <p>Total</p>
+                      <p>Rs. {roundToTwoDecimals(total)}</p> {/* Display Total */}
+                    </div>
+                    <Button className="w-full bg-primary text-black rounded-sm" onClick={paymentCheckout}>
+                      Pay
+                    </Button>
                   </div>
-                  <Button className="w-full bg-primary text-black rounded-sm" onClick={paymentCheckout}>
-                    Pay
-                  </Button>
+
                 </div>
+
 
               </div>
 
-
             </div>
-
-          </div>
-        </Card>
-      )}
+          </Card>
+        )}
 
 
-      {showCheckout && (
-        <Checkout setShowCheckout={setShowCheckout} />
-      )}
+        {showCheckout && (
+          <Checkout setShowCheckout={setShowCheckout} productPayload={productPayload} customer={customer} watcher={watcher} />
+        )}
 
 
-      <DayExceeded isOpen={dayExceeded} onClose={handleCloseDayExceeded} onContinue={handleContinueDayExceeded} closeModal={() => setDayExceeded(false)} />
+        <DayExceeded isOpen={dayExceeded} onClose={handleCloseDayExceeded} onContinue={handleContinueDayExceeded} closeModal={() => setDayExceeded(false)} />
+      </div>
 
-    </div>
+    </FormProvider>
 
   );
 };
@@ -491,7 +556,16 @@ export default Sell;
 
 
 
-function Checkout({ setShowCheckout }: any) {
+function Checkout({ setShowCheckout, watcher, productPayload, customer }: any) {
+  const {
+    control,
+    formState: { errors },
+    setValue,
+    getValues,
+    register,
+    trigger,
+    watch,
+  } = useFormContext<sellForm>();
   return (
     <div className=" ">
 
@@ -539,17 +613,17 @@ function Checkout({ setShowCheckout }: any) {
 
             <div className="mt-5 h-full flex flex-col  justify-between gap-6">
               <div>
-                <RadioGroup defaultValue="card">
+                <RadioGroup defaultValue="cash">
                   <div className="flex items-center space-x-4 mt-4">
-                    <RadioGroupItem value="paypal" id="paypal" />
-                    <Label htmlFor="paypal" className="flex items-center space-x-2">
+                    <RadioGroupItem value="cash" id="cash" />
+                    <Label htmlFor="cash" className="flex items-center space-x-2">
                       <span>Cash</span>
                     </Label>
                   </div>
 
                   <div className="flex items-center space-x-4">
-                    <RadioGroupItem value="card" id="card" />
-                    <Label htmlFor="card" className="flex items-center space-x-2">
+                    <RadioGroupItem value="credit_debit" id="credit_debit" />
+                    <Label htmlFor="credit_debit" className="flex items-center space-x-2">
                       <span>Credit/Debit Card</span>
                     </Label>
                   </div>
@@ -563,6 +637,13 @@ function Checkout({ setShowCheckout }: any) {
                   type="textarea"
                   rows={7}
                   className="custom-scrollbar col-span-2 peer-placeholder-shown:top-[10%]"
+                  {...register("notes", {
+                    maxLength: {
+                      value: 200,
+                      message: "Notes should not exceed 200 characters"
+                    }
+                  })}
+                  error={errors.notes?.message}
                 />
               </div>
 
@@ -613,13 +694,19 @@ interface customerComboboxTypes {
   list: MemberTableDatatypes[];
   setCustomer: any;
   customer: any;
+  label?: string
 }
 
-export function CustomerCombobox({ list, setCustomer, customer }: customerComboboxTypes) {
+export function CustomerCombobox({ list, setCustomer, customer, label }: customerComboboxTypes) {
   const modifiedList = list?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-
+  useEffect(() => {
+    if (customer) {
+      setValue(`${customer.id}`)
+    }
+  }, [customer])
+  console.log({ value, customer }, "customer")
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -631,13 +718,65 @@ export function CustomerCombobox({ list, setCustomer, customer }: customerCombob
         >
           {value
             ? modifiedList?.find((customer: any) => customer.value == value)?.label
-            : "Select customer..."}
+            : label}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className=" w-[500px] p-0">
         <Command>
-          <CommandInput placeholder="Search customer..." />
+          <CommandInput placeholder={label} />
+          <CommandList className="w-[500px]">
+            <CommandEmpty>No customer found.</CommandEmpty>
+            <CommandGroup className="">
+              {modifiedList?.map((customer: any) => (
+                <CommandItem
+                  key={customer.value + ""}
+                  value={customer.value + ""}
+                  onSelect={(currentValue) => {
+                    setValue(currentValue === value ? "" : currentValue)
+                    const customer = list?.find((item: any) => item.id == currentValue)
+                    setCustomer(customer)
+                    setOpen(false)
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === customer.value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {customer.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+export function RetriveSaleCombobox({ list, setCustomer, customer, label }: customerComboboxTypes) {
+  const modifiedList = list?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState("")
+  console.log({ value, customer }, "retrived")
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild >
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className=" capitalize w-full justify-center items-center gap-2  bg-white rounded-sm border-[1px]"
+        >
+          <i className="fa fa-share"></i>
+          {label}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className=" w-[240px] p-0" side="bottom">
+        <Command>
+          <CommandInput placeholder={label} />
           <CommandList className="w-[500px]">
             <CommandEmpty>No customer found.</CommandEmpty>
             <CommandGroup className="">

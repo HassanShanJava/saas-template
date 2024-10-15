@@ -434,7 +434,9 @@ const MemberForm = ({
         (item) => item.id === 0 && item.name?.trim() === ""
       )
         ? []
-        : memberData?.coaches.map((item) => item.id);
+        : memberData?.coaches
+            .filter((item) => item.id !== 0 && item.name?.trim() !== "") // Filter out invalid entries
+            .map((item) => item.id);
 
       if (
         memberpayload?.mobile_number &&
@@ -573,9 +575,16 @@ const MemberForm = ({
     }
     try {
       if (action == "add") {
+        const validMembershipPlans = membershipPlansdata.filter(
+          (plan) =>
+            plan.membership_plan_id !== undefined &&
+            plan.membership_plan_id !== null
+        );
+
         const payload = {
           ...updatedData,
-          membership_plans: membershipPlansdata,
+          membership_plans:
+            validMembershipPlans.length > 0 ? validMembershipPlans : [],
         };
         console.log({ payload }, "add");
 
@@ -590,6 +599,11 @@ const MemberForm = ({
           handleClose();
         }
       } else {
+        const validMembershipPlans = membershipPlansdata.filter(
+          (plan) =>
+            plan.membership_plan_id !== undefined &&
+            plan.membership_plan_id !== null
+        );
         console.log(
           {
             ...updatedData,
@@ -600,7 +614,8 @@ const MemberForm = ({
         );
         const payload = {
           ...updatedData,
-          membership_plans: membershipPlansdata,
+          membership_plans:
+            validMembershipPlans.length > 0 ? validMembershipPlans : [],
         };
         console.log("Payload as final", payload);
         const resp = await editMember({

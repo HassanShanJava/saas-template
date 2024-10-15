@@ -554,7 +554,16 @@ export default function ExerciseTableView() {
               className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
               onClick={() => setOpenFilter(true)}
             >
-              <i className="fa fa-filter"></i>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <i className="fa fa-filter"></i>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>click to apply filter</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </button>
           </div>
         </div>

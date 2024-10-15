@@ -44,33 +44,16 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { roundToTwoDecimals } from "@/utils/helper";
 import { useDebounce } from "@/hooks/use-debounce";
-import { MemberTableDatatypes, sellForm } from "@/app/types";
+import { MemberTableDatatypes, sellForm, sellItem } from "@/app/types";
 import { has24HoursPassed, useGetRegisterData } from "@/constants/counter_register";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
-import { set } from "date-fns";
-import { register } from "module";
 import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
 import { useGetIncomeCategorListQuery } from "@/services/incomeCategoryApi";
-
-interface payload {
-  discount: number;
-  quantity: number;
-  price: number;
-  name: string;
-  type: string;
-  id: number;
-}
-
-
 interface searchCriteriaType {
   search_key?: string;
 }
-
-
-
-
 
 const Sell = () => {
   const { time, isOpen, isContinue, continueDate, sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { time: null, isOpen: false, isContinue: false, continueDate: null, sessionId: null };
@@ -97,12 +80,13 @@ const Sell = () => {
     membership_plans: [],
     events: [],
     products: [],
+    payments: [],
   }
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
 
-  const [productPayload, setProductPayload] = useState<payload[]>([])
+  const [productPayload, setProductPayload] = useState<sellItem[]>([])
   const [showCheckout, setShowCheckout] = useState<boolean>(false)
   const [dayExceeded, setDayExceeded] = useState<boolean>(false)
   const navigate = useNavigate()
@@ -228,48 +212,69 @@ const Sell = () => {
 
 
   const addProduct = (product: any, type: string) => {
-
     // Calculate the discount amount
     const discountPercentage = product.discount || 0; // Percentage discount from the product
     const discountAmount = Math.floor((product.net_price * discountPercentage) / 100 * 100) / 100; // Calculate and round discount to 2 decimal places
     const finalPrice = Math.floor((product.net_price - discountAmount) * 100) / 100; // Final price after discount, rounded to 2 decimal places
-
+    
+    const incomeCat = incomeCatData?.filter(
+      (item) => item.id == product.income_category_id
+    )[0];
+    const saleTax = salesTaxData?.filter(
+      (item) => item.id == incomeCat?.sale_tax_id
+    )[0];
+    const taxRate = saleTax || 0; // Add logic to get product tax rate
+    const taxAmount = Math.floor((finalPrice * taxRate) / 100 * 100) / 100; // Calculate tax based on price after discount, rounded
+  
+    // Sub-total and total calculations
+    const subTotal = Math.floor((finalPrice + taxAmount) * 100) / 100; // Sub-total before tax
+    const total = Math.floor((finalPrice + taxAmount) * 100) / 100; // Total after adding tax
+  
     const newProductPayload = {
-      id: product.id, // assuming `id` exists in your product data
-      name: product.name, // replace with actual name if available
-      type: type, // map the product's type
-      quantity: 1, // default quantity
-      discount: discountAmount, // how much discount is applied in terms of value (rounded)
-      price: finalPrice, // price after discount (rounded)
+      item_id: product.id, // Assuming product.id exists
+      item_type: type, // Product type
+      description: product.name, // Replace with the actual product name
+      quantity: 1, // Default quantity
+      price: finalPrice, // Price after discount
+      tax_rate: taxRate, // Tax rate applied
+      discount: discountAmount, // Discount amount
+      sub_total: subTotal, // Sub-total before tax
+      tax_type: product.tax_type || 'standard', // Assuming a tax type, replace with actual tax type
+      total: total, // Final total after tax
+      tax_amount: taxAmount // Tax amount calculated
     };
-
+  
     setProductPayload((prevPayload) => {
-      const existingProduct = prevPayload.find((prod) => prod.id === product.id);
-
+      const existingProduct = prevPayload.find((prod) => prod.item_id === product.id);
+  
       if (existingProduct) {
-        // If product with the same id exists, update quantity, price, and discount
+        // If product with the same id exists, update quantity, price, discount, and totals
         return prevPayload.map((prod) =>
-          prod.id === product.id
+          prod.item_id === product.id
             ? {
               ...prod,
               quantity: prod.quantity + 1, // Increment quantity
-              price: Math.floor((prod.price + finalPrice) * 100) / 100, // Add the price of the new addition after discount (rounded)
-              discount: Math.floor((prod.discount + discountAmount) * 100) / 100, // Add the applied discount amount (rounded)
+              price: Math.floor((prod.price + finalPrice) * 100) / 100, // Add price of new addition
+              discount: Math.floor((prod.discount + discountAmount) * 100) / 100, // Add the discount
+              sub_total: Math.floor((prod.sub_total + subTotal) * 100) / 100, // Update sub-total
+              total: Math.floor((prod.total + total) * 100) / 100, // Update total
+              tax_amount: Math.floor((prod.tax_amount + taxAmount) * 100) / 100 // Update tax amount
             }
             : prod
         );
       }
-
+  
       // If product is new, add it to the payload
       return [...prevPayload, newProductPayload];
     });
   };
+  
 
   const updateProductQuantity = (productId: number, action: 'increment' | 'decrement') => {
     setProductPayload((prevPayload) => {
       return prevPayload
         .map((product) => {
-          if (product.id === productId) {
+          if (product.item_id === productId) {
             const discountPercentage = product.discount / product.price; // Calculate discount percentage based on current price and discount
             const unitPrice = Math.floor((product.price / product.quantity) * 100) / 100; // Get the price per unit
             const unitDiscount = Math.floor((unitPrice * discountPercentage) * 100) / 100; // Calculate per unit discount
@@ -463,7 +468,7 @@ const Sell = () => {
                       <>
                         <div className=" flex  justify-between items-center gap-2  p-2 ">
                           <div>
-                            <p className="capitalize">{product.name}</p>
+                            <p className="capitalize">{product.description}</p>
                             {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-right">
                               Rs. {product.price + product.discount}
                             </p>}
@@ -472,7 +477,7 @@ const Sell = () => {
 
                           <div className="inline-flex items-center ">
                             <div
-                              onClick={() => updateProductQuantity(product.id, "decrement")}
+                              onClick={() => updateProductQuantity(product.item_id, "decrement")}
                               className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
                               <i className="fa fa-minus"></i>
                             </div>
@@ -481,7 +486,7 @@ const Sell = () => {
                               {product.quantity}
                             </div>
                             <div
-                              onClick={() => updateProductQuantity(product.id, "increment")}
+                              onClick={() => updateProductQuantity(product.item_id, "increment")}
                               className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
                               <i className="fa fa-plus"></i>
                             </div>

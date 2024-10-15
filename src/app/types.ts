@@ -6,7 +6,7 @@ enum genderEnum {
   other = "other",
 }
 
-interface sellItem {
+export interface sellItem {
   item_id: number
   item_type: string
   description: string
@@ -42,6 +42,11 @@ export interface sellForm {
   membership_plans?: sellItem[]
   events?: sellItem[]
   products?: sellItem[]
+  payments?: {
+    payment_method_id?: number
+    payment_method?: string
+    amount?: number   
+  }[]
 
 }
 

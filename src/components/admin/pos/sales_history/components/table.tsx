@@ -683,7 +683,7 @@ export default function SaleshistoryRegisterViewTable() {
           <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
             <TabsTrigger
               value="Sale"
-              className="relative text-xl rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-bold text-muted-foreground shadow-none transition-none focus-visible:ring-0 data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+              className="relative text-base rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-bold text-muted-foreground shadow-none transition-none focus-visible:ring-0 data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
               onClick={() =>
                 setSearchCriteria(() => ({
                   type: "Sale",
@@ -698,7 +698,7 @@ export default function SaleshistoryRegisterViewTable() {
             </TabsTrigger>
             <TabsTrigger
               value="Refund"
-              className="relative text-xl rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-bold text-muted-foreground shadow-none transition-none focus-visible:ring-0 data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+              className="relative text-base rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-bold text-muted-foreground shadow-none transition-none focus-visible:ring-0 data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
               onClick={() =>
                 setSearchCriteria(() => ({
                   type: "Refund",
@@ -872,7 +872,7 @@ export default function SaleshistoryRegisterViewTable() {
                                 Payment Details
                               </h4>
                               <div className="grid grid-cols-12 py-2 gap-4 font-semibold">
-                                <span className="col-span-1  text-nowrap">
+                                <span className="col-span-2  text-nowrap">
                                   Payment Method
                                 </span>
                                 <span className="col-span-1">Amount</span>
@@ -883,7 +883,7 @@ export default function SaleshistoryRegisterViewTable() {
                                     key={i}
                                     className="grid grid-cols-12 py-2 gap-4 border-b last:border-b-0"
                                   >
-                                    <span className="col-span-1">
+                                    <span className="col-span-2">
                                       {payment.payment_method}
                                     </span>
                                     <span>Rs {payment.amount.toFixed(2)}</span>

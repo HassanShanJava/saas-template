@@ -1532,7 +1532,7 @@ export enum statusEnumGrid {
 export enum typeTransactionEnum {
   Paid = "Paid",
   Unpaid = "Unpaid",
-  Partially_Paid = "Partially Paid",
+  // Partially_Paid = "Partially Paid",
 }
 
 export interface lineItems {

@@ -62,8 +62,12 @@ const Sell = () => {
   const { time, isOpen, isContinue, continueDate, sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { time: null, isOpen: false, isContinue: false, continueDate: null, sessionId: null };
   const { userInfo } = useSelector((state: RootState) => state.auth);
   console.log({ userInfo })
+  const orgId =
+  useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
   const initialValues: sellForm = {
     staff_id: userInfo?.user.id,
+    counter_id: counter_number as number,
     staff_name: userInfo?.user.first_name,
     discount_amt: undefined,
     batch_id: sessionId,
@@ -91,9 +95,6 @@ const Sell = () => {
       },
     ],
   }
-  const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
   const { data: orgTaxType } = useGetOrgTaxTypeQuery(orgId)
   const tax_type = "inclusive";
   const [productPayload, setProductPayload] = useState<sellItem[]>([])

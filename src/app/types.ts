@@ -19,7 +19,8 @@ export interface sellItem {
 }
 
 export interface sellForm {
-  id?: number
+  id?: number;
+  counter_id: number;
   discount_amt?: number;
   batch_id?: number | null;
   member_id?: number | null;

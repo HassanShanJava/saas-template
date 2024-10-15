@@ -3,7 +3,11 @@ import { JSONObject } from "@/types/hook-stepper";
 export interface sellForm {
   discount?: number;
 }
-
+export enum statusEnum {
+  pending = "pending",
+  active = "active",
+  inactive = "inactive",
+}
 export interface createTransaction {
   batch_id: number;
   member_id: number;
@@ -1520,7 +1524,7 @@ export interface PaymentMethodPlugin {
   enabled: boolean;
 }
 
-export enum statusEnum {
+export enum statusEnumGrid {
   Sale = "Sale",
   Refund = "Refund",
 }
@@ -1568,7 +1572,7 @@ export interface salesReportInterface {
   tax_amt: number;
   discount_amt: number;
   main_transaction_id: number;
-  transaction_type: statusEnum;
+  transaction_type: statusEnumGrid;
   status: typeTransactionEnum;
   transaction_date: string;
   items?: lineItems[];

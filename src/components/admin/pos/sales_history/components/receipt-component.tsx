@@ -1,4 +1,4 @@
-import { salesReportInterface, statusEnum } from "@/app/types";
+import { salesReportInterface, statusEnum, statusEnumGrid } from "@/app/types";
 import React from "react";
 
 interface ReceiptProps {
@@ -7,7 +7,7 @@ interface ReceiptProps {
 import { capitalizeFirstLetter } from "@/utils/helper";
 
 const Receipt: React.FC<ReceiptProps> = ({ salesReport }) => {
-  const isRefund = salesReport.transaction_type === statusEnum.Refund;
+  const isRefund = salesReport.transaction_type === statusEnumGrid.Refund;
 
   return (
     <div className="p-6 border border-gray-300 rounded-lg shadow-md max-w-sm mx-auto">

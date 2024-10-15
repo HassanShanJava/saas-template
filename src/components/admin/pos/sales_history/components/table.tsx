@@ -659,6 +659,28 @@ export default function SaleshistoryRegisterViewTable() {
               className="w-full" // Ensure full width
             />
           </div>
+          <Button
+            variant={"outline"}
+            className="text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+            onClick={() => {
+              setFilter({});
+              setSearchCriteria(initialValue);
+            }}
+          >
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="gap-2 flex justify-center items-center">
+                    <i className="fa-solid fa-arrows-rotate"></i>
+                    Reset
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Reset date range</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </Button>
           <DataTableViewOptions table={table} action={handleExportSelected} />
 
           <button

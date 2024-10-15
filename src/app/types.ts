@@ -5,7 +5,6 @@ enum genderEnum {
   female = "female",
   other = "other",
 }
-
 export interface sellItem {
   item_id: number
   item_type: string
@@ -45,9 +44,8 @@ export interface sellForm {
   payments?: {
     payment_method_id?: number
     payment_method?: string
-    amount?: number   
+    amount?: number
   }[]
-
 }
 
 export interface createTransaction {
@@ -1581,8 +1579,15 @@ export interface lineItems {
   tax_rate: number;
   discount: number;
   sub_total: number;
+  tax_type: string;
   total: number;
   tax_amount: number;
+}
+
+export interface paymentOptions {
+  payment_method_id: number;
+  payment_method: string;
+  amount: number;
 }
 export interface salesReportInterface {
   id: number;
@@ -1594,7 +1599,7 @@ export interface salesReportInterface {
   member_gender: genderEnum;
   staff_id: number;
   staff_name: string;
-  reciept_number: string;
+  receipt_number: string;
   notes: string;
   tax_number: number;
   total: number;
@@ -1606,6 +1611,7 @@ export interface salesReportInterface {
   status: typeTransactionEnum;
   transaction_date: string;
   items?: lineItems[];
+  payments?: paymentOptions[];
 }
 
 export interface salesReportTableTypes {

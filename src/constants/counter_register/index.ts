@@ -6,8 +6,8 @@ const { VITE_REGISTER_MAX_HOUR } = import.meta.env;
 
 export const has24HoursPassed = (storedTime: number) => {
   const currentTime = Date.now();
-  console.log(currentTime , storedTime , VITE_REGISTER_MAX_HOUR * 60 * 60 * 1000)
-  return (currentTime - storedTime) > VITE_REGISTER_MAX_HOUR * 60 * 60 * 1000;
+  console.log(currentTime, storedTime, VITE_REGISTER_MAX_HOUR * 60 * 60 * 1000);
+  return currentTime - storedTime > VITE_REGISTER_MAX_HOUR * 60 * 60 * 1000;
 };
 
 export function useGetRegisterData(counter_id: number): {
@@ -44,7 +44,20 @@ export function useGetRegisterData(counter_id: number): {
 
       // If API has loaded, use it to verify local storage data
       if (counterData && !isDataLoading && !error) {
-        if (counterData.closing_time) {
+        if (counterData.id !== session.sessionId) {
+          const newSessionData = {
+            time: Date.now().toString(),
+            isOpen: true,
+            isContinue: false,
+            continueDate: null,
+            sessionId: counterData.id as number,
+            opening_balance: counterData.opening_balance as number,
+            opening_time: counterData.opening_time as string,
+          };
+          saveToLocalStorage("registerSession", newSessionData);
+          setData(newSessionData);
+          setIsRegisterOpen(true);
+        } else if (counterData.closing_time) {
           // Register is closed, clear local session
           setIsRegisterOpen(false);
           localStorage.removeItem("registerSession");
@@ -62,8 +75,8 @@ export function useGetRegisterData(counter_id: number): {
           time: Date.now().toString(),
           isOpen: true,
           isContinue: false,
-          continueDate:null,
-          sessionId: counterData.id ?? 1,
+          continueDate: null,
+          sessionId: counterData.id as number,
           opening_balance: counterData.opening_balance as number,
           opening_time: counterData.opening_time as string,
         };
@@ -81,7 +94,6 @@ export function useGetRegisterData(counter_id: number): {
       setIsDayExceed(false); // Reset day exceed if register is open
     }
 
-
     if (
       error &&
       "data" in error &&
@@ -94,11 +106,11 @@ export function useGetRegisterData(counter_id: number): {
       // Stop loading when everything is processed
       setIsLoading(
         isDataLoading ||
-        (!!error &&
-          !(
-            "data" in error &&
-            (error as any).data?.detail === "Last session not found"
-          ))
+          (!!error &&
+            !(
+              "data" in error &&
+              (error as any).data?.detail === "Last session not found"
+            ))
       );
     }
     // Stop loading when everything is processed

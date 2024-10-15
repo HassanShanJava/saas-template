@@ -10,6 +10,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,6 +39,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   lineItems,
+  paymentOptions,
   RegisterSession,
   Salehistory,
   SaleshistoryTableType,
@@ -46,7 +49,14 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import Papa from "papaparse";
-import { displayDateTime, displayValue, formatDate } from "@/utils/helper";
+import {
+  capitalizeFirstLetter,
+  displayDateTime,
+  displayValue,
+  formatDate,
+  replaceUnderscoreWithSpace,
+  SaleHistoryMapper,
+} from "@/utils/helper";
 import Pagination from "@/components/ui/table/pagination-table";
 import usePagination from "@/hooks/use-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
@@ -69,6 +79,7 @@ interface searchCretiriaType {
   search_key?: string;
   start_date?: string;
   end_date?: string;
+  type?: string;
 }
 
 const initialValue = {
@@ -76,6 +87,7 @@ const initialValue = {
   offset: 0,
   sort_order: "desc",
   sort_key: "id",
+  type: "Sale",
 };
 
 export default function SaleshistoryRegisterViewTable() {
@@ -195,20 +207,14 @@ export default function SaleshistoryRegisterViewTable() {
       });
       return;
     }
-    // downloadCSV(selectedRows, "sale_history.csv", sessionMapper);
+    downloadCSV(selectedRows, "sale_report.csv", SaleHistoryMapper);
   };
 
   const actionsColumn: ColumnDef<salesReportInterface> = {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
-      <DataTableRowActions
-        access={pos_sale_history}
-        // row={row.original.id}
-        data={row?.original}
-        // refetch={refetch}
-        // handleEditMember={handleEditForm}
-      />
+      <DataTableRowActions access={pos_sale_history} data={row?.original} />
     ),
   };
 
@@ -272,7 +278,7 @@ export default function SaleshistoryRegisterViewTable() {
 
             <div className="">
               <p className="capitalize cursor-pointer">
-                <span>{displayValue(row.original.reciept_number)}</span>
+                <span>{displayValue(row.original.receipt_number)}</span>
               </p>
             </div>
           </div>
@@ -310,7 +316,7 @@ export default function SaleshistoryRegisterViewTable() {
       meta: "user",
       header: () => (
         <div className="flex items-center gap-2">
-          <p className="text-nowrap">Member</p>
+          <p className="text-nowrap">Member Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("member_name")}
@@ -323,7 +329,7 @@ export default function SaleshistoryRegisterViewTable() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+          <div className="flex capitalize items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original.member_name)}
           </div>
         );
@@ -387,31 +393,6 @@ export default function SaleshistoryRegisterViewTable() {
       enableSorting: false,
       enableHiding: false,
     },
-    {
-      accessorKey: "type",
-      meta: "Type",
-      header: () => (
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Type</p>
-          <button
-            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("transaction_type")}
-          >
-            <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
-            ></i>
-          </button>
-        </div>
-      ),
-      cell: ({ row }) => {
-        return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.transaction_type)}
-          </div>
-        );
-      },
-    },
-
     {
       accessorKey: "totalamount",
       meta: "total amount",
@@ -505,7 +486,6 @@ export default function SaleshistoryRegisterViewTable() {
                                 "..."
                             : `${row.original.staff_name}`
                         )}
-                        N/A
                       </span>
                     </p>
                   </TooltipTrigger>
@@ -623,6 +603,7 @@ export default function SaleshistoryRegisterViewTable() {
       [field]: value,
     }));
   }
+
   const filterDisplay = [
     {
       type: "select",
@@ -634,16 +615,16 @@ export default function SaleshistoryRegisterViewTable() {
       })),
       function: (value: string) => handleFilterChange("status", value),
     },
-    {
-      type: "select",
-      name: "type",
-      label: "Type",
-      options: typeValues.map((item) => ({
-        id: item.value,
-        name: item.label,
-      })),
-      function: (value: string) => handleFilterChange("type", value),
-    },
+    // {
+    //   type: "select",
+    //   name: "type",
+    //   label: "Type",
+    //   options: typeValues.map((item) => ({
+    //     id: item.value,
+    //     name: item.label,
+    //   })),
+    //   function: (value: string) => handleFilterChange("type", value),
+    // },
   ];
 
   console.log("limit here", searchCriteria.limit, searchCriteria.offset);
@@ -684,10 +665,56 @@ export default function SaleshistoryRegisterViewTable() {
             className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}
           >
-            <i className="fa fa-filter"></i>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <i className="fa fa-filter"></i>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>click to apply filter</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </button>
         </div>
       </div>
+      <div className="w-full flex justify-start items-center">
+        <Tabs defaultValue="Sale" className="relative mr-auto w-full">
+          <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
+            <TabsTrigger
+              value="Sale"
+              className="relative text-xl rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-bold text-muted-foreground shadow-none transition-none focus-visible:ring-0 data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+              onClick={() =>
+                setSearchCriteria(() => ({
+                  type: "Sale",
+                  sort_key: "id",
+                  limit: 10,
+                  offset: 0,
+                  sort_order: "desc",
+                }))
+              }
+            >
+              Sale
+            </TabsTrigger>
+            <TabsTrigger
+              value="Refund"
+              className="relative text-xl rounded-none border-b-2 border-b-transparent bg-transparent px-4 pb-3 pt-2 font-bold text-muted-foreground shadow-none transition-none focus-visible:ring-0 data-[state=active]:border-b-primary data-[state=active]:text-foreground data-[state=active]:shadow-none"
+              onClick={() =>
+                setSearchCriteria(() => ({
+                  type: "Refund",
+                  sort_key: "id",
+                  limit: 10,
+                  offset: 0,
+                  sort_order: "desc",
+                }))
+              }
+            >
+              Refund
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
       <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
           <ScrollBar
@@ -714,8 +741,7 @@ export default function SaleshistoryRegisterViewTable() {
               ))}
             </TableHeader>
             <TableBody>
-              {/* {isLoading ? ( */}
-              {false ? (
+              {salesDataLoading ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -744,142 +770,253 @@ export default function SaleshistoryRegisterViewTable() {
                         </TableCell>
                       ))}
                     </TableRow>
-                    {row.original.transaction_type === "Sale" ? (
-                      <TableRow>
-                        <TableCell colSpan={12}>
-                          <div className="py-4">
-                            <h3 className="text-lg font-bold">Sale Details</h3>
-                            {/* Line items */}
-                            <div className="grid grid-cols-12 py-2 font-semibold">
-                              <span className="col-span-1">Qty</span>
-                              <span className="col-span-2">Item Type</span>
-                              <span className="col-span-3">Description</span>
-                              <span className="col-span-2">Price</span>
-                              <span className="col-span-1">Discount</span>
-                              <span className="col-span-2">Tax (Rate)</span>
-                              <span className="col-span-1 text-right">
-                                Total
-                              </span>
-                            </div>
-                            {row.original.items?.map(
-                              (item: lineItems, i: number) => (
-                                <div key={i} className="grid grid-cols-12 py-2">
-                                  <span className="col-span-1">
-                                    {item.quantity}
-                                  </span>
-                                  <span className="col-span-2">
-                                    {item.item_type}
-                                  </span>
-                                  <span className="col-span-3">
-                                    {item.description}
-                                  </span>
-                                  <span className="col-span-2">
-                                    Rs {item.price.toFixed(2)}
-                                  </span>
-                                  <span className="col-span-1">
-                                    Rs {item.discount.toFixed(2)}
-                                  </span>
-                                  <span className="col-span-2">
-                                    Rs {item.tax_amount.toFixed(2)} (
-                                    {item.tax_rate}%)
-                                  </span>
-                                  <span className="col-span-1 text-right">
-                                    Rs {item.total.toFixed(2)}
-                                  </span>
+                    {row.getIsExpanded() && (
+                      <>
+                        {row.original.transaction_type === "Sale" ? (
+                          <TableRow>
+                            <TableCell colSpan={12}>
+                              <div className="py-4">
+                                <h3 className="text-lg font-bold mb-4">
+                                  Sale Details
+                                </h3>
+                                {/* Line items */}
+                                <div className="grid grid-cols-12 py-2 gap-4 font-semibold">
+                                  <span className="col-span-2">Item Type</span>
+                                  <span className="col-span-1">Name</span>
+                                  <span className="col-span-1">Qty</span>
+                                  <span className="col-span-1">Price</span>
+                                  <span className="col-span-1">Discount</span>
+                                  <span className="col-span-1">Tax (Rate)</span>
+                                  <span className="col-span-1">Tax Type</span>
+                                  <span className="col-span-1">Sub Total</span>
+                                  <span className="col-span-1">Total</span>
+                                  <span className="col-span-1">Notes</span>
                                 </div>
-                              )
-                            )}
-                            <Separator />
-                            {/* Subtotal, Tax, and Total */}
-                            <div className="grid grid-cols-5">
-                              <div className="col-span-2">Note</div>
-                              <div className="col-span-3">
-                                <div className="flex justify-between py-2">
-                                  <span>Subtotal</span>
-                                  <span>
-                                    Rs {row.original.subtotal.toFixed(2)}
-                                  </span>
+                                {row.original.items?.map(
+                                  (item: lineItems, i: number) => (
+                                    <div
+                                      key={i}
+                                      className="grid grid-cols-12 py-2 gap-4 border-b last:border-b-0"
+                                    >
+                                      <span className="col-span-2 text-nowrap">
+                                        {capitalizeFirstLetter(
+                                          replaceUnderscoreWithSpace(
+                                            item.item_type
+                                          )
+                                        )}
+                                      </span>
+                                      <span className="col-span-1">
+                                        {item.description}
+                                      </span>
+                                      <span className="col-span-1">
+                                        {item.quantity}
+                                      </span>
+                                      <span className="col-span-1">
+                                        {item.price.toFixed(2)}
+                                      </span>
+                                      <span className="col-span-1">
+                                        {item.discount.toFixed(2)}
+                                      </span>
+                                      <span className="col-span-1  ">
+                                        {item.tax_amount.toFixed(2)}
+                                        <span className="pl-2">
+                                          {item.tax_rate.toFixed(2)}%
+                                        </span>
+                                      </span>
+
+                                      <span className="col-span-1">
+                                        {item.tax_type}
+                                      </span>
+                                      <span className="col-span-1">
+                                        {item.sub_total.toFixed(2)}
+                                      </span>
+                                      <span className="col-span-1">
+                                        {item.total.toFixed(2)}
+                                      </span>
+                                      <div className="col-span-2">
+                                        <TooltipProvider>
+                                          <Tooltip>
+                                            <TooltipTrigger asChild>
+                                              <p className="capitalize cursor-pointer">
+                                                <span>
+                                                  {displayValue(
+                                                    `${row.original.notes}`
+                                                      .length > 15
+                                                      ? `${row.original.notes}`.substring(
+                                                          0,
+                                                          15
+                                                        ) + "..."
+                                                      : `${row.original.notes}`
+                                                  )}
+                                                </span>
+                                              </p>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                              <p className="capitalize text-sm">
+                                                {displayValue(
+                                                  `${row?.original?.notes}`
+                                                )}
+                                              </p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        </TooltipProvider>
+                                      </div>
+                                    </div>
+                                  )
+                                )}
+                                {/* Subtotal, Tax, and Total */}
+                                <div className="grid grid-cols-12  mt-4"></div>
+                              </div>
+                              {/* Payments Section */}
+                              <h4 className="text-lg font-semibold mb-2">
+                                Payment Details
+                              </h4>
+                              <div className="grid grid-cols-12 py-2 gap-4 font-semibold">
+                                <span className="col-span-1  text-nowrap">
+                                  Payment Method
+                                </span>
+                                <span className="col-span-1">Amount</span>
+                              </div>
+                              {row.original.payments?.map(
+                                (payment: paymentOptions, i: number) => (
+                                  <div
+                                    key={i}
+                                    className="grid grid-cols-12 py-2 gap-4 border-b last:border-b-0"
+                                  >
+                                    <span className="col-span-1">
+                                      {payment.payment_method}
+                                    </span>
+                                    <span>Rs {payment.amount.toFixed(2)}</span>
+                                  </div>
+                                )
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={12}>
+                              <div className="py-4">
+                                <h3 className="text-lg font-bold">
+                                  Refund Details
+                                </h3>
+                                {/* Line items */}
+                                <div className="grid grid-cols-12 py-2 gap-4 font-semibold">
+                                  <span className="col-span-2">Item Type</span>
+                                  <span className="col-span-1">Name</span>
+                                  <span className="col-span-1">Qty</span>
+                                  <span className="col-span-1">Price</span>
+                                  <span className="col-span-1">Discount</span>
+                                  <span className="col-span-1">Tax (Rate)</span>
+                                  <span className="col-span-1">Tax Type</span>
+                                  <span className="col-span-1">Sub Total</span>
+                                  <span className="col-span-1">Total</span>
+                                  <span className="col-span-1">Notes</span>
                                 </div>
-                                <div className="flex justify-between py-2">
-                                  <span>Total Tax</span>
-                                  <span>
-                                    Rs {row.original.tax_amt.toFixed(2)}
-                                  </span>
-                                </div>
-                                <Separator />
-                                <div className="flex justify-between py-2">
-                                  <span>Sale Total</span>
-                                  <span>
-                                    Rs {row.original.total.toFixed(2)}
-                                  </span>
+                                {row.original.items?.map(
+                                  (item: lineItems, i: number) => (
+                                    <div
+                                      key={i}
+                                      className="grid grid-cols-12 py-2 gap-4 border-b last:border-b-0"
+                                    >
+                                      <span className="col-span-2 text-nowrap">
+                                        {capitalizeFirstLetter(
+                                          replaceUnderscoreWithSpace(
+                                            item.item_type
+                                          )
+                                        )}
+                                      </span>
+                                      <span className="col-span-1">
+                                        {item.description}
+                                      </span>
+                                      <span className="col-span-1">
+                                        {item.quantity}
+                                      </span>
+                                      <span className="col-span-1">
+                                        {item.price.toFixed(2)}
+                                      </span>
+                                      <span className="col-span-1">
+                                        {item.discount.toFixed(2)}
+                                      </span>
+                                      <span className="col-span-1  ">
+                                        {item.tax_amount.toFixed(2)}
+                                        <span className="pl-2">
+                                          {item.tax_rate.toFixed(2)}%
+                                        </span>
+                                      </span>
+
+                                      <span className="col-span-1">
+                                        {item.tax_type}
+                                      </span>
+                                      <span className="col-span-1">
+                                        {item.sub_total.toFixed(2)}
+                                      </span>
+                                      <span className="col-span-1">
+                                        {item.total.toFixed(2)}
+                                      </span>
+                                      <div className="col-span-2">
+                                        <TooltipProvider>
+                                          <Tooltip>
+                                            <TooltipTrigger asChild>
+                                              <p className="capitalize cursor-pointer">
+                                                <span>
+                                                  {displayValue(
+                                                    `${row.original.notes}`
+                                                      .length > 15
+                                                      ? `${row.original.notes}`.substring(
+                                                          0,
+                                                          15
+                                                        ) + "..."
+                                                      : `${row.original.notes}`
+                                                  )}
+                                                </span>
+                                              </p>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                              <p className="capitalize text-sm">
+                                                {displayValue(
+                                                  `${row?.original?.notes}`
+                                                )}
+                                              </p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        </TooltipProvider>
+                                      </div>
+                                    </div>
+                                  )
+                                )}
+
+                                {/* Payments Section */}
+                                <div className="py-4 border-t mt-4">
+                                  <h4 className="text-lg font-semibold mb-2">
+                                    Payment Details
+                                  </h4>
+                                  <div className="grid grid-cols-12 py-2 gap-4 font-semibold">
+                                    <span className="col-span-5">
+                                      Payment Method
+                                    </span>
+                                    <span className="col-span-5">Amount</span>
+                                  </div>
+                                  {row.original.payments?.map(
+                                    (payment: paymentOptions, i: number) => (
+                                      <div
+                                        key={i}
+                                        className="grid grid-cols-12 py-2 gap-4 border-b last:border-b-0"
+                                      >
+                                        <span className="col-span-5">
+                                          {payment.payment_method}
+                                        </span>
+                                        <span className="col-span-5 text-right">
+                                          Rs {payment.amount.toFixed(2)}
+                                        </span>
+                                      </div>
+                                    )
+                                  )}
                                 </div>
                               </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={12}>
-                          <div className="py-4">
-                            <h3 className="text-lg font-bold">
-                              Refund Details
-                            </h3>
-                            {/* Line items */}
-                            <div className="grid grid-cols-12 py-2 font-semibold">
-                              <span className="col-span-1">Qty</span>
-                              <span className="col-span-2">Item Type</span>
-                              <span className="col-span-3">Description</span>
-                              <span className="col-span-2">Price</span>
-                              <span className="col-span-1">Discount</span>
-                              <span className="col-span-2">Tax (Rate)</span>
-                              <span className="col-span-1 text-right">
-                                Total
-                              </span>
-                            </div>
-                            {row.original.items?.map(
-                              (item: lineItems, i: number) => (
-                                <div key={i} className="grid grid-cols-12 py-2">
-                                  <span className="col-span-1">
-                                    {item.quantity}
-                                  </span>
-                                  <span className="col-span-2">
-                                    {item.item_type}
-                                  </span>
-                                  <span className="col-span-3">
-                                    {item.description}
-                                  </span>
-                                  <span className="col-span-2">
-                                    Rs {item.price.toFixed(2)}
-                                  </span>
-                                  <span className="col-span-1">
-                                    Rs {item.discount.toFixed(2)}
-                                  </span>
-                                  <span className="col-span-2">
-                                    Rs {item.tax_amount.toFixed(2)} (
-                                    {item.tax_rate}%)
-                                  </span>
-                                  <span className="col-span-1 text-right">
-                                    Rs {item.total.toFixed(2)}
-                                  </span>
-                                </div>
-                              )
-                            )}
-                            <Separator />
-                            <div className="grid grid-cols-5">
-                              <div className="col-span-2">Note</div>
-                              <div className="col-span-3">
-                                <div className="flex justify-between py-2">
-                                  <span>Refund Amount</span>
-                                  <span>
-                                    Rs {row.original.total.toFixed(2)}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </>
                     )}
                   </>
                 ))

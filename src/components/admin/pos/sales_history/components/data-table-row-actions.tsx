@@ -9,7 +9,7 @@ import {
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { MoreVertical, Pencil } from "lucide-react";
 import Receipt from "./receipt-component"; // Import your Receipt component
-import { salesReportInterface } from "@/app/types"; // Ensure this import matches your types file
+import { salesReportInterface, statusEnumGrid } from "@/app/types"; // Ensure this import matches your types file
 
 interface DataTableRowActionsProps {
   data?: salesReportInterface; // Make data optional
@@ -78,13 +78,15 @@ export function DataTableRowActions({
 
           <DropdownMenuContent align="end" className="w-4">
             <DialogTrigger asChild>
-              <DropdownMenuItem
-                disabled={data?.status !== "Paid"}
-                onClick={handleEdit ? () => handleEdit(data!) : undefined}
-              >
-                <Pencil className="mr-2 h-4 w-4" />
-                Refund
-              </DropdownMenuItem>
+              {data?.transaction_type !== statusEnumGrid.Refund && (
+                <DropdownMenuItem
+                  disabled={data?.status !== "Paid"}
+                  onClick={handleEdit ? () => handleEdit(data!) : undefined}
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Refund
+                </DropdownMenuItem>
+              )}
             </DialogTrigger>
 
             <DropdownMenuItem onClick={() => setIsModalOpen(true)}>

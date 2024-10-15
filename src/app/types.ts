@@ -31,7 +31,7 @@ export interface sellForm {
   staff_id?: number | null
   staff_name?: string
   receipt_number?: string
-  tax_number?: number | null
+  tax_number?: string | null
   total?: number | null
   subtotal?: number | null
   tax_amt?: number | null

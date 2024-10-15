@@ -33,13 +33,14 @@ import { Button } from "../button";
 import { extractLinks } from "@/utils/helper";
 import { useUpdateCountersMutation } from "@/services/counterApi";
 import { toast } from "../use-toast";
+import { useCreateTransactionMutation } from "@/services/transactionApi";
 
 const DashboardLayout: React.FC = () => {
   const { isOpen } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { isOpen: false };
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const [createTransaction] = useCreateTransactionMutation();
   const [seperatePanel, setSeperatePanel] = useState<resourceTypes[]>([]);
   const [backtogym, setBacktogym] = useState<string>("");
   const [sidePanel, setSidePanel] = useState<resourceTypes[]>([]);
@@ -51,7 +52,7 @@ const DashboardLayout: React.FC = () => {
   );
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
-  
+
   // Use useEffect to fetch and set sidePanel from localStorage
   useEffect(() => {
     const sidepanel = localStorage.getItem("sidepanel");
@@ -90,6 +91,7 @@ const DashboardLayout: React.FC = () => {
     } else if (!pathname.includes("pos")) {
       dispatch(setCounter(null));
       dispatch(resetBackPageCount());
+      localStorage.removeItem("code");
     }
   }, [pathname, counter_number])
 

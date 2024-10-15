@@ -451,7 +451,7 @@ export default function MembershipsTableView() {
       cell: ({ row }) => {
         const { discount } = row.original;
 
-        return <span>{`${roundToTwoDecimals(discount)} %`}</span>;
+        return <span>{`${roundToTwoDecimals(discount as number)} %`}</span>;
       },
       enableSorting: false,
       enableHiding: false,

@@ -44,43 +44,67 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { roundToTwoDecimals } from "@/utils/helper";
 import { useDebounce } from "@/hooks/use-debounce";
-import { MemberTableDatatypes, sellForm } from "@/app/types";
+import { MemberTableDatatypes, sellForm, sellItem } from "@/app/types";
 import { has24HoursPassed, useGetRegisterData } from "@/constants/counter_register";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
-import { useForm } from "react-hook-form";
-
-interface payload {
-  discount: number;
-  quantity: number;
-  price: number;
-  name: string;
-  type: string;
-  id: number;
-}
-
-
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
+import { useGetIncomeCategorListQuery } from "@/services/incomeCategoryApi";
+import { useGetOrgTaxTypeQuery } from "@/services/organizationApi";
+import { useCreateTransactionMutation, useGetTransactionQuery } from "@/services/transactionApi";
+import { v4 as uuidv4 } from "uuid";
 interface searchCriteriaType {
   search_key?: string;
 }
 
-
-
-
-
 const Sell = () => {
-  const { time, isOpen, isContinue, continueDate } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { time: null, isOpen: false, isContinue: false, continueDate: null };
+  const { time, isOpen, isContinue, continueDate, sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { time: null, isOpen: false, isContinue: false, continueDate: null, sessionId: null };
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+  console.log({ userInfo })
   const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
-
-  const [productPayload, setProductPayload] = useState<payload[]>([])
+  const initialValues: sellForm = {
+    staff_id: userInfo?.user.id,
+    counter_id: counter_number as number,
+    staff_name: userInfo?.user.first_name,
+    discount_amt: undefined,
+    batch_id: sessionId,
+    member_id: null,
+    member_name: null,
+    member_email: null,
+    member_address: null,
+    member_gender: null,
+    notes: "",
+    receipt_number: "",
+    tax_number: `${uuidv4()}`,
+    total: null,
+    subtotal: null,
+    tax_amt: null,
+    status: "Unpaid",
+    transaction_type: "Sale",
+    membership_plans: [],
+    events: [],
+    products: [],
+    payments: [
+      {
+        payment_method_id: 1,
+        payment_method: "Cash",
+        amount: 1500,
+      },
+    ],
+  }
+  const { data: orgTaxType } = useGetOrgTaxTypeQuery(orgId)
+  const tax_type = "inclusive";
+  const [productPayload, setProductPayload] = useState<sellItem[]>([])
   const [showCheckout, setShowCheckout] = useState<boolean>(false)
   const [dayExceeded, setDayExceeded] = useState<boolean>(false)
   const navigate = useNavigate()
-
+  console.log({ orgTaxType })
   const form = useForm<sellForm>({
     mode: "all",
+    defaultValues: initialValues,
   });
 
   const {
@@ -129,6 +153,26 @@ const Sell = () => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 500);
 
+  // get unpaid sales to retrive sale
+  // const [data:]
+
+  const {
+    data: transactionData,
+    isLoading,
+    refetch,
+    error,
+    isError,
+  } = useGetTransactionQuery(
+    { counter_id: counter_number as number, query: 'status=Unpaid&sort_order=desc' },
+    {
+      skip: counter_number == null,
+    }
+  );
+  const transactiontableData = useMemo(() => {
+    return Array.isArray(transactionData?.data) ? transactionData?.data : [];
+  }, [transactionData]);
+
+
   // select customer
   const [customer, setCustomer] = useState<Record<string, any> | null>(null);
 
@@ -166,6 +210,9 @@ const Sell = () => {
     setQuery(newQuery);
   }, [searchCriteria]);
 
+
+  const { data: incomeCatData } = useGetIncomeCategorListQuery(orgId);
+  const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
   const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId, query: query })
 
 
@@ -196,53 +243,99 @@ const Sell = () => {
 
 
   const addProduct = (product: any, type: string) => {
-
     // Calculate the discount amount
     const discountPercentage = product.discount || 0; // Percentage discount from the product
     const discountAmount = Math.floor((product.net_price * discountPercentage) / 100 * 100) / 100; // Calculate and round discount to 2 decimal places
     const finalPrice = Math.floor((product.net_price - discountAmount) * 100) / 100; // Final price after discount, rounded to 2 decimal places
 
+    const incomeCat = incomeCatData?.filter(
+      (item) => item.id == product.income_category_id
+    )[0];
+    const saleTax = salesTaxData?.filter(
+      (item) => item.id == incomeCat?.sale_tax_id
+    )[0];
+    const taxRate = saleTax.percentage || 0; // Add logic to get product tax rate
+    let subTotal = 0, total = 0, taxAmount = 0;
+
+    // Check tax_type and calculate accordingly
+    if (tax_type === "inclusive") {
+      // For inclusive tax, tax is already included in the final price
+      taxAmount = Math.floor((finalPrice - (finalPrice / (1 + taxRate / 100))) * 100) / 100;
+      subTotal = Math.floor((finalPrice - taxAmount) * 100) / 100; // Price without tax
+      total = finalPrice; // Total is the final price as tax is included
+    } else if (tax_type === "exclusive") {
+      // For exclusive tax, tax is added on top of the final price
+      taxAmount = Math.floor(((finalPrice * taxRate) / 100) * 100) / 100;
+      subTotal = finalPrice; // Sub-total is just the price after discount
+      total = Math.floor((finalPrice + taxAmount) * 100) / 100; // Total after adding tax
+    }
+
     const newProductPayload = {
-      id: product.id, // assuming `id` exists in your product data
-      name: product.name, // replace with actual name if available
-      type: type, // map the product's type
-      quantity: 1, // default quantity
-      price: finalPrice, // price after discount (rounded)
-      discount: discountAmount, // how much discount is applied in terms of value (rounded)
+      item_id: product.id, // Assuming product.id exists
+      item_type: type, // Product type
+      description: product.name, // Replace with the actual product name
+      quantity: 1, // Default quantity  
+      price: finalPrice, // Price after discount
+      tax_rate: taxRate, // Tax rate applied
+      discount: discountAmount, // Discount amount
+      sub_total: subTotal, // Sub-total before tax (depends on tax type)
+      tax_type: product.tax_type, // Tax type (inclusive or exclusive)
+      total: total, // Final total after tax (depends on tax type)
+      tax_amount: taxAmount // Tax amount calculated based on tax type
     };
 
     setProductPayload((prevPayload) => {
-      const existingProduct = prevPayload.find((prod) => prod.id === product.id);
+      const existingProduct = prevPayload.find((prod) => prod.item_id === product.id);
 
       if (existingProduct) {
-        // If product with the same id exists, update quantity, price, and discount
+        // If product with the same id exists, update quantity, price, discount, and totals
         return prevPayload.map((prod) =>
-          prod.id === product.id
+          prod.item_id === product.id
             ? {
               ...prod,
               quantity: prod.quantity + 1, // Increment quantity
-              price: Math.floor((prod.price + finalPrice) * 100) / 100, // Add the price of the new addition after discount (rounded)
-              discount: Math.floor((prod.discount + discountAmount) * 100) / 100, // Add the applied discount amount (rounded)
+              price: Math.floor((prod.price + finalPrice) * 100) / 100, // Add price of new addition
+              discount: Math.floor((prod.discount + discountAmount) * 100) / 100, // Add the discount
+              sub_total: Math.floor((prod.sub_total + subTotal) * 100) / 100, // Update sub-total
+              total: Math.floor((prod.total + total) * 100) / 100, // Update total
+              tax_amount: Math.floor((prod.tax_amount + taxAmount) * 100) / 100 // Update tax amount
             }
             : prod
         );
       }
 
       // If product is new, add it to the payload
+      setValue("membership_plans", [...prevPayload, newProductPayload])
       return [...prevPayload, newProductPayload];
     });
   };
 
+
   const updateProductQuantity = (productId: number, action: 'increment' | 'decrement') => {
     setProductPayload((prevPayload) => {
-      return prevPayload
+      const newPayload = prevPayload
         .map((product) => {
-          if (product.id === productId) {
+          if (product.item_id === productId) {
             const discountPercentage = product.discount / product.price; // Calculate discount percentage based on current price and discount
             const unitPrice = Math.floor((product.price / product.quantity) * 100) / 100; // Get the price per unit
             const unitDiscount = Math.floor((unitPrice * discountPercentage) * 100) / 100; // Calculate per unit discount
 
-            // If action is increment
+            let unitTaxAmount = 0, unitSubTotal = 0, unitTotal = 0;
+
+            // Calculate tax, subtotal, and total based on tax_type
+            if (tax_type === "inclusive") {
+              // For inclusive tax, tax is part of the price
+              unitTaxAmount = Math.floor((unitPrice - (unitPrice / (1 + product.tax_rate / 100))) * 100) / 100;
+              unitSubTotal = Math.floor((unitPrice - unitTaxAmount) * 100) / 100; // Price without tax
+              unitTotal = unitPrice; // Total is the unit price (tax included)
+            } else if (tax_type === "exclusive") {
+              // For exclusive tax, tax is added on top of the price
+              unitTaxAmount = Math.floor((unitPrice * (product.tax_rate / 100)) * 100) / 100;
+              unitSubTotal = unitPrice; // Subtotal is just the unit price
+              unitTotal = Math.floor((unitPrice + unitTaxAmount) * 100) / 100; // Total with tax
+            }
+
+            // Handle increment action
             if (action === 'increment') {
               const newQuantity = product.quantity + 1;
               return {
@@ -250,10 +343,13 @@ const Sell = () => {
                 quantity: newQuantity,
                 price: Math.floor((product.price + unitPrice) * 100) / 100, // Update total price
                 discount: Math.floor((product.discount + unitDiscount) * 100) / 100, // Update total discount
+                sub_total: Math.floor((product.sub_total + unitSubTotal) * 100) / 100, // Update subtotal
+                total: Math.floor((product.total + unitTotal) * 100) / 100, // Update total
+                tax_amount: Math.floor((product.tax_amount + unitTaxAmount) * 100) / 100 // Update tax amount
               };
             }
 
-            // If action is decrement
+            // Handle decrement action
             if (action === 'decrement') {
               const newQuantity = product.quantity - 1;
 
@@ -262,18 +358,24 @@ const Sell = () => {
                 return null;
               }
 
-              // Otherwise, update the product's quantity, price, and discount
+              // Otherwise, update the product's quantity, price, discount, etc.
               return {
                 ...product,
                 quantity: newQuantity,
                 price: Math.floor((product.price - unitPrice) * 100) / 100, // Update total price
                 discount: Math.floor((product.discount - unitDiscount) * 100) / 100, // Update total discount
+                sub_total: Math.floor((product.sub_total - unitSubTotal) * 100) / 100, // Update subtotal
+                total: Math.floor((product.total - unitTotal) * 100) / 100, // Update total
+                tax_amount: Math.floor((product.tax_amount - unitTaxAmount) * 100) / 100 // Update tax amount
               };
             }
           }
           return product;
         })
-        .filter((product) => product !== null); // Remove products with quantity 0
+        .filter((product) => product !== null);
+      // Remove products with quantity 0
+      setValue("membership_plans", newPayload)
+      return newPayload
     });
   };
 
@@ -281,12 +383,11 @@ const Sell = () => {
 
 
 
-  const { data: memberList2 } = useGetAllMemberQuery({ org_id: orgId, query: "" })
-  const { data: memberList } = useGetMembersListQuery(orgId)
+  const { data: memberList } = useGetAllMemberQuery({ org_id: orgId, query: "" })
 
   const memberListData = useMemo(() => {
-    return Array.isArray(memberList2?.data) ? memberList2?.data : [];
-  }, [memberList2]);
+    return Array.isArray(memberList?.data) ? memberList?.data : [];
+  }, [memberList]);
 
 
 
@@ -296,23 +397,39 @@ const Sell = () => {
     (acc, product) => acc + product.price * product.quantity,
     0
   );
+  const tax = productPayload.reduce(
+    (acc, product) => acc + product.tax_amount,
+    0
+  );
 
   const totalDiscount = productPayload.reduce(
     (acc, product) => acc + product.discount * product.quantity,
     0
   );
 
-  useEffect(() => {
-    if (totalDiscount) {
-      setValue("discount", totalDiscount)
-    }
-  }, [totalDiscount])
-
-  const taxRate = 0.10; // 10% tax rate (adjust as needed)
-  const tax = subtotal * taxRate;
   const total = subtotal - totalDiscount + tax;
 
-  console.log({ productPayload, memberhsipListData, memberList2, customer })
+  console.log({ totalDiscount, tax, subtotal, total })
+
+  useEffect(() => {
+    setValue("discount_amt", roundToTwoDecimals(totalDiscount))
+    setValue("subtotal", roundToTwoDecimals(subtotal))
+    setValue("tax_amt", roundToTwoDecimals(tax))
+    setValue("total", roundToTwoDecimals(total))
+
+    if (customer) {
+      setValue("member_id", customer.id)
+      setValue("member_name", customer.first_name + " " + customer.last_name)
+      setValue("member_email", customer.email)
+      setValue("member_address", customer.address_1 + ", " + customer.address_2)
+      setValue("member_gender", customer.gender)
+    }
+
+  }, [totalDiscount, customer, tax, subtotal, total]);
+
+
+
+  console.log({ productPayload, memberhsipListData, memberList, customer })
 
   const handleCloseDayExceeded = () => {
     setDayExceeded(false)
@@ -345,141 +462,166 @@ const Sell = () => {
       })
       return;
     }
+
+    setShowCheckout(true);
   }
+
+  console.log({ watcher })
   return (
-    <div className="w-full p-5 ">
+    <FormProvider {...form} >
+      <div className="p-5">
 
-      {!showCheckout && (
-        <Card className=" h-fit px-3 py-4 max-w-[1100px] mx-auto">
-          <div className="grid grid-cols-1  slg:grid-cols-2 justify-start items-start gap-3">
-            <div className="min-h-36  p-2">
-              <FloatingLabelInput
-                id="search"
-                placeholder="Search by products name"
-                onChange={(event) => setInputValue(event.target.value)}
-                className="w-full pl-8 text-gray-400 rounded-sm"
-                icon={<Search className="size-4 text-gray-400 absolute  z-10 left-2" />}
-              />
+        {!showCheckout && (
+          <Card className=" h-fit px-3 py-4 max-w-[1100px] mx-auto">
+            <div className="grid grid-cols-1  slg:grid-cols-2 justify-start items-start gap-3">
+              <div className="min-h-36  p-2">
+                <FloatingLabelInput
+                  id="search"
+                  placeholder="Search by products name"
+                  onChange={(event) => setInputValue(event.target.value)}
+                  className="w-full pl-8 text-gray-400 rounded-sm"
+                  icon={<Search className="size-4 text-gray-400 absolute  z-10 left-2" />}
+                />
 
-              <Tabs defaultValue="membership_plans" className="w-full mt-4 ">
-                <TabsList variant="underline">
+                <Tabs defaultValue="membership_plans" className="w-full mt-4 ">
+                  <TabsList variant="underline">
+                    {productCategories.map((category) => (
+                      <TabsTrigger key={category.type} value={category.type} variant="underline">
+                        {category.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
                   {productCategories.map((category) => (
-                    <TabsTrigger key={category.type} value={category.type} variant="underline">
-                      {category.label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-                {productCategories.map((category) => (
-                  <TabsContent className="m-0  w-full " key={category.type} value={category.type}>
-                    {category.products.length > 0 ? (
-                      <div className="mt-4 w-full flex flex-wrap gap-4 justify-center items-center">
-                        {category.products.map((product: Record<string, any>) => (
-                          <div onClick={() => addProduct(product, category?.type)} className="relative group hover:bg-primary/20 hover:text-black/60 size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
-                            <span className="capitalize">{product.name}</span>
-                            <span>Rs. {product.net_price}</span>
+                    <TabsContent className="m-0  w-full " key={category.type} value={category.type}>
+                      {category.products.length > 0 ? (
+                        <div className="mt-4 w-full flex flex-wrap gap-4 justify-center items-center">
+                          {category.products.map((product: Record<string, any>) => (
+                            <div onClick={() => addProduct(product, category?.type)} className="relative group hover:bg-primary/20 hover:text-black/60 size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
+                              <span className="capitalize">{product.name}</span>
+                              <span>Rs. {product.net_price}</span>
 
-                            <span className="absolute invisible group-hover:visible  bottom-0   text-black/80 text-sm z-20 p-1">Add</span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="col-span-2 text-sm text-center w-full p-2 mt-2">No products found</p>
-                    )}
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </div>
-
-            <div className="h-full flex flex-col justify-start space-y-2 rounded-sm bg-gray-100 p-2"  >
-              <>
-                <CustomerCombobox list={memberListData} setCustomer={setCustomer} customer={customer} />
-                <div className="bg-white/90">
-
-                  {productPayload.map(product => (
-                    <>
-                      <div className=" flex  justify-between items-center gap-2  p-2 ">
-                        <div>
-                          <p className="capitalize">{product.name}</p>
-                          {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-right">
-                            Rs. {product.price + product.discount}
-                          </p>}
-                          <p className="text-sm">Rs. {product.price}</p>
+                              <span className="absolute invisible group-hover:visible  bottom-0   text-black/80 text-sm z-20 p-1">Add</span>
+                            </div>
+                          ))}
                         </div>
-
-                        <div className="inline-flex items-center ">
-                          <div
-                            onClick={() => updateProductQuantity(product.id, "decrement")}
-                            className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
-                            <i className="fa fa-minus"></i>
-                          </div>
-                          <div
-                            className=" border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-0 select-none">
-                            {product.quantity}
-                          </div>
-                          <div
-                            onClick={() => updateProductQuantity(product.id, "increment")}
-                            className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
-                            <i className="fa fa-plus"></i>
-                          </div>
-                        </div>
-
-
-                      </div >
-                      <Separator className=" h-[1px] font-thin rounded-full" />
-                    </>
+                      ) : (
+                        <p className="col-span-2 text-sm text-center w-full p-2 mt-2">No products found</p>
+                      )}
+                    </TabsContent>
                   ))}
-                </div>
-              </>
+                </Tabs>
+              </div>
 
-              <div className="rounded-sm bg-white/90 mx-1">
-
-                <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
-                  <div className="w-full flex gap-2  items-center justify-between">
-                    <p>Subtotal</p>
-                    <p>Rs. {roundToTwoDecimals(subtotal)}</p> {/* Display Subtotal */}
-                  </div>
-                  <div className="w-full flex gap-2 items-center justify-between">
-                    <p>Discount</p>
-                    <FloatingLabelInput
-                      type="number"
-                      id="discount"
-                      defaultValue={watcher.discount}
-                      placeholder="Enter discount amount"
-                      className="text-right w-32  text-gray-400 rounded-sm"
-                      {...register("discount", { valueAsNumber: true })}
+              <div className="h-full flex flex-col justify-start space-y-2 rounded-sm bg-gray-100 p-2"  >
+                <>
+                  <div className="item-center flex gap-3">
+                    <RetriveSaleCombobox
+                      label={"Retrive Sale"}
+                      list={transactiontableData}
+                      setCustomer={setCustomer}
+                      customer={customer}
+                      customerList={memberListData}
                     />
+                    <Button className="w-full justify-center items-center gap-2">
+                      <i className="fa-regular fa-clock"></i>
+                      Park Sale
+                    </Button>
                   </div>
-                  <div className="w-full flex gap-2 items-center justify-between">
-                    <p>Tax</p>
-                    <p>Rs. {roundToTwoDecimals(tax)}</p> {/* Display Tax */}
+
+                  <CustomerCombobox
+                    label={"Search customer"}
+                    list={memberListData}
+                    setCustomer={setCustomer}
+                    customer={customer}
+                  />
+                  <div className="bg-white/90">
+
+                    {productPayload.map(product => (
+                      <>
+                        <div className=" flex  justify-between items-center gap-2  p-2 ">
+                          <div>
+                            <p className="capitalize">{product.description}</p>
+                            {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-right">
+                              Rs. {roundToTwoDecimals(product.price + product.discount)}
+                            </p>}
+                            <p className="text-sm">Rs. {product.price}</p>
+                          </div>
+
+                          <div className="inline-flex items-center ">
+                            <div
+                              onClick={() => updateProductQuantity(product.item_id, "decrement")}
+                              className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                              <i className="fa fa-minus"></i>
+                            </div>
+                            <div
+                              className=" border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-0 select-none">
+                              {product.quantity}
+                            </div>
+                            <div
+                              onClick={() => updateProductQuantity(product.item_id, "increment")}
+                              className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                              <i className="fa fa-plus"></i>
+                            </div>
+                          </div>
+
+
+                        </div >
+                        <Separator className=" h-[1px] font-thin rounded-full" />
+                      </>
+                    ))}
                   </div>
-                  <div className="w-full flex gap-2 items-center justify-between font-bold">
-                    <p>Total</p>
-                    <p>Rs. {roundToTwoDecimals(total)}</p> {/* Display Total */}
+                </>
+
+                <div className="rounded-sm bg-white/90 mx-1">
+
+                  <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
+                    <div className="w-full flex gap-2  items-center justify-between">
+                      <p>Subtotal</p>
+                      <p>Rs. {watcher.subtotal}</p> {/* Display Subtotal */}
+                    </div>
+                    <div className="w-full flex gap-2 items-center justify-between">
+                      <p>Discount</p>
+                      <FloatingLabelInput
+                        type="number"
+                        id="discount_amt"
+                        defaultValue={watcher.discount_amt}
+                        placeholder="Enter discount amount"
+                        className="text-right w-fit  text-gray-400 rounded-sm"
+                        {...register("discount_amt", { valueAsNumber: true })}
+                      />
+                    </div>
+                    <div className="w-full flex gap-2 items-center justify-between">
+                      <p>Tax</p>
+                      <p>Rs. {watcher.tax_amt}</p> {/* Display Tax */}
+                    </div>
+                    <div className="w-full flex gap-2 items-center justify-between font-bold">
+                      <p>Total</p>
+                      <p>Rs. {watcher.total}</p> {/* Display Total */}
+                    </div>
+                    <Button className="w-full bg-primary text-black rounded-sm" onClick={paymentCheckout}>
+                      Pay
+                    </Button>
                   </div>
-                  <Button className="w-full bg-primary text-black rounded-sm" onClick={paymentCheckout}>
-                    Pay
-                  </Button>
+
                 </div>
+
 
               </div>
 
-
             </div>
-
-          </div>
-        </Card>
-      )}
+          </Card>
+        )}
 
 
-      {showCheckout && (
-        <Checkout setShowCheckout={setShowCheckout} />
-      )}
+        {showCheckout && (
+          <Checkout setShowCheckout={setShowCheckout} productPayload={productPayload} customer={customer} watcher={watcher} />
+        )}
 
 
-      <DayExceeded isOpen={dayExceeded} onClose={handleCloseDayExceeded} onContinue={handleContinueDayExceeded} closeModal={() => setDayExceeded(false)} />
+        <DayExceeded isOpen={dayExceeded} onClose={handleCloseDayExceeded} onContinue={handleContinueDayExceeded} closeModal={() => setDayExceeded(false)} />
+      </div>
 
-    </div>
+    </FormProvider>
 
   );
 };
@@ -491,8 +633,34 @@ export default Sell;
 
 
 
-function Checkout({ setShowCheckout }: any) {
+function Checkout({ setShowCheckout, watcher, productPayload, customer }: any) {
+  const {
+    control,
+    formState: { errors },
+    setValue,
+    getValues,
+    register,
+    trigger,
+    watch,
+  } = useFormContext<sellForm>();
+  const [createTransaction]=useCreateTransactionMutation()
+  const placeOrder = async () => {
+    // setShowCheckout(false)
+    try{
+      const resp =await createTransaction(watcher).unwrap();
+      if(resp){
+        toast({
+          variant: "success",
+          title: "Transaction successful",
+        })
+      }
+    }catch(e){
+
+    }
+  }
+
   return (
+
     <div className=" ">
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -501,32 +669,41 @@ function Checkout({ setShowCheckout }: any) {
           <div className="bg-white  p-6 rounded-lg">
             <h2 className="text-xl font-bold mb-4">Order Summary</h2>
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col justify-between items-start">
+                {productPayload.map((product: any) => (
+                  <>
+                    <div className=" flex  justify-between items-center gap-2  p-2 w-full">
+                      <div className="flex-1 ">
+                        <h3 className="text-lg font-medium capitalize">{product.description}</h3>
+                        <p className="text-gray-500 ">Quantity: {product.quantity}</p>
+                      </div>
+
+                      <div className="text-lg font-bold">Rs. {product.price}</div>
+
+                    </div >
+                  </>
+                ))}
 
 
-                <div className="flex-1 ">
-                  <h3 className="text-lg font-medium">Product Name</h3>
-                  <p className="text-gray-500 ">Quantity: 2</p>
-                </div>
-                <div className="text-lg font-bold">99.99</div>
+
               </div>
               <Separator />
               <div className="flex justify-between items-center">
                 <div>Subtotal</div>
-                <div className="font-bold">99.99</div>
+                <div className="font-bold">{roundToTwoDecimals(watcher.subtotal)}</div>
               </div>
               <div className="flex justify-between items-center">
                 <div>Discount</div>
-                <div className="font-bold">9.99</div>
+                <div className="font-bold">{watcher.discount_amt>0?"-":""} {roundToTwoDecimals(watcher.discount_amt)}</div>
               </div>
               <div className="flex justify-between items-center">
                 <div>Tax</div>
-                <div className="font-bold">10.00</div>
+                <div className="font-bold">{roundToTwoDecimals(watcher.tax_amt)}</div>
               </div>
               <Separator />
               <div className="flex justify-between items-center">
                 <div className="text-xl font-bold">Total</div>
-                <div className="text-xl font-bold">119.98</div>
+                <div className="text-xl font-bold">{roundToTwoDecimals(watcher.total)}</div>
               </div>
             </div>
           </div>
@@ -539,17 +716,17 @@ function Checkout({ setShowCheckout }: any) {
 
             <div className="mt-5 h-full flex flex-col  justify-between gap-6">
               <div>
-                <RadioGroup defaultValue="card">
+                <RadioGroup defaultValue="cash">
                   <div className="flex items-center space-x-4 mt-4">
-                    <RadioGroupItem value="paypal" id="paypal" />
-                    <Label htmlFor="paypal" className="flex items-center space-x-2">
+                    <RadioGroupItem value="cash" id="cash" />
+                    <Label htmlFor="cash" className="flex items-center space-x-2">
                       <span>Cash</span>
                     </Label>
                   </div>
 
                   <div className="flex items-center space-x-4">
-                    <RadioGroupItem value="card" id="card" />
-                    <Label htmlFor="card" className="flex items-center space-x-2">
+                    <RadioGroupItem value="credit_debit" id="credit_debit" />
+                    <Label htmlFor="credit_debit" className="flex items-center space-x-2">
                       <span>Credit/Debit Card</span>
                     </Label>
                   </div>
@@ -563,6 +740,13 @@ function Checkout({ setShowCheckout }: any) {
                   type="textarea"
                   rows={7}
                   className="custom-scrollbar col-span-2 peer-placeholder-shown:top-[10%]"
+                  {...register("notes", {
+                    maxLength: {
+                      value: 200,
+                      message: "Notes should not exceed 200 characters"
+                    }
+                  })}
+                  error={errors.notes?.message}
                 />
               </div>
 
@@ -570,7 +754,7 @@ function Checkout({ setShowCheckout }: any) {
           </div>
 
           <div className="mt-8 flex justify-end">
-            <Button size="lg" onClick={() => setShowCheckout(false)}>Place Order</Button>
+            <Button size="lg" onClick={placeOrder}>Place Order</Button>
           </div>
         </div>
       </div>
@@ -610,16 +794,23 @@ export function DayExceeded({
 }
 
 interface customerComboboxTypes {
-  list: MemberTableDatatypes[];
+  list: any[];
+  customerList?: MemberTableDatatypes[];
   setCustomer: any;
   customer: any;
+  label?: string
 }
 
-export function CustomerCombobox({ list, setCustomer, customer }: customerComboboxTypes) {
+export function CustomerCombobox({ list, setCustomer, customer, label }: customerComboboxTypes) {
   const modifiedList = list?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-
+  useEffect(() => {
+    if (customer) {
+      setValue(`${customer.id}`)
+    }
+  }, [customer])
+  console.log({ value, customer }, "customer")
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -631,13 +822,13 @@ export function CustomerCombobox({ list, setCustomer, customer }: customerCombob
         >
           {value
             ? modifiedList?.find((customer: any) => customer.value == value)?.label
-            : "Select customer..."}
+            : label}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className=" w-[500px] p-0">
         <Command>
-          <CommandInput placeholder="Search customer..." />
+          <CommandInput placeholder={label} />
           <CommandList className="w-[500px]">
             <CommandEmpty>No customer found.</CommandEmpty>
             <CommandGroup className="">
@@ -656,6 +847,58 @@ export function CustomerCombobox({ list, setCustomer, customer }: customerCombob
                     className={cn(
                       "mr-2 h-4 w-4",
                       value === customer.value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {customer.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+export function RetriveSaleCombobox({ list, setCustomer, customer, label, customerList }: customerComboboxTypes) {
+  const modifiedList = list?.map((item: any) => ({ value: item.member_id, label: item.member_name }))
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState("")
+  console.log({ value, customer }, "retrived")
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild >
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className=" capitalize w-full justify-center items-center gap-2  bg-white rounded-sm border-[1px]"
+        >
+          <i className="fa fa-share"></i>
+          {label}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className=" w-[240px] p-0" side="bottom">
+        <Command>
+          {/* <CommandInput placeholder={"Search customer"} /> */}
+          <CommandList className="">
+            <CommandEmpty>No customer found.</CommandEmpty>
+            <CommandGroup className="">
+              {modifiedList?.map((customer: any) => (
+                <CommandItem
+                  key={customer.value + ""}
+                  value={customer.value + ""}
+                  onSelect={(currentValue) => {
+                    setValue(currentValue === value ? "" : currentValue)
+                    const customer = customerList?.find((item: any) => item.id == currentValue)
+                    setCustomer(customer)
+                    setOpen(false)
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === customer.id ? "opacity-100" : "opacity-0"
                     )}
                   />
                   {customer.label}

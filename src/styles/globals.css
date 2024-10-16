@@ -152,3 +152,30 @@ input[type="password"]::-ms-clear {
   padding: 1.5px;
   border-radius: 6px;
 }
+
+/* Styles for the receipt */
+.printable-receipt {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Hide all other elements when printing */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .printable-receipt,
+  .printable-receipt * {
+    visibility: visible;
+  }
+
+  /* Ensure the receipt takes the full screen during print */
+  .printable-receipt {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}

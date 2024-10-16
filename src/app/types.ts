@@ -1,6 +1,109 @@
-import { statusEnum } from "@/components/admin/staff/staffForm/form";
 import { JSONObject } from "@/types/hook-stepper";
 
+enum genderEnum {
+  male = "male",
+  female = "female",
+  other = "other",
+}
+export interface sellItem {
+  item_id: number
+  item_type: string
+  description: string
+  quantity: number
+  price: number
+  tax_type: string
+  sale_tax: string
+  tax_rate: number
+  discount: number
+  sub_total: number
+  total: number
+  tax_amount: number
+}
+
+export interface sellForm {
+  id?: number;
+  counter_id: number;
+  discount_amt?: number;
+  batch_id?: number | null;
+  member_id?: number | null;
+  member_name?: string | null;
+  member_email?: string | null;
+  member_address?: string | null;
+  member_gender?: genderEnum | null;
+  notes?: string;
+  staff_id?: number | null
+  staff_name?: string
+  receipt_number?: string
+  tax_number?: string | null
+  total?: number | null
+  subtotal?: number | null
+  tax_amt?: number | null
+  main_transaction_id?: number | null
+  status?: "Unpaid" | "Paid" | "Partially Paid"
+  transaction_type?: "Refund" | "Sale"
+  membership_plans?: sellItem[]
+  events?: sellItem[]
+  products?: sellItem[]
+  payments?: {
+    payment_method_id?: number
+    payment_method?: string
+    amount?: number
+  }[]
+}
+export enum statusEnum {
+  pending = "pending",
+  active = "active",
+  inactive = "inactive",
+}
+export interface createTransaction {
+  batch_id: number;
+  member_id: number;
+  member_name: string;
+  member_email: string;
+  member_address: string;
+  member_gender: string;
+  staff_id: number;
+  staff_name: string;
+  receipt_number: string;
+  notes: string;
+  tax_number: number;
+  total_amount: number;
+  status: string;
+  transaction_type: string;
+  products: {
+    item_id: number;
+    description: string;
+    quantity: number;
+    price: number;
+    tax_rate: number;
+    discount: number;
+    sub_total: number;
+    total: number;
+    tax_amount: number;
+  }[];
+  membership_plans: {
+    item_id: number;
+    description: string;
+    quantity: number;
+    price: number;
+    tax_rate: number;
+    discount: number;
+    sub_total: number;
+    total: number;
+    tax_amount: number;
+  }[];
+  events: {
+    item_id: number;
+    description: string;
+    quantity: number;
+    price: number;
+    tax_rate: number;
+    discount: number;
+    sub_total: number;
+    total: number;
+    tax_amount: number;
+  }[];
+}
 export interface counterTableType {
   data: counterDataType[];
   total_counts: number;
@@ -11,13 +114,13 @@ export interface counterDataType {
   id?: number;
   name: string;
   staff: {
-    id: number,
-    name: string
-  }[]
+    id: number;
+    name: string;
+  }[];
   staff_ids?: number[];
   staff_id?: number | null;
   status?: string;
-  is_open?:boolean;
+  is_open?: boolean;
 }
 
 export interface CreateCounter {
@@ -26,7 +129,7 @@ export interface CreateCounter {
   staff_ids?: number[];
   status?: string;
   staff_id?: number | null;
-  is_open?: boolean
+  is_open?: boolean;
 }
 
 export interface mealPlanTableType {
@@ -448,10 +551,13 @@ export interface LeadResponseTypes {
   org_id: number;
 }
 
-enum genderEnum {
-  male = "male",
-  female = "female",
-  other = "other",
+
+interface membership_planids {
+  membership_plan_id?: number | null;
+  auto_renewal?: boolean;
+  prolongation_period?: number;
+  auto_renew_days?: number;
+  inv_days_cycle?: number;
 }
 export interface MemberInputTypes {
   profile_img?: string;
@@ -477,14 +583,10 @@ export interface MemberInputTypes {
   created_at?: string | null;
   created_by?: number | null;
   org_id?: number;
-  coach_id?: any[];
-  membership_plan_id: number | undefined;
+  coach_ids?: any[];
   send_invitation?: boolean;
   status?: string;
-  auto_renewal?: boolean;
-  prolongation_period?: number;
-  auto_renew_days?: number;
-  inv_days_cycle?: number;
+  membership_plans?: membership_planids[];
 }
 
 export interface MemberResponseTypes {
@@ -512,7 +614,7 @@ export interface MemberResponseTypes {
   created_by?: number | null;
   org_id: number;
   coach_id?: any[] | null;
-  membership_plan_id: number | undefined;
+  membership_plans?: membership_planids[];
   send_invitation?: boolean | null;
   client_status?: string | null;
   is_deleted: boolean;
@@ -559,13 +661,8 @@ export interface MemberTableDatatypes {
   created_at?: string | null;
   created_by?: number | null;
   org_id: number;
-  coach_id?: any[];
-  membership_plan_id: number | undefined;
-  send_invitation?: boolean;
-  auto_renewal?: boolean;
-  prolongation_period?: number;
-  auto_renew_days?: number;
-  inv_days_cycle?: number;
+  coach_ids?: any[];
+  membership_plans?: membership_planids[];
   check_in?: string | null;
   coaches: {
     id: number;
@@ -603,12 +700,8 @@ export interface MemberTableResponseDatatypes {
   created_by?: number | null;
   org_id: number;
   coach_id?: any[];
-  membership_plan_id: number | undefined;
   send_invitation?: boolean;
-  auto_renewal?: boolean;
-  prolongation_period?: number;
-  auto_renew_days?: number;
-  inv_days_cycle?: number;
+  membership_plans?: membership_planids[];
   check_in?: string | null;
   coaches: {
     id: number;
@@ -1389,4 +1482,147 @@ export interface workoutDayExerciseInput {
   distance?: number | null;
   speed?: number | null;
   met_id?: number | null;
+}
+
+export interface RegisterSession {
+  counter_id: number;
+  opening_balance: number;
+  id: number;
+  closing_balance: number;
+  opening_time: string;
+  closing_time: string;
+  discrepancy?: number;
+  notes?: string;
+  created_by: string;
+  created_date: string;
+}
+
+export interface RegisterationTableType {
+  data: RegisterSession[];
+  total_counts: number;
+  filtered_counts: number;
+}
+
+export interface refundhistory {
+  id: number;
+  receiptNumber: string;
+  user: string;
+  type: "Receipt" | "Refund";
+  taxRate: number;
+  taxName: string;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  status: "Paid" | "Unpaid" | "Partially Paid";
+  created_by: string;
+  created_at: string;
+}
+export interface Salehistory {
+  id: number;
+  receiptNumber: string;
+  type: "Receipt" | "Refund";
+  user: string;
+  taxRate: number;
+  taxName: string;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  status: "Paid" | "Unpaid" | "Partially Paid";
+  created_by: string;
+  created_at: string;
+  refunditems?: refundhistory[];
+}
+
+export interface SaleshistoryTableType {
+  data: Salehistory[];
+  total_counts: number;
+  filtered_counts: number;
+}
+
+export interface counterRegisterSession {
+  counter_id?: number;
+  opening_balance?: number;
+  id?: number;
+  closing_balance?: number;
+  opening_time?: string;
+  closing_time?: string;
+  discrepancy?: number;
+  notes?: string;
+  total_amount?: number;
+  refund_amount?: number;
+}
+
+export interface registerSessionStorage {
+  time: string;
+  isOpen: boolean;
+  isContinue: boolean;
+  sessionId: number;
+  opening_balance: number;
+  opening_time: string;
+}
+export interface PaymentMethodPlugin {
+  id: number;
+  name: string;
+  enabled: boolean;
+}
+
+export enum statusEnumGrid {
+  Sale = "Sale",
+  Refund = "Refund",
+}
+
+export enum typeTransactionEnum {
+  Paid = "Paid",
+  Unpaid = "Unpaid",
+  // Partially_Paid = "Partially Paid",
+}
+
+export interface lineItems {
+  item_id: number;
+  item_type: string;
+  description: string;
+  quantity: number;
+  price: number;
+  tax_rate: number;
+  discount: number;
+  sub_total: number;
+  tax_type: string;
+  total: number;
+  tax_amount: number;
+}
+
+export interface paymentOptions {
+  payment_method_id: number;
+  payment_method: string;
+  amount: number;
+}
+export interface salesReportInterface {
+  id: number;
+  batch_id: number;
+  member_id: number;
+  member_name: string;
+  member_email: string;
+  member_address: string;
+  member_gender: genderEnum;
+  staff_id: number;
+  staff_name: string;
+  receipt_number: string;
+  notes: string;
+  tax_number: number;
+  total: number;
+  subtotal: number;
+  tax_amt: number;
+  discount_amt: number;
+  main_transaction_id: number;
+  transaction_type: statusEnumGrid;
+  status: typeTransactionEnum;
+  transaction_date: string;
+  items?: lineItems[];
+  payments?: paymentOptions[];
+}
+
+export interface salesReportTableTypes {
+  data: salesReportInterface[];
+  total_counts: number;
+  filtered_counts: number;
 }

@@ -31,13 +31,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { Check, ChevronsDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { MultiSelect } from "../multiselect/multiselectCheckbox";
+import { DatePickerWithRange } from "../date-range/date-rangePicker";
+import { toast } from "../use-toast";
 
 interface filtertypes {
   isOpen: boolean;
@@ -79,7 +81,10 @@ const TableFilters = ({
                         element.function(value);
                       }}
                     >
-                      <SelectTrigger className="capitalize" floatingLabel={element.label}>
+                      <SelectTrigger
+                        className="capitalize"
+                        floatingLabel={element.label}
+                      >
                         <SelectValue placeholder={"Select " + element.label} />
                       </SelectTrigger>
                       <SelectContent className="capitalize">
@@ -99,14 +104,36 @@ const TableFilters = ({
                       setFilter={element.function}
                       list={element.options}
                       name={element.name}
+                      label={element.label}
                     />
                   );
                 }
+                if (element.type == "date-range") {
+                  return (
+                    <div className="w-full " key={element.name}>
+                      <DatePickerWithRange
+                        name={element.name}
+                        value={{
+                          start_date: filterData.start_date, // Access start_date directly
+                          end_date: filterData.end_date, // Access end_date directly
+                        }}
+                        onValueChange={(dates) => {
+                          // Call your updated function
+                          element.function(dates);
+                        }}
+                        label={"Select " + element.label}
+                        className="w-full" // Ensure full width
+                      />
+                    </div>
+                  );
+                }
+
                 if (element.type == "percentage") {
                   return (
                     <FloatingLabelInput
                       type={"number"}
                       min={0}
+                      defaultValue={filterData[element.name]}
                       max={100}
                       name={element.name}
                       label={element.label}
@@ -127,7 +154,7 @@ const TableFilters = ({
                       type={"number"}
                       min={0}
                       id={element.name}
-                      name={element.label}
+                      name={element.name}
                       label={element.label}
                       onChange={element.function}
                     />
@@ -153,7 +180,6 @@ const TableFilters = ({
                   );
                 }
               })}
-
             <div className="gap-3 flex">
               <Button
                 type="submit"
@@ -170,17 +196,50 @@ const TableFilters = ({
               <Button
                 type="submit"
                 onClick={() => {
+                  const dateRangeFilter = filterDisplay?.find(
+                    (element: any) => element.type == "date-range"
+                  );
+
+                  let isValidDateRange = true; // To track the validity of the date range
+
+                  if (dateRangeFilter) {
+                    const { start_date, end_date } = filterData;
+
+                    // If one date is present and the other is missing, show the error toast
+                    if (
+                      (start_date && !end_date) ||
+                      (!start_date && end_date)
+                    ) {
+                      toast({
+                        variant: "destructive",
+                        description: "Must be a valid date range.",
+                      });
+                      isValidDateRange = false; // Set to false if invalid
+                      return;
+                    }
+
+                    // If both dates are missing, log the message and skip applying the date range
+                    if (!start_date && !end_date) {
+                      isValidDateRange = false; // Set to false if no date range is provided
+                    }
+                  }
+
+                  // Proceed with applying other filters regardless of the date range validity
                   setSearchCriteria((prev: any) => ({
                     ...prev,
-                    ...filterData,
+                    ...filterData, // Apply all filter data
+                    ...(isValidDateRange
+                      ? {}
+                      : { start_date: undefined, end_date: undefined }), // Only apply date range if valid
                     offset: 0,
                     sort_key: "id",
                     sort_order: "desc",
                   }));
+
+                  // Close the side panel after applying filters
                   setOpen(false);
-                  console.log("FIltered Data", filterData);
                 }}
-                className="bg-primary  text-black space-x-2 font-semibold w-full"
+                className="bg-primary text-black space-x-2 font-semibold w-full"
               >
                 <i className="fa fa-filter "></i>
                 Apply filters
@@ -201,36 +260,51 @@ interface comboboxType {
   defaultValue?: string;
   setFilter?: any;
   name?: string;
+  label?: string;
 }
 
-function Combobox({ list, setFilter, name, defaultValue }: comboboxType) {
+function Combobox({
+  list,
+  setFilter,
+  name,
+  defaultValue,
+  label,
+}: comboboxType) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(list?.find((list) => list.value == defaultValue)?.label ?? "");
+  const [value, setValue] = useState(
+    list?.find((list) => list.value == defaultValue)?.label ?? ""
+  );
   console.log({ value, list, defaultValue });
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between font-normal"
-        >
-          {value
-            ? list && list?.find((list) => list.label == value)?.label
-            : "Select " + name?.toLowerCase()}
-          <ChevronsDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+        <div className="relative">
+          <span className="absolute p-0 text-[11px] left-2 -top-1.5 px-1 bg-white capitalize">
+            {label}
+          </span>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="border-[1px] hover:bg-transparent w-full justify-between font-normal capitalize"
+          >
+            {value
+              ? list && list?.find((list) => list.label == value)?.label
+              : "Select " + label?.toLowerCase()}
+            <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[330px] p-0">
+      <PopoverContent className="w-[330px] max-h-28 p-0" side="bottom">
         <Command>
-          <CommandInput placeholder={`Search ${name}`} />
+          <CommandInput placeholder={`Search ${label}`} />
           <CommandEmpty>No list found.</CommandEmpty>
           <CommandList className="custom-scrollbar">
             <CommandGroup>
               {list &&
                 list?.map((item) => (
                   <CommandItem
+                    className="capitalize"
                     key={item.value}
                     value={item.value}
                     onSelect={(currentValue) => {
@@ -238,8 +312,8 @@ function Combobox({ list, setFilter, name, defaultValue }: comboboxType) {
                       setValue(currentValue == value ? "" : currentValue);
                       setFilter(
                         list &&
-                        list?.find((list) => list.label === currentValue)
-                          ?.value
+                          list?.find((list) => list.label === currentValue)
+                            ?.value
                       );
                       setOpen(false);
                     }}
@@ -247,7 +321,7 @@ function Combobox({ list, setFilter, name, defaultValue }: comboboxType) {
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        value === item.value ? "opacity-100" : "opacity-0"
+                        value === item.label ? "opacity-100" : "opacity-0"
                       )}
                     />
                     {item.label}

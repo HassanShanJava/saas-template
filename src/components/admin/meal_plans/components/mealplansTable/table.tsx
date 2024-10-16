@@ -57,6 +57,8 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetFoodsQuery } from "@/services/foodsApi";
 import { useGetMembersListQuery } from "@/services/memberAPi";
 import { visibleFor } from "@/constants/meal_plans";
+import usePagination from "@/hooks/use-pagination";
+import Pagination from "@/components/ui/table/pagination-table";
 
 const visibleForMap = Object.fromEntries(
   visibleFor.map((vf) => [vf.label, vf.value])
@@ -75,7 +77,7 @@ const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
   document.body.removeChild(link);
 };
 
-interface searchCretiriaType {
+interface searchCriteriaType {
   limit: number;
   offset: number;
   sort_order: string;
@@ -94,7 +96,9 @@ const initialValue = {
 };
 
 export default function MealPlansTableView() {
-  const { meal_plan } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const { meal_plan } = JSON.parse(
+    localStorage.getItem("accessLevels") as string
+  );
   const { toast } = useToast();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -102,8 +106,8 @@ export default function MealPlansTableView() {
   const [action, setAction] = useState<"add" | "edit">("add");
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [data, setData] = useState<mealPlanDataType | undefined>(undefined);
-  const [searchCretiria, setSearchCretiria] =
-    useState<searchCretiriaType>(initialValue);
+  const [searchCriteria, setSearchCriteria] =
+    useState<searchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
 
   // search input
@@ -113,7 +117,7 @@ export default function MealPlansTableView() {
   const [filterData, setFilter] = useState<Record<string, any>>({});
 
   useEffect(() => {
-    setSearchCretiria((prev) => {
+    setSearchCriteria((prev) => {
       const newCriteria = { ...prev };
 
       if (debouncedInputValue.trim() !== "") {
@@ -130,11 +134,11 @@ export default function MealPlansTableView() {
       return newCriteria;
     });
     console.log({ debouncedInputValue });
-  }, [debouncedInputValue, setSearchCretiria]);
+  }, [debouncedInputValue, setSearchCriteria]);
 
   useEffect(() => {
     const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(searchCretiria)) {
+    for (const [key, value] of Object.entries(searchCriteria)) {
       console.log({ key, value });
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
@@ -149,10 +153,10 @@ export default function MealPlansTableView() {
     const newQuery = params.toString();
     console.log({ newQuery });
     setQuery(newQuery);
-  }, [searchCretiria]);
+  }, [searchCriteria]);
 
   const toggleSortOrder = (key: string) => {
-    setSearchCretiria((prev) => {
+    setSearchCriteria((prev) => {
       const newSortOrder =
         prev.sort_key === key
           ? prev.sort_order === "desc"
@@ -213,7 +217,7 @@ export default function MealPlansTableView() {
     },
     enableSorting: false,
     enableHiding: false,
-  }
+  };
 
   const columns: ColumnDef<mealPlanDataType>[] = [
     {
@@ -226,34 +230,40 @@ export default function MealPlansTableView() {
             onClick={() => toggleSortOrder("name")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex gap-2 items-center justify-between w-fit">
+          <div className="size-8 flex gap-2 items-center justify-between w-fit">
             {row.original.profile_img ? (
               <img
-                src={VITE_VIEW_S3_URL + "/" + row.original.profile_img}
+                src={
+                  row.original.profile_img.includes(VITE_VIEW_S3_URL)
+                    ? row.original.profile_img
+                    : `${VITE_VIEW_S3_URL}/${row.original.profile_img}`
+                }
                 alt={row.original.name}
                 loading="lazy"
-                className="size-14 bg-gray-100 object-contain rounded-sm "
+                className="size-8 bg-gray-100 object-cover rounded-sm "
               />
             ) : (
-              <div className="size-14 bg-gray-100 rounded-sm"></div>
+              <div className="size-8 bg-gray-100 rounded-sm"></div>
             )}
             <div className="">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <p className="capitalize cursor-pointer">
-                      <span>{displayValue(
-                        `${row.original.name}`.length > 8
-                          ? `${row.original.name}`.substring(0, 8) + "..."
-                          : `${row.original.name}`
-                      )}</span>
+                      <span>
+                        {displayValue(
+                          `${row.original.name}`.length > 8
+                            ? `${row.original.name}`.substring(0, 8) + "..."
+                            : `${row.original.name}`
+                        )}
+                      </span>
                     </p>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -280,7 +290,7 @@ export default function MealPlansTableView() {
             onClick={() => toggleSortOrder("visible_for")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -301,7 +311,7 @@ export default function MealPlansTableView() {
             onClick={() => toggleSortOrder("carbs")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -322,7 +332,7 @@ export default function MealPlansTableView() {
             onClick={() => toggleSortOrder("protein")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -343,7 +353,7 @@ export default function MealPlansTableView() {
             onClick={() => toggleSortOrder("name")}
           >
             <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCretiria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
             ></i>
           </button>
         </div>
@@ -391,24 +401,12 @@ export default function MealPlansTableView() {
     setIsDialogOpen(true);
   };
 
-  const handleVisiblity = (value: string) => {
+  function handleFilterChange(field: string, value: string | number) {
     setFilter((prev) => ({
       ...prev,
-      visible_for: value,
+      [field]: value,
     }));
-  };
-  const handleFoods = (value: any) => {
-    setFilter((prev) => ({
-      ...prev,
-      food_id: value,
-    }));
-  };
-  const handleMembers = (value: any) => {
-    setFilter((prev) => ({
-      ...prev,
-      member_id: value,
-    }));
-  };
+  }
 
   const filterDisplay = [
     {
@@ -416,7 +414,7 @@ export default function MealPlansTableView() {
       name: "visible_for",
       label: "Visible For",
       options: visibleFor.map((item) => ({ id: item.value, name: item.label })),
-      function: handleVisiblity,
+      function: (value: string) => handleFilterChange("visible_for", value),
     },
     {
       type: "multiselect",
@@ -425,60 +423,33 @@ export default function MealPlansTableView() {
       options:
         foodData?.data &&
         foodData?.data.map((food) => ({ value: food.id, label: food.name })),
-      function: handleFoods,
+      function: (value: string) => handleFilterChange("food_id", value),
     },
     {
       type: "multiselect",
       name: "member_id",
       label: "Members",
       options: membersData,
-      function: handleMembers,
+      function: (value: string) => handleFilterChange("member_id", value),
     },
   ];
 
   const totalRecords = mealsData?.filtered_counts || 0;
-  const lastPageOffset = Math.max(
-    0,
-    Math.floor((totalRecords - 1) / searchCretiria.limit) * searchCretiria.limit
-  );
-  const isLastPage = searchCretiria.offset >= lastPageOffset;
-  const nextPage = () => {
-    if (!isLastPage) {
-      setSearchCretiria((prev) => ({
-        ...prev,
-        offset: prev.offset + prev.limit,
-      }));
-    }
-  };
-
-  // Function to go to the previous page
-  const prevPage = () => {
-    setSearchCretiria((prev) => ({
-      ...prev,
-      offset: Math.max(0, prev.offset - prev.limit),
-    }));
-  };
-
-  // Function to go to the first page
-  const firstPage = () => {
-    setSearchCretiria((prev) => ({
-      ...prev,
-      offset: 0,
-    }));
-  };
-
-  // Function to go to the last page
-  const lastPage = () => {
-    if (!isLastPage) {
-      setSearchCretiria((prev) => ({
-        ...prev,
-        offset: lastPageOffset,
-      }));
-    }
-  };
+  const {
+    handleLimitChange,
+    handleNextPage,
+    handlePrevPage,
+    handleFirstPage,
+    handleLastPage,
+    isLastPage,
+  } = usePagination<searchCriteriaType>({
+    totalRecords,
+    searchCriteria,
+    setSearchCriteria,
+  });
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3">
         <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
           <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
@@ -486,22 +457,24 @@ export default function MealPlansTableView() {
               id="search"
               placeholder="Search by name"
               onChange={(event) => setInputValue(event.target.value)}
-              className=" w-80 lg:w-64 pl-8 text-gray-400"
+              className=" w-80 lg:w-64 pl-8 text-sm placeholder:text-sm text-gray-400 h-8"
             />
           </div>
         </div>
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          {meal_plan !== "read" && <Button
-            className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
-            onClick={handleOpen}
-          >
-            <PlusIcon className="size-4" />
-            Create New
-          </Button>}
+          {meal_plan !== "read" && (
+            <Button
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+              onClick={handleOpen}
+            >
+              <PlusIcon className="size-4" />
+              Create New
+            </Button>
+          )}
           <button
-            className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
+            className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
             onClick={() => setOpenFilter(true)}
           >
             <i className="fa fa-filter"></i>
@@ -588,103 +561,17 @@ export default function MealPlansTableView() {
       </div>
 
       {mealstableData.length > 0 && (
-        <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium">Items per page:</p>
-              <Select
-                value={searchCretiria.limit.toString()}
-                onValueChange={(value) => {
-                  const newSize = Number(value);
-                  setSearchCretiria((prev) => ({
-                    ...prev,
-                    limit: newSize,
-                    offset: 0, // Reset offset when page size changes
-                  }));
-                }}
-              >
-                <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
-                  <SelectValue>{searchCretiria.limit}</SelectValue>
-                </SelectTrigger>
-                <SelectContent side="bottom">
-                  {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={pageSize.toString()}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Separator
-              orientation="vertical"
-              className="h-11 w-[1px] bg-gray-300"
-            />
-            <span>
-              {" "}
-              {`${searchCretiria.offset + 1} - ${searchCretiria.limit} of ${mealsData?.filtered_counts} Items  `}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center space-x-2">
-              <Separator
-                orientation="vertical"
-                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex border-none !disabled:cursor-not-allowed"
-                onClick={firstPage}
-                disabled={searchCretiria.offset === 0}
-              >
-                <DoubleArrowLeftIcon className="h-4 w-4" />
-              </Button>
-
-              <Separator
-                orientation="vertical"
-                className="h-11 w-[0.5px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-                onClick={prevPage}
-                disabled={searchCretiria.offset === 0}
-              >
-                <ChevronLeftIcon className="h-4 w-4" />
-              </Button>
-
-              <Separator
-                orientation="vertical"
-                className="h-11 w-[1px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="h-8 w-8 p-0 border-none disabled:cursor-not-allowed"
-                onClick={nextPage}
-                disabled={isLastPage}
-              >
-                <ChevronRightIcon className="h-4 w-4" />
-              </Button>
-
-              <Separator
-                orientation="vertical"
-                className="hidden lg:flex h-11 w-[1px] bg-gray-300"
-              />
-
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex border-none disabled:cursor-not-allowed"
-                onClick={lastPage}
-                disabled={isLastPage}
-              >
-                <DoubleArrowRightIcon className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+        <Pagination
+          limit={searchCriteria.limit}
+          offset={searchCriteria.offset}
+          totalItems={totalRecords}
+          onLimitChange={handleLimitChange}
+          onNextPage={handleNextPage}
+          onPrevPage={handlePrevPage}
+          onFirstPage={handleFirstPage}
+          onLastPage={handleLastPage}
+          isLastPage={isLastPage}
+        />
       )}
 
       <TableFilters
@@ -693,7 +580,7 @@ export default function MealPlansTableView() {
         initialValue={initialValue}
         filterData={filterData}
         setFilter={setFilter}
-        setSearchCriteria={setSearchCretiria}
+        setSearchCriteria={setSearchCriteria}
         filterDisplay={filterDisplay}
       />
 

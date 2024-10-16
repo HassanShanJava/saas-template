@@ -181,15 +181,15 @@ export default function WorkoutPlansTableView() {
       const resp =
         updateType === "level"
           ? await updateGrid({
-              level: payload.level!,
-              id: payload.id,
-              weeks: payload.weeks,
-            }).unwrap()
+            level: payload.level!,
+            id: payload.id,
+            weeks: payload.weeks,
+          }).unwrap()
           : await updateGrid({
-              goals: payload.goals!,
-              id: payload.id,
-              weeks: payload.weeks,
-            }).unwrap();
+            goals: payload.goals!,
+            id: payload.id,
+            weeks: payload.weeks,
+          }).unwrap();
 
       refetch();
 
@@ -298,7 +298,7 @@ export default function WorkoutPlansTableView() {
             }}
             disabled={workout === "read"}
           >
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[200px] h-8">
               <SelectValue className="text-gray-400">
                 <span className="flex gap-2 items-center">
                   <span>{goals}</span>
@@ -349,7 +349,7 @@ export default function WorkoutPlansTableView() {
               }}
               disabled={workout === "read"}
             >
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-[150px] h-8">
                 <SelectValue placeholder="Status" className="text-gray-400">
                   <span className="flex gap-2 items-center">
                     <span>{level}</span>
@@ -459,19 +459,19 @@ export default function WorkoutPlansTableView() {
 
   type FilterDisplayItem =
     | {
-        type: "select";
-        name: "visible_for" | "level";
-        label: string;
-        options?: Option[];
-        function: (value: string) => void;
-      }
+      type: "select";
+      name: "visible_for" | "level";
+      label: string;
+      options?: Option[];
+      function: (value: string) => void;
+    }
     | {
-        type: "multiselect";
-        name: "goals";
-        label: string;
-        options?: { value: string; label: string }[];
-        function: (value: string[]) => void;
-      };
+      type: "multiselect";
+      name: "goals";
+      label: string;
+      options?: { value: string; label: string }[];
+      function: (value: string[]) => void;
+    };
 
   const handleFilterChange = <T extends keyof Filter>(
     key: T,
@@ -525,16 +525,9 @@ export default function WorkoutPlansTableView() {
     },
   ];
 
-  console.log(
-    "workout data",
-    workoutdata?.data,
-    WorkoutTableData,
-    "Total Records",
-    { totalRecords }
-  );
   return (
     <div className="w-full space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-4 py-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3">
         <div className="flex  flex-1 space-x-2 mb-2 lg:mb-0">
           <div className="flex items-center relative w-full lg:w-auto">
             <Search className="size-4 text-gray-400 absolute left-1 z-10 ml-2" />
@@ -542,7 +535,7 @@ export default function WorkoutPlansTableView() {
               id="search"
               placeholder="Search by name"
               onChange={(event) => setInputValue(event.target.value)}
-              className=" w-80 lg:w-64 pl-8 text-gray-400"
+              className=" w-80 lg:w-64 pl-8 text-sm placeholder:text-sm text-gray-400 h-8"
             />
           </div>
         </div>
@@ -551,7 +544,7 @@ export default function WorkoutPlansTableView() {
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
           {workout !== "read" && (
             <Button
-              className="bg-primary text-xs lg:text-base  text-black flex items-center gap-1  lg:mb-0"
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
               onClick={() => handleOpen()}
             >
               <PlusIcon className="size-4" />
@@ -559,8 +552,8 @@ export default function WorkoutPlansTableView() {
             </Button>
           )}
           <button
-            className="border rounded-full size-5 text-gray-400 p-5 flex items-center justify-center"
-            onClick={() => setOpenFilter(true)}
+             className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
+             onClick={() => setOpenFilter(true)}
           >
             <i className="fa fa-filter"></i>
           </button>
@@ -582,9 +575,9 @@ export default function WorkoutPlansTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

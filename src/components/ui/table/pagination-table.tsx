@@ -40,15 +40,15 @@ const Pagination: React.FC<PaginationProps> = ({
 }) => {
 
   return (
-    <div className="flex items-center justify-between m-4 px-2 py-1 bg-gray-100 rounded-lg">
+    <div className="text-sm font-normal flex items-center justify-between  mx-2 px-2  h-10 bg-gray-100 rounded-md">
       <div className="flex items-center justify-center gap-2">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-medium">Items per page:</p>
+          <p className="">Items per page:</p>
           <Select
             value={limit.toString()}
             onValueChange={(value) => onLimitChange(Number(value))}
           >
-            <SelectTrigger className="h-8 w-[70px] !border-none shadow-none">
+            <SelectTrigger className="h-6 w-[70px] !border-none shadow-none">
               <SelectValue>{limit}</SelectValue>
             </SelectTrigger>
             <SelectContent side="bottom">
@@ -62,7 +62,7 @@ const Pagination: React.FC<PaginationProps> = ({
         </div>
         <Separator
           orientation="vertical"
-          className="h-11 w-[1px] bg-gray-300"
+          className="h-10 w-[1px] bg-gray-300"
         />
         <span>{`${offset + 1} - ${limit} of ${totalItems} Items`}</span>
       </div>
@@ -71,7 +71,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <div className="flex items-center space-x-2">
           <Separator
             orientation="vertical"
-            className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+            className="hidden lg:flex h-10 w-[1px] bg-gray-300"
           />
 
           <Button
@@ -85,7 +85,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
           <Separator
             orientation="vertical"
-            className="h-11 w-[0.5px] bg-gray-300"
+            className="h-10 w-[0.5px] bg-gray-300"
           />
 
           <Button
@@ -99,7 +99,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
           <Separator
             orientation="vertical"
-            className="h-11 w-[1px] bg-gray-300"
+            className="h-10 w-[1px] bg-gray-300"
           />
 
           <Button
@@ -113,7 +113,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
           <Separator
             orientation="vertical"
-            className="hidden lg:flex h-11 w-[1px] bg-gray-300"
+            className="hidden lg:flex h-10 w-[1px] bg-gray-300"
           />
 
           <Button

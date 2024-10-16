@@ -1,6 +1,8 @@
 import {
   CoachTableDataTypes,
   MemberTableDatatypes,
+  RegisterSession,
+  salesReportInterface,
   staffTypesResponseList,
 } from "@/app/types";
 import Papa from "papaparse";
@@ -37,15 +39,19 @@ export const downloadCSV = <T>(
   link.click();
   document.body.removeChild(link);
 };
-const capitalizeFirstLetter = (str: string) =>
+
+export function replaceUnderscoreWithSpace(inputString: string) {
+  return inputString.replace(/_/g, " "); // Replace all underscores with spaces
+}
+export const capitalizeFirstLetter = (str: string) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
 export const membersMapper = (member: MemberTableDatatypes) => ({
   "Member Id": member.own_member_id,
-  "Member Name": `${capitalizeFirstLetter(member.first_name?.toUpperCase() || "")} ${capitalizeFirstLetter(member.last_name?.toUpperCase() || "")}`,
+  "Member Name": `${capitalizeFirstLetter(member.first_name || "")} ${capitalizeFirstLetter(member.last_name || "")}`,
   "Business Name": capitalizeFirstLetter(member.business_name || ""),
-  "Membership Plan": capitalizeFirstLetter(
-    member.membership_plan_id?.toString() || ""
-  ),
+  // "Membership Plan": capitalizeFirstLetter(
+  //   member.membership_plan_id?.toString() || ""
+  // ),
   Status: capitalizeFirstLetter(member.client_status || ""),
   "Activation Date": displayDate(member.activated_on) || "",
   "Last Check In": displayDateTime(member.check_in) || "",
@@ -87,24 +93,71 @@ export const coachMapper = ({
   "Last Login": displayDateTime(last_online) || "",
 });
 
+export const sessionMapper = ({
+  id,
+  opening_time,
+  opening_balance,
+  closing_time,
+  closing_balance,
+  discrepancy,
+  notes,
+  created_by,
+  created_date,
+}: RegisterSession) => ({
+  "Session ID": id,
+  "Opening Time": displayDateTime(opening_time) || "",
+  "Opening Balance": displayValue(opening_balance?.toString()) || "",
+  "Closing Time": displayDateTime(closing_time) || "",
+  "Closing Balance": displayValue(closing_balance?.toString()) || "",
+  Discrepancy: displayValue(discrepancy?.toString()) || "",
+  Notes: capitalizeFirstLetter(notes?.toString() || "N/A"),
+  "Created By": capitalizeFirstLetter(created_by),
+  "Created Date": displayDateTime(created_date) || "",
+});
+
+export const SaleHistoryMapper = ({
+  receipt_number,
+  tax_number,
+  member_name,
+  tax_amt,
+  discount_amt,
+  total,
+  status,
+  staff_name,
+  transaction_date,
+}: salesReportInterface) => ({
+  "TXN Number": receipt_number,
+  "SRB Number": displayValue(tax_number) || "",
+  "Member Name": capitalizeFirstLetter(member_name) || "",
+  "Tax Amount": displayValue(tax_amt) || "",
+  "Discount Amount": displayValue(discount_amt) || "",
+  "Total Amount": displayValue(total) || "",
+  Status: capitalizeFirstLetter(status),
+  "Created By": capitalizeFirstLetter(staff_name),
+  "Created Date": displayDateTime(transaction_date) || "",
+});
+
 export const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  // sort_key: "created_at",
   sort_key: "id",
 };
 
-export const displayValue = (value: string | undefined | null) =>
-  value == null || value == undefined || value.trim() == "" ? "N/A" : value;
-
+export const displayValue = (value: string | number | undefined | null) => {
+  return value === null ||
+    value == undefined ||
+    (typeof value == "string" && value.trim() == "")
+    ? "N/A"
+    : value;
+};
 
 // Function to extract all links
 export function extractLinks(data: any[]) {
   let links: string[] = [];
 
   data.forEach((item: any) => {
-    if (item.link && item.link != '/') {
+    if (item.link && item.link != "/") {
       links.push(item.link); // Add current link
     }
 
@@ -116,3 +169,27 @@ export function extractLinks(data: any[]) {
 
   return links;
 }
+
+export const saveToLocalStorage = (key: string, value: any) => {
+  localStorage.setItem(key, JSON.stringify(value));
+};
+
+export const formatDate = (date: Date | string | null): string | null => {
+  if (!date) return null; // Handle null or undefined dates
+
+  const d = new Date(date);
+
+  // Check if the date is valid
+  if (isNaN(d.getTime())) {
+    console.error("Invalid date:", date);
+    return null; // Return null for invalid dates
+  }
+
+  const year: number = d.getFullYear();
+  const month: string = String(d.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+  const day: string = String(d.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+export const roundToTwoDecimals = (value: number) => Math.floor(value * 100) / 100;

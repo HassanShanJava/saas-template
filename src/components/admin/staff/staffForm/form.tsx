@@ -564,7 +564,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                         avatar
                           ? String(avatar)
                           : watcher.profile_img
-                            ? `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
+                            ? (watcher.profile_img.includes(VITE_VIEW_S3_URL) ? watcher.profile_img : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`)
                             : profileimg
                       }
                       loading="lazy"

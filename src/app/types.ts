@@ -11,6 +11,8 @@ export interface sellItem {
   description: string
   quantity: number
   price: number
+  tax_type: string
+  sale_tax: string
   tax_rate: number
   discount: number
   sub_total: number

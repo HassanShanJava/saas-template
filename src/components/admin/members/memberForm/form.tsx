@@ -186,6 +186,7 @@ interface memberFormTypes {
   action: string;
   setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
   refetch: any;
+  breadcrumb?:string
 }
 
 const MemberForm = ({
@@ -196,6 +197,7 @@ const MemberForm = ({
   action,
   setAction,
   refetch,
+  breadcrumb
 }: memberFormTypes) => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -686,8 +688,8 @@ const MemberForm = ({
                       {action == "add" ? "Add" : "Edit"} Member
                     </p>
                     <div className="text-sm">
-                      <span className="text-gray-400 pr-1 font-semibold">
-                        Dashboard
+                      <span className="text-gray-400 pr-1 font-semibold capitalize">
+                        {breadcrumb}
                       </span>{" "}
                       <span className="text-gray-400 font-semibold">/</span>
                       <span className="pl-1 text-primary font-semibold ">

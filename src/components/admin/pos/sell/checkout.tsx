@@ -111,9 +111,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
 
                 <div className="flex flex-col justify-between">
                     <div>
-
                         <h2 className="text-2xl font-bold ">Payment</h2>
-
                         <div className="mt-5 h-full flex flex-col   justify-between gap-6">
                             <div>
                                 <div className="flex gap-2 items-center justify-between">

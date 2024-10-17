@@ -23,7 +23,10 @@ import { v4 as uuidv4 } from "uuid";
 import Checkout from "./checkout";
 import DayExceeded from "./day-exceeded";
 import { roundToTwoDecimals } from "@/utils/helper";
-import { CustomerCombobox, RetriveSaleCombobox } from "./custom-combobox";
+import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Command, Check, ChevronDown } from "lucide-react";
 import MemberForm from "../../members/memberForm/form";
 interface searchCriteriaType {
   search_key?: string;
@@ -126,10 +129,7 @@ const Sell = () => {
   // get unpaid sales to retrive sale
   const {
     data: transactionData,
-    isLoading,
-    refetch,
-    error,
-    isError,
+    refetch: transactionRefetch,
   } = useGetTransactionQuery(
     { counter_id: counter_number as number, query: 'status=Unpaid&sort_order=desc' },
     {
@@ -143,7 +143,6 @@ const Sell = () => {
 
   // select customer
   const [customer, setCustomer] = useState<Record<string, any> | null>(null);
-
 
   useEffect(() => {
     setSearchCriteria((prev) => {
@@ -186,7 +185,6 @@ const Sell = () => {
   const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
     null
   );
-
 
   function handleOpenForm() {
     setAction("add");
@@ -528,7 +526,7 @@ const Sell = () => {
                     <div className="flex items-center justify-between gap-2">
 
                       <CustomerCombobox
-                        label=  {"Search customer"}
+                        label={"Search customer"}
                         list={memberListData}
                         setCustomer={setCustomer}
                         customer={customer}
@@ -634,6 +632,7 @@ const Sell = () => {
         action={action}
         setAction={setAction}
         refetch={memberRefetch}
+        breadcrumb="POS"
       />
     </div>
 
@@ -641,3 +640,124 @@ const Sell = () => {
 };
 
 export default Sell;
+
+
+
+interface customerComboboxTypes {
+  list: MemberTableDatatypes[];
+  customerList?: MemberTableDatatypes[];
+  setCustomer: any;
+  customer: any;
+  label?: string
+}
+
+function CustomerCombobox({ list, setCustomer, customer, label }: customerComboboxTypes) {
+  const modifiedList = list?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState("")
+  useEffect(() => {
+    if (customer) {
+      setValue(`${customer.id}`)
+    }
+  }, [customer])
+  console.log({ value, customer }, "customer")
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="capitalize w-full justify-between bg-white rounded-sm border-[1px]"
+        >
+          {value
+            ? modifiedList?.find((customer: any) => customer.value == value)?.label
+            : label}
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className=" w-[330px] p-0 custom-scrollbar">
+        <Command>
+          <CommandInput placeholder={label} />
+          <CommandList className="custom-scrollbar">
+            <CommandEmpty>No customer found.</CommandEmpty>
+            <CommandGroup className="">
+              {modifiedList?.map((customer: any) => (
+                <CommandItem
+                  key={customer.value + ""}
+                  value={customer.value + ""}
+                  onSelect={(currentValue) => {
+                    setValue(currentValue === value ? "" : currentValue)
+                    const customer = list?.find((item: any) => item.id == currentValue)
+                    setCustomer(customer)
+                    setOpen(false)
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === customer.value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {customer.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function RetriveSaleCombobox({ list, setCustomer, customer, label, customerList }: customerComboboxTypes) {
+  const modifiedList = list?.map((item: any) => ({ value: item.member_id, label: item.member_name }))
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState("")
+  console.log({ value, customer }, "retrived")
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild >
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className=" capitalize w-full justify-center items-center gap-2  bg-white rounded-sm border-[1px]"
+        >
+          <i className="fa fa-share"></i>
+          {label}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className=" w-[240px] p-0" side="bottom">
+        <Command>
+          {/* <CommandInput placeholder={"Search customer"} /> */}
+          <CommandList className="">
+            <CommandEmpty>No customer found.</CommandEmpty>
+            <CommandGroup className="">
+              {modifiedList?.map((customer: any) => (
+                <CommandItem
+                  key={customer.value + ""}
+                  value={customer.value + ""}
+                  onSelect={(currentValue) => {
+                    setValue(currentValue === value ? "" : currentValue)
+                    const customer = customerList?.find((item: any) => item.id == currentValue)
+                    setCustomer(customer)
+                    setOpen(false)
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === customer.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {customer.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}

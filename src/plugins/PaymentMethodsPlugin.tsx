@@ -1,6 +1,5 @@
 import store from "@/app/store";
 import { PaymentMethodPlugin } from "@/app/types";
-import { paymentMethodsResponse } from "@/lib/constants/payment_methods";
 import { PaymentMethodsApi } from "@/services/paymentMethodsApi";
 import { IPlugin, PluginStore } from "react-pluggable";
 

@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { usePluginStore } from "react-pluggable";
 import { toast } from "../../ui/use-toast";
 import { PaymentMethodPlugin } from "@/app/types";
-import { useUpdatePaymentMethod, useUpdatePaymentMethodMutation } from "@/services/paymentMethodsApi";
+import { useUpdatePaymentMethodMutation } from "@/services/paymentMethodsApi";
 
 const PaymentMethods = () => {
   const pluginStore = usePluginStore();

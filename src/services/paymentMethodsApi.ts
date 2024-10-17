@@ -1,4 +1,4 @@
-import { PaymentMethodCreate, PaymentMethodPlugin, PaymentMethodUpdate } from "@/app/types";
+import { PaymentMethodPlugin, PaymentMethodUpdate } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
 export const PaymentMethodsApi = apiSlice.injectEndpoints({

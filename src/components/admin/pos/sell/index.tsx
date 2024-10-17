@@ -1,59 +1,29 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-
 import { RootState } from "@/app/store";
 import { Card } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { useGetAllMemberQuery, useGetMembersListQuery } from "@/services/memberAPi";
-import { Check, ChevronsUpDown, Search } from "lucide-react";
+import { useGetAllMemberQuery } from "@/services/memberAPi";
+import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
-import { FileInput } from "@/components/ui/file-uploader";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { roundToTwoDecimals } from "@/utils/helper";
 import { useDebounce } from "@/hooks/use-debounce";
-import { MemberTableDatatypes, sellForm, sellItem } from "@/app/types";
-import { has24HoursPassed, useGetRegisterData } from "@/constants/counter_register";
+import { ErrorType, sellForm, sellItem } from "@/app/types";
+import { has24HoursPassed } from "@/constants/counter_register";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
-import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
 import { useGetIncomeCategorListQuery } from "@/services/incomeCategoryApi";
 import { useGetOrgTaxTypeQuery } from "@/services/organizationApi";
 import { useCreateTransactionMutation, useGetTransactionQuery } from "@/services/transactionApi";
 import { v4 as uuidv4 } from "uuid";
+import Checkout from "./checkout";
+import DayExceeded from "./day-exceeded";
+import { roundToTwoDecimals } from "@/utils/helper";
+import { CustomerCombobox, RetriveSaleCombobox } from "./custom-combobox";
 interface searchCriteriaType {
   search_key?: string;
 }
@@ -63,14 +33,15 @@ const Sell = () => {
   const { userInfo } = useSelector((state: RootState) => state.auth);
   console.log({ userInfo })
   const orgId =
-  useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
+
   const initialValues: sellForm = {
     staff_id: userInfo?.user.id,
-    counter_id: counter_number as number,
+    counter_id: counter_number as number, //counter id
     staff_name: userInfo?.user.first_name,
     discount_amt: undefined,
-    batch_id: sessionId,
+    batch_id: sessionId, //register id
     member_id: null,
     member_name: null,
     member_email: null,
@@ -96,12 +67,10 @@ const Sell = () => {
     ],
   }
   const { data: orgTaxType } = useGetOrgTaxTypeQuery(orgId)
-  const tax_type = "inclusive";
   const [productPayload, setProductPayload] = useState<sellItem[]>([])
   const [showCheckout, setShowCheckout] = useState<boolean>(false)
   const [dayExceeded, setDayExceeded] = useState<boolean>(false)
   const navigate = useNavigate()
-  console.log({ orgTaxType })
   const form = useForm<sellForm>({
     mode: "all",
     defaultValues: initialValues,
@@ -154,8 +123,6 @@ const Sell = () => {
   const debouncedInputValue = useDebounce(inputValue, 500);
 
   // get unpaid sales to retrive sale
-  // const [data:]
-
   const {
     data: transactionData,
     isLoading,
@@ -185,10 +152,8 @@ const Sell = () => {
       } else {
         delete newCriteria.search_key;
       }
-
       return newCriteria;
     });
-    console.log({ debouncedInputValue });
   }, [debouncedInputValue, setSearchCriteria]);
 
   useEffect(() => {
@@ -210,16 +175,13 @@ const Sell = () => {
     setQuery(newQuery);
   }, [searchCriteria]);
 
-
   const { data: incomeCatData } = useGetIncomeCategorListQuery(orgId);
   const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
   const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId, query: query })
 
-
   const memberhsipListData = useMemo(() => {
     return Array.isArray(memberhsipList?.data) ? memberhsipList?.data : [];
   }, [memberhsipList]);
-
 
   // product lists by category
   const productCategories = [
@@ -240,13 +202,11 @@ const Sell = () => {
     },
   ]
 
-
-
   const addProduct = (product: any, type: string) => {
     // Calculate the discount amount
-    const discountPercentage = product.discount || 0; // Percentage discount from the product
-    const discountAmount = Math.floor((product.net_price * discountPercentage) / 100 * 100) / 100; // Calculate and round discount to 2 decimal places
-    const finalPrice = Math.floor((product.net_price - discountAmount) * 100) / 100; // Final price after discount, rounded to 2 decimal places
+    const discountPercentage = product.discount || 0;
+    const discountAmount = Math.floor((product.net_price * discountPercentage) / 100 * 100) / 100;
+    const finalPrice = Math.floor((product.net_price - discountAmount) * 100) / 100;
 
     const incomeCat = incomeCatData?.filter(
       (item) => item.id == product.income_category_id
@@ -254,57 +214,54 @@ const Sell = () => {
     const saleTax = salesTaxData?.filter(
       (item) => item.id == incomeCat?.sale_tax_id
     )[0];
-    const taxRate = saleTax.percentage || 0; // Add logic to get product tax rate
+    const taxRate = saleTax.percentage || 0;
     let subTotal = 0, total = 0, taxAmount = 0;
 
     // Check tax_type and calculate accordingly
-    if (tax_type === "inclusive") {
-      // For inclusive tax, tax is already included in the final price
+    if (orgTaxType?.tax_type === "inclusive") {
+
       taxAmount = Math.floor((finalPrice - (finalPrice / (1 + taxRate / 100))) * 100) / 100;
-      subTotal = Math.floor((finalPrice - taxAmount) * 100) / 100; // Price without tax
-      total = finalPrice; // Total is the final price as tax is included
-    } else if (tax_type === "exclusive") {
-      // For exclusive tax, tax is added on top of the final price
+      subTotal = Math.floor((finalPrice - taxAmount) * 100) / 100;
+      total = finalPrice;
+    } else if (orgTaxType?.tax_type === "exclusive") {
       taxAmount = Math.floor(((finalPrice * taxRate) / 100) * 100) / 100;
-      subTotal = finalPrice; // Sub-total is just the price after discount
-      total = Math.floor((finalPrice + taxAmount) * 100) / 100; // Total after adding tax
+      subTotal = finalPrice;
+      total = Math.floor((finalPrice + taxAmount) * 100) / 100;
     }
 
     const newProductPayload = {
-      item_id: product.id, // Assuming product.id exists
-      item_type: type, // Product type
-      description: product.name, // Replace with the actual product name
-      quantity: 1, // Default quantity  
-      price: finalPrice, // Price after discount
-      tax_rate: taxRate, // Tax rate applied
-      discount: discountAmount, // Discount amount
-      sub_total: subTotal, // Sub-total before tax (depends on tax type)
-      tax_type: product.tax_type, // Tax type (inclusive or exclusive)
-      total: total, // Final total after tax (depends on tax type)
-      tax_amount: taxAmount // Tax amount calculated based on tax type
+      item_id: product.id,
+      item_type: type,
+      description: product.name,
+      quantity: 1,
+      price: finalPrice,
+      tax_rate: taxRate,
+      discount: discountAmount,
+      sub_total: subTotal,
+      tax_type: orgTaxType?.tax_type as string,
+      sale_tax: saleTax.name as string,
+      total: total,
+      tax_amount: taxAmount
     };
 
     setProductPayload((prevPayload) => {
       const existingProduct = prevPayload.find((prod) => prod.item_id === product.id);
-
       if (existingProduct) {
-        // If product with the same id exists, update quantity, price, discount, and totals
         return prevPayload.map((prod) =>
           prod.item_id === product.id
             ? {
               ...prod,
-              quantity: prod.quantity + 1, // Increment quantity
-              price: Math.floor((prod.price + finalPrice) * 100) / 100, // Add price of new addition
-              discount: Math.floor((prod.discount + discountAmount) * 100) / 100, // Add the discount
-              sub_total: Math.floor((prod.sub_total + subTotal) * 100) / 100, // Update sub-total
-              total: Math.floor((prod.total + total) * 100) / 100, // Update total
-              tax_amount: Math.floor((prod.tax_amount + taxAmount) * 100) / 100 // Update tax amount
+              quantity: prod.quantity + 1,
+              price: Math.floor((prod.price + finalPrice) * 100) / 100,
+              discount: Math.floor((prod.discount + discountAmount) * 100) / 100,
+              sub_total: Math.floor((prod.sub_total + subTotal) * 100) / 100,
+              total: Math.floor((prod.total + total) * 100) / 100,
+              tax_amount: Math.floor((prod.tax_amount + taxAmount) * 100) / 100
             }
             : prod
         );
       }
 
-      // If product is new, add it to the payload
       setValue("membership_plans", [...prevPayload, newProductPayload])
       return [...prevPayload, newProductPayload];
     });
@@ -316,23 +273,21 @@ const Sell = () => {
       const newPayload = prevPayload
         .map((product) => {
           if (product.item_id === productId) {
-            const discountPercentage = product.discount / product.price; // Calculate discount percentage based on current price and discount
-            const unitPrice = Math.floor((product.price / product.quantity) * 100) / 100; // Get the price per unit
-            const unitDiscount = Math.floor((unitPrice * discountPercentage) * 100) / 100; // Calculate per unit discount
-
+            const discountPercentage = product.discount / product.price;
+            const unitPrice = Math.floor((product.price / product.quantity) * 100) / 100;
+            const unitDiscount = Math.floor((unitPrice * discountPercentage) * 100) / 100;
             let unitTaxAmount = 0, unitSubTotal = 0, unitTotal = 0;
 
             // Calculate tax, subtotal, and total based on tax_type
-            if (tax_type === "inclusive") {
+            if (orgTaxType?.tax_type === "inclusive") {
               // For inclusive tax, tax is part of the price
               unitTaxAmount = Math.floor((unitPrice - (unitPrice / (1 + product.tax_rate / 100))) * 100) / 100;
-              unitSubTotal = Math.floor((unitPrice - unitTaxAmount) * 100) / 100; // Price without tax
-              unitTotal = unitPrice; // Total is the unit price (tax included)
-            } else if (tax_type === "exclusive") {
-              // For exclusive tax, tax is added on top of the price
+              unitSubTotal = Math.floor((unitPrice - unitTaxAmount) * 100) / 100;
+              unitTotal = unitPrice;
+            } else if (orgTaxType?.tax_type === "exclusive") {
               unitTaxAmount = Math.floor((unitPrice * (product.tax_rate / 100)) * 100) / 100;
-              unitSubTotal = unitPrice; // Subtotal is just the unit price
-              unitTotal = Math.floor((unitPrice + unitTaxAmount) * 100) / 100; // Total with tax
+              unitSubTotal = unitPrice;
+              unitTotal = Math.floor((unitPrice + unitTaxAmount) * 100) / 100;
             }
 
             // Handle increment action
@@ -341,24 +296,21 @@ const Sell = () => {
               return {
                 ...product,
                 quantity: newQuantity,
-                price: Math.floor((product.price + unitPrice) * 100) / 100, // Update total price
-                discount: Math.floor((product.discount + unitDiscount) * 100) / 100, // Update total discount
-                sub_total: Math.floor((product.sub_total + unitSubTotal) * 100) / 100, // Update subtotal
-                total: Math.floor((product.total + unitTotal) * 100) / 100, // Update total
-                tax_amount: Math.floor((product.tax_amount + unitTaxAmount) * 100) / 100 // Update tax amount
+                price: Math.floor((product.price + unitPrice) * 100) / 100,
+                discount: Math.floor((product.discount + unitDiscount) * 100) / 100,
+                sub_total: Math.floor((product.sub_total + unitSubTotal) * 100) / 100,
+                total: Math.floor((product.total + unitTotal) * 100) / 100,
+                tax_amount: Math.floor((product.tax_amount + unitTaxAmount) * 100) / 100
               };
             }
 
             // Handle decrement action
             if (action === 'decrement') {
               const newQuantity = product.quantity - 1;
-
-              // If the new quantity is zero, return null to remove the product
               if (newQuantity === 0) {
                 return null;
               }
 
-              // Otherwise, update the product's quantity, price, discount, etc.
               return {
                 ...product,
                 quantity: newQuantity,
@@ -379,19 +331,11 @@ const Sell = () => {
     });
   };
 
-
-
-
-
-  const { data: memberList } = useGetAllMemberQuery({ org_id: orgId, query: "" })
+  const { data: memberList } = useGetAllMemberQuery({ org_id: orgId, query: "sort_key=id&sort_order=desc" })
 
   const memberListData = useMemo(() => {
     return Array.isArray(memberList?.data) ? memberList?.data : [];
   }, [memberList]);
-
-
-
-
 
   const subtotal = productPayload.reduce(
     (acc, product) => acc + product.price * product.quantity,
@@ -427,10 +371,6 @@ const Sell = () => {
 
   }, [totalDiscount, customer, tax, subtotal, total]);
 
-
-
-  console.log({ productPayload, memberhsipListData, memberList, customer })
-
   const handleCloseDayExceeded = () => {
     setDayExceeded(false)
     navigate(`/admin/pos/register`)
@@ -462,22 +402,48 @@ const Sell = () => {
       })
       return;
     }
-
     setShowCheckout(true);
   }
+  const [createTransaction] = useCreateTransactionMutation();
 
-  console.log({ watcher })
+  const parkSale = async () => {
+    try {
+      const resp = await createTransaction(watcher).unwrap();
+      if (resp) {
+        toast({
+          variant: "success",
+          title: "Sale parked successfully",
+        })
+      }
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in form Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
+  }
+
+  console.log({ watcher, productPayload, memberhsipListData, memberList, customer })
   return (
     <FormProvider {...form} >
       <div className="p-5">
-
         {!showCheckout && (
           <Card className=" h-fit px-3 py-4 max-w-[1100px] mx-auto">
             <div className="grid grid-cols-1  slg:grid-cols-2 justify-start items-start gap-3">
               <div className="min-h-36  p-2">
                 <FloatingLabelInput
                   id="search"
-                  placeholder="Search by products name"
+                  placeholder="Search"
                   onChange={(event) => setInputValue(event.target.value)}
                   className="w-full pl-8 text-gray-400 rounded-sm"
                   icon={<Search className="size-4 text-gray-400 absolute  z-10 left-2" />}
@@ -505,7 +471,7 @@ const Sell = () => {
                           ))}
                         </div>
                       ) : (
-                        <p className="col-span-2 text-sm text-center w-full p-2 mt-2">No products found</p>
+                        <p className="col-span-2 text-sm text-center w-full p-2 mt-2">Coming soon</p>
                       )}
                     </TabsContent>
                   ))}
@@ -522,18 +488,26 @@ const Sell = () => {
                       customer={customer}
                       customerList={memberListData}
                     />
-                    <Button className="w-full justify-center items-center gap-2">
+                    <Button onClick={parkSale} className="w-full justify-center items-center gap-2">
                       <i className="fa-regular fa-clock"></i>
                       Park Sale
                     </Button>
                   </div>
+                  <div className="flex items-center justify-between gap-2">
 
-                  <CustomerCombobox
-                    label={"Search customer"}
-                    list={memberListData}
-                    setCustomer={setCustomer}
-                    customer={customer}
-                  />
+                    <CustomerCombobox
+                      label={"Search customer"}
+                      list={memberListData}
+                      setCustomer={setCustomer}
+                      customer={customer}
+                    />
+
+                    <Button className=" text-white justify-center items-center gap-2">
+                      <i className="fa-regular fa-plus"></i>
+                      <span className="text-nowrap">Add Member</span>
+                    </Button>
+
+                  </div>
                   <div className="bg-white/90">
 
                     {productPayload.map(product => (
@@ -541,10 +515,10 @@ const Sell = () => {
                         <div className=" flex  justify-between items-center gap-2  p-2 ">
                           <div>
                             <p className="capitalize">{product.description}</p>
-                            {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-right">
+                            {product.discount > 0 && <p className="line-through text-sm text-gray-500">
                               Rs. {roundToTwoDecimals(product.price + product.discount)}
                             </p>}
-                            <p className="text-sm">Rs. {product.price}</p>
+                            <p className="text-sm">Rs. {product.price} ({product.tax_rate}% {orgTaxType?.tax_type == "inclusive" ? "INC" : "EXL"})</p>
                           </div>
 
                           <div className="inline-flex items-center ">
@@ -573,11 +547,10 @@ const Sell = () => {
                 </>
 
                 <div className="rounded-sm bg-white/90 mx-1">
-
                   <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
                     <div className="w-full flex gap-2  items-center justify-between">
                       <p>Subtotal</p>
-                      <p>Rs. {watcher.subtotal}</p> {/* Display Subtotal */}
+                      <p>Rs. {watcher.subtotal}</p>
                     </div>
                     <div className="w-full flex gap-2 items-center justify-between">
                       <p>Discount</p>
@@ -592,11 +565,11 @@ const Sell = () => {
                     </div>
                     <div className="w-full flex gap-2 items-center justify-between">
                       <p>Tax</p>
-                      <p>Rs. {watcher.tax_amt}</p> {/* Display Tax */}
+                      <p>Rs. {watcher.tax_amt}</p>
                     </div>
                     <div className="w-full flex gap-2 items-center justify-between font-bold">
                       <p>Total</p>
-                      <p>Rs. {watcher.total}</p> {/* Display Total */}
+                      <p>Rs. {watcher.total}</p>
                     </div>
                     <Button className="w-full bg-primary text-black rounded-sm" onClick={paymentCheckout}>
                       Pay
@@ -612,11 +585,9 @@ const Sell = () => {
           </Card>
         )}
 
-
         {showCheckout && (
           <Checkout setShowCheckout={setShowCheckout} productPayload={productPayload} customer={customer} watcher={watcher} />
         )}
-
 
         <DayExceeded isOpen={dayExceeded} onClose={handleCloseDayExceeded} onContinue={handleContinueDayExceeded} closeModal={() => setDayExceeded(false)} />
       </div>
@@ -627,287 +598,3 @@ const Sell = () => {
 };
 
 export default Sell;
-
-
-
-
-
-
-function Checkout({ setShowCheckout, watcher, productPayload, customer }: any) {
-  const {
-    control,
-    formState: { errors },
-    setValue,
-    getValues,
-    register,
-    trigger,
-    watch,
-  } = useFormContext<sellForm>();
-  const [createTransaction]=useCreateTransactionMutation()
-  const placeOrder = async () => {
-    // setShowCheckout(false)
-    try{
-      const resp =await createTransaction(watcher).unwrap();
-      if(resp){
-        toast({
-          variant: "success",
-          title: "Transaction successful",
-        })
-      }
-    }catch(e){
-
-    }
-  }
-
-  return (
-
-    <div className=" ">
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div>
-          <h1 className="text-3xl font-bold mb-6">Checkout</h1>
-          <div className="bg-white  p-6 rounded-lg">
-            <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-            <div className="space-y-4">
-              <div className="flex flex-col justify-between items-start">
-                {productPayload.map((product: any) => (
-                  <>
-                    <div className=" flex  justify-between items-center gap-2  p-2 w-full">
-                      <div className="flex-1 ">
-                        <h3 className="text-lg font-medium capitalize">{product.description}</h3>
-                        <p className="text-gray-500 ">Quantity: {product.quantity}</p>
-                      </div>
-
-                      <div className="text-lg font-bold">Rs. {product.price}</div>
-
-                    </div >
-                  </>
-                ))}
-
-
-
-              </div>
-              <Separator />
-              <div className="flex justify-between items-center">
-                <div>Subtotal</div>
-                <div className="font-bold">{roundToTwoDecimals(watcher.subtotal)}</div>
-              </div>
-              <div className="flex justify-between items-center">
-                <div>Discount</div>
-                <div className="font-bold">{watcher.discount_amt>0?"-":""} {roundToTwoDecimals(watcher.discount_amt)}</div>
-              </div>
-              <div className="flex justify-between items-center">
-                <div>Tax</div>
-                <div className="font-bold">{roundToTwoDecimals(watcher.tax_amt)}</div>
-              </div>
-              <Separator />
-              <div className="flex justify-between items-center">
-                <div className="text-xl font-bold">Total</div>
-                <div className="text-xl font-bold">{roundToTwoDecimals(watcher.total)}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col justify-between">
-          <div>
-
-            <h2 className="text-2xl font-bold ">Payment</h2>
-
-            <div className="mt-5 h-full flex flex-col  justify-between gap-6">
-              <div>
-                <RadioGroup defaultValue="cash">
-                  <div className="flex items-center space-x-4 mt-4">
-                    <RadioGroupItem value="cash" id="cash" />
-                    <Label htmlFor="cash" className="flex items-center space-x-2">
-                      <span>Cash</span>
-                    </Label>
-                  </div>
-
-                  <div className="flex items-center space-x-4">
-                    <RadioGroupItem value="credit_debit" id="credit_debit" />
-                    <Label htmlFor="credit_debit" className="flex items-center space-x-2">
-                      <span>Credit/Debit Card</span>
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <div>
-                <FloatingLabelInput
-                  id="description"
-                  label="Notes"
-                  type="textarea"
-                  rows={7}
-                  className="custom-scrollbar col-span-2 peer-placeholder-shown:top-[10%]"
-                  {...register("notes", {
-                    maxLength: {
-                      value: 200,
-                      message: "Notes should not exceed 200 characters"
-                    }
-                  })}
-                  error={errors.notes?.message}
-                />
-              </div>
-
-            </div>
-          </div>
-
-          <div className="mt-8 flex justify-end">
-            <Button size="lg" onClick={placeOrder}>Place Order</Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-interface DayExceededProps {
-  isOpen: boolean,
-  onClose: any,
-  onContinue: any,
-  closeModal: any,
-}
-
-export function DayExceeded({
-  isOpen,
-  onClose,
-  onContinue,
-  closeModal
-}: DayExceededProps) {
-  return (
-    <AlertDialog open={isOpen} onOpenChange={closeModal}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Register is Open more than 24 Hours</AlertDialogTitle>
-          <AlertDialogDescription className="text-sm">
-            Do you want to continue with this register session or close to create a new session?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>Close</AlertDialogCancel>
-          <AlertDialogCancel className="bg-primary text-black border-transparent hover:" onClick={onContinue}>Continue</AlertDialogCancel>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
-
-interface customerComboboxTypes {
-  list: any[];
-  customerList?: MemberTableDatatypes[];
-  setCustomer: any;
-  customer: any;
-  label?: string
-}
-
-export function CustomerCombobox({ list, setCustomer, customer, label }: customerComboboxTypes) {
-  const modifiedList = list?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
-  const [open, setOpen] = useState(false)
-  const [value, setValue] = useState("")
-  useEffect(() => {
-    if (customer) {
-      setValue(`${customer.id}`)
-    }
-  }, [customer])
-  console.log({ value, customer }, "customer")
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="capitalize w-full justify-between bg-white rounded-sm border-[1px]"
-        >
-          {value
-            ? modifiedList?.find((customer: any) => customer.value == value)?.label
-            : label}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className=" w-[500px] p-0">
-        <Command>
-          <CommandInput placeholder={label} />
-          <CommandList className="w-[500px]">
-            <CommandEmpty>No customer found.</CommandEmpty>
-            <CommandGroup className="">
-              {modifiedList?.map((customer: any) => (
-                <CommandItem
-                  key={customer.value + ""}
-                  value={customer.value + ""}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
-                    const customer = list?.find((item: any) => item.id == currentValue)
-                    setCustomer(customer)
-                    setOpen(false)
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === customer.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {customer.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-export function RetriveSaleCombobox({ list, setCustomer, customer, label, customerList }: customerComboboxTypes) {
-  const modifiedList = list?.map((item: any) => ({ value: item.member_id, label: item.member_name }))
-  const [open, setOpen] = useState(false)
-  const [value, setValue] = useState("")
-  console.log({ value, customer }, "retrived")
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild >
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className=" capitalize w-full justify-center items-center gap-2  bg-white rounded-sm border-[1px]"
-        >
-          <i className="fa fa-share"></i>
-          {label}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className=" w-[240px] p-0" side="bottom">
-        <Command>
-          {/* <CommandInput placeholder={"Search customer"} /> */}
-          <CommandList className="">
-            <CommandEmpty>No customer found.</CommandEmpty>
-            <CommandGroup className="">
-              {modifiedList?.map((customer: any) => (
-                <CommandItem
-                  key={customer.value + ""}
-                  value={customer.value + ""}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
-                    const customer = customerList?.find((item: any) => item.id == currentValue)
-                    setCustomer(customer)
-                    setOpen(false)
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === customer.id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {customer.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  )
-}

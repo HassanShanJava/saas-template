@@ -9,7 +9,11 @@ import {
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { MoreVertical } from "lucide-react";
 import Receipt, { ReceiptExport } from "./receipt-component";
-import { salesReportInterface, statusEnumGrid } from "@/app/types";
+import {
+  salesReportInterface,
+  statusEnumGrid,
+  typeTransactionEnum,
+} from "@/app/types";
 
 interface DataTableRowActionsProps {
   data?: salesReportInterface;
@@ -92,6 +96,14 @@ export function DataTableRowActions({
               )}
             </DialogTrigger>
 
+            {data?.status === typeTransactionEnum.Unpaid && (
+              <DropdownMenuItem
+                onClick={handleEdit ? () => handleEdit(data!) : undefined}
+              >
+                <i className="fa-solid fa-money-bill mr-2"></i>
+                Pay Button
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               className="text-nowrap w-full"
               onClick={handlePrintInvoice}

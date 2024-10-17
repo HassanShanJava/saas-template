@@ -144,7 +144,7 @@ const coachsSchema = z.object({
 });
 
 interface membership_planids {
-  membership_plan_id?: number | null;
+  membership_plan_id?: number | undefined;
   auto_renewal?: boolean;
   prolongation_period?: number;
   auto_renew_days?: number;
@@ -186,7 +186,7 @@ interface memberFormTypes {
   action: string;
   setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
   refetch: any;
-  breadcrumb?:string
+  breadcrumb?: string
 }
 
 const MemberForm = ({
@@ -300,12 +300,23 @@ const MemberForm = ({
   };
 
   const handleRemovePlan = (index: number) => {
-    console.log("Before removal:", membershipPlansdata);
     const updatedPlans = [...membershipPlansdata]; // Create a shallow copy
     updatedPlans.splice(index, 1); // Remove the exact item
     console.log("After removal:", updatedPlans);
-    setMembershipPlansdata(updatedPlans); // Update the state
 
+    if (updatedPlans.length === 0) {
+      setMembershipPlansdata([
+        {
+          membership_plan_id: undefined,
+          auto_renewal: false,
+          prolongation_period: undefined,
+          auto_renew_days: undefined,
+          inv_days_cycle: undefined,
+        },
+      ]);
+    } else {
+      setMembershipPlansdata(updatedPlans); // Update the state
+    }
   };
 
   const handleMembershipPlanChange = (
@@ -465,7 +476,7 @@ const MemberForm = ({
       form.clearErrors();
       setMembershipPlansdata([
         {
-          membership_plan_id: null,
+          membership_plan_id: undefined,
           auto_renewal: false,
           prolongation_period: undefined,
           auto_renew_days: undefined,
@@ -668,6 +679,8 @@ const MemberForm = ({
       reset(payload);
     }
   };
+
+  console.log("Updated data watcher", watcher, membershipPlansdata);
   return (
     <Sheet open={open}>
       <SheetContent
@@ -1544,7 +1557,7 @@ const MemberForm = ({
                               </>
                             )}
 
-                           
+
                           </div>
                         </>
                       )
@@ -1562,11 +1575,11 @@ const MemberForm = ({
                     </div>
                   </div>
                 </div>
-              </div>
-            </SheetDescription>
-          </form>
-        </FormProvider>
-      </SheetContent>
+              </div >
+            </SheetDescription >
+          </form >
+        </FormProvider >
+      </SheetContent >
       {openAutoFill && (
         <AlertDialog
           open={openAutoFill}
@@ -1606,7 +1619,7 @@ const MemberForm = ({
           </AlertDialogContent>
         </AlertDialog>
       )}
-    </Sheet>
+    </Sheet >
   );
 };
 

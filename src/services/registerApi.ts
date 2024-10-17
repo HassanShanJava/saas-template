@@ -76,6 +76,7 @@ export const Register = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
+        providesTags: ["Transaction", "Organization", "Register", "Counter"],
       }),
     };
   },

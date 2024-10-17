@@ -1,6 +1,5 @@
 import { apiSlice } from "@/features/api/apiSlice";
 
-
 export const Organization = apiSlice.injectEndpoints({
     endpoints(builder) {
         return {
@@ -18,6 +17,4 @@ export const Organization = apiSlice.injectEndpoints({
     },
 });
 
-export const {
-    useGetOrgTaxTypeQuery
-} = Organization;
+export const { useGetOrgTaxTypeQuery } = Organization;

@@ -6,18 +6,18 @@ enum genderEnum {
   other = "other",
 }
 export interface sellItem {
-  item_id: number
-  item_type: string
-  description: string
-  quantity: number
-  price: number
-  tax_type: string
-  sale_tax: string
-  tax_rate: number
-  discount: number
-  sub_total: number
-  total: number
-  tax_amount: number
+  item_id: number;
+  item_type: string;
+  description: string;
+  quantity: number;
+  price: number;
+  tax_type: string;
+  sale_tax: string;
+  tax_rate: number;
+  discount: number;
+  sub_total: number;
+  total: number;
+  tax_amount: number;
 }
 
 export interface sellForm {
@@ -31,24 +31,24 @@ export interface sellForm {
   member_address?: string | null;
   member_gender?: genderEnum | null;
   notes?: string;
-  staff_id?: number | null
-  staff_name?: string
-  receipt_number?: string
-  tax_number?: string | null
-  total?: number | null
-  subtotal?: number | null
-  tax_amt?: number | null
-  main_transaction_id?: number | null
-  status?: "Unpaid" | "Paid" | "Partially Paid"
-  transaction_type?: "Refund" | "Sale"
-  membership_plans?: sellItem[]
-  events?: sellItem[]
-  products?: sellItem[]
+  staff_id?: number | null;
+  staff_name?: string;
+  receipt_number?: string;
+  tax_number?: string | null;
+  total?: number | null;
+  subtotal?: number | null;
+  tax_amt?: number | null;
+  main_transaction_id?: number | null;
+  status?: "Unpaid" | "Paid" | "Partially Paid";
+  transaction_type?: "Refund" | "Sale";
+  membership_plans?: sellItem[];
+  events?: sellItem[];
+  products?: sellItem[];
   payments?: {
-    payment_method_id?: number
-    payment_method?: string
-    amount?: number
-  }[]
+    payment_method_id?: number;
+    payment_method?: string;
+    amount?: number;
+  }[];
 }
 export enum statusEnum {
   pending = "pending",
@@ -551,9 +551,8 @@ export interface LeadResponseTypes {
   org_id: number;
 }
 
-
 interface membership_planids {
-  membership_plan_id?: number | null;
+  membership_plan_id?: number | undefined;
   auto_renewal?: boolean;
   prolongation_period?: number;
   auto_renew_days?: number;

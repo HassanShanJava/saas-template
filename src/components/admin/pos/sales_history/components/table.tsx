@@ -70,6 +70,7 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useDebounce } from "@/hooks/use-debounce";
 import { DatePickerWithRange } from "@/components/ui/date-range/date-rangePicker";
 import { Separator } from "@/components/ui/separator";
+import { useGetMembersListQuery } from "@/services/memberAPi";
 
 interface searchCretiriaType {
   limit: number;
@@ -123,6 +124,7 @@ export default function SaleshistoryRegisterViewTable() {
       skip: query == "",
     }
   );
+  const { data: membersData } = useGetMembersListQuery(orgId);
 
   useEffect(() => {
     setSearchCriteria((prev) => {
@@ -354,7 +356,7 @@ export default function SaleshistoryRegisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.tax_amt.toFixed(2).toString())}
+            {displayValue(row?.original.tax_amt?.toFixed(2).toString())}
           </div>
         );
       },
@@ -382,7 +384,7 @@ export default function SaleshistoryRegisterViewTable() {
               <p className="capitalize cursor-pointer">
                 <span>
                   {displayValue(
-                    row.original.discount_amt.toFixed(2).toString()
+                    row.original.discount_amt?.toFixed(2).toString()
                   )}
                 </span>
               </p>
@@ -415,7 +417,7 @@ export default function SaleshistoryRegisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(row.original.subtotal.toFixed(2).toString())}
+                  {displayValue(row.original.subtotal?.toFixed(2).toString())}
                 </span>
               </p>
             </div>
@@ -614,6 +616,17 @@ export default function SaleshistoryRegisterViewTable() {
         name: item.label,
       })),
       function: (value: string) => handleFilterChange("status", value),
+    },
+
+    {
+      type: "select",
+      name: "member_id",
+      label: "Members",
+      options: membersData?.map((item) => ({
+        id: item.value,
+        name: item.label,
+      })),
+      function: (value: string) => handleFilterChange("member_id", value),
     },
     // {
     //   type: "select",
@@ -834,15 +847,15 @@ export default function SaleshistoryRegisterViewTable() {
                                         {item.quantity}
                                       </span>
                                       <span className="col-span-1">
-                                        {item.price.toFixed(2)}
+                                        {item.price?.toFixed(2)}
                                       </span>
                                       <span className="col-span-1">
-                                        {item.discount.toFixed(2)}
+                                        {item.discount?.toFixed(2)}
                                       </span>
                                       <span className="col-span-1  ">
-                                        {item.tax_amount.toFixed(2)}
+                                        {item.tax_amount?.toFixed(2)}
                                         <span className="pl-2">
-                                          {item.tax_rate.toFixed(2)}%
+                                          {item.tax_rate?.toFixed(2)}%
                                         </span>
                                       </span>
 
@@ -850,10 +863,10 @@ export default function SaleshistoryRegisterViewTable() {
                                         {item.tax_type}
                                       </span>
                                       <span className="col-span-1">
-                                        {item.sub_total.toFixed(2)}
+                                        {item.sub_total?.toFixed(2)}
                                       </span>
                                       <span className="col-span-1">
-                                        {item.total.toFixed(2)}
+                                        {item.total?.toFixed(2)}
                                       </span>
                                       <div className="col-span-2">
                                         <TooltipProvider>
@@ -906,9 +919,12 @@ export default function SaleshistoryRegisterViewTable() {
                                     className="grid grid-cols-12 py-2 gap-4 border-b last:border-b-0"
                                   >
                                     <span className="col-span-2">
-                                      {payment.payment_method}
+                                      {displayValue(payment.payment_method)}
                                     </span>
-                                    <span>Rs {payment.amount.toFixed(2)}</span>
+                                    <span>
+                                      {" "}
+                                      {displayValue(payment.amount?.toFixed(2))}
+                                    </span>
                                   </div>
                                 )
                               )}
@@ -954,15 +970,15 @@ export default function SaleshistoryRegisterViewTable() {
                                         {item.quantity}
                                       </span>
                                       <span className="col-span-1">
-                                        {item.price.toFixed(2)}
+                                        {item.price?.toFixed(2)}
                                       </span>
                                       <span className="col-span-1">
-                                        {item.discount.toFixed(2)}
+                                        {item.discount?.toFixed(2)}
                                       </span>
                                       <span className="col-span-1  ">
-                                        {item.tax_amount.toFixed(2)}
+                                        {item.tax_amount?.toFixed(2)}
                                         <span className="pl-2">
-                                          {item.tax_rate.toFixed(2)}%
+                                          {item.tax_rate?.toFixed(2)}%
                                         </span>
                                       </span>
 
@@ -970,10 +986,10 @@ export default function SaleshistoryRegisterViewTable() {
                                         {item.tax_type}
                                       </span>
                                       <span className="col-span-1">
-                                        {item.sub_total.toFixed(2)}
+                                        {item.sub_total?.toFixed(2)}
                                       </span>
                                       <span className="col-span-1">
-                                        {item.total.toFixed(2)}
+                                        {item.total?.toFixed(2)}
                                       </span>
                                       <div className="col-span-2">
                                         <TooltipProvider>
@@ -1028,7 +1044,7 @@ export default function SaleshistoryRegisterViewTable() {
                                           {payment.payment_method}
                                         </span>
                                         <span className="col-span-5 text-right">
-                                          Rs {payment.amount.toFixed(2)}
+                                          {payment.amount?.toFixed(2)}
                                         </span>
                                       </div>
                                     )

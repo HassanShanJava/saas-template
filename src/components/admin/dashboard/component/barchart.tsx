@@ -57,9 +57,9 @@ const SimpleBarChart = () => {
     <Card className="p-2">
       <Card
         style={{ backgroundColor: "#200119", padding: "10px" }}
-        className="h-[40vh] max-h-[300px] w-full max-w-2xl rounded-xl"
+        className="h-[20vh] max-w-xl max-h-[200px] slg:h-[40vh] slg:max-h-[300px] w-full slg:max-w-2xl rounded-xl"
       >
-        <CardContent className="p-0 justify-center flex items-center ">
+        <CardContent className="p-0 justify-center flex items-center h-fit ">
           <BarChart
             width={460}
             height={200}
@@ -102,7 +102,7 @@ const SimpleBarChart = () => {
         <span className="text-green-400 text-sm font-semibold m-2">(+25)</span>
         more than last week
       </p>
-      <div className="flex flex-row justify-between items-center w-full">
+      <div className="flex flex-col slg:flex-row justify-between slg:items-center w-full">
         <div className="w-24 p-2">
           <div className=" flex justify-between items-center">
             <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-primary">

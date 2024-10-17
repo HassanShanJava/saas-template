@@ -6,24 +6,26 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { ResponsiveLine } from "@nivo/line";
-
+import {useMediaQuery} from "usehooks-ts"
 export default function SplineChart() {
   return (
-    <Card className="h-full w-full max-w-2xl">
+    <Card className=" w-full max-w-xl h-fit slg:max-w-2xl">
       <CardHeader>
-        <CardTitle className="font-bold text-black text-xl">Sales Overview</CardTitle>
+        <CardTitle className="font-bold text-black text-xl">
+          Sales Overview
+        </CardTitle>
         <CardDescription className="text-green-400 text-xl pt-0">
           (+5) more in 2021
         </CardDescription>
       </CardHeader>
-      <CardContent className="px-2 py-0">
-        <FilledtimeseriesChart className=" h-[50vh] max-h-[300px] p-0" />
+      <CardContent className=" px-0 slg:px-2 py-0">
+        <FilledtimeseriesChart className="h-[25vh] max-h-[200px] slg:h-[50vh] slg:max-h-[300px] p-0" />
       </CardContent>
     </Card>
   );
 }
 
-function FilledtimeseriesChart(props:any) {
+function FilledtimeseriesChart(props: any) {
   return (
     <div {...props}>
       <ResponsiveLine

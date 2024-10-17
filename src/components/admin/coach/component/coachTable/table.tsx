@@ -229,8 +229,7 @@ export default function CoachTableView() {
       }
     }
   };
-  // const displayValue = (value: ) =>
-  //   value == null || value === "" || value == undefined ? "N/A" : value;
+
   const displayValue = (value: string | undefined | null) =>
     value == null || value == "" ? "N/A" : value;
 
@@ -241,7 +240,7 @@ export default function CoachTableView() {
           ? prev.sort_order === "desc"
             ? "asc"
             : "desc"
-          : "desc"; // Default to descending order if the key is different
+          : "desc"; // Default to descending order 
 
       return {
         ...prev,
@@ -348,9 +347,6 @@ export default function CoachTableView() {
               )}
             </div>
             <div className="">
-              {/* <p className="capitalize">{displayValue(
-                row.original.first_name + " " + row.original.last_name
-              )}</p> */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -377,8 +373,6 @@ export default function CoachTableView() {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-
-              {/* <p className=" text-xs text-gray-400 ">{row.original.email}</p>   */}
             </div>
           </div>
         );

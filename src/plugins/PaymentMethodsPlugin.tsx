@@ -1,29 +1,24 @@
+import store from "@/app/store";
 import { PaymentMethodPlugin } from "@/app/types";
+import { paymentMethodsResponse } from "@/lib/constants/payment_methods";
+import { PaymentMethodsApi } from "@/services/paymentMethodsApi";
 import { IPlugin, PluginStore } from "react-pluggable";
 
 class PaymentMethodsPlugin implements IPlugin {
   namespace = "PaymentMethods";
   pluginStore: PluginStore;
-  plugins = [
-    {
-      id: 1,
-      name: "Cash",
-      enabled: true
-    },
-    {
-      id: 2,
-      name: "Card Payments",
-      enabled: false
-    },
-    {
-      id: 3,
-      name: "Pay Fast",
-      enabled: false
-    }
-  ]
+  plugins: PaymentMethodPlugin[] = [];
 
-  getPlugins(): PaymentMethodPlugin[] {
-    return this.plugins;
+  async getPlugins(): Promise<PaymentMethodPlugin[]> {
+    if(this.plugins.length === 0) {
+      const promise = store.dispatch(PaymentMethodsApi.endpoints.getAllEnabledPaymentMethods.initiate({}));
+      const { refetch } = promise;
+      const {data: paymentMethods, error, isLoading} = await promise;
+        if (!paymentMethods)
+          return []
+        this.plugins = paymentMethods;
+    }
+    return this.plugins
   }
 
   getPluginName(): string {

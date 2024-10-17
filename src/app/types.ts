@@ -1625,3 +1625,17 @@ export interface salesReportTableTypes {
   total_counts: number;
   filtered_counts: number;
 }
+
+export interface hardwareIntegrationInterface {
+  id: number;
+  name: string;
+  description: string;
+  facility_name: string;
+  connection_key: string;
+}
+
+export interface hardwareIntegrationTableTypes {
+  data: hardwareIntegrationInterface[];
+  total_counts: number;
+  filtered_counts: number;
+}

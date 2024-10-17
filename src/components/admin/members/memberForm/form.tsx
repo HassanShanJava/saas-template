@@ -144,7 +144,7 @@ const coachsSchema = z.object({
 });
 
 interface membership_planids {
-  membership_plan_id?: number | null;
+  membership_plan_id?: number | undefined;
   auto_renewal?: boolean;
   prolongation_period?: number;
   auto_renew_days?: number;
@@ -298,12 +298,21 @@ const MemberForm = ({
   };
 
   const handleRemovePlan = (index: number) => {
-    console.log("Before removal:", membershipPlansdata);
+    const updatedPlans = [...membershipPlansdata]; // Create a shallow copy
+    updatedPlans.splice(index, 1); // Remove the exact item
+    console.log("After removal:", updatedPlans);
 
-    if (membershipPlansdata.length > 1) {
-      const updatedPlans = [...membershipPlansdata]; // Create a shallow copy
-      updatedPlans.splice(index, 1); // Remove the exact item
-      console.log("After removal:", updatedPlans);
+    if (updatedPlans.length === 0) {
+      setMembershipPlansdata([
+        {
+          membership_plan_id: undefined,
+          auto_renewal: false,
+          prolongation_period: undefined,
+          auto_renew_days: undefined,
+          inv_days_cycle: undefined,
+        },
+      ]);
+    } else {
       setMembershipPlansdata(updatedPlans); // Update the state
     }
   };
@@ -465,7 +474,7 @@ const MemberForm = ({
       form.clearErrors();
       setMembershipPlansdata([
         {
-          membership_plan_id: null,
+          membership_plan_id: undefined,
           auto_renewal: false,
           prolongation_period: undefined,
           auto_renew_days: undefined,
@@ -668,6 +677,8 @@ const MemberForm = ({
       reset(payload);
     }
   };
+
+  console.log("Updated data watcher", watcher, membershipPlansdata);
   return (
     <Sheet open={open}>
       <SheetContent
@@ -1394,7 +1405,11 @@ const MemberForm = ({
                                 Number(value)
                               )
                             }
-                            value={plan.membership_plan_id?.toString()}
+                            value={
+                              plan.membership_plan_id
+                                ? plan.membership_plan_id.toString()
+                                : ""
+                            }
                           >
                             <FormControl>
                               <SelectTrigger
@@ -1511,11 +1526,19 @@ const MemberForm = ({
                               <span className="text-sm text-black/60">
                                 days before contract runs out.
                               </span>
-                              {membershipPlansdata?.length > 1 && (
+                              {membershipPlansdata?.length && (
                                 <Button
                                   type="button"
                                   className="text-red-500"
                                   variant={"ghost"}
+                                  disabled={
+                                    membershipPlansdata.length === 0 ||
+                                    membershipPlansdata.some(
+                                      (plan) =>
+                                        plan.membership_plan_id === undefined ||
+                                        plan.membership_plan_id === null
+                                    )
+                                  }
                                   onClick={() => handleRemovePlan(index)}
                                 >
                                   <TooltipProvider>
@@ -1534,26 +1557,33 @@ const MemberForm = ({
                           </>
                         )}
 
-                        {!plan.auto_renewal &&
-                          membershipPlansdata?.length > 1 && (
-                            <Button
-                              type="button"
-                              className="text-red-500"
-                              variant={"ghost"}
-                              onClick={() => handleRemovePlan(index)}
-                            >
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <i className="fa-solid fa-trash"></i>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    Delete Membership plan
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </Button>
-                          )}
+                        {!plan.auto_renewal && membershipPlansdata?.length && (
+                          <Button
+                            type="button"
+                            className="text-red-500"
+                            variant={"ghost"}
+                            disabled={
+                              membershipPlansdata.length === 0 ||
+                              membershipPlansdata.some(
+                                (plan) =>
+                                  plan.membership_plan_id === undefined ||
+                                  plan.membership_plan_id === null
+                              )
+                            }
+                            onClick={() => handleRemovePlan(index)}
+                          >
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <i className="fa-solid fa-trash"></i>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  Delete Membership plan
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </Button>
+                        )}
                       </div>
                     </>
                   )
@@ -1564,6 +1594,14 @@ const MemberForm = ({
                     type="button"
                     onClick={handleAddPlan}
                     variant={"ghost"}
+                    disabled={
+                      membershipPlansdata.length === 0 || 
+                      membershipPlansdata.some(
+                        (plan) =>
+                          plan.membership_plan_id === undefined || 
+                          plan.membership_plan_id === null
+                      )
+                    }
                     className="text-primary !hover:bg-none !hover:text-primary"
                   >
                     + Assign more Membership

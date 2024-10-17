@@ -12,7 +12,7 @@ export interface sellItem {
   quantity: number;
   price: number;
   tax_type: string;
-  sale_tax: string;
+  tax_name: string;
   tax_rate: number;
   discount: number;
   sub_total: number;
@@ -34,7 +34,7 @@ export interface sellForm {
   staff_id?: number | null;
   staff_name?: string;
   receipt_number?: string;
-  tax_number?: string | null;
+  tax_number?: number| null;
   total?: number | null;
   subtotal?: number | null;
   tax_amt?: number | null;

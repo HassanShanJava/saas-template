@@ -1572,7 +1572,7 @@ const MemberForm = ({
                             {!plan.auto_renewal && membershipPlansdata?.length && (
                               <Button
                                 type="button"
-                                className="text-red-500"
+                                className="text-red-500 px-2"
                                 variant={"ghost"}
                                 disabled={
                                   membershipPlansdata.length === 0 ||

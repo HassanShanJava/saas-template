@@ -1,32 +1,59 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { RootState } from "@/app/store";
 import { Card } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { useGetAllMemberQuery } from "@/services/memberAPi";
-import { Search } from "lucide-react";
+import { useGetAllMemberQuery, useGetMembersListQuery } from "@/services/memberAPi";
+import { Check, ChevronsUpDown, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
+import { FileInput } from "@/components/ui/file-uploader";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { roundToTwoDecimals } from "@/utils/helper";
 import { useDebounce } from "@/hooks/use-debounce";
 import { ErrorType, MemberTableDatatypes, sellForm, sellItem } from "@/app/types";
-import { has24HoursPassed } from "@/constants/counter_register";
+import { has24HoursPassed, useGetRegisterData } from "@/constants/counter_register";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
 import { useGetIncomeCategorListQuery } from "@/services/incomeCategoryApi";
 import { useGetOrgTaxTypeQuery } from "@/services/organizationApi";
 import { useCreateTransactionMutation, useGetTransactionQuery } from "@/services/transactionApi";
 import { v4 as uuidv4 } from "uuid";
-import Checkout from "./checkout";
-import DayExceeded from "./day-exceeded";
-import { roundToTwoDecimals } from "@/utils/helper";
-import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { Command, Check, ChevronDown } from "lucide-react";
 import MemberForm from "../../members/memberForm/form";
 interface searchCriteriaType {
   search_key?: string;
@@ -53,7 +80,7 @@ const Sell = () => {
     member_gender: null,
     notes: "",
     receipt_number: "",
-    tax_number: `${uuidv4()}`,
+    tax_number: Math.floor(Math.random() * 99),
     total: null,
     subtotal: null,
     tax_amt: null,
@@ -74,6 +101,8 @@ const Sell = () => {
   const [productPayload, setProductPayload] = useState<sellItem[]>([])
   const [showCheckout, setShowCheckout] = useState<boolean>(false)
   const [dayExceeded, setDayExceeded] = useState<boolean>(false)
+  const [retriveSaleCombobox, setRetriveSaleComboboxOpen] = useState<boolean>(false)
+  const [customerComboboxOpen, setCustomerComboboxOpen] = useState<boolean>(false)
   const navigate = useNavigate()
   const form = useForm<sellForm>({
     mode: "all",
@@ -92,6 +121,7 @@ const Sell = () => {
     formState: { isSubmitting, errors },
   } = form;
   const watcher = watch();
+  const [inputCustomerValue, setInputCustomerValue] = useState("")
 
 
   useEffect(() => {
@@ -180,6 +210,7 @@ const Sell = () => {
   const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId, query: query })
 
   const { data: memberList, refetch: memberRefetch } = useGetAllMemberQuery({ org_id: orgId, query: "sort_key=id&sort_order=desc" })
+
   const [action, setAction] = useState<"add" | "edit">("add")
   const [openMemberForm, setOpenMemberForm] = useState<boolean>(false)
   const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
@@ -252,8 +283,9 @@ const Sell = () => {
       discount: discountAmount,
       sub_total: subTotal,
       tax_type: orgTaxType?.tax_type as string,
-      sale_tax: saleTax.name as string,
+      tax_name: saleTax.name as string,
       total: total,
+
       tax_amount: taxAmount
     };
 
@@ -349,6 +381,9 @@ const Sell = () => {
     return Array.isArray(memberList?.data) ? memberList?.data : [];
   }, [memberList]);
 
+  const modifiedMemberListData = memberListData?.map((customer: any) => ({ value: customer.id + "", label: customer.first_name + ' ' + customer.last_name })) || []
+
+
   const subtotal = productPayload.reduce(
     (acc, product) => acc + product.price * product.quantity,
     0
@@ -443,6 +478,8 @@ const Sell = () => {
           variant: "success",
           title: "Sale parked successfully",
         })
+
+        transactionRefetch()
       }
     } catch (error: unknown) {
       if (error && typeof error === "object" && "data" in error) {
@@ -462,18 +499,22 @@ const Sell = () => {
     }
   }
 
+  const [tranactionId, setTransactionId] = useState<number | undefiend>(undefined)
+
   console.log({ watcher, productPayload, memberhsipListData, memberList, customer })
+
   return (
     <div>
       <FormProvider {...form} >
         <div className="p-5">
+
           {!showCheckout && (
             <Card className=" h-fit px-3 py-4 max-w-[1100px] mx-auto">
               <div className="grid grid-cols-1  slg:grid-cols-2 justify-start items-start gap-3">
                 <div className="min-h-36  p-2">
                   <FloatingLabelInput
                     id="search"
-                    placeholder="Search"
+                    placeholder="Search by products name"
                     onChange={(event) => setInputValue(event.target.value)}
                     className="w-full pl-8 text-gray-400 rounded-sm"
                     icon={<Search className="size-4 text-gray-400 absolute  z-10 left-2" />}
@@ -491,8 +532,8 @@ const Sell = () => {
                       <TabsContent className="m-0  w-full " key={category.type} value={category.type}>
                         {category.products.length > 0 ? (
                           <div className="mt-4 w-full flex flex-wrap gap-4 justify-center items-center">
-                            {category.products.map((product: Record<string, any>, i: number) => (
-                              <div key={i} onClick={() => addProduct(product, category?.type)} className="relative group hover:bg-primary/20 hover:text-black/60 size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
+                            {category.products.map((product: Record<string, any>) => (
+                              <div onClick={() => addProduct(product, category?.type)} className="relative group hover:bg-primary/20 hover:text-black/60 size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
                                 <span className="capitalize">{product.name}</span>
                                 <span>Rs. {product.net_price}</span>
 
@@ -501,7 +542,7 @@ const Sell = () => {
                             ))}
                           </div>
                         ) : (
-                          <p className="col-span-2 text-sm text-center w-full p-2 mt-2">Coming soon</p>
+                          <p className="col-span-2 text-sm text-center w-full p-2 mt-2">No products found</p>
                         )}
                       </TabsContent>
                     ))}
@@ -517,6 +558,8 @@ const Sell = () => {
                         setCustomer={setCustomer}
                         customer={customer}
                         customerList={memberListData}
+                        action={"retrive"}
+                        setAction={setAction}
                       />
                       <Button onClick={parkSale} className="w-full justify-center items-center gap-2">
                         <i className="fa-regular fa-clock"></i>
@@ -530,25 +573,25 @@ const Sell = () => {
                         list={memberListData}
                         setCustomer={setCustomer}
                         customer={customer}
+                        action={"customer"}
+                        setAction={action}
                       />
-
                       <Button onClick={handleOpenForm} className=" text-white justify-center items-center gap-2">
                         <i className="fa-regular fa-plus"></i>
                         <span className="text-nowrap">Add Member</span>
                       </Button>
-
                     </div>
                     <div className="bg-white/90">
 
-                      {productPayload.map((product, i) => (
+                      {productPayload.map(product => (
                         <>
-                          <div key={i} className=" flex  justify-between items-center gap-2  p-2 ">
+                          <div className=" flex  justify-between items-center gap-2  p-2 ">
                             <div>
                               <p className="capitalize">{product.description}</p>
-                              {product.discount > 0 && <p className="line-through text-sm text-gray-500">
+                              {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-right">
                                 Rs. {roundToTwoDecimals(product.price + product.discount)}
                               </p>}
-                              <p className="text-sm">Rs. {product.price} ({product.tax_rate}% {orgTaxType?.tax_type == "inclusive" ? "INC" : "EXL"})</p>
+                              <p className="text-sm">Rs. {product.price}</p>
                             </div>
 
                             <div className="inline-flex items-center ">
@@ -570,17 +613,18 @@ const Sell = () => {
 
 
                           </div >
-                          <Separator key={i} className=" h-[1px] font-thin rounded-full" />
+                          <Separator className=" h-[1px] font-thin rounded-full" />
                         </>
                       ))}
                     </div>
                   </>
 
                   <div className="rounded-sm bg-white/90 mx-1">
+
                     <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
                       <div className="w-full flex gap-2  items-center justify-between">
                         <p>Subtotal</p>
-                        <p>Rs. {watcher.subtotal}</p>
+                        <p>Rs. {watcher.subtotal}</p> {/* Display Subtotal */}
                       </div>
                       <div className="w-full flex gap-2 items-center justify-between">
                         <p>Discount</p>
@@ -595,11 +639,11 @@ const Sell = () => {
                       </div>
                       <div className="w-full flex gap-2 items-center justify-between">
                         <p>Tax</p>
-                        <p>Rs. {watcher.tax_amt}</p>
+                        <p>Rs. {watcher.tax_amt}</p> {/* Display Tax */}
                       </div>
                       <div className="w-full flex gap-2 items-center justify-between font-bold">
                         <p>Total</p>
-                        <p>Rs. {watcher.total}</p>
+                        <p>Rs. {watcher.total}</p> {/* Display Total */}
                       </div>
                       <Button className="w-full bg-primary text-black rounded-sm" onClick={paymentCheckout}>
                         Pay
@@ -615,9 +659,11 @@ const Sell = () => {
             </Card>
           )}
 
+
           {showCheckout && (
             <Checkout setShowCheckout={setShowCheckout} productPayload={productPayload} customer={customer} watcher={watcher} />
           )}
+
 
           <DayExceeded isOpen={dayExceeded} onClose={handleCloseDayExceeded} onContinue={handleContinueDayExceeded} closeModal={() => setDayExceeded(false)} />
         </div>
@@ -643,15 +689,178 @@ export default Sell;
 
 
 
+
+
+
+function Checkout({ setShowCheckout, watcher, productPayload, customer }: any) {
+  const {
+    control,
+    formState: { errors },
+    setValue,
+    getValues,
+    register,
+    trigger,
+    watch,
+  } = useFormContext<sellForm>();
+  const [createTransaction] = useCreateTransactionMutation()
+  const placeOrder = async () => {
+    // setShowCheckout(false)
+    try {
+      const resp = await createTransaction(watcher).unwrap();
+      if (resp) {
+        toast({
+          variant: "success",
+          title: "Transaction successful",
+        })
+      }
+    } catch (e) {
+
+    }
+  }
+
+  return (
+
+    <div className=" ">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div>
+          <h1 className="text-3xl font-bold mb-6">Checkout</h1>
+          <div className="bg-white  p-6 rounded-lg">
+            <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+            <div className="space-y-4">
+              <div className="flex flex-col justify-between items-start">
+                {productPayload.map((product: any) => (
+                  <>
+                    <div className=" flex  justify-between items-center gap-2  p-2 w-full">
+                      <div className="flex-1 ">
+                        <h3 className="text-lg font-medium capitalize">{product.description}</h3>
+                        <p className="text-gray-500 ">Quantity: {product.quantity}</p>
+                      </div>
+
+                      <div className="text-lg font-bold">Rs. {product.price}</div>
+
+                    </div >
+                  </>
+                ))}
+
+
+
+              </div>
+              <Separator />
+              <div className="flex justify-between items-center">
+                <div>Subtotal</div>
+                <div className="font-bold">{roundToTwoDecimals(watcher.subtotal)}</div>
+              </div>
+              <div className="flex justify-between items-center">
+                <div>Discount</div>
+                <div className="font-bold">{watcher.discount_amt > 0 ? "-" : ""} {roundToTwoDecimals(watcher.discount_amt)}</div>
+              </div>
+              <div className="flex justify-between items-center">
+                <div>Tax</div>
+                <div className="font-bold">{roundToTwoDecimals(watcher.tax_amt)}</div>
+              </div>
+              <Separator />
+              <div className="flex justify-between items-center">
+                <div className="text-xl font-bold">Total</div>
+                <div className="text-xl font-bold">{roundToTwoDecimals(watcher.total)}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-between">
+          <div>
+
+            <h2 className="text-2xl font-bold ">Payment</h2>
+
+            <div className="mt-5 h-full flex flex-col  justify-between gap-6">
+              <div>
+                <RadioGroup defaultValue="cash">
+                  <div className="flex items-center space-x-4 mt-4">
+                    <RadioGroupItem value="cash" id="cash" />
+                    <Label htmlFor="cash" className="flex items-center space-x-2">
+                      <span>Cash</span>
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center space-x-4">
+                    <RadioGroupItem value="credit_debit" id="credit_debit" />
+                    <Label htmlFor="credit_debit" className="flex items-center space-x-2">
+                      <span>Credit/Debit Card</span>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <div>
+                <FloatingLabelInput
+                  id="description"
+                  label="Notes"
+                  type="textarea"
+                  rows={7}
+                  className="custom-scrollbar col-span-2 peer-placeholder-shown:top-[10%]"
+                  {...register("notes", {
+                    maxLength: {
+                      value: 200,
+                      message: "Notes should not exceed 200 characters"
+                    }
+                  })}
+                  error={errors.notes?.message}
+                />
+              </div>
+
+            </div>
+          </div>
+
+          <div className="mt-8 flex justify-end">
+            <Button size="lg" onClick={placeOrder}>Place Order</Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+interface DayExceededProps {
+  isOpen: boolean,
+  onClose: any,
+  onContinue: any,
+  closeModal: any,
+}
+
+export function DayExceeded({
+  isOpen,
+  onClose,
+  onContinue,
+  closeModal
+}: DayExceededProps) {
+  return (
+    <AlertDialog open={isOpen} onOpenChange={closeModal}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Register is Open more than 24 Hours</AlertDialogTitle>
+          <AlertDialogDescription className="text-sm">
+            Do you want to continue with this register session or close to create a new session?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onClose}>Close</AlertDialogCancel>
+          <AlertDialogCancel className="bg-primary text-black border-transparent hover:" onClick={onContinue}>Continue</AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 interface customerComboboxTypes {
-  list: MemberTableDatatypes[];
+  list: any[];
   customerList?: MemberTableDatatypes[];
   setCustomer: any;
   customer: any;
   label?: string
 }
 
-function CustomerCombobox({ list, setCustomer, customer, label }: customerComboboxTypes) {
+export function CustomerCombobox({ list, setCustomer, customer, label }: customerComboboxTypes) {
   const modifiedList = list?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
@@ -673,13 +882,13 @@ function CustomerCombobox({ list, setCustomer, customer, label }: customerCombob
           {value
             ? modifiedList?.find((customer: any) => customer.value == value)?.label
             : label}
-          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className=" w-[330px] p-0 custom-scrollbar">
+      <PopoverContent className=" w-[500px] p-0">
         <Command>
           <CommandInput placeholder={label} />
-          <CommandList className="custom-scrollbar">
+          <CommandList className="w-[500px]">
             <CommandEmpty>No customer found.</CommandEmpty>
             <CommandGroup className="">
               {modifiedList?.map((customer: any) => (
@@ -710,7 +919,7 @@ function CustomerCombobox({ list, setCustomer, customer, label }: customerCombob
   )
 }
 
-function RetriveSaleCombobox({ list, setCustomer, customer, label, customerList }: customerComboboxTypes) {
+export function RetriveSaleCombobox({ list, setCustomer, customer, label, customerList }: customerComboboxTypes) {
   const modifiedList = list?.map((item: any) => ({ value: item.member_id, label: item.member_name }))
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")

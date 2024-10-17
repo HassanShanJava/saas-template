@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
 import { useDebounce } from "@/hooks/use-debounce";
-import { ErrorType, sellForm, sellItem } from "@/app/types";
+import { ErrorType, MemberTableDatatypes, sellForm, sellItem } from "@/app/types";
 import { has24HoursPassed } from "@/constants/counter_register";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
@@ -24,6 +24,7 @@ import Checkout from "./checkout";
 import DayExceeded from "./day-exceeded";
 import { roundToTwoDecimals } from "@/utils/helper";
 import { CustomerCombobox, RetriveSaleCombobox } from "./custom-combobox";
+import MemberForm from "../../members/memberForm/form";
 interface searchCriteriaType {
   search_key?: string;
 }
@@ -179,6 +180,20 @@ const Sell = () => {
   const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
   const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId, query: query })
 
+  const { data: memberList, refetch: memberRefetch } = useGetAllMemberQuery({ org_id: orgId, query: "sort_key=id&sort_order=desc" })
+  const [action, setAction] = useState<"add" | "edit">("add")
+  const [openMemberForm, setOpenMemberForm] = useState<boolean>(false)
+  const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
+    null
+  );
+
+
+  function handleOpenForm() {
+    setAction("add");
+    setEditMember(null);
+    setOpenMemberForm(true);
+  }
+
   const memberhsipListData = useMemo(() => {
     return Array.isArray(memberhsipList?.data) ? memberhsipList?.data : [];
   }, [memberhsipList]);
@@ -331,7 +346,6 @@ const Sell = () => {
     });
   };
 
-  const { data: memberList } = useGetAllMemberQuery({ org_id: orgId, query: "sort_key=id&sort_order=desc" })
 
   const memberListData = useMemo(() => {
     return Array.isArray(memberList?.data) ? memberList?.data : [];
@@ -407,6 +421,23 @@ const Sell = () => {
   const [createTransaction] = useCreateTransactionMutation();
 
   const parkSale = async () => {
+
+    if (watcher.membership_plans && watcher.membership_plans.length == 0) {
+      toast({
+        variant: "destructive",
+        title: "Please add products to the register",
+      })
+      return;
+    }
+
+    if (!watcher.member_id) {
+      toast({
+        variant: "destructive",
+        title: "Please select a customer",
+      })
+      return;
+    }
+
     try {
       const resp = await createTransaction(watcher).unwrap();
       if (resp) {
@@ -435,164 +466,176 @@ const Sell = () => {
 
   console.log({ watcher, productPayload, memberhsipListData, memberList, customer })
   return (
-    <FormProvider {...form} >
-      <div className="p-5">
-        {!showCheckout && (
-          <Card className=" h-fit px-3 py-4 max-w-[1100px] mx-auto">
-            <div className="grid grid-cols-1  slg:grid-cols-2 justify-start items-start gap-3">
-              <div className="min-h-36  p-2">
-                <FloatingLabelInput
-                  id="search"
-                  placeholder="Search"
-                  onChange={(event) => setInputValue(event.target.value)}
-                  className="w-full pl-8 text-gray-400 rounded-sm"
-                  icon={<Search className="size-4 text-gray-400 absolute  z-10 left-2" />}
-                />
+    <div>
+      <FormProvider {...form} >
+        <div className="p-5">
+          {!showCheckout && (
+            <Card className=" h-fit px-3 py-4 max-w-[1100px] mx-auto">
+              <div className="grid grid-cols-1  slg:grid-cols-2 justify-start items-start gap-3">
+                <div className="min-h-36  p-2">
+                  <FloatingLabelInput
+                    id="search"
+                    placeholder="Search"
+                    onChange={(event) => setInputValue(event.target.value)}
+                    className="w-full pl-8 text-gray-400 rounded-sm"
+                    icon={<Search className="size-4 text-gray-400 absolute  z-10 left-2" />}
+                  />
 
-                <Tabs defaultValue="membership_plans" className="w-full mt-4 ">
-                  <TabsList variant="underline">
+                  <Tabs defaultValue="membership_plans" className="w-full mt-4 ">
+                    <TabsList variant="underline">
+                      {productCategories.map((category) => (
+                        <TabsTrigger key={category.type} value={category.type} variant="underline">
+                          {category.label}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
                     {productCategories.map((category) => (
-                      <TabsTrigger key={category.type} value={category.type} variant="underline">
-                        {category.label}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                  {productCategories.map((category) => (
-                    <TabsContent className="m-0  w-full " key={category.type} value={category.type}>
-                      {category.products.length > 0 ? (
-                        <div className="mt-4 w-full flex flex-wrap gap-4 justify-center items-center">
-                          {category.products.map((product: Record<string, any>) => (
-                            <div onClick={() => addProduct(product, category?.type)} className="relative group hover:bg-primary/20 hover:text-black/60 size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
-                              <span className="capitalize">{product.name}</span>
-                              <span>Rs. {product.net_price}</span>
+                      <TabsContent className="m-0  w-full " key={category.type} value={category.type}>
+                        {category.products.length > 0 ? (
+                          <div className="mt-4 w-full flex flex-wrap gap-4 justify-center items-center">
+                            {category.products.map((product: Record<string, any>, i: number) => (
+                              <div key={i} onClick={() => addProduct(product, category?.type)} className="relative group hover:bg-primary/20 hover:text-black/60 size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
+                                <span className="capitalize">{product.name}</span>
+                                <span>Rs. {product.net_price}</span>
 
-                              <span className="absolute invisible group-hover:visible  bottom-0   text-black/80 text-sm z-20 p-1">Add</span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="col-span-2 text-sm text-center w-full p-2 mt-2">Coming soon</p>
-                      )}
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </div>
-
-              <div className="h-full flex flex-col justify-start space-y-2 rounded-sm bg-gray-100 p-2"  >
-                <>
-                  <div className="item-center flex gap-3">
-                    <RetriveSaleCombobox
-                      label={"Retrive Sale"}
-                      list={transactiontableData}
-                      setCustomer={setCustomer}
-                      customer={customer}
-                      customerList={memberListData}
-                    />
-                    <Button onClick={parkSale} className="w-full justify-center items-center gap-2">
-                      <i className="fa-regular fa-clock"></i>
-                      Park Sale
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between gap-2">
-
-                    <CustomerCombobox
-                      label={"Search customer"}
-                      list={memberListData}
-                      setCustomer={setCustomer}
-                      customer={customer}
-                    />
-
-                    <Button className=" text-white justify-center items-center gap-2">
-                      <i className="fa-regular fa-plus"></i>
-                      <span className="text-nowrap">Add Member</span>
-                    </Button>
-
-                  </div>
-                  <div className="bg-white/90">
-
-                    {productPayload.map(product => (
-                      <>
-                        <div className=" flex  justify-between items-center gap-2  p-2 ">
-                          <div>
-                            <p className="capitalize">{product.description}</p>
-                            {product.discount > 0 && <p className="line-through text-sm text-gray-500">
-                              Rs. {roundToTwoDecimals(product.price + product.discount)}
-                            </p>}
-                            <p className="text-sm">Rs. {product.price} ({product.tax_rate}% {orgTaxType?.tax_type == "inclusive" ? "INC" : "EXL"})</p>
+                                <span className="absolute invisible group-hover:visible  bottom-0   text-black/80 text-sm z-20 p-1">Add</span>
+                              </div>
+                            ))}
                           </div>
-
-                          <div className="inline-flex items-center ">
-                            <div
-                              onClick={() => updateProductQuantity(product.item_id, "decrement")}
-                              className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
-                              <i className="fa fa-minus"></i>
-                            </div>
-                            <div
-                              className=" border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-0 select-none">
-                              {product.quantity}
-                            </div>
-                            <div
-                              onClick={() => updateProductQuantity(product.item_id, "increment")}
-                              className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
-                              <i className="fa fa-plus"></i>
-                            </div>
-                          </div>
-
-
-                        </div >
-                        <Separator className=" h-[1px] font-thin rounded-full" />
-                      </>
+                        ) : (
+                          <p className="col-span-2 text-sm text-center w-full p-2 mt-2">Coming soon</p>
+                        )}
+                      </TabsContent>
                     ))}
-                  </div>
-                </>
+                  </Tabs>
+                </div>
 
-                <div className="rounded-sm bg-white/90 mx-1">
-                  <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
-                    <div className="w-full flex gap-2  items-center justify-between">
-                      <p>Subtotal</p>
-                      <p>Rs. {watcher.subtotal}</p>
-                    </div>
-                    <div className="w-full flex gap-2 items-center justify-between">
-                      <p>Discount</p>
-                      <FloatingLabelInput
-                        type="number"
-                        id="discount_amt"
-                        defaultValue={watcher.discount_amt}
-                        placeholder="Enter discount amount"
-                        className="text-right w-fit  text-gray-400 rounded-sm"
-                        {...register("discount_amt", { valueAsNumber: true })}
+                <div className="h-full flex flex-col justify-start space-y-2 rounded-sm bg-gray-100 p-2"  >
+                  <>
+                    <div className="item-center flex gap-3">
+                      <RetriveSaleCombobox
+                        label={"Retrive Sale"}
+                        list={transactiontableData}
+                        setCustomer={setCustomer}
+                        customer={customer}
+                        customerList={memberListData}
                       />
+                      <Button onClick={parkSale} className="w-full justify-center items-center gap-2">
+                        <i className="fa-regular fa-clock"></i>
+                        Park Sale
+                      </Button>
                     </div>
-                    <div className="w-full flex gap-2 items-center justify-between">
-                      <p>Tax</p>
-                      <p>Rs. {watcher.tax_amt}</p>
+                    <div className="flex items-center justify-between gap-2">
+
+                      <CustomerCombobox
+                        label=  {"Search customer"}
+                        list={memberListData}
+                        setCustomer={setCustomer}
+                        customer={customer}
+                      />
+
+                      <Button onClick={handleOpenForm} className=" text-white justify-center items-center gap-2">
+                        <i className="fa-regular fa-plus"></i>
+                        <span className="text-nowrap">Add Member</span>
+                      </Button>
+
                     </div>
-                    <div className="w-full flex gap-2 items-center justify-between font-bold">
-                      <p>Total</p>
-                      <p>Rs. {watcher.total}</p>
+                    <div className="bg-white/90">
+
+                      {productPayload.map((product, i) => (
+                        <>
+                          <div key={i} className=" flex  justify-between items-center gap-2  p-2 ">
+                            <div>
+                              <p className="capitalize">{product.description}</p>
+                              {product.discount > 0 && <p className="line-through text-sm text-gray-500">
+                                Rs. {roundToTwoDecimals(product.price + product.discount)}
+                              </p>}
+                              <p className="text-sm">Rs. {product.price} ({product.tax_rate}% {orgTaxType?.tax_type == "inclusive" ? "INC" : "EXL"})</p>
+                            </div>
+
+                            <div className="inline-flex items-center ">
+                              <div
+                                onClick={() => updateProductQuantity(product.item_id, "decrement")}
+                                className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                                <i className="fa fa-minus"></i>
+                              </div>
+                              <div
+                                className=" border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-0 select-none">
+                                {product.quantity}
+                              </div>
+                              <div
+                                onClick={() => updateProductQuantity(product.item_id, "increment")}
+                                className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                                <i className="fa fa-plus"></i>
+                              </div>
+                            </div>
+
+
+                          </div >
+                          <Separator key={i} className=" h-[1px] font-thin rounded-full" />
+                        </>
+                      ))}
                     </div>
-                    <Button className="w-full bg-primary text-black rounded-sm" onClick={paymentCheckout}>
-                      Pay
-                    </Button>
+                  </>
+
+                  <div className="rounded-sm bg-white/90 mx-1">
+                    <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
+                      <div className="w-full flex gap-2  items-center justify-between">
+                        <p>Subtotal</p>
+                        <p>Rs. {watcher.subtotal}</p>
+                      </div>
+                      <div className="w-full flex gap-2 items-center justify-between">
+                        <p>Discount</p>
+                        <FloatingLabelInput
+                          type="number"
+                          id="discount_amt"
+                          defaultValue={watcher.discount_amt}
+                          placeholder="Enter discount amount"
+                          className="text-right w-fit  text-gray-400 rounded-sm"
+                          {...register("discount_amt", { valueAsNumber: true })}
+                        />
+                      </div>
+                      <div className="w-full flex gap-2 items-center justify-between">
+                        <p>Tax</p>
+                        <p>Rs. {watcher.tax_amt}</p>
+                      </div>
+                      <div className="w-full flex gap-2 items-center justify-between font-bold">
+                        <p>Total</p>
+                        <p>Rs. {watcher.total}</p>
+                      </div>
+                      <Button className="w-full bg-primary text-black rounded-sm" onClick={paymentCheckout}>
+                        Pay
+                      </Button>
+                    </div>
+
                   </div>
+
 
                 </div>
 
-
               </div>
+            </Card>
+          )}
 
-            </div>
-          </Card>
-        )}
+          {showCheckout && (
+            <Checkout setShowCheckout={setShowCheckout} productPayload={productPayload} customer={customer} watcher={watcher} />
+          )}
 
-        {showCheckout && (
-          <Checkout setShowCheckout={setShowCheckout} productPayload={productPayload} customer={customer} watcher={watcher} />
-        )}
+          <DayExceeded isOpen={dayExceeded} onClose={handleCloseDayExceeded} onContinue={handleContinueDayExceeded} closeModal={() => setDayExceeded(false)} />
+        </div>
 
-        <DayExceeded isOpen={dayExceeded} onClose={handleCloseDayExceeded} onContinue={handleContinueDayExceeded} closeModal={() => setDayExceeded(false)} />
-      </div>
+      </FormProvider>
 
-    </FormProvider>
+      <MemberForm
+        open={openMemberForm}
+        setOpen={setOpenMemberForm}
+        memberData={editMember}
+        setMemberData={setEditMember}
+        action={action}
+        setAction={setAction}
+        refetch={memberRefetch}
+      />
+    </div>
 
   );
 };

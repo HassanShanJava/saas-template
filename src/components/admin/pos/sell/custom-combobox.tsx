@@ -9,7 +9,7 @@ import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface customerComboboxTypes {
-    list: any[];
+    list: MemberTableDatatypes[];
     customerList?: MemberTableDatatypes[];
     setCustomer: any;
     customer: any;

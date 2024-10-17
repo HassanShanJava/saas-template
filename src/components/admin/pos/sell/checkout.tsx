@@ -11,6 +11,7 @@ import { ErrorType, sellForm } from "@/app/types";
 import { toast } from "@/components/ui/use-toast";
 import { useFormContext } from "react-hook-form";
 import { useCreateTransactionMutation } from "@/services/transactionApi";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Checkout({ setShowCheckout, watcher, productPayload, customer }: any) {
     const {
@@ -55,7 +56,6 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
     return (
 
         <div className=" ">
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 <div>
                     <h1 className="text-3xl font-bold mb-6">Checkout</h1>
@@ -116,21 +116,31 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
 
                         <div className="mt-5 h-full flex flex-col   justify-between gap-6">
                             <div>
-                                <RadioGroup defaultValue="cash" className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-4 p-2 w-full cursor-pointer border border-primary rounded-sm">
-                                        <RadioGroupItem value="cash" id="cash" />
-                                        <Label htmlFor="cash" className="flex items-center p-2 w-full cursor-pointer">
-                                            <span>Cash</span>
-                                        </Label>
-                                    </div>
+                                <div className="flex gap-2 items-center justify-between">
 
-                                    <div className="flex items-center space-x-4 p-2 w-full cursor-pointer border border-primary rounded-sm">
-                                        <RadioGroupItem value="credit_debit" id="credit_debit" />
-                                        <Label htmlFor="credit_debit" className="flex items-center p-2 w-full cursor-pointer">
-                                            <span>Credit/Debit Card</span>
+                                    <div
+                                        className=" w-full flex items-start space-x-3 space-y-0 bg-white p-4"
+                                    >
+                                        <Checkbox
+                                        // checked={true}
+
+                                        />
+                                        <Label className="font-normal">
+                                            Cash
                                         </Label>
                                     </div>
-                                </RadioGroup>
+                                    <div
+                                        className="w-full flex items-start space-x-3 space-y-0 bg-white p-4"
+                                    >
+                                        <Checkbox
+                                        // checked={true}
+
+                                        />
+                                        <Label className="font-normal">
+                                            Credit/ Debit Card
+                                        </Label>
+                                    </div>
+                                </div>
                             </div>
 
                             <div>

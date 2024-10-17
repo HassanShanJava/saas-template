@@ -299,13 +299,11 @@ const MemberForm = ({
 
   const handleRemovePlan = (index: number) => {
     console.log("Before removal:", membershipPlansdata);
+    const updatedPlans = [...membershipPlansdata]; // Create a shallow copy
+    updatedPlans.splice(index, 1); // Remove the exact item
+    console.log("After removal:", updatedPlans);
+    setMembershipPlansdata(updatedPlans); // Update the state
 
-    if (membershipPlansdata.length > 1) {
-      const updatedPlans = [...membershipPlansdata]; // Create a shallow copy
-      updatedPlans.splice(index, 1); // Remove the exact item
-      console.log("After removal:", updatedPlans);
-      setMembershipPlansdata(updatedPlans); // Update the state
-    }
   };
 
   const handleMembershipPlanChange = (
@@ -435,8 +433,8 @@ const MemberForm = ({
       )
         ? []
         : memberData?.coaches
-            .filter((item) => item.id !== 0 && item.name?.trim() !== "") // Filter out invalid entries
-            .map((item) => item.id);
+          .filter((item) => item.id !== 0 && item.name?.trim() !== "") // Filter out invalid entries
+          .map((item) => item.id);
 
       if (
         memberpayload?.mobile_number &&
@@ -770,804 +768,797 @@ const MemberForm = ({
                   </Button>
                 </div>
               </div>
-              <div>
-                <h1 className="font-bold text-lg mb-2 text-gray-900">
-                  Basic Information
-                </h1>
-              </div>
-              <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
-                <div className="relative">
-                  <FloatingLabelInput
-                    id="own_member_id"
-                    label="Member Id*"
-                    className="disabled:!opacity-100 disabled:text-gray-800 placeholder:text-gray-800"
-                    disabled
-                    {...register("own_member_id")}
-                    error={
-                      errors?.own_member_id?.message as keyof MemberInputTypes
-                    }
-                  />
-                </div>
-                <div className="relative ">
-                  {action == "add" ||
-                  (action == "edit" && watcher.client_status == "pending") ? (
-                    <FloatingLabelInput
-                      id="email"
-                      className=""
-                      type="email"
-                      label="Email Address*"
-                      {...register("email", {
-                        required: "Required",
-                        setValueAs: (value) => value.toLowerCase(),
-                        maxLength: {
-                          value: 50,
-                          message: "Should be 50 characters or less",
-                        },
-                        pattern: {
-                          value:
-                            /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i,
-                          message: "Incorrect email format",
-                        },
-                      })}
-                      error={errors.email?.message}
-                    />
-                  ) : (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <FloatingLabelInput
-                            id="email"
-                            className=""
-                            type="email"
-                            label="Email Address*"
-                            disabled={
-                              action == "edit" &&
-                              watcher.client_status != "pending"
-                            }
-                            {...register("email", {
-                              required: "Required",
-                              maxLength: {
-                                value: 50,
-                                message: "Should be 50 characters or less",
-                              },
-                              pattern: {
-                                value:
-                                  /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i,
-                                message: "Incorrect email format",
-                              },
-                            })}
-                            error={errors.email?.message}
-                          />
-                        </TooltipTrigger>
 
-                        <TooltipContent>
-                          You cannot update the email address once the member is
-                          active
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
-                </div>
-                <div className="relative ">
-                  <FloatingLabelInput
-                    id="first_name"
-                    label="First Name*"
-                    {...register("first_name", {
-                      required: "Required",
-                      setValueAs: (value) => value.toLowerCase(),
-                      maxLength: {
-                        value: 40,
-                        message: "Should be 40 characters or less",
-                      },
-                    })}
-                    error={
-                      errors?.first_name?.message as keyof MemberInputTypes
-                    }
-                    className="capitalize"
-                  />
-                </div>
-                <div className="relative ">
-                  <FloatingLabelInput
-                    id="last_name"
-                    label="Last Name*"
-                    {...register("last_name", {
-                      required: "Required",
-                      setValueAs: (value) => value.toLowerCase(),
-                      maxLength: {
-                        value: 40,
-                        message: "Should be 40 characters or less",
-                      },
-                    })}
-                    error={errors?.last_name?.message as keyof MemberInputTypes}
-                    className="capitalize"
-                  />
-                </div>
-                <div className="relative ">
-                  <Controller
-                    name={"gender" as keyof MemberInputTypes}
-                    rules={{ required: "Required" }}
-                    control={control}
-                    render={({
-                      field: { onChange, value, onBlur },
-                      fieldState: { invalid, error },
-                    }) => (
-                      <Select
-                        onValueChange={(value: genderEnum) =>
-                          setValue("gender", value)
-                        }
-                        value={value as genderEnum}
-                      >
-                        <SelectTrigger
-                          floatingLabel="Gender*"
-                          className={`text-black`}
-                        >
-                          <SelectValue placeholder="Select Gender" />
-                        </SelectTrigger>
-                        <SelectContent className="">
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="female">Female</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {errors.gender?.message && (
-                    <span className="text-red-500 text-xs mt-[5px]">
-                      {errors.gender?.message}
-                    </span>
-                  )}
-                </div>
-                <div className="relative ">
-                  <Controller
-                    name={"dob" as keyof MemberInputTypes}
-                    rules={{ required: "Required" }}
-                    control={control}
-                    render={({
-                      field: { onChange, value, onBlur },
-                      fieldState: { invalid, error },
-                    }) => (
-                      <Popover open={dob} onOpenChange={setDob}>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <div className="relative">
-                              <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">
-                                Date of brith*
-                              </span>
-                              <Button
-                                variant={"outline"}
-                                type="button"
-                                className={cn(
-                                  "w-full pl-3 text-gray-800 text-left font-normal hover:bg-transparent border-[1px]"
-                                )}
-                              >
-                                {(value as Date) ? (
-                                  format(value as Date, "dd-MM-yyyy")
-                                ) : (
-                                  <span>Select date of birth</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                              {errors.dob?.message && (
-                                <span className="text-red-500 text-xs mt-[5px]">
-                                  {errors.dob?.message}
-                                </span>
-                              )}
-                            </div>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-2" align="center">
-                          <Calendar
-                            mode="single"
-                            captionLayout="dropdown-buttons"
-                            selected={value as Date}
-                            defaultMonth={
-                              (value as Date) ? (value as Date) : undefined
-                            }
-                            onSelect={(value) => {
-                              onChange(value);
-                              setDob(false);
-                            }}
-                            fromYear={1960}
-                            toYear={new Date().getFullYear()}
-                            disabled={(date: any) =>
-                              date > new Date() || date < new Date("1960-01-01")
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    )}
-                  />
-                </div>
 
-                <div className="relative ">
-                  <FloatingLabelInput
-                    type="tel"
-                    id="phone"
-                    label="Landline Number"
-                    className=""
-                    {...register("phone", {
-                      pattern: {
-                        value: /^\d{1,15}$/,
-                        message: "Must be a number between 1 and 15 digits",
-                      },
-                    })}
-                    error={errors.phone?.message}
-                  />
-                </div>
-                <div className="relative ">
-                  <Controller
-                    name="mobile_number"
-                    control={control}
-                    defaultValue=""
-                    rules={{ validate: validatePhone }}
-                    render={({ field: { onChange, value } }) => (
-                      <div className="relative ">
-                        <span className="absolute p-0 text-xs left-12 -top-2 px-1 bg-white z-10">
-                          Phone Number
-                        </span>
-                        <PhoneInput
-                          defaultCountry="us"
-                          value={value}
-                          onChange={onChange}
-                          // forceDialCode={true}
-                          inputClassName="w-full"
-                        />
-                      </div>
-                    )}
-                  />
-                  {errors.mobile_number && (
-                    <span className="text-red-500 text-xs mt-[5px]">
-                      {errors.mobile_number.message}
-                    </span>
-                  )}
-                </div>
-                <div className="relative ">
-                  <FloatingLabelInput
-                    id="notes"
-                    label="Notes"
-                    {...register("notes", {
-                      maxLength: {
-                        value: 200,
-                        message: "Notes should not exceed 200 characters",
-                      },
-                    })}
-                    error={errors.notes?.message}
-                  />
-                </div>
+              <div className="space-y-6">
 
-                <div className="relative ">
-                  <Controller
-                    name={"client_status" as keyof MemberInputTypes}
-                    rules={{ required: "Required" }}
-                    control={control}
-                    render={({
-                      field: { onChange, value, onBlur },
-                      fieldState: { invalid, error },
-                    }) => (
-                      <Select
-                        onValueChange={(value: statusEnum) =>
-                          setValue("client_status", value)
+                <div className="space-y-2">
+
+                  <h1 className="font-semibold text-lg mb-4 text-gray-900">
+                    Basic Information
+                  </h1>
+
+                  <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+                    <div className="relative">
+                      <FloatingLabelInput
+                        id="own_member_id"
+                        label="Member Id*"
+                        className="disabled:!opacity-100 disabled:text-gray-800 placeholder:text-gray-800"
+                        disabled
+                        {...register("own_member_id")}
+                        error={
+                          errors?.own_member_id?.message as keyof MemberInputTypes
                         }
-                        value={value as statusEnum}
-                        disabled={value === "pending"}
-                      >
-                        <SelectTrigger
-                          floatingLabel="Status*"
-                          className={`text-black`}
-                        >
-                          <SelectValue placeholder="Select Status" />
-                        </SelectTrigger>
-                        <SelectContent className="">
-                          <SelectItem
-                            value="pending"
-                            className={`${action == "edit" && "hidden"}`}
-                          >
-                            Pending
-                          </SelectItem>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {errors.client_status?.message && (
-                    <span className="text-red-500 text-xs mt-[5px]">
-                      {errors.client_status?.message}
-                    </span>
-                  )}
-                </div>
-                <div className="relative ">
-                  <Controller
-                    name={"source_id" as keyof MemberInputTypes}
-                    rules={{ required: "Required" }}
-                    control={control}
-                    render={({
-                      field: { onChange, value, onBlur },
-                      fieldState: { invalid, error },
-                    }) => (
-                      <Select
-                        onValueChange={(value) =>
-                          setValue("source_id", Number(value))
-                        }
-                        value={value?.toString()}
-                      >
-                        <SelectTrigger className="font-normal capitalize text-gray-800">
-                          <SelectValue placeholder="Select Source*" />
-                        </SelectTrigger>
-                        <SelectContent className="capitalize max-h-52">
-                          {sources &&
-                            sources?.map((item) => (
-                              <SelectItem value={item.id.toString()}>
-                                {item.source}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {errors.source_id?.message && (
-                    <span className="text-red-500 text-xs mt-[5px]">
-                      {errors.source_id?.message}
-                    </span>
-                  )}
-                </div>
-                <div className="relative ">
-                  <Controller
-                    name={"coach_ids" as keyof MemberInputTypes}
-                    // rules={{ required: "Required" }}
-                    control={control}
-                    render={({
-                      field: { onChange, value, onBlur },
-                      fieldState: { invalid, error },
-                    }) => (
-                      <MultiSelect
-                        floatingLabel={"Assign Coaches"}
-                        options={
-                          coachesData as { value: number; label: string }[]
-                        }
-                        defaultValue={watch("coach_ids") || []} // Ensure defaultValue is always an array
-                        onValueChange={(selectedValues) => {
-                          console.log("Selected Values: ", selectedValues); // Debugging step
-                          onChange(selectedValues); // Pass selected values to state handler
-                        }}
-                        placeholder={"Select coaches"}
-                        variant="inverted"
-                        maxCount={1}
-                        className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 "
                       />
-                    )}
-                  />
-                  {errors.coach_ids?.message && (
-                    <span className="text-red-500 text-xs mt-[5px]">
-                      {errors.coach_ids?.message}
-                    </span>
-                  )}
-                </div>
-                <div className="relative ">
-                  <div className="justify-start items-center flex">
-                    <Controller
-                      name={"is_business" as keyof MemberInputTypes}
-                      control={control}
-                      render={({
-                        field: { onChange, value, onBlur },
-                        fieldState: { invalid, error },
-                      }) => (
-                        <div className="flex flex-row gap-3 items-center justify-between ">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">
-                              Business :
-                            </FormLabel>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={value as boolean}
-                              onCheckedChange={onChange}
-                            />
-                          </FormControl>
-                        </div>
+                    </div>
+                    <div className="relative ">
+                      {action == "add" ||
+                        (action == "edit" && watcher.client_status == "pending") ? (
+                        <FloatingLabelInput
+                          id="email"
+                          className=""
+                          type="email"
+                          label="Email Address*"
+                          {...register("email", {
+                            required: "Required",
+                            setValueAs: (value) => value.toLowerCase(),
+                            maxLength: {
+                              value: 50,
+                              message: "Should be 50 characters or less",
+                            },
+                            pattern: {
+                              value:
+                                /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i,
+                              message: "Incorrect email format",
+                            },
+                          })}
+                          error={errors.email?.message}
+                        />
+                      ) : (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <FloatingLabelInput
+                                id="email"
+                                className=""
+                                type="email"
+                                label="Email Address*"
+                                disabled={
+                                  action == "edit" &&
+                                  watcher.client_status != "pending"
+                                }
+                                {...register("email", {
+                                  required: "Required",
+                                  maxLength: {
+                                    value: 50,
+                                    message: "Should be 50 characters or less",
+                                  },
+                                  pattern: {
+                                    value:
+                                      /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i,
+                                    message: "Incorrect email format",
+                                  },
+                                })}
+                                error={errors.email?.message}
+                              />
+                            </TooltipTrigger>
+
+                            <TooltipContent>
+                              You cannot update the email address once the member is
+                              active
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       )}
-                    />
-                    {errors.is_business?.message && (
-                      <span className="text-red-500 text-xs mt-[5px]">
-                        {errors.is_business?.message}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div
-                  className={`relative  ${watcher.is_business ? "hidden" : ""}`}
-                >
-                  <Controller
-                    name={"business_id" as keyof MemberInputTypes}
-                    // rules={{ required: !watcher.is_business && "Required" }}
-                    control={control}
-                    render={({
-                      field: { onChange, value, onBlur },
-                      fieldState: { invalid, error },
-                    }) => (
-                      <Select
-                        onValueChange={(value) =>
-                          setValue("business_id", Number(value))
+                    </div>
+                    <div className="relative ">
+                      <FloatingLabelInput
+                        id="first_name"
+                        label="First Name*"
+                        {...register("first_name", {
+                          required: "Required",
+                          setValueAs: (value) => value.toLowerCase(),
+                          maxLength: {
+                            value: 40,
+                            message: "Should be 40 characters or less",
+                          },
+                        })}
+                        error={
+                          errors?.first_name?.message as keyof MemberInputTypes
                         }
-                        value={value?.toString()}
-                      >
-                        <SelectTrigger className="capitalize  font-normal text-gray-800">
-                          <SelectValue placeholder="Select Business" />
-                        </SelectTrigger>
-                        <SelectContent
-                          side="bottom"
-                          className="capitalize max-h-52"
-                        >
-                          {/* <Button variant={"link"} className="gap-2 text-black">
+                        className="capitalize"
+                      />
+                    </div>
+                    <div className="relative ">
+                      <FloatingLabelInput
+                        id="last_name"
+                        label="Last Name*"
+                        {...register("last_name", {
+                          required: "Required",
+                          setValueAs: (value) => value.toLowerCase(),
+                          maxLength: {
+                            value: 40,
+                            message: "Should be 40 characters or less",
+                          },
+                        })}
+                        error={errors?.last_name?.message as keyof MemberInputTypes}
+                        className="capitalize"
+                      />
+                    </div>
+                    <div className="relative ">
+                      <Controller
+                        name={"gender" as keyof MemberInputTypes}
+                        rules={{ required: "Required" }}
+                        control={control}
+                        render={({
+                          field: { onChange, value, onBlur },
+                          fieldState: { invalid, error },
+                        }) => (
+                          <Select
+                            onValueChange={(value: genderEnum) =>
+                              setValue("gender", value)
+                            }
+                            value={value as genderEnum}
+                          >
+                            <SelectTrigger
+                              floatingLabel="Gender*"
+                              className={`text-black`}
+                            >
+                              <SelectValue placeholder="Select Gender" />
+                            </SelectTrigger>
+                            <SelectContent className="">
+                              <SelectItem value="male">Male</SelectItem>
+                              <SelectItem value="female">Female</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.gender?.message && (
+                        <span className="text-red-500 text-xs mt-[5px]">
+                          {errors.gender?.message}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative ">
+                      <Controller
+                        name={"dob" as keyof MemberInputTypes}
+                        rules={{ required: "Required" }}
+                        control={control}
+                        render={({
+                          field: { onChange, value, onBlur },
+                          fieldState: { invalid, error },
+                        }) => (
+                          <Popover open={dob} onOpenChange={setDob}>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <div className="relative">
+                                  <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">
+                                    Date of brith*
+                                  </span>
+                                  <Button
+                                    variant={"outline"}
+                                    type="button"
+                                    className={cn(
+                                      "w-full pl-3 text-gray-800 text-left font-normal hover:bg-transparent border-[1px]"
+                                    )}
+                                  >
+                                    {(value as Date) ? (
+                                      format(value as Date, "dd-MM-yyyy")
+                                    ) : (
+                                      <span>Select date of birth</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  </Button>
+                                  {errors.dob?.message && (
+                                    <span className="text-red-500 text-xs mt-[5px]">
+                                      {errors.dob?.message}
+                                    </span>
+                                  )}
+                                </div>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-2" align="center">
+                              <Calendar
+                                mode="single"
+                                captionLayout="dropdown-buttons"
+                                selected={value as Date}
+                                defaultMonth={
+                                  (value as Date) ? (value as Date) : undefined
+                                }
+                                onSelect={(value) => {
+                                  onChange(value);
+                                  setDob(false);
+                                }}
+                                fromYear={1960}
+                                toYear={new Date().getFullYear()}
+                                disabled={(date: any) =>
+                                  date > new Date() || date < new Date("1960-01-01")
+                                }
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        )}
+                      />
+                    </div>
+
+                    <div className="relative ">
+                      <FloatingLabelInput
+                        type="tel"
+                        id="phone"
+                        label="Landline Number"
+                        className=""
+                        {...register("phone", {
+                          pattern: {
+                            value: /^\d{1,15}$/,
+                            message: "Must be a number between 1 and 15 digits",
+                          },
+                        })}
+                        error={errors.phone?.message}
+                      />
+                    </div>
+                    <div className="relative ">
+                      <Controller
+                        name="mobile_number"
+                        control={control}
+                        defaultValue=""
+                        rules={{ validate: validatePhone }}
+                        render={({ field: { onChange, value } }) => (
+                          <div className="relative ">
+                            <span className="absolute p-0 text-xs left-12 -top-2 px-1 bg-white z-10">
+                              Phone Number
+                            </span>
+                            <PhoneInput
+                              defaultCountry="us"
+                              value={value}
+                              onChange={onChange}
+                              // forceDialCode={true}
+                              inputClassName="w-full"
+                            />
+                          </div>
+                        )}
+                      />
+                      {errors.mobile_number && (
+                        <span className="text-red-500 text-xs mt-[5px]">
+                          {errors.mobile_number.message}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative ">
+                      <FloatingLabelInput
+                        id="notes"
+                        label="Notes"
+                        {...register("notes", {
+                          maxLength: {
+                            value: 200,
+                            message: "Notes should not exceed 200 characters",
+                          },
+                        })}
+                        error={errors.notes?.message}
+                      />
+                    </div>
+
+                    <div className="relative ">
+                      <Controller
+                        name={"client_status" as keyof MemberInputTypes}
+                        rules={{ required: "Required" }}
+                        control={control}
+                        render={({
+                          field: { onChange, value, onBlur },
+                          fieldState: { invalid, error },
+                        }) => (
+                          <Select
+                            onValueChange={(value: statusEnum) =>
+                              setValue("client_status", value)
+                            }
+                            value={value as statusEnum}
+                            disabled={value === "pending"}
+                          >
+                            <SelectTrigger
+                              floatingLabel="Status*"
+                              className={`text-black`}
+                            >
+                              <SelectValue placeholder="Select Status" />
+                            </SelectTrigger>
+                            <SelectContent className="">
+                              <SelectItem
+                                value="pending"
+                                className={`${action == "edit" && "hidden"}`}
+                              >
+                                Pending
+                              </SelectItem>
+                              <SelectItem value="active">Active</SelectItem>
+                              <SelectItem value="inactive">Inactive</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.client_status?.message && (
+                        <span className="text-red-500 text-xs mt-[5px]">
+                          {errors.client_status?.message}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative ">
+                      <Controller
+                        name={"source_id" as keyof MemberInputTypes}
+                        rules={{ required: "Required" }}
+                        control={control}
+                        render={({
+                          field: { onChange, value, onBlur },
+                          fieldState: { invalid, error },
+                        }) => (
+                          <Select
+                            onValueChange={(value) =>
+                              setValue("source_id", Number(value))
+                            }
+                            value={value?.toString()}
+                          >
+                            <SelectTrigger className="font-normal capitalize text-gray-800">
+                              <SelectValue placeholder="Select Source*" />
+                            </SelectTrigger>
+                            <SelectContent className="capitalize max-h-52">
+                              {sources &&
+                                sources?.map((item) => (
+                                  <SelectItem value={item.id.toString()}>
+                                    {item.source}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.source_id?.message && (
+                        <span className="text-red-500 text-xs mt-[5px]">
+                          {errors.source_id?.message}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative ">
+                      <Controller
+                        name={"coach_ids" as keyof MemberInputTypes}
+                        // rules={{ required: "Required" }}
+                        control={control}
+                        render={({
+                          field: { onChange, value, onBlur },
+                          fieldState: { invalid, error },
+                        }) => (
+                          <MultiSelect
+                            floatingLabel={"Assign Coaches"}
+                            options={
+                              coachesData as { value: number; label: string }[]
+                            }
+                            defaultValue={watch("coach_ids") || []} // Ensure defaultValue is always an array
+                            onValueChange={(selectedValues) => {
+                              console.log("Selected Values: ", selectedValues); // Debugging step
+                              onChange(selectedValues); // Pass selected values to state handler
+                            }}
+                            placeholder={"Select coaches"}
+                            variant="inverted"
+                            maxCount={1}
+                            className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 "
+                          />
+                        )}
+                      />
+                      {errors.coach_ids?.message && (
+                        <span className="text-red-500 text-xs mt-[5px]">
+                          {errors.coach_ids?.message}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative ">
+                      <div className="justify-start items-center flex">
+                        <Controller
+                          name={"is_business" as keyof MemberInputTypes}
+                          control={control}
+                          render={({
+                            field: { onChange, value, onBlur },
+                            fieldState: { invalid, error },
+                          }) => (
+                            <div className="flex flex-row gap-3 items-center justify-between ">
+                              <div className="space-y-0.5">
+                                <FormLabel className="text-base">
+                                  Business :
+                                </FormLabel>
+                              </div>
+                              <FormControl>
+                                <Switch
+                                  checked={value as boolean}
+                                  onCheckedChange={onChange}
+                                />
+                              </FormControl>
+                            </div>
+                          )}
+                        />
+                        {errors.is_business?.message && (
+                          <span className="text-red-500 text-xs mt-[5px]">
+                            {errors.is_business?.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div
+                      className={`relative  ${watcher.is_business ? "hidden" : ""}`}
+                    >
+                      <Controller
+                        name={"business_id" as keyof MemberInputTypes}
+                        // rules={{ required: !watcher.is_business && "Required" }}
+                        control={control}
+                        render={({
+                          field: { onChange, value, onBlur },
+                          fieldState: { invalid, error },
+                        }) => (
+                          <Select
+                            onValueChange={(value) =>
+                              setValue("business_id", Number(value))
+                            }
+                            value={value?.toString()}
+                          >
+                            <SelectTrigger className="capitalize  font-normal text-gray-800">
+                              <SelectValue placeholder="Select Business" />
+                            </SelectTrigger>
+                            <SelectContent
+                              side="bottom"
+                              className="capitalize max-h-52"
+                            >
+                              {/* <Button variant={"link"} className="gap-2 text-black">
                             <PlusIcon className="text-black w-5 h-5" /> Add New
                             business
                           </Button> */}
-                          {business && business?.length ? (
-                            business.map((sourceval: BusinessTypes) => {
-                              // console.log(business.length);
-                              return (
-                                <SelectItem
-                                  value={sourceval.id?.toString()}
-                                  key={sourceval.id?.toString()}
-                                >
-                                  {sourceval.full_name}
-                                </SelectItem>
-                              );
-                            })
-                          ) : (
-                            <>
-                              <p className="p-2"> No Business found</p>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {errors.business_id?.message && (
-                    <span className="text-red-500 text-xs mt-[5px]">
-                      {errors.business_id?.message}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div>
-                <h1 className="font-bold text-lg my-2 text-gray-900">
-                  Address
-                </h1>
-              </div>
-              <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
-                <div className="relative ">
-                  <FloatingLabelInput
-                    id="address_1"
-                    label="Street Address"
-                    {...register("address_1", {
-                      maxLength: {
-                        value: 50,
-                        message: "Address should be less than 50 characters",
-                      },
-                    })}
-                    error={errors.address_1?.message}
-                  />
-                </div>
-                <div className="relative ">
-                  <FloatingLabelInput
-                    id="address_2"
-                    label="Extra Address"
-                    {...register("address_2", {
-                      maxLength: {
-                        value: 50,
-                        message: "Address should be less than 50 characters",
-                      },
-                    })}
-                    error={errors.address_2?.message}
-                  />
-                </div>
-                <div className="relative ">
-                  <FloatingLabelInput
-                    id="zipcode"
-                    label="Zip Code"
-                    {...register("zipcode", {
-                      maxLength: {
-                        value: 15,
-                        message: "Zip code should be less than 15 characters",
-                      },
-                    })}
-                    error={errors.zipcode?.message}
-                  />
-                </div>
-                <div className="relative">
-                  <Controller
-                    name={"country_id" as keyof MemberInputTypes}
-                    rules={{ required: "Required" }}
-                    control={control}
-                    render={({
-                      field: { onChange, value, onBlur },
-                      fieldState: { invalid, error },
-                    }) => (
-                      <div className="flex flex-col w-full">
-                        <Popover open={country} onOpenChange={setCountry}>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "font-normal text-gray-800 border-[1px] justify-between hover:bg-transparent hover:text-gray-800",
-                                  !value && "  focus:border-primary "
-                                )}
-                              >
-                                {value
-                                  ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === value // Compare with numeric value
-                                    )?.country // Display country name if selected
-                                  : "Select country*"}
-                                <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="p-0  ">
-                            <Command>
-                              <CommandList>
-                                <CommandInput placeholder="Select Country" />
-                                <CommandEmpty>No country found.</CommandEmpty>
-                                <CommandGroup className="">
-                                  {countries &&
-                                    countries.map((country: CountryTypes) => (
-                                      <CommandItem
-                                        value={country.country}
-                                        key={country.id}
-                                        onSelect={() => {
-                                          setValue(
-                                            "country_id",
-                                            country.id // Set country_id to country.id as number
-                                          );
-                                          setCountry(false);
-                                        }}
-                                      >
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                            country.id == value
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          )}
-                                        />
-                                        {country.country}
-                                        {/* Display the country name */}
-                                      </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                    )}
-                  />
-                  {errors.country_id?.message && (
-                    <span className="text-red-500 text-xs mt-[5px]">
-                      {errors.country_id?.message}
-                    </span>
-                  )}
-                </div>
-                <div className="relative ">
-                  <FloatingLabelInput
-                    id="city"
-                    label="City"
-                    {...register("city", {
-                      maxLength: {
-                        value: 50,
-                        message: "City should be less than 50 characters",
-                      },
-                    })}
-                    error={errors?.city?.message as keyof MemberInputTypes}
-                  />
-                </div>
-              </div>
-              <div>
-                <h1 className="font-bold text-lg my-2 text-gray-900">
-                  Membership and Auto Renewal
-                </h1>
-              </div>
-              <div className="flex gap-2 flex-col">
-                {membershipPlansdata?.map(
-                  (plan: membership_planids, index: number) => (
-                    <>
-                      {membershipPlansdata?.length > 1 && index > 0 && (
-                        <div className="pt-2">
-                          <Separator />
-                        </div>
-                      )}
-
-                      <div className="font-semibold text-base pt-1 text-black pb-3">
-                        Membership Plan {index + 1}
-                      </div>
-                      <div className="grid grid-cols-12 gap-3" key={index}>
-                        <div className="relative col-span-4">
-                          <Select
-                            onValueChange={(value) =>
-                              handleMembershipPlanChange(
-                                index,
-                                "membership_plan_id",
-                                Number(value)
-                              )
-                            }
-                            value={plan.membership_plan_id?.toString()}
-                          >
-                            <FormControl>
-                              <SelectTrigger
-                                className={`font-normal capitalize text-gray-800`}
-                              >
-                                <SelectValue placeholder="Select membership plan" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="capitalize max-h-52">
-                              {membershipPlans && membershipPlans.length > 0 ? (
-                                membershipPlans.map(
-                                  (sourceval: membeshipsTableType) => (
+                              {business && business?.length ? (
+                                business.map((sourceval: BusinessTypes) => {
+                                  // console.log(business.length);
+                                  return (
                                     <SelectItem
-                                      key={sourceval.id}
                                       value={sourceval.id?.toString()}
+                                      key={sourceval.id?.toString()}
                                     >
-                                      {sourceval.name}
+                                      {sourceval.full_name}
                                     </SelectItem>
-                                  )
-                                )
+                                  );
+                                })
                               ) : (
-                                <p>No Membership plan found</p>
+                                <>
+                                  <p className="p-2"> No Business found</p>
+                                </>
                               )}
                             </SelectContent>
                           </Select>
-                        </div>
-
-                        <div className="relative col-span-2 flex justify-center items-center gap-2">
-                          <Switch
-                            id="airplane-mode"
-                            checked={plan.auto_renewal}
-                            onCheckedChange={(value) =>
-                              handleMembershipPlanChange(
-                                index,
-                                "auto_renewal",
-                                value
-                              )
-                            }
-                            disabled={!plan.membership_plan_id}
-                          />
-                          <Label className="!mt-0">Auto renewal</Label>
-                        </div>
-
-                        {plan.auto_renewal && (
-                          <>
-                            {/* Row for Prolongation Period */}
-                            <div className="relative col-span-6 flex items-center gap-3">
-                              <Label className="text-base">
-                                Prolongation period*
-                              </Label>
-                              <FloatingLabelInput
-                                id="prolongation_period"
-                                type="number"
-                                min={1}
-                                max={12}
-                                className="w-16"
-                                value={plan.prolongation_period}
-                                onChange={(e) =>
-                                  handleMembershipPlanChange(
-                                    index,
-                                    "prolongation_period",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-
-                            {/* Row for Auto Renewal Days */}
-                            <div className="relative col-span-6 flex items-center gap-3">
-                              <Label className="text-base">
-                                Auto renewal takes place*
-                              </Label>
-                              <FloatingLabelInput
-                                id="auto_renew_days"
-                                type="number"
-                                min={1}
-                                max={15}
-                                className="w-16"
-                                value={plan.auto_renew_days}
-                                onChange={(e) =>
-                                  handleMembershipPlanChange(
-                                    index,
-                                    "auto_renew_days",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              <span className="text-sm text-black/60">
-                                days before contract runs out.
-                              </span>
-                            </div>
-
-                            {/* Row for Next Invoice */}
-                            <div className="relative col-span-6 flex items-center gap-3">
-                              <Label className="text-base pr-4">
-                                Next invoice will be <br />
-                                created*
-                              </Label>
-                              <FloatingLabelInput
-                                id="inv_days_cycle"
-                                type="number"
-                                min={1}
-                                max={15}
-                                className="w-16"
-                                value={plan.inv_days_cycle}
-                                onChange={(e) =>
-                                  handleMembershipPlanChange(
-                                    index,
-                                    "inv_days_cycle",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              <span className="text-sm text-black/60">
-                                days before contract runs out.
-                              </span>
-                              {membershipPlansdata?.length > 1 && (
-                                <Button
-                                  type="button"
-                                  className="text-red-500"
-                                  variant={"ghost"}
-                                  onClick={() => handleRemovePlan(index)}
-                                >
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <i className="fa-solid fa-trash"></i>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        Delete Membership plan
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                </Button>
-                              )}
-                            </div>
-                          </>
                         )}
+                      />
+                      {errors.business_id?.message && (
+                        <span className="text-red-500 text-xs mt-[5px]">
+                          {errors.business_id?.message}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
-                        {!plan.auto_renewal &&
-                          membershipPlansdata?.length > 1 && (
-                            <Button
-                              type="button"
-                              className="text-red-500"
-                              variant={"ghost"}
-                              onClick={() => handleRemovePlan(index)}
-                            >
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <i className="fa-solid fa-trash"></i>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    Delete Membership plan
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </Button>
+
+                <div className="space-y-2">
+                  <h1 className="font-semibold text-lg my-4 text-gray-900">
+                    Address
+                  </h1>
+                  <div className="w-full grid grid-cols-3 gap-3 justify-between items-center">
+                    <div className="relative ">
+                      <FloatingLabelInput
+                        id="address_1"
+                        label="Street Address"
+                        {...register("address_1", {
+                          maxLength: {
+                            value: 50,
+                            message: "Address should be less than 50 characters",
+                          },
+                        })}
+                        error={errors.address_1?.message}
+                      />
+                    </div>
+                    <div className="relative ">
+                      <FloatingLabelInput
+                        id="address_2"
+                        label="Extra Address"
+                        {...register("address_2", {
+                          maxLength: {
+                            value: 50,
+                            message: "Address should be less than 50 characters",
+                          },
+                        })}
+                        error={errors.address_2?.message}
+                      />
+                    </div>
+                    <div className="relative ">
+                      <FloatingLabelInput
+                        id="zipcode"
+                        label="Zip Code"
+                        {...register("zipcode", {
+                          maxLength: {
+                            value: 15,
+                            message: "Zip code should be less than 15 characters",
+                          },
+                        })}
+                        error={errors.zipcode?.message}
+                      />
+                    </div>
+                    <div className="relative">
+                      <Controller
+                        name={"country_id" as keyof MemberInputTypes}
+                        rules={{ required: "Required" }}
+                        control={control}
+                        render={({
+                          field: { onChange, value, onBlur },
+                          fieldState: { invalid, error },
+                        }) => (
+                          <div className="flex flex-col w-full">
+                            <Popover open={country} onOpenChange={setCountry}>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className={cn(
+                                      "font-normal text-gray-800 border-[1px] justify-between hover:bg-transparent hover:text-gray-800",
+                                      !value && "  focus:border-primary "
+                                    )}
+                                  >
+                                    {value
+                                      ? countries?.find(
+                                        (country: CountryTypes) =>
+                                          country.id === value // Compare with numeric value
+                                      )?.country // Display country name if selected
+                                      : "Select country*"}
+                                    <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="p-0  ">
+                                <Command>
+                                  <CommandList>
+                                    <CommandInput placeholder="Select Country" />
+                                    <CommandEmpty>No country found.</CommandEmpty>
+                                    <CommandGroup className="">
+                                      {countries &&
+                                        countries.map((country: CountryTypes) => (
+                                          <CommandItem
+                                            value={country.country}
+                                            key={country.id}
+                                            onSelect={() => {
+                                              setValue(
+                                                "country_id",
+                                                country.id // Set country_id to country.id as number
+                                              );
+                                              setCountry(false);
+                                            }}
+                                          >
+                                            <Check
+                                              className={cn(
+                                                "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                                country.id == value
+                                                  ? "opacity-100"
+                                                  : "opacity-0"
+                                              )}
+                                            />
+                                            {country.country}
+                                            {/* Display the country name */}
+                                          </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        )}
+                      />
+                      {errors.country_id?.message && (
+                        <span className="text-red-500 text-xs mt-[5px]">
+                          {errors.country_id?.message}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative ">
+                      <FloatingLabelInput
+                        id="city"
+                        label="City"
+                        {...register("city", {
+                          maxLength: {
+                            value: 50,
+                            message: "City should be less than 50 characters",
+                          },
+                        })}
+                        error={errors?.city?.message as keyof MemberInputTypes}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+
+                <div className="space-y-2">
+                  <h1 className="font-semibold text-lg mt-4 text-gray-900">
+                    Membership and Auto Renewal
+                  </h1>
+
+                  <div className="flex gap-2 flex-col">
+                    {membershipPlansdata?.map(
+                      (plan: membership_planids, index: number) => (
+                        <>
+                          {membershipPlansdata?.length > 1 && index > 0 && (
+                            <div className="pt-2">
+                              <Separator />
+                            </div>
                           )}
-                      </div>
-                    </>
-                  )
-                )}
 
-                <div>
-                  <Button
-                    type="button"
-                    onClick={handleAddPlan}
-                    variant={"ghost"}
-                    className="text-primary !hover:bg-none !hover:text-primary"
-                  >
-                    + Assign more Membership
-                  </Button>
+                          <div className="font-medium text-base text-black ">
+                            Membership Plan {index + 1}
+                          </div>
+                          <div className="grid grid-cols-12 gap-3" key={index}>
+                            <div className="relative col-span-4">
+                              <Select
+                                onValueChange={(value) =>
+                                  handleMembershipPlanChange(
+                                    index,
+                                    "membership_plan_id",
+                                    Number(value)
+                                  )
+                                }
+                                value={plan.membership_plan_id?.toString()}
+                              >
+                                <FormControl>
+                                  <SelectTrigger
+                                    className={`font-normal capitalize text-gray-800`}
+                                  >
+                                    <SelectValue placeholder="Select membership plan" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="capitalize max-h-52">
+                                  {membershipPlans && membershipPlans.length > 0 ? (
+                                    membershipPlans.map(
+                                      (sourceval: membeshipsTableType) => (
+                                        <SelectItem
+                                          key={sourceval.id}
+                                          value={sourceval.id?.toString()}
+                                        >
+                                          {sourceval.name}
+                                        </SelectItem>
+                                      )
+                                    )
+                                  ) : (
+                                    <p>No Membership plan found</p>
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="relative col-span-2 flex justify-center items-center gap-2">
+                              <Switch
+                                id="airplane-mode"
+                                checked={plan.auto_renewal}
+                                onCheckedChange={(value) =>
+                                  handleMembershipPlanChange(
+                                    index,
+                                    "auto_renewal",
+                                    value
+                                  )
+                                }
+                                disabled={!plan.membership_plan_id}
+                              />
+                              <Label className="!mt-0">Auto renewal</Label>
+                            </div>
+
+                            {plan.auto_renewal && (
+                              <>
+                                {/* Row for Prolongation Period */}
+                                <div className="relative col-span-6 flex items-center gap-3">
+                                  <Label className="text-base">
+                                    Prolongation period*
+                                  </Label>
+                                  <FloatingLabelInput
+                                    id="prolongation_period"
+                                    type="number"
+                                    min={1}
+                                    max={12}
+                                    className="w-16"
+                                    value={plan.prolongation_period}
+                                    onChange={(e) =>
+                                      handleMembershipPlanChange(
+                                        index,
+                                        "prolongation_period",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
+
+                                {/* Row for Auto Renewal Days */}
+                                <div className="relative col-span-6 flex items-center gap-3">
+                                  <Label className="text-base">
+                                    Auto renewal takes place*
+                                  </Label>
+                                  <FloatingLabelInput
+                                    id="auto_renew_days"
+                                    type="number"
+                                    min={1}
+                                    max={15}
+                                    className="w-16"
+                                    value={plan.auto_renew_days}
+                                    onChange={(e) =>
+                                      handleMembershipPlanChange(
+                                        index,
+                                        "auto_renew_days",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <span className="text-sm text-black/60">
+                                    days before contract runs out.
+                                  </span>
+                                </div>
+
+                                {/* Row for Next Invoice */}
+                                <div className="relative col-span-6 flex items-center gap-3">
+                                  <Label className="text-base pr-4">
+                                    Next invoice will be <br />
+                                    created*
+                                  </Label>
+                                  <FloatingLabelInput
+                                    id="inv_days_cycle"
+                                    type="number"
+                                    min={1}
+                                    max={15}
+                                    className="w-16"
+                                    value={plan.inv_days_cycle}
+                                    onChange={(e) =>
+                                      handleMembershipPlanChange(
+                                        index,
+                                        "inv_days_cycle",
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <span className="text-sm text-black/60">
+                                    days before contract runs out.
+                                  </span>
+                                  {membershipPlansdata?.length && (
+                                    <Button
+                                      type="button"
+                                      className="text-red-500"
+                                      variant={"ghost"}
+                                      onClick={() => handleRemovePlan(index)}
+                                    >
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <i className="fa-solid fa-trash"></i>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            Delete Membership plan
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    </Button>
+                                  )}
+                                </div>
+                              </>
+                            )}
+
+                           
+                          </div>
+                        </>
+                      )
+                    )}
+
+                    <div>
+                      <Button
+                        type="button"
+                        onClick={handleAddPlan}
+                        variant={"ghost"}
+                        className="px-1 font-medium text-primary !hover:bg-none !hover:text-primary"
+                      >
+                        + Assign more Membership
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </SheetDescription>

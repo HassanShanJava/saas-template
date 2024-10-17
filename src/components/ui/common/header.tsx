@@ -130,7 +130,7 @@ const PageTitle = ({
 };
 
 const isActiveLink = (currentPath: string, targetPath: string) =>
-  currentPath === targetPath || currentPath.includes(targetPath);
+  currentPath === targetPath;
 
 export const Header = () => {
   const location = useLocation();

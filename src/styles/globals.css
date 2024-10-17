@@ -153,6 +153,10 @@ input[type="password"]::-ms-clear {
   border-radius: 6px;
 }
 
+.react-international-phone-country-selector-button__flag-emoji{
+  padding-left:4px !important;
+}
+
 /* Styles for the receipt */
 .printable-receipt {
   padding: 20px;

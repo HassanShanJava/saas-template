@@ -46,7 +46,7 @@ import { roundToTwoDecimals } from "@/utils/helper";
 import { useDebounce } from "@/hooks/use-debounce";
 import { ErrorType, MemberTableDatatypes, sellForm, sellItem } from "@/app/types";
 import { has24HoursPassed, useGetRegisterData } from "@/constants/counter_register";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
@@ -61,6 +61,8 @@ interface searchCriteriaType {
 }
 
 const Sell = () => {
+  const { id } = useParams()
+  console.log({ id }, "refunds")
   const { time, isOpen, isContinue, continueDate, sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { time: null, isOpen: false, isContinue: false, continueDate: null, sessionId: null };
   const { userInfo } = useSelector((state: RootState) => state.auth);
   console.log({ userInfo })
@@ -497,6 +499,13 @@ const Sell = () => {
       skip: transactionId == undefined
     })
 
+
+  useEffect(() => {
+    if (Number(id)) {
+      setTransactionId(Number(id))
+    }
+  }, [id])
+
   useEffect(() => {
     if (retriveSaleData) {
       const payload = {
@@ -506,6 +515,13 @@ const Sell = () => {
         staff_name: userInfo?.user.first_name,
         batch_id: sessionId, //register id
       }
+
+      if (Number(id)) {
+        delete payload.id;
+        payload.transaction_type = "Refund";
+        payload.main_transaction_id = Number(id)
+      }
+      setCustomer(memberListData?.find(member => member.id == payload.member_id) as MemberTableDatatypes)
       setProductPayload(retriveSaleData.items as sellItem[])
       reset(payload)
     }
@@ -752,7 +768,7 @@ export function CustomerCombobox({ list, setCustomer, customer, label }: custome
   useEffect(() => {
     if (customer) {
       setValue(`${customer.id}`)
-    }else{
+    } else {
       setValue('')
     }
   }, [customer])

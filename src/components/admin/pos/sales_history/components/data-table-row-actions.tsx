@@ -14,6 +14,7 @@ import {
   statusEnumGrid,
   typeTransactionEnum,
 } from "@/app/types";
+import { useNavigate } from "react-router-dom";
 
 interface DataTableRowActionsProps {
   data?: salesReportInterface;
@@ -30,7 +31,7 @@ export function DataTableRowActions({
 }: DataTableRowActionsProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const receiptRef = useRef<HTMLDivElement | null>(null);
-
+  const navigate = useNavigate()
   const handlePrintInvoice = async () => {
     if (data) {
       // Assuming currentData.response.orders[0] has all the necessary data
@@ -88,7 +89,7 @@ export function DataTableRowActions({
               {data?.transaction_type !== statusEnumGrid.Refund && (
                 <DropdownMenuItem
                   disabled={data?.status !== "Paid"}
-                  onClick={handleEdit ? () => handleEdit(data!) : undefined}
+                  onClick={() => navigate(`/admin/pos/sell/${data?.id}`)}
                 >
                   <i className="fa-solid fa-cash-register mr-2"></i>
                   Refund

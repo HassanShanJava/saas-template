@@ -12,7 +12,7 @@ export const Counter = apiSlice.injectEndpoints({
         return {
             getCounters: builder.query<counterTableType, counterInput>({
                 query: (searchCretiria) => ({
-                    url: `/pos/counter?${searchCretiria.query}`,
+                    url: `/pos/counters?${searchCretiria.query}`,
                     method: "GET",
                     headers: {
                         Accept: "application/json",
@@ -35,7 +35,7 @@ export const Counter = apiSlice.injectEndpoints({
             }),
             createCounters: builder.mutation<any, CreateCounter>({
                 query: (counter) => ({
-                    url: `/pos/counter`,
+                    url: `/pos/counters`,
                     method: "POST",
                     body: counter,
                     headers: {
@@ -46,7 +46,7 @@ export const Counter = apiSlice.injectEndpoints({
             }),
             updateCounters: builder.mutation<any, CreateCounter>({
                 query: (counter) => ({
-                    url: `/pos/counter`,
+                    url: `/pos/counters`,
                     method: "PUT",
                     body: counter,
                     headers: {
@@ -57,7 +57,7 @@ export const Counter = apiSlice.injectEndpoints({
             }),
             deleteCounter: builder.mutation<any, number>({
                 query: (id) => ({
-                    url: `/pos/counter/${id}`,
+                    url: `/pos/counters/${id}`,
                     method: "DELETE",
                     headers: {
                         Accept: "application/json",
@@ -67,7 +67,7 @@ export const Counter = apiSlice.injectEndpoints({
             }),
             getCounterById: builder.query<any, number>({
                 query: (id) => ({
-                    url: `/pos/counter/${id}`,
+                    url: `/pos/counters/${id}`,
                     method: "GET",
                     headers: {
                         Accept: "application/json",

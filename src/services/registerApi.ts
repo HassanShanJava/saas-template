@@ -14,7 +14,7 @@ export const Register = apiSlice.injectEndpoints({
     return {
       getlastRegisterSession: builder.query<counterRegisterSession, number>({
         query: (counter_id) => ({
-          url: `/pos/counter/register/last_session/${counter_id}`,
+          url: `/pos/counters/${counter_id}/last_session`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -56,8 +56,8 @@ export const Register = apiSlice.injectEndpoints({
         RegisterationTableType,
         RegisterQueryInput
       >({
-        query: (SearchCriteria) => ({
-          url: `/pos/counter/register/${SearchCriteria.counter_id}?${SearchCriteria.query}`,
+        query: (searchCriteria) => ({
+          url: `/pos/counters/${searchCriteria.counter_id}/register${searchCriteria.query.length > 0 ? "?" + searchCriteria.query : ""}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -69,14 +69,14 @@ export const Register = apiSlice.injectEndpoints({
         salesReportTableTypes,
         RegisterQueryInput
       >({
-        query: (SearchCriteria) => ({
-          url: `/pos/counter/${SearchCriteria.counter_id}/transactions?${SearchCriteria.query}`,
+        query: (searchCriteria) => ({
+          url: `/pos/counters/${searchCriteria.counter_id}/transactions${searchCriteria.query.length > 0 ? "?" + searchCriteria.query : ""}`,
           method: "GET",
           headers: {
             Accept: "application/json",
           },
         }),
-        providesTags: ["Transaction", "Organization", "Register", "Counter"],
+        providesTags: ["Transaction"],
       }),
     };
   },

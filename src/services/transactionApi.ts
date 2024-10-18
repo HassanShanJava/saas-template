@@ -10,7 +10,7 @@ export const Transaction = apiSlice.injectEndpoints({
     return {
       createTransaction: builder.mutation<any, sellForm>({
         query: (transactionbody) => ({
-          url: `/pos/counter/register/transaction`,
+          url: `/pos/counters/${transactionbody.counter_id}/register/${transactionbody.batch_id}/transaction`,
           method: "POST",
           body: transactionbody,
           headers: {
@@ -21,7 +21,7 @@ export const Transaction = apiSlice.injectEndpoints({
       }),
       getTransaction: builder.query<any, transactionInput>({
         query: (searchCretiria) => ({
-          url: `/pos/counter/${searchCretiria.counter_id}/transactions${searchCretiria.query.length > 0 ? "?" + searchCretiria.query : ""}`,
+          url: `/pos/counters/${searchCretiria.counter_id}/transactions${searchCretiria.query.length > 0 ? "?" + searchCretiria.query : ""}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -29,9 +29,9 @@ export const Transaction = apiSlice.injectEndpoints({
         }),
         providesTags: ["Transaction"],
       }),
-      getTransactionById: builder.query<sellForm, number>({
-        query: (transactionId) => ({
-          url: `/pos/counter/transaction/${transactionId}`,
+      getTransactionById: builder.query<sellForm, { counter_id: number, transaction_id: number }>({
+        query: (payload) => ({
+          url: `/pos/counters/${payload.counter_id}/transaction/${payload.transaction_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

@@ -496,9 +496,11 @@ const Sell = () => {
   }
 
   const [transactionId, setTransactionId] = useState<number | undefined>(undefined)
-  const { data: retriveSaleData } = useGetTransactionByIdQuery(transactionId as number, {
-    skip: transactionId == undefined
-  })
+  const { data: retriveSaleData } = useGetTransactionByIdQuery(
+    { transaction_id: transactionId as number, counter_id: watcher.counter_id },
+    {
+      skip: transactionId == undefined
+    })
 
   useEffect(() => {
     if (retriveSaleData) {

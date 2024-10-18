@@ -30,7 +30,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         data: transactionData,
         refetch: transactionRefetch,
     } = useGetTransactionByIdQuery(
-        invoiceId as number,
+        { transaction_id: invoiceId as number, counter_id: watcher.counter_id },
         {
             skip: invoiceId == null && !printInvoice,
         }

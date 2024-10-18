@@ -52,9 +52,10 @@ import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
 import { useGetIncomeCategorListQuery } from "@/services/incomeCategoryApi";
 import { useGetOrgTaxTypeQuery } from "@/services/organizationApi";
-import { useCreateTransactionMutation, useGetTransactionQuery } from "@/services/transactionApi";
+import { useCreateTransactionMutation, useGetTransactionByIdQuery, useGetTransactionQuery } from "@/services/transactionApi";
 import { v4 as uuidv4 } from "uuid";
 import MemberForm from "../../members/memberForm/form";
+import Checkout from "./checkout";
 interface searchCriteriaType {
   search_key?: string;
 }
@@ -71,8 +72,8 @@ const Sell = () => {
     staff_id: userInfo?.user.id,
     counter_id: counter_number as number, //counter id
     staff_name: userInfo?.user.first_name,
-    discount_amt: undefined,
     batch_id: sessionId, //register id
+    discount_amt: undefined,
     member_id: null,
     member_name: null,
     member_email: null,
@@ -101,8 +102,6 @@ const Sell = () => {
   const [productPayload, setProductPayload] = useState<sellItem[]>([])
   const [showCheckout, setShowCheckout] = useState<boolean>(false)
   const [dayExceeded, setDayExceeded] = useState<boolean>(false)
-  const [retriveSaleCombobox, setRetriveSaleComboboxOpen] = useState<boolean>(false)
-  const [customerComboboxOpen, setCustomerComboboxOpen] = useState<boolean>(false)
   const navigate = useNavigate()
   const form = useForm<sellForm>({
     mode: "all",
@@ -121,7 +120,6 @@ const Sell = () => {
     formState: { isSubmitting, errors },
   } = form;
   const watcher = watch();
-  const [inputCustomerValue, setInputCustomerValue] = useState("")
 
 
   useEffect(() => {
@@ -208,7 +206,6 @@ const Sell = () => {
   const { data: incomeCatData } = useGetIncomeCategorListQuery(orgId);
   const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
   const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId, query: query })
-
   const { data: memberList, refetch: memberRefetch } = useGetAllMemberQuery({ org_id: orgId, query: "sort_key=id&sort_order=desc" })
 
   const [action, setAction] = useState<"add" | "edit">("add")
@@ -285,7 +282,6 @@ const Sell = () => {
       tax_type: orgTaxType?.tax_type as string,
       tax_name: saleTax.name as string,
       total: total,
-
       tax_amount: taxAmount
     };
 
@@ -499,9 +495,27 @@ const Sell = () => {
     }
   }
 
-  const [tranactionId, setTransactionId] = useState<number | undefiend>(undefined)
+  const [transactionId, setTransactionId] = useState<number | undefined>(undefined)
+  const { data: retriveSaleData } = useGetTransactionByIdQuery(transactionId as number, {
+    skip: transactionId == undefined
+  })
 
-  console.log({ watcher, productPayload, memberhsipListData, memberList, customer })
+  useEffect(() => {
+    if (retriveSaleData) {
+      const payload = {
+        ...retriveSaleData,
+        staff_id: userInfo?.user.id,
+        counter_id: counter_number as number, //counter id
+        staff_name: userInfo?.user.first_name,
+        batch_id: sessionId, //register id
+      }
+      setProductPayload(retriveSaleData.items as sellItem[])
+      reset(payload)
+    }
+  }, [retriveSaleData])
+
+
+  console.log({ watcher, productPayload, transactionId })
 
   return (
     <div>
@@ -558,8 +572,7 @@ const Sell = () => {
                         setCustomer={setCustomer}
                         customer={customer}
                         customerList={memberListData}
-                        action={"retrive"}
-                        setAction={setAction}
+                        setTransactionId={setTransactionId}
                       />
                       <Button onClick={parkSale} className="w-full justify-center items-center gap-2">
                         <i className="fa-regular fa-clock"></i>
@@ -573,8 +586,7 @@ const Sell = () => {
                         list={memberListData}
                         setCustomer={setCustomer}
                         customer={customer}
-                        action={"customer"}
-                        setAction={action}
+
                       />
                       <Button onClick={handleOpenForm} className=" text-white justify-center items-center gap-2">
                         <i className="fa-regular fa-plus"></i>
@@ -661,7 +673,16 @@ const Sell = () => {
 
 
           {showCheckout && (
-            <Checkout setShowCheckout={setShowCheckout} productPayload={productPayload} customer={customer} watcher={watcher} />
+            <Checkout
+              initialValues={initialValues}
+              setShowCheckout={setShowCheckout}
+              productPayload={productPayload}
+              setCustomer={setCustomer}
+              setProductPayload={setProductPayload}
+              customer={customer}
+              watcher={watcher}
+            />
+
           )}
 
 
@@ -686,140 +707,6 @@ const Sell = () => {
 };
 
 export default Sell;
-
-
-
-
-
-
-function Checkout({ setShowCheckout, watcher, productPayload, customer }: any) {
-  const {
-    control,
-    formState: { errors },
-    setValue,
-    getValues,
-    register,
-    trigger,
-    watch,
-  } = useFormContext<sellForm>();
-  const [createTransaction] = useCreateTransactionMutation()
-  const placeOrder = async () => {
-    // setShowCheckout(false)
-    try {
-      const resp = await createTransaction(watcher).unwrap();
-      if (resp) {
-        toast({
-          variant: "success",
-          title: "Transaction successful",
-        })
-      }
-    } catch (e) {
-
-    }
-  }
-
-  return (
-
-    <div className=" ">
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div>
-          <h1 className="text-3xl font-bold mb-6">Checkout</h1>
-          <div className="bg-white  p-6 rounded-lg">
-            <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-            <div className="space-y-4">
-              <div className="flex flex-col justify-between items-start">
-                {productPayload.map((product: any) => (
-                  <>
-                    <div className=" flex  justify-between items-center gap-2  p-2 w-full">
-                      <div className="flex-1 ">
-                        <h3 className="text-lg font-medium capitalize">{product.description}</h3>
-                        <p className="text-gray-500 ">Quantity: {product.quantity}</p>
-                      </div>
-
-                      <div className="text-lg font-bold">Rs. {product.price}</div>
-
-                    </div >
-                  </>
-                ))}
-
-
-
-              </div>
-              <Separator />
-              <div className="flex justify-between items-center">
-                <div>Subtotal</div>
-                <div className="font-bold">{roundToTwoDecimals(watcher.subtotal)}</div>
-              </div>
-              <div className="flex justify-between items-center">
-                <div>Discount</div>
-                <div className="font-bold">{watcher.discount_amt > 0 ? "-" : ""} {roundToTwoDecimals(watcher.discount_amt)}</div>
-              </div>
-              <div className="flex justify-between items-center">
-                <div>Tax</div>
-                <div className="font-bold">{roundToTwoDecimals(watcher.tax_amt)}</div>
-              </div>
-              <Separator />
-              <div className="flex justify-between items-center">
-                <div className="text-xl font-bold">Total</div>
-                <div className="text-xl font-bold">{roundToTwoDecimals(watcher.total)}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col justify-between">
-          <div>
-
-            <h2 className="text-2xl font-bold ">Payment</h2>
-
-            <div className="mt-5 h-full flex flex-col  justify-between gap-6">
-              <div>
-                <RadioGroup defaultValue="cash">
-                  <div className="flex items-center space-x-4 mt-4">
-                    <RadioGroupItem value="cash" id="cash" />
-                    <Label htmlFor="cash" className="flex items-center space-x-2">
-                      <span>Cash</span>
-                    </Label>
-                  </div>
-
-                  <div className="flex items-center space-x-4">
-                    <RadioGroupItem value="credit_debit" id="credit_debit" />
-                    <Label htmlFor="credit_debit" className="flex items-center space-x-2">
-                      <span>Credit/Debit Card</span>
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <div>
-                <FloatingLabelInput
-                  id="description"
-                  label="Notes"
-                  type="textarea"
-                  rows={7}
-                  className="custom-scrollbar col-span-2 peer-placeholder-shown:top-[10%]"
-                  {...register("notes", {
-                    maxLength: {
-                      value: 200,
-                      message: "Notes should not exceed 200 characters"
-                    }
-                  })}
-                  error={errors.notes?.message}
-                />
-              </div>
-
-            </div>
-          </div>
-
-          <div className="mt-8 flex justify-end">
-            <Button size="lg" onClick={placeOrder}>Place Order</Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 interface DayExceededProps {
   isOpen: boolean,
@@ -856,6 +743,7 @@ interface customerComboboxTypes {
   list: any[];
   customerList?: MemberTableDatatypes[];
   setCustomer: any;
+  setTransactionId?: any;
   customer: any;
   label?: string
 }
@@ -919,11 +807,11 @@ export function CustomerCombobox({ list, setCustomer, customer, label }: custome
   )
 }
 
-export function RetriveSaleCombobox({ list, setCustomer, customer, label, customerList }: customerComboboxTypes) {
-  const modifiedList = list?.map((item: any) => ({ value: item.member_id, label: item.member_name }))
+export function RetriveSaleCombobox({ list, setCustomer, customer, label, customerList, setTransactionId }: customerComboboxTypes) {
+  const modifiedList = list?.map((item: any) => ({ transactionId: item.id, value: item.member_id, label: item.member_name }))
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-  console.log({ value, customer }, "retrived")
+  console.log({ value, customer, modifiedList }, "retrived")
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild >
@@ -943,24 +831,25 @@ export function RetriveSaleCombobox({ list, setCustomer, customer, label, custom
           <CommandList className="">
             <CommandEmpty>No customer found.</CommandEmpty>
             <CommandGroup className="">
-              {modifiedList?.map((customer: any) => (
+              {modifiedList?.map((modCustomer) => (
                 <CommandItem
-                  key={customer.value + ""}
-                  value={customer.value + ""}
+                  key={modCustomer.value + ""}
+                  value={modCustomer.value + ""}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue)
                     const customer = customerList?.find((item: any) => item.id == currentValue)
                     setCustomer(customer)
+                    setTransactionId(modCustomer.transactionId)
                     setOpen(false)
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === customer.id ? "opacity-100" : "opacity-0"
+                      value === modCustomer.value ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {customer.label}
+                  {modCustomer.label}
                 </CommandItem>
               ))}
             </CommandGroup>

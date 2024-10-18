@@ -10,30 +10,121 @@ import { roundToTwoDecimals } from "@/utils/helper";
 import { ErrorType, sellForm } from "@/app/types";
 import { toast } from "@/components/ui/use-toast";
 import { useFormContext } from "react-hook-form";
-import { useCreateTransactionMutation } from "@/services/transactionApi";
+import { useCreateTransactionMutation, useGetTransactionByIdQuery } from "@/services/transactionApi";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { ReceiptExport } from "../sales_history/components/receipt-component";
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+import { resetBackPageCount } from "@/features/counter/counterSlice";
 
-export default function Checkout({ setShowCheckout, watcher, productPayload, customer }: any) {
+interface paymentItem {
+    payment_method_id: number;
+    payment_method: string;
+    amount: number;
+}
+export default function Checkout({ setShowCheckout, watcher, productPayload, customer, initialValues, setProductPayload, setCustomer }: any) {
+    const [invoiceId, setInvoiceId] = useState<number | null>(null)
+    const [printInvoice, setPrintInvoice] = useState<boolean>(false)
+    const {
+        data: transactionData,
+        refetch: transactionRefetch,
+    } = useGetTransactionByIdQuery(
+        invoiceId as number,
+        {
+            skip: invoiceId == null && !printInvoice,
+        }
+    );
+
+    const handlePrintInvoice = async () => {
+        setPrintInvoice(true)
+        if (transactionData) {
+            // Assuming currentData.response.orders[0] has all the necessary data
+            const invoiceData = transactionData;
+            const htmlContent = await ReceiptExport(invoiceData); // Get the HTML content
+
+            // Create an invisible iframe
+            const iframe = document.createElement("iframe");
+            iframe.style.position = "absolute";
+            iframe.style.width = "0px";
+            iframe.style.height = "0px";
+            iframe.style.border = "none";
+
+            // Append the iframe to the body
+            document.body.appendChild(iframe);
+
+            // Write the HTML content to the iframe's document
+            const iframeDoc =
+                iframe.contentWindow?.document || iframe.contentDocument;
+            if (iframeDoc) {
+                iframeDoc.open();
+                iframeDoc.write(htmlContent);
+                iframeDoc.close();
+
+                // Wait until the iframe content is fully loaded
+                iframe.onload = () => {
+                    // Trigger print
+                    iframe.contentWindow?.focus();
+                    iframe.contentWindow?.print();
+
+                    // Remove the iframe after printing
+                    setTimeout(() => {
+                        document.body.removeChild(iframe);
+                    }, 1000);
+                };
+            }
+        }
+        setPrintInvoice(false)
+    };
+
+    const [payments, setPayments] = useState<paymentItem[]>([])
+    const [selectedMethods, setSelectedMethods] = useState({
+        cash: false,
+        card: false,
+    })
+    const [amounts, setAmounts] = useState({
+        cash: '',
+        card: '',
+    })
+
+    const addPaymentMethod = (method: string, amount: string) => {
+        const numAmount = parseFloat(amount)
+        if (isNaN(numAmount)) return
+
+        setPayments((prevPayments) => [
+            ...prevPayments,
+            {
+                payment_method_id: Math.floor(Math.random() * 9),
+                payment_method: method,
+                amount: numAmount,
+            },
+        ])
+    }
+
     const {
         control,
-        formState: { errors },
+        formState: { errors, isSubmitting },
         setValue,
         getValues,
         register,
         trigger,
         watch,
+        reset,
     } = useFormContext<sellForm>();
+    console.log({ watcher })
     const [createTransaction] = useCreateTransactionMutation()
     const placeOrder = async () => {
-        // setShowCheckout(false)
-        setValue('status', "Paid")
+        const payload = watcher
+        payload.status = "Paid"
+
         try {
-            const resp = await createTransaction(watcher).unwrap();
+            const resp = await createTransaction(payload).unwrap();
             if (resp) {
                 toast({
                     variant: "success",
                     title: "Transaction successful",
                 })
+                setInvoiceId(resp.id)
             }
         } catch (error: unknown) {
             if (error && typeof error === "object" && "data" in error) {
@@ -51,6 +142,23 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                 });
             }
         }
+
+        setSelectedMethods((prev) => ({
+            cash: false,
+            card: false,
+        }))
+        setAmounts((prev) => ({
+            cash: '',
+            card: '',
+        }))
+    }
+
+
+    const handleReset = () => {
+        reset(initialValues as sellForm)
+        setCustomer(undefined)
+        setProductPayload([])
+        setShowCheckout(false)
     }
 
     return (
@@ -113,33 +221,54 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                     <div>
                         <h2 className="text-2xl font-bold ">Payment</h2>
                         <div className="mt-5 h-full flex flex-col   justify-between gap-6">
-                            <div>
-                                <div className="flex gap-2 items-center justify-between">
-
-                                    <div
-                                        className=" w-full flex items-start space-x-3 space-y-0 bg-white p-4"
-                                    >
-                                        <Checkbox
-                                        // checked={true}
-
+                            <div className="space-y-4">
+                                <div className="bg-[#ebe9e9] flex items-center space-x-3 p-4 border rounded">
+                                    <Checkbox
+                                        id="cash"
+                                        checked={selectedMethods.cash}
+                                        onCheckedChange={(checked) =>
+                                            setSelectedMethods((prev) => ({ ...prev, cash: checked === true }))
+                                        }
+                                    />
+                                    <Label htmlFor="cash" className="w-1/2">
+                                        Cash
+                                    </Label>
+                                    {selectedMethods.cash && (
+                                        <Input
+                                            type="number"
+                                            placeholder="Amount"
+                                            value={amounts.cash}
+                                            onChange={(e) => setAmounts((prev) => ({ ...prev, cash: e.target.value }))}
+                                            onBlur={() => addPaymentMethod('cash', amounts.cash)}
+                                            className="w-1/2"
                                         />
-                                        <Label className="font-normal">
-                                            Cash
-                                        </Label>
-                                    </div>
-                                    <div
-                                        className="w-full flex items-start space-x-3 space-y-0 bg-white p-4"
-                                    >
-                                        <Checkbox
-                                        // checked={true}
+                                    )}
+                                </div>
 
+                                <div className="bg-[#ebe9e9] flex items-center space-x-3 p-4 border rounded">
+                                    <Checkbox
+                                        id="card"
+                                        checked={selectedMethods.card}
+                                        onCheckedChange={(checked) =>
+                                            setSelectedMethods((prev) => ({ ...prev, card: checked === true }))
+                                        }
+                                    />
+                                    <Label htmlFor="card" className="w-1/2">
+                                        Credit/ Debit Card
+                                    </Label>
+                                    {selectedMethods.card && (
+                                        <Input
+                                            type="number"
+                                            placeholder="Amount"
+                                            value={amounts.card}
+                                            onChange={(e) => setAmounts((prev) => ({ ...prev, card: e.target.value }))}
+                                            onBlur={() => addPaymentMethod('card', amounts.card)}
+                                            className="w-1/2"
                                         />
-                                        <Label className="font-normal">
-                                            Credit/ Debit Card
-                                        </Label>
-                                    </div>
+                                    )}
                                 </div>
                             </div>
+
 
                             <div>
                                 <FloatingLabelInput
@@ -162,10 +291,32 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                     </div>
 
                     <div className="mt-8 flex justify-end">
-                        <Button size="lg" onClick={placeOrder}>Place Order</Button>
+                        {invoiceId == null ? (
+                            <LoadingButton
+                                loading={isSubmitting}
+                                disabled={isSubmitting}
+                                onClick={placeOrder}>
+
+                                {!isSubmitting && (
+                                    <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                                )}
+                                Place Order
+                            </LoadingButton>
+                        ) : (
+                            <div className="flex justify-end gap-3">
+                                <Button variant={"ghost"} onClick={handleReset}>
+                                    Back
+                                </Button>
+
+                                <Button onClick={handlePrintInvoice}>
+                                    Print Invoice
+                                </Button>
+
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

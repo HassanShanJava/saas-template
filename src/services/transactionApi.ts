@@ -29,7 +29,7 @@ export const Transaction = apiSlice.injectEndpoints({
         }),
         providesTags: ["Transaction"],
       }),
-      getTransactionById: builder.query<transactionInput, number>({
+      getTransactionById: builder.query<sellForm, number>({
         query: (transactionId) => ({
           url: `/pos/counter/transaction/${transactionId}`,
           method: "GET",

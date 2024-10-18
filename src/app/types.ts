@@ -41,7 +41,9 @@ export interface sellForm {
   main_transaction_id?: number | null;
   status?: "Unpaid" | "Paid" | "Partially Paid";
   transaction_type?: "Refund" | "Sale";
+  transaction_date?:Date;
   membership_plans?: sellItem[];
+  items?: sellItem[];
   events?: sellItem[];
   products?: sellItem[];
   payments?: {
@@ -1615,7 +1617,7 @@ export interface salesReportInterface {
   main_transaction_id: number;
   transaction_type: statusEnumGrid;
   status: typeTransactionEnum;
-  transaction_date: string;
+  transaction_date?: Date;
   items?: lineItems[];
   payments?: paymentOptions[];
 }

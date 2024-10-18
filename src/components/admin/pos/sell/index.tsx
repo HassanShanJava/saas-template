@@ -474,7 +474,8 @@ const Sell = () => {
           variant: "success",
           title: "Sale parked successfully",
         })
-
+        setProductPayload([])
+        setCustomer(null)
         transactionRefetch()
       }
     } catch (error: unknown) {
@@ -753,10 +754,12 @@ interface customerComboboxTypes {
 export function CustomerCombobox({ list, setCustomer, customer, label }: customerComboboxTypes) {
   const modifiedList = list?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
   const [open, setOpen] = useState(false)
-  const [value, setValue] = useState("")
+  const [value, setValue] = useState('')
   useEffect(() => {
     if (customer) {
       setValue(`${customer.id}`)
+    }else{
+      setValue('')
     }
   }, [customer])
   console.log({ value, customer }, "customer")

@@ -156,7 +156,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
 
     const handleReset = () => {
         reset(initialValues as sellForm)
-        setCustomer(undefined)
+        setCustomer(null)
         setProductPayload([])
         setShowCheckout(false)
     }

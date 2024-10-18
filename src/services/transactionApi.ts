@@ -10,7 +10,7 @@ export const Transaction = apiSlice.injectEndpoints({
     return {
       createTransaction: builder.mutation<any, sellForm>({
         query: (transactionbody) => ({
-          url: `/pos/counters/${transactionbody.counter_id}/registers/${transactionbody.batch_id}/transaction`,
+          url: `/pos/counters/${transactionbody.counter_id}/registers/${transactionbody.batch_id}/transactions`,
           method: "POST",
           body: transactionbody,
           headers: {
@@ -31,7 +31,7 @@ export const Transaction = apiSlice.injectEndpoints({
       }),
       getTransactionById: builder.query<sellForm, { counter_id: number, transaction_id: number }>({
         query: (payload) => ({
-          url: `/pos/counters/${payload.counter_id}/transaction/${payload.transaction_id}`,
+          url: `/pos/counters/${payload.counter_id}/transactions/${payload.transaction_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

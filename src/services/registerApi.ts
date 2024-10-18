@@ -14,7 +14,7 @@ export const Register = apiSlice.injectEndpoints({
     return {
       getlastRegisterSession: builder.query<counterRegisterSession, number>({
         query: (counter_id) => ({
-          url: `/pos/counters/${counter_id}/last_session`,
+          url: `/pos/counters/${counter_id}/last-session`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -27,7 +27,7 @@ export const Register = apiSlice.injectEndpoints({
         counterRegisterSession
       >({
         query: (registerdata) => ({
-          url: "/pos/counter/register",
+          url: `/pos/counters/${registerdata.counter_id}/registers`,
           method: "POST",
           body: registerdata,
           headers: {
@@ -42,7 +42,7 @@ export const Register = apiSlice.injectEndpoints({
         counterRegisterSession
       >({
         query: (registerdata) => ({
-          url: "/pos/counter/register",
+          url: `/pos/counters/${registerdata.counter_id}/registers/${registerdata.id}`,
           method: "PUT",
           body: registerdata,
           headers: {
@@ -57,7 +57,7 @@ export const Register = apiSlice.injectEndpoints({
         RegisterQueryInput
       >({
         query: (searchCriteria) => ({
-          url: `/pos/counters/${searchCriteria.counter_id}/register${searchCriteria.query.length > 0 ? "?" + searchCriteria.query : ""}`,
+          url: `/pos/counters/${searchCriteria.counter_id}/registers${searchCriteria.query.length > 0 ? "?" + searchCriteria.query : ""}`,
           method: "GET",
           headers: {
             Accept: "application/json",

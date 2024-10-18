@@ -287,6 +287,13 @@ const WorkoutStep2: React.FC = () => {
   const formValues = watch();
 
   function handleAddDay(idx: number, day_name: string) {
+    if (day_name.length === 0) {
+      toast({
+        variant: "destructive",
+        description: "Cannot Add day without a name.",
+      });
+      return;
+    }
     setLoadingState((prevState) => ({
       ...prevState,
       isAdding: true,
@@ -379,6 +386,13 @@ const WorkoutStep2: React.FC = () => {
   }
 
   function handleUpdate(idx: number, id: number, day_name: string) {
+    if (day_name.length === 0) {
+      toast({
+        variant: "destructive",
+        description: "Cannot Update day without a name.",
+      });
+      return;
+    }
     setLoadingState((prevState) => ({
       ...prevState,
       isUpdating: true,
@@ -985,7 +999,7 @@ const WorkoutStep2: React.FC = () => {
               <div className="flex justify-between">
                 <span className="font-semibold">Exercise Details</span>
                 <div className="flex gap-2">
-                  <button
+                  {/* <button
                     className="text-red-500"
                     onClick={(e) => {
                       e.preventDefault();
@@ -996,7 +1010,7 @@ const WorkoutStep2: React.FC = () => {
                     <i
                       className={`fa-solid fa-trash-can ${currExercise === null ? "opacity-50 cursor-not-allowed" : ""}`}
                     ></i>
-                  </button>
+                  </button> */}
 
                   {
                     <LoadingButton

@@ -1351,6 +1351,7 @@ export interface WorkoutPlanView {
   weeks: number;
   members: members[];
   org_id: number;
+  is_published: boolean;
 }
 
 export interface WorkoutPlansTableResponse {

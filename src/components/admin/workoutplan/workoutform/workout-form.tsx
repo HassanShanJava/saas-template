@@ -420,7 +420,7 @@ const WorkoutPlanForm = () => {
   return (
     <Sheet open={true}>
       <SheetContent
-        className="!max-w-full lg:w-[1150px] custom-scrollbar py-0"
+        className="lg:!max-w-[950px] py-0 custom-scrollbar h-full w-[85%] sm:w-full sm:max-w-3xl"
         hideCloseButton
       >
         <SheetHeader className="sticky z-40 top-0 py-4 bg-white">

@@ -52,7 +52,10 @@ const CloseRegister: React.FC = () => {
   const onSubmit: SubmitHandler<CloseRegisterFormInputs> = (data) => {
     setData(data);
     const calculatedDiscrepancy =
-      (counterData?.total_amount as number) - data.closing_balance;
+      Number(counterData?.total_amount) +
+      Number(counterData?.opening_balance) -
+      Number(data.closing_balance);
+
     setDiscrepancy(calculatedDiscrepancy);
     setAlertOpen(true); // Open the alert regardless of the discrepancy value
   };

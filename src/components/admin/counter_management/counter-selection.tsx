@@ -87,7 +87,7 @@ const CounterSelection = () => {
             {!isLoading && (
                 <>
                     {assignedCounterData.length > 1 ? (
-                        <Card className="w-full p-5 space-y-4 max-w-2xl mx-auto">
+                        <Card className="p-5 space-y-4 w-fit mx-auto">
                             <div className='flex justify-between items-center gap-2'>
                                 <p>Please select a counter to start selling</p>
                                 <Link to={"/"} className='text-primary' onClick={() => {

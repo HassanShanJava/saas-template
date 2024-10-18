@@ -12,11 +12,12 @@ import { toast } from "@/components/ui/use-toast";
 import { useFormContext } from "react-hook-form";
 import { useCreateTransactionMutation, useGetTransactionByIdQuery } from "@/services/transactionApi";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { ReceiptExport } from "../sales_history/components/receipt-component";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { resetBackPageCount } from "@/features/counter/counterSlice";
+import { useGetAllEnabledPaymentMethodsQuery } from "@/services/paymentMethodsApi";
 
 interface paymentItem {
     payment_method_id: number;
@@ -26,6 +27,22 @@ interface paymentItem {
 export default function Checkout({ setShowCheckout, watcher, productPayload, customer, initialValues, setProductPayload, setCustomer }: any) {
     const [invoiceId, setInvoiceId] = useState<number | null>(null)
     const [printInvoice, setPrintInvoice] = useState<boolean>(false)
+    const { data: enabledPayments } = useGetAllEnabledPaymentMethodsQuery({})
+    const [payments, setPayments] = useState<paymentItem[]>([])
+    const [selectedMethods, setSelectedMethods] = useState<{ [key: string]: boolean }>({});
+    const [amounts, setAmounts] = useState<{ [key: string]: string }>({});
+
+    const {
+        control,
+        formState: { errors, isSubmitting },
+        setValue,
+        getValues,
+        register,
+        trigger,
+        watch,
+        reset,
+    } = useFormContext<sellForm>();
+
     const {
         data: transactionData,
         refetch: transactionRefetch,
@@ -77,40 +94,42 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         setPrintInvoice(false)
     };
 
-    const [payments, setPayments] = useState<paymentItem[]>([])
-    const [selectedMethods, setSelectedMethods] = useState({
-        cash: false,
-        card: false,
-    })
-    const [amounts, setAmounts] = useState({
-        cash: '',
-        card: '',
-    })
 
-    const addPaymentMethod = (method: string, amount: string) => {
+
+    useEffect(() => {
+        // Initialize selectedMethods and amounts based on the available payment methods.
+        if (enabledPayments) {
+            const initialSelectedMethods: { [key: string]: boolean } = {};
+            const initialAmounts: { [key: string]: string } = {};
+
+            enabledPayments.forEach((method: any) => {
+                initialSelectedMethods[method.code] = false;
+                initialAmounts[method.code] = '';
+            });
+
+            setSelectedMethods(initialSelectedMethods);
+            setAmounts(initialAmounts);
+        }
+    }, [enabledPayments]);
+
+    const addPaymentMethod = (method_code: string, amount: string, id: number) => {
         const numAmount = parseFloat(amount)
         if (isNaN(numAmount)) return
 
-        setPayments((prevPayments) => [
-            ...prevPayments,
-            {
-                payment_method_id: Math.floor(Math.random() * 9),
-                payment_method: method,
-                amount: numAmount,
-            },
-        ])
+        setPayments((prevPayments) => {
+            const payload = [
+                ...prevPayments,
+                {
+                    payment_method_id: id,
+                    payment_method: method_code,
+                    amount: numAmount,
+                },
+            ]
+            setValue("payments", payload)
+            return payload;
+        })
     }
 
-    const {
-        control,
-        formState: { errors, isSubmitting },
-        setValue,
-        getValues,
-        register,
-        trigger,
-        watch,
-        reset,
-    } = useFormContext<sellForm>();
 
     const [createTransaction] = useCreateTransactionMutation()
     const placeOrder = async () => {
@@ -158,14 +177,16 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             }
         }
 
-        setSelectedMethods((prev) => ({
-            cash: false,
-            card: false,
-        }))
-        setAmounts((prev) => ({
-            cash: '',
-            card: '',
-        }))
+        setSelectedMethods((prev) => {
+            const resetMethods = { ...prev };
+            Object.keys(resetMethods).forEach(key => resetMethods[key] = false);
+            return resetMethods;
+        });
+        setAmounts((prev) => {
+            const resetAmounts = { ...prev };
+            Object.keys(resetAmounts).forEach(key => resetAmounts[key] = '');
+            return resetAmounts;
+        });
     }
 
 
@@ -237,51 +258,35 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                         <h2 className="text-2xl font-bold ">Payment</h2>
                         <div className="mt-5 h-full flex flex-col   justify-between gap-6">
                             <div className="space-y-4">
-                                <div className="bg-[#ebe9e9] flex items-center space-x-3 p-4 border rounded">
-                                    <Checkbox
-                                        id="cash"
-                                        checked={selectedMethods.cash}
-                                        onCheckedChange={(checked) =>
-                                            setSelectedMethods((prev) => ({ ...prev, cash: checked === true }))
-                                        }
-                                    />
-                                    <Label htmlFor="cash" className="w-1/2">
-                                        Cash
-                                    </Label>
-                                    {selectedMethods.cash && (
-                                        <Input
-                                            type="number"
-                                            placeholder="Amount"
-                                            value={amounts.cash}
-                                            onChange={(e) => setAmounts((prev) => ({ ...prev, cash: e.target.value }))}
-                                            onBlur={() => addPaymentMethod('cash', amounts.cash)}
-                                            className="w-1/2"
+                                {enabledPayments?.map((method: any) => (
+                                    <div
+                                        key={method.id}
+                                        className="bg-[#ebe9e9] flex items-center space-x-3 p-4 border rounded"
+                                    >
+                                        <Checkbox
+                                            id={method.code}
+                                            checked={selectedMethods[method.code]}
+                                            onCheckedChange={(checked) =>
+                                                setSelectedMethods((prev) => ({ ...prev, [method.code]: checked === true }))
+                                            }
                                         />
-                                    )}
-                                </div>
-
-                                <div className="bg-[#ebe9e9] flex items-center space-x-3 p-4 border rounded">
-                                    <Checkbox
-                                        id="card"
-                                        checked={selectedMethods.card}
-                                        onCheckedChange={(checked) =>
-                                            setSelectedMethods((prev) => ({ ...prev, card: checked === true }))
-                                        }
-                                    />
-                                    <Label htmlFor="card" className="w-1/2">
-                                        Credit/ Debit Card
-                                    </Label>
-                                    {selectedMethods.card && (
-                                        <Input
-                                            type="number"
-                                            placeholder="Amount"
-                                            value={amounts.card}
-                                            onChange={(e) => setAmounts((prev) => ({ ...prev, card: e.target.value }))}
-                                            onBlur={() => addPaymentMethod('card', amounts.card)}
-                                            className="w-1/2"
-                                        />
-                                    )}
-                                </div>
+                                        <Label htmlFor={method.code} className="w-1/2">
+                                            {method.name}
+                                        </Label>
+                                        {selectedMethods[method.code] && (
+                                            <Input
+                                                type="number"
+                                                placeholder="Amount"
+                                                value={amounts[method.code]}
+                                                onChange={(e) =>
+                                                    setAmounts((prev) => ({ ...prev, [method.code]: e.target.value }))
+                                                }
+                                                onBlur={() => addPaymentMethod(method.code, amounts[method.code], method.id)}
+                                                className="w-1/2"
+                                            />
+                                        )}
+                                    </div>
+                                ))}
                             </div>
 
 

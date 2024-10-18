@@ -236,8 +236,8 @@ export default function WorkoutPlansTableView() {
     {
       accessorKey: "Plan name",
       header: () => (
-        <div className="flex items-center gap-2">
-          <span>Plan Name</span>
+        <div className="flex items-center gap-2 !text-nowrap">
+          <span className="!text-nowrap">Plan Name</span>
           <button
             className="text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("plan_name")}
@@ -251,7 +251,7 @@ export default function WorkoutPlansTableView() {
       cell: ({ row }) => {
         console.log("row", row);
         return (
-          <div className="flex px-2 w-fit">
+          <div className="flex px-2 text-nowrap">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -424,7 +424,7 @@ export default function WorkoutPlansTableView() {
       accessorKey: "is_published",
       header: () => (
         <div className="flex items-center gap-2">
-          <p>Published</p>
+          <p>Status</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("is_published")}
@@ -559,7 +559,7 @@ export default function WorkoutPlansTableView() {
     {
       type: "select",
       name: "is_published",
-      label: "Published",
+      label: "Status",
       options: [
         { id: "true", name: "Published" },
         { id: "false", name: "Unpublished" },

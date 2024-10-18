@@ -48,6 +48,7 @@ import { Filter, PlusIcon, Search } from "lucide-react";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Button } from "@/components/ui/button";
+import HardwareIntegrationForm from "../hardware_integrationForm/hardware_integration";
 
 interface searchCretiriaType {
   limit: number;
@@ -81,6 +82,7 @@ export default function HardwareIntegrationTable() {
   const [filterData, setFilter] = useState<Record<string, any>>({});
   const [action, setAction] = useState<"add" | "edit">("add");
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [data, setData] = useState<any | undefined>(undefined);
 
   function handleRoute() {
     setAction("add");
@@ -513,6 +515,14 @@ export default function HardwareIntegrationTable() {
         setFilter={setFilter}
         setSearchCriteria={setSearchCriteria}
         filterDisplay={filterDisplay}
+      />
+      <HardwareIntegrationForm
+        isOpen={isDialogOpen}
+        setOpen={setIsDialogOpen}
+        action={action}
+        setAction={setAction}
+        data={data}
+        refetch={() => console.log("Hello")}
       />
     </div>
   );

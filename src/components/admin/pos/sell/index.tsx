@@ -56,6 +56,7 @@ import { useCreateTransactionMutation, useGetTransactionByIdQuery, useGetTransac
 import { v4 as uuidv4 } from "uuid";
 import MemberForm from "../../members/memberForm/form";
 import Checkout from "./checkout";
+import { NumericKeys } from "node_modules/react-hook-form/dist/types/path/common";
 interface searchCriteriaType {
   search_key?: string;
 }
@@ -117,6 +118,14 @@ const Sell = () => {
   } = form;
   const watcher = watch();
 
+  useEffect(() => {
+    if (!id) {
+      reset(initialValues as sellForm)
+      setCustomer(null)
+      setProductPayload([])
+      setShowCheckout(false)
+    }
+  }, [id])
 
   useEffect(() => {
     const now = new Date();
@@ -629,11 +638,12 @@ const Sell = () => {
                                 className=" border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-0 select-none">
                                 {product.quantity}
                               </div>
-                              <div
+                              <button
+                                disabled={Number(id) ? true : false}
                                 onClick={() => updateProductQuantity(product.item_id, "increment")}
-                                className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                                className="disabled:cursor-not-allowed disabled:hover:bg-transparent bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
                                 <i className="fa fa-plus"></i>
-                              </div>
+                              </button>
                             </div>
 
 
@@ -668,7 +678,7 @@ const Sell = () => {
                       </div>
                       <div className="w-full flex gap-2 items-center justify-between font-bold">
                         <p>Total</p>
-                        <p>Rs. {watcher.total}</p> {/* Display Total */}
+                        <p>Rs. {id && "-"} {watcher.total}</p> {/* Display Total */}
                       </div>
                       <Button className="w-full bg-primary text-black rounded-sm" onClick={paymentCheckout}>
                         Pay

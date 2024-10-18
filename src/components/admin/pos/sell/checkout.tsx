@@ -18,6 +18,7 @@ import { ReceiptExport } from "../sales_history/components/receipt-component";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { resetBackPageCount } from "@/features/counter/counterSlice";
 import { useGetAllEnabledPaymentMethodsQuery } from "@/services/paymentMethodsApi";
+import { useParams } from "react-router-dom";
 
 interface paymentItem {
     payment_method_id: number;
@@ -25,6 +26,7 @@ interface paymentItem {
     amount: number;
 }
 export default function Checkout({ setShowCheckout, watcher, productPayload, customer, initialValues, setProductPayload, setCustomer }: any) {
+    const { id } = useParams()
     const [invoiceId, setInvoiceId] = useState<number | null>(null)
     const [printInvoice, setPrintInvoice] = useState<boolean>(false)
     const { data: enabledPayments } = useGetAllEnabledPaymentMethodsQuery({})
@@ -247,7 +249,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                             <Separator />
                             <div className="flex justify-between items-center">
                                 <div className="text-xl font-bold">Total</div>
-                                <div className="text-xl font-bold">{roundToTwoDecimals(watcher.total)}</div>
+                                <div className="text-xl font-bold">{id&&"- "}{roundToTwoDecimals(watcher.total)}</div>
                             </div>
                         </div>
                     </div>

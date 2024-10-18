@@ -111,13 +111,28 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         watch,
         reset,
     } = useFormContext<sellForm>();
-    console.log({ watcher })
+
     const [createTransaction] = useCreateTransactionMutation()
     const placeOrder = async () => {
-        const payload = watcher
-        payload.status = "Paid"
+        if (watcher.payments.length == 0) {
+            toast({
+                variant: "destructive",
+                title: "Please add at least one payment method and amount",
+            })
+            return;
+        }
+
+        if (watcher.payments.some((item: paymentItem) => item.amount == undefined)) {
+            toast({
+                variant: "destructive",
+                title: "Please enter the amount",
+            })
+            return;
+        }
 
         try {
+            const payload = watcher
+            payload.status = "Paid"
             const resp = await createTransaction(payload).unwrap();
             if (resp) {
                 toast({

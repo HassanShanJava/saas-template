@@ -90,13 +90,7 @@ const Sell = () => {
     membership_plans: [],
     events: [],
     products: [],
-    payments: [
-      {
-        payment_method_id: 1,
-        payment_method: "Cash",
-        amount: 1500,
-      },
-    ],
+    payments: [],
   }
   const { data: orgTaxType } = useGetOrgTaxTypeQuery(orgId)
   const [productPayload, setProductPayload] = useState<sellItem[]>([])

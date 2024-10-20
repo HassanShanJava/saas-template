@@ -57,6 +57,10 @@ import {
 import { cn } from "@/lib/utils";
 import { initialValue } from "@/utils/helper";
 import CustomCollapsible from "@/components/ui/collapsibleCard/collapsible-card";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { useGetCreditsQuery } from "@/services/creditsApi";
 interface HarwareIntegrationForm {
   isOpen: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -77,7 +81,11 @@ const HardwareIntegrationForm = ({
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { toast } = useToast();
-
+  const {
+    data: facilitiesData,
+    isLoading,
+    refetch: refetchforcredits,
+  } = useGetCreditsQuery({ org_id: orgId, query: "" });
   const form = useForm<any>({
     mode: "all",
     // defaultValues: initialValue,
@@ -179,40 +187,407 @@ const HardwareIntegrationForm = ({
                 </SheetTitle>
               </SheetHeader>
               <div className="h-[100%] mt-6 flex flex-col justify-center items-center gap-4 ">
-                <div className="h-[30%] w-[95%] rounded-md bg-green-200">
-                  <CustomCollapsible title="Section 1">
-                    <p>
-                      This is the content of Section 1. It can include any JSX.
-                    </p>
+                <div className="h-[30%] w-[95%] rounded-md bg-white">
+                  <CustomCollapsible title="Hardware Details">
+                    <div className="flex flex-row gap-5 justify-start items-center">
+                      {/* Name Field */}
+                      <div className="w-[30%]">
+                        <p className="text-base font-semibold">
+                          Name <span className="text-red-500">*</span>
+                        </p>
+                        <Controller
+                          control={control}
+                          name="name"
+                          rules={{
+                            required: "Name is required",
+                            maxLength: {
+                              value: 40,
+                              message: "Name cannot exceed 40 characters",
+                            },
+                          }}
+                          render={({ field }) => (
+                            <Input
+                              className="w-full"
+                              placeholder="Enter Name"
+                              {...field}
+                            />
+                          )}
+                        />
+                        {errors.name?.message && (
+                          <p className="text-red-500">
+                            {errors.name.message.toString()}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Connection Key Field */}
+                      <div className="w-[45%]">
+                        <p className="text-base font-semibold">
+                          Connection Key <span className="text-red-500">*</span>
+                        </p>
+                        <Controller
+                          control={control}
+                          name="connectionKey"
+                          rules={{
+                            required: "Connection Key is required",
+                            maxLength: {
+                              value: 100,
+                              message:
+                                "Connection Key cannot exceed 100 characters",
+                            },
+                          }}
+                          render={({ field }) => (
+                            <div className="w-full gap-5 flex flex-row justify-center items-center">
+                              <Input
+                                className="w-full"
+                                placeholder="Enter Connection Key"
+                                {...field}
+                              />
+                              <Controller
+                                control={control}
+                                name="facilty_select"
+                                render={({ field }) => (
+                                  <div className="flex gap-2 h-full">
+                                    <Switch
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />
+                                    <span className="text-nowrap">
+                                      use Facility
+                                    </span>
+                                  </div>
+                                )}
+                              />
+                            </div>
+                          )}
+                        />
+
+                        {errors.connectionKey?.message && (
+                          <p className="text-red-500">
+                            {errors.connectionKey.message.toString()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-3 flex flex-row gap-3">
+                      <div className="w-[50%]">
+                        <div>
+                          <p className="text-base font-semibold">Description</p>
+                        </div>
+                        <Controller
+                          control={control}
+                          name="description"
+                          rules={{
+                            maxLength: {
+                              value: 200,
+                              message:
+                                "Description cannot exceed 200 characters",
+                            },
+                          }}
+                          render={({ field }) => (
+                            <Textarea
+                              placeholder="Type your Description here"
+                              className="resize-none"
+                              {...field}
+                            />
+                          )}
+                        />
+                      </div>
+                      <div className="w-[30%]">
+                        <Controller
+                          name="facility"
+                          rules={{ required: "Facility is required" }}
+                          control={control}
+                          render={({
+                            field: { onChange, value },
+                            fieldState: { error },
+                          }) => (
+                            <>
+                              <div>
+                                <div>
+                                  <p className="text-base font-semibold">
+                                    Facility{" "}
+                                    <span className="text-red-500">*</span>
+                                  </p>
+                                </div>
+                                <Select
+                                  onValueChange={(value) => onChange(value)}
+                                  defaultValue={
+                                    value ? value.toString() : undefined
+                                  }
+                                  disabled={watcher.facilty_select === false}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select Facility" />
+                                  </SelectTrigger>
+
+                                  <SelectContent>
+                                    {facilitiesData?.data?.map(
+                                      (facility: {
+                                        id: number;
+                                        name: string;
+                                      }) => (
+                                        <SelectItem
+                                          key={facility.id}
+                                          value={String(facility.id)}
+                                        >
+                                          {facility.name}
+                                        </SelectItem>
+                                      )
+                                    )}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              {error && (
+                                <span className="text-red-500 text-xs mt-[5px]">
+                                  {error.message}
+                                </span>
+                              )}
+                            </>
+                          )}
+                        />
+                      </div>
+                    </div>
                   </CustomCollapsible>
                 </div>
-                <div className="h-[30%] w-[95%] rounded-md bg-green-200">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Card Title</CardTitle>
-                      <CardDescription>Card Description</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p>Card Content</p>
-                    </CardContent>
-                    <CardFooter>
-                      <p>Card Footer</p>
-                    </CardFooter>
-                  </Card>
+                <div className="h-[30%] w-[95%] rounded-md bg-white">
+                  <CustomCollapsible title="Show Information">
+                    <div className="flex flex-col gap-5">
+                      <div className="shadow-sm rounded-md p-4 border flex flex-col justify-between items-center">
+                        <div className="flex flex-row justify-between items-center w-full">
+                          {" "}
+                          <span>Show remaining credits</span>
+                          <Controller
+                            control={control}
+                            name="credit_name"
+                            render={({ field }) => (
+                              <div className="flex gap-2 h-full">
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </div>
+                            )}
+                          />
+                        </div>
+                        {watcher.credit_name && (
+                          <div className="w-full mt-3">
+                            <div className="flex justify-start items-center gap-3 ">
+                              <span className="text-nowrap">
+                                when member has less than
+                              </span>
+                              <Controller
+                                control={control}
+                                name="credits_less"
+                                disabled={watcher.less_credits === false}
+                                rules={{
+                                  required: "Name is required",
+                                  maxLength: {
+                                    value: 40,
+                                    message: "Name cannot exceed 40 characters",
+                                  },
+                                }}
+                                render={({ field }) => (
+                                  <Input className="w-[20%]" {...field} />
+                                )}
+                              />
+                              {errors.name?.message && (
+                                <p className="text-red-500">
+                                  {errors.name.message.toString()}
+                                </p>
+                              )}
+                              credits left
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
+                        <span>Show outstanding invoices</span>
+                        <Controller
+                          control={control}
+                          name="outstanding_invoice"
+                          render={({ field }) => (
+                            <div className="flex gap-2 h-full">
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </div>
+                          )}
+                        />
+                      </div>
+                      <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
+                        <span>Show end of contract</span>
+                        <Controller
+                          control={control}
+                          name="end_of_contract"
+                          render={({ field }) => (
+                            <div className="flex gap-2 h-full">
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </div>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </CustomCollapsible>
                 </div>
-                <div className="h-[30%] w-[95%] rounded-md bg-green-200">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Card Title</CardTitle>
-                      <CardDescription>Card Description</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p>Card Content</p>
-                    </CardContent>
-                    <CardFooter>
-                      <p>Card Footer</p>
-                    </CardFooter>
-                  </Card>
+                <div className="h-[30%] w-[95%] rounded-md bg-white">
+                  <CustomCollapsible title="Access Control">
+                    <div className="flex flex-col gap-5">
+                      <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
+                        <span>Member has no active membership</span>
+                        <Controller
+                          control={control}
+                          name="active_membership"
+                          render={({ field }) => (
+                            <div className="flex gap-2 h-full">
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </div>
+                          )}
+                        />
+                      </div>
+                      <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
+                        <span>Member does not have required credits</span>
+                        <Controller
+                          control={control}
+                          name="required_credits"
+                          render={({ field }) => (
+                            <div className="flex gap-2 h-full">
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </div>
+                          )}
+                        />
+                      </div>
+                      <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
+                        <div className="flex justify-start items-center gap-3 ">
+                          <span className="text-nowrap">Member has </span>
+                          <Controller
+                            control={control}
+                            name="credits_less"
+                            disabled={watcher.less_credits === false}
+                            rules={{
+                              required: "Name is required",
+                              maxLength: {
+                                value: 40,
+                                message: "Name cannot exceed 40 characters",
+                              },
+                            }}
+                            render={({ field }) => (
+                              <Input className="w-[20%]" {...field} />
+                            )}
+                          />
+                          {errors.name?.message && (
+                            <p className="text-red-500">
+                              {errors.name.message.toString()}
+                            </p>
+                          )}
+                          credits or less
+                        </div>
+                        <Controller
+                          control={control}
+                          name="less_credits"
+                          render={({ field }) => (
+                            <div className="flex gap-2 h-full">
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </div>
+                          )}
+                        />
+                      </div>
+                      <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
+                        <div className="flex justify-start items-center gap-3 ">
+                          <span className="text-nowrap">
+                            Member has outstanding invoices older than{" "}
+                          </span>
+                          <Controller
+                            control={control}
+                            name="older_than"
+                            disabled={watcher.old_invoice === false}
+                            rules={{
+                              required: "Name is required",
+                              maxLength: {
+                                value: 40,
+                                message: "Name cannot exceed 40 characters",
+                              },
+                            }}
+                            render={({ field }) => (
+                              <Input className="w-[20%]" {...field} />
+                            )}
+                          />
+                          {errors.name?.message && (
+                            <p className="text-red-500">
+                              {errors.name.message.toString()}
+                            </p>
+                          )}
+                          days
+                        </div>
+                        <Controller
+                          control={control}
+                          name="old_invoice"
+                          render={({ field }) => (
+                            <div className="flex gap-2 h-full">
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </div>
+                          )}
+                        />
+                      </div>
+                      <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
+                        <div className="flex justify-start items-center gap-3 ">
+                          <span className="text-nowrap">
+                            Member has membership that ends in less than{" "}
+                          </span>
+                          <Controller
+                            control={control}
+                            name="membershipless"
+                            disabled={watcher.less_than === false}
+                            rules={{
+                              required: "Name is required",
+                              maxLength: {
+                                value: 40,
+                                message: "Name cannot exceed 40 characters",
+                              },
+                            }}
+                            render={({ field }) => (
+                              <Input className="w-[20%]" {...field} />
+                            )}
+                          />
+                          {errors.name?.message && (
+                            <p className="text-red-500">
+                              {errors.name.message.toString()}
+                            </p>
+                          )}
+                          days
+                        </div>
+                        <Controller
+                          control={control}
+                          name="less_than"
+                          render={({ field }) => (
+                            <div className="flex gap-2 h-full">
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </div>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </CustomCollapsible>
                 </div>
               </div>
             </form>

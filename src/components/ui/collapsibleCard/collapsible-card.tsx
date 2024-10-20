@@ -6,17 +6,20 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import clsx from "clsx";
 
 interface CustomCollapsibleProps {
   title: string;
   children: React.ReactNode;
   isOpenDefault?: boolean;
+  className?: string;
 }
 
 export default function CustomCollapsible({
   title,
   children,
   isOpenDefault = true,
+  className,
 }: CustomCollapsibleProps) {
   const [isOpen, setIsOpen] = React.useState<boolean>(isOpenDefault);
 
@@ -25,10 +28,14 @@ export default function CustomCollapsible({
   };
 
   return (
-    <Collapsible open={isOpen} onOpenChange={toggleCollapsible}>
-      <div className="border rounded-md p-4">
+    <Collapsible
+      open={isOpen}
+      onOpenChange={toggleCollapsible}
+      className={clsx("w-full", className)} // Merge custom className with default styles
+    >
+      <div className="shadow-sm rounded-xl p-4 w-full">
         <div className="flex items-center justify-between pb-2">
-          <h3 className="text-lg font-semibold">{title}</h3>
+          <h3 className="text-lg font-semibold border-b w-full">{title}</h3>
           <CollapsibleTrigger asChild>
             <Button variant="ghost" size="sm" className="w-9 p-0">
               {isOpen ? (

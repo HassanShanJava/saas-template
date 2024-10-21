@@ -136,13 +136,7 @@ const DashboardLayout: React.FC = () => {
   };
 
   const closePOSPanel = () => {
-    if (isOpen) {
-      toast({
-        variant: "destructive",
-        title: "Cannot close counter while register is open",
-      })
-      return;
-    }
+
 
 
     closeCounter()
@@ -189,13 +183,6 @@ const DashboardLayout: React.FC = () => {
             <div
               className="flex items-center gap-2 font-semibold cursor-pointer"
               onClick={() => {
-                if (isOpen) {
-                  toast({
-                    variant: "destructive",
-                    title: "Cannot close counter while register is open",
-                  })
-                  return;
-                }
                 dispatch(setCode(null));
                 dispatch(setCounter(null));
                 dispatch(resetBackPageCount());

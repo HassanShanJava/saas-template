@@ -158,8 +158,8 @@ const ResetPassword = () => {
                     <div>
                       <img
                         src={logomainsvg}
-                        height={110}
-                        width={100}
+                        height={70}
+                        width={70}  
                         alt="Main logo"
                       />
                     </div>
@@ -278,8 +278,8 @@ const ResetPassword = () => {
                     <div>
                       <img
                         src={logomainsvg}
-                        height={110}
-                        width={100}
+                        height={70}
+                        width={70}
                         alt="Main logo"
                       />
                     </div>

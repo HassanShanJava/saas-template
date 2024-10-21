@@ -33,7 +33,7 @@ export default function CustomCollapsible({
       onOpenChange={toggleCollapsible}
       className={clsx("w-full", className)} // Merge custom className with default styles
     >
-      <div className="shadow-sm rounded-xl p-4 w-full">
+      <div className="shadow-sm rounded-2xl p-4 w-full">
         <div className="flex items-center justify-between pb-2">
           <h3 className="text-lg font-semibold border-b w-full">{title}</h3>
           <CollapsibleTrigger asChild>

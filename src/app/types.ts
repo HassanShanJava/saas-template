@@ -1639,3 +1639,30 @@ export interface hardwareIntegrationTableTypes {
   total_counts: number;
   filtered_counts: number;
 }
+
+export interface hardwareIntegrationInput {
+  // Hardware Details
+  name: string;
+  connection_key: string;
+  description?: string;
+  use_facility: boolean;
+  facility?: number;
+
+  // Basic of show information
+  remaining_credits: boolean;
+  remaining_credits_number?: number;
+  outstanding_invoice: boolean;
+  remaining_invoice_number?: number;
+  end_contract: boolean;
+  show_end_contract?: number;
+
+  //Access control
+  active_membership: boolean;
+  no_required_credits: boolean;
+  less_credits: boolean;
+  less_credits_number?: number;
+  older_outstanding_invoice: boolean;
+  older_outstanding_invoice_number?: number;
+  expire_membership: boolean;
+  expire_in_days?: number;
+}

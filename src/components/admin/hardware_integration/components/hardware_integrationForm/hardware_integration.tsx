@@ -187,12 +187,12 @@ const HardwareIntegrationForm = ({
                 </SheetTitle>
               </SheetHeader>
               <div className="h-[100%] mt-6 flex flex-col justify-center items-center gap-4 ">
-                <div className="h-[30%] w-[95%] rounded-md bg-white">
+                <div className="h-[30%] w-[95%] rounded-2xl bg-white">
                   <CustomCollapsible title="Hardware Details">
                     <div className="flex flex-row gap-5 justify-start items-center">
                       {/* Name Field */}
                       <div className="w-[30%]">
-                        <p className="text-base font-semibold">
+                        <p className="text-base font-normal">
                           Name <span className="text-red-500">*</span>
                         </p>
                         <Controller
@@ -214,7 +214,7 @@ const HardwareIntegrationForm = ({
                           )}
                         />
                         {errors.name?.message && (
-                          <p className="text-red-500">
+                          <p className="text-red-500 text-xs mt-[5px] ">
                             {errors.name.message.toString()}
                           </p>
                         )}
@@ -222,7 +222,7 @@ const HardwareIntegrationForm = ({
 
                       {/* Connection Key Field */}
                       <div className="w-[45%]">
-                        <p className="text-base font-semibold">
+                        <p className="text-base font-normal">
                           Connection Key <span className="text-red-500">*</span>
                         </p>
                         <Controller
@@ -253,7 +253,7 @@ const HardwareIntegrationForm = ({
                                       onCheckedChange={field.onChange}
                                     />
                                     <span className="text-nowrap">
-                                      use Facility
+                                      Use Facility
                                     </span>
                                   </div>
                                 )}
@@ -263,7 +263,7 @@ const HardwareIntegrationForm = ({
                         />
 
                         {errors.connectionKey?.message && (
-                          <p className="text-red-500">
+                          <p className=" text-red-500 text-xs mt-[5px]">
                             {errors.connectionKey.message.toString()}
                           </p>
                         )}
@@ -272,7 +272,7 @@ const HardwareIntegrationForm = ({
                     <div className="mt-3 flex flex-row gap-3">
                       <div className="w-[50%]">
                         <div>
-                          <p className="text-base font-semibold">Description</p>
+                          <p className="text-base font-normal">Description</p>
                         </div>
                         <Controller
                           control={control}
@@ -305,9 +305,11 @@ const HardwareIntegrationForm = ({
                             <>
                               <div>
                                 <div>
-                                  <p className="text-base font-semibold">
+                                  <p className="text-base font-normal">
                                     Facility{" "}
-                                    <span className="text-red-500">*</span>
+                                    {watcher.facilty_select && (
+                                      <span className="text-red-500">*</span>
+                                    )}
                                   </p>
                                 </div>
                                 <Select
@@ -351,8 +353,11 @@ const HardwareIntegrationForm = ({
                     </div>
                   </CustomCollapsible>
                 </div>
-                <div className="h-[30%] w-[95%] rounded-md bg-white">
-                  <CustomCollapsible title="Show Information">
+                <div className="h-[30%] w-[95%] rounded-2xl bg-white">
+                  <CustomCollapsible
+                    title="Show Information"
+                    isOpenDefault={false}
+                  >
                     <div className="flex flex-col gap-5">
                       <div className="shadow-sm rounded-md p-4 border flex flex-col justify-between items-center">
                         <div className="flex flex-row justify-between items-center w-full">
@@ -435,8 +440,11 @@ const HardwareIntegrationForm = ({
                     </div>
                   </CustomCollapsible>
                 </div>
-                <div className="h-[30%] w-[95%] rounded-md bg-white">
-                  <CustomCollapsible title="Access Control">
+                <div className="h-[30%] w-[95%] rounded-2xl bg-white">
+                  <CustomCollapsible
+                    title="Access Control"
+                    isOpenDefault={false}
+                  >
                     <div className="flex flex-col gap-5">
                       <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
                         <span>Member has no active membership</span>

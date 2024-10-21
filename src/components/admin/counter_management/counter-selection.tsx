@@ -21,12 +21,12 @@ const CounterSelection = () => {
         return Array.isArray(assignedCounter?.data) ? assignedCounter?.data : [];
     }, [assignedCounter]);
 
-    const [assignCounter, { isLoading: isUpdating }] = useUpdateCountersMutation()
+    const [assignCounter, { isLoading: isUpdating, isError }] = useUpdateCountersMutation()
 
     const assignSingleCounter = async (counter: counterDataType, toastMsg?: string) => {
-        if ((counter.staff && counter.staff.length === 1)) {
+        if ((counter.staff)) {
             // staff array
-            const singleCounter = counter.staff[0];
+            const singleCounter = counter.staff.length === 1 ? counter.staff[0] : counter.staff_id == userInfo?.user.id;
             console.log({ singleCounter }, "assignedCounter.data");
 
             try {
@@ -75,18 +75,18 @@ const CounterSelection = () => {
         if (counter_number == null && assignedCounterData?.length === 1) {
             assignSingleCounter(assignedCounterData[0], "Counter Opened Successfully");
         } else if (assignedCounterData?.length > 0 && assignedCounterData.some((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)) {
-            console.log("already opened counter", { counter_number })
             const findOpenedCounter = assignedCounterData.find((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)
+            console.log("already opened counter", { assignedCounterData,counter_number, findOpenedCounter })
             assignSingleCounter(findOpenedCounter as counterDataType, "Counter Already Open");
         }
     }, [assignedCounterData, assignCounter, dispatch, navigate, userInfo]);
 
-    console.log({ assignedCounterData })
+    console.log({ assignedCounterData, isError })
     return (
         <div className='min-h-screen bg-outletcolor p-5'>
             {!isLoading && (
                 <>
-                    {assignedCounterData.length > 1 ? (
+                    {assignedCounterData.length >= 1 ? (
                         <Card className="p-5 space-y-4 w-fit mx-auto">
                             <div className='flex justify-between items-center gap-2'>
                                 <p>Please select a counter to start selling</p>
@@ -138,7 +138,7 @@ const CounterSelection = () => {
                 </>
             )}
 
-            {(assignedCounterData.length === 1 || assignedCounterData.some((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)) && (
+            {(assignedCounterData.length === 1) && !isError && (
                 <div className="fixed top-0 left-0 z-40 w-full h-screen flex justify-center items-center bg-black/40">
                     <i className="animate-spin text-primary text-3xl font-bold text-main fas fa-spinner"></i>
                 </div>

@@ -16,6 +16,10 @@ export default {
       colors: {
         // outletcolor: "hsl((--bg-outlet-background))",
         outletcolor: "#F7F7F7",
+        lightprimary:"#EEFFEE",
+        lightprimaryborder:"#77DD77",
+        lightwarning:"#FFE0E0",
+        lightwarningborder:"#FF8D8C",
         // tableheader: "hsl((--table-header-color))",
         tableheader: "#F5F5F5",
         hoverprimary: "#E4FFE4",

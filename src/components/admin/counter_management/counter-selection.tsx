@@ -101,9 +101,9 @@ const CounterSelection = () => {
                                         key={i}
                                         onClick={() => assignSingleCounter(item, "Counter Opened Successfully")}
                                         className={`relative 
-                                            ${item.is_open && item.staff_id !== userInfo?.user.id && "bg-[#FFE0E0] border border-[#FF8D8C]"}
-                                            ${item.is_open && item.staff_id == userInfo?.user.id && "bg-[#EEFFEE] border border-[#77DD77]"}
-                                             cursor-pointer rounded-md size-52 flex flex-col justify-center items-center bg-outletcolor ${item.is_open ? "bg-black/10 cursor-not-allowed" : ""
+                                            ${item.is_open && item.staff_id !== userInfo?.user.id && "!bg-lightwarning border border-lightwarningborder"}
+                                            ${item.is_open && item.staff_id == userInfo?.user.id && "!bg-lightprimary border border-lightprimaryborder"}
+                                             cursor-pointer rounded-md size-52 flex flex-col justify-center items-center  ${!item.is_open && "bg-outletcolor"
                                             }`}
                                     >
                                         {item.is_open && <p className='absolute top-4 '>{item.staff_id == userInfo?.user.id ? "Enter Here" : "In Use"}</p>}

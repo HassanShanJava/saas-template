@@ -322,7 +322,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                 {!isSubmitting && (
                                     <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                                 )}
-                                Place Order
+                                Complete Checkout
                             </LoadingButton>
                         ) : (
                             <div className="flex justify-end gap-3">

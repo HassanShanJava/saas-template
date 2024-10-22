@@ -42,7 +42,7 @@ export const Register = apiSlice.injectEndpoints({
         counterRegisterSession
       >({
         query: (registerdata) => ({
-          url: `/pos/counters/${registerdata.counter_id}/registers/${registerdata.id}`,
+          url: `/pos/registers/${registerdata.id}`,
           method: "PUT",
           body: registerdata,
           headers: {

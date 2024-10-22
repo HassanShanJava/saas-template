@@ -21,8 +21,6 @@ const CounterSelection = () => {
 
     const { data: assignedCounter, isLoading } = useGetCountersQuery({ query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}`:""}` })
 
-
-
     const [assignCounter, { isLoading: isUpdating, isError }] = useUpdateCountersMutation()
 
     const assignSingleCounter = async (counter: counterDataType, toastMsg?: string) => {

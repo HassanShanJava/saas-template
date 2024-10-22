@@ -10,12 +10,16 @@ import { useEffect, useMemo } from 'react'
 import { counterDataType, ErrorType } from '@/app/types'
 import { toast } from '@/components/ui/use-toast'
 const CounterSelection = () => {
+    const { pos_count } = JSON.parse(
+        localStorage.getItem("accessLevels") as string
+    );
+
     const { userInfo } = useSelector((state: RootState) => state.auth);
     const { counter_number } = useSelector((state: RootState) => state.counter);
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    const { data: assignedCounter, isLoading } = useGetCountersQuery({ query: `staff_id=${userInfo?.user?.id}&status=active` })
+    const { data: assignedCounter, isLoading } = useGetCountersQuery({ query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}`:""}` })
 
 
 
@@ -102,7 +106,7 @@ const CounterSelection = () => {
                                             ${item.is_open && item.staff_id !== userInfo?.user.id && "bg-[#FFE0E0] border border-[#FF8D8C]"}
                                             ${item.is_open && item.staff_id == userInfo?.user.id && "bg-[#EEFFEE] border border-[#77DD77]"}
                                              cursor-pointer rounded-md size-52 flex flex-col justify-center items-center bg-outletcolor ${item.is_open ? "bg-black/10 cursor-not-allowed" : ""
-                                        }`}
+                                            }`}
                                     >
                                         {item.is_open && <p className='absolute top-4 '>{item.staff_id == userInfo?.user.id ? "Enter Here" : "In Use"}</p>}
                                         <img src={cashcounter} alt="/" className="p-0 size-28" />

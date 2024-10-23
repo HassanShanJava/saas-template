@@ -46,7 +46,7 @@ export const Counter = apiSlice.injectEndpoints({
             }),
             updateCounters: builder.mutation<any, CreateCounter>({
                 query: (counter) => ({
-                    url: `/pos/counters`,
+                    url: `/pos/counters/${counter.id}`,
                     method: "PUT",
                     body: counter,
                     headers: {

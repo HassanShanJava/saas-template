@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Link,
   Navigate,
@@ -31,13 +31,20 @@ import {
 } from "@/features/counter/counterSlice";
 import { Button } from "../button";
 import { extractLinks } from "@/utils/helper";
-import { useUpdateCountersMutation } from "@/services/counterApi";
+import { useGetCountersQuery, useUpdateCountersMutation } from "@/services/counterApi";
 import { toast } from "../use-toast";
 import { useCreateTransactionMutation } from "@/services/transactionApi";
 
 const DashboardLayout: React.FC = () => {
   const { isOpen } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { isOpen: false };
   const { pathname } = useLocation();
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+
+  const { data: assignedCounter, isLoading } = useGetCountersQuery({ query: `staff_id=${userInfo?.user?.id}&status=active` })
+  const assignedCounterData = useMemo(() => {
+    return Array.isArray(assignedCounter?.data) ? assignedCounter?.data : [];
+  }, [assignedCounter]);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [createTransaction] = useCreateTransactionMutation();
@@ -85,7 +92,7 @@ const DashboardLayout: React.FC = () => {
     console.log({ pathname, code, counter_number }, pathname.includes("pos") && counter_number == null, "pathname")
     if (pathname.includes("pos") && counter_number == null) {
       dispatch(setCode("pos"));
-      navigate("counter-selection", { replace: true })
+      navigate("/counter-selection", { replace: true })
       // <Navigate to="/counter-selection" />
       console.log({ counter_number }, "counterselection")
     } else if (!pathname.includes("pos")) {
@@ -129,15 +136,17 @@ const DashboardLayout: React.FC = () => {
   };
 
   const closePOSPanel = () => {
-    if (isOpen) {
-      toast({
-        variant: "destructive",
-        title: "Cannot close counter while register is open",
-      })
-      return;
-    }
+
+
+
     closeCounter()
-    navigate('/', { replace: true });
+
+    console.log({ assignedCounterData }, "assignedCounterData")
+    if (assignedCounterData.length > 1) {
+      navigate('/counter-selection');
+    } else {
+      navigate('/');
+    }
   }
 
   return (
@@ -174,13 +183,6 @@ const DashboardLayout: React.FC = () => {
             <div
               className="flex items-center gap-2 font-semibold cursor-pointer"
               onClick={() => {
-                if (isOpen) {
-                  toast({
-                    variant: "destructive",
-                    title: "Cannot close counter while register is open",
-                  })
-                  return;
-                }
                 dispatch(setCode(null));
                 dispatch(setCounter(null));
                 dispatch(resetBackPageCount());

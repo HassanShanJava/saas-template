@@ -681,7 +681,7 @@ const Sell = () => {
                         <p>Rs. {id && "-"} {watcher.total}</p> {/* Display Total */}
                       </div>
                       <Button className="w-full bg-primary text-black rounded-sm" onClick={paymentCheckout}>
-                        Pay
+                        Checkout
                       </Button>
                     </div>
 

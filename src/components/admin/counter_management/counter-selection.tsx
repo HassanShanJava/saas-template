@@ -10,23 +10,23 @@ import { useEffect, useMemo } from 'react'
 import { counterDataType, ErrorType } from '@/app/types'
 import { toast } from '@/components/ui/use-toast'
 const CounterSelection = () => {
+    const { pos_count } = JSON.parse(
+        localStorage.getItem("accessLevels") as string
+    );
+
     const { userInfo } = useSelector((state: RootState) => state.auth);
     const { counter_number } = useSelector((state: RootState) => state.counter);
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    const { data: assignedCounter, isLoading } = useGetCountersQuery({ query: `staff_id=${userInfo?.user?.id}&status=active` })
-
-    const assignedCounterData = useMemo(() => {
-        return Array.isArray(assignedCounter?.data) ? assignedCounter?.data : [];
-    }, [assignedCounter]);
+    const { data: assignedCounter, isLoading } = useGetCountersQuery({ query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}`:""}` })
 
     const [assignCounter, { isLoading: isUpdating, isError }] = useUpdateCountersMutation()
 
     const assignSingleCounter = async (counter: counterDataType, toastMsg?: string) => {
-        if ((counter.staff)) {
+        if (counter.staff) {
             // staff array
-            const singleCounter = counter.staff.length === 1 ? counter.staff[0] : counter.staff_id == userInfo?.user.id;
+            const singleCounter = counter.staff[0];
             console.log({ singleCounter }, "assignedCounter.data");
 
             try {
@@ -72,21 +72,16 @@ const CounterSelection = () => {
     };
 
     useEffect(() => {
-        if (counter_number == null && assignedCounterData?.length === 1) {
-            assignSingleCounter(assignedCounterData[0], "Counter Opened Successfully");
-        } else if (assignedCounterData?.length > 0 && assignedCounterData.some((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)) {
-            const findOpenedCounter = assignedCounterData.find((counter) => counter.staff_id == userInfo?.user.id && counter.is_open)
-            console.log("already opened counter", { assignedCounterData,counter_number, findOpenedCounter })
-            assignSingleCounter(findOpenedCounter as counterDataType, "Counter Already Open");
+        if (counter_number == null && assignedCounter?.data?.length === 1) {
+            assignSingleCounter(assignedCounter?.data[0], "Counter Opened Successfully");
         }
-    }, [assignedCounterData, assignCounter, dispatch, navigate, userInfo]);
+    }, [assignedCounter?.data, assignCounter, dispatch, navigate, userInfo]);
 
-    console.log({ assignedCounterData, isError })
     return (
         <div className='min-h-screen bg-outletcolor p-5'>
             {!isLoading && (
                 <>
-                    {assignedCounterData.length >= 1 ? (
+                    {assignedCounter && assignedCounter.data.length >= 1 ? (
                         <Card className="p-5 space-y-4 w-fit mx-auto">
                             <div className='flex justify-between items-center gap-2'>
                                 <p>Please select a counter to start selling</p>
@@ -101,21 +96,25 @@ const CounterSelection = () => {
 
                             </div>
                             <div className="grid grid-cols-3 gap-10 w-fit mx-auto justify-center items-center">
-                                {assignedCounterData.map((item: any, i: number) => (
+                                {assignedCounter?.data.map((item: any, i: number) => (
                                     <button
                                         key={i}
                                         onClick={() => assignSingleCounter(item, "Counter Opened Successfully")}
-                                        className={`cursor-pointer rounded-md size-52 flex flex-col justify-center items-center bg-outletcolor ${item.is_open ? "bg-black/10 cursor-not-allowed" : ""
+                                        className={`relative 
+                                            ${item.is_open && item.staff_id !== userInfo?.user.id && "bg-[#FFE0E0] border border-[#FF8D8C]"}
+                                            ${item.is_open && item.staff_id == userInfo?.user.id && "bg-[#EEFFEE] border border-[#77DD77]"}
+                                             cursor-pointer rounded-md size-52 flex flex-col justify-center items-center bg-outletcolor ${item.is_open ? "bg-black/10 cursor-not-allowed" : ""
                                             }`}
                                     >
+                                        {item.is_open && <p className='absolute top-4 '>{item.staff_id == userInfo?.user.id ? "Enter Here" : "In Use"}</p>}
                                         <img src={cashcounter} alt="/" className="p-0 size-28" />
-                                        <p className="text-center text-lg capitalize">{item.name}</p>
+                                        <p className={`text-center text-lg capitalize ${item.is_open && ""} `}>{item.name}</p>
                                     </button>
                                 ))}
                             </div>
                         </Card>
                     ) : (
-                        assignedCounterData.length === 0 && (
+                        assignedCounter?.data.length === 0 && (
                             <Card className="w-full p-5 space-y-4 max-w-2xl mx-auto">
                                 <div className='flex justify-end items-center'>
                                     <Link to={"/"} className='text-primary' onClick={() => {
@@ -138,7 +137,7 @@ const CounterSelection = () => {
                 </>
             )}
 
-            {(assignedCounterData.length === 1) && !isError && (
+            {(assignedCounter?.data.length === 1) && !isError && (
                 <div className="fixed top-0 left-0 z-40 w-full h-screen flex justify-center items-center bg-black/40">
                     <i className="animate-spin text-primary text-3xl font-bold text-main fas fa-spinner"></i>
                 </div>

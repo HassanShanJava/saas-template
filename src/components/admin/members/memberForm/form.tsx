@@ -270,7 +270,8 @@ const MemberForm = ({
   };
 
   const { data: countries } = useGetCountriesQuery();
-  const { data: business } = useGetAllBusinessesQuery(orgId);
+  const { data: business, refetch: refetchBusiness } =
+    useGetAllBusinessesQuery(orgId);
   const { data: coachesData } = useGetCoachListQuery(orgId);
   const { data: sources } = useGetAllSourceQuery();
   const { data: membershipPlans } = useGetMembershipListQuery(orgId);
@@ -613,6 +614,7 @@ const MemberForm = ({
           refetch();
           refecthCount();
           handleClose();
+          refetchBusiness();
         }
       } else {
         const validMembershipPlans = membershipPlansdata.filter(
@@ -645,6 +647,7 @@ const MemberForm = ({
           });
           refetch();
           handleClose();
+          refetchBusiness();
         }
       }
     } catch (error: unknown) {
@@ -1220,45 +1223,77 @@ const MemberForm = ({
                           field: { onChange, value, onBlur },
                           fieldState: { invalid, error },
                         }) => (
-                          <Select
-                            onValueChange={(value) =>
-                              setValue("business_id", Number(value))
-                            }
-                            value={value?.toString()}
-                          >
-                            <SelectTrigger
-                              floatingLabel="Business"
-                              className="capitalize  font-normal text-gray-800"
+                          <div className="relative">
+                            <label
+                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${
+                                value
+                                  ? "text-xs -top-2.5"
+                                  : "text-xs text-black"
+                              }`}
                             >
-                              <SelectValue placeholder="Select Business" />
-                            </SelectTrigger>
-                            <SelectContent
-                              side="bottom"
-                              className="capitalize max-h-52"
-                            >
-                              {/* <Button variant={"link"} className="gap-2 text-black">
-                            <PlusIcon className="text-black w-5 h-5" /> Add New
-                            business
-                          </Button> */}
-                              {business && business?.length ? (
-                                business.map((sourceval: BusinessTypes) => {
-                                  // console.log(business.length);
-                                  return (
-                                    <SelectItem
-                                      value={sourceval.id?.toString()}
-                                      key={sourceval.id?.toString()}
-                                    >
-                                      {sourceval.full_name}
-                                    </SelectItem>
-                                  );
-                                })
-                              ) : (
-                                <>
-                                  <p className="p-2"> No Business found</p>
-                                </>
-                              )}
-                            </SelectContent>
-                          </Select>
+                              Business
+                            </label>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className="w-full hover:bg-transparent border-[1px] shadow-sm"
+                                  >
+                                    <span className="w-full text-left font-normal text-black">
+                                      {value
+                                        ? business?.find(
+                                            (business) => business.id === value
+                                          )?.full_name
+                                        : "Select Business"}
+                                    </span>
+                                    <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="p-0 relative "
+                                side="bottom"
+                              >
+                                <Command className="w-full ">
+                                  <CommandList>
+                                    <CommandInput placeholder="Select Business" />
+                                    <CommandEmpty>
+                                      No Business found.
+                                    </CommandEmpty>
+                                    <CommandGroup className="">
+                                      {business &&
+                                        business.map(
+                                          (business: BusinessTypes) => (
+                                            <CommandItem
+                                              value={business.full_name}
+                                              key={business.id}
+                                              onSelect={() => {
+                                                setValue(
+                                                  "business_id",
+                                                  business.id
+                                                );
+                                              }}
+                                            >
+                                              <Check
+                                                className={cn(
+                                                  "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                                  business.id == value
+                                                    ? "opacity-100"
+                                                    : "opacity-0"
+                                                )}
+                                              />
+                                              {business.full_name}
+                                            </CommandItem>
+                                          )
+                                        )}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
                         )}
                       />
                       {errors.business_id?.message && (
@@ -1326,7 +1361,16 @@ const MemberForm = ({
                           field: { onChange, value, onBlur },
                           fieldState: { invalid, error },
                         }) => (
-                          <div className="flex flex-col w-full">
+                          <div className="flex flex-col w-full relative">
+                            <label
+                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${
+                                value
+                                  ? "text-xs -top-2.5"
+                                  : "text-xs text-black"
+                              }`}
+                            >
+                              Country
+                            </label>
                             <Popover open={country} onOpenChange={setCountry}>
                               <PopoverTrigger asChild>
                                 <FormControl>

@@ -93,11 +93,15 @@ import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { PhoneInput } from "react-international-phone";
 import { RxCross2 } from "react-icons/rx";
 const { VITE_VIEW_S3_URL } = import.meta.env;
+
 enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
+  prefer_no_to_say = "Prefer not to say",
 }
+
+
 interface CoachFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   open: boolean;
@@ -688,7 +692,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
                         avatar
                           ? String(avatar)
                           : watcher.profile_img
-                            ? (watcher.profile_img.includes(VITE_VIEW_S3_URL) ? watcher.profile_img : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`)
+                            ? watcher.profile_img.includes(VITE_VIEW_S3_URL)
+                              ? watcher.profile_img
+                              : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
                             : profileimg
                       }
                       alt={profileimg}
@@ -743,8 +749,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     render={({ field }) => (
                       <FormItem>
                         {coachData == null ||
-                          (coachData != null &&
-                            watcher.coach_status == "pending") ? (
+                        (coachData != null &&
+                          watcher.coach_status == "pending") ? (
                           <FloatingLabelInput
                             {...field}
                             id="email"
@@ -839,6 +845,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
                             <SelectItem value="male">Male</SelectItem>
                             <SelectItem value="female">Female</SelectItem>
                             <SelectItem value="other">Other</SelectItem>
+                            <SelectItem value="Prefer not to say">
+                              Prefer not to say
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         {watcher.gender ? <></> : <FormMessage />}
@@ -1062,8 +1071,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 {field.value === 0
                                   ? "Source*"
                                   : sources?.find(
-                                    (source) => source.id === field.value
-                                  )?.source || "Source*"}
+                                      (source) => source.id === field.value
+                                    )?.source || "Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -1162,15 +1171,14 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 role="combobox"
                                 className={cn(
                                   "font-normal text-gray-800 border-[1px] justify-between hover:bg-transparent hover:text-gray-800",
-                                  !field.value &&
-                                  "  focus:border-primary "
+                                  !field.value && "  focus:border-primary "
                                 )}
                               >
                                 {field.value
                                   ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === field.value // Compare with numeric value
-                                  )?.country // Display country name if selected
+                                      (country: CountryTypes) =>
+                                        country.id === field.value // Compare with numeric value
+                                    )?.country // Display country name if selected
                                   : "Select country*"}
                                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>

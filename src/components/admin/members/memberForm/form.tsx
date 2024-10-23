@@ -132,6 +132,7 @@ enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
+  prefer_no_to_say = "Prefer not to say",
 }
 export enum statusEnum {
   pending = "pending",
@@ -144,6 +145,7 @@ const coachsSchema = z.object({
 });
 
 interface membership_planids {
+  id?: number;
   membership_plan_id?: number | undefined;
   auto_renewal?: boolean;
   prolongation_period?: number;
@@ -186,7 +188,7 @@ interface memberFormTypes {
   action: string;
   setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
   refetch: any;
-  breadcrumb?: string
+  breadcrumb?: string;
 }
 
 const MemberForm = ({
@@ -197,7 +199,7 @@ const MemberForm = ({
   action,
   setAction,
   refetch,
-  breadcrumb
+  breadcrumb,
 }: memberFormTypes) => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -278,6 +280,7 @@ const MemberForm = ({
     membership_planids[]
   >([
     {
+      id: undefined,
       membership_plan_id: undefined,
       auto_renewal: false,
       prolongation_period: undefined,
@@ -290,6 +293,7 @@ const MemberForm = ({
     setMembershipPlansdata([
       ...membershipPlansdata,
       {
+        id: undefined,
         membership_plan_id: undefined,
         auto_renewal: false,
         prolongation_period: undefined,
@@ -307,6 +311,7 @@ const MemberForm = ({
     if (updatedPlans.length === 0) {
       setMembershipPlansdata([
         {
+          id: undefined,
           membership_plan_id: undefined,
           auto_renewal: false,
           prolongation_period: undefined,
@@ -446,8 +451,8 @@ const MemberForm = ({
       )
         ? []
         : memberData?.coaches
-          .filter((item) => item.id !== 0 && item.name?.trim() !== "") // Filter out invalid entries
-          .map((item) => item.id);
+            .filter((item) => item.id !== 0 && item.name?.trim() !== "") // Filter out invalid entries
+            .map((item) => item.id);
 
       if (
         memberpayload?.mobile_number &&
@@ -784,11 +789,8 @@ const MemberForm = ({
                 </div>
               </div>
 
-
               <div className="space-y-6">
-
                 <div className="space-y-2">
-
                   <h1 className="font-semibold text-lg mb-4 text-gray-900">
                     Basic Information
                   </h1>
@@ -802,13 +804,15 @@ const MemberForm = ({
                         disabled
                         {...register("own_member_id")}
                         error={
-                          errors?.own_member_id?.message as keyof MemberInputTypes
+                          errors?.own_member_id
+                            ?.message as keyof MemberInputTypes
                         }
                       />
                     </div>
                     <div className="relative ">
                       {action == "add" ||
-                        (action == "edit" && watcher.client_status == "pending") ? (
+                      (action == "edit" &&
+                        watcher.client_status == "pending") ? (
                         <FloatingLabelInput
                           id="email"
                           className=""
@@ -859,8 +863,8 @@ const MemberForm = ({
                             </TooltipTrigger>
 
                             <TooltipContent>
-                              You cannot update the email address once the member is
-                              active
+                              You cannot update the email address once the
+                              member is active
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -896,7 +900,9 @@ const MemberForm = ({
                             message: "Should be 40 characters or less",
                           },
                         })}
-                        error={errors?.last_name?.message as keyof MemberInputTypes}
+                        error={
+                          errors?.last_name?.message as keyof MemberInputTypes
+                        }
                         className="capitalize"
                       />
                     </div>
@@ -925,6 +931,9 @@ const MemberForm = ({
                               <SelectItem value="male">Male</SelectItem>
                               <SelectItem value="female">Female</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
+                              <SelectItem value="Prefer not to say">
+                                Prefer not to say
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         )}
@@ -973,7 +982,10 @@ const MemberForm = ({
                                 </div>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-2" align="center">
+                            <PopoverContent
+                              className="w-auto p-2"
+                              align="center"
+                            >
                               <Calendar
                                 mode="single"
                                 captionLayout="dropdown-buttons"
@@ -988,7 +1000,8 @@ const MemberForm = ({
                                 fromYear={1960}
                                 toYear={new Date().getFullYear()}
                                 disabled={(date: any) =>
-                                  date > new Date() || date < new Date("1960-01-01")
+                                  date > new Date() ||
+                                  date < new Date("1960-01-01")
                                 }
                                 initialFocus
                               />
@@ -1110,8 +1123,11 @@ const MemberForm = ({
                             }
                             value={value?.toString()}
                           >
-                            <SelectTrigger className="font-normal capitalize text-gray-800">
-                              <SelectValue placeholder="Select Source*" />
+                            <SelectTrigger
+                              floatingLabel="Source*"
+                              className="font-normal capitalize text-gray-800"
+                            >
+                              <SelectValue placeholder="Select Source" />
                             </SelectTrigger>
                             <SelectContent className="capitalize max-h-52">
                               {sources &&
@@ -1210,7 +1226,10 @@ const MemberForm = ({
                             }
                             value={value?.toString()}
                           >
-                            <SelectTrigger className="capitalize  font-normal text-gray-800">
+                            <SelectTrigger
+                              floatingLabel="Business"
+                              className="capitalize  font-normal text-gray-800"
+                            >
                               <SelectValue placeholder="Select Business" />
                             </SelectTrigger>
                             <SelectContent
@@ -1251,7 +1270,6 @@ const MemberForm = ({
                   </div>
                 </div>
 
-
                 <div className="space-y-2">
                   <h1 className="font-semibold text-lg my-4 text-gray-900">
                     Address
@@ -1264,7 +1282,8 @@ const MemberForm = ({
                         {...register("address_1", {
                           maxLength: {
                             value: 50,
-                            message: "Address should be less than 50 characters",
+                            message:
+                              "Address should be less than 50 characters",
                           },
                         })}
                         error={errors.address_1?.message}
@@ -1277,7 +1296,8 @@ const MemberForm = ({
                         {...register("address_2", {
                           maxLength: {
                             value: 50,
-                            message: "Address should be less than 50 characters",
+                            message:
+                              "Address should be less than 50 characters",
                           },
                         })}
                         error={errors.address_2?.message}
@@ -1290,7 +1310,8 @@ const MemberForm = ({
                         {...register("zipcode", {
                           maxLength: {
                             value: 15,
-                            message: "Zip code should be less than 15 characters",
+                            message:
+                              "Zip code should be less than 15 characters",
                           },
                         })}
                         error={errors.zipcode?.message}
@@ -1319,9 +1340,9 @@ const MemberForm = ({
                                   >
                                     {value
                                       ? countries?.find(
-                                        (country: CountryTypes) =>
-                                          country.id === value // Compare with numeric value
-                                      )?.country // Display country name if selected
+                                          (country: CountryTypes) =>
+                                            country.id === value // Compare with numeric value
+                                        )?.country // Display country name if selected
                                       : "Select country*"}
                                     <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                   </Button>
@@ -1331,33 +1352,37 @@ const MemberForm = ({
                                 <Command>
                                   <CommandList>
                                     <CommandInput placeholder="Select Country" />
-                                    <CommandEmpty>No country found.</CommandEmpty>
+                                    <CommandEmpty>
+                                      No country found.
+                                    </CommandEmpty>
                                     <CommandGroup className="">
                                       {countries &&
-                                        countries.map((country: CountryTypes) => (
-                                          <CommandItem
-                                            value={country.country}
-                                            key={country.id}
-                                            onSelect={() => {
-                                              setValue(
-                                                "country_id",
-                                                country.id // Set country_id to country.id as number
-                                              );
-                                              setCountry(false);
-                                            }}
-                                          >
-                                            <Check
-                                              className={cn(
-                                                "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                                country.id == value
-                                                  ? "opacity-100"
-                                                  : "opacity-0"
-                                              )}
-                                            />
-                                            {country.country}
-                                            {/* Display the country name */}
-                                          </CommandItem>
-                                        ))}
+                                        countries.map(
+                                          (country: CountryTypes) => (
+                                            <CommandItem
+                                              value={country.country}
+                                              key={country.id}
+                                              onSelect={() => {
+                                                setValue(
+                                                  "country_id",
+                                                  country.id // Set country_id to country.id as number
+                                                );
+                                                setCountry(false);
+                                              }}
+                                            >
+                                              <Check
+                                                className={cn(
+                                                  "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                                  country.id == value
+                                                    ? "opacity-100"
+                                                    : "opacity-0"
+                                                )}
+                                              />
+                                              {country.country}
+                                              {/* Display the country name */}
+                                            </CommandItem>
+                                          )
+                                        )}
                                     </CommandGroup>
                                   </CommandList>
                                 </Command>
@@ -1387,7 +1412,6 @@ const MemberForm = ({
                     </div>
                   </div>
                 </div>
-
 
                 <div className="space-y-2">
                   <h1 className="font-semibold text-lg mt-4 text-gray-900">
@@ -1425,13 +1449,15 @@ const MemberForm = ({
                               >
                                 <FormControl>
                                   <SelectTrigger
+                                    floatingLabel="Membership plan"
                                     className={`font-normal capitalize text-gray-800`}
                                   >
                                     <SelectValue placeholder="Select membership plan" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent className="capitalize max-h-52">
-                                  {membershipPlans && membershipPlans.length > 0 ? (
+                                  {membershipPlans &&
+                                  membershipPlans.length > 0 ? (
                                     membershipPlans.map(
                                       (sourceval: membeshipsTableType) => (
                                         <SelectItem
@@ -1547,7 +1573,8 @@ const MemberForm = ({
                                         membershipPlansdata.length === 0 ||
                                         membershipPlansdata.some(
                                           (plan) =>
-                                            plan.membership_plan_id === undefined ||
+                                            plan.membership_plan_id ===
+                                              undefined ||
                                             plan.membership_plan_id === null
                                         )
                                       }
@@ -1569,33 +1596,34 @@ const MemberForm = ({
                               </>
                             )}
 
-                            {!plan.auto_renewal && membershipPlansdata?.length && (
-                              <Button
-                                type="button"
-                                className="text-red-500 px-2"
-                                variant={"ghost"}
-                                disabled={
-                                  membershipPlansdata.length === 0 ||
-                                  membershipPlansdata.some(
-                                    (plan) =>
-                                      plan.membership_plan_id === undefined ||
-                                      plan.membership_plan_id === null
-                                  )
-                                }
-                                onClick={() => handleRemovePlan(index)}
-                              >
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <i className="fa-solid fa-trash"></i>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      Delete Membership plan
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </Button>
-                            )}
+                            {!plan.auto_renewal &&
+                              membershipPlansdata?.length && (
+                                <Button
+                                  type="button"
+                                  className="text-red-500 px-2"
+                                  variant={"ghost"}
+                                  disabled={
+                                    membershipPlansdata.length === 0 ||
+                                    membershipPlansdata.some(
+                                      (plan) =>
+                                        plan.membership_plan_id === undefined ||
+                                        plan.membership_plan_id === null
+                                    )
+                                  }
+                                  onClick={() => handleRemovePlan(index)}
+                                >
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <i className="fa-solid fa-trash"></i>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        Delete Membership plan
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </Button>
+                              )}
                           </div>
                         </>
                       )
@@ -1621,11 +1649,11 @@ const MemberForm = ({
                     </div>
                   </div>
                 </div>
-              </div >
-            </SheetDescription >
-          </form >
-        </FormProvider >
-      </SheetContent >
+              </div>
+            </SheetDescription>
+          </form>
+        </FormProvider>
+      </SheetContent>
       {openAutoFill && (
         <AlertDialog
           open={openAutoFill}
@@ -1665,7 +1693,7 @@ const MemberForm = ({
           </AlertDialogContent>
         </AlertDialog>
       )}
-    </Sheet >
+    </Sheet>
   );
 };
 

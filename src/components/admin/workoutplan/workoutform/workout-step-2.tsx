@@ -348,11 +348,14 @@ const WorkoutStep2: React.FC = () => {
       isDeleting: true,
       currentDeletingDay: idx,
     }));
-
+    const payload = {
+      workout_id: Number(workoutId),
+      id: id,
+    };
     if (!id) {
       return;
     }
-    deleteWorkoutDay(Number(id))
+    deleteWorkoutDay(payload)
       .unwrap()
       .then(() => {
         setDays((days) =>
@@ -441,7 +444,11 @@ const WorkoutStep2: React.FC = () => {
       });
   }
 
-  const handleExerciseDuplicate = async (exercise: Exercise, index: number) => {
+  const handleExerciseDuplicate = async (
+    exercise: Exercise,
+    index: number,
+    day_id: number
+  ) => {
     try {
       console.log("exercise", exercise);
       setIsAddingExercise(true);
@@ -449,6 +456,7 @@ const WorkoutStep2: React.FC = () => {
       const response = await addExerciseInWorkout({
         ...exercise,
         exercise_type: exercise.exercise_type || ExerciseTypeEnum.time_based,
+        workout_day_id: day_id,
       }).unwrap();
       if (response) {
         toast({
@@ -967,12 +975,21 @@ const WorkoutStep2: React.FC = () => {
                     key={i}
                     exercise={exercise}
                     selected={i === selectedExerciseIndex}
-                    onDuplicate={() => handleExerciseDuplicate(exercise, i)}
+                    onDuplicate={() =>
+                      handleExerciseDuplicate(
+                        exercise,
+                        i,
+                        selectedDay?.id as number
+                      )
+                    }
                     onDelete={() => {
                       setCurrExercise(null);
                       setSelectedExerciseIndex(undefined);
                       if (exercise.id !== undefined) {
-                        deleteExercise(exercise.id);
+                        deleteExercise({
+                          workout_id: Number(workoutId),
+                          exercise_id: exercise.id,
+                        });
                       }
                     }}
                     onClick={() => {
@@ -1089,7 +1106,10 @@ const WorkoutStep2: React.FC = () => {
                                     id={option.value}
                                     value={String(option.value)}
                                   />
-                                  <Label htmlFor={option.value}>
+                                  <Label
+                                    htmlFor={option.value}
+                                    className="text-sm text-nowrap"
+                                  >
                                     {option.label}
                                   </Label>
                                 </div>

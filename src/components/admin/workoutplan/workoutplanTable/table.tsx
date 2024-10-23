@@ -75,7 +75,7 @@ export default function WorkoutPlansTableView() {
   const [openFilter, setOpenFilter] = useState(false);
   const debouncedInputValue = useDebounce(inputValue, 500);
   const [filterData, setFilter] = useState({});
-
+  const [action, setAction] = useState<"add" | "edit">("add");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [searchCriteria, setSearchCriteria] =
     useState<searchCritiriaType>(initialValue);
@@ -467,7 +467,7 @@ export default function WorkoutPlansTableView() {
   });
 
   const handleOpen = () => {
-    navigate("/admin/workoutplans/add/step/1");
+    navigate("/admin/workoutplans/add/step/1?mode=add");
   };
 
   const totalRecords = workoutdata?.filtered_counts || 0;

@@ -4,6 +4,7 @@ enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
+  prefer_no_to_say = "Prefer not to say",
 }
 export interface sellItem {
   item_id: number;
@@ -34,14 +35,14 @@ export interface sellForm {
   staff_id?: number | null;
   staff_name?: string;
   receipt_number?: string;
-  tax_number?: number| null;
+  tax_number?: number | null;
   total?: number | null;
   subtotal?: number | null;
   tax_amt?: number | null;
   main_transaction_id?: number | null;
   status?: "Unpaid" | "Paid" | "Partially Paid";
   transaction_type?: "Refund" | "Sale";
-  transaction_date?:Date;
+  transaction_date?: Date;
   membership_plans?: sellItem[];
   items?: sellItem[];
   events?: sellItem[];
@@ -554,6 +555,7 @@ export interface LeadResponseTypes {
 }
 
 interface membership_planids {
+  id?: number;
   membership_plan_id?: number | undefined;
   auto_renewal?: boolean;
   prolongation_period?: number;
@@ -1412,6 +1414,7 @@ export interface WorkoutDatabyId {
   id: number;
   members: members[];
   days: days[];
+  is_published: boolean;
 }
 
 export interface workoutUpdateStatus {
@@ -1589,8 +1592,8 @@ export interface PaymentMethodUpdate {
     username?: string;
     password?: string;
     is_test?: boolean;
-    url?: string
-  }
+    url?: string;
+  };
 }
 
 export enum statusEnumGrid {

@@ -31,7 +31,7 @@ export const workoutApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     addWorkout: builder.mutation<workoutResponse, Workout>({
       query: (workoutdata) => ({
-        url: "/workout",
+        url: "/workouts",
         method: "POST",
         body: workoutdata,
         headers: {
@@ -43,7 +43,7 @@ export const workoutApi = apiSlice.injectEndpoints({
     }),
     getAllWorkout: builder.query<WorkoutPlansTableResponse, workoutQuery>({
       query: (searchCritiria) => ({
-        url: `/workout?org_id=${searchCritiria.org_id}&${searchCritiria.query}`,
+        url: `/workouts?org_id=${searchCritiria.org_id}&${searchCritiria.query}`,
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -53,9 +53,8 @@ export const workoutApi = apiSlice.injectEndpoints({
     }),
     deleteWorkout: builder.mutation<number, number>({
       query: (workoutid) => ({
-        url: `/workout/${workoutid}`,
+        url: `/workouts/${workoutid}`,
         method: "DELETE",
-        body: workoutid,
         headers: {
           Accept: "application/json",
           "content-Type": "application/json",
@@ -65,7 +64,7 @@ export const workoutApi = apiSlice.injectEndpoints({
     }),
     updateWorkout: builder.mutation<WorkoutUpdateResponse, Workoutupdate>({
       query: (workoutdata) => ({
-        url: "/workout",
+        url: `/workouts/${workoutdata.id}`,
         method: "PUT",
         body: workoutdata,
         headers: {
@@ -80,7 +79,7 @@ export const workoutApi = apiSlice.injectEndpoints({
       workoutUpdateStatus
     >({
       query: (workoutdata) => ({
-        url: "/workout",
+        url: `/workouts/${workoutdata.id}`,
         method: "PUT",
         body: workoutdata,
         headers: {
@@ -99,7 +98,7 @@ export const workoutApi = apiSlice.injectEndpoints({
           params.append("include_days_and_exercises", "true");
 
         return {
-          url: `/workout/${workoutId}?${params.toString()}`,
+          url: `/workouts/${workoutId}?${params.toString()}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -110,7 +109,7 @@ export const workoutApi = apiSlice.injectEndpoints({
     }),
     addWorkoutDay: builder.mutation<days, days>({
       query: (workoutdata) => ({
-        url: "/workout/day",
+        url: `/workouts/${workoutdata.workout_id}/days`,
         method: "POST",
         body: workoutdata,
         headers: {
@@ -122,7 +121,7 @@ export const workoutApi = apiSlice.injectEndpoints({
     }),
     updateWorkoutDay: builder.mutation<days, days>({
       query: (workoutdata) => ({
-        url: "/workout/day",
+        url: `/workouts/${workoutdata.workout_id}/days/${workoutdata.id}`,
         method: "PUT",
         body: workoutdata,
         headers: {
@@ -134,10 +133,13 @@ export const workoutApi = apiSlice.injectEndpoints({
     }),
     deleteWorkoutDay: builder.mutation<
       { status: number; message: string },
-      number
+      {
+        workout_id: number;
+        id: number;
+      }
     >({
-      query: (workoutid) => ({
-        url: `/workout/day/${workoutid}`,
+      query: (workoutdata) => ({
+        url: `/workouts/${workoutdata.workout_id}/days/${workoutdata.id}`,
         method: "DELETE",
         headers: {
           Accept: "application/json",
@@ -163,7 +165,7 @@ export const workoutApi = apiSlice.injectEndpoints({
       workoutDayExerciseInput
     >({
       query: (workoutdata) => ({
-        url: "/workout/day/exercise",
+        url: `/workouts/days/${workoutdata.workout_day_id}/exercises`,
         method: "POST",
         body: workoutdata,
         headers: {
@@ -178,7 +180,7 @@ export const workoutApi = apiSlice.injectEndpoints({
       exerciseByWorkoutDayUpdateInput
     >({
       query: (workoutdata) => ({
-        url: "/workout/day/exercise",
+        url: `/workouts/days/exercises/${workoutdata.id}`,
         method: "PUT",
         body: workoutdata,
         headers: {
@@ -193,7 +195,7 @@ export const workoutApi = apiSlice.injectEndpoints({
       number
     >({
       query: (workoutdayId) => ({
-        url: `/workout/day/${workoutdayId}/exercise`,
+        url: `/workouts/days/${workoutdayId}/exercises`,
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -203,10 +205,13 @@ export const workoutApi = apiSlice.injectEndpoints({
     }),
     deleteExerciseInWorkoutday: builder.mutation<
       { status: number; message: string },
-      number
+      {
+        workout_id: number;
+        exercise_id: number;
+      }
     >({
-      query: (Id) => ({
-        url: `/workout/day/exercise/${Id}`,
+      query: (workoutdata) => ({
+        url: `/workouts/${workoutdata.workout_id}/days/exercises/${workoutdata.exercise_id}`,
         method: "DELETE",
         headers: {
           Accept: "application/json",
@@ -218,10 +223,10 @@ export const workoutApi = apiSlice.injectEndpoints({
       { message: string; status: number },
       verifyWorkout
     >({
-      query: (workoutId) => ({
-        url: `/workout/verify`,
+      query: (workoutdata) => ({
+        url: `/workouts/${workoutdata.id}/verify`,
         method: "POST",
-        body: workoutId,
+        // body: workoutId,
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",

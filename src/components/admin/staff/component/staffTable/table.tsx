@@ -90,6 +90,7 @@ enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
+  prefer_no_to_say = "Prefer not to say",
 }
 
 interface searchCriteriaType {

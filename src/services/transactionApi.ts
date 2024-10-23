@@ -39,7 +39,7 @@ export const Transaction = apiSlice.injectEndpoints({
         }),
         providesTags: ["Transaction"],
       }),
-      patchTransaction: builder.mutation<any, sellForm>({
+      patchTransaction: builder.mutation<any, { status: string, id:number }>({
         query: (payload) => ({
           url: `/pos/transactions/${payload.id}/status`,
           method: "PATCH",
@@ -57,4 +57,5 @@ export const {
   useCreateTransactionMutation,
   useGetTransactionQuery,
   useGetTransactionByIdQuery,
+  usePatchTransactionMutation,
 } = Transaction;

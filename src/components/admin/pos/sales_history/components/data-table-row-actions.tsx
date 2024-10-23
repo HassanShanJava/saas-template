@@ -90,7 +90,8 @@ export function DataTableRowActions({
                 <DropdownMenuItem
                   disabled={data?.status !== "Paid"}
                   onClick={() => navigate(`/admin/pos/sell/${data?.id}`)}
-                >
+                  className="text-nowrap"
+                  >
                   <i className="fa-solid fa-cash-register mr-2"></i>
                   Refund
                 </DropdownMenuItem>
@@ -99,10 +100,11 @@ export function DataTableRowActions({
 
             {data?.status === typeTransactionEnum.Unpaid && (
               <DropdownMenuItem
-                onClick={handleEdit ? () => handleEdit(data!) : undefined}
+              onClick={() => navigate(`/admin/pos/sell/${data?.id}`)}
+              className="text-nowrap"
               >
                 <i className="fa-solid fa-money-bill mr-2"></i>
-                Pay Button
+                Pay Receipt
               </DropdownMenuItem>
             )}
             <DropdownMenuItem

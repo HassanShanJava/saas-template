@@ -93,7 +93,6 @@ const DashboardLayout: React.FC = () => {
     if (pathname.includes("pos") && counter_number == null) {
       dispatch(setCode("pos"));
       navigate("/counter-selection", { replace: true })
-      // <Navigate to="/counter-selection" />
       console.log({ counter_number }, "counterselection")
     } else if (!pathname.includes("pos")) {
       dispatch(setCounter(null));
@@ -110,13 +109,9 @@ const DashboardLayout: React.FC = () => {
   const [assignCounter] = useUpdateCountersMutation();
 
   const closeCounter = async () => {
-
-
     try {
-
       const payload = {
         id: counter_number ?? Number(localStorage.getItem('counter_number') as string),
-        staff_id: null,
         is_open: false,
       };
 
@@ -136,18 +131,18 @@ const DashboardLayout: React.FC = () => {
   };
 
   const closePOSPanel = () => {
-
-
-
     closeCounter()
-
     console.log({ assignedCounterData }, "assignedCounterData")
     if (assignedCounterData.length > 1) {
       navigate('/counter-selection');
     } else {
+      localStorage.removeItem('code')
       navigate('/');
+
     }
   }
+
+  console.log({code},"codecode")
 
   return (
     <div className="font-poppins flex h-full w-full relative ">

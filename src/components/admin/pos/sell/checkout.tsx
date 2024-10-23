@@ -10,7 +10,7 @@ import { roundToTwoDecimals } from "@/utils/helper";
 import { ErrorType, sellForm } from "@/app/types";
 import { toast } from "@/components/ui/use-toast";
 import { useFormContext } from "react-hook-form";
-import { useCreateTransactionMutation, useGetTransactionByIdQuery } from "@/services/transactionApi";
+import { useCreateTransactionMutation, useGetTransactionByIdQuery, usePatchTransactionMutation } from "@/services/transactionApi";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,9 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
     const [payments, setPayments] = useState<paymentItem[]>([])
     const [selectedMethods, setSelectedMethods] = useState<{ [key: string]: boolean }>({});
     const [amounts, setAmounts] = useState<{ [key: string]: string }>({});
+
+    const [createTransaction] = useCreateTransactionMutation()
+    const [updateTransaction] = usePatchTransactionMutation()
 
     const {
         control,
@@ -133,7 +136,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
     }
 
 
-    const [createTransaction] = useCreateTransactionMutation()
+
     const placeOrder = async () => {
         if (watcher.payments.length == 0) {
             toast({
@@ -153,14 +156,28 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
 
         try {
             const payload = watcher
-            payload.status = "Paid"
-            const resp = await createTransaction(payload).unwrap();
-            if (resp) {
-                toast({
-                    variant: "success",
-                    title: "Transaction successful",
-                })
-                setInvoiceId(resp.id)
+            if (!payload.id) {
+                // for new complete sale or refund 
+                payload.status = "Paid"
+                const resp = await createTransaction(payload).unwrap();
+                if (resp) {
+                    toast({
+                        variant: "success",
+                        title: "Transaction successful",
+                    })
+                    setInvoiceId(resp.id)
+                }
+            } else if (payload.id && payload.status == "Unpaid") {
+                // for parked sale to complete
+                payload.status = "Paid"
+                const resp = await updateTransaction({ id: payload.id, status: payload.status }).unwrap();
+                if (resp) {
+                    toast({
+                        variant: "success",
+                        title: "Transaction successful",
+                    })
+                    setInvoiceId(resp.id)
+                }
             }
         } catch (error: unknown) {
             if (error && typeof error === "object" && "data" in error) {
@@ -249,16 +266,16 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                             <Separator />
                             <div className="flex justify-between items-center">
                                 <div className="text-xl font-bold">Total</div>
-                                <div className="text-xl font-bold">{id&&"- "}{roundToTwoDecimals(watcher.total)}</div>
+                                <div className="text-xl font-bold">{id && watcher.transaction_type == "Refund" && "- "}{roundToTwoDecimals(watcher.total)}</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex flex-col justify-between">
+                <div className="flex flex-col justify-start gap-5">
                     <div>
                         <h2 className="text-2xl font-bold ">Payment</h2>
-                        <div className="mt-5 h-full flex flex-col   justify-between gap-6">
+                        <div className="mt-5 h-full flex flex-col   justify-start gap-6">
                             <div className="space-y-4">
                                 {enabledPayments?.map((method: any) => (
                                     <div
@@ -312,18 +329,23 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                         </div>
                     </div>
 
-                    <div className="mt-8 flex justify-end">
+                    <div className="flex justify-end ">
                         {invoiceId == null ? (
-                            <LoadingButton
-                                loading={isSubmitting}
-                                disabled={isSubmitting}
-                                onClick={placeOrder}>
+                            <div className="flex justify-end gap-3">
+                                <Button variant={"ghost"} onClick={()=>setShowCheckout(false)}>
+                                    Back
+                                </Button>
+                                <LoadingButton
+                                    loading={isSubmitting}
+                                    disabled={isSubmitting}
+                                    onClick={placeOrder}>
 
-                                {!isSubmitting && (
-                                    <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                                )}
-                                Complete Checkout
-                            </LoadingButton>
+                                    {!isSubmitting && (
+                                        <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                                    )}
+                                    Complete Checkout
+                                </LoadingButton>
+                            </div>
                         ) : (
                             <div className="flex justify-end gap-3">
                                 <Button variant={"ghost"} onClick={handleReset}>

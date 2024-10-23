@@ -32,7 +32,6 @@ const CounterSelection = () => {
             try {
                 const payload = {
                     id: counter.id,
-                    staff_id: userInfo?.user?.id,
                     is_open: true,
                 };
                 const resp = await assignCounter(payload).unwrap();

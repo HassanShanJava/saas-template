@@ -51,6 +51,7 @@ export interface sellForm {
     payment_method?: string;
     amount?: number;
   }[];
+  created_by:number;
 }
 export enum statusEnum {
   pending = "pending",

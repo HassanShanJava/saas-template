@@ -1,24 +1,21 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
 import { RootState } from "@/app/store";
 import { Card } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetAllMemberQuery, useGetMembersListQuery } from "@/services/memberAPi";
-import { Check, ChevronsUpDown, Search } from "lucide-react";
+import { Check, ChevronDownIcon, ChevronsUpDown, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
 
 import {
   Command,
@@ -37,40 +34,36 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
-import { FileInput } from "@/components/ui/file-uploader";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { roundToTwoDecimals } from "@/utils/helper";
 import { useDebounce } from "@/hooks/use-debounce";
 import { ErrorType, MemberTableDatatypes, sellForm, sellItem } from "@/app/types";
-import { has24HoursPassed, useGetRegisterData } from "@/constants/counter_register";
+import { has24HoursPassed } from "@/constants/counter_register";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
-import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
 import { useGetIncomeCategorListQuery } from "@/services/incomeCategoryApi";
 import { useGetOrgTaxTypeQuery } from "@/services/organizationApi";
-import { useCreateTransactionMutation, useGetTransactionByIdQuery, useGetTransactionQuery } from "@/services/transactionApi";
-import { v4 as uuidv4 } from "uuid";
+import { useCreateTransactionMutation, useGetTransactionByIdQuery, useGetTransactionQuery, usePatchTransactionMutation } from "@/services/transactionApi";
 import MemberForm from "../../members/memberForm/form";
 import Checkout from "./checkout";
-import { NumericKeys } from "node_modules/react-hook-form/dist/types/path/common";
+import ParkReceipt from "./park-receipt";
+import { useGetStaffListQuery } from "@/services/staffsApi";
 interface searchCriteriaType {
   search_key?: string;
 }
 
 const Sell = () => {
   const { id } = useParams()
-  console.log({ id }, "refunds")
+  const navigate = useNavigate()
+  // register session info
   const { time, isOpen, isContinue, continueDate, sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { time: null, isOpen: false, isContinue: false, continueDate: null, sessionId: null };
   const { userInfo } = useSelector((state: RootState) => state.auth);
-  console.log({ userInfo })
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
 
+  // initial value before sale is parked or sold
   const initialValues: sellForm = {
     staff_id: userInfo?.user.id,
     counter_id: counter_number as number, //counter id
@@ -94,30 +87,80 @@ const Sell = () => {
     events: [],
     products: [],
     payments: [],
+    created_by: userInfo?.user.id as number
   }
-  const { data: orgTaxType } = useGetOrgTaxTypeQuery(orgId)
-  const [productPayload, setProductPayload] = useState<sellItem[]>([])
-  const [showCheckout, setShowCheckout] = useState<boolean>(false)
-  const [dayExceeded, setDayExceeded] = useState<boolean>(false)
-  const navigate = useNavigate()
   const form = useForm<sellForm>({
     mode: "all",
     defaultValues: initialValues,
   });
-
   const {
-    control,
     watch,
     register,
     setValue,
-    getValues,
-    handleSubmit,
-    clearErrors,
     reset,
     formState: { isSubmitting, errors },
   } = form;
   const watcher = watch();
 
+  const [productPayload, setProductPayload] = useState<sellItem[]>([])
+  const [showCheckout, setShowCheckout] = useState<boolean>(false)
+  const [dayExceeded, setDayExceeded] = useState<boolean>(false)
+
+  // search product
+  const [searchCriteria, setSearchCriteria] = useState<searchCriteriaType>({});
+  const [query, setQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const debouncedInputValue = useDebounce(inputValue, 500);
+  // select customer
+  const [customer, setCustomer] = useState<Record<string, any> | null>(null);
+  const [openParkSale, setParkSale] = useState(false)
+  const [openStaffDropdown, setStaffDropdown] = useState(false)
+  const [action, setAction] = useState<"add" | "edit">("add")
+  const [openMemberForm, setOpenMemberForm] = useState<boolean>(false)
+  const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
+    null
+  );
+
+  // listing apis
+  const { data: staffList } = useGetStaffListQuery(orgId)
+  const { data: orgTaxType } = useGetOrgTaxTypeQuery(orgId)
+  const { data: incomeCatData } = useGetIncomeCategorListQuery(orgId);
+  const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
+  const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId, query: query })
+  const { data: memberList, refetch: memberRefetch } = useGetAllMemberQuery({ org_id: orgId, query: "sort_key=id&sort_order=desc" })
+  const [createTransaction] = useCreateTransactionMutation();
+  const [updateTransaction] = usePatchTransactionMutation()
+  const [transactionId, setTransactionId] = useState<number | undefined>(undefined)
+  const { data: retriveSaleData } = useGetTransactionByIdQuery(
+    { transaction_id: transactionId as number, counter_id: watcher.counter_id },
+    {
+      skip: transactionId == undefined
+    })
+
+  // get unpaid sales to retrive sale
+  const {
+    data: transactionData,
+    refetch: transactionRefetch,
+  } = useGetTransactionQuery(
+    { counter_id: counter_number as number, query: 'status=Unpaid&sort_order=desc' },
+    {
+      skip: counter_number == null,
+    }
+  );
+
+  const transactiontableData = useMemo(() => {
+    return Array.isArray(transactionData?.data) ? transactionData?.data : [];
+  }, [transactionData]);
+
+  const memberListData = useMemo(() => {
+    return Array.isArray(memberList?.data) ? memberList?.data : [];
+  }, [memberList]);
+
+  const memberhsipListData = useMemo(() => {
+    return Array.isArray(memberhsipList?.data) ? memberhsipList?.data : [];
+  }, [memberhsipList]);
+
+  // if navigating back to sell page, the checkout scren must reset
   useEffect(() => {
     if (!id) {
       reset(initialValues as sellForm)
@@ -127,6 +170,7 @@ const Sell = () => {
     }
   }, [id])
 
+  // for past 24 hour validation
   useEffect(() => {
     const now = new Date();
     const hasContinueDatePassed = continueDate
@@ -149,34 +193,9 @@ const Sell = () => {
       setDayExceeded(true)
     }
 
-
-
   }, [isOpen, time, isContinue, continueDate])
 
-  // search product
-  const [searchCriteria, setSearchCriteria] = useState<searchCriteriaType>({});
-  const [query, setQuery] = useState("");
-  const [inputValue, setInputValue] = useState("");
-  const debouncedInputValue = useDebounce(inputValue, 500);
-
-  // get unpaid sales to retrive sale
-  const {
-    data: transactionData,
-    refetch: transactionRefetch,
-  } = useGetTransactionQuery(
-    { counter_id: counter_number as number, query: 'status=Unpaid&sort_order=desc' },
-    {
-      skip: counter_number == null,
-    }
-  );
-  const transactiontableData = useMemo(() => {
-    return Array.isArray(transactionData?.data) ? transactionData?.data : [];
-  }, [transactionData]);
-
-
-  // select customer
-  const [customer, setCustomer] = useState<Record<string, any> | null>(null);
-
+  // for search products
   useEffect(() => {
     setSearchCriteria((prev) => {
       const newCriteria = { ...prev };
@@ -189,10 +208,10 @@ const Sell = () => {
     });
   }, [debouncedInputValue, setSearchCriteria]);
 
+  // for filters to add in query params
   useEffect(() => {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(searchCriteria)) {
-      console.log({ key, value });
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
           value.forEach((val) => {
@@ -208,26 +227,12 @@ const Sell = () => {
     setQuery(newQuery);
   }, [searchCriteria]);
 
-  const { data: incomeCatData } = useGetIncomeCategorListQuery(orgId);
-  const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
-  const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId, query: query })
-  const { data: memberList, refetch: memberRefetch } = useGetAllMemberQuery({ org_id: orgId, query: "sort_key=id&sort_order=desc" })
-
-  const [action, setAction] = useState<"add" | "edit">("add")
-  const [openMemberForm, setOpenMemberForm] = useState<boolean>(false)
-  const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
-    null
-  );
 
   function handleOpenForm() {
     setAction("add");
     setEditMember(null);
     setOpenMemberForm(true);
   }
-
-  const memberhsipListData = useMemo(() => {
-    return Array.isArray(memberhsipList?.data) ? memberhsipList?.data : [];
-  }, [memberhsipList]);
 
   // product lists by category
   const productCategories = [
@@ -378,13 +383,6 @@ const Sell = () => {
   };
 
 
-  const memberListData = useMemo(() => {
-    return Array.isArray(memberList?.data) ? memberList?.data : [];
-  }, [memberList]);
-
-  const modifiedMemberListData = memberListData?.map((customer: any) => ({ value: customer.id + "", label: customer.first_name + ' ' + customer.last_name })) || []
-
-
   const subtotal = productPayload.reduce(
     (acc, product) => acc + product.price * product.quantity,
     0
@@ -399,7 +397,7 @@ const Sell = () => {
     0
   );
 
-  const total = subtotal - totalDiscount + tax;
+  const total = subtotal + tax;
 
   console.log({ totalDiscount, tax, subtotal, total })
 
@@ -413,7 +411,7 @@ const Sell = () => {
       setValue("member_id", customer.id)
       setValue("member_name", customer.first_name + " " + customer.last_name)
       setValue("member_email", customer.email)
-      setValue("member_address", customer.address_1 + ", " + customer.address_2)
+      setValue("member_address", customer.address_1)
       setValue("member_gender", customer.gender)
     }
 
@@ -428,19 +426,17 @@ const Sell = () => {
     const registerData = JSON.parse(localStorage.getItem("registerSession") as string);
     registerData.isContinue = true;
     registerData.continueDate = new Date();
-    console.log({ registerData })
     localStorage.setItem("registerSession", JSON.stringify(registerData))
     setDayExceeded(false)
   }
 
-
-  const paymentCheckout = () => {
+  const validateCheckout = () => {
     if (productPayload.length == 0) {
       toast({
         variant: "destructive",
         title: "Please add products to the register",
       })
-      return;
+      return false;
     }
 
     if (!customer) {
@@ -448,40 +444,44 @@ const Sell = () => {
         variant: "destructive",
         title: "Please select a customer",
       })
-      return;
+      return false;
     }
-    setShowCheckout(true);
+
+    return true
   }
-  const [createTransaction] = useCreateTransactionMutation();
+
+  const paymentCheckout = () => {
+    const validation = validateCheckout()
+    validation && setShowCheckout(true);
+  }
+
 
   const parkSale = async () => {
 
-    if (watcher.membership_plans && watcher.membership_plans.length == 0) {
-      toast({
-        variant: "destructive",
-        title: "Please add products to the register",
-      })
-      return;
-    }
-
-    if (!watcher.member_id) {
-      toast({
-        variant: "destructive",
-        title: "Please select a customer",
-      })
-      return;
-    }
-
     try {
-      const resp = await createTransaction(watcher).unwrap();
-      if (resp) {
-        toast({
-          variant: "success",
-          title: "Sale parked successfully",
-        })
-        setProductPayload([])
-        setCustomer(null)
-        transactionRefetch()
+      if (!watcher.id && watcher.status === "Unpaid") {
+
+        const resp = await createTransaction(watcher).unwrap();
+        if (resp) {
+          toast({
+            variant: "success",
+            title: "Sale parked successfully",
+          })
+          setProductPayload([])
+          setCustomer(null)
+          transactionRefetch()
+        }
+      } else if (watcher.id && watcher.status === "Unpaid") {
+        const resp = await updateTransaction({ id: watcher.id, status: "Paid" }).unwrap();
+        if (resp) {
+          toast({
+            variant: "success",
+            title: "Sale parked updated successfully",
+          })
+          setProductPayload([])
+          setCustomer(null)
+          transactionRefetch()
+        }
       }
     } catch (error: unknown) {
       if (error && typeof error === "object" && "data" in error) {
@@ -501,12 +501,6 @@ const Sell = () => {
     }
   }
 
-  const [transactionId, setTransactionId] = useState<number | undefined>(undefined)
-  const { data: retriveSaleData } = useGetTransactionByIdQuery(
-    { transaction_id: transactionId as number, counter_id: watcher.counter_id },
-    {
-      skip: transactionId == undefined
-    })
 
 
   useEffect(() => {
@@ -525,7 +519,7 @@ const Sell = () => {
         batch_id: sessionId, //register id
       }
 
-      if (Number(id)) {
+      if (Number(id) && payload.status === "Paid") {
         delete payload.id;
         payload.transaction_type = "Refund";
         payload.main_transaction_id = Number(id)
@@ -535,7 +529,6 @@ const Sell = () => {
       reset(payload)
     }
   }, [retriveSaleData])
-
 
   console.log({ watcher, productPayload, transactionId })
 
@@ -568,13 +561,17 @@ const Sell = () => {
                       <TabsContent className="m-0  w-full " key={category.type} value={category.type}>
                         {category.products.length > 0 ? (
                           <div className="mt-4 w-full flex flex-wrap gap-4 justify-center items-center">
-                            {category.products.map((product: Record<string, any>) => (
-                              <div onClick={() => addProduct(product, category?.type)} className="relative group hover:bg-primary/20 hover:text-black/60 size-28 text-sm cursor-pointer flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm ">
+                            {category.products.map((product: Record<string, any>, i) => (
+                              <button
+                                key={i}
+                                disabled={watcher.id ? true : false}
+                                onClick={() => addProduct(product, category?.type)}
+                                className={`relative group ${!watcher.id&&"hover:bg-primary/20 hover:text-black/60 cursor-pointer"} size-28 text-sm  flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm `}>
                                 <span className="capitalize">{product.name}</span>
                                 <span>Rs. {product.net_price}</span>
 
-                                <span className="absolute invisible group-hover:visible  bottom-0   text-black/80 text-sm z-20 p-1">Add</span>
-                              </div>
+                                {!watcher.id && <span className="absolute invisible group-hover:visible  bottom-0   text-black/80 text-sm z-20 p-1">Add</span>}
+                              </button>
                             ))}
                           </div>
                         ) : (
@@ -596,7 +593,10 @@ const Sell = () => {
                         customerList={memberListData}
                         setTransactionId={setTransactionId}
                       />
-                      <Button onClick={parkSale} className="w-full justify-center items-center gap-2">
+                      <Button onClick={() => {
+                        const validation = validateCheckout()
+                        validation && setParkSale(true)
+                      }} className="w-full justify-center items-center gap-2">
                         <i className="fa-regular fa-clock"></i>
                         Park Sale
                       </Button>
@@ -622,24 +622,25 @@ const Sell = () => {
                           <div className=" flex  justify-between items-center gap-2  p-2 ">
                             <div>
                               <p className="capitalize">{product.description}</p>
-                              {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-right">
+                              {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-left">
                                 Rs. {roundToTwoDecimals(product.price + product.discount)}
                               </p>}
                               <p className="text-sm">Rs. {product.price}</p>
                             </div>
 
                             <div className="inline-flex items-center ">
-                              <div
+                              <button
+                                disabled={Number(watcher.id) ? true : false}
                                 onClick={() => updateProductQuantity(product.item_id, "decrement")}
-                                className="bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
+                                className="disabled:cursor-not-allowed disabled:hover:bg-transparent bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
                                 <i className="fa fa-minus"></i>
-                              </div>
+                              </button>
                               <div
                                 className=" border-t border-b border-gray-100 text-gray-600 hover:bg-gray-100 inline-flex items-center px-4 py-0 select-none">
                                 {product.quantity}
                               </div>
                               <button
-                                disabled={Number(id) ? true : false}
+                                disabled={Number(watcher.id) ? true : false}
                                 onClick={() => updateProductQuantity(product.item_id, "increment")}
                                 className="disabled:cursor-not-allowed disabled:hover:bg-transparent bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
                                 <i className="fa fa-plus"></i>
@@ -678,8 +679,72 @@ const Sell = () => {
                       </div>
                       <div className="w-full flex gap-2 items-center justify-between font-bold">
                         <p>Total</p>
-                        <p>Rs. {id && "-"} {watcher.total}</p> {/* Display Total */}
+                        <p>Rs. {id && watcher.status == "Paid" && "-"} {watcher.total}</p> {/* Display Total */}
                       </div>
+                      <Separator className="my-2" />
+                      <div className="w-full flex gap-2 items-center justify-between font-bold">
+                        <p>Sold By</p>
+                        <div>
+                          <Popover open={openStaffDropdown} onOpenChange={setStaffDropdown} >
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className="capitalize w-full hover:bg-transparent border-[1px] shadow-sm bg-white"
+                                aria-expanded={openStaffDropdown}
+                              >
+                                <span className="w-full text-left font-normal">
+
+                                  {watcher.created_by
+                                    ? staffList?.find(
+                                      (staff) =>
+                                        staff.value == watcher.created_by
+                                    )?.label
+                                    : "Select Staff"}
+                                </span>
+                                <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+
+                            </PopoverTrigger>
+                            <PopoverContent className="p-0 relative " side="bottom">
+                              <Command className="w-full ">
+                                <CommandList>
+                                  <CommandInput placeholder="Select Role" />
+                                  <CommandEmpty>No country found.</CommandEmpty>
+                                  <CommandGroup className="">
+                                    {staffList &&
+                                      staffList.map((staff: any) => (
+                                        <CommandItem
+                                          value={staff.value}
+                                          key={staff.value}
+                                          onSelect={() => {
+                                            setValue(
+                                              "created_by",
+                                              Number(staff.value), // Set country_id to country.id as number
+                                            );
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                              staff.value == watcher.created_by
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                          {staff.label}
+                                          {/* Display the country name */}
+                                        </CommandItem>
+                                      ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </div>
+
+
                       <Button className="w-full bg-primary text-black rounded-sm" onClick={paymentCheckout}>
                         Checkout
                       </Button>
@@ -705,13 +770,13 @@ const Sell = () => {
               customer={customer}
               watcher={watcher}
             />
-
           )}
 
 
           <DayExceeded isOpen={dayExceeded} onClose={handleCloseDayExceeded} onContinue={handleContinueDayExceeded} closeModal={() => setDayExceeded(false)} />
         </div>
 
+        <ParkReceipt isOpen={openParkSale} onClose={() => setParkSale(false)} parkSale={parkSale} />
       </FormProvider>
 
       <MemberForm
@@ -782,7 +847,6 @@ export function CustomerCombobox({ list, setCustomer, customer, label }: custome
       setValue('')
     }
   }, [customer])
-  console.log({ value, customer }, "customer")
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -798,10 +862,10 @@ export function CustomerCombobox({ list, setCustomer, customer, label }: custome
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className=" w-[500px] p-0">
+      <PopoverContent className=" w-[330px] p-0">
         <Command>
           <CommandInput placeholder={label} />
-          <CommandList className="w-[500px]">
+          <CommandList className="w-[328px] custom-scrollbar">
             <CommandEmpty>No customer found.</CommandEmpty>
             <CommandGroup className="">
               {modifiedList?.map((customer: any) => (
@@ -836,7 +900,6 @@ export function RetriveSaleCombobox({ list, setCustomer, customer, label, custom
   const modifiedList = list?.map((item: any) => ({ transactionId: item.id, value: item.member_id, label: item.member_name }))
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-  console.log({ value, customer, modifiedList }, "retrived")
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild >

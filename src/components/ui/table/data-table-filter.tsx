@@ -60,7 +60,6 @@ const TableFilters = ({
   setSearchCriteria,
   filterDisplay,
 }: filtertypes) => {
-  console.log({ filterData, initialValue });
   return (
     <div>
       <Sheet open={isOpen} onOpenChange={() => setOpen(false)}>
@@ -169,7 +168,6 @@ const TableFilters = ({
                       options={element.options}
                       defaultValue={filterData[element.name] || []} // Ensure defaultValue is always an array
                       onValueChange={(selectedValues) => {
-                        console.log("Selected Values: ", selectedValues); // Debugging step
                         element.function(selectedValues); // Pass selected values to state handler
                       }}
                       placeholder={"Select " + element.label.replace(/_/g, " ")}
@@ -274,7 +272,6 @@ function Combobox({
   const [value, setValue] = useState(
     list?.find((list) => list.value == defaultValue)?.label ?? ""
   );
-  console.log({ value, list, defaultValue });
   return (
     <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
@@ -308,7 +305,6 @@ function Combobox({
                     key={item.value}
                     value={item.value}
                     onSelect={(currentValue) => {
-                      console.log({ currentValue, value });
                       setValue(currentValue == value ? "" : currentValue);
                       setFilter(
                         list &&

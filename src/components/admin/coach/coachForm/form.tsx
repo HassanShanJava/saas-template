@@ -98,7 +98,7 @@ enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
-  prefer_no_to_say = "Prefer not to say",
+  prefer_no_to_say = "prefer not to say",
 }
 
 interface CoachFormProps {
@@ -844,7 +844,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                             <SelectItem value="male">Male</SelectItem>
                             <SelectItem value="female">Female</SelectItem>
                             <SelectItem value="other">Other</SelectItem>
-                            <SelectItem value="Prefer not to say">
+                            <SelectItem value="prefer not to say">
                               Prefer not to say
                             </SelectItem>
                           </SelectContent>
@@ -893,9 +893,26 @@ const CoachForm: React.FC<CoachFormProps> = ({
                               mode="single"
                               captionLayout="dropdown-buttons"
                               selected={new Date(field.value)}
-                              onSelect={(value) => {
-                                field.onChange(value);
-                                setDob(false);
+                              onSelect={(selectedDate) => {
+                                if (selectedDate) {
+                                  const today = new Date();
+                                  const oneYearAgo = new Date();
+                                  oneYearAgo.setFullYear(
+                                    today.getFullYear() - 1
+                                  );
+
+                                  // Check if the selected date is at least 1 year old
+                                  if (selectedDate <= oneYearAgo) {
+                                    field.onChange(selectedDate);
+                                    setDob(false);
+                                  } else {
+                                    toast({
+                                      variant: "destructive",
+                                      description:
+                                        "Date of birth must be at least 1 year old.",
+                                    });
+                                  }
+                                }
                               }}
                               fromYear={1960}
                               toYear={new Date().getFullYear()}
@@ -906,7 +923,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                     : Date.now()
                                 )
                               }
-                              disabled={(date: any) =>
+                              disabled={(date: Date) =>
                                 date > new Date() ||
                                 date < new Date("1900-01-01")
                               }
@@ -1064,7 +1081,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           <FormControl>
                             <SelectTrigger
                               floatingLabel="Source*"
-                              className={"font-medium text-gray-800"}
+                              className={"font-base text-gray-800"}
                             >
                               <SelectValue>
                                 {field.value === 0

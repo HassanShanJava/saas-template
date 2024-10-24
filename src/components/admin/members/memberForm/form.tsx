@@ -132,7 +132,7 @@ enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
-  prefer_no_to_say = "Prefer not to say",
+  prefer_no_to_say = "prefer not to say",
 }
 export enum statusEnum {
   pending = "pending",
@@ -934,7 +934,7 @@ const MemberForm = ({
                               <SelectItem value="male">Male</SelectItem>
                               <SelectItem value="female">Female</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
-                              <SelectItem value="Prefer not to say">
+                              <SelectItem value="prefer not to say">
                                 Prefer not to say
                               </SelectItem>
                             </SelectContent>
@@ -996,9 +996,26 @@ const MemberForm = ({
                                 defaultMonth={
                                   (value as Date) ? (value as Date) : undefined
                                 }
-                                onSelect={(value) => {
-                                  onChange(value);
-                                  setDob(false);
+                                onSelect={(selectedDate) => {
+                                  if (selectedDate) {
+                                    const today = new Date();
+                                    const oneYearAgo = new Date();
+                                    oneYearAgo.setFullYear(
+                                      today.getFullYear() - 1
+                                    );
+
+                                    // Check if the selected date is at least 1 year old
+                                    if (selectedDate <= oneYearAgo) {
+                                      onChange(selectedDate);
+                                      setDob(false);
+                                    } else {
+                                      toast({
+                                        variant: "destructive",
+                                        description:
+                                          "Date of birth must be at least 1 year old.",
+                                      });
+                                    }
+                                  }
                                 }}
                                 fromYear={1960}
                                 toYear={new Date().getFullYear()}

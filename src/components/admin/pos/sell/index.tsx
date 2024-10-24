@@ -49,6 +49,7 @@ import MemberForm from "../../members/memberForm/form";
 import Checkout from "./checkout";
 import ParkReceipt from "./park-receipt";
 import { useGetStaffListQuery } from "@/services/staffsApi";
+import { useGetlastRegisterSessionQuery } from "@/services/registerApi";
 interface searchCriteriaType {
   search_key?: string;
 }
@@ -62,6 +63,9 @@ const Sell = () => {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
+
+  const { data: lastSession } = useGetlastRegisterSessionQuery(counter_number as number)
+
 
   // initial value before sale is parked or sold
   const initialValues: sellForm = {
@@ -174,10 +178,10 @@ const Sell = () => {
   useEffect(() => {
     const now = new Date();
     const hasContinueDatePassed = continueDate
-      ? new Date(continueDate).setHours(0, 0, 0, 0) !== now.setHours(0, 0, 0, 0)
+      ? new Date(lastSession?.opening_time as string).setHours(0, 0, 0, 0) !== now.setHours(0, 0, 0, 0)
       : false;
 
-    if (!isOpen) {
+    if (lastSession?.closing_time) {
       toast({
         variant: "success",
         title: "Please open register before selling.",
@@ -186,10 +190,7 @@ const Sell = () => {
       return;
     }
 
-    if (time && has24HoursPassed(Number(time))) {
-    }
-
-    if (isContinue && hasContinueDatePassed) {
+    if (hasContinueDatePassed) {
       setDayExceeded(true)
     }
 
@@ -403,7 +404,7 @@ const Sell = () => {
 
   useEffect(() => {
     setValue("discount_amt", roundToTwoDecimals(totalDiscount))
-  setValue("subtotal", roundToTwoDecimals(subtotal))
+    setValue("subtotal", roundToTwoDecimals(subtotal))
     setValue("tax_amt", roundToTwoDecimals(tax))
     setValue("total", roundToTwoDecimals(total))
 
@@ -566,7 +567,7 @@ const Sell = () => {
                                 key={i}
                                 disabled={watcher.id ? true : false}
                                 onClick={() => addProduct(product, category?.type)}
-                                className={`relative group ${!watcher.id&&"hover:bg-primary/20 hover:text-black/60 cursor-pointer"} size-28 text-sm  flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm `}>
+                                className={`relative group ${!watcher.id && "hover:bg-primary/20 hover:text-black/60 cursor-pointer"} size-28 text-sm  flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm `}>
                                 <span className="capitalize">{product.name}</span>
                                 <span>Rs. {product.net_price}</span>
 

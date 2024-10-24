@@ -178,7 +178,6 @@ export default function SaleTaxesTableView() {
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log({ name, value }, "name,value");
     let finalValue: number | string = value;
     if (name == "percentage") {
       finalValue = Number(value);

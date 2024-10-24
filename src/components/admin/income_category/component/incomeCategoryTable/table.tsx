@@ -299,8 +299,7 @@ export default function IncomeCategoryTableView() {
         const sales: any = salesTaxData?.filter(
           (item) => item.id == row.original.sale_tax_id
         )[0];
-        console.log({ salesTaxData, sales }, row.original.sale_tax_id, "sales");
-        return <span>{sales?.name + " (" + sales?.percentage + "%)"}</span>;
+        return <span className="capitalize">{sales?.name + " (" + sales?.percentage + "%)"}</span>;
       },
       enableSorting: false,
       enableHiding: false,

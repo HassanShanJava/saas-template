@@ -362,21 +362,6 @@ export default function MemberTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            <div className="size-8 flex gap-2 items-center justify-between">
-              {row.original.profile_img ? (
-                <img
-                  src={
-                    row.original.profile_img.includes(VITE_VIEW_S3_URL)
-                      ? row.original.profile_img
-                      : `${VITE_VIEW_S3_URL}/${row.original.profile_img}`
-                  }
-                  loading="lazy"
-                  className="size-8 bg-gray-100 object-contain rounded-sm "
-                />
-              ) : (
-                <div className="size-8 bg-gray-100 rounded-sm"></div>
-              )}
-            </div>
             <div className="">
               <TooltipProvider>
                 <Tooltip>

@@ -163,7 +163,9 @@ const WorkoutStep2: React.FC = () => {
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [query, setQuery] = useState<string>("");
   const [exerciseFilterOpen, setExerciseFilterOpen] = useState<boolean>(true);
-  const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<number>();
+  const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<
+    number | undefined
+  >(undefined);
   const [currExercise, setCurrExercise] = useState<Exercise | null>(null);
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
   const [filterData, setFilter] = useState<ExerciseFilter>({});
@@ -204,7 +206,6 @@ const WorkoutStep2: React.FC = () => {
 
   useEffect(() => {
     if (WorkoutDays) {
-      console.log("eGetAllWorkoutDayQueryetsData:", WorkoutDays);
       WorkoutDays.map((dbDay) => {
         const idx = (dbDay.week - 1) * 7 + (dbDay.day - 1);
         setDays((days) =>
@@ -234,7 +235,6 @@ const WorkoutStep2: React.FC = () => {
     setQuery(newQuery);
   }, [filterData, debouncedSearchTerm]);
 
-  console.log("Workout id", workoutId);
   const Exercise_info: ExerciseItem[] = [
     {
       type: "multiselect",
@@ -305,7 +305,6 @@ const WorkoutStep2: React.FC = () => {
       day: (idx % 7) + 1,
       workout_id: Number(workoutId) || 0,
     };
-    console.log("onSave", day_name, newDay);
 
     addWorkoutDay(newDay)
       .unwrap()
@@ -450,7 +449,6 @@ const WorkoutStep2: React.FC = () => {
     day_id: number
   ) => {
     try {
-      console.log("exercise", exercise);
       setIsAddingExercise(true);
 
       const response = await addExerciseInWorkout({
@@ -486,7 +484,6 @@ const WorkoutStep2: React.FC = () => {
       });
       return;
     }
-    console.log("exercise", exercise);
     setIsAddingExercise(true);
 
     const exerciseData = {
@@ -551,7 +548,6 @@ const WorkoutStep2: React.FC = () => {
   function onSubmit(data: Exercise) {
     const processedExercise = processExercise(data);
     // Your submit logic here, using processedExercise
-    console.log(processedExercise);
   }
   const secondsPerSet = useWatch({
     control: form.control,
@@ -559,7 +555,6 @@ const WorkoutStep2: React.FC = () => {
   });
   const isOnlyOneSet = secondsPerSet?.length === 1;
   function processExercise(dataexercise: Exercise) {
-    console.log("dataexercise", dataexercise);
     // Remove unwanted properties
     const { ...cleanedExercise } = dataexercise;
 
@@ -589,19 +584,6 @@ const WorkoutStep2: React.FC = () => {
     if (cleanedExercise.exercise_intensity === IntensityEnum.max_intensity) {
       cleanedExercise.intensity_value = 0;
     }
-    // Return the modified object with only the required fields
-    console.log({
-      id: cleanedExercise.id || 0,
-      exercise_type: cleanedExercise.exercise_type || "Time Based",
-      sets: cleanedExercise.sets || 0,
-      seconds_per_set: cleanedExercise.seconds_per_set || [0],
-      repetitions_per_set: cleanedExercise.repetitions_per_set || [0],
-      rest_between_set: cleanedExercise.rest_between_set || [0],
-      exercise_intensity: cleanedExercise.exercise_intensity || "irm",
-      intensity_value: cleanedExercise.intensity_value || 0,
-      notes: cleanedExercise.notes || "",
-      exercise_id: cleanedExercise.exercise_id || 0,
-    });
 
     const exerciseDatapayloadupdate = {
       id: cleanedExercise.id || 0,
@@ -621,7 +603,6 @@ const WorkoutStep2: React.FC = () => {
       met_id: cleanedExercise.met_id,
     };
 
-    console.log("Exercise api", exerciseDatapayloadupdate);
     updateExercise(exerciseDatapayloadupdate)
       .unwrap()
       .then((response) => {
@@ -644,12 +625,7 @@ const WorkoutStep2: React.FC = () => {
       });
   }
   const watcher = watch();
-  console.log(
-    "form values check log",
-    formValues?.seconds_per_set?.length <= 1,
-    formValues.seconds_per_set,
-    watcher
-  );
+
   return (
     <div className="mt-4 space-y-4 mb-20">
       <p className="text-black/80 text-[1.37em] font-bold">
@@ -814,7 +790,6 @@ const WorkoutStep2: React.FC = () => {
                               );
                             })()}
                             onValueChange={(selectedValues) => {
-                              console.log("Selected Values: ", selectedValues);
                               handleFilterChange(element.name, selectedValues);
                             }}
                             placeholder={element.label.replace(/_/g, " ")}
@@ -870,7 +845,7 @@ const WorkoutStep2: React.FC = () => {
                               className="border border-black/25 rounded-lg p-2 hover:border-primary cursor-pointer"
                             >
                               <div className="flex justify-between items-center relative space-x-1 ">
-                                <div className="flex gap-3 w-full">
+                                <div className="flex gap-3 w-full justify-between">
                                   <img
                                     id="avatar"
                                     src={
@@ -1073,25 +1048,12 @@ const WorkoutStep2: React.FC = () => {
                         <div className="flex justify-center">
                           <RadioGroup
                             onValueChange={(e) => {
-                              console.log("exercise_type c", e);
                               onChange(e);
-                              setTimeout(
-                                () => console.log(form.getValues(), formValues),
-                                1000
-                              );
                             }}
                             defaultValue={(() => {
-                              console.log(
-                                "exercise_type v",
-                                value != null ? String(value) : undefined
-                              );
                               return value != null ? String(value) : undefined;
                             })()}
                             value={(() => {
-                              console.log(
-                                "exercise_type v",
-                                value != null ? String(value) : undefined
-                              );
                               return value != null ? String(value) : undefined;
                             })()}
                             className="flex flex-row space-x-4"
@@ -1143,7 +1105,6 @@ const WorkoutStep2: React.FC = () => {
                         )
                       ).keys(),
                     ].map((_, i) => {
-                      console.log("Map ran again");
                       return (
                         <React.Fragment key={i}>
                           {formValues.exercise_type === "Time Based" ? (
@@ -1168,7 +1129,6 @@ const WorkoutStep2: React.FC = () => {
                                       "The accepted values are between 10 to 3600",
                                   },
                                   setValueAs: (v) => {
-                                    console.log("distance value", v);
                                     return v;
                                   },
                                   validate: (v) =>
@@ -1214,7 +1174,6 @@ const WorkoutStep2: React.FC = () => {
                                       "The accepted values are between 1 to 100",
                                   },
                                   setValueAs: (v) => {
-                                    console.log("distance value", v);
                                     return v;
                                   },
                                   validate: (v) =>
@@ -1372,7 +1331,6 @@ const WorkoutStep2: React.FC = () => {
                         <FloatingLabelInput
                           {...register("distance", {
                             setValueAs: (v) => {
-                              console.log("distance value", v);
                               return v;
                             },
                             validate: (v) =>
@@ -1397,7 +1355,6 @@ const WorkoutStep2: React.FC = () => {
                         <FloatingLabelInput
                           {...register("speed", {
                             setValueAs: (v) => {
-                              console.log("speed value", v);
                               return v;
                             },
                             validate: (v) =>
@@ -1433,18 +1390,9 @@ const WorkoutStep2: React.FC = () => {
                             <div className="flex justify-center">
                               <RadioGroup
                                 onValueChange={(e) => {
-                                  console.log(e);
                                   onChange(e);
-                                  setTimeout(
-                                    () =>
-                                      console.log(form.getValues(), formValues),
-                                    1000
-                                  );
                                 }}
                                 defaultValue={(() => {
-                                  console.log(
-                                    value != null ? String(value) : undefined
-                                  );
                                   return value != null
                                     ? String(value)
                                     : undefined;
@@ -1466,7 +1414,6 @@ const WorkoutStep2: React.FC = () => {
                                     <FloatingLabelInput
                                       {...register("intensity_value", {
                                         setValueAs: (v) => {
-                                          console.log("speed value", v);
                                           return v;
                                         },
                                         validate: (v) =>

@@ -4,7 +4,7 @@ enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
-  prefer_no_to_say = "Prefer not to say",
+  prefer_no_to_say = "prefer not to say",
 }
 export interface sellItem {
   item_id: number;

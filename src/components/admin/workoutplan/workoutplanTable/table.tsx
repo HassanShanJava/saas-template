@@ -96,14 +96,12 @@ export default function WorkoutPlansTableView() {
 
       return newCriteria;
     });
-    console.log({ debouncedInputValue });
   }, [debouncedInputValue, setSearchCriteria]);
 
   useEffect(() => {
     const params = new URLSearchParams();
     // Iterate through the search criteria
     for (const [key, value] of Object.entries(searchCriteria)) {
-      console.log("just checking here", [key, value]);
       if (value !== undefined && value !== null) {
         // Check if the value is an array
         if (Array.isArray(value)) {
@@ -118,7 +116,6 @@ export default function WorkoutPlansTableView() {
 
     // Create the final query string
     const newQuery = params.toString();
-    console.log({ newQuery });
     setQuery(newQuery); // Update the query state for API call
   }, [searchCriteria]);
 
@@ -195,7 +192,6 @@ export default function WorkoutPlansTableView() {
       refetch();
 
       if (resp) {
-        console.log({ resp });
         toast({
           variant: "success",
           title: "Updated Successfully",
@@ -249,7 +245,6 @@ export default function WorkoutPlansTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        console.log("row", row);
         return (
           <div className="flex px-2 text-nowrap">
             <TooltipProvider>

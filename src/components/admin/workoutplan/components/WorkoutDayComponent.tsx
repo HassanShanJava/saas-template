@@ -263,7 +263,7 @@ export default function WorkoutDayComponent({
         {isCreating ? (
           <>
             <button
-              className="bg-transparent outline-none flex flex-row text-sm text-gray-500"
+              className="bg-transparent gap-2 outline-none flex flex-row text-sm text-gray-500"
               disabled
             >
               <svg

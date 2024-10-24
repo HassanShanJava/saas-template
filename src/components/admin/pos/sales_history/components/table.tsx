@@ -55,7 +55,7 @@ import {
   displayValue,
   formatDate,
   replaceUnderscoreWithSpace,
-  SaleHistoryMapper,
+  saleHistoryMapper,
 } from "@/utils/helper";
 import Pagination from "@/components/ui/table/pagination-table";
 import usePagination from "@/hooks/use-pagination";
@@ -209,7 +209,7 @@ export default function SaleshistoryRegisterViewTable() {
       });
       return;
     }
-    downloadCSV(selectedRows, "sale_report.csv", SaleHistoryMapper);
+    downloadCSV(selectedRows, "sale_report.csv", saleHistoryMapper);
   };
 
   const actionsColumn: ColumnDef<salesReportInterface> = {

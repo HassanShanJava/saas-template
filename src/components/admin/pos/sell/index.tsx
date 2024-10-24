@@ -58,13 +58,14 @@ const Sell = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   // register session info
-  const { time, isOpen, isContinue, continueDate, sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { time: null, isOpen: false, isContinue: false, continueDate: null, sessionId: null };
+  const { continueDate, sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { time: null, isOpen: false, isContinue: false, continueDate: null, sessionId: null };
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
 
-  const { data: lastSession } = useGetlastRegisterSessionQuery(counter_number as number)
+  const { data: lastSession, refetch: lastSessionRefetch, isFetching } = useGetlastRegisterSessionQuery(counter_number as number, { refetchOnMountOrArgChange: true })
+  console.log({ lastSession }, "lastSession")
 
 
   // initial value before sale is parked or sold
@@ -176,12 +177,14 @@ const Sell = () => {
 
   // for past 24 hour validation
   useEffect(() => {
+    lastSessionRefetch()
     const now = new Date();
     const hasContinueDatePassed = continueDate
       ? new Date(lastSession?.opening_time as string).setHours(0, 0, 0, 0) !== now.setHours(0, 0, 0, 0)
       : false;
 
-    if (lastSession?.closing_time) {
+    if (lastSession && !isFetching && lastSession.closing_time !== null) {
+      console.log({ lastSession }, "lastSessionlastSession")
       toast({
         variant: "success",
         title: "Please open register before selling.",
@@ -194,7 +197,7 @@ const Sell = () => {
       setDayExceeded(true)
     }
 
-  }, [isOpen, time, isContinue, continueDate])
+  }, [lastSession, lastSessionRefetch])
 
   // for search products
   useEffect(() => {

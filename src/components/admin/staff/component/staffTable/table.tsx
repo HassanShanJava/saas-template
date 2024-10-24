@@ -595,17 +595,6 @@ export default function StaffTableView() {
     },
   });
 
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
-  }
-
-  function handleRoleName(value: string) {
-    setFilter((prev) => ({
-      ...prev,
-      role_id: value,
-    }));
-  }
 
   function handleFilterChange(field: string, value: string | number) {
     setFilter((prev) => ({

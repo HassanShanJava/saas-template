@@ -54,7 +54,12 @@ import { FiUpload } from "react-icons/fi";
 import * as z from "zod";
 import { toast } from "@/components/ui/use-toast";
 import { ErrorType, Workout, WorkoutDatabyId } from "@/app/types";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
+import {
+  Outlet,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import StepperIndicator from "@/components/ui/stepper-indicator";
 import { useForm, UseFormHandleSubmit, UseFormReturn } from "react-hook-form";
 import {
@@ -70,10 +75,11 @@ import {
   useVerifyWorkoutCreationMutation,
 } from "@/services/workoutService";
 import { initialValue } from "@/constants/workout/index";
+import { PublishConfirmDialog } from "../components/workout-warning";
 export type ContextProps = { form: UseFormReturn<Workout> };
 const WorkoutPlanForm = () => {
   const location = useLocation(); // Use useLocation to get the current location
-
+  let [searchParams, setSearchParams] = useSearchParams();
   const { workoutId } = useParams<{ workoutId: string }>(); // Extract workoutId
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -87,8 +93,8 @@ const WorkoutPlanForm = () => {
     verifyWorkout,
     { isLoading: isVerifyLoading, isError: isVerifyError },
   ] = useVerifyWorkoutCreationMutation();
-
-  // Extract mode from query parameters
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   // Extract mode from query parameters
   const queryParams = new URLSearchParams(location.search);
   const mode = queryParams.get("mode") || "add";
@@ -325,23 +331,48 @@ const WorkoutPlanForm = () => {
 
   const handleClose = async () => {
     if (formMode === "add" && workoutIdState) {
+      setIsClosing(true);
       try {
         await deleteWorkout(workoutIdState).unwrap();
+        console.log("Use Effect runs3 add");
+
         navigate("/admin/workoutplans");
       } catch (error) {
         console.error("Failed to delete workout:", error);
+        setIsClosing(false);
+        toast({
+          variant: "destructive",
+          description: "Failed to delete workout. Please try again.",
+        });
       }
     } else {
-      navigate("/admin/workoutplans");
+      if (workoutdataStep1?.is_published === false) {
+        setIsDialogOpen(true);
+      } else {
+        console.log("Use Effect runs4 last else");
+        console.log("searchParams", searchParams);
+        if (mode === "add") {
+          navigate("/admin/workoutplans");
+        }
+      }
     }
   };
 
+  console.log("searchParams", mode === "add");
   console.log(
     "WorkOutId step 1 data to populate",
     { workoutdataStep1 },
     { watcher },
     { workoutIdState }
   );
+  const handleonlyDialog = () => {
+    setIsDialogOpen(false);
+  };
+  // Function to handle dialog cancellation
+  const handleDialogCancel = () => {
+    setIsDialogOpen(false); // Just close the dialog, stay on the current page
+    navigate("/admin/workoutplans"); // Navigate to workout plans page
+  };
   // console.log(, "edit");
   useEffect(() => {
     if (workoutError) {
@@ -353,6 +384,7 @@ const WorkoutPlanForm = () => {
           description: "The requested workout does not exist.",
         });
         // Close the form and navigate back to the workout plans list
+        console.log("Use Effect runs1 error");
         navigate("/admin/workoutplans");
       } else {
         // Handle other types of errors
@@ -384,6 +416,8 @@ const WorkoutPlanForm = () => {
             variant: "success",
             description: "Workout saved successfully!",
           });
+          console.log("Use Effect runs2 status");
+
           navigate("/admin/workoutplans"); // Navigate to admin/workoutplans on success
         } else {
           toast({
@@ -417,105 +451,123 @@ const WorkoutPlanForm = () => {
       }
     }
   };
+
   return (
-    <Sheet open={true}>
-      <SheetContent
-        className="lg:!max-w-[950px] py-0 custom-scrollbar h-full w-[85%] sm:w-full sm:max-w-3xl"
-        hideCloseButton
-      >
-        <SheetHeader className="sticky z-40 top-0 py-4 bg-white">
-          <SheetTitle>
-            <div className="flex justify-between gap-5 items-start ">
-              <div>
-                <p className="font-semibold">Workout Plans</p>
-              </div>
-              <div className="flex justify-center space-x-[20px]">
-                <LoadingButton
-                  type="button"
-                  className="w-[100px] text-center flex items-center gap-2 border-primary"
-                  variant={"outline"}
-                  onClick={handleClose}
-                  loading={isDeleting}
-                  disabled={
-                    isSubmittedcode || AddworkoutLoading || updateLoading
-                  }
-                >
-                  <i className="fa fa-xmark "></i>
-                  Cancel
-                </LoadingButton>
-
-                {activeStep !== 1 && (
-                  <Button
-                    className="w-[100px] px-2 text-center flex items-center gap-2 border-primary"
+    <>
+      <Sheet open={true}>
+        <SheetContent
+          className="lg:!max-w-[950px] py-0 custom-scrollbar h-full w-[85%] sm:w-full sm:max-w-3xl"
+          hideCloseButton
+        >
+          <SheetHeader className="sticky z-40 top-0 py-4 bg-white">
+            <SheetTitle>
+              <div className="flex justify-between gap-5 items-start ">
+                <div>
+                  <p className="font-semibold">Workout Plans</p>
+                </div>
+                <div className="flex justify-center space-x-[20px]">
+                  <LoadingButton
                     type="button"
+                    className="w-[100px] text-center flex items-center gap-2 border-primary"
                     variant={"outline"}
-                    onClick={() => navigateToStep(activeStep - 1)}
-                  >
-                    <i className="fa fa-arrow-left-long "></i>
-                    Previous
-                  </Button>
-                )}
-
-                {activeStep === LAST_STEP ? (
-                  <LoadingButton
-                    type="submit"
-                    className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                    onClick={handleVerifyWorkout}
-                    loading={isVerifyLoading}
-                    disabled={isSubmitting || workoutidDataLoading}
-                  >
-                    {!isVerifyLoading && (
-                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                    )}
-                    Save
-                  </LoadingButton>
-                ) : (
-                  <LoadingButton
-                    type="button"
-                    className="w-[200px] bg-primary text-black text-center flex items-center gap-2"
-                    onClick={() => {
-                      form.handleSubmit(async (data) => {
-                        await onSubmit(data);
-                        console.log("Step of action active", activeStep, data);
-                        const newActive = activeStep + 1;
-                        // setActiveStep(newActive);
-                        navigateToStep(activeStep + 1);
-                      }, onError)();
-                    }}
-                    loading={
-                      isSubmittedcode || AddworkoutLoading || updateLoading
-                    }
+                    onClick={handleClose}
+                    loading={isDeleting}
                     disabled={
                       isSubmittedcode || AddworkoutLoading || updateLoading
                     }
                   >
-                    {!(isSubmitting || AddworkoutLoading || updateLoading) && (
-                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                    )}
-                    <i className="fa fa-arrow-right-long "></i>
-                    Save & Next
+                    <i className="fa fa-xmark "></i>
+                    Cancel
                   </LoadingButton>
-                )}
+
+                  {(activeStep) !== 1 && (
+                    <Button
+                      className="w-[100px] px-2 text-center flex items-center gap-2 border-primary"
+                      type="button"
+                      variant={"outline"}
+                      onClick={() => navigateToStep(activeStep - 1)}
+                    >
+                      <i className="fa fa-arrow-left-long "></i>
+                      Previous
+                    </Button>
+                  )}
+
+                  {activeStep === LAST_STEP ? (
+                    <LoadingButton
+                      type="submit"
+                      className="w-[200px] bg-primary text-black text-center flex items-center gap-2"
+                      onClick={handleVerifyWorkout}
+                      loading={isVerifyLoading}
+                      disabled={isSubmitting || workoutidDataLoading}
+                    >
+                      {!isVerifyLoading && (
+                        <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                      )}
+                      Publish Workout
+                    </LoadingButton>
+                  ) : (
+                    <LoadingButton
+                      type="button"
+                      className="w-[200px] bg-primary text-black text-center flex items-center gap-2"
+                      onClick={() => {
+                        form.handleSubmit(async (data) => {
+                          await onSubmit(data);
+                          console.log(
+                            "Step of action active",
+                            activeStep,
+                            data
+                          );
+                          const newActive = activeStep + 1;
+                          // setActiveStep(newActive);
+                          navigateToStep(activeStep + 1);
+                        }, onError)();
+                      }}
+                      loading={
+                        isSubmittedcode || AddworkoutLoading || updateLoading
+                      }
+                      disabled={
+                        isSubmittedcode || AddworkoutLoading || updateLoading
+                      }
+                    >
+                      {!(
+                        isSubmitting ||
+                        AddworkoutLoading ||
+                        updateLoading
+                      ) && (
+                        <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                      )}
+                      <i className="fa fa-arrow-right-long "></i>
+                      Save & Next
+                    </LoadingButton>
+                  )}
+                </div>
               </div>
+            </SheetTitle>
+            <Separator className="h-[1px] rounded-full my-2" />
+          </SheetHeader>
+          <div className="flex justify-center mt-5">
+            <div className="w-1/2 flex justify-center">
+              <StepperIndicator
+                activeStep={activeStep}
+                labels={[
+                  { key: 1, label: "Plan Information" },
+                  { key: 2, label: "Training & Exercise" },
+                ]}
+                lastKey={LAST_STEP}
+              />
             </div>
-          </SheetTitle>
-          <Separator className="h-[1px] rounded-full my-2" />
-        </SheetHeader>
-        <div className="flex justify-center mt-5">
-          <div className="w-1/2 flex justify-center">
-            <StepperIndicator
-              activeStep={activeStep}
-              labels={[
-                { key: 1, label: "Plan Information" },
-                { key: 2, label: "Training & Exercise" },
-              ]}
-              lastKey={LAST_STEP}
-            />
           </div>
-        </div>
-        <Outlet context={{ form } satisfies ContextProps} />
-      </SheetContent>
-    </Sheet>
+          <Outlet context={{ form } satisfies ContextProps} />
+        </SheetContent>
+      </Sheet>{" "}
+      <PublishConfirmDialog
+        isOpen={isDialogOpen}
+        onVerify={() => {
+          handleVerifyWorkout();
+        }}
+        onCancel={handleDialogCancel}
+      />
+    </>
   );
 };
 

@@ -94,6 +94,7 @@ enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
+  prefer_no_to_say = "Prefer not to say",
 }
 
 export enum statusEnum {
@@ -564,7 +565,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
                         avatar
                           ? String(avatar)
                           : watcher.profile_img
-                            ? (watcher.profile_img.includes(VITE_VIEW_S3_URL) ? watcher.profile_img : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`)
+                            ? watcher.profile_img.includes(VITE_VIEW_S3_URL)
+                              ? watcher.profile_img
+                              : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
                             : profileimg
                       }
                       loading="lazy"
@@ -687,6 +690,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
                             <SelectItem value="male">Male</SelectItem>
                             <SelectItem value="female">Female</SelectItem>
                             <SelectItem value="other">Other</SelectItem>
+                            <SelectItem value="Prefer not to say">
+                              Prefer not to say
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -730,7 +736,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                               mode="single"
                               captionLayout="dropdown-buttons"
                               selected={new Date(field.value)}
-                              onSelect={(value)=>{
+                              onSelect={(value) => {
                                 field.onChange(value);
                                 setDob(false);
                               }}
@@ -812,7 +818,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           {...field}
                           id="notes"
                           label="Notes"
-                        // error={form.formState.errors.notes?.message}
+                          // error={form.formState.errors.notes?.message}
                         />
                         <FormMessage />
                       </FormItem>
@@ -840,8 +846,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                 {field.value === 0
                                   ? "Select Source*"
                                   : sources?.find(
-                                    (source) => source.id === field.value
-                                  )?.source || "Select Source*"}
+                                      (source) => source.id === field.value
+                                    )?.source || "Select Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -870,7 +876,6 @@ const StaffForm: React.FC<StaffFormProps> = ({
                   <FormField
                     control={form.control}
                     name="role_id"
-
                     render={({
                       field: { onChange, value, onBlur },
                       fieldState: { invalid, error },
@@ -880,7 +885,6 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           Role Name*
                         </span>
                         <FormItem className=" w-full">
-
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
@@ -891,48 +895,47 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                   disabled={userInfo?.user?.id == watcher.id}
                                 >
                                   <span className="w-full text-left font-normal">
-
                                     {value
                                       ? roleData?.find(
-                                        (role) =>
-                                          role.id === value
-                                      )?.name
+                                          (role) => role.id === value
+                                        )?.name
                                       : "Select Role*"}
                                   </span>
                                   <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                               </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="p-0 relative " side="bottom">
+                            <PopoverContent
+                              className="p-0 relative "
+                              side="bottom"
+                            >
                               <Command className="w-full ">
-                                <CommandList >
+                                <CommandList>
                                   <CommandInput placeholder="Select Role" />
-                                  <CommandEmpty>No country found.</CommandEmpty>
+                                  <CommandEmpty>No Role found.</CommandEmpty>
                                   <CommandGroup className="">
                                     {roleData &&
-                                      roleData.filter(role => role.name !== "Admin").map((role: any) => (
-                                        <CommandItem
-                                          value={role.id}
-                                          key={role.id}
-                                          onSelect={() => {
-                                            setValue(
-                                              "role_id",
-                                              role.id // Set country_id to country.id as number
-                                            );
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                              role.id == value
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                            )}
-                                          />
-                                          {role.name}
-                                          {/* Display the country name */}
-                                        </CommandItem>
-                                      ))}
+                                      roleData
+                                        .filter((role) => role.name !== "Admin")
+                                        .map((role: any) => (
+                                          <CommandItem
+                                            value={role.id}
+                                            key={role.id}
+                                            onSelect={() => {
+                                              setValue("role_id", role.id);
+                                            }}
+                                          >
+                                            <Check
+                                              className={cn(
+                                                "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                                role.id == value
+                                                  ? "opacity-100"
+                                                  : "opacity-0"
+                                              )}
+                                            />
+                                            {role.name}
+                                          </CommandItem>
+                                        ))}
                                   </CommandGroup>
                                 </CommandList>
                               </Command>
@@ -947,7 +950,10 @@ const StaffForm: React.FC<StaffFormProps> = ({
                   {userInfo?.user?.id == watcher.id && (
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger asChild className="hover:cursor-pointer">
+                        <TooltipTrigger
+                          asChild
+                          className="hover:cursor-pointer"
+                        >
                           <Info className="size-5" />
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
@@ -956,7 +962,6 @@ const StaffForm: React.FC<StaffFormProps> = ({
                       </Tooltip>
                     </TooltipProvider>
                   )}
-
                 </div>
                 <div className="relative ">
                   <FormField
@@ -1058,64 +1063,74 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     name="country_id"
                     render={({ field }) => (
                       <FormItem className="flex flex-col w-full">
-                        <Popover open={country} onOpenChange={setCountry}>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "font-normal text-gray-800 border-[1px] justify-between hover:bg-transparent hover:text-gray-800",
-                                  !field.value &&
-                                  "  focus:border-primary "
-                                )}
-                              >
-                                {field.value
-                                  ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === field.value // Compare with numeric value
-                                  )?.country // Display country name if selected
-                                  : "Select country*"}
-                                <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="p-0">
-                            <Command>
-                              <CommandList>
-                                <CommandInput placeholder="Select Country" />
-                                <CommandEmpty>No country found.</CommandEmpty>
-                                <CommandGroup>
-                                  {countries &&
-                                    countries.map((country: CountryTypes) => (
-                                      <CommandItem
-                                        value={country.country}
-                                        key={country.id}
-                                        onSelect={() => {
-                                          form.setValue(
-                                            "country_id",
-                                            country.id // Set country_id to country.id as number
-                                          );
-                                          setCountry(false);
-                                        }}
-                                      >
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                            country.id === field.value
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          )}
-                                        />
-                                        {country.country}{" "}
-                                        {/* Display the country name */}
-                                      </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
+                        <div className="flex flex-col w-full">
+                          <label
+                            className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${
+                              field.value
+                                ? "text-xs -top-2.5"
+                                : "text-xs text-black"
+                            }`}
+                          >
+                            Country
+                          </label>
+                          <Popover open={country} onOpenChange={setCountry}>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    "font-normal text-gray-800 border-[1px] justify-between hover:bg-transparent hover:text-gray-800",
+                                    !field.value && "  focus:border-primary "
+                                  )}
+                                >
+                                  {field.value
+                                    ? countries?.find(
+                                        (country: CountryTypes) =>
+                                          country.id === field.value // Compare with numeric value
+                                      )?.country // Display country name if selected
+                                    : "Select country*"}
+                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="p-0">
+                              <Command>
+                                <CommandList>
+                                  <CommandInput placeholder="Select Country" />
+                                  <CommandEmpty>No country found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {countries &&
+                                      countries.map((country: CountryTypes) => (
+                                        <CommandItem
+                                          value={country.country}
+                                          key={country.id}
+                                          onSelect={() => {
+                                            form.setValue(
+                                              "country_id",
+                                              country.id // Set country_id to country.id as number
+                                            );
+                                            setCountry(false);
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                              country.id === field.value
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                          {country.country}{" "}
+                                          {/* Display the country name */}
+                                        </CommandItem>
+                                      ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
                         {watcher.country_id ? <></> : <FormMessage />}
                       </FormItem>
                     )}
@@ -1156,7 +1171,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
           </form>
         </Form>
       </SheetContent>
-    </Sheet >
+    </Sheet>
   );
 };
 

@@ -403,7 +403,7 @@ const Sell = () => {
 
   useEffect(() => {
     setValue("discount_amt", roundToTwoDecimals(totalDiscount))
-    setValue("subtotal", roundToTwoDecimals(subtotal))
+  setValue("subtotal", roundToTwoDecimals(subtotal))
     setValue("tax_amt", roundToTwoDecimals(tax))
     setValue("total", roundToTwoDecimals(total))
 

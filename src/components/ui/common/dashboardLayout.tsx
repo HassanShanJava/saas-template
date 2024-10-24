@@ -36,11 +36,13 @@ import { toast } from "../use-toast";
 import { useCreateTransactionMutation } from "@/services/transactionApi";
 
 const DashboardLayout: React.FC = () => {
-  const { isOpen } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { isOpen: false };
   const { pathname } = useLocation();
   const { userInfo } = useSelector((state: RootState) => state.auth);
+  const { pos_count } = JSON.parse(
+    localStorage.getItem("accessLevels") as string
+  );
+  const { data: assignedCounter } = useGetCountersQuery({ query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}` : ""}` })
 
-  const { data: assignedCounter, isLoading } = useGetCountersQuery({ query: `staff_id=${userInfo?.user?.id}&status=active` })
   const assignedCounterData = useMemo(() => {
     return Array.isArray(assignedCounter?.data) ? assignedCounter?.data : [];
   }, [assignedCounter]);
@@ -131,18 +133,20 @@ const DashboardLayout: React.FC = () => {
   };
 
   const closePOSPanel = () => {
-    closeCounter()
+
     console.log({ assignedCounterData }, "assignedCounterData")
+    localStorage.removeItem('code')
     if (assignedCounterData.length > 1) {
+      closeCounter()
       navigate('/counter-selection');
     } else {
-      localStorage.removeItem('code')
+      closeCounter()
       navigate('/');
 
     }
   }
 
-  console.log({code},"codecode")
+  console.log({ code }, "codecode")
 
   return (
     <div className="font-poppins flex h-full w-full relative ">

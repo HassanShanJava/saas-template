@@ -91,7 +91,7 @@ const Sell = () => {
     member_address: null,
     member_gender: null,
     notes: "",
-    receipt_number: "",
+    receipt_number: "INV"+Math.floor(Math.random() * 99),
     tax_number: Math.floor(Math.random() * 99),
     total: null,
     subtotal: null,
@@ -699,7 +699,7 @@ const Sell = () => {
                               <Button
                                 variant="outline"
                                 role="combobox"
-                                className="capitalize w-full hover:bg-transparent border-[1px] shadow-sm bg-white"
+                                className="font-normal capitalize w-full hover:bg-transparent border-[1px] shadow-sm bg-white "
                                 aria-expanded={openStaffDropdown}
                               >
                                 <span className="w-full text-left font-normal">
@@ -718,7 +718,7 @@ const Sell = () => {
                             <PopoverContent className="p-0 relative " side="bottom">
                               <Command className="w-full ">
                                 <CommandList>
-                                  <CommandInput placeholder="Select Role" />
+                                  <CommandInput placeholder="Select Staff" className="font-normal" />
                                   <CommandEmpty>No country found.</CommandEmpty>
                                   <CommandGroup className="">
                                     {staffList &&
@@ -726,6 +726,7 @@ const Sell = () => {
                                         <CommandItem
                                           value={staff.value}
                                           key={staff.value}
+                                          className="font-normal"
                                           onSelect={() => {
                                             setValue(
                                               "created_by",

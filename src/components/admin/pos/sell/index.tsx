@@ -11,7 +11,7 @@ import {
 import { RootState } from "@/app/store";
 import { Card } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { useGetAllMemberQuery, useGetMembersListQuery } from "@/services/memberAPi";
+import { useGetAllMemberQuery } from "@/services/memberAPi";
 import { Check, ChevronDownIcon, ChevronsUpDown, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
@@ -37,7 +37,6 @@ import { Separator } from "@/components/ui/separator";
 import { roundToTwoDecimals } from "@/utils/helper";
 import { useDebounce } from "@/hooks/use-debounce";
 import { ErrorType, MemberTableDatatypes, sellForm, sellItem } from "@/app/types";
-import { has24HoursPassed } from "@/constants/counter_register";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { FormProvider, useForm } from "react-hook-form";
@@ -50,15 +49,26 @@ import Checkout from "./checkout";
 import ParkReceipt from "./park-receipt";
 import { useGetStaffListQuery } from "@/services/staffsApi";
 import { useGetlastRegisterSessionQuery } from "@/services/registerApi";
+const { VITE_REGISTER_MAX_HOUR } = import.meta.env;
+
 interface searchCriteriaType {
   search_key?: string;
+}
+const has24HoursPassed = (date: Date) => {
+  const now = new Date();
+  const differenceInMs = now.getTime() - date.getTime();
+  const differenceInHours = differenceInMs / (1000 * 60 * 60);
+  return differenceInHours >= VITE_REGISTER_MAX_HOUR;
 }
 
 const Sell = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   // register session info
-  const { continueDate, sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { time: null, isOpen: false, isContinue: false, continueDate: null, sessionId: null };
+  const { sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { sessionId: null };
+  // register continue today?
+  const isContinue = JSON.parse(localStorage.getItem("isContinue") as string) || null
+  console.log({ isContinue }, "isContinue")
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -178,11 +188,6 @@ const Sell = () => {
   // for past 24 hour validation
   useEffect(() => {
     lastSessionRefetch()
-    const now = new Date();
-    const hasContinueDatePassed = continueDate
-      ? new Date(lastSession?.opening_time as string).setHours(0, 0, 0, 0) !== now.setHours(0, 0, 0, 0)
-      : false;
-
     if (!isFetching && lastSession?.closing_time !== null) {
       toast({
         variant: "success",
@@ -190,10 +195,14 @@ const Sell = () => {
       })
       navigate(`/admin/pos/register`)
       return;
-    }
-
-    if (hasContinueDatePassed) {
-      setDayExceeded(true)
+    } else {
+      const opening_time = new Date(lastSession?.opening_time as string)
+      // 
+      if (has24HoursPassed(opening_time) && !isContinue) {
+        setDayExceeded(true)
+      } else {
+        setDayExceeded(false)
+      }
     }
 
   }, [lastSession, lastSessionRefetch])
@@ -426,10 +435,7 @@ const Sell = () => {
   }
 
   const handleContinueDayExceeded = () => {
-    const registerData = JSON.parse(localStorage.getItem("registerSession") as string);
-    registerData.isContinue = true;
-    registerData.continueDate = new Date();
-    localStorage.setItem("registerSession", JSON.stringify(registerData))
+    localStorage.setItem("isContinue", "true")
     setDayExceeded(false)
   }
 

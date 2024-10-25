@@ -51,6 +51,7 @@ import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import {
   capitalizeFirstLetter,
+  displayDate,
   displayDateTime,
   displayValue,
   formatDate,
@@ -526,7 +527,7 @@ export default function SaleshistoryRegisterViewTable() {
           <div className="flex gap-2 items-center justify-between w-fit">
             <div className="">
               <p className="capitalize cursor-pointer text-nowrap">
-                <span>{displayDateTime(row?.original.transaction_date)}</span>
+                <span>{displayDate(row?.original.transaction_date)}</span>
               </p>
             </div>
           </div>

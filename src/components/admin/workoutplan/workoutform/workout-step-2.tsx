@@ -914,25 +914,6 @@ const WorkoutStep2: React.FC = () => {
                 <></>
               )}
             </div>
-            {/* {selectedDay && (
-              <div className="text-sm text-gray-600 bg-primary/20 p-2 rounded-md">
-                Selected: Week {selectedDay.week}, Day {selectedDay.day} -{" "}
-                {selectedDay.day_name && selectedDay.day_name.length > 8 ? (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        {selectedDay.day_name.slice(0, 8) + "..."}
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{selectedDay.day_name}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                ) : (
-                  selectedDay.day_name
-                )}
-              </div>
-            )} */}
             <div className="space-y-2">
               {addExerciseLoading && (
                 <span className="flex items-center gap-2 justify-center text-sm">
@@ -991,19 +972,6 @@ const WorkoutStep2: React.FC = () => {
               <div className="flex justify-between">
                 <span className="font-semibold">Exercise Details</span>
                 <div className="flex gap-2">
-                  {/* <button
-                    className="text-red-500"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setCurrExercise(null);
-                      setSelectedExerciseIndex(undefined);
-                    }}
-                  >
-                    <i
-                      className={`fa-solid fa-trash-can ${currExercise === null ? "opacity-50 cursor-not-allowed" : ""}`}
-                    ></i>
-                  </button> */}
-
                   {
                     <LoadingButton
                       type="submit"

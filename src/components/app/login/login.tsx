@@ -84,7 +84,7 @@ export default function AuthenticationPage() {
         title: "LogIn",
         description: "You are successfully logged In",
       });
-      links && navigate(links[0]);
+      navigate(links[0]);
     }
 
   }, [loading]);

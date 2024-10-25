@@ -197,7 +197,7 @@ export default function FoodsTableView() {
     if (selectedRows.length === 0) {
       toast({
         variant: "destructive",
-        title: "Select atleast one row for CSV download!",
+        title: "Please select one or more records to perform this action.",
       });
       return;
     }

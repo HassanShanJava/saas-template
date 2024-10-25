@@ -182,7 +182,7 @@ export default function CoachTableView() {
     if (selectedRows.length === 0) {
       toast({
         variant: "destructive",
-        title: "Please select one or more record(s) to perform this action",
+        title: "Please select one or more records to perform this action.",
       });
       return;
     }

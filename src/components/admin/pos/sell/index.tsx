@@ -91,8 +91,8 @@ const Sell = () => {
     member_address: null,
     member_gender: null,
     notes: "",
-    receipt_number: "INV"+Math.floor(Math.random() * 99),
-    tax_number: Math.floor(Math.random() * 99),
+    receipt_number: "INV"+Math.floor(Math.random() * 99), //will implement with prefix module comes
+    tax_number: Math.floor(Math.random() * 99), //from srb
     total: null,
     subtotal: null,
     tax_amt: null,

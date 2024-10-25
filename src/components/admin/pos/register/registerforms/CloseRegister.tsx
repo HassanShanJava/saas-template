@@ -71,6 +71,7 @@ const CloseRegister: React.FC = () => {
         };
         const resp = await closeRegister(payload).unwrap();
         if (resp) {
+          localStorage.removeItem("isContinue")
           toast({
             variant: "success",
             title: "Store closed successfully",

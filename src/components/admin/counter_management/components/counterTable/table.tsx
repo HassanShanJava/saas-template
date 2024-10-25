@@ -325,7 +325,7 @@ export default function CounterTableView() {
     //     const staff = staffDataList.find((staff) => staff.id === row.original.staff_id)
     //     return (
     //       row.original.staff_id ? <div className="flex flex-col items-left text-ellipsis whitespace-nowrap overflow-hidden">
-    //         <p>{(staff?.first_name + " " + staff?.last_name)}</p>
+    //         <p className="capitalize text-xs">{(staff?.first_name + " " + staff?.last_name)}</p>
     //         <p className="text-xs text-gray-400">{(staff?.email)}</p>
     //       </div> : <p>N/A
     //       </p>

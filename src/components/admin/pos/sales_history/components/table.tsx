@@ -95,7 +95,7 @@ export default function SaleshistoryRegisterViewTable() {
   const counter_number =
     useSelector((state: RootState) => state.counter?.counter_number) || 0;
 
-  const { pos_sale_history } = JSON.parse(
+  const { pos_sale_report } = JSON.parse(
     localStorage.getItem("accessLevels") as string
   );
   const orgId =
@@ -216,7 +216,7 @@ export default function SaleshistoryRegisterViewTable() {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
-      <DataTableRowActions access={pos_sale_history} data={row?.original} />
+      <DataTableRowActions access={pos_sale_report} data={row?.original} />
     ),
   };
 
@@ -536,7 +536,7 @@ export default function SaleshistoryRegisterViewTable() {
       enableHiding: false,
     },
 
-    ...(pos_sale_history !== "read" ? [actionsColumn] : []),
+    ...(pos_sale_report !== "read" ? [actionsColumn] : []),
   ];
 
   // saleshistoryTableData

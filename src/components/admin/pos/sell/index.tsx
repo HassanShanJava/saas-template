@@ -183,11 +183,10 @@ const Sell = () => {
       ? new Date(lastSession?.opening_time as string).setHours(0, 0, 0, 0) !== now.setHours(0, 0, 0, 0)
       : false;
 
-    if (lastSession && !isFetching && lastSession.closing_time !== null) {
-      console.log({ lastSession }, "lastSessionlastSession")
+    if (!isFetching && lastSession?.closing_time !== null) {
       toast({
         variant: "success",
-        title: "Please open register before selling.",
+        title: "No active register session found.",
       })
       navigate(`/admin/pos/register`)
       return;

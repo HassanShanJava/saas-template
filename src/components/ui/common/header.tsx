@@ -32,7 +32,7 @@ const pageTitles = [
   { targetPath: "/admin/paymentMethods", title: "System Settings" },
   { targetPath: "/admin/pos/sell/", title: "Point of Sale" },
   { targetPath: "/admin/pos/register", title: "Point of Sale" },
-  { targetPath: "/admin/pos/salesHistory", title: "Point of Sale" },
+  { targetPath: "/admin/pos/salesReport", title: "Point of Sale" },
   { targetPath: "/admin/pos/cash", title: "Point of Sale" },
   { targetPath: "/admin/roles", title: "Roles & Access Management" },
   { targetPath: "/admin/staff", title: "Staff" },
@@ -82,8 +82,8 @@ const breadcrumbs = [
     pageSetting: "Point of Sales",
   },
   {
-    targetPath: "/admin/pos/salesHistory",
-    title: "Sales History",
+    targetPath: "/admin/pos/salesReport",
+    title: "Sales Report",
     pageSetting: "Point of Sales",
   },
   {

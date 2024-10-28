@@ -141,7 +141,7 @@ const HardwareIntegrationForm = ({
       <Sheet open={isOpen}>
         <SheetContent
           hideCloseButton
-          className="!max-w-[1300px] py-0 custom-scrollbar p-0 bg-[#F8F9FA]"
+          className="lg:!max-w-[1100px] py-0 p-0 custom-scrollbar h-full bg-[#F8F9FA] w-[85%] sm:w-full sm:max-w-3xl"
         >
           <FormProvider {...form}>
             <form
@@ -377,8 +377,8 @@ const HardwareIntegrationForm = ({
                           />
                         </div>
                         {watcher.credit_name && (
-                          <div className="w-full mt-3">
-                            <div className="flex justify-start items-center gap-3 ">
+                          <div className="w-full mt-3 ">
+                            <div className="flex justify-start items-center gap-3 p-2 border-t">
                               <span className="text-nowrap">
                                 when member has less than
                               </span>
@@ -394,7 +394,7 @@ const HardwareIntegrationForm = ({
                                   },
                                 }}
                                 render={({ field }) => (
-                                  <Input className="w-[20%]" {...field} />
+                                  <Input className="w-[10%]" {...field} />
                                 )}
                               />
                               {errors.name?.message && (

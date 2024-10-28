@@ -457,7 +457,7 @@ const Sell = () => {
     if (productPayload.length == 0) {
       toast({
         variant: "destructive",
-        title: "Please add products to the register",
+        title: "Please add at least one item to the receipt to enable checkout.",
       })
       return false;
     }

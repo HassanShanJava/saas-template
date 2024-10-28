@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { roundToTwoDecimals } from "@/utils/helper";
-import { ErrorType, sellForm } from "@/app/types";
+import { ErrorType, Payments, sellForm } from "@/app/types";
 import { toast } from "@/components/ui/use-toast";
 import { useFormContext } from "react-hook-form";
 import { useCreateTransactionMutation, useGetTransactionByIdQuery, usePatchTransactionMutation } from "@/services/transactionApi";
@@ -122,17 +122,24 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         if (isNaN(numAmount)) return
 
         setPayments((prevPayments) => {
-            const payload = [
-                ...prevPayments,
-                {
-                    payment_method_id: id,
-                    payment_method: method_code,
-                    amount: numAmount,
-                },
-            ]
-            setValue("payments", payload)
-            return payload;
-        })
+            const updatedPayments = prevPayments.some((payment) => payment.payment_method_id === id)
+                ? prevPayments.map((payment) =>
+                    payment.payment_method_id === id
+                        ? { ...payment, amount: numAmount }
+                        : payment
+                  )
+                : [
+                    ...prevPayments,
+                    {
+                        payment_method_id: id,
+                        payment_method: method_code,
+                        amount: Math.round(numAmount),
+                    },
+                ];
+    
+            setValue("payments", updatedPayments);
+            return updatedPayments;
+        });
     }
 
 
@@ -142,6 +149,28 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             toast({
                 variant: "destructive",
                 title: "Please add at least one payment method and amount",
+            })
+            return;
+        }
+
+        const totalPayments = watcher.payments.reduce(
+            (acc:number, payment:Payments) => acc + payment.amount,
+            0
+        );
+
+        console.log({totalPayments})
+        if(totalPayments > Math.round(watcher.total)){
+            toast({
+                variant: "destructive",
+                title: "Amount exceeds total due.",
+            })
+            return;
+        }
+        
+        if(totalPayments < watcher.total){
+            toast({
+                variant: "destructive",
+                title: "Amount insufficient. Please enter the correct amount.",
             })
             return;
         }
@@ -163,7 +192,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                 if (resp) {
                     toast({
                         variant: "success",
-                        title: "Transaction successful",
+                        title: "Receipt created successfully.",
                     })
                     setInvoiceId(resp.id)
                 }
@@ -266,7 +295,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                             <Separator />
                             <div className="flex justify-between items-center">
                                 <div className="text-xl font-bold">Total</div>
-                                <div className="text-xl font-bold">{id && watcher.transaction_type == "Refund" && "- "}{roundToTwoDecimals(watcher.total)}</div>
+                                <div className="text-xl font-bold">{id && watcher.transaction_type == "Refund" && "- "}{Math.round(watcher.total)}</div>
                             </div>
                         </div>
                     </div>
@@ -332,7 +361,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                     <div className="flex justify-end ">
                         {invoiceId == null ? (
                             <div className="flex justify-end gap-3">
-                                <Button variant={"ghost"} onClick={()=>setShowCheckout(false)}>
+                                <Button variant={"ghost"} onClick={() => setShowCheckout(false)}>
                                     Back
                                 </Button>
                                 <LoadingButton

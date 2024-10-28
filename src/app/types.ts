@@ -25,6 +25,12 @@ export interface sellItem {
   tax_amount: number;
 }
 
+export interface Payments {
+  payment_method_id: number;
+  payment_method: string;
+  amount: number;
+}
+
 export interface sellForm {
   id?: number;
   counter_id: number;
@@ -51,11 +57,7 @@ export interface sellForm {
   items?: sellItem[];
   events?: sellItem[];
   products?: sellItem[];
-  payments?: {
-    payment_method_id?: number;
-    payment_method?: string;
-    amount?: number;
-  }[];
+  payments?: Payments[];
   created_by: number;
   updated_at?: number;
 }

@@ -510,7 +510,6 @@ const MemberForm = ({
     if (!isError && autoFillSuccess && !errors.email) {
       setAutoFill(true);
     } else if (isError && !errors.email) {
-      console.log({ autoFillErrors, status });
       const errorMessage =
         typeof autoFillErrors === "object" && "data" in autoFillErrors
           ? (autoFillErrors as ErrorType).data?.detail
@@ -540,7 +539,6 @@ const MemberForm = ({
     autoFillErrors,
   ]);
 
-  console.log({ emailAutoFill });
 
   function handleClose() {
     setAvatar(null);
@@ -564,11 +562,6 @@ const MemberForm = ({
       business_id: data.is_business ? null : data.business_id,
     };
 
-    // if (!updatedData.auto_renew_days) {
-    //   setValue("prolongation_period", undefined);
-    //   setValue("auto_renew_days", undefined);
-    //   setValue("inv_days_cycle", undefined);
-    // }
 
     if (selectedImage) {
       try {
@@ -622,20 +615,12 @@ const MemberForm = ({
             plan.membership_plan_id !== undefined &&
             plan.membership_plan_id !== null
         );
-        console.log(
-          {
-            ...updatedData,
-            id: memberData?.id as number,
-            membership_plans: membershipPlansdata,
-          },
-          "update"
-        );
+        
         const payload = {
           ...updatedData,
           membership_plans:
             validMembershipPlans.length > 0 ? validMembershipPlans : [],
         };
-        console.log("Payload as final", payload);
         const resp = await editMember({
           ...payload,
           id: memberData?.id as number,
@@ -675,7 +660,6 @@ const MemberForm = ({
       description: "Please fill all the mandatory fields",
     });
   };
-  console.log({ watcher, errors, action, isSubmitting });
 
   const setUserAutofill = () => {
     if (autoFill) {
@@ -688,7 +672,9 @@ const MemberForm = ({
     }
   };
 
-  console.log("Updated data watcher", watcher, membershipPlansdata);
+
+  console.log({ watcher, errors, action, isSubmitting },"memberform");
+
   return (
     <Sheet open={open}>
       <SheetContent

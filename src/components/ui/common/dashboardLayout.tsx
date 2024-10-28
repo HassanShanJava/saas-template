@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Link,
-  Navigate,
   Outlet,
-  redirect,
   useLocation,
   useNavigate,
 } from "react-router-dom";
@@ -33,7 +31,6 @@ import { Button } from "../button";
 import { extractLinks } from "@/utils/helper";
 import { useGetCountersQuery, useUpdateCountersMutation } from "@/services/counterApi";
 import { toast } from "../use-toast";
-import { useCreateTransactionMutation } from "@/services/transactionApi";
 
 const DashboardLayout: React.FC = () => {
   const { pathname } = useLocation();
@@ -49,7 +46,6 @@ const DashboardLayout: React.FC = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [createTransaction] = useCreateTransactionMutation();
   const [seperatePanel, setSeperatePanel] = useState<resourceTypes[]>([]);
   const [backtogym, setBacktogym] = useState<string>("");
   const [sidePanel, setSidePanel] = useState<resourceTypes[]>([]);
@@ -91,11 +87,9 @@ const DashboardLayout: React.FC = () => {
 
 
   useEffect(() => {
-    console.log({ pathname, code, counter_number }, pathname.includes("pos") && counter_number == null, "pathname")
     if (pathname.includes("pos") && counter_number == null) {
       dispatch(setCode("pos"));
       navigate("/counter-selection", { replace: true })
-      console.log({ counter_number }, "counterselection")
     } else if (!pathname.includes("pos")) {
       localStorage.removeItem("code");
       dispatch(setCode(null));
@@ -134,8 +128,6 @@ const DashboardLayout: React.FC = () => {
   };
 
   const closePOSPanel = () => {
-
-    console.log({ assignedCounterData }, "assignedCounterData")
     localStorage.removeItem('code')
     if (assignedCounterData.length > 1) {
       closeCounter()
@@ -143,11 +135,9 @@ const DashboardLayout: React.FC = () => {
     } else {
       closeCounter()
       navigate('/');
-
     }
   }
 
-  console.log({ code }, "codecode")
 
   return (
     <div className="font-poppins flex h-full w-full relative ">

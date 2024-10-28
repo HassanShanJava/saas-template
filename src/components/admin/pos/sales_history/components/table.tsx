@@ -418,7 +418,7 @@ export default function SaleshistoryRegisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(row.original.subtotal?.toFixed(2).toString())}
+                  {displayValue(row.original.total?.toFixed(2).toString())}
                 </span>
               </p>
             </div>
@@ -558,8 +558,8 @@ export default function SaleshistoryRegisterViewTable() {
       rowSelection,
     },
   });
-
-  const totalRecords = salesData?.filtered_counts || 0;
+  
+  const totalRecords = salesHistoryData?.filtered_counts || 0;
 
   const {
     handleLimitChange,
@@ -573,6 +573,7 @@ export default function SaleshistoryRegisterViewTable() {
     searchCriteria,
     setSearchCriteria,
   });
+
   const handleDateRange = (dates: {
     start_date: Date | undefined;
     end_date: Date | undefined;

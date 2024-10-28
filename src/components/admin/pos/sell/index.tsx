@@ -400,6 +400,10 @@ const Sell = () => {
         })
         .filter((product) => product !== null);
       // Remove products with quantity 0
+      if(newPayload.length ==0){
+        setValue("discount_amt", 0)
+      }  
+
       setValue("membership_plans", newPayload)
       return newPayload
     });

@@ -98,6 +98,7 @@ const DashboardLayout: React.FC = () => {
       console.log({ counter_number }, "counterselection")
     } else if (!pathname.includes("pos")) {
       localStorage.removeItem("code");
+      dispatch(setCode(null));
       dispatch(setCounter(null));
       dispatch(resetBackPageCount());
     }

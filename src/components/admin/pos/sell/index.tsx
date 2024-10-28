@@ -252,16 +252,19 @@ const Sell = () => {
       type: "membership_plans",
       label: "Memberships",
       products: memberhsipListData,
+      empty:"No Memberships found",
     },
     {
       type: "events",
       label: "Events",
       products: [],
+      empty: "No Events found",
     },
     {
       type: "products",
       label: "Products",
       products: [],
+      empty: "No Products found",
     },
   ]
 
@@ -552,7 +555,7 @@ const Sell = () => {
                 <div className="min-h-36  p-2">
                   <FloatingLabelInput
                     id="search"
-                    placeholder="Search by products name"
+                    placeholder="Search"
                     onChange={(event) => setInputValue(event.target.value)}
                     className="w-full pl-8 text-gray-400 rounded-sm"
                     icon={<Search className="size-4 text-gray-400 absolute  z-10 left-2" />}
@@ -584,7 +587,7 @@ const Sell = () => {
                             ))}
                           </div>
                         ) : (
-                          <p className="col-span-2 text-sm text-center w-full p-2 mt-2">No products found</p>
+                          <p className="col-span-2 text-sm text-center w-full p-2 mt-2">{category.empty}</p>
                         )}
                       </TabsContent>
                     ))}

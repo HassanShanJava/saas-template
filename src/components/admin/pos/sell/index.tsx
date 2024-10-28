@@ -252,7 +252,7 @@ const Sell = () => {
       type: "membership_plans",
       label: "Memberships",
       products: memberhsipListData,
-      empty:"No Memberships found",
+      empty: "No Memberships found",
     },
     {
       type: "events",
@@ -269,66 +269,74 @@ const Sell = () => {
   ]
 
   const addProduct = (product: any, type: string) => {
-    // Calculate the discount amount
-    const discountPercentage = product.discount || 0;
-    const discountAmount = Math.floor((product.net_price * discountPercentage) / 100 * 100) / 100;
-    const finalPrice = Math.floor((product.net_price - discountAmount) * 100) / 100;
+    // Get the income category and sales tax rate.
+    const incomeCat = incomeCatData?.find((item) => item.id == product.income_category_id);
+    const saleTax = salesTaxData?.find((item) => item.id == incomeCat?.sale_tax_id);
+    const taxRate = saleTax?.percentage || 0;
 
-    const incomeCat = incomeCatData?.filter(
-      (item) => item.id == product.income_category_id
-    )[0];
-    const saleTax = salesTaxData?.filter(
-      (item) => item.id == incomeCat?.sale_tax_id
-    )[0];
-    const taxRate = saleTax.percentage || 0;
-    let subTotal = 0, total = 0, taxAmount = 0;
+    let subTotal = 0, total = 0, taxAmount = 0, discountAmount = 0, discountedPrice = 0;
 
-    // Check tax_type and calculate accordingly
+    // Calculate based on the organization's tax type.
     if (orgTaxType?.tax_type === "inclusive") {
+      // For inclusive tax: tax is included in the net price.
+      taxAmount = Math.floor((product.net_price - (product.net_price / (1 + taxRate / 100))) * 100) / 100;
+      subTotal = Math.floor((product.net_price - taxAmount) * 100) / 100;
 
-      taxAmount = Math.floor((finalPrice - (finalPrice / (1 + taxRate / 100))) * 100) / 100;
-      subTotal = Math.floor((finalPrice - taxAmount) * 100) / 100;
-      total = finalPrice;
+      // Apply the discount after tax is calculated.
+      discountAmount = Math.floor((subTotal * (product.discount || 0)) / 100 * 100) / 100;
+      discountedPrice = Math.floor((subTotal - discountAmount) * 100) / 100;
+      total = discountedPrice + taxAmount; // The total includes the tax and the discount.
     } else if (orgTaxType?.tax_type === "exclusive") {
-      taxAmount = Math.floor(((finalPrice * taxRate) / 100) * 100) / 100;
-      subTotal = finalPrice;
-      total = Math.floor((finalPrice + taxAmount) * 100) / 100;
+      // For exclusive tax: tax is added on top of the net price.
+      subTotal = product.net_price; // Subtotal is the original net price before discount.
+      taxAmount = Math.floor((subTotal * taxRate) / 100 * 100) / 100;
+
+      // Apply the discount after the tax is added.
+      discountAmount = Math.floor((subTotal * (product.discount || 0)) / 100 * 100) / 100;
+      discountedPrice = Math.floor((subTotal - discountAmount) * 100) / 100;
+      total = Math.floor((discountedPrice + taxAmount) * 100) / 100;
     }
 
+    // Create the new product payload.
     const newProductPayload = {
       item_id: product.id,
       item_type: type,
       description: product.name,
       quantity: 1,
-      price: finalPrice,
+      price: discountedPrice, // The price after discount.
       tax_rate: taxRate,
-      discount: discountAmount,
+      discount: discountAmount, // The discount applied as an amount.
       sub_total: subTotal,
       tax_type: orgTaxType?.tax_type as string,
-      tax_name: saleTax.name as string,
-      total: total,
-      tax_amount: taxAmount
+      tax_name: saleTax?.name as string,
+      total: total, // The final total with or without tax.
+      tax_amount: taxAmount,
     };
 
+    // Update the product payload in the state.
     setProductPayload((prevPayload) => {
       const existingProduct = prevPayload.find((prod) => prod.item_id === product.id);
       if (existingProduct) {
+        // If the product already exists in the payload, update its quantity and calculations.
         return prevPayload.map((prod) =>
           prod.item_id === product.id
             ? {
               ...prod,
               quantity: prod.quantity + 1,
-              price: Math.floor((prod.price + finalPrice) * 100) / 100,
-              discount: Math.floor((prod.discount + discountAmount) * 100) / 100,
+              // Update subtotal based on the net price before discount.
               sub_total: Math.floor((prod.sub_total + subTotal) * 100) / 100,
+              // Update price, discount, total, and tax amount with new values.
+              price: Math.floor((prod.price + discountedPrice) * 100) / 100,
+              discount: Math.floor((prod.discount + discountAmount) * 100) / 100,
               total: Math.floor((prod.total + total) * 100) / 100,
-              tax_amount: Math.floor((prod.tax_amount + taxAmount) * 100) / 100
+              tax_amount: Math.floor((prod.tax_amount + taxAmount) * 100) / 100,
             }
             : prod
         );
       }
 
-      setValue("membership_plans", [...prevPayload, newProductPayload])
+      // Add the new product to the payload list.
+      setValue("membership_plans", [...prevPayload, newProductPayload]);
       return [...prevPayload, newProductPayload];
     });
   };
@@ -397,6 +405,8 @@ const Sell = () => {
     });
   };
 
+  const discountAmt = watch("discount_amt");
+
 
   const subtotal = productPayload.reduce(
     (acc, product) => acc + product.price * product.quantity,
@@ -412,12 +422,13 @@ const Sell = () => {
     0
   );
 
-  const total = subtotal + tax;
+  const appliedDiscount = discountAmt || totalDiscount; // Use user-input discount if available
+  const total = subtotal + tax - appliedDiscount;
 
   console.log({ totalDiscount, tax, subtotal, total })
 
   useEffect(() => {
-    setValue("discount_amt", roundToTwoDecimals(totalDiscount))
+    setValue("discount_amt", roundToTwoDecimals(appliedDiscount || 0))
     setValue("subtotal", roundToTwoDecimals(subtotal))
     setValue("tax_amt", roundToTwoDecimals(tax))
     setValue("total", roundToTwoDecimals(total))
@@ -430,7 +441,7 @@ const Sell = () => {
       setValue("member_gender", customer.gender)
     }
 
-  }, [totalDiscount, customer, tax, subtotal, total]);
+  }, [appliedDiscount, discountAmt, customer, tax, subtotal, total]);
 
   const handleCloseDayExceeded = () => {
     setDayExceeded(false)
@@ -457,6 +468,14 @@ const Sell = () => {
         title: "Please select a customer",
       })
       return false;
+    }
+
+    if ((watcher.discount_amt as number) > (watcher.total as number)) {
+      toast({
+        variant: "destructive",
+        title: "Discount cannot be more than total amount",
+      })
+      return false
     }
 
     return true
@@ -538,6 +557,7 @@ const Sell = () => {
       }
       setCustomer(memberListData?.find(member => member.id == payload.member_id) as MemberTableDatatypes)
       setProductPayload(retriveSaleData.items as sellItem[])
+      console.log({ payload }, "payloadpayload")
       reset(payload)
     }
   }, [retriveSaleData])
@@ -636,8 +656,11 @@ const Sell = () => {
                               <p className="capitalize">{product.description}</p>
                               {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-left">
                                 Rs. {roundToTwoDecimals(product.price + product.discount)}
+
                               </p>}
-                              <p className="text-sm">Rs. {product.price}</p>
+                              <p className="text-sm">Rs. {product.price}
+                                <span className="text-xs"> ({product.tax_rate}%)</span>
+                              </p>
                             </div>
 
                             <div className="inline-flex items-center ">
@@ -674,21 +697,26 @@ const Sell = () => {
                         <p>Subtotal</p>
                         <p>Rs. {watcher.subtotal}</p> {/* Display Subtotal */}
                       </div>
+
+                      <div className="w-full flex gap-2 items-center justify-between">
+                        <p>Tax</p>
+                        <p>Rs. {watcher.tax_amt}</p> {/* Display Tax */}
+                      </div>
+
                       <div className="w-full flex gap-2 items-center justify-between">
                         <p>Discount</p>
                         <FloatingLabelInput
                           type="number"
                           id="discount_amt"
                           defaultValue={watcher.discount_amt}
+                          step={".5"}
+                          disabled={Number(id) ? true : false}
                           placeholder="Enter discount amount"
                           className="text-right w-fit  text-gray-400 rounded-sm"
                           {...register("discount_amt", { valueAsNumber: true })}
                         />
                       </div>
-                      <div className="w-full flex gap-2 items-center justify-between">
-                        <p>Tax</p>
-                        <p>Rs. {watcher.tax_amt}</p> {/* Display Tax */}
-                      </div>
+
                       <div className="w-full flex gap-2 items-center justify-between font-bold">
                         <p>Total</p>
                         <p>Rs. {id && watcher.status == "Paid" && "-"} {watcher.total}</p> {/* Display Total */}
@@ -707,10 +735,10 @@ const Sell = () => {
                               >
                                 <span className="w-full text-left font-normal">
 
-                                  {watcher.created_by
+                                  {watcher.staff_id
                                     ? staffList?.find(
                                       (staff) =>
-                                        staff.value == watcher.created_by
+                                        staff.value == watcher.staff_id
                                     )?.label
                                     : "Select Staff"}
                                 </span>

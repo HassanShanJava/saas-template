@@ -1,11 +1,15 @@
 import { JSONObject } from "@/types/hook-stepper";
 
+
+
 enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
   prefer_no_to_say = "prefer not to say",
 }
+
+
 export interface sellItem {
   item_id: number;
   item_type: string;
@@ -52,8 +56,16 @@ export interface sellForm {
     payment_method?: string;
     amount?: number;
   }[];
-  created_by:number;
+  created_by: number;
+  updated_at?: number;
 }
+
+export interface TransactionTable {
+  data: sellForm[];
+  filtered_counts: number;
+  total_counts: number;
+}
+
 export enum statusEnum {
   pending = "pending",
   active = "active",

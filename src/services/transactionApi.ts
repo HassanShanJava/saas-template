@@ -1,4 +1,4 @@
-import { sellForm } from "@/app/types";
+import { sellForm, TransactionTable } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 interface transactionInput {
   query: string;
@@ -19,7 +19,7 @@ export const Transaction = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Transaction"],
       }),
-      getTransaction: builder.query<any, transactionInput>({
+      getTransaction: builder.query<TransactionTable, transactionInput>({
         query: (searchCretiria) => ({
           url: `/pos/counters/${searchCretiria.counter_id}/transactions${searchCretiria.query.length > 0 ? "?" + searchCretiria.query : ""}`,
           method: "GET",

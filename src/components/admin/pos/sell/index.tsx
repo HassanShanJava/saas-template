@@ -34,7 +34,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
-import { roundToTwoDecimals } from "@/utils/helper";
+import { displayDate, roundToTwoDecimals } from "@/utils/helper";
 import { useDebounce } from "@/hooks/use-debounce";
 import { ErrorType, MemberTableDatatypes, sellForm, sellItem } from "@/app/types";
 import { useNavigate, useParams } from "react-router-dom";
@@ -91,7 +91,7 @@ const Sell = () => {
     member_address: null,
     member_gender: null,
     notes: "",
-    receipt_number: "INV"+Math.floor(Math.random() * 99), //will implement with prefix module comes
+    receipt_number: "INV" + Math.floor(Math.random() * 99), //will implement with prefix module comes
     tax_number: Math.floor(Math.random() * 99), //from srb
     total: null,
     subtotal: null,
@@ -614,7 +614,7 @@ const Sell = () => {
 
                       <CustomerCombobox
                         label={"Search customer"}
-                        list={memberListData}
+                        customerList={memberListData}
                         setCustomer={setCustomer}
                         customer={customer}
 
@@ -838,7 +838,7 @@ export function DayExceeded({
 }
 
 interface customerComboboxTypes {
-  list: any[];
+  list?: sellForm[];
   customerList?: MemberTableDatatypes[];
   setCustomer: any;
   setTransactionId?: any;
@@ -846,8 +846,8 @@ interface customerComboboxTypes {
   label?: string
 }
 
-export function CustomerCombobox({ list, setCustomer, customer, label }: customerComboboxTypes) {
-  const modifiedList = list?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
+export function CustomerCombobox({ customerList, setCustomer, customer, label }: customerComboboxTypes) {
+  const modifiedList = customerList?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState('')
   useEffect(() => {
@@ -884,7 +884,7 @@ export function CustomerCombobox({ list, setCustomer, customer, label }: custome
                   value={customer.value + ""}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue)
-                    const customer = list?.find((item: any) => item.id == currentValue)
+                    const customer = customerList?.find((item: MemberTableDatatypes) => item.id == +currentValue)
                     setCustomer(customer)
                     setOpen(false)
                   }}
@@ -907,9 +907,10 @@ export function CustomerCombobox({ list, setCustomer, customer, label }: custome
 }
 
 export function RetriveSaleCombobox({ list, setCustomer, customer, label, customerList, setTransactionId }: customerComboboxTypes) {
-  const modifiedList = list?.map((item: any) => ({ transactionId: item.id, value: item.member_id, label: item.member_name }))
+  const modifiedList = list?.map((item: any) => ({ ...item, transactionId: item.id, value: item.member_id, label: item.member_name }))
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
+  console.log({ modifiedList })
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild >
@@ -923,11 +924,15 @@ export function RetriveSaleCombobox({ list, setCustomer, customer, label, custom
           {label}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className=" w-[240px] p-0" side="bottom">
+      <PopoverContent className=" w-[25rem] p-0" side="bottom">
         <Command>
-          {/* <CommandInput placeholder={"Search customer"} /> */}
           <CommandList className="">
             <CommandEmpty>No customer found.</CommandEmpty>
+            <div className="flex justify-between gap-3 px-3 py-1 items-center font-semibold">
+              <p>Items</p>
+              <p>Customer</p>
+            </div>
+            <Separator className="mx-2 w-96" />
             <CommandGroup className="">
               {modifiedList?.map((modCustomer) => (
                 <CommandItem
@@ -940,14 +945,32 @@ export function RetriveSaleCombobox({ list, setCustomer, customer, label, custom
                     setTransactionId(modCustomer.transactionId)
                     setOpen(false)
                   }}
+                  className="flex flex-col items-start"
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === modCustomer.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {modCustomer.label}
+
+                  <div className="flex gap-3 text-xs  justify-between items-center w-full">
+                    <div>
+                      <div className="flex gap-1">
+
+                        {modCustomer.items.slice(0, 1).map((list: sellItem, index: number) => (
+                          <div key={index}>
+                            <span>{list.quantity}</span> x{" "}
+                            <span className="capitalize">{list.description}</span>
+                          </div>
+                        ))}
+
+                        {modCustomer.items.length > 1 && (
+                          <div className="text-gray-500">
+                            +{modCustomer.items.length - 1} more
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs">Parked by {displayDate(modCustomer.transaction_date)}, by <span className="capitalize">{modCustomer.staff_name}</span></p>
+
+                    </div>
+                    <p className="capitalize"> {modCustomer.label} </p>
+
+                  </div>
                 </CommandItem>
               ))}
             </CommandGroup>

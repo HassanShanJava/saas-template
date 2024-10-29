@@ -314,6 +314,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                     >
                                         <Checkbox
                                             id={method.code}
+                                            disabled={invoiceId != null}
                                             checked={selectedMethods[method.code]}
                                             onCheckedChange={(checked)  => {
                                                 setSelectedMethods((prev) => ({ ...prev, [method.code]: checked === true }));

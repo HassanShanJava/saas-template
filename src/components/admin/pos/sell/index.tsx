@@ -138,7 +138,7 @@ const Sell = () => {
 
   // listing apis
   const { data: staffList } = useGetStaffListQuery(orgId)
-  const { data: orgTaxType } = useGetOrgTaxTypeQuery(orgId)
+  const { data: orgTaxType } = useGetOrgTaxTypeQuery(orgId) || { tax_type: "exclusive" }
   const { data: incomeCatData } = useGetIncomeCategorListQuery(orgId);
   const { data: salesTaxData } = useGetSalesTaxListQuery(orgId);
   const { data: memberhsipList } = useGetMembershipsQuery({ org_id: orgId, query: query })
@@ -269,77 +269,86 @@ const Sell = () => {
   ]
 
   const addProduct = (product: any, type: string) => {
-    // Get the income category and sales tax rate.
-    const incomeCat = incomeCatData?.find((item) => item.id == product.income_category_id);
-    const saleTax = salesTaxData?.find((item) => item.id == incomeCat?.sale_tax_id);
+    // Retrieve the income category and the corresponding tax rate
+    const incomeCat = incomeCatData?.find(
+      (item) => item.id === product.income_category_id
+    );
+    const saleTax = salesTaxData?.find(
+      (item) => item.id === incomeCat?.sale_tax_id
+    );
     const taxRate = saleTax?.percentage || 0;
 
-    let subTotal = 0, total = 0, taxAmount = 0, discountAmount = 0, discountedPrice = 0;
+    // Initialize values for calculations
+    const discountPercentage = product.discount || 0;
+    let subTotal = 0, total = 0, taxAmount = 0, discountAmount = 0;
 
-    // Calculate based on the organization's tax type.
-    if (orgTaxType?.tax_type === "inclusive") {
-      // For inclusive tax: tax is included in the net price.
-      taxAmount = Math.floor((product.net_price - (product.net_price / (1 + taxRate / 100))) * 100) / 100;
-      subTotal = Math.floor((product.net_price - taxAmount) * 100) / 100;
+    // Calculate tax amount and subtotal based on tax inclusivity
+    if (orgTaxType?.tax_type == "inclusive") {
+      // Tax-inclusive calculation
+      taxAmount = Math.round(
+        (product.net_price - product.net_price / (1 + taxRate / 100)) * 100
+      ) / 100;
+      subTotal = Math.round((product.net_price - taxAmount) * 100) / 100;
 
-      // Apply the discount after tax is calculated.
-      discountAmount = Math.floor((subTotal * (product.discount || 0)) / 100 * 100) / 100;
-      discountedPrice = Math.floor((subTotal - discountAmount) * 100) / 100;
-      total = discountedPrice + taxAmount; // The total includes the tax and the discount.
-    } else if (orgTaxType?.tax_type === "exclusive") {
-      // For exclusive tax: tax is added on top of the net price.
-      subTotal = product.net_price; // Subtotal is the original net price before discount.
-      taxAmount = Math.floor((subTotal * taxRate) / 100 * 100) / 100;
+      // Apply discount after tax calculation
+      discountAmount = Math.round((subTotal * discountPercentage) / 100 * 100) / 100;
+      total = Math.round((subTotal - discountAmount) * 100) / 100;
+    } else if (orgTaxType?.tax_type == "exclusive") {
+      // Tax-exclusive calculation
+      subTotal = product.net_price;
 
-      // Apply the discount after the tax is added.
-      discountAmount = Math.floor((subTotal * (product.discount || 0)) / 100 * 100) / 100;
-      discountedPrice = Math.floor((subTotal - discountAmount) * 100) / 100;
-      total = Math.floor((discountedPrice + taxAmount) * 100) / 100;
+      // Calculate tax on subtotal before applying discount
+      taxAmount = Math.round((subTotal * taxRate) / 100 * 100) / 100;
+      const priceWithTax = Math.round((subTotal + taxAmount) * 100) / 100;
+
+      // Apply discount on price after tax is added
+      discountAmount = Math.round((priceWithTax * discountPercentage) / 100 * 100) / 100;
+      total = Math.round((priceWithTax - discountAmount) * 100) / 100;
     }
 
-    // Create the new product payload.
+    // Construct the new product payload
     const newProductPayload = {
       item_id: product.id,
       item_type: type,
       description: product.name,
       quantity: 1,
-      price: discountedPrice, // The price after discount.
+      price: product.net_price,
       tax_rate: taxRate,
-      discount: discountAmount, // The discount applied as an amount.
+      discount: discountAmount,
       sub_total: subTotal,
       tax_type: orgTaxType?.tax_type as string,
       tax_name: saleTax?.name as string,
-      total: total, // The final total with or without tax.
+      total,
       tax_amount: taxAmount,
     };
 
-    // Update the product payload in the state.
+    // Update the product payload to ensure unique entries
     setProductPayload((prevPayload) => {
-      const existingProduct = prevPayload.find((prod) => prod.item_id === product.id);
+      const existingProduct = prevPayload.find(
+        (prod) => prod.item_id === product.id
+      );
+
       if (existingProduct) {
-        // If the product already exists in the payload, update its quantity and calculations.
         return prevPayload.map((prod) =>
           prod.item_id === product.id
             ? {
               ...prod,
               quantity: prod.quantity + 1,
-              // Update subtotal based on the net price before discount.
-              sub_total: Math.floor((prod.sub_total + subTotal) * 100) / 100,
-              // Update price, discount, total, and tax amount with new values.
-              price: Math.floor((prod.price + discountedPrice) * 100) / 100,
-              discount: Math.floor((prod.discount + discountAmount) * 100) / 100,
-              total: Math.floor((prod.total + total) * 100) / 100,
-              tax_amount: Math.floor((prod.tax_amount + taxAmount) * 100) / 100,
+              sub_total: Math.round((prod.sub_total + subTotal) * 100) / 100,
+              discount: Math.round((prod.discount + discountAmount) * 100) / 100,
+              total: Math.round((prod.total + total) * 100) / 100,
+              tax_amount: Math.round((prod.tax_amount + taxAmount) * 100) / 100,
             }
             : prod
         );
       }
 
-      // Add the new product to the payload list.
       setValue("membership_plans", [...prevPayload, newProductPayload]);
       return [...prevPayload, newProductPayload];
     });
   };
+
+
 
 
   const updateProductQuantity = (productId: number, action: 'increment' | 'decrement') => {
@@ -400,6 +409,7 @@ const Sell = () => {
         })
         .filter((product) => product !== null);
       // Remove products with quantity 0
+
       if (newPayload.length == 0) {
         setValue("discount_amt", 0)
       }
@@ -550,8 +560,8 @@ const Sell = () => {
       const membership_plans = items?.filter(item => item.item_type == "membership_plans")
       const events = items?.filter(item => item.item_type == "events")
       const products = items?.filter(item => item.item_type == "products")
-      
-      
+
+
       const payload = {
         ...retriveSaleData,
         staff_id: userInfo?.user.id,
@@ -567,11 +577,12 @@ const Sell = () => {
         delete payload.id;
         delete payload.items;
         payload.transaction_type = "Refund";
+        payload.receipt_number="INV" + Math.floor(Math.random() * 99);
         payload.main_transaction_id = Number(id)
+        payload.payments = []
       }
       setCustomer(memberListData?.find(member => member.id == payload.member_id) as MemberTableDatatypes)
       setProductPayload(retriveSaleData.items as sellItem[])
-      console.log({ payload }, "payloadpayload")
       reset(payload)
     }
   }, [retriveSaleData])
@@ -723,11 +734,14 @@ const Sell = () => {
                           type="number"
                           id="discount_amt"
                           defaultValue={watcher.discount_amt}
-                          step={".5"}
+                          step={"1"}
                           disabled={Number(id) ? true : false}
                           placeholder="Enter discount amount"
-                          className="text-right w-fit  text-gray-400 rounded-sm"
-                          {...register("discount_amt", { valueAsNumber: true })}
+                          className="w-fit text-gray-400 rounded-sm"
+                          {...register("discount_amt", {
+                            valueAsNumber: true,
+                            min: 0,
+                          })}
                         />
                       </div>
 
@@ -774,8 +788,12 @@ const Sell = () => {
                                           className="font-normal"
                                           onSelect={() => {
                                             setValue(
-                                              "created_by",
-                                              Number(staff.value), // Set country_id to country.id as number
+                                              "staff_id",
+                                              Number(staff.value), 
+                                            );
+                                            setValue(
+                                              "staff_name",
+                                               staff.label 
                                             );
                                           }}
                                         >
@@ -902,6 +920,8 @@ export function CustomerCombobox({ customerList, setCustomer, customer, label }:
       setValue('')
     }
   }, [customer])
+
+  console.log({ modifiedList, customer, value })
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -928,7 +948,7 @@ export function CustomerCombobox({ customerList, setCustomer, customer, label }:
                   key={customer.value + ""}
                   value={customer.value + ""}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
+                    setValue(currentValue == value ? "" : currentValue)
                     const customer = customerList?.find((item: MemberTableDatatypes) => item.id == +currentValue)
                     setCustomer(customer)
                     setOpen(false)
@@ -955,7 +975,6 @@ export function RetriveSaleCombobox({ list, setCustomer, customer, label, custom
   const modifiedList = list?.map((item: any) => ({ ...item, transactionId: item.id, value: item.member_id, label: item.member_name }))
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("")
-  console.log({ modifiedList })
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild >

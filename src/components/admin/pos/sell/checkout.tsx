@@ -1,25 +1,24 @@
 
+// ui components
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-
 import { Button } from "@/components/ui/button";
-
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { roundToTwoDecimals } from "@/utils/helper";
-import { ErrorType, Payments, sellForm } from "@/app/types";
 import { toast } from "@/components/ui/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
+
+// apis and types
+import { ErrorType, Payments, sellForm } from "@/app/types";
 import { useFormContext } from "react-hook-form";
 import { useCreateTransactionMutation, useGetTransactionByIdQuery, usePatchTransactionMutation } from "@/services/transactionApi";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
 import { ReceiptExport } from "../sales_history/components/receipt-component";
-import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
-import { resetBackPageCount } from "@/features/counter/counterSlice";
 import { useGetAllEnabledPaymentMethodsQuery } from "@/services/paymentMethodsApi";
-import { useParams } from "react-router-dom";
 
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 interface paymentItem {
     payment_method_id: number;
     payment_method: string;
@@ -117,6 +116,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         }
     }, [enabledPayments]);
 
+
     const addPaymentMethod = (method_code: string, amount: string, id: number) => {
         const numAmount = parseFloat(amount)
         if (isNaN(numAmount)) return
@@ -127,7 +127,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                     payment.payment_method_id === id
                         ? { ...payment, amount: numAmount }
                         : payment
-                  )
+                )
                 : [
                     ...prevPayments,
                     {
@@ -136,7 +136,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                         amount: Math.round(numAmount),
                     },
                 ];
-    
+
             setValue("payments", updatedPayments);
             return updatedPayments;
         });
@@ -154,20 +154,20 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         }
 
         const totalPayments = watcher.payments.reduce(
-            (acc:number, payment:Payments) => acc + payment.amount,
+            (acc: number, payment: Payments) => acc + payment.amount,
             0
         );
 
-        console.log({totalPayments})
-        if(totalPayments > Math.round(watcher.total)){
+        console.log({ totalPayments })
+        if (totalPayments > Math.round(watcher.total)) {
             toast({
                 variant: "destructive",
                 title: "Amount exceeds total due.",
             })
             return;
         }
-        
-        if(totalPayments < watcher.total){
+
+        if (totalPayments < watcher.total) {
             toast({
                 variant: "destructive",
                 title: "Amount insufficient. Please enter the correct amount.",
@@ -245,6 +245,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         setShowCheckout(false)
     }
 
+
     return (
 
         <div className=" ">
@@ -314,9 +315,25 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                         <Checkbox
                                             id={method.code}
                                             checked={selectedMethods[method.code]}
-                                            onCheckedChange={(checked) =>
-                                                setSelectedMethods((prev) => ({ ...prev, [method.code]: checked === true }))
-                                            }
+                                            onCheckedChange={(checked)  => {
+                                                setSelectedMethods((prev) => ({ ...prev, [method.code]: checked === true }));
+                                        
+                                                if (!checked) {
+
+                                                    setPayments((prevPayments) =>
+                                                        prevPayments.filter((payment) => payment.payment_method_id !== method.id)
+                                                    );
+
+                                                    setAmounts((prev) => ({ ...prev, [method.code]: '' }));
+
+                                                    setValue(
+                                                        "payments",
+                                                        watcher.payments.filter(
+                                                            (payment: paymentItem) => payment.payment_method_id !== method.id
+                                                        )
+                                                    );
+                                                }
+                                            }}
                                         />
                                         <Label htmlFor={method.code} className="w-1/2">
                                             {method.name}

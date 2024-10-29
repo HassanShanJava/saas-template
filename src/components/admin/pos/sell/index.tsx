@@ -400,9 +400,9 @@ const Sell = () => {
         })
         .filter((product) => product !== null);
       // Remove products with quantity 0
-      if(newPayload.length ==0){
+      if (newPayload.length == 0) {
         setValue("discount_amt", 0)
-      }  
+      }
 
       setValue("membership_plans", newPayload)
       return newPayload
@@ -546,16 +546,26 @@ const Sell = () => {
 
   useEffect(() => {
     if (retriveSaleData) {
+      const items = retriveSaleData?.items
+      const membership_plans = items?.filter(item => item.item_type == "membership_plans")
+      const events = items?.filter(item => item.item_type == "events")
+      const products = items?.filter(item => item.item_type == "products")
+      
+      
       const payload = {
         ...retriveSaleData,
         staff_id: userInfo?.user.id,
         counter_id: counter_number as number, //counter id
         staff_name: userInfo?.user.first_name,
         batch_id: sessionId, //register id
+        membership_plans,
+        events,
+        products
       }
 
       if (Number(id) && payload.status === "Paid") {
         delete payload.id;
+        delete payload.items;
         payload.transaction_type = "Refund";
         payload.main_transaction_id = Number(id)
       }

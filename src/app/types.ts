@@ -53,8 +53,8 @@ export interface sellForm {
   status?: "Unpaid" | "Paid" | "Partially Paid";
   transaction_type?: "Refund" | "Sale";
   transaction_date?: Date;
-  membership_plans?: sellItem[];
   items?: sellItem[];
+  membership_plans?: sellItem[];
   events?: sellItem[];
   products?: sellItem[];
   payments?: Payments[];

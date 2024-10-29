@@ -48,7 +48,10 @@ import { Filter, PlusIcon, Search } from "lucide-react";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Button } from "@/components/ui/button";
-import HardwareIntegrationForm from "../hardware_integrationForm/hardware_integration";
+import HardwareIntegrationForm from "../hardware_integrationForm/hardware-integration";
+import { useGetAllHardwareQuery } from "@/services/hardwareApi";
+import { HardwareIntegrationRow } from "@/app/types/hardware-integration";
+import { useGetCreditsQuery } from "@/services/creditsApi";
 
 interface searchCretiriaType {
   limit: number;
@@ -74,7 +77,11 @@ export default function HardwareIntegrationTable() {
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 500);
-
+  const {
+    data: facilitiesData,
+    isLoading,
+    refetch: refetchforcredits,
+  } = useGetCreditsQuery({ org_id: orgId, query: "" });
   const [searchCriteria, setSearchCriteria] =
     useState<searchCretiriaType>(initialValue);
   const [query, setQuery] = useState("");
@@ -147,37 +154,37 @@ export default function HardwareIntegrationTable() {
     });
   };
 
-  // const {
-  //   data: registerSessionData,
-  //   isLoading: isRegisterSessionLoading,
-  //   refetch,
-  //   error,
-  //   isError,
-  // } = useGetAllRegisterSessionQuery(
-  //   {
-  //     counter_id: counter_number,
-  //     query: query,
-  //   },
-  //   {
-  //     skip: query == "",
-  //   }
-  // );
+  const {
+    data: hardwareData,
+    isLoading: ishardwaredataloading,
+    refetch,
+    error,
+    isError,
+  } = useGetAllHardwareQuery(
+    {
+      org_id: orgId,
+      query: query,
+    },
+    {
+      skip: query == "",
+    }
+  );
 
   React.useEffect(() => {
-    if (false) {
+    if (isError) {
       // error state
-      const typedError = "" as ErrorType;
+      const typedError = error as ErrorType;
       toast({
         variant: "destructive",
         title: "Error",
         description: typedError.data?.detail ?? "Internal Server Errors",
       });
     }
-  }, [false]);
+  }, [isError]);
 
-  const cashregisterTableData = React.useMemo(() => {
-    return Array.isArray([]) ? [] : [];
-  }, []);
+  const hardwareTableData = React.useMemo(() => {
+    return Array.isArray(hardwareData?.data) ? hardwareData?.data : [];
+  }, [hardwareData]);
 
   const { toast } = useToast();
 
@@ -185,7 +192,12 @@ export default function HardwareIntegrationTable() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const actionsColumn: ColumnDef<hardwareIntegrationInterface> = {
+  const handleEdit = (data: HardwareIntegrationRow) => {
+    setAction("edit");
+    setData(data);
+    setIsDialogOpen(true);
+  };
+  const actionsColumn: ColumnDef<HardwareIntegrationRow> = {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
@@ -193,12 +205,12 @@ export default function HardwareIntegrationTable() {
         access={hard_int}
         row={row.original.id}
         data={row?.original}
-        // refetch={refetch}
-        // hanleEditExercise={handleEditExercise}
+        refetch={refetch}
+        handleEdithadrwareForm={handleEdit}
       />
     ),
   };
-  const columns: ColumnDef<hardwareIntegrationInterface>[] = [
+  const columns: ColumnDef<HardwareIntegrationRow>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -230,7 +242,7 @@ export default function HardwareIntegrationTable() {
           <p className="text-nowrap">Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("id")}
+            onClick={() => toggleSortOrder("name")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -243,7 +255,26 @@ export default function HardwareIntegrationTable() {
           <div className="flex gap-2 items-center justify-between w-fit">
             <div className="">
               <p className="capitalize cursor-pointer">
-                <span>{displayValue(row.original.name?.toString())}</span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className="capitalize cursor-pointer">
+                        <span>
+                          {displayValue(
+                            `${row.original.name}`.length > 15
+                              ? `${row.original.name}`.substring(0, 15) + "..."
+                              : `${row.original.name}`
+                          )}
+                        </span>
+                      </p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="capitalize text-sm">
+                        {displayValue(`${row?.original?.name}`)}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </p>
             </div>
           </div>
@@ -260,7 +291,7 @@ export default function HardwareIntegrationTable() {
           <p className="text-nowrap">Description</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("opening_time")}
+            onClick={() => toggleSortOrder("description")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -271,7 +302,27 @@ export default function HardwareIntegrationTable() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.description)}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="capitalize cursor-pointer">
+                    <span>
+                      {displayValue(
+                        `${row.original.description}`.length > 15
+                          ? `${row.original.description}`.substring(0, 15) +
+                              "..."
+                          : `${row.original.description}`
+                      )}
+                    </span>
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="capitalize text-sm">
+                    {displayValue(`${row?.original?.description}`)}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         );
       },
@@ -284,7 +335,7 @@ export default function HardwareIntegrationTable() {
           <p className="text-nowrap">Facility Name</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("opening_balance")}
+            onClick={() => toggleSortOrder("facility_name")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -316,7 +367,7 @@ export default function HardwareIntegrationTable() {
           <p className="text-nowrap">Connection Key</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            onClick={() => toggleSortOrder("closing_time")}
+            onClick={() => toggleSortOrder("id")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
@@ -327,7 +378,27 @@ export default function HardwareIntegrationTable() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.connection_key)}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="capitalize cursor-pointer">
+                    <span>
+                      {displayValue(
+                        `${row.original.connection_key}`.length > 15
+                          ? `${row.original.connection_key}`.substring(0, 15) +
+                              "..."
+                          : `${row.original.connection_key}`
+                      )}
+                    </span>
+                  </p>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="capitalize text-sm">
+                    {displayValue(`${row?.original?.connection_key}`)}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         );
       },
@@ -338,7 +409,7 @@ export default function HardwareIntegrationTable() {
 
   // cashregisterTableData
   const table = useReactTable({
-    data: cashregisterTableData as hardwareIntegrationInterface[],
+    data: hardwareTableData as HardwareIntegrationRow[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -353,7 +424,7 @@ export default function HardwareIntegrationTable() {
     },
   });
 
-  const totalRecords = 0; //registerSessionData?.filtered_counts ||
+  const totalRecords = hardwareData?.filtered_counts || 0;
 
   const {
     handleLimitChange,
@@ -367,8 +438,24 @@ export default function HardwareIntegrationTable() {
     searchCriteria,
     setSearchCriteria,
   });
-
-  const filterDisplay = [{}];
+  function handleFilterChange(field: string, value: string | number) {
+    setFilter((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
+  const filterDisplay = [
+    {
+      type: "multiselect",
+      name: "facility_id",
+      label: "Facility",
+      options: facilitiesData?.data.map((facility) => ({
+        label: facility.name,
+        value: facility.id,
+      })),
+      function: (value: string) => handleFilterChange("facility_id", value),
+    },
+  ];
   return (
     <div className="w-full space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3">
@@ -385,13 +472,15 @@ export default function HardwareIntegrationTable() {
         </div>
 
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <Button
-            className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
-            onClick={handleRoute}
-          >
-            <PlusIcon className="size-4" />
-            Create New
-          </Button>
+          {hard_int !== "read" && (
+            <Button
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+              onClick={handleRoute}
+            >
+              <PlusIcon className="size-4" />
+              Create New
+            </Button>
+          )}
 
           <button
             className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
@@ -437,7 +526,7 @@ export default function HardwareIntegrationTable() {
               ))}
             </TableHeader>
             <TableBody>
-              {true ? ( //isRegisterSessionLoading loading state
+              {ishardwaredataloading ? ( //isRegisterSessionLoading loading state
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -493,7 +582,7 @@ export default function HardwareIntegrationTable() {
       </div>
 
       {/* pagination */}
-      {cashregisterTableData.length > 0 && (
+      {hardwareTableData.length > 0 && (
         <Pagination
           limit={searchCriteria.limit}
           offset={searchCriteria.offset}
@@ -521,8 +610,8 @@ export default function HardwareIntegrationTable() {
         setOpen={setIsDialogOpen}
         action={action}
         setAction={setAction}
-        data={data}
-        refetch={() => console.log("Hello")}
+        editModeData={data}
+        refetch={refetch}
       />
     </div>
   );

@@ -19,39 +19,45 @@ import {
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
-import { ErrorType, createExerciseInputTypes, hardwareIntegrationInterface } from "@/app/types";
+import {
+  ErrorType,
+  createExerciseInputTypes,
+  hardwareIntegrationInterface,
+} from "@/app/types";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useDeleteExerciseMutation } from "@/services/exerciseApi";
 import warning from "@/assets/warning.svg";
+import { HardwareIntegrationRow } from "@/app/types/hardware-integration";
+import { useDeleteHardwareMutation } from "@/services/hardwareApi";
+
 interface DataTableRowActionsProps<TData> {
   row: number;
-  data: hardwareIntegrationInterface;
-  // refetch: any;
-  // hanleEditExercise: any;
+  data: HardwareIntegrationRow;
+  refetch: any;
+  handleEdithadrwareForm: any;
   access: string;
 }
 
 export function DataTableRowActions<TData>({
   row,
   data,
-  // refetch,
-  // hanleEditExercise,
+  refetch,
+  handleEdithadrwareForm,
   access,
 }: DataTableRowActionsProps<TData>) {
   const [isdelete, setIsDelete] = React.useState(false);
-  const [deleteExercise] = useDeleteExerciseMutation();
+  const [deleteHardware] = useDeleteHardwareMutation();
   const navigate = useNavigate();
 
   const deleteRow = async () => {
     try {
-      const resp = await deleteExercise(data.id as number).unwrap();
+      const resp = await deleteHardware(data.id as number).unwrap();
       if (resp) {
         console.log({ resp });
-        // refetch();
+        refetch();
         toast({
           variant: "success",
-          title: "Exercise Deleted successfully",
+          title: "Hardware Deleted successfully",
         });
       }
     } catch (error) {
@@ -67,7 +73,7 @@ export function DataTableRowActions<TData>({
         toast({
           variant: "destructive",
           title: "Error in Submission",
-          description: `Something Went Wrong.`,
+          description: `${error || "Something Went Wrong."}`,
         });
       }
     }
@@ -88,10 +94,7 @@ export function DataTableRowActions<TData>({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-4 ">
             <DialogTrigger asChild>
-              <DropdownMenuItem
-              //  onClick={() => hanleEditExercise(data)}
-               
-               >
+              <DropdownMenuItem onClick={() => handleEdithadrwareForm(data)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
@@ -113,7 +116,7 @@ export function DataTableRowActions<TData>({
                   <div className="flex flex-col items-center  justify-center gap-4">
                     <img src={warning} alt="warning" className="w-18 h-18" />
                     <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                      Are you sure you want to delete the exercise?
+                      Are you sure you want to delete the hardware integration?
                     </AlertDialogTitle>
                   </div>
                   <div className="w-full flex justify-between items-center gap-3 mt-4">

@@ -265,38 +265,38 @@ export const MultiSelect = React.forwardRef<
                 placeholder="Search..."
                 onKeyDown={handleInputKeyDown}
               />
+              <CommandItem
+                key="select-all"
+                onSelect={toggleAll}
+                className="cursor-pointer"
+              >
+                <div
+                  className={cn(
+                    "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                    selectedValues?.length === options?.length
+                      ? "bg-primary text-primary-foreground"
+                      : ""
+                  )}
+                >
+                  <CheckIcon
+                    className={cn(
+                      "h-4 w-4",
+                      selectedValues?.length === options?.length
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
+                </div>
+                {selectedValues?.length === options?.length
+                  ? "Deselect all"
+                  : "Select all"}
+              </CommandItem>
+              <CommandSeparator />
               <ScrollArea>
                 <ScrollBar orientation="vertical" />
                 <CommandList className="custom-scrollbar max-h-52">
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
-                    <CommandItem
-                      key="select-all"
-                      onSelect={toggleAll}
-                      className="cursor-pointer"
-                    >
-                      <div
-                        className={cn(
-                          "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                          selectedValues?.length === options?.length
-                            ? "bg-primary text-primary-foreground"
-                            : ""
-                        )}
-                      >
-                        <CheckIcon
-                          className={cn(
-                            "h-4 w-4",
-                            selectedValues?.length === options?.length
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                      </div>
-                      {selectedValues?.length === options?.length
-                        ? "Deselect all"
-                        : "Select all"}
-                    </CommandItem>
-                    <CommandSeparator />
                     {options && options.length ? (
                       options?.map((option) => (
                         <CommandItem

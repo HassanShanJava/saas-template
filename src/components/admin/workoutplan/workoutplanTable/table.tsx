@@ -60,6 +60,7 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { LevelsOptions } from "@/utils/Enums";
 import Pagination from "@/components/ui/table/pagination-table";
 import usePagination from "@/hooks/use-pagination";
+import { Badge } from "@/components/ui/badge";
 export default function WorkoutPlansTableView() {
   const { workout } = JSON.parse(
     localStorage.getItem("accessLevels") as string
@@ -74,7 +75,7 @@ export default function WorkoutPlansTableView() {
   const [openFilter, setOpenFilter] = useState(false);
   const debouncedInputValue = useDebounce(inputValue, 500);
   const [filterData, setFilter] = useState({});
-
+  const [action, setAction] = useState<"add" | "edit">("add");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [searchCriteria, setSearchCriteria] =
     useState<searchCritiriaType>(initialValue);
@@ -95,14 +96,12 @@ export default function WorkoutPlansTableView() {
 
       return newCriteria;
     });
-    console.log({ debouncedInputValue });
   }, [debouncedInputValue, setSearchCriteria]);
 
   useEffect(() => {
     const params = new URLSearchParams();
     // Iterate through the search criteria
     for (const [key, value] of Object.entries(searchCriteria)) {
-      console.log("just checking here", [key, value]);
       if (value !== undefined && value !== null) {
         // Check if the value is an array
         if (Array.isArray(value)) {
@@ -117,7 +116,6 @@ export default function WorkoutPlansTableView() {
 
     // Create the final query string
     const newQuery = params.toString();
-    console.log({ newQuery });
     setQuery(newQuery); // Update the query state for API call
   }, [searchCriteria]);
 
@@ -181,20 +179,19 @@ export default function WorkoutPlansTableView() {
       const resp =
         updateType === "level"
           ? await updateGrid({
-            level: payload.level!,
-            id: payload.id,
-            weeks: payload.weeks,
-          }).unwrap()
+              level: payload.level!,
+              id: payload.id,
+              weeks: payload.weeks,
+            }).unwrap()
           : await updateGrid({
-            goals: payload.goals!,
-            id: payload.id,
-            weeks: payload.weeks,
-          }).unwrap();
+              goals: payload.goals!,
+              id: payload.id,
+              weeks: payload.weeks,
+            }).unwrap();
 
       refetch();
 
       if (resp) {
-        console.log({ resp });
         toast({
           variant: "success",
           title: "Updated Successfully",
@@ -235,8 +232,8 @@ export default function WorkoutPlansTableView() {
     {
       accessorKey: "Plan name",
       header: () => (
-        <div className="flex items-center gap-2">
-          <span>Plan Name</span>
+        <div className="flex items-center gap-2 !text-nowrap">
+          <span className="!text-nowrap">Plan Name</span>
           <button
             className="text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("plan_name")}
@@ -248,9 +245,8 @@ export default function WorkoutPlansTableView() {
         </div>
       ),
       cell: ({ row }) => {
-        console.log("row", row);
         return (
-          <div className="flex px-2 w-fit">
+          <div className="flex px-2 text-nowrap">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -419,6 +415,37 @@ export default function WorkoutPlansTableView() {
         );
       },
     },
+    {
+      accessorKey: "is_published",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p>Status</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("is_published")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden w-24">
+            <Badge
+              className={`${row.original.is_published ? "bg-green-600" : "bg-blue-500"} text-white font-medium`}
+            >
+              {displayValue(
+                row?.original?.is_published === true
+                  ? "Published"
+                  : "Unpublished"
+              )}
+            </Badge>{" "}
+          </div>
+        );
+      },
+    },
     ...(workout !== "read" ? [actionsColumn] : []),
   ];
 
@@ -435,7 +462,7 @@ export default function WorkoutPlansTableView() {
   });
 
   const handleOpen = () => {
-    navigate("/admin/workoutplans/add/step/1");
+    navigate("/admin/workoutplans/add/step/1?mode=add");
   };
 
   const totalRecords = workoutdata?.filtered_counts || 0;
@@ -455,23 +482,24 @@ export default function WorkoutPlansTableView() {
     visible_for?: string;
     goals?: string[];
     level?: string;
+    is_published: string;
   }
 
   type FilterDisplayItem =
     | {
-      type: "select";
-      name: "visible_for" | "level";
-      label: string;
-      options?: Option[];
-      function: (value: string) => void;
-    }
+        type: "select";
+        name: "visible_for" | "level" | "is_published";
+        label: string;
+        options?: Option[];
+        function: (value: string) => void;
+      }
     | {
-      type: "multiselect";
-      name: "goals";
-      label: string;
-      options?: { value: string; label: string }[];
-      function: (value: string[]) => void;
-    };
+        type: "multiselect";
+        name: "goals";
+        label: string;
+        options?: { value: string; label: string }[];
+        function: (value: string[]) => void;
+      };
 
   const handleFilterChange = <T extends keyof Filter>(
     key: T,
@@ -523,6 +551,16 @@ export default function WorkoutPlansTableView() {
       })),
       function: (value: string) => handleFilterChange("level", value),
     },
+    {
+      type: "select",
+      name: "is_published",
+      label: "Status",
+      options: [
+        { id: "true", name: "Published" },
+        { id: "false", name: "Unpublished" },
+      ],
+      function: (value: string) => handleFilterChange("is_published", value),
+    },
   ];
 
   return (
@@ -552,8 +590,8 @@ export default function WorkoutPlansTableView() {
             </Button>
           )}
           <button
-             className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
-             onClick={() => setOpenFilter(true)}
+            className="border rounded-full size-3 text-gray-400 p-4 flex items-center justify-center"
+            onClick={() => setOpenFilter(true)}
           >
             <i className="fa fa-filter"></i>
           </button>
@@ -575,9 +613,9 @@ export default function WorkoutPlansTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

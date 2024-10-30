@@ -54,8 +54,10 @@ export default function WorkoutDayExerciseComponent({
           <img
             id="avatar"
             src={
-              exercise.thumbnail_male
-                ? (exercise.thumbnail_male.includes(VITE_VIEW_S3_URL) ? exercise.thumbnail_male : `${VITE_VIEW_S3_URL}/${exercise.thumbnail_male}`)
+              exercise.gif_url
+                ? exercise.gif_url.includes(VITE_VIEW_S3_URL)
+                  ? exercise.gif_url
+                  : `${VITE_VIEW_S3_URL}/${exercise.gif_url}`
                 : `${VITE_VIEW_S3_URL}/download.png`
             }
             alt="Exercise Image"

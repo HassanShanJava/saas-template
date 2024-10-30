@@ -5,7 +5,7 @@ export const Organization = apiSlice.injectEndpoints({
         return {
             getOrgTaxType: builder.query<{ tax_type: string }, number>({
                 query: (org_id) => ({
-                    url: `/organization/${org_id}/tax_type/`,
+                    url: `/organizations/${org_id}/tax_type`,
                     method: "GET",
                     headers: {
                         Accept: "application/json",

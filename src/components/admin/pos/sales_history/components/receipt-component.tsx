@@ -1,10 +1,11 @@
 import {
   lineItems,
   salesReportInterface,
+  sellForm,
   statusEnum,
   statusEnumGrid,
 } from "@/app/types";
-import React from "react";
+import React, { ReactNode } from "react";
 
 interface ReceiptProps {
   salesReport: salesReportInterface;
@@ -21,7 +22,7 @@ const Receipt: React.FC<ReceiptProps> = ({ salesReport }) => {
       </h2>
       <div className="flex flex-col  gap-2  justify-center items-center">
         <p>Receipt Number: {salesReport.receipt_number}</p>
-        <p>Transaction Date: {salesReport.transaction_date}</p>
+        <p>Transaction Date: {salesReport?.transaction_date as ReactNode}</p>
       </div>
 
       <h4 className="font-semibold mt-2 mb-2">Member Details</h4>
@@ -97,7 +98,7 @@ const Receipt: React.FC<ReceiptProps> = ({ salesReport }) => {
 
 export default Receipt;
 
-export function ReceiptExport(salesReport: salesReportInterface) {
+export function ReceiptExport(salesReport: salesReportInterface | sellForm) {
   const isRefund = salesReport.transaction_type === statusEnumGrid.Refund;
 
   return `<!DOCTYPE html>
@@ -213,14 +214,14 @@ export function ReceiptExport(salesReport: salesReportInterface) {
    
       <div class="section">
         <p><strong>Receipt Number:</strong> ${salesReport.receipt_number}</p>
-        <p><strong>Transaction Date:</strong> ${salesReport.transaction_date}</p>
+        <p><strong>Transaction Date:</strong> ${salesReport?.transaction_date}</p>
       </div>
 
       <strong>Member Details</strong>
       <div class="member-details">
-        <p><strong>Name:</strong> ${capitalizeFirstLetter(salesReport.member_name)}</p>
-        <p><strong>Email:</strong> ${capitalizeFirstLetter(salesReport.member_email)}</p>
-        <p><strong>Address:</strong> ${capitalizeFirstLetter(salesReport.member_address)}</p>
+        <p><strong>Name:</strong> ${capitalizeFirstLetter(salesReport?.member_name as string)}</p>
+        <p><strong>Email:</strong> ${capitalizeFirstLetter(salesReport?.member_email as string)}</p>
+        <p><strong>Address:</strong> ${capitalizeFirstLetter(salesReport?.member_address as string)}</p>
       </div>
 
       <hr />
@@ -239,8 +240,8 @@ export function ReceiptExport(salesReport: salesReportInterface) {
           </thead>
           <tbody>
             ${salesReport.items
-              ?.map(
-                (item: lineItems) => `
+      ?.map(
+        (item: lineItems) => `
                 <tr>
                   <td>${capitalizeFirstLetter(item.description)}</td>
                   <td>${item.quantity}</td>
@@ -251,8 +252,8 @@ export function ReceiptExport(salesReport: salesReportInterface) {
                   </td>
                 </tr>
               `
-              )
-              .join("")}
+      )
+      .join("")}
           </tbody>
         </table>
       </div>
@@ -261,12 +262,12 @@ export function ReceiptExport(salesReport: salesReportInterface) {
 
       <h4>Summary</h4>
       <div class="summary">
-        <p>Subtotal: <span>${salesReport.subtotal.toFixed(2)}</span></p>
-        <p>Discount: <span>${salesReport.discount_amt.toFixed(2)}</span></p>
-        <p>Tax Amount: <span>${salesReport.tax_amt.toFixed(2)}</span>
+        <p>Subtotal: <span>${salesReport.subtotal && salesReport?.subtotal.toFixed(2)}</span></p>
+        <p>Discount: <span>${salesReport?.discount_amt && salesReport?.discount_amt.toFixed(2)}</span></p>
+        <p>Tax Amount: <span>${salesReport?.tax_amt && salesReport?.tax_amt.toFixed(2)}</span>
         </p>
         <p>SRB Number: <span>${salesReport.tax_number}</span></p>
-        <h4 class="total">Total Amount: ${salesReport.total.toFixed(2)}</h4>
+        <h4 class="total">Total Amount: ${salesReport?.total && salesReport?.total.toFixed(2)}</h4>
         
         
         </div>

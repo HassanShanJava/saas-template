@@ -64,9 +64,10 @@ import {
   useUpdateCountersMutation,
 } from "@/services/counterApi";
 import TableFilters from "@/components/ui/table/data-table-filter";
-import { useGetStaffListQuery } from "@/services/staffsApi";
+import { useGetStaffListQuery, useGetStaffsQuery } from "@/services/staffsApi";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
+import { Badge } from "@/components/ui/badge";
 
 const downloadCSV = (data: counterDataType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -105,6 +106,7 @@ export default function CounterTableView() {
 
   const [action, setAction] = useState<"add" | "edit">("add");
   const { data: staffList } = useGetStaffListQuery(orgId);
+  const { data: staffData } = useGetStaffsQuery({ org_id: orgId, query: '' });
 
   // counter form
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
@@ -192,6 +194,10 @@ export default function CounterTableView() {
     return Array.isArray(counterList?.data) ? counterList?.data : [];
   }, [counterList]);
 
+  const staffDataList = React.useMemo(() => {
+    return Array.isArray(staffData?.data) ? staffData?.data : [];
+  }, [staffData]);
+
   const { toast } = useToast();
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -206,7 +212,7 @@ export default function CounterTableView() {
     if (selectedRows.length === 0) {
       toast({
         variant: "destructive",
-        title: "Select atleast one row for CSV download!",
+        title: "Please select one or more records to perform this action.",
       });
       return;
     }
@@ -295,12 +301,33 @@ export default function CounterTableView() {
     },
     // {
     //   accessorKey: "is_open",
-    //   meta: "Counter Open",
-    //   header: () => <p className="text-nowrap">Counter Open</p>,
+    //   meta: "Status",
+    //   header: () => <p className="text-nowrap">Currently Opened</p>,
     //   cell: ({ row }) => {
     //     return (
-    //       <p className="h-8" >
-    //         {row.original?.is_open?"Open":"Close"}
+    //       <div className="flex justify-center ">
+    //         <Badge
+    //           className={`${row.original?.is_open ? "bg-blue-600" : "bg-red-500"} text-white font-medium`}
+    //         >
+    //           {row.original?.is_open ? "Open" : "Close"}
+    //         </Badge>
+    //       </div>
+    //     );
+    //   },
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
+    // {
+    //   accessorKey: "staff_id",
+    //   meta: "Used By",
+    //   header: () => <p className="text-nowrap">Used By</p>,
+    //   cell: ({ row }) => {
+    //     const staff = staffDataList.find((staff) => staff.id === row.original.staff_id)
+    //     return (
+    //       row.original.staff_id ? <div className="flex flex-col items-left text-ellipsis whitespace-nowrap overflow-hidden">
+    //         <p className="capitalize text-xs">{(staff?.first_name + " " + staff?.last_name)}</p>
+    //         <p className="text-xs text-gray-400">{(staff?.email)}</p>
+    //       </div> : <p>N/A
     //       </p>
     //     );
     //   },
@@ -520,9 +547,9 @@ export default function CounterTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -561,25 +588,25 @@ export default function CounterTableView() {
                   </TableRow>
                 ))
               ) : // ) : isLoading ? (
-              false ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No data found.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No records found.
-                  </TableCell>
-                </TableRow>
-              )}
+                false ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No data found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No records found.
+                    </TableCell>
+                  </TableRow>
+                )}
             </TableBody>
           </Table>
         </ScrollArea>

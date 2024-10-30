@@ -6,23 +6,15 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import logomainsvg from "@/assets/logo-main.svg";
 import PasswordStrengthIndicator from "./password-strength-indicator.tsx";
 import { isStrongPassword, ValidatePassword } from "./password-strength.ts";
-import {
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import {
-  useResetPasswordMutation,
-  useVerifyTokenQuery,
-} from "@/services/resetPassApi.ts";
+import { SetStateAction, useCallback, useMemo, useState } from "react";
 import { toast } from "@/components/ui/use-toast.ts";
 import { ErrorType } from "@/app/types.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { inValidToken } from "@/utils/helper.ts";
+import { passwordPattern } from "@/utils/constants.ts";
 
-const ResetPassword = () => {
+const CreatePassword = () => {
   const { token } = useParams();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
@@ -31,12 +23,6 @@ const ResetPassword = () => {
     setState: React.Dispatch<SetStateAction<boolean>>
   ) => setState((prev) => !prev);
   const navigate = useNavigate();
-  const {
-    data: verifyToken,
-    error,
-    isLoading,
-  } = useVerifyTokenQuery(token as string);
-  const [resetPassword] = useResetPasswordMutation();
 
   const form = useForm<{
     new_password: string;
@@ -51,19 +37,6 @@ const ResetPassword = () => {
       confirm_password: undefined,
     },
   });
-
-  useEffect(() => {
-    if (verifyToken !== undefined && !error) {
-      form.reset({
-        id: verifyToken.id,
-        org_id: verifyToken.org_id,
-        new_password: "",
-        confirm_password: "",
-      });
-    } else if (error && typeof error === "object" && "data" in error) {
-      const typedError = error as ErrorType;
-    }
-  }, [verifyToken, error]);
 
   const {
     handleSubmit,
@@ -93,41 +66,18 @@ const ResetPassword = () => {
       };
       console.log("input payload", { data });
       try {
-        console.log({ payload });
-        const resp = await resetPassword(payload).unwrap();
-        if (resp) {
-          toast({
-            variant: "success",
-            title:
-              "Your password has been reset successfully. You can now log in with your new password",
-          });
-          navigate("/");
-        }
-      } catch (error: unknown) {
-        console.error("Error", { error });
-        if (error && typeof error === "object" && "data" in error) {
-          const typedError = error as ErrorType;
-          toast({
-            variant: "destructive",
-            title: "Error in form Submission",
-            description: `${typedError.data?.detail}`,
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Error in form Submission",
-            description: `Something Went Wrong.`,
-          });
-        }
+        //api call after correct api is recieved
+      } catch {
+        //error handling of the api
       }
     },
-    []
+    [token, navigate]
   );
 
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">
-        {isLoading ? ( // Replace with your loading state condition
+        {false ? ( // Replace with your loading state condition
           <div className="grid grid-cols-5 mx-16 justify-between items-center h-dvh">
             <div className="col-span-3"></div>
             <Card className="col-span-2 w-full mx-auto bg-transparent bg-opacity-10 backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg p-2">
@@ -148,7 +98,7 @@ const ResetPassword = () => {
               </CardContent>
             </Card>
           </div>
-        ) : verifyToken !== undefined && !error ? (
+        ) : inValidToken(token) ? (
           <div className="grid grid-cols-3 mx-16 justify-between items-center h-dvh ">
             <div className="col-span-1 xlg:col-span-2"></div>
             <Card className="col-span-2 xlg:col-span-1 mx-auto bg-transparent bg-opacity-10  backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg p-2">
@@ -159,13 +109,13 @@ const ResetPassword = () => {
                       <img
                         src={logomainsvg}
                         height={70}
-                        width={70}  
+                        width={70}
                         alt="Main logo"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
                       <p className="text-textwhite leading-5 italic font-semibold text-[1.43rem]">
-                        Reset Your Password.
+                        Create Your Password.
                       </p>
                     </div>
                   </div>
@@ -187,8 +137,7 @@ const ResetPassword = () => {
                         {...register("new_password", {
                           required: "New Password is required.",
                           pattern: {
-                            value:
-                              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~\[\]\|?]).{8,}$/,
+                            value: passwordPattern,
                             message: "Follow the password structure.",
                           },
                           maxLength: 50,
@@ -261,7 +210,7 @@ const ResetPassword = () => {
                       disabled={isSubmitting}
                       className={`w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 bg-primary text-black font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-400 dark:hover:bg-primary-500 disabled:cursor-not-allowed `}
                     >
-                      Submit
+                      {isSubmitting ? "Submitting..." : "Submit"}
                     </LoadingButton>
                   </form>
                 </FormProvider>
@@ -285,7 +234,7 @@ const ResetPassword = () => {
                     </div>
                     <div className="flex flex-col gap-2">
                       <p className="text-textwhite leading-5 italic font-semibold text-[1.43rem]">
-                        Reset Your Password.
+                        Create Your Password.
                       </p>
                     </div>
                   </div>
@@ -295,8 +244,8 @@ const ResetPassword = () => {
                 <div className="flex flex-col items-center gap-4 text-center">
                   <div className="text-white text-[1.2rem]">
                     <p>
-                      The reset link is invalid or expired. Please request a new
-                      link from the{" "}
+                      The create link is invalid or expired. Please request a
+                      new link from the{" "}
                       <span
                         onClick={() => {
                           navigate("/forgot_password");
@@ -327,4 +276,4 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword;
+export default CreatePassword;

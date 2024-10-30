@@ -216,7 +216,7 @@ export default function IncomeCategoryTableView() {
     if (selectedRows.length === 0) {
       toast({
         variant: "destructive",
-        title: "Select atleast one row for CSV download!",
+        title: "Please select one or more records to perform this action.",
       });
       return;
     }
@@ -301,8 +301,7 @@ export default function IncomeCategoryTableView() {
         const sales: any = salesTaxData?.filter(
           (item) => item.id == row.original.sale_tax_id
         )[0];
-        console.log({ salesTaxData, sales }, row.original.sale_tax_id, "sales");
-        return <span>{sales?.name + " (" + sales?.percentage + "%)"}</span>;
+        return <span className="capitalize">{sales?.name + " (" + sales?.percentage + "%)"}</span>;
       },
       enableSorting: false,
       enableHiding: false,

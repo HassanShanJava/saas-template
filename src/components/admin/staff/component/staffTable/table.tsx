@@ -90,6 +90,7 @@ enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
+  prefer_no_to_say = "prefer not to say",
 }
 
 interface searchCriteriaType {
@@ -204,7 +205,7 @@ export default function StaffTableView() {
     if (selectedRows.length === 0) {
       toast({
         variant: "destructive",
-        title: "Please select one or more record(s) to perform this action",
+        title: "Please select one or more records to perform this action.",
       });
       return;
     }
@@ -358,21 +359,6 @@ export default function StaffTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            <div className="size-8 flex gap-2 items-center justify-between">
-              {row.original.profile_img ? (
-                <img
-                  src={
-                    row.original.profile_img.includes(VITE_VIEW_S3_URL)
-                      ? row.original.profile_img
-                      : `${VITE_VIEW_S3_URL}/${row.original.profile_img}`
-                  }
-                  loading="lazy"
-                  className="size-8 bg-gray-100 object-contain rounded-sm "
-                />
-              ) : (
-                <div className="size-8 bg-gray-100 rounded-sm"></div>
-              )}
-            </div>
             <div className="">
               {/* <p className="capitalize">{displayValue(
                 row.original.first_name + " " + row.original.last_name
@@ -594,17 +580,6 @@ export default function StaffTableView() {
     },
   });
 
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
-  }
-
-  function handleRoleName(value: string) {
-    setFilter((prev) => ({
-      ...prev,
-      role_id: value,
-    }));
-  }
 
   function handleFilterChange(field: string, value: string | number) {
     setFilter((prev) => ({

@@ -66,6 +66,7 @@ const OpenRegister: React.FC = () => {
       };
       if (counter_number) {
         const resp = await openregister(payload).unwrap();
+
         const sessionData = {
           time: Date.now().toString(),
           isOpen: true,
@@ -74,7 +75,10 @@ const OpenRegister: React.FC = () => {
           opening_balance: resp.opening_balance as number,
           opening_time: resp.opening_time as string,
         };
+
         if (resp) {
+          refetch()
+
           toast({
             variant: "success",
             title: "Store opened successfully",

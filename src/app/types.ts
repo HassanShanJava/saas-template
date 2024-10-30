@@ -1,10 +1,15 @@
 import { JSONObject } from "@/types/hook-stepper";
 
+
+
 enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
+  prefer_no_to_say = "prefer not to say",
 }
+
+
 export interface sellItem {
   item_id: number;
   item_type: string;
@@ -12,12 +17,18 @@ export interface sellItem {
   quantity: number;
   price: number;
   tax_type: string;
-  sale_tax: string;
+  tax_name: string;
   tax_rate: number;
   discount: number;
   sub_total: number;
   total: number;
   tax_amount: number;
+}
+
+export interface Payments {
+  payment_method_id: number;
+  payment_method: string;
+  amount: number;
 }
 
 export interface sellForm {
@@ -34,22 +45,29 @@ export interface sellForm {
   staff_id?: number | null;
   staff_name?: string;
   receipt_number?: string;
-  tax_number?: string | null;
+  tax_number?: number | null;
   total?: number | null;
   subtotal?: number | null;
   tax_amt?: number | null;
   main_transaction_id?: number | null;
   status?: "Unpaid" | "Paid" | "Partially Paid";
   transaction_type?: "Refund" | "Sale";
+  transaction_date?: Date;
+  items?: sellItem[];
   membership_plans?: sellItem[];
   events?: sellItem[];
   products?: sellItem[];
-  payments?: {
-    payment_method_id?: number;
-    payment_method?: string;
-    amount?: number;
-  }[];
+  payments?: Payments[];
+  created_by: number;
+  updated_at?: number;
 }
+
+export interface TransactionTable {
+  data: sellForm[];
+  filtered_counts: number;
+  total_counts: number;
+}
+
 export enum statusEnum {
   pending = "pending",
   active = "active",
@@ -552,12 +570,14 @@ export interface LeadResponseTypes {
 }
 
 interface membership_planids {
+  id?: number;
   membership_plan_id?: number | undefined;
   auto_renewal?: boolean;
   prolongation_period?: number;
   auto_renew_days?: number;
   inv_days_cycle?: number;
 }
+
 export interface MemberInputTypes {
   profile_img?: string;
   own_member_id?: string;
@@ -1350,6 +1370,7 @@ export interface WorkoutPlanView {
   weeks: number;
   members: members[];
   org_id: number;
+  is_published: boolean;
 }
 
 export interface WorkoutPlansTableResponse {
@@ -1410,6 +1431,7 @@ export interface WorkoutDatabyId {
   id: number;
   members: members[];
   days: days[];
+  is_published: boolean;
 }
 
 export interface workoutUpdateStatus {
@@ -1563,7 +1585,32 @@ export interface registerSessionStorage {
 export interface PaymentMethodPlugin {
   id: number;
   name: string;
-  enabled: boolean;
+  code: string;
+  payment_method_id: number;
+  org_id: number;
+  sort_order: number;
+  status: boolean;
+  username: string;
+  password: string;
+  is_test: boolean;
+  url: string | null;
+  created_at: string;
+  updated_at: string | null;
+  created_by: number | null;
+  updated_by: number | null;
+}
+
+export interface PaymentMethodUpdate {
+  id: number;
+  data: {
+    payment_method_id: number;
+    sort_order?: number;
+    status?: boolean;
+    username?: string;
+    password?: string;
+    is_test?: boolean;
+    url?: string;
+  };
 }
 
 export enum statusEnumGrid {
@@ -1616,7 +1663,7 @@ export interface salesReportInterface {
   main_transaction_id: number;
   transaction_type: statusEnumGrid;
   status: typeTransactionEnum;
-  transaction_date: string;
+  transaction_date?: Date;
   items?: lineItems[];
   payments?: paymentOptions[];
 }

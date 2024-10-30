@@ -85,7 +85,6 @@ const WorkoutStep1: React.FC = () => {
     watch,
     setValue,
   } = form;
-  console.log("errors", errors);
   const watcher = watch();
   const { trigger } = form;
   const onFileChange = (value: File[] | null) => {

@@ -73,12 +73,12 @@ export default function FacilityTableView({
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const { getValues } = useFormContext<StepperFormValues>();
-  const { data: creditsData, isLoading } = useGetCreditsListQuery(orgId);
+  const { data: facilitiesData, isLoading } = useGetCreditsListQuery(orgId);
   const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
 
   const creditstableData = React.useMemo(() => {
-    return Array.isArray(creditsData) ? creditsData : [];
-  }, [creditsData]);
+    return Array.isArray(facilitiesData) ? facilitiesData : [];
+  }, [facilitiesData]);
 
   const { toast } = useToast();
 
@@ -89,7 +89,7 @@ export default function FacilityTableView({
   const [payload, setPayload] = useState<facilitiesData[]>(getValues("facilities") ? getValues("facilities") : []);
 
   useEffect(() => {
-    const data = creditsData?.map((item) => ({
+    const data = facilitiesData?.map((item) => ({
       id: item.id,
       count: 1,
       credits: item.min_limit,
@@ -106,7 +106,7 @@ export default function FacilityTableView({
     if (payload.length > 0) {
       const newRowSelection: Record<number, boolean> = {};
       payload.forEach(item => {
-        const index = findIndex(item.id, creditsData as creditTablestypes[]);
+        const index = findIndex(item.id, facilitiesData as creditTablestypes[]);
         if (index !== -1) {
           newRowSelection[index] = true;
         }
@@ -135,14 +135,10 @@ export default function FacilityTableView({
       setTransformedCredits(data);
     }
 
-  }, [creditsData, payload]);
+  }, [facilitiesData, payload]);
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [filterID, setFilterID] = useState({});
-  const [filters, setFilters] = useState<any>();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [isClear, setIsClear] = useState(false);
-  const [clearValue, setIsClearValue] = useState({});
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -374,7 +370,6 @@ export default function FacilityTableView({
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -385,13 +380,7 @@ export default function FacilityTableView({
       columnVisibility,
       rowSelection,
     },
-    initialState: {
-      pagination: {
-        pageSize: 10,
-        pageIndex: 0,
-      },
-    },
-    onPaginationChange: setPagination,
+    
   });
 
   

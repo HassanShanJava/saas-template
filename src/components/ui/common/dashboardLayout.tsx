@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Link,
-  Navigate,
   Outlet,
-  redirect,
   useLocation,
   useNavigate,
 } from "react-router-dom";
@@ -31,16 +29,23 @@ import {
 } from "@/features/counter/counterSlice";
 import { Button } from "../button";
 import { extractLinks } from "@/utils/helper";
-import { useUpdateCountersMutation } from "@/services/counterApi";
+import { useGetCountersQuery, useUpdateCountersMutation } from "@/services/counterApi";
 import { toast } from "../use-toast";
-import { useCreateTransactionMutation } from "@/services/transactionApi";
 
 const DashboardLayout: React.FC = () => {
-  const { isOpen } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { isOpen: false };
   const { pathname } = useLocation();
+  const { userInfo } = useSelector((state: RootState) => state.auth);
+  const { pos_count } = JSON.parse(
+    localStorage.getItem("accessLevels") as string
+  );
+  const { data: assignedCounter } = useGetCountersQuery({ query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}` : ""}` })
+
+  const assignedCounterData = useMemo(() => {
+    return Array.isArray(assignedCounter?.data) ? assignedCounter?.data : [];
+  }, [assignedCounter]);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [createTransaction] = useCreateTransactionMutation();
   const [seperatePanel, setSeperatePanel] = useState<resourceTypes[]>([]);
   const [backtogym, setBacktogym] = useState<string>("");
   const [sidePanel, setSidePanel] = useState<resourceTypes[]>([]);
@@ -82,16 +87,14 @@ const DashboardLayout: React.FC = () => {
 
 
   useEffect(() => {
-    console.log({ pathname, code, counter_number }, pathname.includes("pos") && counter_number == null, "pathname")
     if (pathname.includes("pos") && counter_number == null) {
       dispatch(setCode("pos"));
-      navigate("counter-selection", { replace: true })
-      // <Navigate to="/counter-selection" />
-      console.log({ counter_number }, "counterselection")
+      navigate("/counter-selection", { replace: true })
     } else if (!pathname.includes("pos")) {
+      localStorage.removeItem("code");
+      dispatch(setCode(null));
       dispatch(setCounter(null));
       dispatch(resetBackPageCount());
-      localStorage.removeItem("code");
     }
   }, [pathname, counter_number])
 
@@ -103,13 +106,9 @@ const DashboardLayout: React.FC = () => {
   const [assignCounter] = useUpdateCountersMutation();
 
   const closeCounter = async () => {
-
-
     try {
-
       const payload = {
         id: counter_number ?? Number(localStorage.getItem('counter_number') as string),
-        staff_id: null,
         is_open: false,
       };
 
@@ -129,16 +128,16 @@ const DashboardLayout: React.FC = () => {
   };
 
   const closePOSPanel = () => {
-    if (isOpen) {
-      toast({
-        variant: "destructive",
-        title: "Cannot close counter while register is open",
-      })
-      return;
+    localStorage.removeItem('code')
+    if (assignedCounterData.length > 1) {
+      closeCounter()
+      navigate('/counter-selection');
+    } else {
+      closeCounter()
+      navigate('/');
     }
-    closeCounter()
-    navigate('/', { replace: true });
   }
+
 
   return (
     <div className="font-poppins flex h-full w-full relative ">
@@ -174,13 +173,6 @@ const DashboardLayout: React.FC = () => {
             <div
               className="flex items-center gap-2 font-semibold cursor-pointer"
               onClick={() => {
-                if (isOpen) {
-                  toast({
-                    variant: "destructive",
-                    title: "Cannot close counter while register is open",
-                  })
-                  return;
-                }
                 dispatch(setCode(null));
                 dispatch(setCounter(null));
                 dispatch(resetBackPageCount());

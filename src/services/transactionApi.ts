@@ -1,4 +1,4 @@
-import { sellForm } from "@/app/types";
+import { sellForm, TransactionTable } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 interface transactionInput {
   query: string;
@@ -10,7 +10,7 @@ export const Transaction = apiSlice.injectEndpoints({
     return {
       createTransaction: builder.mutation<any, sellForm>({
         query: (transactionbody) => ({
-          url: `/pos/counter/register/transactions/`,
+          url: `/pos/registers/${transactionbody.batch_id}/transactions`,
           method: "POST",
           body: transactionbody,
           headers: {
@@ -19,15 +19,35 @@ export const Transaction = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Transaction"],
       }),
-      getTransaction: builder.query<any, transactionInput>({
+      getTransaction: builder.query<TransactionTable, transactionInput>({
         query: (searchCretiria) => ({
-          url: `/pos/counter/${searchCretiria.counter_id}/transactions${searchCretiria.query.length > 0 ? "?" + searchCretiria.query : ""}`,
+          url: `/pos/counters/${searchCretiria.counter_id}/transactions${searchCretiria.query.length > 0 ? "?" + searchCretiria.query : ""}`,
           method: "GET",
           headers: {
             Accept: "application/json",
           },
         }),
         providesTags: ["Transaction"],
+      }),
+      getTransactionById: builder.query<sellForm, { counter_id: number, transaction_id: number }>({
+        query: (payload) => ({
+          url: `/pos/transactions/${payload.transaction_id}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        providesTags: ["Transaction"],
+      }),
+      patchTransaction: builder.mutation<any, { status: string, id:number }>({
+        query: (payload) => ({
+          url: `/pos/transactions/${payload.id}/status`,
+          method: "PATCH",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        invalidatesTags: ["Transaction"],
       }),
     };
   },
@@ -36,4 +56,6 @@ export const Transaction = apiSlice.injectEndpoints({
 export const {
   useCreateTransactionMutation,
   useGetTransactionQuery,
+  useGetTransactionByIdQuery,
+  usePatchTransactionMutation,
 } = Transaction;

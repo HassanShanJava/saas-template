@@ -51,11 +51,12 @@ import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import {
   capitalizeFirstLetter,
+  displayDate,
   displayDateTime,
   displayValue,
   formatDate,
   replaceUnderscoreWithSpace,
-  SaleHistoryMapper,
+  saleHistoryMapper,
 } from "@/utils/helper";
 import Pagination from "@/components/ui/table/pagination-table";
 import usePagination from "@/hooks/use-pagination";
@@ -95,7 +96,7 @@ export default function SaleshistoryRegisterViewTable() {
   const counter_number =
     useSelector((state: RootState) => state.counter?.counter_number) || 0;
 
-  const { pos_sale_history } = JSON.parse(
+  const { pos_sale_report } = JSON.parse(
     localStorage.getItem("accessLevels") as string
   );
   const orgId =
@@ -205,18 +206,18 @@ export default function SaleshistoryRegisterViewTable() {
     if (selectedRows.length === 0) {
       toast({
         variant: "destructive",
-        title: "Select atleast one row for CSV download!",
+        title: "Please select one or more records to perform this action.",
       });
       return;
     }
-    downloadCSV(selectedRows, "sale_report.csv", SaleHistoryMapper);
+    downloadCSV(selectedRows, "sale_report.csv", saleHistoryMapper);
   };
 
   const actionsColumn: ColumnDef<salesReportInterface> = {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
-      <DataTableRowActions access={pos_sale_history} data={row?.original} />
+      <DataTableRowActions access={pos_sale_report} data={row?.original} />
     ),
   };
 
@@ -417,7 +418,7 @@ export default function SaleshistoryRegisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(row.original.subtotal?.toFixed(2).toString())}
+                  {displayValue(row.original.total?.toFixed(2).toString())}
                 </span>
               </p>
             </div>
@@ -526,7 +527,7 @@ export default function SaleshistoryRegisterViewTable() {
           <div className="flex gap-2 items-center justify-between w-fit">
             <div className="">
               <p className="capitalize cursor-pointer text-nowrap">
-                <span>{displayDateTime(row?.original.transaction_date)}</span>
+                <span>{displayDate(row?.original.transaction_date)}</span>
               </p>
             </div>
           </div>
@@ -536,7 +537,7 @@ export default function SaleshistoryRegisterViewTable() {
       enableHiding: false,
     },
 
-    ...(pos_sale_history !== "read" ? [actionsColumn] : []),
+    ...(pos_sale_report !== "read" ? [actionsColumn] : []),
   ];
 
   // saleshistoryTableData
@@ -557,8 +558,8 @@ export default function SaleshistoryRegisterViewTable() {
       rowSelection,
     },
   });
-
-  const totalRecords = salesData?.filtered_counts || 0;
+  
+  const totalRecords = salesHistoryData?.filtered_counts || 0;
 
   const {
     handleLimitChange,
@@ -572,6 +573,7 @@ export default function SaleshistoryRegisterViewTable() {
     searchCriteria,
     setSearchCriteria,
   });
+
   const handleDateRange = (dates: {
     start_date: Date | undefined;
     end_date: Date | undefined;

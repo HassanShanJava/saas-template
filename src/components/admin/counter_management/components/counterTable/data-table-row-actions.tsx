@@ -103,7 +103,7 @@ export function DataTableRowActions({
                 <div className="flex flex-col items-center  justify-center gap-4">
                   <img src={warning} alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this counter
+                  Are you sure you want to delete this counter? This action cannot be undone.
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

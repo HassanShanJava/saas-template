@@ -29,6 +29,7 @@ import WorkoutPlanForm from "./components/admin/workoutplan/workoutform/workout-
 import WorkoutStep1 from "./components/admin/workoutplan/workoutform/workout-step-1";
 import WorkoutStep2 from "./components/admin/workoutplan/workoutform/workout-step-2";
 import ForgotPasword from "./components/app/login/forgot_password";
+import CreatePassword from "./components/app/reset_password/create-password";
 
 // pos
 import Sell from "./components/admin/pos/sell";
@@ -58,6 +59,7 @@ function App() {
         <IdleLogoutHandler />
         <Routes>
           <Route path="/reset_password/:token" element={<ResetPassword />} />
+          <Route path="/create_password/:token" element={<CreatePassword />} />
           <Route path="/forgot_password" element={<ForgotPasword />} />
           <Route path="/" element={<ProtectedRoute />}>
             <Route path="/" index element={<AuthenticationPage />} />
@@ -97,8 +99,8 @@ function App() {
               </Route>
 
               <Route path="/admin/pos/">
-                <Route path="sell/:transactionId?" element={<Sell />} />
-                <Route path="salesHistory" element={<SaleHistory />} />
+                <Route path="sell/:id?" element={<Sell />} />
+                <Route path="salesReport" element={<SaleHistory />} />
                 <Route path="register" element={<Register />} />
                 <Route path="cash" element={<CashManagement />} />
               </Route>

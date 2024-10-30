@@ -16,7 +16,6 @@ const NotFoundPage = () => {
   const sidepanel = localStorage.getItem("sidepanel");
   const decodedSidepanel = JSON.parse(atob(sidepanel as string));
   const links = extractLinks(decodedSidepanel)
-  console.log({ links })
   return (
     <div style={containerStyle}>
       <div style={iconContainerStyle}>

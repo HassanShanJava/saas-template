@@ -54,7 +54,12 @@ import { FiUpload } from "react-icons/fi";
 import * as z from "zod";
 import { toast } from "@/components/ui/use-toast";
 import { ErrorType, Workout, WorkoutDatabyId } from "@/app/types";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
+import {
+  Outlet,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import StepperIndicator from "@/components/ui/stepper-indicator";
 import { useForm, UseFormHandleSubmit, UseFormReturn } from "react-hook-form";
 import {
@@ -70,10 +75,12 @@ import {
   useVerifyWorkoutCreationMutation,
 } from "@/services/workoutService";
 import { initialValue } from "@/constants/workout/index";
+import { PublishConfirmDialog } from "../components/workout-warning";
+
 export type ContextProps = { form: UseFormReturn<Workout> };
 const WorkoutPlanForm = () => {
   const location = useLocation(); // Use useLocation to get the current location
-
+  let [searchParams, setSearchParams] = useSearchParams();
   const { workoutId } = useParams<{ workoutId: string }>(); // Extract workoutId
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -87,8 +94,8 @@ const WorkoutPlanForm = () => {
     verifyWorkout,
     { isLoading: isVerifyLoading, isError: isVerifyError },
   ] = useVerifyWorkoutCreationMutation();
-
-  // Extract mode from query parameters
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   // Extract mode from query parameters
   const queryParams = new URLSearchParams(location.search);
   const mode = queryParams.get("mode") || "add";
@@ -130,30 +137,6 @@ const WorkoutPlanForm = () => {
   );
 
   useEffect(() => {
-    console.log(
-      "activeStep useEffect",
-      activeStep,
-      +location.pathname[location.pathname.length - 1],
-      +location.pathname[location.pathname.length - 2],
-      parseInt(location.pathname.split("/").slice(-2, -1)[0]),
-      form.formState.isSubmitting,
-      form.formState.isSubmitted
-    );
-
-    if (
-      isNaN(activeStep) ||
-      (activeStep === 2 && !isSubmitted && !isSubmitting)
-    ) {
-      setActiveStep(1);
-      navigate(`/admin/workoutplans/add/step/1?${queryParams.toString()}`);
-    } else {
-      // Navigate to the current step, including workoutId if it exists
-      const workoutIdPart = workoutIdState ? `/${workoutIdState}` : "";
-      navigate(
-        `/admin/workoutplans/add/step/${activeStep}${workoutIdPart}?${queryParams.toString()}`
-      );
-    }
-
     if (workoutdataStep1 && !isSubmitted) {
       if (workoutIdState) {
         const transformedData = {
@@ -171,13 +154,34 @@ const WorkoutPlanForm = () => {
           file: undefined, // Adjust according to how files are managed
         };
         // Set the transformed data to the form
-        console.log("formadata", transformedData);
         reset(transformedData);
       } else {
         reset(initialValue);
       }
     }
-  }, [activeStep, workoutdataStep1, isSubmitting, isSubmitted, workoutIdState]);
+  }, [workoutdataStep1, isSubmitted, workoutIdState]);
+  // }, [activeStep, workoutdataStep1, isSubmitting, isSubmitted, workoutIdState]);
+
+  useEffect(() => {
+    // if (
+    //   isNaN(activeStep) ||
+    //   (activeStep === 2 && !isSubmitted && !isSubmitting)
+    // ) {
+    if (
+      isNaN(activeStep) ||
+      (activeStep === 2 && !isSubmitted && !isSubmitting)
+    ) {
+      setActiveStep(1);
+      navigate(`/admin/workoutplans/add/step/1?${queryParams.toString()}`);
+    } else {
+      // Navigate to the current step, including workoutId if it exists
+      const workoutIdPart = workoutIdState ? `/${workoutIdState}` : "";
+      navigate(
+        `/admin/workoutplans/add/step/${activeStep}${workoutIdPart}?${queryParams.toString()}`
+      );
+    }
+  }, [activeStep, isSubmitted, isSubmitting, workoutIdState]);
+
   const [isSubmittedcode, setIsSubmitting] = useState(false);
 
   const [createWorkout, { isLoading: AddworkoutLoading, isError }] =
@@ -242,18 +246,10 @@ const WorkoutPlanForm = () => {
       const ExistingImages = {
         file: data.img_url,
       };
-
-      console.log(
-        "New Image",
-        fileInputObject.file,
-        "existing one url",
-        ExistingImages.file
-      );
       const result = await processAndUploadImages(
         fileInputObject,
         ExistingImages
       );
-      console.log("data, data", data, "Image Url getting", result.img_url);
       const payload = {
         ...data,
         img_url: result.img_url,
@@ -265,11 +261,9 @@ const WorkoutPlanForm = () => {
       let resp;
       if (workoutIdState) {
         resp = await updateWorkout({ id: workoutIdState, ...payload }).unwrap();
-        console.log("updated data", { payload });
         if (resp && resp.workout_id) {
           setWorkoutIdState(resp.workout_id);
           const newActiveStep = 2;
-          console.log("resp id", resp.workout_id, workoutIdState, workoutId);
           navigate(
             `/admin/workoutplans/add/step/${newActiveStep}/${resp.workout_id}?${queryParams.toString()}`
           );
@@ -285,7 +279,6 @@ const WorkoutPlanForm = () => {
         if (resp && resp.id) {
           setWorkoutIdState(resp.id);
           const newActiveStep = 2;
-          console.log("resp id", resp.id, workoutIdState, workoutId);
           navigate(
             `/admin/workoutplans/add/step/${newActiveStep}/${resp.id}?${queryParams.toString()}`
           );
@@ -325,24 +318,42 @@ const WorkoutPlanForm = () => {
 
   const handleClose = async () => {
     if (formMode === "add" && workoutIdState) {
+      setIsClosing(true);
       try {
         await deleteWorkout(workoutIdState).unwrap();
+        console.log("Use Effect runs3 add");
+
         navigate("/admin/workoutplans");
       } catch (error) {
         console.error("Failed to delete workout:", error);
+        setIsClosing(false);
+        toast({
+          variant: "destructive",
+          description: "Failed to delete workout. Please try again.",
+        });
+        navigate("/admin/workoutplans");
       }
     } else {
-      navigate("/admin/workoutplans");
+      if (workoutdataStep1?.is_published === false) {
+        setIsDialogOpen(true);
+      } else {
+        console.log("Use Effect runs4 last else");
+        // if (formMode === "add") {
+        navigate("/admin/workoutplans");
+        // }
+      }
     }
   };
 
-  console.log(
-    "WorkOutId step 1 data to populate",
-    { workoutdataStep1 },
-    { watcher },
-    { workoutIdState }
-  );
-  // console.log(, "edit");
+  const handleonlyDialog = () => {
+    setIsDialogOpen(false);
+  };
+  // Function to handle dialog cancellation
+  const handleDialogCancel = () => {
+    setIsDialogOpen(false); // Just close the dialog, stay on the current page
+    navigate("/admin/workoutplans"); // Navigate to workout plans page
+  };
+
   useEffect(() => {
     if (workoutError) {
       // Check if the error is due to the workout not existing
@@ -352,7 +363,7 @@ const WorkoutPlanForm = () => {
           title: "Workout Not Found",
           description: "The requested workout does not exist.",
         });
-        // Close the form and navigate back to the workout plans list
+
         navigate("/admin/workoutplans");
       } else {
         // Handle other types of errors
@@ -372,33 +383,39 @@ const WorkoutPlanForm = () => {
   };
 
   const handleVerifyWorkout = async () => {
+    console.log("IN verify ");
+
     try {
-      if (workoutIdState) {
-        const payload = {
-          id: workoutIdState,
-        };
-        const verifyData = await verifyWorkout(payload).unwrap();
-        console.log(verifyData?.status, verifyData?.status === 200);
-        if (verifyData?.status === 200) {
-          toast({
-            variant: "success",
-            description: "Workout saved successfully!",
-          });
-          navigate("/admin/workoutplans"); // Navigate to admin/workoutplans on success
-        } else {
-          toast({
-            variant: "destructive",
-            description:
-              "Each day must have at least one exercise and one day.",
-          });
-        }
+      if (!workoutIdState) {
+        return;
+      }
+
+      const payload = {
+        id: workoutIdState,
+      };
+      const verifyData = await verifyWorkout(payload).unwrap();
+      console.log("verify status", verifyData?.status);
+
+      if (verifyData?.status === 200) {
+        toast({
+          variant: "success",
+          description: "Workout saved successfully!",
+        });
+        console.log("Use Effect runs2 status");
+        console.log(
+          "Verification successful. Navigating to /admin/workoutplans"
+        );
+
+        navigate("/admin/workoutplans"); // Navigate to admin/workoutplans on success
       } else {
         toast({
           variant: "destructive",
-          description: "Failed to verify workout.",
+          description: "Each day must have at least one exercise and one day.",
         });
       }
+      console.log("In the try block of verify ");
     } catch (error) {
+      console.log("In the try catch of verify ");
       console.error("Verification error:", error);
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
@@ -417,105 +434,121 @@ const WorkoutPlanForm = () => {
       }
     }
   };
+
   return (
-    <Sheet open={true}>
-      <SheetContent
-        className="!max-w-full lg:w-[1150px] custom-scrollbar py-0"
-        hideCloseButton
-      >
-        <SheetHeader className="sticky z-40 top-0 py-4 bg-white">
-          <SheetTitle>
-            <div className="flex justify-between gap-5 items-start ">
-              <div>
-                <p className="font-semibold">Workout Plans</p>
-              </div>
-              <div className="flex justify-center space-x-[20px]">
-                <LoadingButton
-                  type="button"
-                  className="w-[100px] text-center flex items-center gap-2 border-primary"
-                  variant={"outline"}
-                  onClick={handleClose}
-                  loading={isDeleting}
-                  disabled={
-                    isSubmittedcode || AddworkoutLoading || updateLoading
-                  }
-                >
-                  <i className="fa fa-xmark "></i>
-                  Cancel
-                </LoadingButton>
-
-                {activeStep !== 1 && (
-                  <Button
-                    className="w-[100px] px-2 text-center flex items-center gap-2 border-primary"
+    <>
+      <Sheet open={true}>
+        <SheetContent
+          className="lg:!max-w-[950px] py-0 custom-scrollbar h-full w-[85%] sm:w-full sm:max-w-3xl"
+          hideCloseButton
+        >
+          <SheetHeader className="sticky z-40 top-0 py-4 bg-white">
+            <SheetTitle>
+              <div className="flex justify-between gap-5 items-start ">
+                <div>
+                  <p className="font-semibold">Workout Plans</p>
+                </div>
+                <div className="flex justify-center space-x-[20px]">
+                  <LoadingButton
                     type="button"
+                    className="w-[100px] text-center flex items-center gap-2 border-primary"
                     variant={"outline"}
-                    onClick={() => navigateToStep(activeStep - 1)}
-                  >
-                    <i className="fa fa-arrow-left-long "></i>
-                    Previous
-                  </Button>
-                )}
-
-                {activeStep === LAST_STEP ? (
-                  <LoadingButton
-                    type="submit"
-                    className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
-                    onClick={handleVerifyWorkout}
-                    loading={isVerifyLoading}
-                    disabled={isSubmitting || workoutidDataLoading}
-                  >
-                    {!isVerifyLoading && (
-                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                    )}
-                    Save
-                  </LoadingButton>
-                ) : (
-                  <LoadingButton
-                    type="button"
-                    className="w-[200px] bg-primary text-black text-center flex items-center gap-2"
-                    onClick={() => {
-                      form.handleSubmit(async (data) => {
-                        await onSubmit(data);
-                        console.log("Step of action active", activeStep, data);
-                        const newActive = activeStep + 1;
-                        // setActiveStep(newActive);
-                        navigateToStep(activeStep + 1);
-                      }, onError)();
-                    }}
-                    loading={
-                      isSubmittedcode || AddworkoutLoading || updateLoading
-                    }
+                    onClick={handleClose}
+                    loading={isDeleting}
                     disabled={
                       isSubmittedcode || AddworkoutLoading || updateLoading
                     }
                   >
-                    {!(isSubmitting || AddworkoutLoading || updateLoading) && (
-                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                    )}
-                    <i className="fa fa-arrow-right-long "></i>
-                    Save & Next
+                    <i className="fa fa-xmark "></i>
+                    Cancel
                   </LoadingButton>
-                )}
+
+                  {activeStep !== 1 && (
+                    <Button
+                      className="w-[100px] px-2 text-center flex items-center gap-2 border-primary"
+                      type="button"
+                      variant={"outline"}
+                      onClick={() => navigateToStep(activeStep - 1)}
+                    >
+                      <i className="fa fa-arrow-left-long "></i>
+                      Previous
+                    </Button>
+                  )}
+
+                  {activeStep === LAST_STEP ? (
+                    <LoadingButton
+                      type="submit"
+                      className="w-[200px] bg-primary text-black text-center flex items-center gap-2"
+                      onClick={handleVerifyWorkout}
+                      loading={isVerifyLoading}
+                      disabled={isSubmitting || workoutidDataLoading}
+                    >
+                      {!isVerifyLoading && (
+                        <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                      )}
+                      Publish Workout
+                    </LoadingButton>
+                  ) : (
+                    <LoadingButton
+                      type="button"
+                      className="w-[200px] bg-primary text-black text-center flex items-center gap-2"
+                      onClick={() => {
+                        form.handleSubmit(async (data) => {
+                          await onSubmit(data);
+
+                          const newActive = activeStep + 1;
+                          // setActiveStep(newActive);
+                          navigateToStep(activeStep + 1);
+                        }, onError)();
+                      }}
+                      loading={
+                        isSubmittedcode || AddworkoutLoading || updateLoading
+                      }
+                      disabled={
+                        isSubmittedcode || AddworkoutLoading || updateLoading
+                      }
+                    >
+                      {!(
+                        isSubmitting ||
+                        AddworkoutLoading ||
+                        updateLoading
+                      ) && (
+                        <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
+                      )}
+                      <i className="fa fa-arrow-right-long "></i>
+                      Next
+                    </LoadingButton>
+                  )}
+                </div>
               </div>
+            </SheetTitle>
+            <Separator className="h-[1px] rounded-full my-2" />
+          </SheetHeader>
+          <div className="flex justify-center mt-5">
+            <div className="w-1/2 flex justify-center">
+              <StepperIndicator
+                activeStep={activeStep}
+                labels={[
+                  { key: 1, label: "Plan Information" },
+                  { key: 2, label: "Training & Exercise" },
+                ]}
+                lastKey={LAST_STEP}
+              />
             </div>
-          </SheetTitle>
-          <Separator className="h-[1px] rounded-full my-2" />
-        </SheetHeader>
-        <div className="flex justify-center mt-5">
-          <div className="w-1/2 flex justify-center">
-            <StepperIndicator
-              activeStep={activeStep}
-              labels={[
-                { key: 1, label: "Plan Information" },
-                { key: 2, label: "Training & Exercise" },
-              ]}
-              lastKey={LAST_STEP}
-            />
           </div>
-        </div>
-        <Outlet context={{ form } satisfies ContextProps} />
-      </SheetContent>
-    </Sheet>
+          <Outlet context={{ form } satisfies ContextProps} />
+        </SheetContent>
+      </Sheet>{" "}
+      <PublishConfirmDialog
+        isLoading={isVerifyLoading}
+        onDialogClose={handleonlyDialog}
+        isOpen={isDialogOpen}
+        onVerify={() => {
+          handleVerifyWorkout();
+        }}
+        onCancel={handleDialogCancel}
+      />
+    </>
   );
 };
 

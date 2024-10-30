@@ -115,7 +115,7 @@ export const sessionMapper = ({
   "Created Date": displayDateTime(created_date) || "",
 });
 
-export const SaleHistoryMapper = ({
+export const saleHistoryMapper = ({
   receipt_number,
   tax_number,
   member_name,
@@ -192,9 +192,6 @@ export const formatDate = (date: Date | string | null): string | null => {
   return `${year}-${month}-${day}`;
 };
 
-export const roundToTwoDecimals = (value: number) => Math.floor(value * 100) / 100;
-
-
 export   const formatNIC = (value: string) => {
   // Remove any non-numeric characters
   const numericValue = value.replace(/\D/g, "");
@@ -207,4 +204,10 @@ export   const formatNIC = (value: string) => {
   } else {
     return `${numericValue.slice(0, 5)}-${numericValue.slice(5, 12)}-${numericValue.slice(12, 13)}`;
   }
+};
+export const roundToTwoDecimals = (value: number) =>
+  Math.floor(value * 100) / 100;
+
+export const inValidToken = (token: string | undefined) => {
+  return token !== undefined && token.trim().length > 0;
 };

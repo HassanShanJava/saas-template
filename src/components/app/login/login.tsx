@@ -74,7 +74,7 @@ export default function AuthenticationPage() {
       recaptchaRef.current.reset();
     }
 
-    if(userInfo){
+    if (userInfo) {
 
       const sidepanel = localStorage.getItem("sidepanel");
       const decodedSidepanel = JSON.parse(atob(sidepanel as string));
@@ -84,9 +84,9 @@ export default function AuthenticationPage() {
         title: "LogIn",
         description: "You are successfully logged In",
       });
-      navigate("/admin/dashboard");
+      navigate(links[0]);
     }
-    
+
   }, [loading]);
 
   const handleRememberMe = (e: boolean) => {

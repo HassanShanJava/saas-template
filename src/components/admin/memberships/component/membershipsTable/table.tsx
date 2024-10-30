@@ -35,16 +35,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import { ErrorType, membeshipsTableType } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import Papa from "papaparse";
 import MembershipForm from "../modal/membership-form";
 import {
   useGetMembershipsQuery,
@@ -53,7 +47,6 @@ import {
 import { useGetIncomeCategorListQuery } from "@/services/incomeCategoryApi";
 import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
 import { useGetGroupQuery } from "@/services/groupsApis";
-import { Separator } from "@/components/ui/separator";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { Search } from "lucide-react";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
@@ -86,16 +79,6 @@ interface AccessTime {
   duration_type: keyof typeof durationLabels; // ensures duration_type is one of the keys in durationLabels
 }
 
-const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
-  const csv = Papa.unparse(data);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
 interface searchCriteriaType {
   limit: number;
   offset: number;
@@ -126,8 +109,6 @@ export default function MembershipsTableView() {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
         newCriteria.sort_key = "id";
-        // newCriteria.sort_key = "created_at";
-
         newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
@@ -135,13 +116,11 @@ export default function MembershipsTableView() {
 
       return newCriteria;
     });
-    console.log({ debouncedInputValue });
   }, [debouncedInputValue, setSearchCriteria]);
 
   useEffect(() => {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(searchCriteria)) {
-      console.log({ key, value });
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
           value.forEach((val) => {
@@ -178,10 +157,6 @@ export default function MembershipsTableView() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [action, setAction] = useState<"add" | "edit">("add");
 
-  const handleCloseDailog = () => setIsDialogOpen(false);
-
-  const [formData, setFormData] = useState({});
-
   const toggleSortOrder = (key: string) => {
     setSearchCriteria((prev) => {
       const newSortOrder =
@@ -207,40 +182,10 @@ export default function MembershipsTableView() {
 
   const [data, setData] = useState<membeshipsTableType | undefined>(undefined);
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [filterID, setFilterID] = useState({});
-  const [filters, setFilters] = useState<any>();
+
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [isClear, setIsClear] = useState(false);
-  const [clearValue, setIsClearValue] = useState({});
 
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    console.log({ name, value }, "name,value");
-    let finalValue: number | string = value;
-    if (name == "sale_tax_id") {
-      finalValue = Number(value);
-    }
-    setFormData((prevData) => {
-      const updatedData = { ...prevData, [name]: finalValue };
-      console.log("After update:", updatedData);
-      return updatedData;
-    });
-  };
-
-  const handleExportSelected = () => {
-    const selectedRows = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original);
-    if (selectedRows.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Select atleast one row for CSV download!",
-      });
-      return;
-    }
-    downloadCSV(selectedRows, "selected_data.csv");
-  };
 
   const handleStatusChange = async (payload: {
     status: string;
@@ -252,7 +197,6 @@ export default function MembershipsTableView() {
       // payload.status=Boolean(payload.status)
       const resp = await updateMemberships(payload).unwrap();
       if (resp) {
-        console.log({ resp });
         refetch();
         toast({
           variant: "success",
@@ -582,10 +526,6 @@ export default function MembershipsTableView() {
     },
   });
 
-  function handlePagination(page: number) {
-    if (page < 0) return;
-    // setFilters
-  }
 
   const handleOpen = () => {
     setAction("add");
@@ -595,14 +535,15 @@ export default function MembershipsTableView() {
 
   const handleFilterChange = (
     field: string,
-    value: string | number | React.ChangeEvent<HTMLInputElement>
+    value: string | number | number[] | React.ChangeEvent<HTMLInputElement>
   ) => {
     let newValue;
+
     // Check if the value is coming from an input event or passed directly
-    if (typeof value === "string" || typeof value === "number") {
-      newValue = value;
-    } else {
+    if (typeof value === "object" && "target" in value) {
       newValue = value.target.value;
+    } else {
+      newValue = value;
     }
 
     if (field === "discount_percentage") {
@@ -610,17 +551,10 @@ export default function MembershipsTableView() {
     }
 
     // Update the filter state based on field and value
-    setFilter((prev) => {
-      const newFilter = { ...prev };
-
-      if (String(newValue).trim() === "") {
-        delete newFilter[field];
-      } else {
-        newFilter[field] = newValue;
-      }
-
-      return newFilter;
-    });
+    setFilter((prev) => ({
+      ...prev,
+      [field]: newValue,
+    }));
   };
 
   const filterDisplay = [
@@ -635,14 +569,14 @@ export default function MembershipsTableView() {
       function: (value: string) => handleFilterChange("status", value),
     },
     {
-      type: "combobox",
+      type: "multiselect",
       name: "group_id",
       label: "Group",
       options: groupData,
       function: (value: number) => handleFilterChange("group_id", value),
     },
     {
-      type: "combobox",
+      type: "multiselect",
       name: "income_category_id",
       label: "Income Category",
       options: incomeCatData?.map((item) => ({
@@ -656,15 +590,15 @@ export default function MembershipsTableView() {
       type: "percentage",
       name: "discount_percentage",
       label: "Discount Percentage",
-      function: (e: React.ChangeEvent<HTMLInputElement>) =>
-        handleFilterChange("discount_percentage", e),
+      function: (event: React.ChangeEvent<HTMLInputElement>) =>
+        handleFilterChange("discount_percentage", event),
     },
     {
       type: "number",
       name: "total_amount",
       label: "Total Amount",
-      function: (e: React.ChangeEvent<HTMLInputElement>) =>
-        handleFilterChange("total_amount", e),
+      function: (event: React.ChangeEvent<HTMLInputElement>) =>
+        handleFilterChange("total_amount", event),
     },
   ];
 
@@ -732,9 +666,9 @@ export default function MembershipsTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

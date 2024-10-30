@@ -93,11 +93,14 @@ import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { PhoneInput } from "react-international-phone";
 import { RxCross2 } from "react-icons/rx";
 const { VITE_VIEW_S3_URL } = import.meta.env;
+
 enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
+  prefer_no_to_say = "prefer not to say",
 }
+
 interface CoachFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   open: boolean;
@@ -580,16 +583,16 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
     payloadCoach.member_ids = Array.isArray(coachData?.member_ids)
       ? coachData.member_ids.every(
-        (item: Member) =>
-          (typeof item === "object" &&
-            item.id === 0 &&
-            item.name.trim() === "") ||
-          (typeof item === "number" && item === 0)
-      )
+          (item: Member) =>
+            (typeof item === "object" &&
+              item.id === 0 &&
+              item.name.trim() === "") ||
+            (typeof item === "number" && item === 0)
+        )
         ? []
         : coachData.member_ids.map((item: Member) =>
-          typeof item === "object" ? item.id : item
-        )
+            typeof item === "object" ? item.id : item
+          )
       : [];
     if (
       payloadCoach?.mobile_number &&
@@ -688,7 +691,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
                         avatar
                           ? String(avatar)
                           : watcher.profile_img
-                            ? (watcher.profile_img.includes(VITE_VIEW_S3_URL) ? watcher.profile_img : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`)
+                            ? watcher.profile_img.includes(VITE_VIEW_S3_URL)
+                              ? watcher.profile_img
+                              : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
                             : profileimg
                       }
                       alt={profileimg}
@@ -743,8 +748,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     render={({ field }) => (
                       <FormItem>
                         {coachData == null ||
-                          (coachData != null &&
-                            watcher.coach_status == "pending") ? (
+                        (coachData != null &&
+                          watcher.coach_status == "pending") ? (
                           <FloatingLabelInput
                             {...field}
                             id="email"
@@ -839,6 +844,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
                             <SelectItem value="male">Male</SelectItem>
                             <SelectItem value="female">Female</SelectItem>
                             <SelectItem value="other">Other</SelectItem>
+                            <SelectItem value="prefer not to say">
+                              Prefer not to say
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         {watcher.gender ? <></> : <FormMessage />}
@@ -885,9 +893,26 @@ const CoachForm: React.FC<CoachFormProps> = ({
                               mode="single"
                               captionLayout="dropdown-buttons"
                               selected={new Date(field.value)}
-                              onSelect={(value) => {
-                                field.onChange(value);
-                                setDob(false);
+                              onSelect={(selectedDate) => {
+                                if (selectedDate) {
+                                  const today = new Date();
+                                  const oneYearAgo = new Date();
+                                  oneYearAgo.setFullYear(
+                                    today.getFullYear() - 1
+                                  );
+
+                                  // Check if the selected date is at least 1 year old
+                                  if (selectedDate <= oneYearAgo) {
+                                    field.onChange(selectedDate);
+                                    setDob(false);
+                                  } else {
+                                    toast({
+                                      variant: "destructive",
+                                      description:
+                                        "Date of birth must be at least 1 year old.",
+                                    });
+                                  }
+                                }
                               }}
                               fromYear={1960}
                               toYear={new Date().getFullYear()}
@@ -898,7 +923,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                     : Date.now()
                                 )
                               }
-                              disabled={(date: any) =>
+                              disabled={(date: Date) =>
                                 date > new Date() ||
                                 date < new Date("1900-01-01")
                               }
@@ -1056,14 +1081,14 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           <FormControl>
                             <SelectTrigger
                               floatingLabel="Source*"
-                              className={"font-medium text-gray-800"}
+                              className={"font-base text-gray-800"}
                             >
                               <SelectValue>
                                 {field.value === 0
                                   ? "Source*"
                                   : sources?.find(
-                                    (source) => source.id === field.value
-                                  )?.source || "Source*"}
+                                      (source) => source.id === field.value
+                                    )?.source || "Source*"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -1154,64 +1179,75 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     name="country_id"
                     render={({ field }) => (
                       <FormItem className="flex flex-col w-full">
-                        <Popover open={country} onOpenChange={setCountry}>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "font-normal text-gray-800 border-[1px] justify-between hover:bg-transparent hover:text-gray-800",
-                                  !field.value &&
-                                  "  focus:border-primary "
-                                )}
-                              >
-                                {field.value
-                                  ? countries?.find(
-                                    (country: CountryTypes) =>
-                                      country.id === field.value // Compare with numeric value
-                                  )?.country // Display country name if selected
-                                  : "Select country*"}
-                                <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="p-0">
-                            <Command>
-                              <CommandList>
-                                <CommandInput placeholder="Select Country" />
-                                <CommandEmpty>No country found.</CommandEmpty>
-                                <CommandGroup>
-                                  {countries &&
-                                    countries.map((country: CountryTypes) => (
-                                      <CommandItem
-                                        value={country.country}
-                                        key={country.id}
-                                        onSelect={() => {
-                                          form.setValue(
-                                            "country_id",
-                                            country.id // Set country_id to country.id as number
-                                          );
-                                          setCountry(false);
-                                        }}
-                                      >
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
-                                            country.id === field.value
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          )}
-                                        />
-                                        {country.country}{" "}
-                                        {/* Display the country name */}
-                                      </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
+                        <div className="flex flex-col w-full">
+                          <label
+                            className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${
+                              field.value
+                                ? "text-xs -top-2.5"
+                                : "text-xs text-black"
+                            }`}
+                          >
+                            Country
+                          </label>
+                          <Popover open={country} onOpenChange={setCountry}>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    "font-normal text-gray-800 border-[1px] justify-between hover:bg-transparent hover:text-gray-800",
+                                    !field.value && "  focus:border-primary "
+                                  )}
+                                >
+                                  {field.value
+                                    ? countries?.find(
+                                        (country: CountryTypes) =>
+                                          country.id === field.value // Compare with numeric value
+                                      )?.country // Display country name if selected
+                                    : "Select country*"}
+                                  <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="p-0">
+                              <Command>
+                                <CommandList>
+                                  <CommandInput placeholder="Select Country" />
+                                  <CommandEmpty>No country found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {countries &&
+                                      countries.map((country: CountryTypes) => (
+                                        <CommandItem
+                                          value={country.country}
+                                          key={country.id}
+                                          onSelect={() => {
+                                            form.setValue(
+                                              "country_id",
+                                              country.id // Set country_id to country.id as number
+                                            );
+                                            setCountry(false);
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              "mr-2 h-4 w-4 rounded-full border-2 border-green-500",
+                                              country.id === field.value
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                            )}
+                                          />
+                                          {country.country}{" "}
+                                          {/* Display the country name */}
+                                        </CommandItem>
+                                      ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+
                         {watcher.country_id ? <></> : <FormMessage />}
                       </FormItem>
                     )}

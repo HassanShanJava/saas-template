@@ -1,4 +1,3 @@
-import { hardwareIntegrationInput } from "@/app/types";
 import {
   HardwareIntegrationInput,
   HardwareIntegrationRow,

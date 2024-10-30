@@ -162,6 +162,7 @@ const initialValues: MemberInputTypes = {
   last_name: "",
   gender: genderEnum.male,
   dob: "",
+  nic: "",
   email: "",
   phone: "",
   mobile_number: "",
@@ -466,6 +467,9 @@ const MemberForm = ({
       setMembershipPlansdata(memberpayload?.membership_plans || []);
 
       reset(memberpayload);
+      if (memberData?.nic?.length) {
+        setValue("nic", formatNIC(memberData?.nic));
+      }
       // setAvatar(memberpayload.profile_img as string);
     } else {
       const total = memberCountData?.total_members as number;
@@ -541,7 +545,6 @@ const MemberForm = ({
     autoFillErrors,
   ]);
 
-
   function handleClose() {
     setAvatar(null);
     setSelectedImage(null);
@@ -562,8 +565,8 @@ const MemberForm = ({
       org_id: orgId,
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
       business_id: data.is_business ? null : data.business_id,
+      nic: data.nic?.length ? data.nic?.replace(/-/g, "") : undefined,
     };
-
 
     if (selectedImage) {
       try {
@@ -617,7 +620,7 @@ const MemberForm = ({
             plan.membership_plan_id !== undefined &&
             plan.membership_plan_id !== null
         );
-        
+
         const payload = {
           ...updatedData,
           membership_plans:
@@ -674,8 +677,7 @@ const MemberForm = ({
     }
   };
 
-
-  console.log({ watcher, errors, action, isSubmitting },"memberform");
+  console.log({ watcher, errors, action, isSubmitting }, "memberform");
 
   return (
     <Sheet open={open}>
@@ -872,6 +874,11 @@ const MemberForm = ({
                             value: 40,
                             message: "Should be 40 characters or less",
                           },
+                          pattern: {
+                            value: /^[A-Za-z\-\s]+$/, // Adjust this regex based on your needs
+                            message:
+                              "Only alphabets, hyphen (-) and spaces are allowed",
+                          },
                         })}
                         error={
                           errors?.first_name?.message as keyof MemberInputTypes
@@ -889,6 +896,11 @@ const MemberForm = ({
                           maxLength: {
                             value: 40,
                             message: "Should be 40 characters or less",
+                          },
+                          pattern: {
+                            value: /^[A-Za-z\-\s]+$/, // Adjust this regex based on your needs
+                            message:
+                              "Only alphabets, hyphen (-) and spaces are allowed",
                           },
                         })}
                         error={
@@ -1069,6 +1081,11 @@ const MemberForm = ({
                           maxLength: {
                             value: 200,
                             message: "Notes should not exceed 200 characters",
+                          },
+                          pattern: {
+                            value: /^[A-Za-z0-9\.\,\-\_\s]+$/, // Adjust this regex based on your needs
+                            message:
+                              "Allowed: A-Z, a-z, 0-9, period (.), comma (,), hyphen (-), underscore (_), space ( )",
                           },
                         })}
                         error={errors.notes?.message}
@@ -1307,6 +1324,33 @@ const MemberForm = ({
                         </span>
                       )}
                     </div>
+                    <div className="relative">
+                      <Controller
+                        name={"nic" as keyof MemberInputTypes}
+                        control={control}
+                        rules={{
+                          pattern: {
+                            value: /^\d{5}-\d{7}-\d$/,
+                            message: "NIC must follow #####-#######-#",
+                          },
+                        }}
+                        render={({ field: { onChange, value } }) => (
+                          <FloatingLabelInput
+                            label="NIC"
+                            type="text"
+                            value={String(value ?? "")} // Convert to string explicitly
+                            onChange={(e) =>
+                              onChange(formatNIC(e.target.value))
+                            }
+                          />
+                        )}
+                      />
+                      {errors.nic?.message && (
+                        <span className="text-red-500 text-xs pt-2">
+                          {errors.nic?.message}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -1325,6 +1369,11 @@ const MemberForm = ({
                             message:
                               "Address should be less than 50 characters",
                           },
+                          pattern: {
+                            value: /^[A-Za-z0-9\.\,\-\_\s]+$/,
+                            message:
+                              "Allowed: A-Z, a-z, 0-9, period (.), comma (,), hyphen (-), underscore (_), space ( )",
+                          },
                         })}
                         error={errors.address_1?.message}
                       />
@@ -1339,6 +1388,11 @@ const MemberForm = ({
                             message:
                               "Address should be less than 50 characters",
                           },
+                          pattern: {
+                            value: /^[A-Za-z0-9\.\,\-\_\s]+$/,
+                            message:
+                              "Allowed: A-Z, a-z, 0-9, period (.), comma (,), hyphen (-), underscore (_), space ( )",
+                          },
                         })}
                         error={errors.address_2?.message}
                       />
@@ -1352,6 +1406,10 @@ const MemberForm = ({
                             value: 15,
                             message:
                               "Zip code should be less than 15 characters",
+                          },
+                          pattern: {
+                            value: /^[0-9]+$/i,
+                            message: "Allowed: numbers only (0-9)",
                           },
                         })}
                         error={errors.zipcode?.message}
@@ -1454,6 +1512,11 @@ const MemberForm = ({
                           maxLength: {
                             value: 50,
                             message: "City should be less than 50 characters",
+                          },
+                          pattern: {
+                            value: /^[A-Za-z0-9\-\s]+$/i,
+                            message:
+                              "Allowed: A-Z, a-z, 0-9, hyphen (-), space ( )",
                           },
                         })}
                         error={errors?.city?.message as keyof MemberInputTypes}

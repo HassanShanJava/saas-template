@@ -19,11 +19,7 @@ import {
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
-import {
-  ErrorType,
-  createExerciseInputTypes,
-  hardwareIntegrationInterface,
-} from "@/app/types";
+import { ErrorType, createExerciseInputTypes } from "@/app/types";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import warning from "@/assets/warning.svg";

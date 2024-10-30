@@ -339,6 +339,30 @@ export default function SaleshistoryRegisterViewTable() {
       },
     },
     {
+      accessorKey: "nic",
+      meta: "Nic",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Nic Number</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("id")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 ${searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"}`}
+            ></i>
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex capitalize items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.nic)}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "taxamount",
       meta: "Tax amount",
       header: () => (
@@ -558,7 +582,7 @@ export default function SaleshistoryRegisterViewTable() {
       rowSelection,
     },
   });
-  
+
   const totalRecords = salesHistoryData?.filtered_counts || 0;
 
   const {
@@ -825,6 +849,7 @@ export default function SaleshistoryRegisterViewTable() {
                                   <span className="col-span-1">Discount</span>
                                   <span className="col-span-1">Tax (Rate)</span>
                                   <span className="col-span-1">Tax Type</span>
+                                  <span className="col-span-1">Tax Name</span>
                                   <span className="col-span-1">Sub Total</span>
                                   <span className="col-span-1">Total</span>
                                   <span className="col-span-1">Notes</span>
@@ -861,8 +886,11 @@ export default function SaleshistoryRegisterViewTable() {
                                         </span>
                                       </span>
 
-                                      <span className="col-span-1">
+                                      <span className="col-span-1 w-20">
                                         {item.tax_type}
+                                      </span>
+                                      <span className="col-span-1 w-20">
+                                        {item.tax_name}
                                       </span>
                                       <span className="col-span-1">
                                         {item.sub_total?.toFixed(2)}

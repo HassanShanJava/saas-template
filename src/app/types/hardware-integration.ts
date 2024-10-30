@@ -46,11 +46,6 @@ export interface HardwareIntegrationInput {
 export interface HardwareIntegrationRow extends HardwareIntegrationInput {
   id: number;
   facility_name?: string | null;
-  // created_by?: number;
-  // updated_by: number;
-  // created_at: Date;
-  // updated_at: Date;
-  // is_deleted: boolean;
 }
 
 export interface HardwareTable {

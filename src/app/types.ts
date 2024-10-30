@@ -38,6 +38,7 @@ export interface sellForm {
   member_email?: string | null;
   member_address?: string | null;
   member_gender?: genderEnum | null;
+  member_nic?: string | null;
   notes?: string;
   staff_id?: number | null;
   staff_name?: string;

@@ -87,6 +87,7 @@ const Sell = () => {
     member_email: null,
     member_address: null,
     member_gender: null,
+    member_nic: null,
     notes: "",
     receipt_number: "INV" + Math.floor(Math.random() * 99), //will implement with prefix module comes
     tax_number: Math.floor(Math.random() * 99), //from srb
@@ -439,6 +440,7 @@ const Sell = () => {
       setValue("member_email", customer.email)
       setValue("member_address", customer.address_1)
       setValue("member_gender", customer.gender)
+      setValue("member_nic", customer.nic)
     }
 
   }, [customer, discountAmt]);

@@ -268,6 +268,10 @@ const Sell = () => {
     },
   ]
 
+  const displaySubtotal = productPayload.reduce(
+    (acc, prod) => acc + prod.price * prod.quantity,
+    0
+  );
 
   const updateFormValues = (updatedPayload: typeof productPayload) => {
     const subtotal = updatedPayload.reduce((acc, prod) => acc + prod.sub_total, 0);
@@ -374,8 +378,8 @@ const Sell = () => {
             if (newQuantity <= 0) return null;
 
             // Calculate new sub_total and tax based on quantity and unit price
-            const subTotal = roundToTwoDecimals(product.price * newQuantity);
             const discountAmount = roundToTwoDecimals(product.discount / product.quantity * newQuantity);
+            const subTotal = roundToTwoDecimals(product.price * newQuantity-discountAmount);
             const taxAmount = product.tax_type === "inclusive"
               ? roundToTwoDecimals(subTotal - subTotal / (1 + product.tax_rate / 100))
               : roundToTwoDecimals(subTotal * (product.tax_rate / 100));
@@ -695,7 +699,7 @@ const Sell = () => {
                     <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
                       <div className="w-full flex gap-2  items-center justify-between">
                         <p>Subtotal</p>
-                        <p>Rs. {watcher.subtotal}</p> {/* Display Subtotal */}
+                        <p>Rs. {displaySubtotal}</p> {/* Display Subtotal */}
                       </div>
 
                       <div className="w-full flex gap-2 items-center justify-between">

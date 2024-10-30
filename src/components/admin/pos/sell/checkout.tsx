@@ -91,8 +91,11 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                     // Remove the iframe after printing
                     setTimeout(() => {
                         document.body.removeChild(iframe);
+                        handleReset()    
                     }, 1000);
                 };
+
+                
             }
         }
         setPrintInvoice(false)
@@ -155,7 +158,6 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             0
         );
 
-        console.log({ totalPayments })
         if (totalPayments > Math.round(watcher.total)) {
             toast({
                 variant: "destructive",
@@ -185,6 +187,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             if (!payload.id) {
                 // for new complete sale or refund 
                 payload.status = "Paid"
+                console.log({payload},"create checkout completed")
                 const resp = await createTransaction(payload).unwrap();
                 if (resp) {
                     toast({

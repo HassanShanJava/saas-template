@@ -898,12 +898,12 @@ export default function SaleshistoryRegisterViewTable() {
                                       <span className="col-span-1">
                                         {item.total?.toFixed(2)}
                                       </span>
-                                      <div className="col-span-2">
+                                      <div className="col-span-1">
                                         <TooltipProvider>
                                           <Tooltip>
                                             <TooltipTrigger asChild>
-                                              <p className="capitalize cursor-pointer">
-                                                <span>
+                                              <p>
+                                                <span className="capitalize cursor-pointer">
                                                   {displayValue(
                                                     `${row.original.notes}`
                                                       .length > 15
@@ -1021,12 +1021,12 @@ export default function SaleshistoryRegisterViewTable() {
                                       <span className="col-span-1">
                                         {item.total?.toFixed(2)}
                                       </span>
-                                      <div className="col-span-2">
+                                      <div className="col-span-1">
                                         <TooltipProvider>
                                           <Tooltip>
                                             <TooltipTrigger asChild>
-                                              <p className="capitalize cursor-pointer">
-                                                <span>
+                                              <p>
+                                                <span className="capitalize cursor-pointer">
                                                   {displayValue(
                                                     `${row.original.notes}`
                                                       .length > 15

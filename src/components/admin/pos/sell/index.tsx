@@ -268,11 +268,6 @@ const Sell = () => {
     },
   ]
 
-  const displaySubtotal = productPayload.reduce(
-    (acc, prod) => acc + prod.price * prod.quantity,
-    0
-  );
-
   const updateFormValues = (updatedPayload: typeof productPayload) => {
     const subtotal = updatedPayload.reduce((acc, prod) => acc + prod.sub_total, 0);
     const totalTax = updatedPayload.reduce((acc, prod) => acc + prod.tax_amount, 0);
@@ -295,29 +290,28 @@ const Sell = () => {
       (item) => item.id === incomeCat?.sale_tax_id
     );
     const taxRate = saleTax?.percentage || 0;
-
-    // Calculate discount based on net price before tax
+  
+    // Calculate discount
     const discountPercentage = product.discount || 0;
     const discountAmount = Math.round((product.net_price * discountPercentage) / 100 * 100) / 100;
     const discountedPrice = Math.round((product.net_price - discountAmount) * 100) / 100;
-
+  
     // Initialize subtotal, tax, and total calculations
-    let subTotal = discountedPrice;
+    let subTotal = product.net_price; // Subtotal without discount
     let taxAmount = 0;
     let total = 0;
-
+  
     // Apply tax based on tax inclusivity type
     if (orgTaxType?.tax_type === "inclusive") {
       // Tax-inclusive calculation, adjust for tax within discounted price
       taxAmount = Math.round((discountedPrice - discountedPrice / (1 + taxRate / 100)) * 100) / 100;
-      subTotal = Math.round((discountedPrice - taxAmount) * 100) / 100;
-      total = discountedPrice; // Total with tax already included
+      total = discountedPrice; // Total with tax and discount included
     } else if (orgTaxType?.tax_type === "exclusive") {
       // Tax-exclusive calculation, add tax to discounted price
       taxAmount = Math.round((discountedPrice * taxRate) / 100 * 100) / 100;
       total = Math.round((discountedPrice + taxAmount) * 100) / 100;
     }
-
+  
     // Construct the new product payload
     const newProductPayload = {
       item_id: product.id,
@@ -327,42 +321,43 @@ const Sell = () => {
       price: product.net_price,
       tax_rate: taxRate,
       discount: discountAmount,
-      sub_total: subTotal,
+      sub_total: subTotal, // Subtotal remains original price without discount
       tax_type: orgTaxType?.tax_type as string,
       tax_name: saleTax?.name as string,
       total,
       tax_amount: taxAmount,
     };
-
+  
     // Update the product payload to ensure unique entries and recalculate totals
     setProductPayload((prevPayload) => {
       const existingProduct = prevPayload.find((prod) => prod.item_id === product.id);
-
+  
       let updatedPayload;
       if (existingProduct) {
         // Update existing product in payload
         updatedPayload = prevPayload.map((prod) =>
           prod.item_id === product.id
             ? {
-              ...prod,
-              quantity: prod.quantity + 1,
-              sub_total: Math.round((prod.sub_total + subTotal) * 100) / 100,
-              discount: Math.round((prod.discount + discountAmount) * 100) / 100,
-              total: Math.round((prod.total + total) * 100) / 100,
-              tax_amount: Math.round((prod.tax_amount + taxAmount) * 100) / 100,
-            }
+                ...prod,
+                quantity: prod.quantity + 1,
+                sub_total: Math.round((prod.sub_total + subTotal) * 100) / 100,
+                discount: Math.round((prod.discount + discountAmount) * 100) / 100,
+                total: Math.round((prod.total + total) * 100) / 100,
+                tax_amount: Math.round((prod.tax_amount + taxAmount) * 100) / 100,
+              }
             : prod
         );
       } else {
         // Add new product to payload
         updatedPayload = [...prevPayload, newProductPayload];
       }
-
-      updateFormValues(updatedPayload)
-
+  
+      updateFormValues(updatedPayload);
+  
       return updatedPayload;
     });
   };
+  
 
 
 
@@ -373,22 +368,31 @@ const Sell = () => {
           if (product.item_id === productId) {
             // New quantity based on action
             const newQuantity = action === 'increment' ? product.quantity + 1 : product.quantity - 1;
-
+  
             // Remove product if quantity reaches zero
             if (newQuantity <= 0) return null;
-
-            // Calculate new sub_total and tax based on quantity and unit price
-            const discountAmount = roundToTwoDecimals(product.discount / product.quantity * newQuantity);
-            const subTotal = roundToTwoDecimals(product.price * newQuantity-discountAmount);
+  
+            // Calculate discount amount based on the new quantity
+            const discountAmount = roundToTwoDecimals((product.discount / product.quantity) * newQuantity);
+            
+            // Calculate new subTotal without applying the discount
+            const subTotal = roundToTwoDecimals(product.price * newQuantity);
+  
+            // Calculate tax and total after applying the discount
+            const discountedPrice = roundToTwoDecimals(subTotal - discountAmount);
             const taxAmount = product.tax_type === "inclusive"
-              ? roundToTwoDecimals(subTotal - subTotal / (1 + product.tax_rate / 100))
-              : roundToTwoDecimals(subTotal * (product.tax_rate / 100));
-            const total = product.tax_type === "inclusive" ? subTotal : roundToTwoDecimals(subTotal + taxAmount);
-
+              ? roundToTwoDecimals(discountedPrice - discountedPrice / (1 + product.tax_rate / 100))
+              : roundToTwoDecimals(discountedPrice * (product.tax_rate / 100));
+            
+            // Calculate the final total based on tax inclusivity
+            const total = product.tax_type === "inclusive"
+              ? discountedPrice
+              : roundToTwoDecimals(discountedPrice + taxAmount);
+  
             return {
               ...product,
               quantity: newQuantity,
-              sub_total: subTotal,
+              sub_total: subTotal, // Subtotal before discount
               discount: discountAmount,
               tax_amount: taxAmount,
               total: total,
@@ -397,19 +401,21 @@ const Sell = () => {
           return product;
         })
         .filter((product) => product !== null) as typeof prevPayload;
-
+  
+      // Reset values if payload is empty
       if (newPayload.length === 0) {
         setValue("discount_amt", 0);
         setValue("subtotal", 0);
         setValue("tax_amt", 0);
         setValue("total", 0);
-
       }
-      updateFormValues(newPayload)
-
+      
+      updateFormValues(newPayload);
+  
       return newPayload;
     });
   };
+  
 
 
   const discountAmt = watch("discount_amt")
@@ -659,10 +665,10 @@ const Sell = () => {
                             <div>
                               <p className="capitalize">{product.description}</p>
                               {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-left">
-                                Rs. {roundToTwoDecimals(product.sub_total + product.discount)}
+                                Rs. {roundToTwoDecimals(product.sub_total)}
 
                               </p>}
-                              <p className="text-sm">Rs. {product.sub_total}
+                              <p className="text-sm">Rs. {product.sub_total - product.discount}
                                 <span className="text-xs"> ({product.tax_rate}%)</span>
                               </p>
                             </div>
@@ -699,7 +705,7 @@ const Sell = () => {
                     <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
                       <div className="w-full flex gap-2  items-center justify-between">
                         <p>Subtotal</p>
-                        <p>Rs. {displaySubtotal}</p> {/* Display Subtotal */}
+                        <p>Rs. {watcher.subtotal}</p> {/* Display Subtotal */}
                       </div>
 
                       <div className="w-full flex gap-2 items-center justify-between">

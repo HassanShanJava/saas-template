@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 // apis and types
-import { ErrorType, Payments, sellForm } from "@/app/types";
+import { ErrorType, Payments, sellForm, sellItem } from "@/app/types";
 import { useFormContext } from "react-hook-form";
 import { useCreateTransactionMutation, useGetTransactionByIdQuery, usePatchTransactionMutation } from "@/services/transactionApi";
 import { ReceiptExport } from "../sales_history/components/receipt-component";
@@ -98,8 +98,6 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         setPrintInvoice(false)
     };
 
-
-
     useEffect(() => {
         // Initialize selectedMethods and amounts based on the available payment methods.
         if (enabledPayments) {
@@ -115,7 +113,6 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             setAmounts(initialAmounts);
         }
     }, [enabledPayments]);
-
 
     const addPaymentMethod = (method_code: string, amount: string, id: number) => {
         const numAmount = parseFloat(amount)
@@ -237,14 +234,12 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         });
     }
 
-
     const handleReset = () => {
         reset(initialValues as sellForm)
         setCustomer(null)
         setProductPayload([])
         setShowCheckout(false)
     }
-
 
     return (
 
@@ -316,9 +311,9 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                             id={method.code}
                                             disabled={invoiceId != null}
                                             checked={selectedMethods[method.code]}
-                                            onCheckedChange={(checked)  => {
+                                            onCheckedChange={(checked) => {
                                                 setSelectedMethods((prev) => ({ ...prev, [method.code]: checked === true }));
-                                        
+
                                                 if (!checked) {
 
                                                     setPayments((prevPayments) =>

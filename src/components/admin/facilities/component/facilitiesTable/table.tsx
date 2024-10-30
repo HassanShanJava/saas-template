@@ -107,7 +107,9 @@ interface searchCriteriaType {
 }
 
 export default function FacilitiesTableView() {
-  const { facilities } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const { facilities } = JSON.parse(
+    localStorage.getItem("accessLevels") as string
+  );
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -448,20 +450,23 @@ export default function FacilitiesTableView() {
     setSearchCriteria,
   });
 
-
   return (
     <div className="w-full space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 ">
         <div className="flex flex-1 items-center  ">
           <p className="font-semibold text-2xl">Facilities</p>
         </div>
-        {facilities !== "read" && <Button
-          className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
-          onClick={handleAddCredit}
-        >
-          <PlusIcon className="h-4 w-4 " />
-          Create New
-        </Button>}
+        <div>
+          {facilities !== "read" && (
+            <Button
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+              onClick={handleAddCredit}
+            >
+              <PlusIcon className="h-4 w-4 " />
+              Create New
+            </Button>
+          )}
+        </div>
       </div>
       <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
@@ -479,9 +484,9 @@ export default function FacilitiesTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -799,7 +804,7 @@ const CreditForm = ({
                             label="Min Requred Limit*"
                             value={value}
                             onChange={handleOnChange}
-                          // error={error?.message??""}
+                            // error={error?.message??""}
                           />
                           <FormMessage />
                         </FormItem>
@@ -824,10 +829,11 @@ const CreditForm = ({
                                 <SelectValue placeholder="">
                                   <span className="flex gap-2 items-center">
                                     <span
-                                      className={`w-2 h-2 rounded-full ${field.value == "active"
-                                        ? "bg-green-500"
-                                        : "bg-blue-500"
-                                        }`}
+                                      className={`w-2 h-2 rounded-full ${
+                                        field.value == "active"
+                                          ? "bg-green-500"
+                                          : "bg-blue-500"
+                                      }`}
                                     ></span>
                                     {field.value == "active"
                                       ? "Active"

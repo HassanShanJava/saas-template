@@ -38,6 +38,10 @@ const pageTitles = [
   { targetPath: "/admin/staff", title: "Staff" },
   { targetPath: "/admin/mealplans", title: "Meal Plans" },
   { targetPath: "/admin/foods", title: "Foods & Nutritions" },
+  {
+    targetPath: "/admin/hardware_integration",
+    title: "System Settings",
+  },
 ];
 
 const breadcrumbs = [
@@ -90,6 +94,11 @@ const breadcrumbs = [
     targetPath: "/admin/pos/sell/",
     title: "Sell",
     pageSetting: "Point of Sales",
+  },
+  {
+    targetPath: "/admin/hardware_integration",
+    title: "Hardware Integration",
+    pageSetting: "System Setting",
   },
 ];
 

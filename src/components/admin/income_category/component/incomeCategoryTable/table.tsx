@@ -104,7 +104,9 @@ interface searchCriteriaType {
 }
 
 export default function IncomeCategoryTableView() {
-  const { inc_cat } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const { inc_cat } = JSON.parse(
+    localStorage.getItem("accessLevels") as string
+  );
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -369,13 +371,17 @@ export default function IncomeCategoryTableView() {
         <div className="flex flex-1 items-center  ">
           <p className="font-semibold text-2xl">Income Categories</p>
         </div>
-        {inc_cat !== "read" && <Button
-          className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
-          onClick={handleAddIncomeCategory}
-        >
-          <PlusIcon className="h-4 w-4" />
-          Create New
-        </Button>}
+        <div>
+          {inc_cat !== "read" && (
+            <Button
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+              onClick={handleAddIncomeCategory}
+            >
+              <PlusIcon className="h-4 w-4" />
+              Create New
+            </Button>
+          )}
+        </div>
       </div>
       <div className="rounded-none border border-border  ">
         <ScrollArea className="w-full relative">
@@ -393,9 +399,9 @@ export default function IncomeCategoryTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -556,7 +562,7 @@ const IncomeCategoryForm = ({
     });
   };
   const onSubmit = async (data: z.infer<typeof incomeCategoryFormSchema>) => {
-    const payload = { ...data }
+    const payload = { ...data };
     payload.name = payload.name.toLowerCase();
     try {
       if (formData.case == "add") {
@@ -661,7 +667,7 @@ const IncomeCategoryForm = ({
                           label="Category Name*"
                           value={value ?? ""}
                           onChange={handleOnChange}
-                        // error={error?.message??""}
+                          // error={error?.message??""}
                         />
                         {/* {watcher.name ? <></> : <FormMessage />} */}
                         <FormMessage />

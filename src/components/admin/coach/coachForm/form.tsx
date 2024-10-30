@@ -29,7 +29,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { Webcam } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -92,6 +92,7 @@ import { Separator } from "@/components/ui/separator";
 import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { PhoneInput } from "react-international-phone";
 import { RxCross2 } from "react-icons/rx";
+import { formatNIC } from "@/utils/helper";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 enum genderEnum {
@@ -326,6 +327,12 @@ const CoachForm: React.FC<CoachFormProps> = ({
         required_error: "Required",
       })
       .default(creator_id),
+    nic: z
+      .string()
+      .optional() // Makes the field optional
+      .refine((value) => !value || /^\d{5}-\d{7}-\d$/.test(value), {
+        message: "NIC must follow #####-#######-#",
+      }),
   });
 
   const orgName = useSelector(
@@ -496,6 +503,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
       last_name: data.last_name.toLowerCase(),
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
       email: email.toLowerCase(),
+      nic: data.nic?.length ? data.nic?.replace(/-/g, "") : undefined,
     };
 
     console.log("Updated data with only date:", updatedData);
@@ -604,6 +612,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
     }
     form.reset(payloadCoach);
     console.log("Member_ids", payloadCoach.member_ids);
+    if (payloadCoach?.nic?.length) {
+      setValue("nic", formatNIC(payloadCoach?.nic));
+    }
     // setAvatar(coachData?.profile_img as string);
   }, [open, coachData]);
 
@@ -1114,7 +1125,32 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     )}
                   />
                 </div>
-                <div className="relative "></div>
+                <div className="relative">
+                  <FormField
+                    control={form.control}
+                    rules={{
+                      pattern: {
+                        value: /^\d{5}-\d{7}-\d$/,
+                        message: "NIC must follow #####-#######-#",
+                      },
+                    }}
+                    name="nic"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="nic"
+                          label="NIC"
+                          value={String(field.value ?? "")} // Convert to string explicitly
+                          onChange={(e) =>
+                            field.onChange(formatNIC(e.target.value))
+                          }
+                        />
+                        {<FormMessage />}
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <div className="relative ">
                   <div className="justify-start items-center flex"></div>
                 </div>

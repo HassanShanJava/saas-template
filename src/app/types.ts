@@ -1,14 +1,11 @@
 import { JSONObject } from "@/types/hook-stepper";
 
-
-
 enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
   prefer_no_to_say = "prefer not to say",
 }
-
 
 export interface sellItem {
   item_id: number;
@@ -585,6 +582,7 @@ export interface MemberInputTypes {
   last_name?: string;
   gender?: genderEnum;
   dob?: Date | string;
+  nic?: string;
   email?: string;
   phone?: string;
   mobile_number?: string;
@@ -616,6 +614,7 @@ export interface MemberResponseTypes {
   gender: string;
   dob: Date | string;
   email: string;
+  nic?: string;
   phone?: string | null;
   mobile_number?: string | null;
   notes?: string | null;
@@ -660,6 +659,7 @@ export interface MemberTableDatatypes {
   profile_img?: string;
   own_member_id?: string;
   first_name?: string;
+  nic?: string;
   last_name?: string;
   gender?: genderEnum;
   dob?: Date | string;
@@ -698,6 +698,7 @@ export interface MemberTableResponseDatatypes {
   own_member_id?: string;
   first_name?: string;
   last_name?: string;
+  nic?: string;
   gender?: genderEnum;
   dob?: Date | string;
   email?: string;
@@ -738,6 +739,7 @@ export interface CoachTableTypes {
   gender?: genderEnum;
   dob: string;
   email: string;
+  nic?: string;
   phone?: string;
   mobile_number?: string;
   notes?: string;
@@ -789,6 +791,7 @@ export interface CoachInputTypes {
   dob?: string;
   email?: string;
   phone?: string;
+  nic?: string;
   mobile_number?: string;
   notes?: string;
   source_id?: number;
@@ -814,6 +817,7 @@ export interface addCoachResponseType {
   profile_img?: string;
   first_name: string;
   last_name: string;
+  nic?: string;
   dob: string;
   gender?: genderEnum;
   email: string;
@@ -849,6 +853,7 @@ export interface CoachResponseType {
   first_name: string;
   last_name: string;
   dob: string;
+  nic?: string;
   gender?: genderEnum;
   email: string;
   password?: string;
@@ -895,6 +900,7 @@ export interface CoachTableDataTypes {
   dob: string; // ISO date string
   gender: genderEnum;
   email: string;
+  nic?: string;
   phone?: string;
   mobile_number?: string;
   notes?: string;
@@ -925,6 +931,7 @@ export interface CoachResponseTypeById {
   last_name: string;
   dob: string; // ISO date string
   gender: genderEnum;
+  nic?: string;
   email: string;
   phone?: string;
   mobile_number?: string;
@@ -957,6 +964,7 @@ export interface ServerResponseById {
   dob: string; // ISO date string
   gender: genderEnum;
   email: string;
+  nic?: string;
   phone?: string;
   mobile_number?: string;
   notes?: string;
@@ -1074,6 +1082,7 @@ export interface coachUpdateInput {
   dob?: string;
   gender?: genderEnum;
   email?: string;
+  nic?: string;
   password?: string;
   phone?: string;
   mobile_number?: string;
@@ -1633,6 +1642,7 @@ export interface lineItems {
   discount: number;
   sub_total: number;
   tax_type: string;
+  tax_name: string;
   total: number;
   tax_amount: number;
 }
@@ -1654,6 +1664,7 @@ export interface salesReportInterface {
   staff_name: string;
   receipt_number: string;
   notes: string;
+  nic?: string;
   tax_number: number;
   total: number;
   subtotal: number;

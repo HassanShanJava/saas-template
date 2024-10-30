@@ -38,13 +38,14 @@ import PaymentMethods from "./components/admin/payment_methods";
 import CashManagement from "./components/admin/pos/cash_management";
 import Register from "./components/admin/pos/register";
 import SaleHistory from "./components/admin/pos/sales_history";
-import CounterSelection from "./components/admin/counter_management/counter-selection"
+import CounterSelection from "./components/admin/counter_management/counter-selection";
 
 import { createPluginStore, PluginProvider } from "react-pluggable";
 import PaymentMethodsPlugin from "./plugins/PaymentMethodsPlugin";
+import HardwareIntegration from "./components/admin/hardware_integration";
 
 const pluginStore = createPluginStore();
-pluginStore.install(new PaymentMethodsPlugin)
+pluginStore.install(new PaymentMethodsPlugin());
 function App() {
   const loading = useSelector((state: RootState) =>
     Object.values(state.api.queries).some(
@@ -68,9 +69,16 @@ function App() {
               {/* <Route path="/admin/system_settings" element={<SystemSettings />} /> */}
               {/* <Route path="/admin/leads"  element={<Leads />} /> */}
               {/* <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}
+              <Route
+                path="/admin/hardware_integration"
+                element={<HardwareIntegration />}
+              />
               <Route path="/admin/facilities" element={<Facilities />} />
               <Route path="/admin/saleTaxes" element={<SaleTaxes />} />
-              <Route path="/admin/incomeCategory" element={<IncomeCategory />} />
+              <Route
+                path="/admin/incomeCategory"
+                element={<IncomeCategory />}
+              />
               <Route path="/admin/memberships" element={<Memberships />} />
               {/* <Route path="/admin/events" element={<Events />} /> */}
               <Route path="/admin/coach" element={<Coach />} />
@@ -96,7 +104,10 @@ function App() {
                 <Route path="register" element={<Register />} />
                 <Route path="cash" element={<CashManagement />} />
               </Route>
-              <Route path="/admin/paymentMethods" element={<PaymentMethods />} />
+              <Route
+                path="/admin/paymentMethods"
+                element={<PaymentMethods />}
+              />
               <Route path="/admin/counter" element={<CounterManagement />} />
             </Route>
             <Route path="/notfound" element={<NotFoundPage />} />

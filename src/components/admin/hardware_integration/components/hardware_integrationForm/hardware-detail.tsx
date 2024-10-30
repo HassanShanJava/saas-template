@@ -145,37 +145,6 @@ const HardwareDetailsSection = ({
             />
           </div>
           {watcher.use_facility && (
-            // <div className="w-[30%]">
-            //   <Controller
-            //     name="facility_id"
-            //     rules={{ required: watcher.use_facility ? "Required" : false }}
-            //     control={control}
-            //     render={({
-            //       field: { onChange, value },
-            //       fieldState: { error },
-            //     }) => (
-            //       <>
-            //         <div>
-            //           <div>
-            //             <p className="text-base font-normal">
-            //               Facility{" "}
-            //               {watcher.use_facility && (
-            //                 <span className="text-red-500">*</span>
-            //               )}
-            //             </p>
-            //           </div>
-            //         </div>
-
-            //         {error && (
-            //           <span className="text-red-500 text-xs mt-[5px]">
-            //             {error.message}
-            //           </span>
-            //         )}
-            //       </>
-            //     )}
-            //   />
-            // </div>
-
             <div className="w-[30%]">
               <Controller
                 name="facility_id"

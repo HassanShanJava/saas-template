@@ -565,6 +565,7 @@ export interface MemberInputTypes {
   last_name?: string;
   gender?: genderEnum;
   dob?: Date | string;
+  nic?: string;
   email?: string;
   phone?: string;
   mobile_number?: string;

@@ -26,25 +26,15 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  ErrorType,
-  hardwareIntegrationInterface,
-  RegisterSession,
-} from "@/app/types";
+import { ErrorType } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import Papa from "papaparse";
-import { displayDateTime, displayValue } from "@/utils/helper";
+import { displayValue } from "@/utils/helper";
 import Pagination from "@/components/ui/table/pagination-table";
 import usePagination from "@/hooks/use-pagination";
-import { sessionMapper, downloadCSV } from "@/utils/helper";
 import TableFilters from "@/components/ui/table/data-table-filter";
-import { useGetAllRegisterSessionQuery } from "@/services/registerApi";
-import { discrepancy } from "@/constants/cash_register";
-import { formatDate } from "@/utils/helper";
-import { DatePickerWithRange } from "@/components/ui/date-range/date-rangePicker";
-import { Filter, PlusIcon, Search } from "lucide-react";
+import { PlusIcon, Search } from "lucide-react";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Button } from "@/components/ui/button";
@@ -210,6 +200,7 @@ export default function HardwareIntegrationTable() {
       />
     ),
   };
+  
   const columns: ColumnDef<HardwareIntegrationRow>[] = [
     {
       id: "select",
@@ -407,7 +398,6 @@ export default function HardwareIntegrationTable() {
     ...(hard_int !== "read" ? [actionsColumn] : []),
   ];
 
-  // cashregisterTableData
   const table = useReactTable({
     data: hardwareTableData as HardwareIntegrationRow[],
     columns,
@@ -526,7 +516,7 @@ export default function HardwareIntegrationTable() {
               ))}
             </TableHeader>
             <TableBody>
-              {ishardwaredataloading ? ( //isRegisterSessionLoading loading state
+              {ishardwaredataloading ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -557,13 +547,13 @@ export default function HardwareIntegrationTable() {
                     </TableRow>
                   </>
                 ))
-              ) : 0 ? ( // registerSessionData?.total_counts ==
+              ) : hardwareData?.total_counts ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No register closure records found.
+                    No Hardware Integration added yet.
                   </TableCell>
                 </TableRow>
               ) : (

@@ -193,3 +193,18 @@ export const formatDate = (date: Date | string | null): string | null => {
 };
 
 export const roundToTwoDecimals = (value: number) => Math.floor(value * 100) / 100;
+
+
+export   const formatNIC = (value: string) => {
+  // Remove any non-numeric characters
+  const numericValue = value.replace(/\D/g, "");
+
+  // Add dashes at positions 5 and 12 if length allows
+  if (numericValue.length <= 5) {
+    return numericValue;
+  } else if (numericValue.length <= 12) {
+    return `${numericValue.slice(0, 5)}-${numericValue.slice(5)}`;
+  } else {
+    return `${numericValue.slice(0, 5)}-${numericValue.slice(5, 12)}-${numericValue.slice(12, 13)}`;
+  }
+};

@@ -140,12 +140,12 @@ interface searchCretiriaType {
 
 const initialMeal = {
   // changed according to enums
-  "breakfast": [],
-  "morning_snack": [],
-  "lunch": [],
-  "afternoon_snack": [],
-  "dinner": [],
-  "evening_snack": [],
+  breakfast: [],
+  morning_snack: [],
+  lunch: [],
+  afternoon_snack: [],
+  dinner: [],
+  evening_snack: [],
 };
 
 const initialFoodValue = {
@@ -276,12 +276,12 @@ const MealPlanForm = ({
     const createMealsState = () => {
       // Initialize the state structure
       const mealsState: Record<string, any[]> = {
-        "breakfast": [],
-        "morning_snack": [],
-        "lunch": [],
-        "afternoon_snack": [],
-        "dinner": [],
-        "evening_snack": [],
+        breakfast: [],
+        morning_snack: [],
+        lunch: [],
+        afternoon_snack: [],
+        dinner: [],
+        evening_snack: [],
       };
 
       if (data?.meals) {
@@ -738,8 +738,7 @@ const MealPlanForm = ({
                             ))}
 
                           <FileInput className="flex flex-col gap-2  ">
-                            {files?.length == 0 &&
-                              !watcher?.profile_img ? (
+                            {files?.length == 0 && !watcher?.profile_img ? (
                               <div className="flex items-center justify-center h-[180px] w-full border bg-background rounded-md bg-gray-100">
                                 <i className="text-gray-400 fa-regular fa-image text-2xl"></i>
                               </div>
@@ -751,8 +750,12 @@ const MealPlanForm = ({
                                   <img
                                     src={
                                       watcher?.profile_img !== "" &&
-                                        watcher?.profile_img
-                                        ? (watcher.profile_img.includes(VITE_VIEW_S3_URL) ? watcher.profile_img : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`)
+                                      watcher?.profile_img
+                                        ? watcher.profile_img.includes(
+                                            VITE_VIEW_S3_URL
+                                          )
+                                          ? watcher.profile_img
+                                          : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
                                         : ""
                                     }
                                     loading="lazy"
@@ -843,7 +846,7 @@ const MealPlanForm = ({
                     }) => (
                       <div>
                         <MultiSelect
-                          floatingLabel={"Members"}
+                          floatingLabel={"Assign to"}
                           options={
                             membersData as {
                               value: number;

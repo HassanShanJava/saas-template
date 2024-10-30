@@ -111,7 +111,6 @@ export function DataTableRowActions<TData>({
           <AlertDialog open={isdelete} onOpenChange={() => setIsDelete(false)}>
             <AlertDialogContent>
               <AlertDialogHeader>
-                {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
                 <AlertDialogDescription>
                   <div className="flex flex-col items-center  justify-center gap-4">
                     <img src={warning} alt="warning" className="w-18 h-18" />

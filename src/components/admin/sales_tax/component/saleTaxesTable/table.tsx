@@ -96,7 +96,9 @@ interface searchCriteriaType {
 }
 
 export default function SaleTaxesTableView() {
-  const { sale_tax } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const { sale_tax } = JSON.parse(
+    localStorage.getItem("accessLevels") as string
+  );
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -235,8 +237,7 @@ export default function SaleTaxesTableView() {
         handleEdit={handleEditSaleTax}
       />
     ),
-  }
-
+  };
 
   const columns: ColumnDef<saleTaxesTableType>[] = [
     {
@@ -261,11 +262,13 @@ export default function SaleTaxesTableView() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <p className="capitalize cursor-pointer">
-                    <span>{displayValue(
-                      `${row.original.name}`.length > 20
-                        ? `${row.original.name}`.substring(0, 20) + "..."
-                        : `${row.original.name}`
-                    )}</span>
+                    <span>
+                      {displayValue(
+                        `${row.original.name}`.length > 20
+                          ? `${row.original.name}`.substring(0, 20) + "..."
+                          : `${row.original.name}`
+                      )}
+                    </span>
                   </p>
                 </TooltipTrigger>
                 <TooltipContent className="mr-[16.5rem]">
@@ -276,7 +279,7 @@ export default function SaleTaxesTableView() {
               </Tooltip>
             </TooltipProvider>
           </div>
-        );;
+        );
       },
       enableSorting: false,
       enableHiding: false,
@@ -352,7 +355,6 @@ export default function SaleTaxesTableView() {
     //   enableHiding: false,
     // },
     ...(sale_tax !== "read" ? [actionsColumn] : []),
-
   ];
 
   const table = useReactTable({
@@ -417,13 +419,18 @@ export default function SaleTaxesTableView() {
         <div className="flex flex-1 items-center  ">
           <p className="font-semibold text-2xl">Sales Tax</p>
         </div>
-        {sale_tax !== "read" && <Button
-          className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
-          onClick={handleAddSaleTax}
-        >
-          <PlusIcon className="h-4 w-4" />
-          Create New
-        </Button>}
+        <div>
+          {sale_tax !== "read" && (
+            <Button
+              className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
+              onClick={handleAddSaleTax}
+            >
+              <PlusIcon className="h-4 w-4" />
+              Create New
+            </Button>
+          )}
+        </div>
+
         {/* <button
           className="border rounded-[50%] size-5 text-gray-400 p-5 flex items-center justify-center"
           onClick={toggleSortOrder}
@@ -449,9 +456,9 @@ export default function SaleTaxesTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -584,9 +591,15 @@ const SaleTaxesForm = ({
       .string()
       .min(1, { message: "Required" })
       .max(40, "Name must be 40 characters or less")
-      .refine((value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value ?? ""), 'Name should contain only alphabets'),
+      .refine(
+        (value) => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value ?? ""),
+        "Name should contain only alphabets"
+      ),
     status: z.string({ required_error: "Required" }).default("active"),
-    percentage: z.number({ required_error: "Required" }).min(1, { message: "Minimum percentage required is 1" }).max(99, { message: "Maximum percentage required is 99" }),
+    percentage: z
+      .number({ required_error: "Required" })
+      .min(1, { message: "Minimum percentage required is 1" })
+      .max(99, { message: "Maximum percentage required is 99" }),
   });
 
   const form = useForm<z.infer<typeof saleTaxFormSchema>>({
@@ -599,7 +612,7 @@ const SaleTaxesForm = ({
 
   const onSubmit = async (data: z.infer<typeof saleTaxFormSchema>) => {
     console.log({ data });
-    const payload = { ...data }
+    const payload = { ...data };
     payload.name = payload.name.toLowerCase();
     try {
       if (formData.case == "add") {

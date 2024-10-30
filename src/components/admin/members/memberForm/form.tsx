@@ -126,6 +126,8 @@ import { Separator } from "@/components/ui/separator";
 import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { SerializedError } from "@reduxjs/toolkit";
 import { PhoneInput } from "react-international-phone";
+import { formatNIC } from "@/utils/helper";
+import { Input } from "@/components/ui/input";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 enum genderEnum {
@@ -1241,6 +1243,31 @@ const MemberForm = ({
                     </span>
                   )}
                 </div>
+                <div className="relative">
+                  <Controller
+                    name={"nic" as keyof MemberInputTypes}
+                    control={control}
+                    rules={{
+                      pattern: {
+                        value: /^\d{5}-\d{7}-\d$/,
+                        message: "NIC format should be #####-#######-#",
+                      },
+                    }}
+                    render={({ field: { onChange, value } }) => (
+                      <FloatingLabelInput
+                        label="nic"
+                        type="text"
+                        value={String(value ?? "")} // Convert to string explicitly
+                        onChange={(e) => onChange(formatNIC(e.target.value))}
+                      />
+                    )}
+                  />
+                  {errors.nic && (
+                    <p className="text-red-500 text-xs pt-2">
+                      {errors.nic.message}
+                    </p>
+                  )}
+                </div>
               </div>
               <div>
                 <h1 className="font-bold text-lg my-2 text-gray-900">
@@ -1595,10 +1622,10 @@ const MemberForm = ({
                     onClick={handleAddPlan}
                     variant={"ghost"}
                     disabled={
-                      membershipPlansdata.length === 0 || 
+                      membershipPlansdata.length === 0 ||
                       membershipPlansdata.some(
                         (plan) =>
-                          plan.membership_plan_id === undefined || 
+                          plan.membership_plan_id === undefined ||
                           plan.membership_plan_id === null
                       )
                     }

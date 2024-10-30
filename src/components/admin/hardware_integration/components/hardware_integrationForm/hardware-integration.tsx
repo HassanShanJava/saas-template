@@ -189,7 +189,10 @@ const HardwareIntegrationForm = ({
       payload = {
         ...data,
         name: data.name.toLowerCase(),
-        description: data?.description?.toLowerCase(),
+        description:
+          data?.description?.trim() === ""
+            ? ""
+            : data?.description?.toLowerCase(),
         org_id: orgId as number,
       };
       try {

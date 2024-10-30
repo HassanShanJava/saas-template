@@ -6,13 +6,14 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import logomainsvg from "@/assets/logo-main.svg";
 import PasswordStrengthIndicator from "./password-strength-indicator.tsx";
 import { isStrongPassword, ValidatePassword } from "./password-strength.ts";
-import { SetStateAction, useCallback, useMemo, useState } from "react";
+import { SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "@/components/ui/use-toast.ts";
 import { ErrorType } from "@/app/types.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { inValidToken } from "@/utils/helper.ts";
 import { passwordPattern } from "@/utils/constants.ts";
+import { useResetPasswordMutation, useVerifyTokenQuery } from "@/services/resetPassApi.ts";
 
 const CreatePassword = () => {
   const { token } = useParams();
@@ -23,6 +24,12 @@ const CreatePassword = () => {
     setState: React.Dispatch<SetStateAction<boolean>>
   ) => setState((prev) => !prev);
   const navigate = useNavigate();
+  const {
+    data: verifyToken,
+    error,
+    isLoading,
+  } = useVerifyTokenQuery(token as string);
+  const [resetPassword] = useResetPasswordMutation();
 
   const form = useForm<{
     new_password: string;
@@ -37,6 +44,19 @@ const CreatePassword = () => {
       confirm_password: undefined,
     },
   });
+
+  useEffect(() => {
+    if (verifyToken !== undefined && !error) {
+      form.reset({
+        id: verifyToken.id,
+        org_id: verifyToken.org_id,
+        new_password: "",
+        confirm_password: "",
+      });
+    } else if (error && typeof error === "object" && "data" in error) {
+      const typedError = error as ErrorType;
+    }
+  }, [verifyToken, error]);
 
   const {
     handleSubmit,
@@ -66,12 +86,35 @@ const CreatePassword = () => {
       };
       console.log("input payload", { data });
       try {
-        //api call after correct api is recieved
-      } catch {
-        //error handling of the api
+        console.log({ payload });
+        const resp = await resetPassword(payload).unwrap();
+        if (resp) {
+          toast({
+            variant: "success",
+            title:
+              "Your password has been reset successfully. You can now log in with your new password",
+          });
+          navigate("/");
+        }
+      } catch (error: unknown) {
+        console.error("Error", { error });
+        if (error && typeof error === "object" && "data" in error) {
+          const typedError = error as ErrorType;
+          toast({
+            variant: "destructive",
+            title: "Error in form Submission",
+            description: `${typedError.data?.detail}`,
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error in form Submission",
+            description: `Something Went Wrong.`,
+          });
+        }
       }
     },
-    [token, navigate]
+    []
   );
 
   return (

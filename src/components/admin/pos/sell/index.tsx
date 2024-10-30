@@ -77,7 +77,7 @@ const Sell = () => {
   const { data: lastSession, refetch: lastSessionRefetch, isFetching } = useGetlastRegisterSessionQuery(counter_number as number, { refetchOnMountOrArgChange: true })
 
   // initial value before sale is parked or sold
-  const initialValues: sellForm = {
+   const initialValues: sellForm = {
     staff_id: userInfo?.user.id,
     counter_id: counter_number as number, //counter id
     staff_name: userInfo?.user.first_name,
@@ -181,7 +181,10 @@ const Sell = () => {
       setProductPayload([])
       setShowCheckout(false)
     }
-  }, [id])
+    if(lastSession){
+       setValue("batch_id", lastSession.id as number) 
+    }
+  }, [id,lastSession])
 
   // for past 24 hour validation
   useEffect(() => {

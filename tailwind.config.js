@@ -16,10 +16,10 @@ export default {
       colors: {
         // outletcolor: "hsl((--bg-outlet-background))",
         outletcolor: "#F7F7F7",
-        lightprimary:"#EEFFEE",
-        lightprimaryborder:"#77DD77",
-        lightwarning:"#FFE0E0",
-        lightwarningborder:"#FF8D8C",
+        lightprimary: "#EEFFEE",
+        lightprimaryborder: "#77DD77",
+        lightwarning: "#FFE0E0",
+        lightwarningborder: "#FF8D8C",
         // tableheader: "hsl((--table-header-color))",
         tableheader: "#F5F5F5",
         hoverprimary: "#E4FFE4",
@@ -100,9 +100,10 @@ export default {
       lg: "1024px",
       // => @media (min-width: 1024px) { ... }
       xlg: "1100px",
+
       xl: "1280px",
       // => @media (min-width: 1280px) { ... }
-
+      sxl: "1350px",
       "2xl": "1536px",
       "4xl": "1920px",
       // => @media (min-width: 1536px) { ... }

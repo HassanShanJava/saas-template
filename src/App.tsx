@@ -43,6 +43,7 @@ import CounterSelection from "./components/admin/counter_management/counter-sele
 import { createPluginStore, PluginProvider } from "react-pluggable";
 import PaymentMethodsPlugin from "./plugins/PaymentMethodsPlugin";
 import HardwareIntegration from "./components/admin/hardware_integration";
+import BusinessDetail from "./components/admin/members/component/member_business_details/business-detail";
 
 const pluginStore = createPluginStore();
 pluginStore.install(new PaymentMethodsPlugin());
@@ -66,6 +67,10 @@ function App() {
             <Route element={<DashboardLayout />}>
               <Route path="/admin/dashboard" element={<Dashboard />} />
               <Route path="/admin/members" element={<MemberPage />} />
+              <Route
+                path="/admin/members/business_detail"
+                element={<BusinessDetail />}
+              />
               {/* <Route path="/admin/system_settings" element={<SystemSettings />} /> */}
               {/* <Route path="/admin/leads"  element={<Leads />} /> */}
               {/* <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}

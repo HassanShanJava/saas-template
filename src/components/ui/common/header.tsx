@@ -42,6 +42,10 @@ const pageTitles = [
     targetPath: "/admin/hardware_integration",
     title: "System Settings",
   },
+  {
+    targetPath: "/admin/members/business_detail",
+    title: "",
+  },
 ];
 
 const breadcrumbs = [
@@ -139,7 +143,7 @@ const PageTitle = ({
 };
 
 const isActiveLink = (currentPath: string, targetPath: string) =>
-  currentPath === targetPath;
+  currentPath.includes(targetPath) || currentPath === targetPath;
 
 export const Header = () => {
   const location = useLocation();
@@ -166,7 +170,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="font-poppins sticky top-0 z-30  0 flex h-32 slg:h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
+    <header className="font-poppins sticky top-0 z-30 flex h-32 slg:h-16 items-center justify-between border-b bg-white px-1 shadow-sm">
       <div className="flex w-full justify-between items-start gap-4 flex-col slg:flex-row slg:items-center">
         <div className="w-full slg:!w-[calc(100%-280px)] flex flex-row h-full justify-between items-center ">
           <div className="w-full flex flex-col my-0">

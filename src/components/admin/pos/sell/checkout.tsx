@@ -91,11 +91,11 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                     // Remove the iframe after printing
                     setTimeout(() => {
                         document.body.removeChild(iframe);
-                        handleReset()    
+                        handleReset()
                     }, 1000);
                 };
 
-                
+
             }
         }
         setPrintInvoice(false)
@@ -187,7 +187,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             if (!payload.id) {
                 // for new complete sale or refund 
                 payload.status = "Paid"
-                console.log({payload},"create checkout completed")
+                console.log({ payload }, "create checkout completed")
                 const resp = await createTransaction(payload).unwrap();
                 if (resp) {
                     toast({
@@ -279,6 +279,14 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
 
                             </div>
                             <Separator />
+                            <p className="text-xl font-bold mb-4">Payment Method</p>
+                            {watcher.payments.map((payment: Payments) => (
+                                <div className="flex justify-between items-center">
+                                    <div>{payment.payment_method}</div>
+                                    <div className="font-bold">{payment.amount}</div>
+                                </div>
+                            ))}
+                            <Separator />
                             <div className="flex justify-between items-center">
                                 <div>Subtotal</div>
                                 <div className="font-bold">{roundToTwoDecimals(watcher.subtotal)}</div>
@@ -342,10 +350,12 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                                 type="number"
                                                 placeholder="Amount"
                                                 value={amounts[method.code]}
-                                                onChange={(e) =>
+                                                onChange={(e) => {
                                                     setAmounts((prev) => ({ ...prev, [method.code]: e.target.value }))
+                                                }}
+                                                onFocus={() =>
+                                                    addPaymentMethod(method.name, amounts[method.code], method.id)
                                                 }
-                                                onBlur={() => addPaymentMethod(method.code, amounts[method.code], method.id)}
                                                 className="w-1/2"
                                             />
                                         )}

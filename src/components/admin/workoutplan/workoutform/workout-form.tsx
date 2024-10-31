@@ -491,7 +491,7 @@ const WorkoutPlanForm = () => {
                   ) : (
                     <LoadingButton
                       type="button"
-                      className="w-[200px] bg-primary text-black text-center flex items-center gap-2"
+                      className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
                       onClick={() => {
                         form.handleSubmit(async (data) => {
                           await onSubmit(data);
@@ -515,7 +515,6 @@ const WorkoutPlanForm = () => {
                       ) && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
-                      <i className="fa fa-arrow-right-long "></i>
                       Next
                     </LoadingButton>
                   )}

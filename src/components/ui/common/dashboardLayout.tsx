@@ -164,7 +164,7 @@ const DashboardLayout: React.FC = () => {
                 className={`${!isSidebarOpen && "hidden"} text-2xl text-center font-extrabold`}
                 style={{ fontFamily: "Jockey One" }}
               >
-                {orgName}
+                {orgName?.split(" ")[0]}
               </span>
             </Link>
             )}

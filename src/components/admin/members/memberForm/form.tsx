@@ -1331,12 +1331,12 @@ const MemberForm = ({
                         rules={{
                           pattern: {
                             value: /^\d{5}-\d{7}-\d$/,
-                            message: "NIC must follow #####-#######-#",
+                            message: "CNIC must follow #####-#######-#",
                           },
                         }}
                         render={({ field: { onChange, value } }) => (
                           <FloatingLabelInput
-                            label="NIC"
+                            label="CNIC"
                             type="text"
                             value={String(value ?? "")} // Convert to string explicitly
                             onChange={(e) =>

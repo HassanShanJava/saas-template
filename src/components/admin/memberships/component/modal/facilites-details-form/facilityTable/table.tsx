@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
@@ -7,11 +8,11 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
+// ui 
 import {
   Table,
   TableBody,
@@ -20,7 +21,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
@@ -30,14 +30,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Search } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 
+// api and types
 import { creditDetailsTablestypes, creditTablestypes, facilitiesData } from "@/app/types";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useGetCreditsListQuery, useGetCreditsQuery } from "@/services/creditsApi";
-import { Search } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { useFormContext } from "react-hook-form";
 import { StepperFormValues } from "@/types/hook-stepper";
 
@@ -285,6 +286,44 @@ export default function FacilityTableView({
       enableHiding: false,
     },
     {
+      id: "amount",
+      maxSize: 50,
+      size: 50,
+      minSize: 50,
+      header: ({ table }) => (
+        <p>Amount</p>
+      ),
+      cell: ({ row }) => (
+        <Select
+
+          defaultValue={'amount'}
+        >
+          <SelectTrigger
+          // name={item.name}
+          >
+            <SelectValue
+              placeholder={"Select amount type"}
+            />
+          </SelectTrigger>
+
+          <SelectContent>
+            <SelectItem
+              value={'amount'}
+            >
+              Amount
+            </SelectItem>
+            <SelectItem
+              value={'unlimited'}
+            >
+              Unlimited
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       id: "credits_include",
       header: "Credits Included",
       cell: ({ row }) => {
@@ -333,7 +372,7 @@ export default function FacilityTableView({
           <div className="flex items-center gap-2">
             {creditData?.validity.duration_type !== "contract_duration" && <Input
               type="number"
-              
+
               min={1}
               max={15}
               className=" w-20"
@@ -380,10 +419,10 @@ export default function FacilityTableView({
       columnVisibility,
       rowSelection,
     },
-    
+
   });
 
-  
+
 
   return (
     <div className="w-full space-y-4">
@@ -465,7 +504,7 @@ export default function FacilityTableView({
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
-                        )}  
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>

@@ -331,7 +331,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .string()
       .optional() // Makes the field optional
       .refine((value) => !value || /^\d{5}-\d{7}-\d$/.test(value), {
-        message: "NIC must follow #####-#######-#",
+        message: "CNIC must follow #####-#######-#",
       }),
   });
 
@@ -1131,7 +1131,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     rules={{
                       pattern: {
                         value: /^\d{5}-\d{7}-\d$/,
-                        message: "NIC must follow #####-#######-#",
+                        message: "CNIC must follow #####-#######-#",
                       },
                     }}
                     name="nic"
@@ -1140,7 +1140,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                         <FloatingLabelInput
                           {...field}
                           id="nic"
-                          label="NIC"
+                          label="CNIC"
                           value={String(field.value ?? "")} // Convert to string explicitly
                           onChange={(e) =>
                             field.onChange(formatNIC(e.target.value))

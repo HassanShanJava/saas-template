@@ -192,8 +192,11 @@ export const formatDate = (date: Date | string | null): string | null => {
   return `${year}-${month}-${day}`;
 };
 
-export   const formatNIC = (value: string) => {
-  // Remove any non-numeric characters
+export const formatNIC = (value?: string) => {
+  // Return null if the value is empty, null, or undefined
+  if (!value) {
+    return null;
+  }
   const numericValue = value.replace(/\D/g, "");
 
   // Add dashes at positions 5 and 12 if length allows
@@ -211,3 +214,12 @@ export const roundToTwoDecimals = (value: number) =>
 export const inValidToken = (token: string | undefined) => {
   return token !== undefined && token.trim().length > 0;
 };
+
+
+export const formatToPKR = (amount: number) => {
+  return new Intl.NumberFormat('en-PK', {
+    style: 'currency',
+    currency: 'PKR',
+    minimumFractionDigits: 2
+  }).format(amount).replace("PKR", "Rs. ");
+}

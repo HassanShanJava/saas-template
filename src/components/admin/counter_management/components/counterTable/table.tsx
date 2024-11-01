@@ -587,8 +587,7 @@ export default function CounterTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : // ) : isLoading ? (
-                false ? (
+              ) :  isLoading ? (
                   <TableRow>
                     <TableCell
                       colSpan={columns.length}

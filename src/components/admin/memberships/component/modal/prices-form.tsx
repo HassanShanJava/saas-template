@@ -42,7 +42,7 @@ const PriceDiscountTaxForm = () => {
     setValue("income_category_id", value);
   };
 
-  
+
   console.log({ salesTaxData });
 
   useEffect(() => {
@@ -100,14 +100,14 @@ const PriceDiscountTaxForm = () => {
         />
         <FloatingLabelInput
           id="discount"
-          label="Discount Percentage*"
+          label="Discount Percentage"
           type="number"
           min={0}
           max={99}
           {...register("discount", {
             // required: "Required",
             valueAsNumber: true,
-            min:0,
+            min: 0,
             max: {
               value: 99,
               message: "Discount must be between 0 and 99.",
@@ -133,6 +133,7 @@ const PriceDiscountTaxForm = () => {
                 <SelectTrigger
                   name="income_category_id"
                   floatingLabel="Income Category*"
+                  className="capitalize"
                 >
                   <SelectValue placeholder="Select income category" />
                 </SelectTrigger>
@@ -144,6 +145,7 @@ const PriceDiscountTaxForm = () => {
                 <SelectContent>
                   {incomeCategoryData?.map((incomecategory) => (
                     <SelectItem
+                      className="capitalize"
                       value={incomecategory.id + ""}
                       key={incomecategory.id}
                     >

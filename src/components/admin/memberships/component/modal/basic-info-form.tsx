@@ -274,7 +274,7 @@ const BasicInfoForm = () => {
                   defaultValue={value ? value + "" : undefined}
                   disabled={isFetching}
                 >
-                  <SelectTrigger name="group_id" floatingLabel="Group*">
+                  <SelectTrigger name="group_id" className="capitalize" floatingLabel="Group*">
                     <SelectValue placeholder="Select group" />
                   </SelectTrigger>
                   {invalid && (

@@ -324,7 +324,7 @@ const MembershipForm = ({
       setActiveStep(1);
     }
   };
-
+p
   const handleNext = async () => {
     const isStepValid = await trigger(undefined, { shouldFocus: true });
     const accessType = getValues("access_type");

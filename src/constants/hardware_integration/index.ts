@@ -19,8 +19,8 @@ export const initialHardwareIntegrationInput: HardwareIntegrationInput = {
     end_of_contract_days: 0,
     has_no_required_credits: false,
     has_no_active_membership: false,
-    min_credits_required: false,
-    credits_threshold: 0,
+    // min_credits_required: false,
+    // credits_threshold: 0,
     has_outstanding_invoices_enabled: false,
     outstanding_invoices_days_threshold: 0,
     membership_expiry_enabled: false,
@@ -32,7 +32,7 @@ export function validateHardwareSettings(settings: HardwareSettings): boolean {
   const {
     has_no_active_membership,
     has_no_required_credits,
-    min_credits_required,
+    // min_credits_required,
     has_outstanding_invoices_enabled,
     membership_expiry_enabled,
   } = settings;
@@ -40,7 +40,7 @@ export function validateHardwareSettings(settings: HardwareSettings): boolean {
   return (
     has_no_active_membership &&
     has_no_required_credits &&
-    min_credits_required &&
+    // min_credits_required &&
     has_outstanding_invoices_enabled &&
     membership_expiry_enabled
   );

@@ -25,7 +25,7 @@ const HardwareCheckInControlSection = ({
   const isOpen =
     watcher.settings?.has_no_active_membership ||
     watcher.settings?.has_no_required_credits ||
-    watcher.settings?.min_credits_required ||
+    // watcher.settings?.min_credits_required ||
     watcher.settings?.has_outstanding_invoices_enabled ||
     watcher.settings?.membership_expiry_enabled;
   return (
@@ -90,7 +90,7 @@ const HardwareCheckInControlSection = ({
             </div>
           </div>
 
-          <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
+          {/* <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
             <div className="flex justify-start text-sm items-center gap-3 ">
               <span className="text-nowrap text-sm">Member has </span>
               <Controller
@@ -138,7 +138,7 @@ const HardwareCheckInControlSection = ({
                 </div>
               )}
             />
-          </div>
+          </div> */}
 
           <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
             <div className="flex justify-start text-sm items-center gap-3 ">

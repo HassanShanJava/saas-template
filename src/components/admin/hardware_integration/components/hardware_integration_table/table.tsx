@@ -520,7 +520,7 @@ export default function HardwareIntegrationTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-8 text-center"
                   >
                     <div className="flex space-x-2 justify-center items-center bg-white ">
                       <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
@@ -537,7 +537,7 @@ export default function HardwareIntegrationTable() {
                       data-state={row.getIsSelected() && "selected"}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className="h-24">
+                        <TableCell key={cell.id} className="h-8">
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
@@ -551,7 +551,7 @@ export default function HardwareIntegrationTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-8 text-center"
                   >
                     No Hardware Integration added yet.
                   </TableCell>
@@ -560,7 +560,7 @@ export default function HardwareIntegrationTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-8 text-center"
                   >
                     No records found for the search Criteria.
                   </TableCell>

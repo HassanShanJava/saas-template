@@ -30,6 +30,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
     const [printInvoice, setPrintInvoice] = useState<boolean>(false)
     const { data: enabledPayments } = useGetAllEnabledPaymentMethodsQuery({})
     const [payments, setPayments] = useState<paymentItem[]>([])
+
     const [selectedMethods, setSelectedMethods] = useState<{ [key: string]: boolean }>({});
     const [amounts, setAmounts] = useState<{ [key: string]: string }>({});
 
@@ -100,6 +101,9 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         }
         setPrintInvoice(false)
     };
+
+    const paymentsTotal = watcher.payments.reduce((acc: number, payment: Payments) => acc + payment.amount, 0);
+    const isTotalReached = paymentsTotal === watcher.total;
 
     useEffect(() => {
         // Initialize selectedMethods and amounts based on the available payment methods.
@@ -244,6 +248,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         setShowCheckout(false)
     }
 
+
     return (
 
         <div className=" ">
@@ -320,7 +325,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                     >
                                         <Checkbox
                                             id={method.code}
-                                            disabled={invoiceId != null}
+                                            disabled={invoiceId != null || (isTotalReached && !selectedMethods[method.code])}
                                             checked={selectedMethods[method.code]}
                                             onCheckedChange={(checked) => {
                                                 setSelectedMethods((prev) => ({ ...prev, [method.code]: checked === true }));
@@ -351,11 +356,10 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                                 placeholder="Amount"
                                                 value={amounts[method.code]}
                                                 onChange={(e) => {
-                                                    setAmounts((prev) => ({ ...prev, [method.code]: e.target.value }))
+                                                    const value = e.target.value;
+                                                    setAmounts((prev) => ({ ...prev, [method.code]: value }));
+                                                    addPaymentMethod(method.code, value, method.id);
                                                 }}
-                                                onFocus={() =>
-                                                    addPaymentMethod(method.name, amounts[method.code], method.id)
-                                                }
                                                 className="w-1/2"
                                             />
                                         )}

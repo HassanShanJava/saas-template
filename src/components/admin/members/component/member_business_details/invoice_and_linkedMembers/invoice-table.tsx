@@ -1,25 +1,8 @@
-// import React from "react";
-
-// const InvoiceTableForMember = () => {
-//   return <div className="mt-3">InvoiceTableForMember</div>;
-// };
-
-// export default InvoiceTableForMember;
-import React, { useState, useEffect } from "react";
-import { Shell } from "@/components/ui/shell/shell";
-// import { DataTable } from "./component/data-table";
+import React, { useState } from "react";
 import { DataTable } from "@/components/ui/table/data-table";
-import {
-  useGetAllStaffQuery,
-  useGetLeadsQuery,
-  useUpdateleadStaffMutation,
-  useUpdateStatusMutation,
-} from "@/services/leadsApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-
 import { ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "@/components/ui/table/data-table-column-header";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -28,141 +11,152 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ErrorType } from "@/app/types";
-import { toast } from "@/components/ui/use-toast";
-
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
-export interface StaffDataType {
-  org_id: number;
-  id: number;
-  first_name: string;
-}
-export interface LeadType {
-  id?: number;
-  name: string;
-  email: string;
-  owner: string;
-  status: string;
-  source: string;
-  lead_since: Date;
-  staffData?: StaffDataType[];
-}
-
-// status
-const statusItems = [
-  { value: "new", label: "New" },
-  { value: "contacted", label: "Contacted" },
-  { value: "in contact", label: "In Contact" },
-  { value: "appointment made", label: "Appointment Made" },
-  { value: "appointment hold", label: "Appointment Hold" },
-  { value: "free trial", label: "Free Trial" },
-  { value: "sign up scheduled", label: "Sign Up Scheduled" },
-  { value: "no show", label: "No Show" },
-  { value: "closed refused", label: "Closed Refused" },
-  { value: "closed lost contact", label: "Closed Lost Contact" },
-  { value: "closed disqualified", label: "Closed Disqualified" },
-  {
-    value: "closed thirdparty aggregator",
-    label: "Closed Third Party Aggregator",
-  },
-];
-
-function convertDateToEuropeanFormat(dateString: string) {
-  const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
-}
+import { displayValue, displayDate } from "@/utils/helper";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { DataTableColumnHeader } from "@/components/ui/table/data-table-column-header";
 
 const InvoiceTableForMember: React.FC = () => {
-  const [data, setData] = useState<LeadType[]>([]);
-  const navigate = useNavigate();
+  const { member } = JSON.parse(localStorage.getItem("accessLevels") as string);
+  const [data, setData] = useState<any[]>([]);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-
-  const columns: ColumnDef<LeadType>[] = [
+  const actionsColumn: ColumnDef<any> = {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      // <DataTableRowActions
+      //   access={member}
+      //   row={row.original.id}
+      //   data={row?.original}
+      //   refetch={refetch}
+      //   handleEditMember={handleEditForm}
+      // />
+      <></>
+    ),
+  };
+  const columns: ColumnDef<any>[] = [
     {
-      accessorKey: "name",
+      accessorKey: "date",
+      meta: "transaction date",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Name" />
+        <DataTableColumnHeader
+          column={column}
+          title="Date"
+          sortKey="key"
+          toggleSortOrder={() => console.log("12")}
+        />
       ),
       cell: ({ row }) => {
         return (
-          <div className="max-w-[200px] truncate font-medium">
-            {row.getValue("name")}
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayDate(row?.original.date)}
           </div>
         );
       },
     },
     {
-      accessorKey: "mobile",
+      accessorKey: "reciept_no",
+      meta: "reciept No",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Contact" />
-      ),
-      cell: ({ row }) => (
-        <div className="max-w-[200px] truncate">{row.getValue("mobile")}</div>
-      ),
-    },
-
-    {
-      accessorKey: "source",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Source" />
-      ),
-      cell: ({ row }) => (
-        <div className="max-w-[200px] truncate">{row.getValue("source")}</div>
-      ),
-    },
-    {
-      accessorKey: "lead_since",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Lead Since" />
+        <DataTableColumnHeader
+          column={column}
+          title="Reciept No"
+          sortKey="key"
+          toggleSortOrder={() => console.log("12")}
+        />
       ),
       cell: ({ row }) => {
-        const field = convertDateToEuropeanFormat(row.getValue("lead_since"));
-        return <div>{field}</div>;
-      },
-    },
-    {
-      id: "actions",
-      header: ({ column }) => <p>Actions</p>,
-      cell: ({ row }) => {
-        const id = row.original.id;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <div className="w-full flex justify-center">
-                <i className="fas fa-ellipsis-vertical h-4 w-4 text-center"></i>
-              </div>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end">
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  navigate(`/admin/leads/editlead/${id}`);
-                }}
-              >
-                Edit
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.reciept_no)}
+          </div>
         );
       },
     },
+    {
+      accessorKey: "quantity",
+      meta: "quantity",
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title="Quantity"
+          sortKey="key"
+          className="text-nowrap"
+          toggleSortOrder={() => console.log("12")}
+        />
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original.quantity)}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "activated_on",
+      meta: "Activation Date",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Activation Date</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            // onClick={() => toggleSortOrder("activated_on")}
+          >
+            $
+            {/* {searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"} */}
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 `}
+            ></i>
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {/* {displayDate(row?.original.activated_on)} */}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "check_in",
+      meta: "Last Check In",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Last Check In</p>
+          <button
+            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
+            // onClick={() => toggleSortOrder("check_in")}
+          >
+            <i
+              className={`fa fa-sort transition-all ease-in-out duration-200 `}
+            ></i>
+            {/* $ */}
+            {/* {searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"} */}
+          </button>
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden text-black">
+            {/* {displayDateTime(row?.original?.check_in)} */}
+          </div>
+        );
+      },
+    },
+
+    ...(member !== "read" ? [actionsColumn] : []),
   ];
 
   console.log({ data });
-  return <DataTable columns={columns} data={data} />;
+  return <DataTable columns={columns} data={data} isLoading={false} />;
 };
 
 export default InvoiceTableForMember;

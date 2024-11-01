@@ -12,7 +12,7 @@ export default function BusinessDetailTabs() {
     <Card className=" w-[100%] sxl:w-[70%]  p-4">
       <Tabs defaultValue="member-data" className="w-full">
         <ScrollArea className="w-full">
-          <ScrollBar orientation="horizontal" />
+          <ScrollBar orientation="horizontal" className="h-2 cursor-grabbing" />
           <TabsList
             className="border-b
               

@@ -23,18 +23,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// import { DataTableToolbar } from "./data-table-toolbar";
-// import { DataTablePagination } from "./data-table-pagination";
 import { ScrollBar, ScrollArea } from "@/components/ui/scroll-area";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  isLoading = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -66,64 +66,83 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="w-full">
-      {/* <DataTableToolbar table={table} /> */}
-      <div className="rounded-md border   relative ">
-        <ScrollArea className=" h-[65vh]   relative">
-          <ScrollBar orientation="vertical" />
-          <Table>
-            <TableHeader className="sticky top-0 bg-[#f5f5f5] z-40">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
+    <div className="rounded-none border border-border  ">
+      <ScrollArea className="w-full relative">
+        <ScrollBar
+          orientation="horizontal"
+          className="relative z-30 cursor-grab h-2"
+        />
+        <Table className="w-full overflow-x-scroll">
+          <TableHeader className="bg-secondary/80">
+            {table?.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  <div className="flex space-x-2 justify-center items-center bg-white ">
+                    <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="size-3 bg-black rounded-full animate-bounce"></div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
                 </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody className="bg-white">
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </ScrollArea>
-      </div>
-      {/* <div className="bg-white p-4 rounded-b-xl"> */}
-      {/* <DataTablePagination table={table} /> */}
-      {/* </div> */}
+              ))
+            ) : isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No data found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No records found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     </div>
   );
 }

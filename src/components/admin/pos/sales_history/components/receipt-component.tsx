@@ -89,7 +89,7 @@ const Receipt: React.FC<ReceiptProps> = ({ salesReport }) => {
             {salesReport.total.toFixed(2)}
           </span>
         </h4>
-
+ 
         <p>Notes: {capitalizeFirstLetter(salesReport.notes)}</p>
       </div>
     </div>
@@ -215,14 +215,14 @@ export function ReceiptExport(salesReport: salesReportInterface | sellForm) {
                 <th class="price">Price</th>
             </tr>
             
-            ${salesReport?.items?.map((item) => {
-        return item &&
-          `<tr>
+            ${salesReport?.items?.map((item) => item
+              ? `<tr>
                   <td style="text-transform: capitalize;">${item.description}</td>
                   <td>${item.quantity}</td>
                   <td class="price">${formatToPKR(item.sub_total)}</td>
-                </tr>`
-          })}
+              </tr>`
+              : ''
+          ).join('')}
         </table>
 
         <!-- Summary Section -->
@@ -243,13 +243,17 @@ export function ReceiptExport(salesReport: salesReportInterface | sellForm) {
                 <td class="price">Grand Total:</td>
                 <td class="price">${formatToPKR(salesReport.total as number)}</td>
             </tr>
-            ${salesReport?.payments?.map((payment, i) => {
-    return payment.payment_method &&
-      `<tr>  
-                  <td class="price" style="${i == salesReport?.payments?.length as number - 1 ? "border:none;" : ""}  text-transform:capitalize">${payment.payment_method}</td>
-                  <td class="price" style="${i == salesReport?.payments?.length as number - 1 ? "border:none;" : ""} ">${formatToPKR(payment.amount as number)}</td>
+            ${salesReport?.payments?.map((payment, i) => payment.payment_method
+                ? `<tr>  
+                    <td class="price" style="${i == salesReport?.payments?.length as number - 1 ? "border:none;" : ""} text-transform:capitalize">
+                        ${payment.payment_method}
+                    </td>
+                    <td class="price" style="${i == salesReport?.payments?.length as number - 1 ? "border:none;" : ""}">
+                        ${formatToPKR(payment.amount as number)}
+                    </td>
                 </tr>`
-  })}       
+                : ''
+            ).join('')}
         </table>
     </div>
 </body>

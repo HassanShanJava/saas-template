@@ -112,8 +112,8 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             const initialAmounts: { [key: string]: string } = {};
 
             enabledPayments.forEach((method: any) => {
-                initialSelectedMethods[method.code] = false;
-                initialAmounts[method.code] = '';
+                initialSelectedMethods[method.name] = false;
+                initialAmounts[method.name] = '';
             });
 
             setSelectedMethods(initialSelectedMethods);
@@ -324,11 +324,11 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                         className="bg-[#ebe9e9] flex items-center space-x-3 p-4 border rounded"
                                     >
                                         <Checkbox
-                                            id={method.code}
-                                            disabled={invoiceId != null || (isTotalReached && !selectedMethods[method.code])}
-                                            checked={selectedMethods[method.code]}
+                                            id={method.name}
+                                            disabled={invoiceId != null || (isTotalReached && !selectedMethods[method.name])}
+                                            checked={selectedMethods[method.name]}
                                             onCheckedChange={(checked) => {
-                                                setSelectedMethods((prev) => ({ ...prev, [method.code]: checked === true }));
+                                                setSelectedMethods((prev) => ({ ...prev, [method.name]: checked === true }));
 
                                                 if (!checked) {
 
@@ -336,7 +336,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                                         prevPayments.filter((payment) => payment.payment_method_id !== method.id)
                                                     );
 
-                                                    setAmounts((prev) => ({ ...prev, [method.code]: '' }));
+                                                    setAmounts((prev) => ({ ...prev, [method.name]: '' }));
 
                                                     setValue(
                                                         "payments",
@@ -347,18 +347,18 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                                 }
                                             }}
                                         />
-                                        <Label htmlFor={method.code} className="w-1/2">
+                                        <Label htmlFor={method.name} className="w-1/2">
                                             {method.name}
                                         </Label>
-                                        {selectedMethods[method.code] && (
+                                        {selectedMethods[method.name] && (
                                             <Input
                                                 type="number"
                                                 placeholder="Amount"
-                                                value={amounts[method.code]}
+                                                value={amounts[method.name]}
                                                 onChange={(e) => {
                                                     const value = e.target.value;
-                                                    setAmounts((prev) => ({ ...prev, [method.code]: value }));
-                                                    addPaymentMethod(method.code, value, method.id);
+                                                    setAmounts((prev) => ({ ...prev, [method.name]: value }));
+                                                    addPaymentMethod(method.name, value, method.id);
                                                 }}
                                                 className="w-1/2"
                                             />

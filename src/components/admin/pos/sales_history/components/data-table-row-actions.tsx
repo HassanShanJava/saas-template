@@ -44,7 +44,7 @@ export function DataTableRowActions({
       iframe.style.width = "0px";
       iframe.style.height = "0px";
       iframe.style.border = "none";
-
+      console.log(btoa(htmlContent),"base64");
       // Append the iframe to the body
       document.body.appendChild(iframe);
 

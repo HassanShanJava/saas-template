@@ -38,7 +38,7 @@ export interface sellForm {
   member_email?: string | null;
   member_address?: string | null;
   member_gender?: genderEnum | null;
-  member_nic?: string | null;
+  member_nic?: string ;
   notes?: string;
   staff_id?: number | null;
   staff_name?: string;
@@ -1665,7 +1665,7 @@ export interface salesReportInterface {
   staff_name: string;
   receipt_number: string;
   notes: string;
-  nic?: string;
+  member_nic?: string;
   tax_number: number;
   total: number;
   subtotal: number;

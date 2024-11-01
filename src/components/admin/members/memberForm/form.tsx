@@ -468,7 +468,7 @@ const MemberForm = ({
 
       reset(memberpayload);
       if (memberData?.nic?.length) {
-        setValue("nic", formatNIC(memberData?.nic));
+        setValue("nic", formatNIC(memberData?.nic)??"");
       }
       // setAvatar(memberpayload.profile_img as string);
     } else {

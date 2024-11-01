@@ -197,6 +197,7 @@ export const formatNIC = (value?: string) => {
   if (!value) {
     return null;
   }
+  
   const numericValue = value.replace(/\D/g, "");
 
   // Add dashes at positions 5 and 12 if length allows

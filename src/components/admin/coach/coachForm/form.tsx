@@ -613,7 +613,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     form.reset(payloadCoach);
     console.log("Member_ids", payloadCoach.member_ids);
     if (payloadCoach?.nic?.length) {
-      setValue("nic", formatNIC(payloadCoach?.nic));
+      setValue("nic", formatNIC(payloadCoach?.nic)??"");
     }
     // setAvatar(coachData?.profile_img as string);
   }, [open, coachData]);

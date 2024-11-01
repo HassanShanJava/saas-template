@@ -357,8 +357,8 @@ export default function SaleshistoryRegisterViewTable() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex capitalize items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(formatNIC(row?.original.nic))}
+          <div className="text-nowrap whitespace-nowrap ">
+            {displayValue(formatNIC(row?.original.member_nic))}
           </div>
         );
       },

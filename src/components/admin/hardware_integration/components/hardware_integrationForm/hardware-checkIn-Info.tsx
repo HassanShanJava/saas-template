@@ -61,6 +61,14 @@ const HardwareCheckInSection = ({
                         value: /^[0-9]+$/,
                         message: "Numbers only",
                       },
+                      min: {
+                        value: 1,
+                        message: "Value must be at least 1",
+                      },
+                      max: {
+                        value: 1000,
+                        message: "Value must be 1000 or less",
+                      },
                     }}
                     render={({ field }) => (
                       <div className="h-full w-[10%]">
@@ -112,6 +120,14 @@ const HardwareCheckInSection = ({
                         value: /^[0-9]+$/,
                         message: "positive Numbers only",
                       },
+                      min: {
+                        value: 1,
+                        message: "Value must be at least 1",
+                      },
+                      max: {
+                        value: 365,
+                        message: "Value must be 365 or less",
+                      },
                     }}
                     render={({ field }) => (
                       <div className="h-full w-[10%]">
@@ -161,6 +177,14 @@ const HardwareCheckInSection = ({
                       pattern: {
                         value: /^[0-9]+$/,
                         message: "positive Numbers only",
+                      },
+                      min: {
+                        value: 1,
+                        message: "Value must be at least 1",
+                      },
+                      max: {
+                        value: 365,
+                        message: "Value must be 365 or less",
                       },
                     }}
                     render={({ field }) => (

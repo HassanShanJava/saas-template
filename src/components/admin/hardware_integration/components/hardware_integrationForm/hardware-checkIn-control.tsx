@@ -43,11 +43,11 @@ const HardwareCheckInControlSection = ({
                   <div className="flex gap-2 h-full justify-center items-center">
                     <>
                       <span
-                        className={`text-xs ${watcher.settings?.has_no_active_membership ? "text-primary" : "text-red-500"}`}
+                        className={`text-xs ${watcher.settings?.has_no_active_membership ? "text-primary" : "text-gray-500"}`}
                       >
                         {watcher.settings?.has_no_active_membership
                           ? "Allow check-in"
-                          : "Deny check-in"}
+                          : "No Check"}
                       </span>
                       <Switch
                         checked={field.value}
@@ -73,11 +73,11 @@ const HardwareCheckInControlSection = ({
                   <div className="flex gap-2 h-full justify-center items-center">
                     <>
                       <span
-                        className={`text-xs ${watcher.settings?.has_no_required_credits ? "text-primary" : "text-red-500"}`}
+                        className={`text-xs ${watcher.settings?.has_no_required_credits ? "text-primary" : "text-gray-500"}`}
                       >
                         {watcher.settings?.has_no_required_credits
                           ? "Allow check-in"
-                          : "Deny check-in"}
+                          : "No Check"}
                       </span>
                       <Switch
                         checked={field.value}
@@ -157,6 +157,14 @@ const HardwareCheckInControlSection = ({
                     value: /^[0-9]+$/,
                     message: "positive Numbers only",
                   },
+                  min: {
+                    value: 1,
+                    message: "Value must be at least 1",
+                  },
+                  max: {
+                    value: 365,
+                    message: "Value must be 365 or less",
+                  },
                 }}
                 render={({ field }) => (
                   <div className="h-full w-[10%]">
@@ -179,11 +187,11 @@ const HardwareCheckInControlSection = ({
                 <div className="flex gap-2 h-full justify-center items-center">
                   <>
                     <span
-                      className={`text-xs ${watcher.settings?.has_outstanding_invoices_enabled ? "text-primary" : "text-red-500"}`}
+                      className={`text-xs ${watcher.settings?.has_outstanding_invoices_enabled ? "text-primary" : "text-gray-500"}`}
                     >
                       {watcher.settings?.has_outstanding_invoices_enabled
                         ? "Allow check-in"
-                        : "Deny check-in"}
+                        : "No Check"}
                     </span>
                     <Switch
                       checked={field.value}
@@ -209,6 +217,14 @@ const HardwareCheckInControlSection = ({
                     value: /^[0-9]+$/,
                     message: "positive Numbers only",
                   },
+                  min: {
+                    value: 1,
+                    message: "Value must be at least 1",
+                  },
+                  max: {
+                    value: 365,
+                    message: "Value must be 365 or less",
+                  },
                 }}
                 render={({ field }) => (
                   <div className="h-full w-[10%]">
@@ -230,11 +246,11 @@ const HardwareCheckInControlSection = ({
                 <div className="flex gap-2 h-full justify-center items-center">
                   <>
                     <span
-                      className={`text-xs ${watcher.settings?.membership_expiry_enabled ? "text-primary" : "text-red-500"}`}
+                      className={`text-xs ${watcher.settings?.membership_expiry_enabled ? "text-primary" : "text-gray-500"}`}
                     >
                       {watcher.settings?.membership_expiry_enabled
                         ? "Allow check-in"
-                        : "Deny check-in"}
+                        : "No Check"}
                     </span>
                     <Switch
                       checked={field.value}

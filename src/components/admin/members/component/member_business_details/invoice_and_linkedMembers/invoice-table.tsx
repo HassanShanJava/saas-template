@@ -100,11 +100,11 @@ const InvoiceTableForMember: React.FC = () => {
       },
     },
     {
-      accessorKey: "activated_on",
-      meta: "Activation Date",
+      accessorKey: "price",
+      meta: "price",
       header: () => (
         <div className="flex items-center gap-2">
-          <p className="text-nowrap">Activation Date</p>
+          <p className="text-nowrap">Price</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             // onClick={() => toggleSortOrder("activated_on")}

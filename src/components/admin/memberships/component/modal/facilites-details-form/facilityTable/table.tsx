@@ -43,21 +43,23 @@ import { useFormContext } from "react-hook-form";
 import { StepperFormValues } from "@/types/hook-stepper";
 
 interface tranformData {
-  id: number;
+  facility_id: number;
   total_credits: number;
   credits: number;
+  credit_type: string;
   count: number;
   validity: {
-    duration_type: string | undefined;
-    duration_no: number | undefined;
+    type: string | undefined;
+    duration: number | undefined;
   };
 }
 interface payloadData {
-  id: number;
+  facility_id: number;
+  credit_type: string;
   total_credits: number;
   validity: {
-    duration_type: string;
-    duration_no: number;
+    type: string;
+    duration: number;
   };
 }
 
@@ -91,7 +93,7 @@ export default function FacilityTableView({
 
   useEffect(() => {
     const data = facilitiesData?.map((item) => ({
-      id: item.id,
+      facility_id: item.id,
       count: 1,
       credits: item.min_limit,
       total_credits: item.min_limit,
@@ -107,14 +109,14 @@ export default function FacilityTableView({
     if (payload.length > 0) {
       const newRowSelection: Record<number, boolean> = {};
       payload.forEach(item => {
-        const index = findIndex(item.id, facilitiesData as creditTablestypes[]);
+        const index = findIndex(item.facility_id, facilitiesData as creditTablestypes[]);
         if (index !== -1) {
           newRowSelection[index] = true;
         }
       });
 
       const result = data?.map((item) => {
-        const updatedItem = payload.find(payloadItem => payloadItem.id === item.id);
+        const updatedItem = payload.find(payloadItem => payloadItem.facility_id === item.facility_id);
 
         if (updatedItem) {
           const count = updatedItem.total_credits as number / item.credits;
@@ -138,12 +140,6 @@ export default function FacilityTableView({
 
   }, [facilitiesData, payload]);
 
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
 
   const handleChangeRowInput = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -155,7 +151,7 @@ export default function FacilityTableView({
 
     setTransformedCredits((prevCredits) => {
       return prevCredits?.map((credit) => {
-        if (credit.id === id) {
+        if (credit.facility_id === id) {
           return {
             ...credit,
             validity: {
@@ -180,8 +176,8 @@ export default function FacilityTableView({
 
       const selectedCredits = transformedCredits
         ?.filter((_, index) => selectedIndexes.includes(index.toString()))
-        .map(({ id, total_credits, validity }) => ({
-          id,
+        .map(({ facility_id, total_credits, validity }) => ({
+          facility_id,
           total_credits,
           validity,
         }))
@@ -197,7 +193,7 @@ export default function FacilityTableView({
 
     setTransformedCredits((prevCredits) => {
       return prevCredits?.map((credit) => {
-        if (credit.id === id) {
+        if (credit.facility_id === id) {
           return {
             ...credit,
             validity: {
@@ -215,7 +211,7 @@ export default function FacilityTableView({
 
     setTransformedCredits((prevCredits) => {
       return prevCredits?.map((credit) => {
-        if (credit.id === id) {
+        if (credit.facility_id === id) {
           if (key === "decrement") {
             if (credit.count === 1) {
               toast({
@@ -329,7 +325,7 @@ export default function FacilityTableView({
       cell: ({ row }) => {
         const id = row.original.id;
         const totalCredit = transformedCredits
-          ?.filter((data) => data?.id == id)
+          ?.filter((data) => data?.facility_id == id)
           .map((item) => item.total_credits);
         return row.getIsSelected() ? (
           <div className="flex  items-center gap-2 justify-between !max-w-4xl">
@@ -365,26 +361,26 @@ export default function FacilityTableView({
       cell: ({ row }) => {
         const id = row.original.id;
         const creditData = transformedCredits?.find(
-          (credit) => credit.id === id
+          (credit) => credit.facility_id === id
         );
 
         return row.getIsSelected() ? (
           <div className="flex items-center gap-2">
-            {creditData?.validity.duration_type !== "contract_duration" && <Input
+            {creditData?.validity.type !== "contract_duration" && <Input
               type="number"
 
               min={1}
               max={15}
               className=" w-20"
               autoFocus
-              value={creditData?.validity?.duration_no || ""}
+              value={creditData?.validity?.duration || ""}
               onChange={(e) => handleChangeRowInput(e, id, "duration_no")}
             />}
             <Select
               onValueChange={(value) =>
                 handleChangeRowSelect(value, id, "duration_type")
               }
-              value={creditData?.validity?.duration_type || ""}
+              value={creditData?.validity?.type || ""}
             >
               <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select validity" />
@@ -407,19 +403,10 @@ export default function FacilityTableView({
   const table = useReactTable({
     data: creditstableData as creditTablestypes[],
     columns,
-    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    state: {
-      pagination,
-      sorting,
-      columnVisibility,
-      rowSelection,
-    },
-
   });
 
 
@@ -534,14 +521,4 @@ export default function FacilityTableView({
       </div>
     </div>
   );
-}
-
-function findMatchingIndicesObject(arr1: any, arr2: any) {
-  const indicesObject: any = {};
-  arr2.forEach((item2: any, index: number) => {
-    if (arr1.some((item1: any) => item1.id === item2.id)) {
-      indicesObject[index] = true;
-    }
-  });
-  return indicesObject;
 }

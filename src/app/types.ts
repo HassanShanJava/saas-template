@@ -272,11 +272,12 @@ export interface renewalData extends JSONObject {
   prolongation_period: number | null;
 }
 export interface facilitiesData extends JSONObject {
-  id: number;
+  facility_id: number;
   total_credits: number | null;
+  credit_type:string
   validity: {
-    duration_type?: string | undefined | null;
-    duration_no?: number | null;
+    type?: string | undefined | null;
+    duration?: number | null;
   };
 }
 
@@ -310,7 +311,7 @@ export interface createMembershipType {
   status: string;
   duration: number | null;
   duration_period: string;
-  access_time: object;
+  access_type: string
   net_price: number | null;
   discount: number | null;
   income_category_id: number | undefined;

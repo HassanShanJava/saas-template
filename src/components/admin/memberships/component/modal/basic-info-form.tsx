@@ -60,14 +60,14 @@ const daysOrder = [
   "friday",
   "saturday",
   "sunday",
-];
+] as const;
 
-interface limitedAccessDaysTypes {
-  id: number;
-  day: string;
-  from: string;
-  to: string;
-}
+type DayTimeRange = {
+  from_time: string;
+  to_time: string;
+}[];
+
+type LimitedAccessDaysTypes = Record<(typeof daysOrder)[number], DayTimeRange>;
 
 const BasicInfoForm = () => {
   const {
@@ -87,19 +87,54 @@ const BasicInfoForm = () => {
   const [groupList, setGroupList] = useState<groupList[]>([]);
 
   const [limitedAccessDays, setLimitedAccessDays] = useState<
-    limitedAccessDaysTypes[]
+  LimitedAccessDaysTypes
   >(
-    (getValues("limited_access_data") as limitedAccessDaysTypes[]).length > 0
-      ? (getValues("limited_access_data") as limitedAccessDaysTypes[])
-      : [
-        { id: 1, day: "monday", from: "", to: "" },
-        { id: 2, day: "tuesday", from: "", to: "" },
-        { id: 3, day: "wednesday", from: "", to: "" },
-        { id: 4, day: "thursday", from: "", to: "" },
-        { id: 5, day: "friday", from: "", to: "" },
-        { id: 6, day: "saturday", from: "", to: "" },
-        { id: 7, day: "sunday", from: "", to: "" },
-      ]
+    (getValues("limited_access_time") as LimitedAccessDaysTypes).length > 0
+      ? (getValues("limited_access_time") as LimitedAccessDaysTypes)
+      : {
+        "monday": [
+          {
+            "from_time": "string",
+            "to_time": "string"
+          }
+        ],
+        "tuesday": [
+          {
+            "from_time": "string",
+            "to_time": "string"
+          }
+        ],
+        "wednesday": [
+          {
+            "from_time": "string",
+            "to_time": "string"
+          }
+        ],
+        "thursday": [
+          {
+            "from_time": "string",
+            "to_time": "string"
+          }
+        ],
+        "friday": [
+          {
+            "from_time": "string",
+            "to_time": "string"
+          }
+        ],
+        "saturday": [
+          {
+            "from_time": "string",
+            "to_time": "string"
+          }
+        ],
+        "sunday": [
+          {
+            "from_time": "string",
+            "to_time": "string"
+          }
+        ]
+      }
   );
 
   const orgId =
@@ -126,7 +161,7 @@ const BasicInfoForm = () => {
 
     setLimitedAccessDays((prev) => [
       ...prev,
-      { id: Date.now(), day, from: "", to: "" },
+      { id: Date.now(), day, from_time: "", to_time: "" },
     ]);
   };
 
@@ -141,26 +176,10 @@ const BasicInfoForm = () => {
         return prev.filter((entry) => entry.id !== id);
       } else {
         return prev.map((entry) =>
-          entry.id === id ? { ...entry, from: "", to: "" } : entry
+          entry.id === id ? { ...entry, from_time: "", to_time: "" } : entry
         );
       }
     });
-  };
-
-  const isValidTimeRange = (from: string, to: string) => {
-    return from < to;
-  };
-
-  const isConflictingTime = (
-    day: string,
-    from: string,
-    to: string,
-    id: number | undefined = undefined
-  ) => {
-    const dayEntries = limitedAccessDays.filter(
-      (entry) => entry.day === day && entry.id !== id
-    );
-    return dayEntries.some((entry) => from < entry.to && to > entry.from);
   };
 
   const handleTimeChange = (id: number, type: string, value: string) => {
@@ -188,7 +207,7 @@ const BasicInfoForm = () => {
 
   useEffect(() => {
     if (limitedAccessDays) {
-      setValue("limited_access_data", limitedAccessDays);
+      setValue("limited_access_time", limitedAccessDays);
     }
   }, [limitedAccessDays]);
 
@@ -202,11 +221,11 @@ const BasicInfoForm = () => {
     e.preventDefault();
 
     if (!inputValue.trim()) return;
-    
-    if(inputValue.length>15){
+
+    if (inputValue.length > 15) {
       toast({
-        variant:"destructive",
-        title:"Group name cannot be too large"
+        variant: "destructive",
+        title: "Group name cannot be too large"
       })
       return;
     }
@@ -478,14 +497,14 @@ const BasicInfoForm = () => {
                 message: "Duration must be between 1 and 12.",
               },
             })}
-            error={errors.duration_no?.message}
+            error={errors.duration?.message}
           />
         </div>
       </div>
       {access == "limited-access" && (
         <div className="bg-gray-200 px-3 py-2 w-fit  text-sm rounded-lg  ">
           <p className="font-semibold text-base">Limited Access</p>
-          {sortedDays.map(({ id, day, from, to }) => (
+          {sortedDays.map(({ id, day, from_time, to_time }) => (
             <div
               key={id}
               className="grid grid-cols-3 items-center gap-3 space-y-1"
@@ -500,8 +519,8 @@ const BasicInfoForm = () => {
               <div className="flex col-span-2 items-center gap-2 ">
                 <Input
                   type="time"
-                  value={from}
-                  onChange={(e) => handleTimeChange(id, "from", e.target.value)}
+                  value={from_time}
+                  onChange={(e) => handleTimeChange(id, "from_time", e.target.value)}
                   id="time"
                   aria-label="Choose time"
                   className="w-full h-7 "
@@ -509,8 +528,8 @@ const BasicInfoForm = () => {
                 <p>till</p>
                 <Input
                   type="time"
-                  value={to}
-                  onChange={(e) => handleTimeChange(id, "to", e.target.value)}
+                  value={to_time}
+                  onChange={(e) => handleTimeChange(id, "to_time", e.target.value)}
                   id="time"
                   aria-label="Choose time"
                   className="w-full h-7 "

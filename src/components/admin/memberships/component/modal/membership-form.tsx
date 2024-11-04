@@ -78,7 +78,7 @@ const defaultValue = {
   description: "",
   status: "active",
   access_type: "no-restriction",
-  limited_access_data: [],
+  limited_access_time: {},
   duration_period: "",
   duration: null,
   org_id: null,
@@ -139,7 +139,7 @@ const MembershipForm = ({
 
   const access_type = getValues("access_type");
   const limited_access_data = getValues(
-    "limited_access_data"
+    "limited_access_time"
   ) as limitedAccessDaysTypes[];
 
   const isValidTimeRange = (from: string, to: string) => {
@@ -184,13 +184,7 @@ const MembershipForm = ({
     payload.created_by = userId;
     payload.renewal_details = {};
 
-    payload.access_time = {
-      access_type: payload.access_type,
-      limited_access_data:
-        payload.limited_access_data.length > 0
-          ? payload.limited_access_data
-          : [],
-    };
+
 
     if (payload.auto_renewal) {
       payload.renewal_details = {
@@ -209,34 +203,34 @@ const MembershipForm = ({
       };
 
       payload.facilities.forEach((item) => {
-        if (item.validity.duration_type === "contract_duration") {
-          item.validity.duration_no = 0;
+        if (item.validity.type === "contract_duration") {
+          item.validity.duration = 0;
         }
 
         if (
-          item.validity.duration_no == undefined ||
-          item.validity.duration_no == null
+          item.validity.duration == undefined ||
+          item.validity.duration == null
         ) {
           validate.check = true;
           validate.reason = "Validity is required";
         }
 
-        if (item.validity.duration_type == undefined) {
+        if (item.validity.type == undefined) {
           validate.check = true;
           validate.reason = "Validity is required";
         }
 
         if (
-          item.validity.duration_type !== null &&
-          item.validity.duration_type !== "" &&
-          item.validity.duration_no !== null
+          item.validity.type !== null &&
+          item.validity.type !== "" &&
+          item.validity.duration !== null
         ) {
           if (
             getDaysCheck(
-              payload.duration_no as number,
-              payload.duration_type as string,
-              item.validity.duration_no as number,
-              item.validity.duration_type as string
+              payload.duration as number,
+              payload.duration_period as string,
+              item.validity.duration as number,
+              item.validity.type as string
             )
           ) {
             validate.check = true;
@@ -327,7 +321,7 @@ const MembershipForm = ({
     const isStepValid = await trigger(undefined, { shouldFocus: true });
     const accessType = getValues("access_type");
     const limitedAccessData = getValues(
-      "limited_access_data"
+      "limited_access_time"
     ) as limitedAccessDaysTypes[];
     if (activeStep == 1 && access_type == "limited-access") {
       console.log("inside step 1");

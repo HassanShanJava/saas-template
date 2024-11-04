@@ -38,7 +38,6 @@ const Pagination: React.FC<PaginationProps> = ({
   onLastPage,
   isLastPage,
 }) => {
-
   return (
     <div className="text-sm font-normal flex items-center justify-between  mx-2 px-2  h-10 bg-gray-100 rounded-md">
       <div className="flex items-center justify-center gap-2">
@@ -64,7 +63,7 @@ const Pagination: React.FC<PaginationProps> = ({
           orientation="vertical"
           className="h-10 w-[1px] bg-gray-300"
         />
-        <span>{`${offset + 1} - ${limit} of ${totalItems} Items`}</span>
+        <span>{`${offset + 1} - ${Math.min(offset + limit, totalItems)} of ${totalItems} Items`}</span>
       </div>
 
       <div className="flex items-center justify-center gap-2">

@@ -69,14 +69,15 @@ const initialValue = {
 };
 
 const durationLabels = {
-  weekly: "Weeks",
-  monthly: "Months",
-  yearly: "Years",
+  week: "Weeks",
+  bi_annual:'Bi Annually',
+  month: "Months",
+  year: "Years",
 } as const;
 
 interface AccessTime {
-  duration_no: number;
-  duration_type: keyof typeof durationLabels; // ensures duration_type is one of the keys in durationLabels
+  duration: number;
+  duration_period: keyof typeof durationLabels; // ensures duration_type is one of the keys in durationLabels
 }
 
 interface searchCriteriaType {
@@ -320,10 +321,9 @@ export default function MembershipsTableView() {
       accessorKey: "duration",
       header: ({ table }) => <span className="text-nowrap">Duration</span>,
       cell: ({ row }) => {
-        const { duration_no, duration_type } = row.original
-          .access_time as AccessTime;
+        const { duration, duration_period } = row.original;
         return (
-          <span className="text-nowrap">{`${duration_no} ${durationLabels[duration_type]}`}</span>
+          <span className="text-nowrap">{`${duration} ${durationLabels[duration_period]}`}</span>
         );
       },
       enableSorting: false,

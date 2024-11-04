@@ -427,7 +427,7 @@ const BasicInfoForm = () => {
         <div className="flex items-center gap-4">
           <Label className="font-semibold">Duration*</Label>
           <Controller
-            name="duration_type"
+            name="duration_period"
             rules={{ required: "Required" }}
             control={control}
             render={({
@@ -441,7 +441,7 @@ const BasicInfoForm = () => {
                   }}
                   value={value}
                 >
-                  <SelectTrigger name="duration_type">
+                  <SelectTrigger name="duration_period">
                     <SelectValue
                       placeholder="Select duration"
                       defaultValue={undefined}
@@ -456,7 +456,7 @@ const BasicInfoForm = () => {
                     <SelectItem value={"weekly"}>Week</SelectItem>
                     <SelectItem value={"monthly"}>Month</SelectItem>
                     <SelectItem value={"quarterly"}>Quarter</SelectItem>
-                    <SelectItem value={"bi_annually"}>Bi-Annual</SelectItem>
+                    {/* <SelectItem value={"bi_annually"}>Bi-Annual</SelectItem> */}
                     <SelectItem value={"yearly"}>Year</SelectItem>
                   </SelectContent>
                 </Select>
@@ -464,10 +464,10 @@ const BasicInfoForm = () => {
             )}
           />
           <FloatingLabelInput
-            id="duration_no"
+            id="duration"
             type="number"
             className="w-20 "
-            {...register("duration_no", {
+            {...register("duration", {
               required: "Required",
               min: {
                 value: 1,

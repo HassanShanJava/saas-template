@@ -287,6 +287,8 @@ export interface updateMembershipType {
   group_id?: number | null;
   description?: string;
   status?: string;
+  duration?: number | null;
+  duration_period?: string;
   access_time?: object;
   net_price?: number | null;
   discount?: number | null;
@@ -306,6 +308,8 @@ export interface createMembershipType {
   group_id: number | null;
   description: string;
   status: string;
+  duration: number | null;
+  duration_period: string;
   access_time: object;
   net_price: number | null;
   discount: number | null;

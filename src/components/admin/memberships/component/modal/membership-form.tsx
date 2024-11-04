@@ -79,8 +79,8 @@ const defaultValue = {
   status: "active",
   access_type: "no-restriction",
   limited_access_data: [],
-  duration_type: "",
-  duration_no: null,
+  duration_period: "",
+  duration: null,
   org_id: null,
   created_by: null,
   net_price: null,
@@ -132,10 +132,10 @@ const MembershipForm = ({
     getValues,
     clearErrors,
     reset,
+    watch,
     formState: { isSubmitting, errors },
   } = methods;
-
-  console.log(errors, "membership form");
+  const watchers = watch();
 
   const access_type = getValues("access_type");
   const limited_access_data = getValues(
@@ -186,8 +186,6 @@ const MembershipForm = ({
 
     payload.access_time = {
       access_type: payload.access_type,
-      duration_no: payload.duration_no,
-      duration_type: payload.duration_type,
       limited_access_data:
         payload.limited_access_data.length > 0
           ? payload.limited_access_data
@@ -403,6 +401,9 @@ const MembershipForm = ({
     setData(undefined);
     setIsOpen(false);
   };
+
+  console.log({ watchers, errors });
+
 
   return (
     <Sheet open={isOpen}>

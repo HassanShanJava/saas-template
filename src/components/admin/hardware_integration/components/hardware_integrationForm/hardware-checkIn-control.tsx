@@ -25,7 +25,7 @@ const HardwareCheckInControlSection = ({
   const isOpen =
     watcher.settings?.has_no_active_membership ||
     watcher.settings?.has_no_required_credits ||
-    watcher.settings?.min_credits_required ||
+    // watcher.settings?.min_credits_required ||
     watcher.settings?.has_outstanding_invoices_enabled ||
     watcher.settings?.membership_expiry_enabled;
   return (
@@ -43,11 +43,11 @@ const HardwareCheckInControlSection = ({
                   <div className="flex gap-2 h-full justify-center items-center">
                     <>
                       <span
-                        className={`text-xs ${watcher.settings?.has_no_active_membership ? "text-primary" : "text-red-500"}`}
+                        className={`text-xs ${watcher.settings?.has_no_active_membership ? "text-red-500" : "text-gray-500"}`}
                       >
                         {watcher.settings?.has_no_active_membership
-                          ? "Allow check-in"
-                          : "Deny check-in"}
+                          ? "Deny check-in"
+                          : "No Check"}
                       </span>
                       <Switch
                         checked={field.value}
@@ -73,11 +73,11 @@ const HardwareCheckInControlSection = ({
                   <div className="flex gap-2 h-full justify-center items-center">
                     <>
                       <span
-                        className={`text-xs ${watcher.settings?.has_no_required_credits ? "text-primary" : "text-red-500"}`}
+                        className={`text-xs ${watcher.settings?.has_no_required_credits ? "text-red-500" : "text-gray-500"}`}
                       >
                         {watcher.settings?.has_no_required_credits
-                          ? "Allow check-in"
-                          : "Deny check-in"}
+                          ? "Deny check-in"
+                          : "No Check"}
                       </span>
                       <Switch
                         checked={field.value}
@@ -89,57 +89,6 @@ const HardwareCheckInControlSection = ({
               />
             </div>
           </div>
-
-          <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
-            <div className="flex justify-start text-sm items-center gap-3 ">
-              <span className="text-nowrap text-sm">Member has </span>
-              <Controller
-                control={control}
-                name="settings.credits_threshold"
-                disabled={watcher.settings?.min_credits_required === false}
-                rules={{
-                  required: "Required",
-                  pattern: {
-                    value: /^[0-9]+$/,
-                    message: "positive Numbers only",
-                  },
-                }}
-                render={({ field }) => (
-                  <div className="h-full w-[10%]">
-                    <Input className="w-[100%]" {...field} />
-                    {errors.settings?.credits_threshold?.message && (
-                      <p className="text-red-500 text-xs pt-2">
-                        {errors.settings?.credits_threshold.message.toString()}
-                      </p>
-                    )}
-                  </div>
-                )}
-              />
-              credits or less
-            </div>
-            <Controller
-              control={control}
-              name="settings.min_credits_required"
-              render={({ field }) => (
-                <div className="flex gap-2 h-full justify-center items-center">
-                  <>
-                    <span
-                      className={`text-xs ${watcher.settings?.min_credits_required ? "text-primary" : "text-red-500"}`}
-                    >
-                      {watcher.settings?.min_credits_required
-                        ? "Allow check-in"
-                        : "Deny check-in"}
-                    </span>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </>
-                </div>
-              )}
-            />
-          </div>
-
           <div className="shadow-sm rounded-md p-4 border flex flex-row justify-between items-center">
             <div className="flex justify-start text-sm items-center gap-3 ">
               <span className="text-nowrap text-sm">
@@ -156,6 +105,14 @@ const HardwareCheckInControlSection = ({
                   pattern: {
                     value: /^[0-9]+$/,
                     message: "positive Numbers only",
+                  },
+                  min: {
+                    value: 1,
+                    message: "Value must be at least 1",
+                  },
+                  max: {
+                    value: 365,
+                    message: "Value must be 365 or less",
                   },
                 }}
                 render={({ field }) => (
@@ -179,11 +136,11 @@ const HardwareCheckInControlSection = ({
                 <div className="flex gap-2 h-full justify-center items-center">
                   <>
                     <span
-                      className={`text-xs ${watcher.settings?.has_outstanding_invoices_enabled ? "text-primary" : "text-red-500"}`}
+                      className={`text-xs ${watcher.settings?.has_outstanding_invoices_enabled ? "text-red-500" : "text-gray-500"}`}
                     >
                       {watcher.settings?.has_outstanding_invoices_enabled
-                        ? "Allow check-in"
-                        : "Deny check-in"}
+                        ? "Deny check-in"
+                        : "No Check"}
                     </span>
                     <Switch
                       checked={field.value}
@@ -209,6 +166,14 @@ const HardwareCheckInControlSection = ({
                     value: /^[0-9]+$/,
                     message: "positive Numbers only",
                   },
+                  min: {
+                    value: 1,
+                    message: "Value must be at least 1",
+                  },
+                  max: {
+                    value: 365,
+                    message: "Value must be 365 or less",
+                  },
                 }}
                 render={({ field }) => (
                   <div className="h-full w-[10%]">
@@ -230,11 +195,11 @@ const HardwareCheckInControlSection = ({
                 <div className="flex gap-2 h-full justify-center items-center">
                   <>
                     <span
-                      className={`text-xs ${watcher.settings?.membership_expiry_enabled ? "text-primary" : "text-red-500"}`}
+                      className={`text-xs ${watcher.settings?.membership_expiry_enabled ? "text-red-500" : "text-gray-500"}`}
                     >
                       {watcher.settings?.membership_expiry_enabled
-                        ? "Allow check-in"
-                        : "Deny check-in"}
+                        ? "Deny check-in"
+                        : "No Check"}
                     </span>
                     <Switch
                       checked={field.value}

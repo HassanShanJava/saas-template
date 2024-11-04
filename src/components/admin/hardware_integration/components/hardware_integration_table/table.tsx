@@ -200,7 +200,7 @@ export default function HardwareIntegrationTable() {
       />
     ),
   };
-  
+
   const columns: ColumnDef<HardwareIntegrationRow>[] = [
     {
       id: "select",
@@ -456,6 +456,14 @@ export default function HardwareIntegrationTable() {
               id="search"
               placeholder="Search by name"
               onChange={(event) => setInputValue(event.target.value)}
+              onKeyDown={(event) => {
+                if (
+                  event.key === " " &&
+                  !(event.target as HTMLInputElement).value
+                ) {
+                  event.preventDefault();
+                }
+              }}
               className=" w-80 lg:w-64 pl-8 text-sm placeholder:text-sm text-gray-400 h-8"
             />
           </div>
@@ -520,7 +528,7 @@ export default function HardwareIntegrationTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-8 text-center"
                   >
                     <div className="flex space-x-2 justify-center items-center bg-white ">
                       <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
@@ -537,7 +545,7 @@ export default function HardwareIntegrationTable() {
                       data-state={row.getIsSelected() && "selected"}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className="h-24">
+                        <TableCell key={cell.id} className="h-8">
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
@@ -547,11 +555,11 @@ export default function HardwareIntegrationTable() {
                     </TableRow>
                   </>
                 ))
-              ) : hardwareData?.total_counts ? (
+              ) : hardwareData?.total_counts == 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-8 text-center"
                   >
                     No Hardware Integration added yet.
                   </TableCell>
@@ -560,7 +568,7 @@ export default function HardwareIntegrationTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-8 text-center"
                   >
                     No records found for the search Criteria.
                   </TableCell>

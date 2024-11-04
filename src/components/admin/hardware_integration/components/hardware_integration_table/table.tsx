@@ -200,7 +200,7 @@ export default function HardwareIntegrationTable() {
       />
     ),
   };
-  
+
   const columns: ColumnDef<HardwareIntegrationRow>[] = [
     {
       id: "select",
@@ -456,6 +456,14 @@ export default function HardwareIntegrationTable() {
               id="search"
               placeholder="Search by name"
               onChange={(event) => setInputValue(event.target.value)}
+              onKeyDown={(event) => {
+                if (
+                  event.key === " " &&
+                  !(event.target as HTMLInputElement).value
+                ) {
+                  event.preventDefault();
+                }
+              }}
               className=" w-80 lg:w-64 pl-8 text-sm placeholder:text-sm text-gray-400 h-8"
             />
           </div>
@@ -547,7 +555,7 @@ export default function HardwareIntegrationTable() {
                     </TableRow>
                   </>
                 ))
-              ) : hardwareData?.total_counts ? (
+              ) : hardwareData?.total_counts == 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}

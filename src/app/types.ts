@@ -604,7 +604,7 @@ export interface MemberInputTypes {
   nic?: string;
   email?: string;
   phone?: string;
-  mobile_number?: string | null;
+  mobile_number?: string;
   notes?: string;
   source_id: number | null;
   language?: string | null;

@@ -807,7 +807,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                             Phone Number
                           </span>
                           <PhoneInput
-                            defaultCountry="us"
+                            defaultCountry="pk"
                             value={field.value}
                             // forceDialCode={true}
                             onChange={field.onChange}

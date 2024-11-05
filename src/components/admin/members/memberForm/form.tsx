@@ -165,7 +165,7 @@ const initialValues: MemberInputTypes = {
   nic: "",
   email: "",
   phone: "",
-  mobile_number: null,
+  mobile_number: "",
   notes: "",
   source_id: null,
   is_business: false,
@@ -462,7 +462,7 @@ const MemberForm = ({
         memberpayload?.mobile_number &&
         [0, 2, 3, 4].includes(memberpayload.mobile_number?.length)
       ) {
-        memberpayload.mobile_number = `+1`;
+        memberpayload.mobile_number = `+92`;
       }
       setMembershipPlansdata(memberpayload?.membership_plans || []);
 
@@ -678,7 +678,7 @@ const MemberForm = ({
         !payload.mobile_number ||
         [0, 2, 3, 4].includes(payload.mobile_number?.length)
       ) {
-        payload.mobile_number = "+1";
+        payload.mobile_number = "+92";
       } else if (payload.mobile_number) {
         // Additional logic if payload.member exists
         payload.mobile_number = payload.mobile_number;
@@ -1069,7 +1069,7 @@ const MemberForm = ({
                               Phone Number
                             </span>
                             <PhoneInput
-                              defaultCountry="us"
+                              defaultCountry="pk"
                               value={value}
                               onChange={onChange}
                               // forceDialCode={true}

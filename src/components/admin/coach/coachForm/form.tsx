@@ -77,6 +77,7 @@ import {
   useGetCoachCountQuery,
   useUpdateCoachMutation,
   useGetCoachAutoFillQuery,
+  useGetCoachesQuery,
 } from "@/services/coachApi";
 
 import { useGetMembersListQuery } from "@/services/memberAPi";
@@ -93,6 +94,7 @@ import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { PhoneInput } from "react-international-phone";
 import { RxCross2 } from "react-icons/rx";
 import { formatNIC } from "@/utils/helper";
+import { BaseQueryFn } from "@reduxjs/toolkit/query";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 enum genderEnum {
@@ -101,13 +103,14 @@ enum genderEnum {
   other = "other",
   prefer_no_to_say = "prefer not to say",
 }
+type RefetchType = ReturnType<typeof useGetCoachesQuery>["refetch"];
 
 interface CoachFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   open: boolean;
   coachData: coachUpdateInput | null;
   setCoachData: React.Dispatch<React.SetStateAction<coachUpdateInput | null>>;
-  refetch?: any;
+  refetch?: RefetchType;
 }
 
 const CoachForm: React.FC<CoachFormProps> = ({
@@ -536,7 +539,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
             variant: "success",
             title: "Coach Created Successfully ",
           });
-          refetch();
+          refetch?.();
           refecthCount();
           handleClose();
         }

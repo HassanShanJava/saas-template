@@ -11,6 +11,8 @@ const ProtectedRoute = () => {
   const orgId = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_id
   );
+
+
   useEffect(() => {
     if (sidepanel) {
       try {

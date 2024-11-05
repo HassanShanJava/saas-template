@@ -375,7 +375,7 @@ const MemberForm = ({
             ...updatedPlans[index],
             auto_renewal: true,
             prolongation_period:
-              renewalDetails?.prolongation_period || undefined,
+            renewalDetails?.prolongation_period || undefined,
             auto_renew_days: renewalDetails?.days_before || undefined,
             inv_days_cycle: renewalDetails?.next_invoice || undefined,
           };

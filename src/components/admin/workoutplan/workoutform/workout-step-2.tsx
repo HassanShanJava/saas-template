@@ -1304,8 +1304,8 @@ const WorkoutStep2: React.FC = () => {
                             validate: (v) =>
                               v === null ||
                               isNaN(v) ||
-                              v >= 0 ||
-                              "Only non negative numbers",
+                              (v >= 0 && v <= 20) ||
+                              "Only values between 0 and 20",
                           })}
                           type="number"
                           id="distance"
@@ -1328,8 +1328,8 @@ const WorkoutStep2: React.FC = () => {
                             validate: (v) =>
                               v === null ||
                               isNaN(v) ||
-                              v >= 0 ||
-                              "Only non negative numbers",
+                              (v >= 0 && v <= 20) ||
+                              "Only values between 0 and 20",
                           })}
                           id="speed"
                           type="number"

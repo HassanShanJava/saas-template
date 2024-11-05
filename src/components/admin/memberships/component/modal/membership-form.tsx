@@ -38,10 +38,10 @@ interface membershipFormTypes {
 }
 
 const stepContentComponents = [
+  FacilityDetailsForm, // Step 4
   BasicInfoForm, // Step 1
   PriceDiscountTaxForm, // Step 2
   AutoRenewalForm, // Step 3
-  FacilityDetailsForm, // Step 4
 ];
 
 const getStepContent = (step: number) => {

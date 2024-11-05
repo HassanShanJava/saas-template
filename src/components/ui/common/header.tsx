@@ -42,10 +42,10 @@ const pageTitles = [
     targetPath: "/admin/hardware_integration",
     title: "System Settings",
   },
-  {
-    targetPath: "/admin/members/business_detail",
-    title: "",
-  },
+  // {
+  //   targetPath: "/admin/members/detail",
+  //   title: "Member Detail",
+  // },
 ];
 
 const breadcrumbs = [
@@ -142,8 +142,7 @@ const PageTitle = ({
   return <p className="text-lg">{title}</p>;
 };
 
-const isActiveLink = (currentPath: string, targetPath: string) =>
-  currentPath.includes(targetPath) || currentPath === targetPath;
+const isActiveLink = (currentPath: string, targetPath: string) =>  currentPath === targetPath;
 
 export const Header = () => {
   const location = useLocation();

@@ -26,7 +26,7 @@ import { useNavigate } from "react-router-dom";
 import warning from "@/assets/warning.svg";
 interface DataTableRowActionsProps<TData> {
   row: number;
-  access:string
+  access: string;
   data: MemberTableDatatypes;
   refetch: any;
   handleEditMember: any;
@@ -76,6 +76,10 @@ export function DataTableRowActions<TData>({
     }
   };
 
+  const handleNavigate = () => {
+    navigate("/admin/members/business_detail"); // Replace with your path
+  };
+
   return (
     <>
       <Dialog>
@@ -89,17 +93,28 @@ export function DataTableRowActions<TData>({
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-4 ">
+          <DropdownMenuContent align="end" className="w-4 min-w-[200px]">
             <DialogTrigger asChild>
               <DropdownMenuItem onClick={() => handleEditMember(data)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            {access === "full_access"&&<DropdownMenuItem onClick={() => setIsDelete(true)}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>}
+            {access === "full_access" && (
+              <DropdownMenuItem onClick={() => setIsDelete(true)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            )}
+            {access === "full_access" && (
+              <DropdownMenuItem
+                className="text-nowrap"
+                onClick={handleNavigate}
+              >
+                <i className="fa-regular fa-eye mr-2 h-4 w-4"></i>
+                View Member Detail
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
         {isdelete && (

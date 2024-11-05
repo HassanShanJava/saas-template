@@ -630,14 +630,37 @@ const CoachForm: React.FC<CoachFormProps> = ({
   const setUserAutofill = () => {
     if (autoFill) {
       const { id, org_id, ...payload } = autoFill;
-      payload.own_coach_id = watcher.own_coach_id;
-      payload.coach_status = "pending";
-      payload.member_ids = [];
-      payload.members = [];
-      reset(payload);
+
+      // Set default values for required fields
+      const defaultedPayload = {
+        ...payload,
+        own_coach_id: watcher.own_coach_id,
+        coach_status: "pending" as "pending" | "active" | "inactive", // Add type assertion here
+        member_ids: [],
+        members: [],
+
+        // Set empty strings for optional fields if they're null/undefined
+        phone: payload.phone ?? "",
+        notes: payload.notes ?? "",
+        address_1: payload.address_1 ?? "",
+        address_2: payload.address_2 ?? "",
+        nic: payload.nic ?? "",
+        bank_name: payload.bank_name ?? "",
+        iban_no: payload.iban_no ?? "",
+        acc_holder_name: payload.acc_holder_name ?? "",
+        swift_code: payload.swift_code ?? "",
+        city: payload.city ?? "",
+        mobile_number:
+          !payload.mobile_number ||
+          [0, 2, 3, 4].includes(payload.mobile_number?.length)
+            ? "+1"
+            : payload.mobile_number,
+      };
+
+      reset(defaultedPayload);
+      setAutoFill(false);
     }
   };
-
   return (
     <Sheet open={open}>
       <SheetContent

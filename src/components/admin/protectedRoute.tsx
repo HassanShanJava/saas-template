@@ -11,12 +11,14 @@ const ProtectedRoute = () => {
   const orgId = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_id
   );
+
+
   useEffect(() => {
     if (sidepanel) {
       try {
         const decodedSidepanel = JSON.parse(atob(sidepanel));
         console.log({ decodedSidepanel });
-        const links = extractLinks(decodedSidepanel)
+        const links = extractLinks(decodedSidepanel);
         setSidePanel(links);
       } catch (error) {
         console.error("Error decoding Base64 string sidepanel:", error);
@@ -34,7 +36,16 @@ const ProtectedRoute = () => {
 
   // Redirect to dashboard if authenticated and trying to access the login page
   if (isAuthenticated && location.pathname === "/") {
-    return <Navigate to={sidePanel[0]} />;
+    // if (window.innerWidth < 500) {
+    //   return <Navigate to={"/qr-code"} />;
+    // }
+
+    // return <Navigate to={sidePanel[0]} />;
+     return window.innerWidth < 500 ? (
+      <Navigate to="/qr-code" />
+    ) : (
+      <Navigate to={sidePanel[0]} />
+    );
   }
 
   // Check if the current path is not in the links array and redirect to the first available link

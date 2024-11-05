@@ -192,7 +192,12 @@ const Lead: React.FC = () => {
     {
       accessorKey: "name",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Name" />
+        <DataTableColumnHeader
+          column={column}
+          title="Name"
+          sortKey="key"
+          toggleSortOrder={() => console.log("12")}
+        />
       ),
       cell: ({ row }) => {
         return (
@@ -205,7 +210,12 @@ const Lead: React.FC = () => {
     {
       accessorKey: "mobile",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Contact" />
+        <DataTableColumnHeader
+          column={column}
+          title="Contact"
+          sortKey="key"
+          toggleSortOrder={() => console.log("12")}
+        />
       ),
       cell: ({ row }) => (
         <div className="max-w-[200px] truncate">{row.getValue("mobile")}</div>
@@ -214,7 +224,12 @@ const Lead: React.FC = () => {
     {
       accessorKey: "owner",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Lead Owner" />
+        <DataTableColumnHeader
+          column={column}
+          title="Lead Owner"
+          sortKey="key"
+          toggleSortOrder={() => console.log("12")}
+        />
       ),
       cell: ({ row }) => {
         // <div className="max-w-[200px] truncate">
@@ -247,7 +262,12 @@ const Lead: React.FC = () => {
     {
       accessorKey: "status",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Status" />
+        <DataTableColumnHeader
+          column={column}
+          title="Status"
+          sortKey="key"
+          toggleSortOrder={() => console.log("12")}
+        />
       ),
       cell: ({ row }) => {
         const value = row.original.status;
@@ -278,7 +298,12 @@ const Lead: React.FC = () => {
     {
       accessorKey: "source",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Source" />
+        <DataTableColumnHeader
+          column={column}
+          title="Source"
+          sortKey="key"
+          toggleSortOrder={() => console.log("12")}
+        />
       ),
       cell: ({ row }) => (
         <div className="max-w-[200px] truncate">{row.getValue("source")}</div>
@@ -287,7 +312,12 @@ const Lead: React.FC = () => {
     {
       accessorKey: "lead_since",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Lead Since" />
+        <DataTableColumnHeader
+          column={column}
+          title="Lead Since"
+          sortKey="key"
+          toggleSortOrder={() => console.log("12")}
+        />
       ),
       cell: ({ row }) => {
         const field = convertDateToEuropeanFormat(row.getValue("lead_since"));

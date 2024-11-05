@@ -43,6 +43,8 @@ import CounterSelection from "./components/admin/counter_management/counter-sele
 import { createPluginStore, PluginProvider } from "react-pluggable";
 import PaymentMethodsPlugin from "./plugins/PaymentMethodsPlugin";
 import HardwareIntegration from "./components/admin/hardware_integration";
+import BusinessDetail from "./components/admin/members/component/member_business_details/business-detail";
+import QRCodePage from "./components/app/qr_code_staff/qrcode-staff";
 
 const pluginStore = createPluginStore();
 pluginStore.install(new PaymentMethodsPlugin());
@@ -61,11 +63,16 @@ function App() {
           <Route path="/reset_password/:token" element={<ResetPassword />} />
           <Route path="/create_password/:token" element={<CreatePassword />} />
           <Route path="/forgot_password" element={<ForgotPasword />} />
+          <Route path="/qr-code" element={<QRCodePage />} />
           <Route path="/" element={<ProtectedRoute />}>
             <Route path="/" index element={<AuthenticationPage />} />
             <Route element={<DashboardLayout />}>
               <Route path="/admin/dashboard" element={<Dashboard />} />
               <Route path="/admin/members" element={<MemberPage />} />
+              <Route
+                path="/admin/members/business_detail"
+                element={<BusinessDetail />}
+              />
               {/* <Route path="/admin/system_settings" element={<SystemSettings />} /> */}
               {/* <Route path="/admin/leads"  element={<Leads />} /> */}
               {/* <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}

@@ -1,10 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  Link,
-  Outlet,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./header";
 import { Toaster } from "@/components/ui/toaster";
 import "./style.css";
@@ -29,7 +24,10 @@ import {
 } from "@/features/counter/counterSlice";
 import { Button } from "../button";
 import { extractLinks } from "@/utils/helper";
-import { useGetCountersQuery, useUpdateCountersMutation } from "@/services/counterApi";
+import {
+  useGetCountersQuery,
+  useUpdateCountersMutation,
+} from "@/services/counterApi";
 import { toast } from "../use-toast";
 
 const DashboardLayout: React.FC = () => {
@@ -38,7 +36,9 @@ const DashboardLayout: React.FC = () => {
   const { pos_count } = JSON.parse(
     localStorage.getItem("accessLevels") as string
   );
-  const { data: assignedCounter } = useGetCountersQuery({ query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}` : ""}` })
+  const { data: assignedCounter } = useGetCountersQuery({
+    query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}` : ""}`,
+  });
 
   const assignedCounterData = useMemo(() => {
     return Array.isArray(assignedCounter?.data) ? assignedCounter?.data : [];
@@ -85,22 +85,21 @@ const DashboardLayout: React.FC = () => {
     }
   }, [code]);
 
-
   useEffect(() => {
     if (pathname.includes("pos") && counter_number == null) {
       dispatch(setCode("pos"));
-      navigate("/counter-selection", { replace: true })
+      navigate("/counter-selection", { replace: true });
     } else if (!pathname.includes("pos")) {
       localStorage.removeItem("code");
       dispatch(setCode(null));
       dispatch(setCounter(null));
       dispatch(resetBackPageCount());
     }
-  }, [pathname, counter_number])
+  }, [pathname, counter_number]);
 
   const isActiveLink = (targetPath: string): boolean => {
     const currentPath = pathname;
-    return currentPath === targetPath;
+    return currentPath.includes(targetPath) || currentPath === targetPath;
   };
 
   const [assignCounter] = useUpdateCountersMutation();
@@ -108,7 +107,9 @@ const DashboardLayout: React.FC = () => {
   const closeCounter = async () => {
     try {
       const payload = {
-        id: counter_number ?? Number(localStorage.getItem('counter_number') as string),
+        id:
+          counter_number ??
+          Number(localStorage.getItem("counter_number") as string),
         is_open: false,
       };
 
@@ -128,16 +129,15 @@ const DashboardLayout: React.FC = () => {
   };
 
   const closePOSPanel = () => {
-    localStorage.removeItem('code')
+    localStorage.removeItem("code");
     if (assignedCounterData.length > 1) {
-      closeCounter()
-      navigate('/counter-selection');
+      closeCounter();
+      navigate("/counter-selection");
     } else {
-      closeCounter()
-      navigate('/');
+      closeCounter();
+      navigate("/");
     }
-  }
-
+  };
 
   return (
     <div className="font-poppins flex h-full w-full relative ">
@@ -148,13 +148,14 @@ const DashboardLayout: React.FC = () => {
           style={{ direction: "ltr" }}
           className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white "
         >
-          {code !== "pos" &&
-            (<Link
+          {code !== "pos" && (
+            <Link
               to="/"
               className="flex items-center gap-2 font-semibold "
               onClick={() => {
-                dispatch(setCode(null))
-              }}>
+                dispatch(setCode(null));
+              }}
+            >
               <img
                 src={dashboardsvg}
                 className={`h-8 w-9 ${!isSidebarOpen && "hidden"}`}
@@ -167,7 +168,7 @@ const DashboardLayout: React.FC = () => {
                 {orgName?.split(" ")[0]}
               </span>
             </Link>
-            )}
+          )}
 
           {code == "pos" && (
             <div
@@ -176,7 +177,7 @@ const DashboardLayout: React.FC = () => {
                 dispatch(setCode(null));
                 dispatch(setCounter(null));
                 dispatch(resetBackPageCount());
-                navigate("/", { replace: true })
+                navigate("/", { replace: true });
               }}
             >
               <i className="rounded-[50%] fa fa-arrow-left px-2 py-0.5 text-lg border-2 border-primary text-primary"></i>

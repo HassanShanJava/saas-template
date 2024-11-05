@@ -375,7 +375,7 @@ const MemberForm = ({
             ...updatedPlans[index],
             auto_renewal: true,
             prolongation_period:
-              renewalDetails?.prolongation_period || undefined,
+            renewalDetails?.prolongation_period || undefined,
             auto_renew_days: renewalDetails?.days_before || undefined,
             inv_days_cycle: renewalDetails?.next_invoice || undefined,
           };
@@ -673,6 +673,17 @@ const MemberForm = ({
       payload.is_business = false;
       payload.business_id = null;
       payload.client_status = "pending";
+      // Apply conditions for mobile_number
+      if (
+        !payload.mobile_number ||
+        [0, 2, 3, 4].includes(payload.mobile_number?.length)
+      ) {
+        payload.mobile_number = "+1";
+      } else if (payload.mobile_number) {
+        // Additional logic if payload.member exists
+        payload.mobile_number = payload.mobile_number;
+      }
+
       reset(payload);
     }
   };

@@ -7,12 +7,31 @@ import { useGetValidateUserQuery } from "@/services/userApi";
 import { toast } from "@/components/ui/use-toast";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
+
 const QRCodePage: React.FC = () => {
-  const userToken = localStorage.getItem("userToken");
-  const sidepanel = localStorage.getItem("sidepanel");
-  const decodedSidepanel = JSON.parse(atob(sidepanel as string));
-  const links = extractLinks(decodedSidepanel);
   const navigate = useNavigate();
+  const userToken = localStorage.getItem("userToken");
+  // Redirect to `/` if `userToken` is missing
+  useEffect(() => {
+    if (!userToken) {
+      navigate("/");
+      return;
+    }
+  }, [userToken, navigate]);
+
+  // Safely parse `sidepanel` from localStorage
+  let links: string[] = [];
+  try {
+    const sidepanel = localStorage.getItem("sidepanel");
+    const decodedSidepanel = sidepanel ? JSON.parse(atob(sidepanel)) : null;
+    links = decodedSidepanel ? extractLinks(decodedSidepanel) : [];
+  } catch (error) {
+    console.error("Error parsing sidepanel:", error);
+    links = [];
+  }
+  // const sidepanel = localStorage.getItem("sidepanel");
+  // const decodedSidepanel = JSON.parse(atob(sidepanel as string));
+  // const links = extractLinks(decodedSidepanel);
   const [isChecking, setIsChecking] = React.useState(true);
   const userId = useSelector(
     (state: RootState) => state.auth.userInfo?.user.id
@@ -23,13 +42,18 @@ const QRCodePage: React.FC = () => {
     refetch,
     isError,
     error,
-  } = useGetValidateUserQuery({
-    user_id: userId as number,
-  });
+  } = useGetValidateUserQuery(
+    {
+      user_id: userId as number,
+    },
+    {
+      skip: userId == undefined,
+    }
+  );
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth > 700) {
+      if (window.innerWidth > 700 && links[0]) {
         navigate(links[0]); // Add a fallback route if `sidepanel[0]` is not available
       }
     };
@@ -39,24 +63,30 @@ const QRCodePage: React.FC = () => {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [navigate, sidepanel]);
+  }, [navigate, links]);
 
   useEffect(() => {
-    if (staffvalidation?.status === "successful") {
+    if (staffvalidation?.status === "Failed") {
+      toast({
+        variant: "destructive",
+        description: staffvalidation.notes || "An error occurred.",
+      });
+      setIsChecking(false); // Stop checking if status is "Failed"
+    } else if (staffvalidation?.user_id === userId) {
       toast({
         variant: "success",
         description: "Checked-In Successfully",
       });
-      setIsChecking(false); // Stop polling
+      setIsChecking(false);
     } else if (isChecking) {
       const interval = setInterval(() => {
-        refetch(); // Poll the API every few seconds
-      }, 5000); // Polling interval in milliseconds
+        refetch();
+      }, 5000);
 
-      return () => clearInterval(interval); // Clear interval on unmount
+      return () => clearInterval(interval);
     }
-  }, [staffvalidation, isChecking, refetch]);
-  
+  }, [staffvalidation, isChecking, refetch, userId]);
+
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h2 className="text-lg font-bold mb-4">Scan the QR Code</h2>

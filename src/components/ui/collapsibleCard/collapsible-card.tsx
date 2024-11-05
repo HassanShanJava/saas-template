@@ -34,21 +34,23 @@ export default function CustomCollapsible({
       className={clsx("w-full", className)} // Merge custom className with default styles
     >
       <div className="shadow-sm rounded-2xl p-3 w-full">
-        <div
-          className={`flex items-center justify-between ${isOpen ? "border-b" : ""} `}
-        >
-          <h3 className="text-lg font-medium w-full ">{title}</h3>
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="w-9 p-0">
-              {isOpen ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-              <span className="sr-only">Toggle</span>
-            </Button>
-          </CollapsibleTrigger>
-        </div>
+        <CollapsibleTrigger asChild className="cursor-pointer">
+          <div
+            className={`flex items-center justify-between ${isOpen ? "border-b" : ""} `}
+          >
+            <h3 className="text-lg font-medium w-full ">{title}</h3>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="w-9 p-0">
+                {isOpen ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+                <span className="sr-only">Toggle</span>
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+        </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="mt-2">{children}</div>
         </CollapsibleContent>

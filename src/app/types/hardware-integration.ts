@@ -21,9 +21,9 @@ export interface HardwareSettings {
   //check required credits
   has_no_required_credits: boolean;
 
-  //required credits override
-  min_credits_required: boolean;
-  credits_threshold?: number;
+  // //required credits override
+  // min_credits_required: boolean;
+  // credits_threshold?: number;
 
   //over dues
   has_outstanding_invoices_enabled: boolean;

@@ -1,34 +1,32 @@
 
-import { StepperFormValues } from "@/types/hook-stepper";
-import StepperIndicator from "@/components/ui/stepper-indicator";
-import { useEffect, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import BasicInfoForm from "./basic-info-form";
-import PriceDiscountTaxForm from "./prices-form";
-import AutoRenewalForm from "./renewal-form";
 import { useToast } from "@/components/ui/use-toast";
-import FacilityDetailsForm from "./facilites-details-form";
-import {
-  useCreateMembershipsMutation,
-  useUpdateMembershipsMutation,
-} from "@/services/membershipsApi";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
-
-import { RootState } from "@/app/store";
-import { useSelector } from "react-redux";
-import { ErrorType, LimitedAccessTime, membeshipsTableType } from "@/app/types";
-
 import {
   Sheet,
   SheetContent,
   SheetHeader,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+
+import { StepperFormValues } from "@/types/hook-stepper";
+import { useEffect, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import StepperIndicator from "@/components/ui/stepper-indicator";
+import BasicInfoForm from "./basic-info-form";
+import PriceDiscountTaxForm from "./prices-form";
+import AutoRenewalForm from "./renewal-form";
+import FacilityDetailsForm from "./facilites-details-form";
+
+import {
+  useCreateMembershipsMutation,
+  useUpdateMembershipsMutation,
+} from "@/services/membershipsApi";
+import { RootState } from "@/app/store";
+import { useSelector } from "react-redux";
+import { ErrorType, LimitedAccessTime, membeshipsTableType } from "@/app/types";
 import { cleanLimitedAccessTime, replaceNullWithDefaults } from "@/utils/helper";
-
 // import { motion, AnimatePresence } from 'framer-motion';
-
 interface membershipFormTypes {
   isOpen: boolean;
   setIsOpen: any;
@@ -37,21 +35,6 @@ interface membershipFormTypes {
   refetch: any;
   setData: any;
   action: "add" | "edit";
-}
-interface limitedAccessDaysTypes {
-  id: number;
-  day: string;
-  from: string;
-  to: string;
-}
-
-interface membershipFromTypes {
-  membership_name: string;
-  membership_group: string;
-  description: string;
-  status: boolean;
-  access: string;
-  duration: string;
 }
 
 const stepContentComponents = [

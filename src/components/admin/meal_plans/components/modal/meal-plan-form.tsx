@@ -229,7 +229,7 @@ const MealPlanForm = ({
 
   const dropzone = {
     accept: {
-      "image/*": [".jpg", ".jpeg", ".png"],
+      "image/": [".jpg", ".jpeg", ".png"],
     },
     multiple: true,
     maxFiles: 1,

@@ -141,6 +141,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     phone: "",
     mobile_number: "",
     notes: "",
+    nic:"",
     source_id: 0,
     country_id: 0,
     city: "",
@@ -585,7 +586,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
   useEffect(() => {
     if (!open || coachData == null) return;
-    const payloadCoach = { ...coachData };
+    const payloadCoach = { ...coachData,
+        nic: coachData?.nic !== null ? coachData?.nic : ""
+     };
     console.log("Member_ids before that", payloadCoach.member_ids);
     type Member = { id: number; name: string } | number;
 

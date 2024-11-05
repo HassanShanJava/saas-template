@@ -375,7 +375,7 @@ const MemberForm = ({
             ...updatedPlans[index],
             auto_renewal: true,
             prolongation_period:
-            renewalDetails?.prolongation_period || undefined,
+              renewalDetails?.prolongation_period || undefined,
             auto_renew_days: renewalDetails?.days_before || undefined,
             inv_days_cycle: renewalDetails?.next_invoice || undefined,
           };
@@ -449,14 +449,17 @@ const MemberForm = ({
 
   useEffect(() => {
     if (action == "edit") {
-      const memberpayload = { ...memberData };
+      const memberpayload = {
+        ...memberData,
+        nic: memberData?.nic !== null ? memberData?.nic : ""
+      };
       memberpayload.coach_ids = memberData?.coaches.every(
         (item) => item.id === 0 && item.name?.trim() === ""
       )
         ? []
         : memberData?.coaches
-            .filter((item) => item.id !== 0 && item.name?.trim() !== "") // Filter out invalid entries
-            .map((item) => item.id);
+          .filter((item) => item.id !== 0 && item.name?.trim() !== "") // Filter out invalid entries
+          .map((item) => item.id);
 
       if (
         memberpayload?.mobile_number &&
@@ -468,7 +471,7 @@ const MemberForm = ({
 
       reset(memberpayload);
       if (memberData?.nic?.length) {
-        setValue("nic", formatNIC(memberData?.nic)??"");
+        setValue("nic", formatNIC(memberData?.nic) ?? "");
       }
       // setAvatar(memberpayload.profile_img as string);
     } else {
@@ -815,8 +818,8 @@ const MemberForm = ({
                     </div>
                     <div className="relative ">
                       {action == "add" ||
-                      (action == "edit" &&
-                        watcher.client_status == "pending") ? (
+                        (action == "edit" &&
+                          watcher.client_status == "pending") ? (
                         <FloatingLabelInput
                           id="email"
                           className=""
@@ -1258,11 +1261,10 @@ const MemberForm = ({
                         }) => (
                           <div className="relative">
                             <label
-                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${
-                                value
+                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${value
                                   ? "text-xs -top-2.5"
                                   : "text-xs text-black"
-                              }`}
+                                }`}
                             >
                               Business
                             </label>
@@ -1277,8 +1279,8 @@ const MemberForm = ({
                                     <span className="w-full text-left font-normal text-black">
                                       {value
                                         ? business?.find(
-                                            (business) => business.id === value
-                                          )?.full_name
+                                          (business) => business.id === value
+                                        )?.full_name
                                         : "Select Business"}
                                     </span>
                                     <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -1437,11 +1439,10 @@ const MemberForm = ({
                         }) => (
                           <div className="flex flex-col w-full relative">
                             <label
-                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${
-                                value
+                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${value
                                   ? "text-xs -top-2.5"
                                   : "text-xs text-black"
-                              }`}
+                                }`}
                             >
                               Country
                             </label>
@@ -1458,9 +1459,9 @@ const MemberForm = ({
                                   >
                                     {value
                                       ? countries?.find(
-                                          (country: CountryTypes) =>
-                                            country.id === value // Compare with numeric value
-                                        )?.country // Display country name if selected
+                                        (country: CountryTypes) =>
+                                          country.id === value // Compare with numeric value
+                                      )?.country // Display country name if selected
                                       : "Select country*"}
                                     <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                   </Button>
@@ -1580,7 +1581,7 @@ const MemberForm = ({
                                 </FormControl>
                                 <SelectContent className="capitalize max-h-52">
                                   {membershipPlans &&
-                                  membershipPlans.length > 0 ? (
+                                    membershipPlans.length > 0 ? (
                                     membershipPlans.map(
                                       (sourceval: membeshipsTableType) => (
                                         <SelectItem
@@ -1697,7 +1698,7 @@ const MemberForm = ({
                                         membershipPlansdata.some(
                                           (plan) =>
                                             plan.membership_plan_id ===
-                                              undefined ||
+                                            undefined ||
                                             plan.membership_plan_id === null
                                         )
                                       }

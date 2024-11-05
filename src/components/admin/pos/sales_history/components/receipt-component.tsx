@@ -200,7 +200,8 @@ export function ReceiptExport(salesReport: salesReportInterface | sellForm) {
 
         <!-- Receipt Details -->
         <div class="details">
-            <p><span>SRB Invoice No:</span> ${salesReport.tax_number}</p>
+            <!-- <p><span>SRB Invoice No:</span> ${salesReport.tax_number}</p> -->
+            <p><span>SRB Invoice No:</span></p>
             <p><span>Transaction ID:</span> ${salesReport.receipt_number}</p>
             <p><span>Date:</span> ${displayDate(salesReport.transaction_date)}</p>
             <p><span>Name:</span> <span style="font-weight:normal; text-transform:uppercase;">${salesReport.member_name}</span></p>

@@ -99,7 +99,7 @@ const DashboardLayout: React.FC = () => {
 
   const isActiveLink = (targetPath: string): boolean => {
     const currentPath = pathname;
-    return currentPath.includes(targetPath) || currentPath === targetPath;
+    return currentPath === targetPath;
   };
 
   const [assignCounter] = useUpdateCountersMutation();

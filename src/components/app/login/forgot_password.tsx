@@ -30,7 +30,12 @@ const ForgotPasword = () => {
   
   useEffect(() => {
     if (isAuthenticated) {
+      toast({
+        variant: "success",
+        title: `Please loggout first`,
+      });
       navigate("/")
+      return;
     }
   }, [isAuthenticated])
   

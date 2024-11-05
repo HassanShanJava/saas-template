@@ -55,7 +55,12 @@ const ResetPassword = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      toast({
+        variant: "success",
+        title: `Please loggout first`,
+      });
       navigate("/")
+      return;
     }
 
     if (verifyToken !== undefined && !error) {

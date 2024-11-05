@@ -17,7 +17,6 @@ import { useResetPasswordMutation, useVerifyTokenQuery } from "@/services/resetP
 
 const CreatePassword = () => {
   const { token } = useParams();
-  const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
@@ -47,9 +46,6 @@ const CreatePassword = () => {
   });
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/")
-    }
 
     if (verifyToken !== undefined && !error) {
       form.reset({
@@ -74,7 +70,7 @@ const CreatePassword = () => {
       });
     }
 
-  }, [verifyToken, error, isAuthenticated]);
+  }, [verifyToken, error]);
 
   const {
     handleSubmit,

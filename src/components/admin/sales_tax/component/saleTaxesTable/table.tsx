@@ -59,11 +59,8 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Separator } from "@/components/ui/separator";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
+import { status } from "@/constants/global";
 
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-];
 
 const downloadCSV = (data: saleTaxesTableType[], fileName: string) => {
   const csv = Papa.unparse(data);

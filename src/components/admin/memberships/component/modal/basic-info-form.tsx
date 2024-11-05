@@ -20,13 +20,10 @@ import {
   useGetGroupQuery,
 } from "@/services/groupsApis";
 import { useToast } from "@/components/ui/use-toast";
-import { LimitedAccessTime } from "@/app/types";
+import { DayOfWeek, LimitedAccessTime } from "@/app/types";
 import { daysOrder } from "@/utils/helper";
-
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-];
+import { initialDaysOfWeek } from "@/constants/membership";
+import { status } from "@/constants/global";
 
 interface groupList {
   label: string;
@@ -54,50 +51,7 @@ const BasicInfoForm = () => {
   >(
     Object.keys(getValues("limited_access_time") as LimitedAccessTime).length > 0
       ? (getValues("limited_access_time") as LimitedAccessTime)
-      : {
-        "monday": [
-          {
-            "from_time": "",
-            "to_time": ""
-          }
-        ],
-        "tuesday": [
-          {
-            "from_time": "",
-            "to_time": ""
-          }
-        ],
-        "wednesday": [
-          {
-            "from_time": "",
-            "to_time": ""
-          }
-        ],
-        "thursday": [
-          {
-            "from_time": "",
-            "to_time": ""
-          }
-        ],
-        "friday": [
-          {
-            "from_time": "",
-            "to_time": ""
-          }
-        ],
-        "saturday": [
-          {
-            "from_time": "",
-            "to_time": ""
-          }
-        ],
-        "sunday": [
-          {
-            "from_time": "",
-            "to_time": ""
-          }
-        ]
-      }
+      : initialDaysOfWeek
   );
 
   const orgId =
@@ -160,7 +114,7 @@ const BasicInfoForm = () => {
 
 
   const sortedDays = Object.keys(limitedAccessDays).sort(
-    (a, b) => daysOrder.indexOf(a) - daysOrder.indexOf(b)
+    (a, b) => daysOrder.indexOf(a as DayOfWeek) - daysOrder.indexOf(b as DayOfWeek)
   );
 
   useEffect(() => {

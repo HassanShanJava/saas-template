@@ -54,11 +54,8 @@ import { useDebounce } from "@/hooks/use-debounce";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
 import { displayValue, roundToTwoDecimals } from "@/utils/helper";
+import { status } from "@/constants/global";
 
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-];
 
 const initialValue = {
   limit: 10,
@@ -71,14 +68,10 @@ const initialValue = {
 const durationLabels = {
   week: "Weeks",
   bi_annual:'Bi Annually',
+  quarter:'Quaterly',
   month: "Months",
   year: "Years",
 } as const;
-
-interface AccessTime {
-  duration: number;
-  duration_period: keyof typeof durationLabels; // ensures duration_type is one of the keys in durationLabels
-}
 
 interface searchCriteriaType {
   limit: number;
@@ -322,7 +315,7 @@ export default function MembershipsTableView() {
       cell: ({ row }) => {
         const { duration, duration_period } = row.original;
         return (
-          <span className="text-nowrap">{`${duration} ${durationLabels[duration_period]}`}</span>
+          <span className="text-nowrap">{`${duration} ${durationLabels[duration_period as keyof typeof durationLabels]}`}</span>
         );
       },
       enableSorting: false,

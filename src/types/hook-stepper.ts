@@ -1,5 +1,5 @@
 import { StepperFormKeys } from "@/lib/constants/hook-stepper-constants";
-import { renewalData, facilitiesData } from "@/app/types"
+import { renewalData, facilitiesData, LimitedAccessTime } from "@/app/types"
 
 type JSONValue = string | number | boolean | Date | undefined | null | JSONObject;
 
@@ -31,7 +31,7 @@ export type StepperFormValues = {
   : FormName extends "income_category_id" | "id"
   ? (number | undefined)
   : FormName extends "limited_access_time"
-  ? object
+  ? LimitedAccessTime
   : FormName extends "renewal_data"
   ? renewalData | object
   : FormName extends "access_time" | "renewal_details"

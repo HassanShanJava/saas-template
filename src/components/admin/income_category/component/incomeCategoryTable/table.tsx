@@ -56,24 +56,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import { ErrorType, incomeCategoryTableType } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import Papa from "papaparse";
+
 const displayValue = (value: any) => (value === null ? "N/A" : value);
 
 import { useGetSalesTaxListQuery } from "@/services/salesTaxApi";
-
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-];
 
 import {
   useCreateIncomeCategoryMutation,

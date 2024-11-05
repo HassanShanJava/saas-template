@@ -10,6 +10,8 @@ enum genderEnum {
   prefer_no_to_say = "prefer not to say",
 }
 
+export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+
 export type TimeSlot = {
   from_time: string;
   to_time: string;

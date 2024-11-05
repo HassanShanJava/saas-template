@@ -10,7 +10,7 @@ import "./style.css";
 import { login } from "../../../features/auth/authSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { AppDispatch, RootState } from "@/app/store";
 import { cn } from "@/lib/utils";
@@ -75,18 +75,16 @@ export default function AuthenticationPage() {
     }
 
     if (userInfo) {
-
       const sidepanel = localStorage.getItem("sidepanel");
       const decodedSidepanel = JSON.parse(atob(sidepanel as string));
-      const links = extractLinks(decodedSidepanel)
+      const links = extractLinks(decodedSidepanel);
       toast({
         variant: "success",
         title: "LogIn",
         description: "You are successfully logged In",
       });
-      navigate(links[0]);
+      console.log("Screen width", window.innerWidth);
     }
-
   }, [loading]);
 
   const handleRememberMe = (e: boolean) => {
@@ -133,9 +131,9 @@ export default function AuthenticationPage() {
 
   return (
     <div className="loginpage-image">
-      <div className="max-w-[1800px] mx-auto">
-        <div className="flex mx-16 justify-between items-center h-dvh ">
-          <div className=" flex flex-col gap-2"></div>
+      <div className="max-w-[1800px] mx-auto xs:mx-0">
+        <div className="flex mx-16 justify-center sm:justify-between items-center h-dvh xs:mx-0 ">
+          <div className=" flex flex-col gap-2 xs:gap-0"></div>
           <div>
             <Card className="mx-auto max-w-md bg-transparent bg-opacity-10 backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg p-2">
               <CardHeader>
@@ -288,8 +286,14 @@ export default function AuthenticationPage() {
               </div>
               <div>
                 <p className="Poppins text-textgray text-sm">
-                  <span className="text-textprimary">Let’s Move</span> Privacy
-                  Statement - Terms & condition{" "}
+                  <span className="text-primary mr-2 text-lg">FitnFi</span>
+                  <Link className="text-primary underline" to={"#"}>
+                    Privacy Statement
+                  </Link>{" "}
+                  -{" "}
+                  <Link className="text-primary underline" to={"#"}>
+                    Terms & condition{" "}
+                  </Link>
                 </p>
               </div>
             </div>

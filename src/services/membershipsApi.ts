@@ -1,8 +1,8 @@
 import { createMembershipType, membeshipsTableResonseType, membeshipsTableType, updateMembershipType } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
-interface membershipInput{
-	query?:string,
-	org_id:number
+interface membershipInput {
+  query?: string,
+  org_id: number
 }
 export const Memberships = apiSlice.injectEndpoints({
   endpoints(builder) {
@@ -30,7 +30,7 @@ export const Memberships = apiSlice.injectEndpoints({
       }),
       updateMemberships: builder.mutation<any, updateMembershipType>({
         query: (membershipsdata) => ({
-          url: `/membership_plan`,
+          url: `/membership_plan/${membershipsdata.id}`,
           method: "PUT",
           body: membershipsdata,
           headers: {
@@ -79,5 +79,5 @@ export const {
   useUpdateMembershipsMutation,
   useDeleteMembershipsMutation,
   useGetMembershipsByIdQuery,
-useGetMembershipListQuery,
+  useGetMembershipListQuery,
 } = Memberships;

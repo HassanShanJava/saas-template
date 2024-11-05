@@ -31,6 +31,7 @@ const ResetPassword = () => {
     setState: React.Dispatch<SetStateAction<boolean>>
   ) => setState((prev) => !prev);
   const navigate = useNavigate();
+  const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const {
     data: verifyToken,
     error,
@@ -53,6 +54,10 @@ const ResetPassword = () => {
   });
 
   useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/")
+    }
+
     if (verifyToken !== undefined && !error) {
       form.reset({
         id: verifyToken.id,
@@ -62,8 +67,19 @@ const ResetPassword = () => {
       });
     } else if (error && typeof error === "object" && "data" in error) {
       const typedError = error as ErrorType;
+      toast({
+        variant: "destructive",
+        title: "Error in form Submission",
+        description: `${typedError.data?.detail}`,
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error in form Submission",
+        description: `Something Went Wrong.`,
+      });
     }
-  }, [verifyToken, error]);
+  }, [verifyToken, error, isAuthenticated]);
 
   const {
     handleSubmit,
@@ -120,9 +136,7 @@ const ResetPassword = () => {
           });
         }
       }
-    },
-    []
-  );
+    }, []);
 
   return (
     <div className="loginpage-image">
@@ -159,7 +173,7 @@ const ResetPassword = () => {
                       <img
                         src={logomainsvg}
                         height={70}
-                        width={70}  
+                        width={70}
                         alt="Main logo"
                       />
                     </div>

@@ -25,8 +25,15 @@ const ForgotPasword = () => {
   const navigate = useNavigate();
   const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const [isCaptchaError, setCaptchaError] = useState(false);
-
+  const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const [sendRestEmail] = useSendResetEmailMutation();
+  
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/")
+    }
+  }, [isAuthenticated])
+  
   const form = useForm<{ email: string }>({
     mode: "onChange",
     defaultValues: {

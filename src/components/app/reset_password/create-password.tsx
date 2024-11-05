@@ -17,6 +17,7 @@ import { useResetPasswordMutation, useVerifyTokenQuery } from "@/services/resetP
 
 const CreatePassword = () => {
   const { token } = useParams();
+  const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
@@ -26,8 +27,8 @@ const CreatePassword = () => {
   const navigate = useNavigate();
   const {
     data: verifyToken,
-    error,
     isLoading,
+    error
   } = useVerifyTokenQuery(token as string);
   const [resetPassword] = useResetPasswordMutation();
 
@@ -46,6 +47,10 @@ const CreatePassword = () => {
   });
 
   useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/")
+    }
+
     if (verifyToken !== undefined && !error) {
       form.reset({
         id: verifyToken.id,
@@ -54,9 +59,22 @@ const CreatePassword = () => {
         confirm_password: "",
       });
     } else if (error && typeof error === "object" && "data" in error) {
+
       const typedError = error as ErrorType;
+      toast({
+        variant: "destructive",
+        title: "Error in form Submission",
+        description: `${typedError.data?.detail}`,
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error in form Submission",
+        description: `Something Went Wrong.`,
+      });
     }
-  }, [verifyToken, error]);
+
+  }, [verifyToken, error, isAuthenticated]);
 
   const {
     handleSubmit,
@@ -92,7 +110,7 @@ const CreatePassword = () => {
           toast({
             variant: "success",
             title:
-              "Your password has been reset successfully. You can now log in with your new password",
+              "Your password has been created successfully. You can now log in with your new password",
           });
           navigate("/");
         }
@@ -120,7 +138,7 @@ const CreatePassword = () => {
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">
-        {false ? ( // Replace with your loading state condition
+        {isLoading ? ( // Replace with your loading state condition
           <div className="grid grid-cols-5 mx-16 justify-between items-center h-dvh">
             <div className="col-span-3"></div>
             <Card className="col-span-2 w-full mx-auto bg-transparent bg-opacity-10 backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg p-2">
@@ -141,7 +159,7 @@ const CreatePassword = () => {
               </CardContent>
             </Card>
           </div>
-        ) : inValidToken(token) ? (
+        ) : inValidToken(token) && !error ? (
           <div className="grid grid-cols-3 mx-16 justify-between items-center h-dvh ">
             <div className="col-span-1 xlg:col-span-2"></div>
             <Card className="col-span-2 xlg:col-span-1 mx-auto bg-transparent bg-opacity-10  backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg p-2">
@@ -285,7 +303,7 @@ const CreatePassword = () => {
               </CardHeader>
               <CardContent className="flex justify-center items-center">
                 <div className="flex flex-col items-center gap-4 text-center">
-                  <div className="text-white text-[1.2rem]">
+                  <div className="font-normal text-white text-[1.2rem]">
                     <p>
                       The create link is invalid or expired. Please request a
                       new link from the{" "}
@@ -295,9 +313,10 @@ const CreatePassword = () => {
                         }}
                         className="cursor-pointer underline font-semibold text-textprimary"
                       >
-                        forgot password
+                        Forgot Password
                       </span>{" "}
-                      page. Or go to{" "}
+                      page, Or go to the 
+                      {" "}
                       <span
                         onClick={() => {
                           navigate("/");
@@ -305,8 +324,7 @@ const CreatePassword = () => {
                         className="cursor-pointer underline font-semibold text-textprimary pr-1"
                       >
                         Login
-                      </span>
-                      page.
+                      </span>page.
                     </p>
                   </div>
                 </div>

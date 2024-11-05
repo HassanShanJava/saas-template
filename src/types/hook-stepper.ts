@@ -23,16 +23,15 @@ export type StepperFormValues = {
   | "days_before"
   | "next_invoice"
   | "org_id"
-  | "id"
   | "group_id"
   | "created_by"
   ? (number | null)
   : FormName extends "auto_renewal"
   ? boolean
-  : FormName extends "income_category_id"
+  : FormName extends "income_category_id" | "id"
   ? (number | undefined)
-  : FormName extends "limited_access_data"
-  ? Array<object>
+  : FormName extends "limited_access_time"
+  ? object
   : FormName extends "renewal_data"
   ? renewalData | object
   : FormName extends "access_time" | "renewal_details"

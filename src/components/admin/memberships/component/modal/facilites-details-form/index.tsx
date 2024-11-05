@@ -1,29 +1,21 @@
-import { Controller, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { StepperFormValues } from "@/types/hook-stepper";
-
 import { useEffect, useState } from "react";
-import FacilityTableView from "./facilityTable/table";
 import { facilitiesData } from "@/app/types";
-
+import FacilityTableView from "./facilityTable/table";
 
 const FacilityDetailsForm = () => {
-  const [facilites,setFacilities]=useState<facilitiesData[]>([])
+  const [facilites, setFacilities] = useState<facilitiesData[]>([])
+
   const {
-    control,
-    formState: { errors },
-    register,
     setValue,
-    getValues,
-    trigger,
-    watch,
   } = useFormContext<StepperFormValues>();
 
-  useEffect(()=>{
-    if(facilites){
-      setValue("facilities",facilites)
+  useEffect(() => {
+    if (facilites) {
+      setValue("facilities", facilites)
     }
-  },[facilites])
-
+  }, [facilites])
 
   return (
     <div className="text-black h-full">

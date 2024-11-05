@@ -226,7 +226,6 @@ export default function MembershipsTableView() {
   const handleEditMembership = (data: membeshipsTableType) => {
     const updatedObject = {
       ...data,
-      ...data.access_time,
       ...data.renewal_details,
     };
     setData(updatedObject);

@@ -165,7 +165,7 @@ const initialValues: MemberInputTypes = {
   nic: "",
   email: "",
   phone: "",
-  mobile_number: "",
+  mobile_number: null,
   notes: "",
   source_id: null,
   is_business: false,
@@ -243,7 +243,7 @@ const MemberForm = ({
   );
   const phoneUtil = PhoneNumberUtil.getInstance();
 
-  const validatePhone = (value: string | undefined) => {
+  const validatePhone = (value: string | undefined | null) => {
     if (!value) {
       return true; // If value is empty, validation passes (based on requirements)
     }

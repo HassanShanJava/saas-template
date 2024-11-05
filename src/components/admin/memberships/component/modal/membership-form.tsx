@@ -17,7 +17,7 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { ErrorType, membeshipsTableType } from "@/app/types";
+import { ErrorType, LimitedAccessTime, membeshipsTableType } from "@/app/types";
 
 import {
   Sheet,
@@ -25,6 +25,7 @@ import {
   SheetHeader,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { cleanLimitedAccessTime, replaceNullWithDefaults } from "@/utils/helper";
 
 // import { motion, AnimatePresence } from 'framer-motion';
 
@@ -77,7 +78,7 @@ const defaultValue = {
   group_id: null,
   description: "",
   status: "active",
-  access_type: "no-restriction",
+  access_type: "no_restriction",
   limited_access_time: {},
   duration_period: "",
   duration: null,
@@ -98,7 +99,6 @@ const defaultValue = {
   next_invoice: undefined,
   renewal_details: {},
   facilities: [],
-  id: null,
 };
 
 const MembershipForm = ({
@@ -135,38 +135,19 @@ const MembershipForm = ({
     watch,
     formState: { isSubmitting, errors },
   } = methods;
-  const watchers = watch();
+  const watcher = watch();
 
   const access_type = getValues("access_type");
-  const limited_access_data = getValues(
-    "limited_access_time"
-  ) as limitedAccessDaysTypes[];
-
-  const isValidTimeRange = (from: string, to: string) => {
-    return from < to;
-  };
-
-  const isConflictingTime = (
-    day: string,
-    from: string,
-    to: string,
-    id: number | undefined = undefined
-  ) => {
-    const dayEntries =
-      limited_access_data &&
-      limited_access_data.filter(
-        (entry) => entry.day === day && entry.id !== id
-      );
-    return dayEntries.some((entry) => from < entry.to && to > entry.from);
-  };
 
   useEffect(() => {
     if (action == "edit" && data != undefined) {
       const updatedObject = {
         ...data,
-        ...data?.access_time,
         ...data?.renewal_details,
+        limited_access_time:replaceNullWithDefaults(data?.limited_access_time)
       };
+
+
       console.log({ updatedObject }, "edit");
       reset(updatedObject as StepperFormValues);
     } else {
@@ -186,6 +167,12 @@ const MembershipForm = ({
 
 
 
+    if (payload.access_type == "no_restriction") {
+      payload.limited_access_time = {};
+    } else {
+      payload.limited_access_time = cleanLimitedAccessTime(payload?.limited_access_time as LimitedAccessTime)
+    }
+
     if (payload.auto_renewal) {
       payload.renewal_details = {
         days_before: formData.days_before,
@@ -203,24 +190,26 @@ const MembershipForm = ({
       };
 
       payload.facilities.forEach((item) => {
-        if (item.validity.type === "contract_duration") {
+        if (item.credit_type === "amount" && item.validity.type === "contract_duration") {
           item.validity.duration = 0;
         }
 
         if (
-          item.validity.duration == undefined ||
-          item.validity.duration == null
+          item.credit_type === "amount" &&
+          (item.validity.duration == undefined ||
+            item.validity.duration == null)
         ) {
           validate.check = true;
           validate.reason = "Validity is required";
         }
 
-        if (item.validity.type == undefined) {
+        if (item.credit_type === "amount" && item.validity.type == undefined) {
           validate.check = true;
           validate.reason = "Validity is required";
         }
 
         if (
+          item.credit_type === "amount" &&
           item.validity.type !== null &&
           item.validity.type !== "" &&
           item.validity.duration !== null
@@ -256,6 +245,10 @@ const MembershipForm = ({
       return;
     }
     console.log({ payload }, action);
+
+    if (action == "add") {
+      delete payload?.id;
+    }
 
     try {
       if (action == "add") {
@@ -319,26 +312,23 @@ const MembershipForm = ({
 
   const handleNext = async () => {
     const isStepValid = await trigger(undefined, { shouldFocus: true });
-    const accessType = getValues("access_type");
-    const limitedAccessData = getValues(
-      "limited_access_time"
-    ) as limitedAccessDaysTypes[];
-    if (activeStep == 1 && access_type == "limited-access") {
+    const limitedAccessData = getValues("limited_access_time") as LimitedAccessTime;
+
+    if (activeStep === 1 && access_type === "limited-access") {
       console.log("inside step 1");
 
-      // Check for time conflicts
-      const timeConflicts = limitedAccessData.some(
-        (day: any, index: number) => {
-          const otherDays = limitedAccessData.slice(index + 1);
-          return otherDays.some(
-            (otherDay: any) =>
-              day.day === otherDay.day &&
-              isTimeOverlap(day.from, day.to, otherDay.from, otherDay.to)
+      // Check for time conflicts within each day
+      const hasTimeConflicts = Object.keys(limitedAccessData).some((day) => {
+        const slots = limitedAccessData[day];
+        return slots.some((currentSlot, index) => {
+          // Check each slot against the subsequent slots in the same day
+          return slots.slice(index + 1).some((otherSlot) =>
+            isTimeOverlap(currentSlot.from_time, currentSlot.to_time, otherSlot.from_time, otherSlot.to_time)
           );
-        }
-      );
+        });
+      });
 
-      if (timeConflicts) {
+      if (hasTimeConflicts) {
         toast({
           variant: "destructive",
           title: "Time slots overlap on the same day",
@@ -346,40 +336,45 @@ const MembershipForm = ({
         return;
       }
 
-      const check = limitedAccessData.some(
-        (day: any) => day?.from != "" && day?.to != ""
-      );
-      const checkFrom = limitedAccessData.some(
-        (day: any) => day?.from != "" && day?.to == ""
-      );
-      const checkTo = limitedAccessData.some(
-        (day: any) => day?.from == "" && day?.to != ""
+      // Check for missing or incomplete time entries
+      const hasCompleteSlot = Object.values(limitedAccessData).some((slots) =>
+        slots.some((slot) => slot.from_time !== "" && slot.to_time !== "")
       );
 
-      if (checkFrom) {
+      const hasMissingFrom = Object.values(limitedAccessData).some((slots) =>
+        slots.some((slot) => slot.from_time === "" && slot.to_time !== "")
+      );
+
+      const hasMissingTo = Object.values(limitedAccessData).some((slots) =>
+        slots.some((slot) => slot.from_time !== "" && slot.to_time === "")
+      );
+
+      if (hasMissingFrom) {
         toast({
           variant: "destructive",
-          title: "Missing from time",
+          title: "Missing 'from' time in a time slot",
         });
         return;
       }
 
-      if (checkTo) {
+      if (hasMissingTo) {
         toast({
           variant: "destructive",
-          title: "Missing till to time",
+          title: "Missing 'to' time in a time slot",
         });
         return;
       }
 
-      if (!check) {
+      if (!hasCompleteSlot) {
         toast({
           variant: "destructive",
-          title: "At least one day needs a time slot",
+          title: "At least one day needs a complete time slot",
         });
         return;
       }
     }
+
+    // Proceed to the next step if validation passes
     if (isStepValid) setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
@@ -396,7 +391,7 @@ const MembershipForm = ({
     setIsOpen(false);
   };
 
-  console.log({ watchers, errors });
+  console.log({ watcher, errors });
 
 
   return (

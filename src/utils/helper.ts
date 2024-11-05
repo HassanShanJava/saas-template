@@ -1,5 +1,6 @@
 import {
   CoachTableDataTypes,
+  LimitedAccessTime,
   MemberTableDatatypes,
   RegisterSession,
   salesReportInterface,
@@ -7,6 +8,17 @@ import {
 } from "@/app/types";
 import Papa from "papaparse";
 import { formatInTimeZone } from "date-fns-tz";
+
+export const daysOrder = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const;
+
 export const displayDate = (value: any) => {
   if (!value) return "N/A";
   const utcDate = new Date(value);
@@ -197,7 +209,7 @@ export const formatNIC = (value?: string) => {
   if (!value) {
     return null;
   }
-  
+
   const numericValue = value.replace(/\D/g, "");
 
   // Add dashes at positions 5 and 12 if length allows
@@ -224,3 +236,30 @@ export const formatToPKR = (amount: number) => {
     minimumFractionDigits: 2
   }).format(amount).replace("PKR", "Rs. ");
 }
+
+
+export function cleanLimitedAccessTime(limitedAccessTime: LimitedAccessTime): LimitedAccessTime {
+  const cleanedAccessTime: LimitedAccessTime = {};
+
+  for (const [day, timeSlots] of Object.entries(limitedAccessTime)) {
+
+    const filteredSlots = timeSlots.filter(
+      (slot) => slot.from_time !== "" || slot.to_time !== ""
+    );
+
+    if (filteredSlots.length > 0) {
+      cleanedAccessTime[day] = filteredSlots;
+    }
+  }
+
+  return cleanedAccessTime;
+}
+
+
+
+
+export const replaceNullWithDefaults = (data: LimitedAccessTime): LimitedAccessTime =>
+  daysOrder.reduce((acc, day) => ({
+    ...acc,
+    [day]: data[day] ?? [{ from_time: "", to_time: "" }],
+  }), {} as LimitedAccessTime);

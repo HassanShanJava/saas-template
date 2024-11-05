@@ -2,9 +2,6 @@
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
-  PaginationState,
-  SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -42,18 +39,18 @@ import { useGetCreditsListQuery, useGetCreditsQuery } from "@/services/creditsAp
 import { useFormContext } from "react-hook-form";
 import { StepperFormValues } from "@/types/hook-stepper";
 
-interface tranformData {
+interface TranformFacilitiesData {
   facility_id: number;
   total_credits: number;
   credits: number;
-  credit_type: string;
+  credit_type?: string;
   count: number;
   validity: {
     type: string | undefined;
     duration: number | undefined;
   };
 }
-interface payloadData {
+interface PayloadData {
   facility_id: number;
   credit_type: string;
   total_credits: number;
@@ -79,14 +76,14 @@ export default function FacilityTableView({
   const { data: facilitiesData, isLoading } = useGetCreditsListQuery(orgId);
   const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
 
-  const creditstableData = React.useMemo(() => {
+  const facilitiestableData = React.useMemo(() => {
     return Array.isArray(facilitiesData) ? facilitiesData : [];
   }, [facilitiesData]);
 
   const { toast } = useToast();
 
-  const [transformedCredits, setTransformedCredits] = useState<
-    tranformData[] | undefined
+  const [transformedFacilities, setTransformedFacilities] = useState<
+    TranformFacilitiesData[] | undefined
   >([]);
 
   const [payload, setPayload] = useState<facilitiesData[]>(getValues("facilities") ? getValues("facilities") : []);
@@ -96,14 +93,14 @@ export default function FacilityTableView({
       facility_id: item.id,
       count: 1,
       credits: item.min_limit,
+      credit_type: undefined,
       total_credits: item.min_limit,
       validity: {
-        duration_type: undefined,
-        duration_no: undefined,
+        type: undefined,
+        duration: undefined,
       },
     }));
 
-    console.log({ data })
 
 
     if (payload.length > 0) {
@@ -133,13 +130,27 @@ export default function FacilityTableView({
 
       setRowSelection(newRowSelection)
       console.log({ result })
-      setTransformedCredits(result as tranformData[]);
+      setTransformedFacilities(result as TranformFacilitiesData[]);
     } else {
-      setTransformedCredits(data);
+      setTransformedFacilities(data as TranformFacilitiesData[]);
     }
 
   }, [facilitiesData, payload]);
 
+  const handleCreditType = (value: string, id?: number) => {
+
+    setTransformedFacilities((prevCredits) => {
+      return prevCredits?.map((credit) => {
+        if (credit.facility_id === id) {
+          return {
+            ...credit,
+            credit_type: value,
+          };
+        }
+        return credit;
+      });
+    });
+  }
 
   const handleChangeRowInput = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -149,7 +160,7 @@ export default function FacilityTableView({
     const { value } = e.target;
     console.log(value, id, key, "input change");
 
-    setTransformedCredits((prevCredits) => {
+    setTransformedFacilities((prevCredits) => {
       return prevCredits?.map((credit) => {
         if (credit.facility_id === id) {
           return {
@@ -165,33 +176,10 @@ export default function FacilityTableView({
     });
   };
 
-
-
-  useEffect(() => {
-    // when ever transformCredits changes it is updated in payload
-    if (transformedCredits && transformedCredits?.length > 0) {
-      const selectedIndexes = Object.keys(rowSelection).filter(
-        (key) => rowSelection[Number(key)]
-      );
-
-      const selectedCredits = transformedCredits
-        ?.filter((_, index) => selectedIndexes.includes(index.toString()))
-        .map(({ facility_id, total_credits, validity }) => ({
-          facility_id,
-          total_credits,
-          validity,
-        }))
-        .filter((item): item is payloadData => item !== null);
-
-      setFacilities(selectedCredits);
-      console.log({ rowSelection, transformedCredits });
-    }
-  }, [rowSelection, transformedCredits]);
-
   const handleChangeRowSelect = (value: string, id?: number, key?: string) => {
     console.log(value, id, key, "input change");
 
-    setTransformedCredits((prevCredits) => {
+    setTransformedFacilities((prevCredits) => {
       return prevCredits?.map((credit) => {
         if (credit.facility_id === id) {
           return {
@@ -209,7 +197,7 @@ export default function FacilityTableView({
   const updateCredit = (id?: number, key?: string) => {
     if (!id || !key) return;
 
-    setTransformedCredits((prevCredits) => {
+    setTransformedFacilities((prevCredits) => {
       return prevCredits?.map((credit) => {
         if (credit.facility_id === id) {
           if (key === "decrement") {
@@ -244,7 +232,35 @@ export default function FacilityTableView({
     });
   };
 
-  console.log({ transformedCredits })
+
+  useEffect(() => {
+    // when ever transformCredits changes it is updated in payload
+    if (transformedFacilities && transformedFacilities?.length > 0) {
+      const selectedIndexes = Object.keys(rowSelection).filter(
+        (key) => rowSelection[Number(key)]
+      );
+
+      const selectedCredits = transformedFacilities
+        ?.filter((_, index) => selectedIndexes.includes(index.toString()))
+        .map(({ facility_id, total_credits, validity, credit_type }) => ({
+          facility_id,
+          total_credits,
+          credit_type,
+          validity: credit_type === "unlimited" ? {
+            type:"",
+            duration: 0,
+          } : validity, // Set validity to {} if credit_type is "unlimited"
+        }))
+        .filter((item): item is PayloadData => item !== null);
+
+      setFacilities(selectedCredits);
+      console.log({ rowSelection, transformedFacilities });
+    }
+  }, [rowSelection, transformedFacilities]);
+
+
+
+  console.log({ transformedFacilities })
   const columns: ColumnDef<creditDetailsTablestypes>[] = [
     {
       id: "select",
@@ -283,39 +299,42 @@ export default function FacilityTableView({
     },
     {
       id: "amount",
-      maxSize: 50,
-      size: 50,
-      minSize: 50,
+
       header: ({ table }) => (
-        <p>Amount</p>
+        <p className="text-nowrap">Credit Type</p>
       ),
-      cell: ({ row }) => (
-        <Select
-
-          defaultValue={'amount'}
-        >
-          <SelectTrigger
-          // name={item.name}
+      cell: ({ row }) => {
+        const Credit = transformedFacilities?.find(credit => credit.facility_id == row.original.id);
+        return row.getIsSelected() && (
+          <Select
+            defaultValue={Credit?.credit_type}
+            onValueChange={(value) => handleCreditType(value, Credit?.facility_id)}
+            
           >
-            <SelectValue
-              placeholder={"Select amount type"}
-            />
-          </SelectTrigger>
+            <SelectTrigger
+              className="h-8 w-32"
+            >
+              <SelectValue
+                placeholder={"Select type"}
+                
+              />
+            </SelectTrigger>
 
-          <SelectContent>
-            <SelectItem
-              value={'amount'}
-            >
-              Amount
-            </SelectItem>
-            <SelectItem
-              value={'unlimited'}
-            >
-              Unlimited
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      ),
+            <SelectContent>
+              <SelectItem
+                value={'amount'}
+              >
+                Amount
+              </SelectItem>
+              <SelectItem
+                value={'unlimited'}
+              >
+                Unlimited
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        )
+      },
       enableSorting: false,
       enableHiding: false,
     },
@@ -324,28 +343,28 @@ export default function FacilityTableView({
       header: "Credits Included",
       cell: ({ row }) => {
         const id = row.original.id;
-        const totalCredit = transformedCredits
-          ?.filter((data) => data?.facility_id == id)
-          .map((item) => item.total_credits);
-        return row.getIsSelected() ? (
-          <div className="flex  items-center gap-2 justify-between !max-w-4xl">
-            <span className="text-xs w-full max-w-40">
+        const Credit = transformedFacilities
+          ?.find((data) => data?.facility_id == id)
+
+        return row.getIsSelected() && Credit?.credit_type === "amount" ? (
+          <div className="flex   items-center gap-2 justify-between !max-w-4xl">
+            <span className="text-xs text-nowrap w-full max-w-40">
               (Min. required credit: {row?.original?.min_limit})
             </span>
 
-            <div className="flex items-center justify-between gap-2 w-full max-w-36 bg-white  border border-primary rounded-lg p-2">
+            <div className="flex h-8  items-center justify-between gap-2 w-full max-w-36 bg-white  border border-primary rounded-lg p-2">
               <button
                 onClick={() => updateCredit(id, "decrement")}
-                className="text-black bg-white border border-primary rounded-lg px-2 py-1"
+                className="text-black bg-white border border-primary rounded-lg h-6 px-1 "
               >
                 <i className="fa fa-minus font-semibold"></i>
               </button>
 
-              <div className="text-black ">{totalCredit}</div>
+              <div className="text-black ">{Credit?.total_credits}</div>
 
               <button
                 onClick={() => updateCredit(id, "increment")}
-                className="text-white bg-primary rounded-lg px-2 py-1"
+                className="text-white bg-primary rounded-lg h-6 px-1"
               >
                 <i className="fa fa-plus font-semibold"></i>
               </button>
@@ -360,38 +379,38 @@ export default function FacilityTableView({
       maxSize: 100,
       cell: ({ row }) => {
         const id = row.original.id;
-        const creditData = transformedCredits?.find(
+        const creditData = transformedFacilities?.find(
           (credit) => credit.facility_id === id
         );
 
-        return row.getIsSelected() ? (
+        return row.getIsSelected() && creditData?.credit_type === "amount" ? (
           <div className="flex items-center gap-2">
             {creditData?.validity.type !== "contract_duration" && <Input
               type="number"
 
               min={1}
               max={15}
-              className=" w-20"
+              className="h-8 w-20"
               autoFocus
               value={creditData?.validity?.duration || ""}
-              onChange={(e) => handleChangeRowInput(e, id, "duration_no")}
+              onChange={(e) => handleChangeRowInput(e, id, "duration")}
             />}
             <Select
               onValueChange={(value) =>
-                handleChangeRowSelect(value, id, "duration_type")
+                handleChangeRowSelect(value, id, "type")
               }
               value={creditData?.validity?.type || ""}
             >
-              <SelectTrigger className="bg-white">
+              <SelectTrigger className="bg-white h-8">
                 <SelectValue placeholder="Select validity" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={"contract_duration"}>Contract Duration</SelectItem>
-                <SelectItem value={"weekly"}>Weekly</SelectItem>
-                <SelectItem value={"monthly"}>Monthly</SelectItem>
-                <SelectItem value={"quarterly"}>Quarterly</SelectItem>
-                <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem>
-                <SelectItem value={"yearly"}>Yearly</SelectItem>
+                <SelectItem value={"week"}>Weekly</SelectItem>
+                <SelectItem value={"month"}>Monthly</SelectItem>
+                <SelectItem value={"quarter"}>Quarterly</SelectItem>
+                {/* <SelectItem value={"bi_annual"}>Bi-Annually</SelectItem> */}
+                <SelectItem value={"year"}>Yearly</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -401,12 +420,15 @@ export default function FacilityTableView({
   ];
 
   const table = useReactTable({
-    data: creditstableData as creditTablestypes[],
+    data: facilitiestableData as creditTablestypes[],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: setRowSelection,
+    state: {
+      rowSelection,
+    }
   });
 
 
@@ -496,7 +518,7 @@ export default function FacilityTableView({
                     ))}
                   </TableRow>
                 ))
-              ) : creditstableData.length > 0 ? (
+              ) : facilitiestableData.length > 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}

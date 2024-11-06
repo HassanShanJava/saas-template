@@ -1,20 +1,16 @@
 import { apiSlice } from "@/features/api/apiSlice";
 import {
-  createRoleTypes,
-  getRolesType,
-  resourceTypes,
-  updateRoleTypes,
-} from "../app/types";
-
-interface TranformedResourceRsp {
-  allResourceData: resourceTypes[];
-  count: number;
-}
+  CreateRoleTypes,
+  GetRolesType,
+  ResourceTypes,
+  TranformedResourceRsp,
+  UpdateRoleTypes,
+} from "@/app/types/roles";
 
 export const Roles = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getRoles: builder.query<getRolesType[], number>({
+      getRoles: builder.query<GetRolesType[], number>({
         query: (org_id) => ({
           url: `/role?org_id=${org_id}`,
           method: "GET",
@@ -33,13 +29,13 @@ export const Roles = apiSlice.injectEndpoints({
           },
           providesTags: ["Roles"],
         }),
-        transformResponse: (resp: resourceTypes[]) => {
+        transformResponse: (resp: ResourceTypes[]) => {
           // Sorting function
-          const sortByIndex = (a: resourceTypes, b: resourceTypes) =>
+          const sortByIndex = (a: ResourceTypes, b: ResourceTypes) =>
             a.index - b.index;
 
           // Recursive sorting function for children
-          const sortResources = (resources: resourceTypes[]): resourceTypes[] =>
+          const sortResources = (resources: ResourceTypes[]): ResourceTypes[] =>
             resources
               .map((resource) => ({
                 ...resource,
@@ -63,13 +59,13 @@ export const Roles = apiSlice.injectEndpoints({
           },
           providesTags: ["Roles"],
         }),
-        transformResponse: (resp: resourceTypes[]) => {
+        transformResponse: (resp: ResourceTypes[]) => {
           // Sorting function
-          const sortByIndex = (a: resourceTypes, b: resourceTypes) =>
+          const sortByIndex = (a: ResourceTypes, b: ResourceTypes) =>
             a.index - b.index;
 
           // Recursive sorting function for children
-          const sortResources = (resources: resourceTypes[]): resourceTypes[] =>
+          const sortResources = (resources: ResourceTypes[]): ResourceTypes[] =>
             resources
               .map((resource) => ({
                 ...resource,
@@ -86,7 +82,7 @@ export const Roles = apiSlice.injectEndpoints({
           return { allResourceData, count };
         },
       }),
-      createRole: builder.mutation<any[], createRoleTypes>({
+      createRole: builder.mutation<any[], CreateRoleTypes>({
         query: (roledata) => ({
           url: `/role`,
           method: "POST",
@@ -97,7 +93,7 @@ export const Roles = apiSlice.injectEndpoints({
           invalidatesTags: ["Roles"],
         }),
       }),
-      updateRole: builder.mutation<any, updateRoleTypes>({
+      updateRole: builder.mutation<any, UpdateRoleTypes>({
         query: (roledata) => ({
           url: `/role`,
           method: "PUT",

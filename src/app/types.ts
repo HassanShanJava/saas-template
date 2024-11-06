@@ -135,31 +135,6 @@ export interface ResetPasswordType {
 }
 
 
-export interface createRoleTypes {
-  org_id: number;
-  status: string;
-  name: string;
-  resource_id: Array<number>;
-  access_type: Array<string>;
-}
-
-export interface updateRoleTypes extends createRoleTypes {
-  id: number;
-}
-export interface resourceTypes {
-  id: number;
-  name: string;
-  code: string | undefined;
-  parent: string | undefined;
-  subRows?: resourceTypes[];
-  access_type?: string;
-  children?: resourceTypes[];
-  is_parent: boolean;
-  index: number;
-  is_root: boolean;
-  link: string;
-  icon: string;
-}
 
 export interface renewalData extends JSONObject {
   days_before: number | null;
@@ -511,17 +486,6 @@ export interface updateStaffInput {
 export interface updateStatusInput {
   lead_id: number;
   status: string;
-}
-
-export interface getRolesType {
-  name: string;
-  status?: boolean;
-  id: number;
-}
-
-export interface createRole {
-  name: string;
-  org_id: number;
 }
 
 export interface CoachInputTypes {

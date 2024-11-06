@@ -70,7 +70,7 @@ import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
-interface searchCriteriaType {
+interface SearchCriteriaType {
   limit: number;
   offset: number;
   sort_order: string;
@@ -104,7 +104,7 @@ export default function MemberTableView() {
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   
   const [searchCriteria, setSearchCriteria] =
-    useState<searchCriteriaType>(initialValue);
+    useState<SearchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
 
   // search input
@@ -633,7 +633,7 @@ export default function MemberTableView() {
     handleFirstPage,
     handleLastPage,
     isLastPage,
-  } = usePagination<searchCriteriaType>({
+  } = usePagination<SearchCriteriaType>({
     totalRecords,
     searchCriteria,
     setSearchCriteria,

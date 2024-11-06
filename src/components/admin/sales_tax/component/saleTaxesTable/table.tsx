@@ -73,7 +73,7 @@ const downloadCSV = (data: saleTaxesTableType[], fileName: string) => {
   document.body.removeChild(link);
 };
 
-interface searchCriteriaType {
+interface SearchCriteriaType {
   limit: number;
   offset: number;
   sort_order: string;
@@ -88,7 +88,7 @@ export default function SaleTaxesTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
-  const [searchCriteria, setSearchCriteria] = useState<searchCriteriaType>({
+  const [searchCriteria, setSearchCriteria] = useState<SearchCriteriaType>({
     limit: 10,
     offset: 0,
     sort_order: "desc",
@@ -391,7 +391,7 @@ export default function SaleTaxesTableView() {
     handleFirstPage,
     handleLastPage,
     isLastPage,
-  } = usePagination<searchCriteriaType>({
+  } = usePagination<SearchCriteriaType>({
     totalRecords,
     searchCriteria,
     setSearchCriteria,

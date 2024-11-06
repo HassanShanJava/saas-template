@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
-  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -19,13 +17,6 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Table,
   TableBody,
   TableCell,
@@ -35,7 +26,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MoreHorizontal, PlusIcon, Search } from "lucide-react";
+import { PlusIcon, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -44,13 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import {
   ErrorType,
-  StaffResponseType,
   staffTypesResponseList,
 } from "@/app/types";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -66,7 +51,6 @@ import {
 } from "@/services/staffsApi";
 import StaffForm, { statusEnum } from "../../staffForm/form";
 import { useDebounce } from "@/hooks/use-debounce";
-import { Separator } from "@/components/ui/separator";
 import { useGetRolesQuery } from "@/services/rolesApi";
 import {
   displayDate,
@@ -74,26 +58,13 @@ import {
   downloadCSV,
   staffMapper,
 } from "@/utils/helper";
-import { Sheet } from "@/components/ui/sheet";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
+import { Gender } from "@/app/shared_enums/enums";
+import { userStatus } from "@/constants/global";
 
-const { VITE_VIEW_S3_URL } = import.meta.env;
-
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-  { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
-];
-enum genderEnum {
-  male = "male",
-  female = "female",
-  other = "other",
-  prefer_no_to_say = "prefer not to say",
-}
-
-interface searchCriteriaType {
+interface SearchCriteriaType {
   limit: number;
   offset: number;
   sort_order: string;
@@ -122,7 +93,7 @@ export default function StaffTableView() {
   } = useGetRolesQuery(orgId);
 
   const [searchCriteria, setSearchCriteria] =
-    useState<searchCriteriaType>(initialValue);
+    useState<SearchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
 
   // search input
@@ -219,7 +190,7 @@ export default function StaffTableView() {
     org_id: number;
     first_name: string;
     last_name: string;
-    gender: genderEnum;
+    gender: Gender;
     dob: string;
     email: string;
     source_id: number;
@@ -460,7 +431,7 @@ export default function StaffTableView() {
         const value =
           row.original?.status != null ? row.original?.status + "" : "pending";
         console.log("value of status", value);
-        const statusLabel = status.filter((r) => r.value === value)[0];
+        const statusLabel = userStatus.filter((r) => r.value === value)[0];
         const id = Number(row.original.id);
         const org_id = Number(row.original.org_id);
 
@@ -496,7 +467,7 @@ export default function StaffTableView() {
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {status.map(
+              {userStatus.map(
                 (item: any) =>
                   !item.hide && (
                     <SelectItem key={item.value + ""} value={item.value + ""}>
@@ -632,7 +603,7 @@ export default function StaffTableView() {
     handleFirstPage,
     handleLastPage,
     isLastPage,
-  } = usePagination<searchCriteriaType>({
+  } = usePagination<SearchCriteriaType>({
     totalRecords,
     searchCriteria,
     setSearchCriteria,

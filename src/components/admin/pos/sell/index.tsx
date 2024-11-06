@@ -51,7 +51,7 @@ import { useGetStaffListQuery } from "@/services/staffsApi";
 import { useGetlastRegisterSessionQuery } from "@/services/registerApi";
 const { VITE_REGISTER_MAX_HOUR } = import.meta.env;
 
-interface searchCriteriaType {
+interface SearchCriteriaType {
   search_key?: string;
 }
 const has24HoursPassed = (date: Date) => {
@@ -121,7 +121,7 @@ const Sell = () => {
   const [dayExceeded, setDayExceeded] = useState<boolean>(false)
 
   // search product
-  const [searchCriteria, setSearchCriteria] = useState<searchCriteriaType>({});
+  const [searchCriteria, setSearchCriteria] = useState<SearchCriteriaType>({});
   const [query, setQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 500);

@@ -72,7 +72,7 @@ import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
 import TableFilters from "@/components/ui/table/data-table-filter";
 
-interface searchCriteriaType {
+interface SearchCriteriaType {
   limit: number;
   offset: number;
   sort_order: string;
@@ -104,7 +104,7 @@ export default function ExerciseTableView() {
   );
 
   const [searchCriteria, setSearchCriteria] =
-    useState<searchCriteriaType>(initialValue);
+    useState<SearchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
 
   const [inputValue, setInputValue] = useState("");
@@ -516,7 +516,7 @@ export default function ExerciseTableView() {
     handleFirstPage,
     handleLastPage,
     isLastPage,
-  } = usePagination<searchCriteriaType>({
+  } = usePagination<SearchCriteriaType>({
     totalRecords,
     searchCriteria,
     setSearchCriteria,

@@ -1,5 +1,6 @@
 import { RootState } from "@/app/store";
-import { counterDataType, CreateCounter, ErrorType } from "@/app/types";
+import { ErrorType } from "@/app/types";
+import { CounterDataType, CreateCounter } from "@/app/types/pos/counter";
 import { useGetStaffListQuery } from "@/services/staffsApi";
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
@@ -45,7 +46,7 @@ interface counterForm {
     setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
     refetch?: any;
     setData?: any;
-    data: counterDataType | undefined;
+    data: CounterDataType | undefined;
 }
 
 
@@ -94,7 +95,7 @@ const CounterForm = ({
     useEffect(() => {
         if (action == "edit" && data) {
             console.log({ data }, "edit");
-            const payload = {...data}
+            const payload = { ...data }
             payload.staff_ids = payload.staff.map((staff: any) => staff.id)
             reset(payload as CreateCounter);
         } else if (action == "add" && data == undefined) {

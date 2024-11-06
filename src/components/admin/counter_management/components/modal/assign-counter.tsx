@@ -1,4 +1,5 @@
-import { counterDataType, ErrorType } from "@/app/types";
+import { ErrorType } from "@/app/types";
+import { CounterDataType } from "@/app/types/pos/counter";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
@@ -24,7 +25,7 @@ interface AssignCounterForm {
 
   refetch?: any;
   setData?: any;
-  data: counterDataType | undefined;
+  data: CounterDataType | undefined;
 }
 
 const AssignCounter = ({

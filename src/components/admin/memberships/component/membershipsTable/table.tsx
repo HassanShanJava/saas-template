@@ -73,7 +73,7 @@ const durationLabels = {
   year: "Years",
 } as const;
 
-interface searchCriteriaType {
+interface SearchCriteriaType {
   limit: number;
   offset: number;
   sort_order: string;
@@ -89,7 +89,7 @@ export default function MembershipsTableView() {
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCriteria, setSearchCriteria] =
-    useState<searchCriteriaType>(initialValue);
+    useState<SearchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
   const [openFilter, setOpenFilter] = useState(false);
   const [filterData, setFilter] = useState<Record<string, any>>({});
@@ -602,7 +602,7 @@ export default function MembershipsTableView() {
     handleFirstPage,
     handleLastPage,
     isLastPage,
-  } = usePagination<searchCriteriaType>({
+  } = usePagination<SearchCriteriaType>({
     totalRecords,
     searchCriteria,
     setSearchCriteria,

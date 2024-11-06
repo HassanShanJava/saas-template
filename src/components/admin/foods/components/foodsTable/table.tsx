@@ -80,7 +80,7 @@ const downloadCSV = (data: CreateFoodTypes[], fileName: string) => {
   document.body.removeChild(link);
 };
 
-interface searchCriteriaType {
+interface SearchCriteriaType {
   limit: number;
   offset: number;
   sort_order: string;
@@ -106,7 +106,7 @@ export default function FoodsTableView() {
   const [data, setData] = useState<CreateFoodTypes | undefined>(undefined);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [searchCriteria, setSearchCriteria] =
-    useState<searchCriteriaType>(initialValue);
+    useState<SearchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
 
   // search input
@@ -452,7 +452,7 @@ export default function FoodsTableView() {
     handleFirstPage,
     handleLastPage,
     isLastPage,
-  } = usePagination<searchCriteriaType>({
+  } = usePagination<SearchCriteriaType>({
     totalRecords,
     searchCriteria,
     setSearchCriteria,

@@ -10,8 +10,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+import { displayValue } from "@/utils/helper";
 
-const displayValue = (value: any) => (value === null ? "N/A" : value);
 import {
   Tooltip,
   TooltipContent,
@@ -31,19 +31,6 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { PlusIcon, Search } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { ErrorType, mealPlanDataType, membeshipsTableType } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
@@ -51,7 +38,6 @@ import Papa from "papaparse";
 import MealPlanForm from "../modal/meal-plan-form";
 import { useGetMealPlansQuery } from "@/services/mealPlansApi";
 import { useDebounce } from "@/hooks/use-debounce";
-import { Separator } from "@/components/ui/separator";
 import TableFilters from "@/components/ui/table/data-table-filter";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useGetFoodsQuery } from "@/services/foodsApi";
@@ -59,6 +45,7 @@ import { useGetMembersListQuery } from "@/services/memberAPi";
 import { visibleFor } from "@/constants/meal_plans";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
+import { MealPlanDataType } from "@/app/types/meal_plan";
 
 const visibleForMap = Object.fromEntries(
   visibleFor.map((vf) => [vf.label, vf.value])
@@ -66,18 +53,7 @@ const visibleForMap = Object.fromEntries(
 
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
-const downloadCSV = (data: membeshipsTableType[], fileName: string) => {
-  const csv = Papa.unparse(data);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
-interface searchCriteriaType {
+interface SearchCriteriaType {
   limit: number;
   offset: number;
   sort_order: string;
@@ -91,7 +67,6 @@ const initialValue = {
   limit: 10,
   offset: 0,
   sort_order: "desc",
-  // sort_key: "created_at",
   sort_key: "id",
 };
 
@@ -105,9 +80,9 @@ export default function MealPlansTableView() {
 
   const [action, setAction] = useState<"add" | "edit">("add");
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [data, setData] = useState<mealPlanDataType | undefined>(undefined);
+  const [data, setData] = useState<MealPlanDataType | undefined>(undefined);
   const [searchCriteria, setSearchCriteria] =
-    useState<searchCriteriaType>(initialValue);
+    useState<SearchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
 
   // search input
@@ -124,8 +99,6 @@ export default function MealPlansTableView() {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
         newCriteria.sort_key = "id";
-        // newCriteria.sort_key = "created_at";
-
         newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
@@ -202,7 +175,7 @@ export default function MealPlansTableView() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const actionsColumn: ColumnDef<mealPlanDataType> = {
+  const actionsColumn: ColumnDef<MealPlanDataType> = {
     accessorKey: "actions",
     header: ({ table }) => <span>Action</span>,
     cell: ({ row }) => {
@@ -219,7 +192,7 @@ export default function MealPlansTableView() {
     enableHiding: false,
   };
 
-  const columns: ColumnDef<mealPlanDataType>[] = [
+  const columns: ColumnDef<MealPlanDataType>[] = [
     {
       accessorKey: "name",
       header: () => (
@@ -368,7 +341,7 @@ export default function MealPlansTableView() {
   ];
 
   const table = useReactTable({
-    data: mealstableData as mealPlanDataType[],
+    data: mealstableData as MealPlanDataType[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -389,7 +362,7 @@ export default function MealPlansTableView() {
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (data: mealPlanDataType) => {
+  const handleEdit = (data: MealPlanDataType) => {
     console.log({ data }, "edit modal");
     const payload = {
       ...data,
@@ -442,7 +415,7 @@ export default function MealPlansTableView() {
     handleFirstPage,
     handleLastPage,
     isLastPage,
-  } = usePagination<searchCriteriaType>({
+  } = usePagination<SearchCriteriaType>({
     totalRecords,
     searchCriteria,
     setSearchCriteria,

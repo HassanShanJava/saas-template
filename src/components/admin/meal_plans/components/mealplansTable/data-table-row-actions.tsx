@@ -19,9 +19,10 @@ import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { ErrorType, mealPlanDataType } from "@/app/types";
+import { ErrorType } from "@/app/types";
 import warning from "@/assets/warning.svg";
 import { useDeleteMealPlansMutation } from "@/services/mealPlansApi";
+import { MealPlanDataType } from "@/app/types/meal_plan";
 
 export function DataTableRowActions({
   data,
@@ -29,7 +30,7 @@ export function DataTableRowActions({
   handleEdit,
   access
 }: {
-  data: mealPlanDataType;
+  data: MealPlanDataType;
   refetch?: any;
   handleEdit?: any;
   access: string

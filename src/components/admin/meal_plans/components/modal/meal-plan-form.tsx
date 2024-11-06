@@ -58,7 +58,7 @@ interface MealPlanForm {
   setAction: React.Dispatch<React.SetStateAction<"add" | "edit">>;
   refetch?: any;
   setData?: any;
-  data?: mealPlanDataType | undefined;
+  data?: MealPlanDataType | undefined;
 }
 
 import { DropzoneOptions } from "react-dropzone";
@@ -73,7 +73,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import uploadimg from "@/assets/upload.svg";
-import { CreateFoodTypes, ErrorType, mealPlanDataType } from "@/app/types";
+import { CreateFoodTypes, ErrorType } from "@/app/types";
 import { useToast } from "@/components/ui/use-toast";
 import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { RootState } from "@/app/store";
@@ -87,6 +87,7 @@ import {
   useUpdateMealPlansMutation,
 } from "@/services/mealPlansApi";
 import { deleteCognitoImage, UploadCognitoImage } from "@/utils/lib/s3Service";
+import { MealPlanDataType } from "@/app/types/meal_plan";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 const chartData = [
@@ -254,7 +255,7 @@ const MealPlanForm = ({
     },
   } satisfies ChartConfig;
 
-  const form = useForm<mealPlanDataType>({
+  const form = useForm<MealPlanDataType>({
     mode: "all",
     defaultValues: initialValue,
   });
@@ -313,7 +314,7 @@ const MealPlanForm = ({
     if (action == "edit" && data) {
       const mealsState = createMealsState();
       setMeals(mealsState);
-      reset(data as mealPlanDataType);
+      reset(data as MealPlanDataType);
       setPieChart([
         {
           food_component: "protein",
@@ -337,7 +338,7 @@ const MealPlanForm = ({
     }
   }, [action, data, reset]);
 
-  const onSubmit = async (input: mealPlanDataType) => {
+  const onSubmit = async (input: MealPlanDataType) => {
     const payload = { org_id: orgId, ...input };
     if (payload.meals?.length == 0) {
       toast({
@@ -837,7 +838,7 @@ const MealPlanForm = ({
                 </div>
                 <div className="flex flex-col gap-2">
                   <Controller
-                    name={"member_id" as keyof mealPlanDataType}
+                    name={"member_id" as keyof MealPlanDataType}
                     rules={{ required: "Required" }}
                     control={control}
                     render={({

@@ -81,7 +81,7 @@ const status = [
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 
-interface searchCriteriaType {
+interface SearchCriteriaType {
   limit: number;
   offset: number;
   sort_order: string;
@@ -105,7 +105,7 @@ export default function CoachTableView() {
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
   const [searchCriteria, setSearchCriteria] =
-    useState<searchCriteriaType>(initialValue);
+    useState<SearchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
 
   // search input
@@ -542,7 +542,7 @@ export default function CoachTableView() {
     handleFirstPage,
     handleLastPage,
     isLastPage,
-  } = usePagination<searchCriteriaType>({
+  } = usePagination<SearchCriteriaType>({
     totalRecords,
     searchCriteria,
     setSearchCriteria,

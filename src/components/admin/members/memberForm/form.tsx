@@ -128,14 +128,9 @@ import { SerializedError } from "@reduxjs/toolkit";
 import { PhoneInput } from "react-international-phone";
 import { formatNIC } from "@/utils/helper";
 import { Input } from "@/components/ui/input";
+import { Gender } from "@/app/shared_enums/enums";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
-enum genderEnum {
-  male = "male",
-  female = "female",
-  other = "other",
-  prefer_no_to_say = "prefer not to say",
-}
 export enum statusEnum {
   pending = "pending",
   active = "active",
@@ -160,7 +155,7 @@ const initialValues: MemberInputTypes = {
   profile_img: "",
   first_name: "",
   last_name: "",
-  gender: genderEnum.male,
+  gender: Gender.Male,
   dob: "",
   nic: "",
   email: "",
@@ -933,10 +928,10 @@ const MemberForm = ({
                           fieldState: { invalid, error },
                         }) => (
                           <Select
-                            onValueChange={(value: genderEnum) =>
+                            onValueChange={(value: Gender) =>
                               setValue("gender", value)
                             }
-                            value={value as genderEnum}
+                            value={value as Gender}
                           >
                             <SelectTrigger
                               floatingLabel="Gender*"

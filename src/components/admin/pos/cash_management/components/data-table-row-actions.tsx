@@ -5,22 +5,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { MoreVertical, Pencil } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import React from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { counterDataType, CreateCounter, ErrorType } from "@/app/types";
-import warning from "@/assets/warning.svg";
+import { CounterDataType } from "@/app/types/pos/counter";
 
 export function DataTableRowActions({
   data,
@@ -28,7 +15,7 @@ export function DataTableRowActions({
   handleEdit,
   access,
 }: {
-  data?: counterDataType;
+  data?: CounterDataType;
   refetch?: any;
   handleEdit?: any;
   access: string;

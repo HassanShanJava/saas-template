@@ -8,13 +8,11 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Switch } from "@/components/ui/switch";
 import "react-international-phone/style.css"; // Import the default styles for the phone input
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { PlusIcon, CameraIcon, Webcam } from "lucide-react";
+import { CameraIcon, Webcam } from "lucide-react";
 import { RxCross2 } from "react-icons/rx";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,21 +47,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import {
   CountryTypes,
   ErrorType,
-  getRolesType,
   sourceTypes,
   StaffInputType,
   staffTypesResponseList,
 } from "@/app/types";
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
-import { Label } from "@/components/ui/label";
 import {
   useGetAllSourceQuery,
   useGetCountriesQuery,
@@ -71,7 +66,6 @@ import {
 import { useGetRolesQuery } from "@/services/rolesApi";
 import {
   useAddStaffMutation,
-  useGetStaffByIdQuery,
   useGetStaffCountQuery,
   useUpdateStaffMutation,
 } from "@/services/staffsApi";
@@ -88,21 +82,14 @@ import { Separator } from "@/components/ui/separator";
 import { PhoneInput } from "react-international-phone";
 import { PhoneNumberUtil } from "google-libphonenumber";
 import { Info } from "lucide-react";
+import { Gender } from "@/app/shared_enums/enums";
 const { VITE_VIEW_S3_URL } = import.meta.env;
-
-enum genderEnum {
-  male = "male",
-  female = "female",
-  other = "other",
-  prefer_no_to_say = "prefer not to say",
-}
 
 export enum statusEnum {
   pending = "pending",
   active = "active",
   inactive = "inactive",
 }
-
 interface StaffFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   open: boolean;
@@ -129,7 +116,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
 
   const initialState: StaffInputType = {
     profile_img: "",
-    gender: genderEnum.male,
+    gender: Gender.Male,
     org_id: orgId,
     own_staff_id: "",
     first_name: "",
@@ -179,7 +166,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
       .trim()
       .max(40, "Should be 40 characters or less")
       .min(3, { message: "Required" }),
-    gender: z.nativeEnum(genderEnum, {
+    gender: z.nativeEnum(Gender, {
       required_error: "You need to select a gender type.",
     }),
     dob: z.coerce
@@ -673,10 +660,10 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value: genderEnum) =>
+                          onValueChange={(value: Gender) =>
                             form.setValue("gender", value)
                           }
-                          value={field.value as genderEnum}
+                          value={field.value as Gender}
                         >
                           <FormControl>
                             <SelectTrigger

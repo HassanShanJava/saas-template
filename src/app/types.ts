@@ -1,14 +1,5 @@
 import { JSONObject } from "@/types/hook-stepper";
-
-
-
-
-enum genderEnum {
-  male = "male",
-  female = "female",
-  other = "other",
-  prefer_no_to_say = "prefer not to say",
-}
+import { Gender } from "./shared_enums/enums";
 
 export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
 
@@ -51,7 +42,7 @@ export interface SellForm {
   member_name?: string | null;
   member_email?: string | null;
   member_address?: string | null;
-  member_gender?: genderEnum | null;
+  member_gender?: Gender | null;
   member_nic?: string;
   notes?: string;
   staff_id?: number | null;
@@ -133,33 +124,6 @@ export interface CreateTransaction {
     total: number;
     tax_amount: number;
   }[];
-}
-export interface counterTableType {
-  data: counterDataType[];
-  total_counts: number;
-  filtered_counts: number;
-}
-
-export interface counterDataType {
-  id?: number;
-  name: string;
-  staff: {
-    id: number;
-    name: string;
-  }[];
-  staff_ids?: number[];
-  staff_id?: number | null;
-  status?: string;
-  is_open?: boolean;
-}
-
-export interface CreateCounter {
-  id?: number | null;
-  name?: string;
-  staff_ids?: number[];
-  status?: string;
-  staff_id?: number | null;
-  is_open?: boolean;
 }
 
 export interface mealPlanTableType {
@@ -601,7 +565,7 @@ export interface MemberInputTypes {
   own_member_id?: string;
   first_name?: string;
   last_name?: string;
-  gender?: genderEnum;
+  gender?: Gender;
   dob?: Date | string;
   nic?: string;
   email?: string;
@@ -682,7 +646,7 @@ export interface MemberTableDatatypes {
   first_name?: string;
   nic?: string;
   last_name?: string;
-  gender?: genderEnum;
+  gender?: Gender;
   dob?: Date | string;
   email?: string;
   phone?: string;
@@ -720,7 +684,7 @@ export interface MemberTableResponseDatatypes {
   first_name?: string;
   last_name?: string;
   nic?: string;
-  gender?: genderEnum;
+  gender?: Gender;
   dob?: Date | string;
   email?: string;
   phone?: string;
@@ -757,7 +721,7 @@ export interface CoachTableTypes {
   own_coach_id: string;
   first_name: string;
   last_name: string;
-  gender?: genderEnum;
+  gender?: Gender;
   dob: string;
   email: string;
   nic?: string;
@@ -808,7 +772,7 @@ export interface CoachInputTypes {
   own_coach_id?: string;
   first_name?: string;
   last_name?: string;
-  gender?: genderEnum;
+  gender?: Gender;
   dob?: string;
   email?: string;
   phone?: string;
@@ -840,7 +804,7 @@ export interface addCoachResponseType {
   last_name: string;
   nic?: string;
   dob: string;
-  gender?: genderEnum;
+  gender?: Gender;
   email: string;
   phone?: string;
   mobile_number?: string;
@@ -875,7 +839,7 @@ export interface CoachResponseType {
   last_name: string;
   dob: string;
   nic?: string;
-  gender?: genderEnum;
+  gender?: Gender;
   email: string;
   password?: string;
   phone?: string;
@@ -919,7 +883,7 @@ export interface CoachTableDataTypes {
   first_name: string;
   last_name: string;
   dob: string; // ISO date string
-  gender: genderEnum;
+  gender: Gender;
   email: string;
   nic?: string;
   phone?: string;
@@ -951,7 +915,7 @@ export interface CoachResponseTypeById {
   first_name: string;
   last_name: string;
   dob: string; // ISO date string
-  gender: genderEnum;
+  gender: Gender;
   nic?: string;
   email: string;
   phone?: string;
@@ -983,7 +947,7 @@ export interface ServerResponseById {
   first_name: string;
   last_name: string;
   dob: string; // ISO date string
-  gender: genderEnum;
+  gender: Gender;
   email: string;
   nic?: string;
   phone?: string;
@@ -1014,7 +978,7 @@ export interface StaffInputType {
   own_staff_id: string;
   first_name: string;
   last_name: string;
-  gender: genderEnum;
+  gender: Gender;
   dob: string;
   email: string;
   phone?: string;
@@ -1037,7 +1001,7 @@ export interface StaffResponseType {
   profile_img?: string;
   first_name: string;
   last_name: string;
-  gender: genderEnum;
+  gender: Gender;
   dob: string;
   email: string;
   phone?: string;
@@ -1069,7 +1033,7 @@ export interface staffTypesResponseList {
   profile_img?: string;
   first_name: string;
   last_name: string;
-  gender: genderEnum;
+  gender: Gender;
   dob: string;
   email: string;
   phone?: string;
@@ -1101,7 +1065,7 @@ export interface coachUpdateInput {
   first_name?: string;
   last_name?: string;
   dob?: string;
-  gender?: genderEnum;
+  gender?: Gender;
   email?: string;
   nic?: string;
   password?: string;
@@ -1681,7 +1645,7 @@ export interface salesReportInterface {
   member_name: string;
   member_email: string;
   member_address: string;
-  member_gender: genderEnum;
+  member_gender: Gender;
   staff_id: number;
   staff_name: string;
   receipt_number: string;

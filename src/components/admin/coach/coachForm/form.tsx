@@ -95,14 +95,9 @@ import { PhoneInput } from "react-international-phone";
 import { RxCross2 } from "react-icons/rx";
 import { formatNIC } from "@/utils/helper";
 import { BaseQueryFn } from "@reduxjs/toolkit/query";
+import { Gender } from "@/app/shared_enums/enums";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
-enum genderEnum {
-  male = "male",
-  female = "female",
-  other = "other",
-  prefer_no_to_say = "prefer not to say",
-}
 type RefetchType = ReturnType<typeof useGetCoachesQuery>["refetch"];
 
 interface CoachFormProps {
@@ -138,7 +133,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     own_coach_id: "",
     first_name: "",
     last_name: "",
-    gender: genderEnum.male,
+    gender: Gender.Male,
     dob: "",
     email: "",
     phone: "",
@@ -179,7 +174,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .trim()
       .max(40, "Sbould be 40 characters or less")
       .min(3, { message: "Required" }),
-    gender: z.nativeEnum(genderEnum, {
+    gender: z.nativeEnum(Gender, {
       required_error: "You need to select a gender type.",
     }),
     dob: z.coerce
@@ -867,10 +862,10 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     render={({ field }) => (
                       <FormItem>
                         <Select
-                          onValueChange={(value: genderEnum) =>
+                          onValueChange={(value: Gender) =>
                             form.setValue("gender", value)
                           }
-                          value={field.value as genderEnum}
+                          value={field.value as Gender}
                         >
                           <FormControl>
                             <SelectTrigger

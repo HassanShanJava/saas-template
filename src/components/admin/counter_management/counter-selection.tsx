@@ -7,7 +7,8 @@ import { useGetCountersQuery, useUpdateCountersMutation } from '@/services/count
 import { useSelector } from 'react-redux'
 import { RootState } from '@/app/store'
 import { useEffect, useMemo } from 'react'
-import { counterDataType, ErrorType } from '@/app/types'
+import { CounterDataType } from "@/app/types/pos/counter";
+import { ErrorType } from "@/app/types";
 import { toast } from '@/components/ui/use-toast'
 const CounterSelection = () => {
     const { pos_count } = JSON.parse(
@@ -23,7 +24,7 @@ const CounterSelection = () => {
 
     const [assignCounter, { isLoading: isUpdating, isError }] = useUpdateCountersMutation()
 
-    const assignSingleCounter = async (counter: counterDataType, toastMsg?: string) => {
+    const assignSingleCounter = async (counter: CounterDataType, toastMsg?: string) => {
         if (counter.staff) {
             // staff array
             const singleCounter = counter.staff[0];

@@ -39,7 +39,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { counterDataType, CreateCounter, ErrorType } from "@/app/types";
+import { CounterDataType } from "@/app/types/pos/counter";
+import { ErrorType } from "@/app/types";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
@@ -61,7 +62,7 @@ import Pagination from "@/components/ui/table/pagination-table";
 import { Badge } from "@/components/ui/badge";
 import { status } from "@/constants/global";
 
-const downloadCSV = (data: counterDataType[], fileName: string) => {
+const downloadCSV = (data: CounterDataType[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
@@ -193,7 +194,7 @@ export default function CounterTableView() {
   const { toast } = useToast();
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [data, setData] = useState<counterDataType | undefined>(undefined);
+  const [data, setData] = useState<CounterDataType | undefined>(undefined);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
@@ -211,7 +212,7 @@ export default function CounterTableView() {
     downloadCSV(selectedRows, "selected_data.csv");
   };
 
-  const actionsColumn: ColumnDef<counterDataType> = {
+  const actionsColumn: ColumnDef<CounterDataType> = {
     accessorKey: "action",
     header: ({ table }) => <span>Action</span>,
     cell: ({ row }) => (
@@ -226,7 +227,7 @@ export default function CounterTableView() {
     enableHiding: false,
   };
 
-  const columns: ColumnDef<counterDataType>[] = [
+  const columns: ColumnDef<CounterDataType>[] = [
     {
       accessorKey: "name",
       meta: "Counter Name",
@@ -385,7 +386,7 @@ export default function CounterTableView() {
   ];
 
   const table = useReactTable({
-    data: counterTableData as counterDataType[],
+    data: counterTableData as CounterDataType[],
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -438,13 +439,13 @@ export default function CounterTableView() {
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (data: counterDataType) => {
+  const handleEdit = (data: CounterDataType) => {
     setAction("edit");
     setData(data);
     setIsDialogOpen(true);
   };
 
-  const handleViewCashier = (data: counterDataType) => {
+  const handleViewCashier = (data: CounterDataType) => {
     setData(data);
     setAssignCounter(true);
   };

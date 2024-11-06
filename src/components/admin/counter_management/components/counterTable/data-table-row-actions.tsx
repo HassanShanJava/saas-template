@@ -19,17 +19,17 @@ import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { counterDataType, CreateCounter, ErrorType } from "@/app/types";
+import { CounterDataType } from "@/app/types/pos/counter";
+import { ErrorType } from "@/app/types";
 import warning from "@/assets/warning.svg";
 import { useDeleteCounterMutation } from "@/services/counterApi";
-
 export function DataTableRowActions({
   data,
   refetch,
   handleEdit,
   access
 }: {
-  data: counterDataType;
+  data: CounterDataType;
   refetch?: any;
   handleEdit?: any;
   access: string
@@ -103,7 +103,7 @@ export function DataTableRowActions({
                 <div className="flex flex-col items-center  justify-center gap-4">
                   <img src={warning} alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                  Are you sure you want to delete this counter? This action cannot be undone.
+                    Are you sure you want to delete this counter? This action cannot be undone.
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

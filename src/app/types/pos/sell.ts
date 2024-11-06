@@ -1,9 +1,5 @@
-enum genderEnum {
-    male = "male",
-    female = "female",
-    other = "other",
-    prefer_no_to_say = "prefer not to say",
-  }
+import { Gender } from "@/app/shared_enums/enums";
+
   
 export interface SellItem {
     item_id: number;
@@ -35,7 +31,7 @@ export interface SellItem {
     member_name?: string | null;
     member_email?: string | null;
     member_address?: string | null;
-    member_gender?: genderEnum | null;
+    member_gender?: Gender | null;
     member_nic?: string;
     notes?: string;
     staff_id?: number | null;

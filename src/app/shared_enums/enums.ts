@@ -29,7 +29,7 @@ export enum ExerciseIntensity {
   Irm = "irm",
 }
 
-enum Visibility {
+export enum Visibility {
   OnlyMyself = "Only Myself",
   StaffOfMyClub = "Staff of My Club",
   MembersOfMyClub = "Members of My Club",

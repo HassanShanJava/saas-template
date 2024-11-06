@@ -1,15 +1,10 @@
-import { mealPlanDataType, mealPlanTableType } from "@/app/types";
+import { MealPlanDataType, MealPlanTableType, MealPlansInput } from "@/app/types/meal_plan";
 import { apiSlice } from "@/features/api/apiSlice";
-
-interface mealPlansInput {
-  query: string;
-  org_id: number;
-}
 
 export const MealPlans = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getMealPlans: builder.query<mealPlanTableType, mealPlansInput>({
+      getMealPlans: builder.query<MealPlanTableType, MealPlansInput>({
         query: (searchCretiria) => ({
           url: `/meal_plans?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
@@ -19,7 +14,7 @@ export const MealPlans = apiSlice.injectEndpoints({
         }),
         providesTags: ["MealPlans"],
       }),
-      createMealPlans: builder.mutation<any, mealPlanDataType>({
+      createMealPlans: builder.mutation<any, MealPlanDataType>({
         query: (mealdata) => ({
           url: `/meal_plans`,
           method: "POST",
@@ -30,7 +25,7 @@ export const MealPlans = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["MealPlans"],
       }),
-      updateMealPlans: builder.mutation<any, mealPlanDataType>(
+      updateMealPlans: builder.mutation<any, MealPlanDataType>(
         {
           query: (mealdata) => ({
             url: `/meal_plans`,
@@ -53,7 +48,7 @@ export const MealPlans = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["MealPlans"],
       }),
-      getMealPlanById: builder.query<mealPlanDataType, number>({
+      getMealPlanById: builder.query<MealPlanDataType, number>({
         query: (meal_plan_id) => ({
           url: `/meal_plans/${meal_plan_id}`,
           method: "GET",

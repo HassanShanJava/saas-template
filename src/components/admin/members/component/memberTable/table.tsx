@@ -36,10 +36,13 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import {
   ErrorType,
+} from "@/app/types";
+import {
   MemberInputTypes,
   MemberTableDatatypes,
   MemberTabletypes,
-} from "@/app/types";
+} from "@/app/types/member";
+
 import {
   Tooltip,
   TooltipContent,

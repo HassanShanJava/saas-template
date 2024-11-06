@@ -29,14 +29,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  MultiSelector,
-  MultiSelectorContent,
-  MultiSelectorInput,
-  MultiSelectorItem,
-  MultiSelectorList,
-  MultiSelectorTrigger,
-} from "@/components/ui/multiselect/multiselect";
+
 import { Switch } from "@/components/ui/switch";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -93,13 +86,17 @@ import {
   CoachTypes,
   CountryTypes,
   ErrorType,
-  MemberInputTypes,
   membershipplanTypes,
-  MemberTableDatatypes,
+
   membeshipsTableType,
   renewalData,
   sourceTypes,
 } from "@/app/types";
+import {
+  MemberInputTypes,
+  MemberTableDatatypes,
+} from "@/app/types/member";
+
 import "react-international-phone/style.css"; // Import the default styles for the phone input
 
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
@@ -1257,8 +1254,8 @@ const MemberForm = ({
                           <div className="relative">
                             <label
                               className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${value
-                                  ? "text-xs -top-2.5"
-                                  : "text-xs text-black"
+                                ? "text-xs -top-2.5"
+                                : "text-xs text-black"
                                 }`}
                             >
                               Business
@@ -1435,8 +1432,8 @@ const MemberForm = ({
                           <div className="flex flex-col w-full relative">
                             <label
                               className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${value
-                                  ? "text-xs -top-2.5"
-                                  : "text-xs text-black"
+                                ? "text-xs -top-2.5"
+                                : "text-xs text-black"
                                 }`}
                             >
                               Country

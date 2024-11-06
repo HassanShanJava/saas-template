@@ -1,21 +1,18 @@
 import {
   CountryTypes,
   BusinessTypes,
-  CoachTypes,
   sourceTypes,
-  MemberInputTypes,
+} from "../app/types";
+
+import { apiSlice } from "@/features/api/apiSlice";
+import {
   MemberResponseTypes,
   MemberTabletypes,
-  deleteMemberTypes,
-  MemberTableResponseDatatypes,
   MemberTableDatatypes,
   MemberTableResponsetypes,
-} from "../app/types";
-import { apiSlice } from "@/features/api/apiSlice";
-interface memberInput {
-  query: string;
-  org_id: number;
-}
+  MemberInputTypes,
+  MemberInput
+} from "@/app/types/member"
 
 export const MemberAPi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -56,7 +53,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
         },
       }),
     }),
-    getAllMember: builder.query<MemberTabletypes, memberInput>({
+    getAllMember: builder.query<MemberTabletypes, MemberInput>({
       query: (searchCretiria) => ({
         url: `/member?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
         method: "GET",
@@ -78,7 +75,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Members"],
     }),
-    getMemberById: builder.query<MemberInputTypes, {org_id:number,id:number}>({
+    getMemberById: builder.query<MemberInputTypes, { org_id: number, id: number }>({
       query: (member) => ({
         url: `/member/${member.id}??org_id=${member.org_id}`,
         method: "GET",
@@ -115,7 +112,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Members"],
     }),
-    deleteMember: builder.mutation<MemberResponseTypes, {org_id:number,id:number}>({
+    deleteMember: builder.mutation<MemberResponseTypes, { org_id: number, id: number }>({
       query: (member) => ({
         url: `/member/${member.id}?org_id=${member.org_id}`,
         method: "DELETE",
@@ -137,10 +134,10 @@ export const MemberAPi = apiSlice.injectEndpoints({
       transformResponse: (response: { id: number; name: string }[]) =>
         response.map((item: any) => ({ value: item.id, label: item.name })),
     }),
-    getMembersAutoFill: builder.query<MemberTableDatatypes, {org_id:number,email:string}>({
+    getMembersAutoFill: builder.query<MemberTableDatatypes, { org_id: number, email: string }>({
       query: (member) => ({
         url: `/member/${member.email}/?org_id=${member.org_id}`,
-        method:"GET",
+        method: "GET",
         headers: {
           Accept: "application/json",
         },

@@ -19,7 +19,8 @@ import {
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
-import { ErrorType, MemberTableDatatypes } from "@/app/types";
+import { ErrorType } from "@/app/types";
+import { MemberTableDatatypes } from "@/app/types/member";
 import { toast } from "@/components/ui/use-toast";
 import { useDeleteMemberMutation } from "@/services/memberAPi";
 import { useNavigate } from "react-router-dom";

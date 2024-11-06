@@ -1,11 +1,12 @@
 import {
   CoachTableDataTypes,
   LimitedAccessTime,
-  MemberTableDatatypes,
+  
   RegisterSession,
   salesReportInterface,
   staffTypesResponseList,
 } from "@/app/types";
+import { MemberTableDatatypes } from "@/app/types/member";
 import Papa from "papaparse";
 import { formatInTimeZone } from "date-fns-tz";
 

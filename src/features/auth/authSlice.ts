@@ -1,4 +1,4 @@
-import { resourceTypes } from "@/app/types";
+import { ResourceTypes } from "@/app/types/roles";
 import { getUserResource, loginUser } from "@/services/authService";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface User {
@@ -106,11 +106,11 @@ export const login = createAsyncThunk(
       const payload: Record<string, any> = { ...data }
       const accessLevels = extractAccessCodes(userResource)
       if (userResource && accessLevels) {
-        const sortByIndex = (a: resourceTypes, b: resourceTypes) =>
+        const sortByIndex = (a: ResourceTypes, b: ResourceTypes) =>
           a.index - b.index;
 
         // Recursive sorting function for children
-        const sortResources = (resources: resourceTypes[]): resourceTypes[] =>
+        const sortResources = (resources: ResourceTypes[]): ResourceTypes[] =>
           resources
             .map((resource) => ({
               ...resource,
@@ -144,7 +144,7 @@ export const login = createAsyncThunk(
         })
 
         // 3. extract the pos sidepanel if possible
-        const posPanel = filterUserResource.find((item: resourceTypes) => item.is_root && item.code == "pos")
+        const posPanel = filterUserResource.find((item: ResourceTypes) => item.is_root && item.code == "pos")
         
         // 4. set sidepanel in localstorage as base64 encoded 
         const stringifiedData = JSON.stringify(filterUserResource);

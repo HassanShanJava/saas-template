@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/accordion";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { resourceTypes } from "@/app/types";
+import { ResourceTypes } from "@/app/types/roles";
 import { useDispatch } from "react-redux";
 import {
   backPageCount,
@@ -50,9 +50,9 @@ const DashboardLayout: React.FC = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [seperatePanel, setSeperatePanel] = useState<resourceTypes[]>([]);
+  const [seperatePanel, setSeperatePanel] = useState<ResourceTypes[]>([]);
   const [backtogym, setBacktogym] = useState<string>("");
-  const [sidePanel, setSidePanel] = useState<resourceTypes[]>([]);
+  const [sidePanel, setSidePanel] = useState<ResourceTypes[]>([]);
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );

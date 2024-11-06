@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { ErrorType, resourceTypes } from "@/app/types";
+import { ErrorType } from "@/app/types";
+import { ResourceTypes } from "@/app/types/roles";
+
 import {
   Sheet,
   SheetContent,
@@ -87,9 +89,9 @@ export const RoleForm = ({
 
   console.log({ formData });
 
-  const createAccess = (array: resourceTypes[]) => {
+  const createAccess = (array: ResourceTypes[]) => {
     const noAccessMap: Record<number, string> = {};
-    array.forEach((item: resourceTypes) => {
+    array.forEach((item: ResourceTypes) => {
       if (item.is_root) {
         noAccessMap[item.id] = "no_access";
       }
@@ -106,7 +108,6 @@ export const RoleForm = ({
     if (data?.allResourceData && formData.case == "add") {
       createAccess(data?.allResourceData);
     } else if (formData.case == "edit") {
-      // createAccess(formData.tableAccess as resourceTypes);
       console.log(formData.tableAccess, "formData.tableAccess");
       setAccess(formData.tableAccess);
       form.reset(formData);
@@ -134,7 +135,6 @@ export const RoleForm = ({
 
   const resetFormAndCloseDialog = () => {
     form.clearErrors();
-    // createAccess(data?.allResourceData as resourceTypes[])
 
     setFormData((prev: any) => ({
       ...prev,
@@ -146,12 +146,11 @@ export const RoleForm = ({
       status: "active",
       name: "",
     });
-    createAccess(data?.allResourceData as resourceTypes[]);
+    createAccess(data?.allResourceData as ResourceTypes[]);
   };
 
   const handleClose = () => {
     form.clearErrors();
-    // createAccess(data?.allResourceData as resourceTypes[])
 
     setFormData((prev: any) => ({
       ...prev,
@@ -229,7 +228,7 @@ export const RoleForm = ({
     }
   };
 
-  const columns: ColumnDef<resourceTypes>[] = [
+  const columns: ColumnDef<ResourceTypes>[] = [
     {
       accessorKey: "name",
       header: "Module",
@@ -327,7 +326,7 @@ export const RoleForm = ({
   ];
 
   const table = useReactTable({
-    data: allResourceTableData as resourceTypes[],
+    data: allResourceTableData as ResourceTypes[],
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: {
@@ -541,11 +540,11 @@ export const RoleForm = ({
   );
 };
 
-const convertToTableData = (data: resourceTypes[]) => {
-  const processItem = (item: resourceTypes) => {
+const convertToTableData = (data: ResourceTypes[]) => {
+  const processItem = (item: ResourceTypes) => {
     if (item.children) {
       // Recursively process each child and convert `children` to `subRows`
-      const newItem: resourceTypes = {
+      const newItem: ResourceTypes = {
         ...item,
         subRows: item.children.map(processItem),
       };

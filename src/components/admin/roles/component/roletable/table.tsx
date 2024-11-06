@@ -25,11 +25,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getRolesType, resourceTypes } from "@/app/types";
+import { GetRolesType, ResourceTypes } from "@/app/types/roles";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RootState, AppDispatch } from "@/app/store";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { RootState } from "@/app/store";
+import { useSelector } from "react-redux";
 import { useGetResourcesQuery, useGetRolesQuery } from "@/services/rolesApi";
 import { RoleForm } from "./../../roleform/form";
 
@@ -55,9 +54,7 @@ export default function RoleTableView() {
     error: rolesError,
   } = useGetRolesQuery(orgId);
 
-  const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(
-    undefined
-  );
+  const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(undefined);
 
   const {
     data: resourceData,
@@ -73,7 +70,7 @@ export default function RoleTableView() {
   }, [resourceData]);
   console.log("data", { resourceData, error, permissionTableData });
 
-  const columns: ColumnDef<resourceTypes>[] = [
+  const columns: ColumnDef<ResourceTypes>[] = [
     {
       accessorKey: "name",
       header: "Module",
@@ -173,7 +170,7 @@ export default function RoleTableView() {
   }, [resourceData]);
 
   const table = useReactTable({
-    data: permissionTableData as resourceTypes[],
+    data: permissionTableData as ResourceTypes[],
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: {
@@ -243,7 +240,7 @@ export default function RoleTableView() {
               </SelectTrigger>
               <SelectContent>
                 {rolesData && rolesData.length > 0 ? (
-                  rolesData?.map((sourceval: getRolesType) => {
+                  rolesData?.map((sourceval: GetRolesType) => {
                     console.log({ sourceval });
                     return (
                       <SelectItem
@@ -376,11 +373,11 @@ export default function RoleTableView() {
   );
 }
 
-const convertToTableData = (data: resourceTypes[]) => {
-  const processItem = (item: resourceTypes) => {
+const convertToTableData = (data: ResourceTypes[]) => {
+  const processItem = (item: ResourceTypes) => {
     if (item.children) {
       // Recursively process each child and convert `children` to `subRows`
-      const newItem: resourceTypes = {
+      const newItem: ResourceTypes = {
         ...item,
         subRows: item.children.map(processItem),
       };
@@ -395,10 +392,10 @@ const convertToTableData = (data: resourceTypes[]) => {
   return data.map(processItem);
 };
 
-const createTableAccess = (array: resourceTypes[]) => {
+const createTableAccess = (array: ResourceTypes[]) => {
   const accessMap: Record<number, string> = {};
 
-  const processItem = (item: resourceTypes) => {
+  const processItem = (item: ResourceTypes) => {
     if (item.access_type) {
       accessMap[item.id] = item.access_type;
     }

@@ -11,10 +11,7 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-];
+
 
 import {
   Tooltip,
@@ -49,14 +46,8 @@ import { useSelector } from "react-redux";
 import Papa from "papaparse";
 import { useDebounce } from "@/hooks/use-debounce";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { Separator } from "@/components/ui/separator";
-import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import { ChevronLeftIcon } from "lucide-react";
+
 import { displayValue } from "@/utils/helper";
-import { counterList } from "@/constants/counter";
 import AssignCounter from "../modal/assign-counter";
 import CounterForm from "../modal/counter-form";
 import {
@@ -68,6 +59,7 @@ import { useGetStaffListQuery, useGetStaffsQuery } from "@/services/staffsApi";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
 import { Badge } from "@/components/ui/badge";
+import { status } from "@/constants/global";
 
 const downloadCSV = (data: counterDataType[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -587,8 +579,7 @@ export default function CounterTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) : // ) : isLoading ? (
-                false ? (
+              ) :  isLoading ? (
                   <TableRow>
                     <TableCell
                       colSpan={columns.length}

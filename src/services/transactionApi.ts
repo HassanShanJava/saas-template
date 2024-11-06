@@ -39,10 +39,11 @@ export const Transaction = apiSlice.injectEndpoints({
         }),
         providesTags: ["Transaction"],
       }),
-      patchTransaction: builder.mutation<any, { status: string, id:number }>({
+      patchTransaction: builder.mutation<any, { status: string, id: number }>({
         query: (payload) => ({
           url: `/pos/transactions/${payload.id}/status`,
           method: "PATCH",
+          body: { status: payload.status },
           headers: {
             Accept: "application/json",
           },

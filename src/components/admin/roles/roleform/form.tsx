@@ -52,11 +52,7 @@ import {
   useGetAllResourcesQuery,
   useUpdateRoleMutation,
 } from "@/services/rolesApi";
-
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-];
+import { status } from "@/constants/global";
 
 export const RoleForm = ({
   data: formData,

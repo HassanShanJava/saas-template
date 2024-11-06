@@ -30,6 +30,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
     const [printInvoice, setPrintInvoice] = useState<boolean>(false)
     const { data: enabledPayments } = useGetAllEnabledPaymentMethodsQuery({})
     const [payments, setPayments] = useState<paymentItem[]>([])
+
     const [selectedMethods, setSelectedMethods] = useState<{ [key: string]: boolean }>({});
     const [amounts, setAmounts] = useState<{ [key: string]: string }>({});
 
@@ -91,12 +92,18 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                     // Remove the iframe after printing
                     setTimeout(() => {
                         document.body.removeChild(iframe);
+                        handleReset()
                     }, 1000);
                 };
+
+
             }
         }
         setPrintInvoice(false)
     };
+
+    const paymentsTotal = watcher.payments.reduce((acc: number, payment: Payments) => acc + payment.amount, 0);
+    const isTotalReached = paymentsTotal === watcher.total;
 
     useEffect(() => {
         // Initialize selectedMethods and amounts based on the available payment methods.
@@ -105,8 +112,8 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             const initialAmounts: { [key: string]: string } = {};
 
             enabledPayments.forEach((method: any) => {
-                initialSelectedMethods[method.code] = false;
-                initialAmounts[method.code] = '';
+                initialSelectedMethods[method.name] = false;
+                initialAmounts[method.name] = '';
             });
 
             setSelectedMethods(initialSelectedMethods);
@@ -155,7 +162,6 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             0
         );
 
-        console.log({ totalPayments })
         if (totalPayments > Math.round(watcher.total)) {
             toast({
                 variant: "destructive",
@@ -185,6 +191,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             if (!payload.id) {
                 // for new complete sale or refund 
                 payload.status = "Paid"
+                console.log({ payload }, "create checkout completed")
                 const resp = await createTransaction(payload).unwrap();
                 if (resp) {
                     toast({
@@ -241,6 +248,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         setShowCheckout(false)
     }
 
+
     return (
 
         <div className=" ">
@@ -276,6 +284,14 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
 
                             </div>
                             <Separator />
+                            <p className="text-xl font-bold mb-4">Payment Method</p>
+                            {watcher.payments.map((payment: Payments) => (
+                                <div className="flex justify-between items-center">
+                                    <div>{payment.payment_method}</div>
+                                    <div className="font-bold">{payment.amount}</div>
+                                </div>
+                            ))}
+                            <Separator />
                             <div className="flex justify-between items-center">
                                 <div>Subtotal</div>
                                 <div className="font-bold">{roundToTwoDecimals(watcher.subtotal)}</div>
@@ -308,11 +324,11 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                         className="bg-[#ebe9e9] flex items-center space-x-3 p-4 border rounded"
                                     >
                                         <Checkbox
-                                            id={method.code}
-                                            disabled={invoiceId != null}
-                                            checked={selectedMethods[method.code]}
+                                            id={method.name}
+                                            disabled={invoiceId != null || (isTotalReached && !selectedMethods[method.name])}
+                                            checked={selectedMethods[method.name]}
                                             onCheckedChange={(checked) => {
-                                                setSelectedMethods((prev) => ({ ...prev, [method.code]: checked === true }));
+                                                setSelectedMethods((prev) => ({ ...prev, [method.name]: checked === true }));
 
                                                 if (!checked) {
 
@@ -320,7 +336,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                                         prevPayments.filter((payment) => payment.payment_method_id !== method.id)
                                                     );
 
-                                                    setAmounts((prev) => ({ ...prev, [method.code]: '' }));
+                                                    setAmounts((prev) => ({ ...prev, [method.name]: '' }));
 
                                                     setValue(
                                                         "payments",
@@ -331,18 +347,19 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                                 }
                                             }}
                                         />
-                                        <Label htmlFor={method.code} className="w-1/2">
+                                        <Label htmlFor={method.name} className="w-1/2">
                                             {method.name}
                                         </Label>
-                                        {selectedMethods[method.code] && (
+                                        {selectedMethods[method.name] && (
                                             <Input
                                                 type="number"
                                                 placeholder="Amount"
-                                                value={amounts[method.code]}
-                                                onChange={(e) =>
-                                                    setAmounts((prev) => ({ ...prev, [method.code]: e.target.value }))
-                                                }
-                                                onBlur={() => addPaymentMethod(method.code, amounts[method.code], method.id)}
+                                                value={amounts[method.name]}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    setAmounts((prev) => ({ ...prev, [method.name]: value }));
+                                                    addPaymentMethod(method.name, value, method.id);
+                                                }}
                                                 className="w-1/2"
                                             />
                                         )}

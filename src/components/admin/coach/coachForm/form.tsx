@@ -144,6 +144,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     phone: "",
     mobile_number: "",
     notes: "",
+    nic:"",
     source_id: 0,
     country_id: 0,
     city: "",
@@ -334,7 +335,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .string()
       .optional() // Makes the field optional
       .refine((value) => !value || /^\d{5}-\d{7}-\d$/.test(value), {
-        message: "NIC must follow #####-#######-#",
+        message: "CNIC must follow #####-#######-#",
       }),
   });
 
@@ -588,7 +589,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
   useEffect(() => {
     if (!open || coachData == null) return;
-    const payloadCoach = { ...coachData };
+    const payloadCoach = { ...coachData,
+        nic: coachData?.nic !== null ? coachData?.nic : ""
+     };
     console.log("Member_ids before that", payloadCoach.member_ids);
     type Member = { id: number; name: string } | number;
 
@@ -609,14 +612,14 @@ const CoachForm: React.FC<CoachFormProps> = ({
       payloadCoach?.mobile_number &&
       [0, 2, 3, 4].includes(payloadCoach?.mobile_number?.length)
     ) {
-      payloadCoach.mobile_number = `+1`;
+      payloadCoach.mobile_number = `+92`;
     } else {
       payloadCoach.mobile_number = payloadCoach?.mobile_number; // keep it as is
     }
     form.reset(payloadCoach);
     console.log("Member_ids", payloadCoach.member_ids);
     if (payloadCoach?.nic?.length) {
-      setValue("nic", formatNIC(payloadCoach?.nic));
+      setValue("nic", formatNIC(payloadCoach?.nic)??"");
     }
     // setAvatar(coachData?.profile_img as string);
   }, [open, coachData]);
@@ -656,7 +659,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
         mobile_number:
           !payload.mobile_number ||
           [0, 2, 3, 4].includes(payload.mobile_number?.length)
-            ? "+1"
+            ? "+92"
             : payload.mobile_number,
       };
 
@@ -1001,7 +1004,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                             Phone Number
                           </span>
                           <PhoneInput
-                            defaultCountry="us"
+                            defaultCountry="pk"
                             value={field.value}
                             // forceDialCode={true}
                             onChange={field.onChange}
@@ -1157,7 +1160,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     rules={{
                       pattern: {
                         value: /^\d{5}-\d{7}-\d$/,
-                        message: "NIC must follow #####-#######-#",
+                        message: "CNIC must follow #####-#######-#",
                       },
                     }}
                     name="nic"
@@ -1166,7 +1169,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                         <FloatingLabelInput
                           {...field}
                           id="nic"
-                          label="NIC"
+                          label="CNIC"
                           value={String(field.value ?? "")} // Convert to string explicitly
                           onChange={(e) =>
                             field.onChange(formatNIC(e.target.value))

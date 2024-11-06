@@ -113,9 +113,6 @@ export default function StaffTableView() {
   const { staff } = JSON.parse(localStorage.getItem("accessLevels") as string);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const orgName = useSelector(
-    (state: RootState) => state.auth.userInfo?.user?.org_name
-  );
   const navigate = useNavigate();
   const {
     data: rolesData,
@@ -333,7 +330,6 @@ export default function StaffTableView() {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
             {displayValue(row?.original?.own_staff_id)}
-            {/* {`${orgName?.slice(0, 2)}-${row?.original?.id}`} */}
           </div>
         );
       },

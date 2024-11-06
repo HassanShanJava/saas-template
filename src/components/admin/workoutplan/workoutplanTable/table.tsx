@@ -432,7 +432,7 @@ export default function WorkoutPlansTableView() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden w-24">
+          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap ">
             <Badge
               className={`${row.original.is_published ? "bg-green-600" : "bg-blue-500"} text-white font-medium`}
             >

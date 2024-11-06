@@ -102,9 +102,7 @@ export default function MemberTableView() {
   );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const orgName = useSelector(
-    (state: RootState) => state.auth.userInfo?.user?.org_name
-  );
+  
   const [searchCriteria, setSearchCriteria] =
     useState<searchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
@@ -336,7 +334,6 @@ export default function MemberTableView() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {/* {`${orgName?.slice(0, 2)}-${row?.original?.id}`} */}
             {displayValue(row?.original.own_member_id)}
           </div>
         );

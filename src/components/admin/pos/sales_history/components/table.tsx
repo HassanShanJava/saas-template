@@ -55,6 +55,7 @@ import {
   displayDateTime,
   displayValue,
   formatDate,
+  formatNIC,
   replaceUnderscoreWithSpace,
   saleHistoryMapper,
 } from "@/utils/helper";
@@ -343,7 +344,7 @@ export default function SaleshistoryRegisterViewTable() {
       meta: "Nic",
       header: () => (
         <div className="flex items-center gap-2">
-          <p className="text-nowrap">Nic Number</p>
+          <p className="text-nowrap">CNIC Number</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
             onClick={() => toggleSortOrder("id")}
@@ -356,8 +357,8 @@ export default function SaleshistoryRegisterViewTable() {
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex capitalize items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.nic)}
+          <div className="text-nowrap whitespace-nowrap ">
+            {displayValue(formatNIC(row?.original.member_nic))}
           </div>
         );
       },
@@ -505,7 +506,7 @@ export default function SaleshistoryRegisterViewTable() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <p className="capitalize cursor-pointer">
+                    <p className="capitalize cursor-po  inter">
                       <span>
                         {displayValue(
                           `${row.original.staff_name}`.length > 15

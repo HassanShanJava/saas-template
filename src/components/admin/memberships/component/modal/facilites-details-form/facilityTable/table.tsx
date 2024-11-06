@@ -1,17 +1,15 @@
+
 import React, { useEffect, useState } from "react";
 import {
   ColumnDef,
-  PaginationState,
-  SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
+// ui 
 import {
   Table,
   TableBody,
@@ -20,7 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
@@ -30,33 +27,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Search } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 
+// api and types
 import { creditDetailsTablestypes, creditTablestypes, facilitiesData } from "@/app/types";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useGetCreditsListQuery, useGetCreditsQuery } from "@/services/creditsApi";
-import { Search } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { useFormContext } from "react-hook-form";
 import { StepperFormValues } from "@/types/hook-stepper";
 
-interface tranformData {
-  id: number;
+interface TranformFacilitiesData {
+  facility_id: number;
   total_credits: number;
   credits: number;
+  credit_type?: string;
   count: number;
   validity: {
-    duration_type: string | undefined;
-    duration_no: number | undefined;
+    type: string | undefined;
+    duration: number | undefined;
   };
 }
-interface payloadData {
-  id: number;
+interface PayloadData {
+  facility_id: number;
+  credit_type: string;
   total_credits: number;
   validity: {
-    duration_type: string;
-    duration_no: number;
+    type: string;
+    duration: number;
   };
 }
 
@@ -76,44 +76,44 @@ export default function FacilityTableView({
   const { data: facilitiesData, isLoading } = useGetCreditsListQuery(orgId);
   const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
 
-  const creditstableData = React.useMemo(() => {
+  const facilitiestableData = React.useMemo(() => {
     return Array.isArray(facilitiesData) ? facilitiesData : [];
   }, [facilitiesData]);
 
   const { toast } = useToast();
 
-  const [transformedCredits, setTransformedCredits] = useState<
-    tranformData[] | undefined
+  const [transformedFacilities, setTransformedFacilities] = useState<
+    TranformFacilitiesData[] | undefined
   >([]);
 
   const [payload, setPayload] = useState<facilitiesData[]>(getValues("facilities") ? getValues("facilities") : []);
 
   useEffect(() => {
     const data = facilitiesData?.map((item) => ({
-      id: item.id,
+      facility_id: item.id,
       count: 1,
       credits: item.min_limit,
+      credit_type: undefined,
       total_credits: item.min_limit,
       validity: {
-        duration_type: undefined,
-        duration_no: undefined,
+        type: undefined,
+        duration: undefined,
       },
     }));
 
-    console.log({ data })
 
 
     if (payload.length > 0) {
       const newRowSelection: Record<number, boolean> = {};
       payload.forEach(item => {
-        const index = findIndex(item.id, facilitiesData as creditTablestypes[]);
+        const index = findIndex(item.facility_id, facilitiesData as creditTablestypes[]);
         if (index !== -1) {
           newRowSelection[index] = true;
         }
       });
 
       const result = data?.map((item) => {
-        const updatedItem = payload.find(payloadItem => payloadItem.id === item.id);
+        const updatedItem = payload.find(payloadItem => payloadItem.facility_id === item.facility_id);
 
         if (updatedItem) {
           const count = updatedItem.total_credits as number / item.credits;
@@ -130,19 +130,27 @@ export default function FacilityTableView({
 
       setRowSelection(newRowSelection)
       console.log({ result })
-      setTransformedCredits(result as tranformData[]);
+      setTransformedFacilities(result as TranformFacilitiesData[]);
     } else {
-      setTransformedCredits(data);
+      setTransformedFacilities(data as TranformFacilitiesData[]);
     }
 
   }, [facilitiesData, payload]);
 
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
+  const handleCreditType = (value: string, id?: number) => {
+
+    setTransformedFacilities((prevCredits) => {
+      return prevCredits?.map((credit) => {
+        if (credit.facility_id === id) {
+          return {
+            ...credit,
+            credit_type: value,
+          };
+        }
+        return credit;
+      });
+    });
+  }
 
   const handleChangeRowInput = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -152,9 +160,9 @@ export default function FacilityTableView({
     const { value } = e.target;
     console.log(value, id, key, "input change");
 
-    setTransformedCredits((prevCredits) => {
+    setTransformedFacilities((prevCredits) => {
       return prevCredits?.map((credit) => {
-        if (credit.id === id) {
+        if (credit.facility_id === id) {
           return {
             ...credit,
             validity: {
@@ -168,35 +176,12 @@ export default function FacilityTableView({
     });
   };
 
-
-
-  useEffect(() => {
-    // when ever transformCredits changes it is updated in payload
-    if (transformedCredits && transformedCredits?.length > 0) {
-      const selectedIndexes = Object.keys(rowSelection).filter(
-        (key) => rowSelection[Number(key)]
-      );
-
-      const selectedCredits = transformedCredits
-        ?.filter((_, index) => selectedIndexes.includes(index.toString()))
-        .map(({ id, total_credits, validity }) => ({
-          id,
-          total_credits,
-          validity,
-        }))
-        .filter((item): item is payloadData => item !== null);
-
-      setFacilities(selectedCredits);
-      console.log({ rowSelection, transformedCredits });
-    }
-  }, [rowSelection, transformedCredits]);
-
   const handleChangeRowSelect = (value: string, id?: number, key?: string) => {
     console.log(value, id, key, "input change");
 
-    setTransformedCredits((prevCredits) => {
+    setTransformedFacilities((prevCredits) => {
       return prevCredits?.map((credit) => {
-        if (credit.id === id) {
+        if (credit.facility_id === id) {
           return {
             ...credit,
             validity: {
@@ -212,9 +197,9 @@ export default function FacilityTableView({
   const updateCredit = (id?: number, key?: string) => {
     if (!id || !key) return;
 
-    setTransformedCredits((prevCredits) => {
+    setTransformedFacilities((prevCredits) => {
       return prevCredits?.map((credit) => {
-        if (credit.id === id) {
+        if (credit.facility_id === id) {
           if (key === "decrement") {
             if (credit.count === 1) {
               toast({
@@ -247,7 +232,35 @@ export default function FacilityTableView({
     });
   };
 
-  console.log({ transformedCredits })
+
+  useEffect(() => {
+    // when ever transformCredits changes it is updated in payload
+    if (transformedFacilities && transformedFacilities?.length > 0) {
+      const selectedIndexes = Object.keys(rowSelection).filter(
+        (key) => rowSelection[Number(key)]
+      );
+
+      const selectedCredits = transformedFacilities
+        ?.filter((_, index) => selectedIndexes.includes(index.toString()))
+        .map(({ facility_id, total_credits, validity, credit_type }) => ({
+          facility_id,
+          total_credits,
+          credit_type,
+          validity: credit_type === "unlimited" ? {
+            type:"",
+            duration: 0,
+          } : validity, // Set validity to {} if credit_type is "unlimited"
+        }))
+        .filter((item): item is PayloadData => item !== null);
+
+      setFacilities(selectedCredits);
+      console.log({ rowSelection, transformedFacilities });
+    }
+  }, [rowSelection, transformedFacilities]);
+
+
+
+  console.log({ transformedFacilities })
   const columns: ColumnDef<creditDetailsTablestypes>[] = [
     {
       id: "select",
@@ -285,32 +298,73 @@ export default function FacilityTableView({
       enableHiding: false,
     },
     {
+      id: "amount",
+
+      header: ({ table }) => (
+        <p className="text-nowrap">Credit Type</p>
+      ),
+      cell: ({ row }) => {
+        const Credit = transformedFacilities?.find(credit => credit.facility_id == row.original.id);
+        return row.getIsSelected() && (
+          <Select
+            defaultValue={Credit?.credit_type}
+            onValueChange={(value) => handleCreditType(value, Credit?.facility_id)}
+            
+          >
+            <SelectTrigger
+              className="h-8 w-32"
+            >
+              <SelectValue
+                placeholder={"Select type"}
+                
+              />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectItem
+                value={'amount'}
+              >
+                Amount
+              </SelectItem>
+              <SelectItem
+                value={'unlimited'}
+              >
+                Unlimited
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        )
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       id: "credits_include",
       header: "Credits Included",
       cell: ({ row }) => {
         const id = row.original.id;
-        const totalCredit = transformedCredits
-          ?.filter((data) => data?.id == id)
-          .map((item) => item.total_credits);
-        return row.getIsSelected() ? (
-          <div className="flex  items-center gap-2 justify-between !max-w-4xl">
-            <span className="text-xs w-full max-w-40">
+        const Credit = transformedFacilities
+          ?.find((data) => data?.facility_id == id)
+
+        return row.getIsSelected() && Credit?.credit_type === "amount" ? (
+          <div className="flex   items-center gap-2 justify-between !max-w-4xl">
+            <span className="text-xs text-nowrap w-full max-w-40">
               (Min. required credit: {row?.original?.min_limit})
             </span>
 
-            <div className="flex items-center justify-between gap-2 w-full max-w-36 bg-white  border border-primary rounded-lg p-2">
+            <div className="flex h-8  items-center justify-between gap-2 w-full max-w-36 bg-white  border border-primary rounded-lg p-2">
               <button
                 onClick={() => updateCredit(id, "decrement")}
-                className="text-black bg-white border border-primary rounded-lg px-2 py-1"
+                className="text-black bg-white border border-primary rounded-lg h-6 px-1 "
               >
                 <i className="fa fa-minus font-semibold"></i>
               </button>
 
-              <div className="text-black ">{totalCredit}</div>
+              <div className="text-black ">{Credit?.total_credits}</div>
 
               <button
                 onClick={() => updateCredit(id, "increment")}
-                className="text-white bg-primary rounded-lg px-2 py-1"
+                className="text-white bg-primary rounded-lg h-6 px-1"
               >
                 <i className="fa fa-plus font-semibold"></i>
               </button>
@@ -325,38 +379,38 @@ export default function FacilityTableView({
       maxSize: 100,
       cell: ({ row }) => {
         const id = row.original.id;
-        const creditData = transformedCredits?.find(
-          (credit) => credit.id === id
+        const creditData = transformedFacilities?.find(
+          (credit) => credit.facility_id === id
         );
 
-        return row.getIsSelected() ? (
+        return row.getIsSelected() && creditData?.credit_type === "amount" ? (
           <div className="flex items-center gap-2">
-            {creditData?.validity.duration_type !== "contract_duration" && <Input
+            {creditData?.validity.type !== "contract_duration" && <Input
               type="number"
-              
+
               min={1}
               max={15}
-              className=" w-20"
+              className="h-8 w-20"
               autoFocus
-              value={creditData?.validity?.duration_no || ""}
-              onChange={(e) => handleChangeRowInput(e, id, "duration_no")}
+              value={creditData?.validity?.duration || ""}
+              onChange={(e) => handleChangeRowInput(e, id, "duration")}
             />}
             <Select
               onValueChange={(value) =>
-                handleChangeRowSelect(value, id, "duration_type")
+                handleChangeRowSelect(value, id, "type")
               }
-              value={creditData?.validity?.duration_type || ""}
+              value={creditData?.validity?.type || ""}
             >
-              <SelectTrigger className="bg-white">
+              <SelectTrigger className="bg-white h-8">
                 <SelectValue placeholder="Select validity" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={"contract_duration"}>Contract Duration</SelectItem>
-                <SelectItem value={"weekly"}>Weekly</SelectItem>
-                <SelectItem value={"monthly"}>Monthly</SelectItem>
-                <SelectItem value={"quarterly"}>Quarterly</SelectItem>
-                <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem>
-                <SelectItem value={"yearly"}>Yearly</SelectItem>
+                <SelectItem value={"week"}>Weekly</SelectItem>
+                <SelectItem value={"month"}>Monthly</SelectItem>
+                <SelectItem value={"quarter"}>Quarterly</SelectItem>
+                {/* <SelectItem value={"bi_annual"}>Bi-Annually</SelectItem> */}
+                <SelectItem value={"year"}>Yearly</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -366,24 +420,18 @@ export default function FacilityTableView({
   ];
 
   const table = useReactTable({
-    data: creditstableData as creditTablestypes[],
+    data: facilitiestableData as creditTablestypes[],
     columns,
-    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      pagination,
-      sorting,
-      columnVisibility,
       rowSelection,
-    },
-    
+    }
   });
 
-  
+
 
   return (
     <div className="w-full space-y-4">
@@ -465,12 +513,12 @@ export default function FacilityTableView({
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
-                        )}  
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
                 ))
-              ) : creditstableData.length > 0 ? (
+              ) : facilitiestableData.length > 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
@@ -495,14 +543,4 @@ export default function FacilityTableView({
       </div>
     </div>
   );
-}
-
-function findMatchingIndicesObject(arr1: any, arr2: any) {
-  const indicesObject: any = {};
-  arr2.forEach((item2: any, index: number) => {
-    if (arr1.some((item1: any) => item1.id === item2.id)) {
-      indicesObject[index] = true;
-    }
-  });
-  return indicesObject;
 }

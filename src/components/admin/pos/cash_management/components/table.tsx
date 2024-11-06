@@ -31,7 +31,7 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import Papa from "papaparse";
-import { displayDateTime, displayValue } from "@/utils/helper";
+import { displayDate, displayDateTime, displayValue, roundToTwoDecimals } from "@/utils/helper";
 import Pagination from "@/components/ui/table/pagination-table";
 import usePagination from "@/hooks/use-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
@@ -297,7 +297,7 @@ export default function CashregisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(row.original.opening_balance?.toString())}
+                  {roundToTwoDecimals(row.original.opening_balance as number)}
                 </span>
               </p>
             </div>
@@ -353,7 +353,7 @@ export default function CashregisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(row.original.closing_balance?.toString())}
+                  {roundToTwoDecimals(row.original.closing_balance as number)}
                 </span>
               </p>
             </div>
@@ -387,7 +387,7 @@ export default function CashregisterViewTable() {
                 <span
                   className={`${row.original.discrepancy !== 0 ? "text-red-500" : "text-black"}`}
                 >
-                  {displayValue(row.original.discrepancy?.toString())}
+                  {roundToTwoDecimals(row.original.discrepancy as number)}
                 </span>
               </p>
             </div>
@@ -464,7 +464,7 @@ export default function CashregisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayDateTime(row?.original.created_date)}
+            {displayDate(row?.original.created_date)}
           </div>
         );
       },

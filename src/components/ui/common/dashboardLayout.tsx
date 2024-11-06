@@ -99,7 +99,7 @@ const DashboardLayout: React.FC = () => {
 
   const isActiveLink = (targetPath: string): boolean => {
     const currentPath = pathname;
-    return currentPath.includes(targetPath) || currentPath === targetPath;
+    return currentPath === targetPath;
   };
 
   const [assignCounter] = useUpdateCountersMutation();
@@ -165,7 +165,7 @@ const DashboardLayout: React.FC = () => {
                 className={`${!isSidebarOpen && "hidden"} text-2xl text-center font-extrabold`}
                 style={{ fontFamily: "Jockey One" }}
               >
-                {orgName}
+                {orgName?.split(" ")[0]}
               </span>
             </Link>
           )}

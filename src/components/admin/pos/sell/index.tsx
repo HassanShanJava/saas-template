@@ -65,7 +65,7 @@ const Sell = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   // register session info
-  const { sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { sessionId: null };
+  // const { sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { sessionId: null };
   // register continue today?
   const isContinue = JSON.parse(localStorage.getItem("isContinue") as string) || null
   console.log({ isContinue }, "isContinue")
@@ -75,27 +75,26 @@ const Sell = () => {
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
 
   const { data: lastSession, refetch: lastSessionRefetch, isFetching } = useGetlastRegisterSessionQuery(counter_number as number, { refetchOnMountOrArgChange: true })
-  console.log({ lastSession }, "lastSession")
-
 
   // initial value before sale is parked or sold
-  const initialValues: sellForm = {
+   const initialValues: sellForm = {
     staff_id: userInfo?.user.id,
     counter_id: counter_number as number, //counter id
     staff_name: userInfo?.user.first_name,
-    batch_id: sessionId, //register id
-    discount_amt: undefined,
+    batch_id: lastSession?.id as number, //register id
     member_id: null,
     member_name: null,
     member_email: null,
     member_address: null,
     member_gender: null,
+    member_nic: undefined,
     notes: "",
     receipt_number: "INV" + Math.floor(Math.random() * 99), //will implement with prefix module comes
     tax_number: Math.floor(Math.random() * 99), //from srb
-    total: null,
-    subtotal: null,
-    tax_amt: null,
+    discount_amt: 0,
+    total: 0,
+    subtotal: 0,
+    tax_amt: 0,
     status: "Unpaid",
     transaction_type: "Sale",
     membership_plans: [],
@@ -183,7 +182,10 @@ const Sell = () => {
       setProductPayload([])
       setShowCheckout(false)
     }
-  }, [id])
+    if(lastSession){
+       setValue("batch_id", lastSession.id as number) 
+    }
+  }, [id,lastSession])
 
   // for past 24 hour validation
   useEffect(() => {
@@ -438,6 +440,7 @@ const Sell = () => {
       setValue("member_email", customer.email)
       setValue("member_address", customer.address_1)
       setValue("member_gender", customer.gender)
+      setValue("member_nic", customer.nic)
     }
 
   }, [customer, discountAmt]);
@@ -500,6 +503,7 @@ const Sell = () => {
           setProductPayload([])
           setCustomer(null)
           transactionRefetch()
+          reset(initialValues as sellForm)
         }
       } else if (watcher.id && watcher.status === "Unpaid") {
         const resp = await updateTransaction({ id: watcher.id, status: "Paid" }).unwrap();
@@ -511,6 +515,7 @@ const Sell = () => {
           setProductPayload([])
           setCustomer(null)
           transactionRefetch()
+          reset(initialValues as sellForm)
         }
       }
     } catch (error: unknown) {
@@ -552,7 +557,7 @@ const Sell = () => {
         staff_id: userInfo?.user.id,
         counter_id: counter_number as number, //counter id
         staff_name: userInfo?.user.first_name,
-        batch_id: sessionId, //register id
+        batch_id: lastSession?.id, //register id
         membership_plans,
         events,
         products

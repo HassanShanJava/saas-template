@@ -515,7 +515,6 @@ const WorkoutPlanForm = () => {
                       ) && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
-                      <i className="fa fa-arrow-right-long "></i>
                       Next
                     </LoadingButton>
                   )}

@@ -1,4 +1,4 @@
-import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NotFoundPage from "../PageNotFound";
 import { extractLinks } from "@/utils/helper";
@@ -26,10 +26,9 @@ const ProtectedRoute = () => {
     }
   }, [sidepanel]);
 
-  const navigate = useNavigate();
   const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const location = useLocation();
-  // Redirect to login if not authenticated and trying to access a protected route
+  
   // Redirect to login if not authenticated and trying to access a protected route
   if (!isAuthenticated && location.pathname !== "/") {
     return <Navigate to="/" />;

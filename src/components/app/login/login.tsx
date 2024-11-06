@@ -135,7 +135,7 @@ export default function AuthenticationPage() {
         <div className="flex mx-16 justify-center sm:justify-between items-center h-dvh xs:mx-0 ">
           <div className=" flex flex-col gap-2 xs:gap-0"></div>
           <div>
-            <Card className="mx-auto max-w-md bg-transparent bg-opacity-10 backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg p-2">
+            <Card className="px-16 max-w-md bg-transparent bg-opacity-10 backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg p-2">
               <CardHeader>
                 <CardTitle>
                   <div className="gap-1 flex justify-center items-center">
@@ -163,7 +163,7 @@ export default function AuthenticationPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 ">
                   <div className="flex items-center custom-box-shadow w-full gap-2 px-4 py-2 rounded-md border border-checkboxborder focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 ">
                     <input
                       maxLength={50}

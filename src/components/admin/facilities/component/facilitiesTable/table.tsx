@@ -82,6 +82,7 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { Separator } from "@/components/ui/separator";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
+import { status } from "@/constants/global";
 
 const downloadCSV = (data: creditTablestypes[], fileName: string) => {
   const csv = Papa.unparse(data);
@@ -94,10 +95,6 @@ const downloadCSV = (data: creditTablestypes[], fileName: string) => {
   document.body.removeChild(link);
 };
 
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-];
 
 interface searchCriteriaType {
   limit: number;

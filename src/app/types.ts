@@ -1,11 +1,25 @@
 import { JSONObject } from "@/types/hook-stepper";
 
+
+
+
 enum genderEnum {
   male = "male",
   female = "female",
   other = "other",
   prefer_no_to_say = "prefer not to say",
 }
+
+export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+
+export type TimeSlot = {
+  from_time: string;
+  to_time: string;
+};
+
+export type LimitedAccessTime = {
+  [day: string]: TimeSlot[];
+};
 
 export interface sellItem {
   item_id: number;
@@ -38,6 +52,7 @@ export interface sellForm {
   member_email?: string | null;
   member_address?: string | null;
   member_gender?: genderEnum | null;
+  member_nic?: string;
   notes?: string;
   staff_id?: number | null;
   staff_name?: string;
@@ -271,21 +286,24 @@ export interface renewalData extends JSONObject {
   prolongation_period: number | null;
 }
 export interface facilitiesData extends JSONObject {
-  id: number;
+  facility_id: number;
   total_credits: number | null;
+  credit_type: string
   validity: {
-    duration_type?: string | undefined | null;
-    duration_no?: number | null;
+    type?: string | undefined | null;
+    duration?: number | null;
   };
 }
 
 export interface updateMembershipType {
-  id: number | null;
+  id: number | undefined;
   org_id: number | null;
   name?: string;
   group_id?: number | null;
   description?: string;
   status?: string;
+  duration?: number | null;
+  duration_period?: string;
   access_time?: object;
   net_price?: number | null;
   discount?: number | null;
@@ -305,7 +323,10 @@ export interface createMembershipType {
   group_id: number | null;
   description: string;
   status: string;
-  access_time: object;
+  duration: number | null;
+  duration_period: string;
+  access_type: string;
+  limited_access_time: LimitedAccessTime;
   net_price: number | null;
   discount: number | null;
   income_category_id: number | undefined;
@@ -1664,7 +1685,7 @@ export interface salesReportInterface {
   staff_name: string;
   receipt_number: string;
   notes: string;
-  nic?: string;
+  member_nic?: string;
   tax_number: number;
   total: number;
   subtotal: number;

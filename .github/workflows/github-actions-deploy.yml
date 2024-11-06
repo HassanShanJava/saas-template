@@ -4,7 +4,7 @@ name: build-fitnfi-staging # Descriptive name for the workflow
 on:
   push:
     branches:
-      - main # Trigger workflow on pushes to the 'dev' branch
+      - dev # Trigger workflow on pushes to the 'dev' branch
 
 jobs:
   build-dev:

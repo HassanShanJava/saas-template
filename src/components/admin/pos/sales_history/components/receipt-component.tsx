@@ -10,7 +10,7 @@ import React, { ReactNode } from "react";
 interface ReceiptProps {
   salesReport: salesReportInterface;
 }
-import { capitalizeFirstLetter } from "@/utils/helper";
+import { capitalizeFirstLetter, displayDate, displayValue, formatToPKR } from "@/utils/helper";
 
 const Receipt: React.FC<ReceiptProps> = ({ salesReport }) => {
   const isRefund = salesReport.transaction_type === statusEnumGrid.Refund;
@@ -89,7 +89,7 @@ const Receipt: React.FC<ReceiptProps> = ({ salesReport }) => {
             {salesReport.total.toFixed(2)}
           </span>
         </h4>
-
+ 
         <p>Notes: {capitalizeFirstLetter(salesReport.notes)}</p>
       </div>
     </div>
@@ -99,183 +99,165 @@ const Receipt: React.FC<ReceiptProps> = ({ salesReport }) => {
 export default Receipt;
 
 export function ReceiptExport(salesReport: salesReportInterface | sellForm) {
-  const isRefund = salesReport.transaction_type === statusEnumGrid.Refund;
+  const { user } = JSON.parse(localStorage.getItem("userInfo") as string);
 
-  return `<!DOCTYPE html>
+  return user && salesReport && `<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${isRefund ? "Refund Receipt" : "Sale Receipt"}</title>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
     <style>
-      /* General Styles */
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        background-color: #f9fafb;
-        color: #333;
-      }
-      .container {
-        max-width: 800px;
-        background-color: #fff;
-      }
-      .heading {
-        font-size: 1.5rem;
-        font-weight: 700;
-        text-align: center;
-        color: #1f2937;
-        margin-bottom: 15px;
-      }
-      .section {
-        margin-bottom: 3px;
-        text-align: center;
-      }
-      .member-details, .summary {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 10px;
-        border-radius: 8px;
-        
-      }
-      .member-details{
-      line-height:0px;
-  	  margin:0px 20px;
-      }
-      .table-container {
-        margin: 10px 0;
-        overflow-x: auto;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 15px;
-      }
-      th, td {
-        border: 1px solid #d1d5db;
-        padding: 8px;
-        text-align: left;
-      }
-      th {
-        background-color: #f3f4f6;
-        font-weight: bold;
-        color: #1f2937;
-      }
-      .summary {
-        align-items: flex-end;
-        gap: 5px;
-      }
-      .summary p, .summary h4 {
-        margin: 0;
-      }
-      .summary p span {
-        font-weight: 700;
-      }
-      .total {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin-top: 8px;
-      }
-      .notes {
-        margin-top: 10px;
-        font-style: italic;
-        color: #6b7280;
-      }
-
-      /* Thank You Section */
-      .thank-you {
-        margin-top: 20px;
-        text-align: center;
-        font-size: 1.2rem;
-        color: #1f2937;
-      }
-
-      /* Add padding inside the container to avoid sticking to the border */
-      .container {
-        padding: 20px;
-       
-      }
-
-      /* Print-specific Styles */
-      @media print {
         body {
-          -webkit-print-color-adjust: exact;
+            font-family: Arial, sans-serif;
+            margin: 0;
         }
+
         .container {
-          page-break-inside: avoid;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
         }
-      }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .header p {
+            margin: 4px 0;
+            color: #555;
+        }
+
+        .details {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .details p {
+            margin: 4px 0;
+            font-size: 14px;
+        }
+
+        .details span {
+            font-weight: bold;
+        }
+
+        .price {
+            text-align: right !important;
+        }
+
+
+
+        .table-container {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-container th,
+        .table-container td {
+            border-bottom: 1px dashed #000;
+            padding: 5px 0px;
+            text-align: left;
+        }
+
+        .table-container th {
+            font-weight: bold;
+            color: #333;
+            padding: 5px 0px;
+        }
+
+
+
+        .summary {
+            color: #333;
+        }
+
+        .summary p {
+            margin: 4px 0;
+            font-size: 14px;
+        }
+
+        .summary span {
+            font-weight: bold;
+        }
     </style>
-  </head>
-  <body>
+</head>
+
+<body>
     <div class="container">
-    <div>
-    <h2 class="heading">${isRefund ? "Refund Receipt" : "Sale Receipt"}</h2>
-    </div>
-   
-      <div class="section">
-        <p><strong>Receipt Number:</strong> ${salesReport.receipt_number}</p>
-        <p><strong>Transaction Date:</strong> ${salesReport?.transaction_date}</p>
-      </div>
-
-      <strong>Member Details</strong>
-      <div class="member-details">
-        <p><strong>Name:</strong> ${capitalizeFirstLetter(salesReport?.member_name as string)}</p>
-        <p><strong>Email:</strong> ${capitalizeFirstLetter(salesReport?.member_email as string)}</p>
-        <p><strong>Address:</strong> ${capitalizeFirstLetter(salesReport?.member_address as string)}</p>
-      </div>
-
-      <hr />
-
-      <h4>Items</h4>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Item Name</th>
-              <th>Quantity</th>
-              <th>Unit Price</th>
-              <th>Total Price</th>
-              <th>Tax Rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${salesReport.items
-      ?.map(
-        (item: lineItems) => `
-                <tr>
-                  <td>${capitalizeFirstLetter(item.description)}</td>
-                  <td>${item.quantity}</td>
-                  <td>${item.price.toFixed(2)}</td>
-                  <td>${item.total.toFixed(2)}</td>
-                  <td>${item.tax_rate.toFixed(2)}%
-                  (${item.tax_type === "inclusive" ? "Inc" : "Exc"})
-                  </td>
-                </tr>
-              `
-      )
-      .join("")}
-          </tbody>
-        </table>
-      </div>
-
-      <hr />
-
-      <h4>Summary</h4>
-      <div class="summary">
-        <p>Subtotal: <span>${salesReport.subtotal && salesReport?.subtotal.toFixed(2)}</span></p>
-        <p>Discount: <span>${salesReport?.discount_amt && salesReport?.discount_amt.toFixed(2)}</span></p>
-        <p>Tax Amount: <span>${salesReport?.tax_amt && salesReport?.tax_amt.toFixed(2)}</span>
-        </p>
-        <p>SRB Number: <span>${salesReport.tax_number}</span></p>
-        <h4 class="total">Total Amount: ${salesReport?.total && salesReport?.total.toFixed(2)}</h4>
-        
-        
+        <!-- Header Section -->
+        <div class="header">
+            <h2>${user?.org_name}</h2>
         </div>
 
-      <div class="thank-you">
-        ${isRefund ? "We're sorry to see you go." : "Thank you for your purchase!"}
-      </div>
+        <!-- Receipt Details -->
+        <div class="details">
+            <!-- <p><span>SRB Invoice No:</span> ${salesReport.tax_number}</p> -->
+            <p><span>SRB Invoice No:</span></p>
+            <p><span>Transaction ID:</span> ${salesReport.receipt_number}</p>
+            <p><span>Date:</span> ${displayDate(salesReport.transaction_date)}</p>
+            <p><span>Name:</span> <span style="font-weight:normal; text-transform:uppercase;">${salesReport.member_name}</span></p>
+            <p><span>Status:</span> <span style="text-transform:uppercase;">${salesReport.status}</span></p>
+        </div>
+
+        <!-- Invoice Table -->
+        <table class="table-container">
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th class="price">Price</th>
+            </tr>
+            
+            ${salesReport?.items?.map((item) => item
+              ? `<tr>
+                  <td style="text-transform: capitalize;">${item.description}</td>
+                  <td>${item.quantity}</td>
+                  <td class="price">${formatToPKR(item.sub_total)}</td>
+              </tr>`
+              : ''
+          ).join('')}
+        </table>
+
+        <!-- Summary Section -->
+        <table class="table-container">
+            <tr>
+                <td class="price">Sub Total:</td>
+                <td class="price">${formatToPKR(salesReport.subtotal as number)}</td>
+            </tr>
+            <tr>
+                <td class="price">Discount:</td>
+                <td class="price">${formatToPKR(salesReport.discount_amt as number)}</td>
+            </tr>
+            <tr>
+                <td class="price">Sindh Sales Tax:</td>
+                <td class="price">${formatToPKR(salesReport.tax_amt as number)}</td>
+            </tr>
+            <tr>
+                <td class="price">Grand Total:</td>
+                <td class="price">${formatToPKR(salesReport.total as number)}</td>
+            </tr>
+            ${salesReport?.payments?.map((payment, i) => payment.payment_method
+                ? `<tr>  
+                    <td class="price" style="${i == salesReport?.payments?.length as number - 1 ? "border:none;" : ""} text-transform:capitalize">
+                        ${payment.payment_method}
+                    </td>
+                    <td class="price" style="${i == salesReport?.payments?.length as number - 1 ? "border:none;" : ""}">
+                        ${formatToPKR(payment.amount as number)}
+                    </td>
+                </tr>`
+                : ''
+            ).join('')}
+        </table>
     </div>
-  </body>
+</body>
+
 </html>`;
 }

@@ -120,7 +120,7 @@ export const Roles = apiSlice.injectEndpoints({
         { org_id: number; email: string }
       >({
         query: (coach) => ({
-          url: `/coach/${coach.email}/?org_id=${coach.org_id}`,
+          url: `/coach/${coach.email}?org_id=${coach.org_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",

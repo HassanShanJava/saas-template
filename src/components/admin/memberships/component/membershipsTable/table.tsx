@@ -54,11 +54,8 @@ import { useDebounce } from "@/hooks/use-debounce";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
 import { displayValue, roundToTwoDecimals } from "@/utils/helper";
+import { status } from "@/constants/global";
 
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-];
 
 const initialValue = {
   limit: 10,
@@ -69,15 +66,12 @@ const initialValue = {
 };
 
 const durationLabels = {
-  weekly: "Weeks",
-  monthly: "Months",
-  yearly: "Years",
+  week: "Weeks",
+  bi_annual:'Bi Annually',
+  quarter:'Quaterly',
+  month: "Months",
+  year: "Years",
 } as const;
-
-interface AccessTime {
-  duration_no: number;
-  duration_type: keyof typeof durationLabels; // ensures duration_type is one of the keys in durationLabels
-}
 
 interface searchCriteriaType {
   limit: number;
@@ -225,7 +219,6 @@ export default function MembershipsTableView() {
   const handleEditMembership = (data: membeshipsTableType) => {
     const updatedObject = {
       ...data,
-      ...data.access_time,
       ...data.renewal_details,
     };
     setData(updatedObject);
@@ -320,10 +313,9 @@ export default function MembershipsTableView() {
       accessorKey: "duration",
       header: ({ table }) => <span className="text-nowrap">Duration</span>,
       cell: ({ row }) => {
-        const { duration_no, duration_type } = row.original
-          .access_time as AccessTime;
+        const { duration, duration_period } = row.original;
         return (
-          <span className="text-nowrap">{`${duration_no} ${durationLabels[duration_type]}`}</span>
+          <span className="text-nowrap">{`${duration} ${durationLabels[duration_period as keyof typeof durationLabels]}`}</span>
         );
       },
       enableSorting: false,

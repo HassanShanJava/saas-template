@@ -1,7 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { StepperFormValues } from "@/types/hook-stepper";
-
 import {
   Select,
   SelectContent,
@@ -9,22 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-
 import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -37,36 +20,14 @@ import {
   useGetGroupQuery,
 } from "@/services/groupsApis";
 import { useToast } from "@/components/ui/use-toast";
-import { Check } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
-
-const status = [
-  { value: "active", label: "Active", color: "bg-green-500" },
-  { value: "inactive", label: "Inactive", color: "bg-blue-500" },
-];
+import { DayOfWeek, LimitedAccessTime } from "@/app/types";
+import { daysOrder } from "@/utils/helper";
+import { initialDaysOfWeek } from "@/constants/membership";
+import { status } from "@/constants/global";
 
 interface groupList {
   label: string;
   value: number;
-}
-
-const daysOrder = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
-];
-
-interface limitedAccessDaysTypes {
-  id: number;
-  day: string;
-  from: string;
-  to: string;
 }
 
 const BasicInfoForm = () => {
@@ -76,7 +37,6 @@ const BasicInfoForm = () => {
     setValue,
     getValues,
     register,
-    trigger,
     watch,
   } = useFormContext<StepperFormValues>();
   const { toast } = useToast();
@@ -87,19 +47,11 @@ const BasicInfoForm = () => {
   const [groupList, setGroupList] = useState<groupList[]>([]);
 
   const [limitedAccessDays, setLimitedAccessDays] = useState<
-    limitedAccessDaysTypes[]
+    LimitedAccessTime
   >(
-    (getValues("limited_access_data") as limitedAccessDaysTypes[]).length > 0
-      ? (getValues("limited_access_data") as limitedAccessDaysTypes[])
-      : [
-        { id: 1, day: "monday", from: "", to: "" },
-        { id: 2, day: "tuesday", from: "", to: "" },
-        { id: 3, day: "wednesday", from: "", to: "" },
-        { id: 4, day: "thursday", from: "", to: "" },
-        { id: 5, day: "friday", from: "", to: "" },
-        { id: 6, day: "saturday", from: "", to: "" },
-        { id: 7, day: "sunday", from: "", to: "" },
-      ]
+    Object.keys(getValues("limited_access_time") as LimitedAccessTime).length > 0
+      ? (getValues("limited_access_time") as LimitedAccessTime)
+      : initialDaysOfWeek
   );
 
   const orgId =
@@ -110,12 +62,10 @@ const BasicInfoForm = () => {
     useCreateGroupMutation();
 
   const handleAdd = (day: string) => {
-    const dayCount = limitedAccessDays.filter(
-      (entry) => entry.day === day
-    ).length;
+    const dayIntervals = limitedAccessDays[day as string] || [];
 
     // Check if there are already 3 slots for the selected day
-    if (dayCount > 2) {
+    if (dayIntervals.length >= 3) {
       toast({
         variant: "destructive",
         title: "Limit Reached",
@@ -124,59 +74,47 @@ const BasicInfoForm = () => {
       return;
     }
 
-    setLimitedAccessDays((prev) => [
+    setLimitedAccessDays((prev) => ({
       ...prev,
-      { id: Date.now(), day, from: "", to: "" },
-    ]);
+      [day]: [
+        ...dayIntervals,
+        { from_time: "", to_time: "" },
+      ],
+    }));
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (day: string, index: number) => {
     setLimitedAccessDays((prev) => {
-      const entryToDelete = prev.find((entry) => entry.id === id);
-      const sameDayEntries = prev.filter(
-        (entry) => entry.day === entryToDelete?.day
-      );
+      const dayIntervals = prev[day] || [];
 
-      if (sameDayEntries.length > 1) {
-        return prev.filter((entry) => entry.id !== id);
-      } else {
-        return prev.map((entry) =>
-          entry.id === id ? { ...entry, from: "", to: "" } : entry
-        );
+      // If there's only one interval, clear its fields instead of deleting
+      if (dayIntervals.length === 1) {
+        return {
+          ...prev,
+          [day]: [{ from_time: "", to_time: "" }],
+        };
       }
+
+      // Otherwise, delete the interval at the specified index
+      return {
+        ...prev,
+        [day]: dayIntervals.filter((_, i) => i !== index),
+      };
     });
   };
 
-  const isValidTimeRange = (from: string, to: string) => {
-    return from < to;
+  const handleTimeChange = (day: string, index: number, field: "from_time" | "to_time", value: string) => {
+    setLimitedAccessDays((prev) => ({
+      ...prev,
+      [day]: prev[day].map((interval, i) =>
+        i === index ? { ...interval, [field]: value } : interval
+      ),
+    }));
   };
 
-  const isConflictingTime = (
-    day: string,
-    from: string,
-    to: string,
-    id: number | undefined = undefined
-  ) => {
-    const dayEntries = limitedAccessDays.filter(
-      (entry) => entry.day === day && entry.id !== id
-    );
-    return dayEntries.some((entry) => from < entry.to && to > entry.from);
-  };
 
-  const handleTimeChange = (id: number, type: string, value: string) => {
-    setLimitedAccessDays((prev) => {
-      const updatedEntries = prev.map((entry) => {
-        if (entry.id === id) {
-          return { ...entry, [type]: value };
-        }
-        return entry;
-      });
-      return updatedEntries;
-    });
-  };
-
-  const sortedDays = limitedAccessDays.sort(
-    (a, b) => daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day)
+  const sortedDays = Object.keys(limitedAccessDays).sort(
+    (a, b) => daysOrder.indexOf(a as DayOfWeek) - daysOrder.indexOf(b as DayOfWeek)
   );
 
   useEffect(() => {
@@ -188,7 +126,7 @@ const BasicInfoForm = () => {
 
   useEffect(() => {
     if (limitedAccessDays) {
-      setValue("limited_access_data", limitedAccessDays);
+      setValue("limited_access_time", limitedAccessDays);
     }
   }, [limitedAccessDays]);
 
@@ -202,11 +140,11 @@ const BasicInfoForm = () => {
     e.preventDefault();
 
     if (!inputValue.trim()) return;
-    
-    if(inputValue.length>15){
+
+    if (inputValue.length > 15) {
       toast({
-        variant:"destructive",
-        title:"Group name cannot be too large"
+        variant: "destructive",
+        title: "Group name cannot be too large"
       })
       return;
     }
@@ -274,7 +212,7 @@ const BasicInfoForm = () => {
                   defaultValue={value ? value + "" : undefined}
                   disabled={isFetching}
                 >
-                  <SelectTrigger name="group_id" floatingLabel="Group*">
+                  <SelectTrigger name="group_id" className="capitalize" floatingLabel="Group*">
                     <SelectValue placeholder="Select group" />
                   </SelectTrigger>
                   {invalid && (
@@ -407,17 +345,17 @@ const BasicInfoForm = () => {
                 >
                   <div className="flex items-center space-x-2 cursor-pointer">
                     <RadioGroupItem
-                      value="no-restriction"
-                      id="no-restriction"
+                      value="no_restriction"
+                      id="no_restriction"
                     />
-                    <Label htmlFor="no-restriction">No Restriction</Label>
+                    <Label htmlFor="no_restriction">No Restriction</Label>
                   </div>
                   <div className="flex items-center space-x-2 cursor-pointer">
                     <RadioGroupItem
-                      value="limited-access"
-                      id="limited-access"
+                      value="limited"
+                      id="limited"
                     />
-                    <Label htmlFor="limited-access">Limited Access</Label>
+                    <Label htmlFor="limited">Limited Access</Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -427,7 +365,7 @@ const BasicInfoForm = () => {
         <div className="flex items-center gap-4">
           <Label className="font-semibold">Duration*</Label>
           <Controller
-            name="duration_type"
+            name="duration_period"
             rules={{ required: "Required" }}
             control={control}
             render={({
@@ -441,7 +379,7 @@ const BasicInfoForm = () => {
                   }}
                   value={value}
                 >
-                  <SelectTrigger name="duration_type">
+                  <SelectTrigger name="duration_period">
                     <SelectValue
                       placeholder="Select duration"
                       defaultValue={undefined}
@@ -453,21 +391,21 @@ const BasicInfoForm = () => {
                     </span>
                   )}
                   <SelectContent>
-                    <SelectItem value={"weekly"}>Week</SelectItem>
-                    <SelectItem value={"monthly"}>Month</SelectItem>
-                    <SelectItem value={"quarterly"}>Quarter</SelectItem>
-                    <SelectItem value={"bi_annually"}>Bi-Annual</SelectItem>
-                    <SelectItem value={"yearly"}>Year</SelectItem>
+                    <SelectItem value={"week"}>Week</SelectItem>
+                    <SelectItem value={"month"}>Month</SelectItem>
+                    <SelectItem value={"quarter"}>Quarter</SelectItem>
+                    {/* <SelectItem value={"bi_annual"}>Bi-Annual</SelectItem> */}
+                    <SelectItem value={"year"}>Year</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             )}
           />
           <FloatingLabelInput
-            id="duration_no"
+            id="duration"
             type="number"
             className="w-20 "
-            {...register("duration_no", {
+            {...register("duration", {
               required: "Required",
               min: {
                 value: 1,
@@ -478,48 +416,49 @@ const BasicInfoForm = () => {
                 message: "Duration must be between 1 and 12.",
               },
             })}
-            error={errors.duration_no?.message}
+            error={errors.duration?.message}
           />
         </div>
       </div>
-      {access == "limited-access" && (
+      {access == "limited" && (
         <div className="bg-gray-200 px-3 py-2 w-fit  text-sm rounded-lg  ">
           <p className="font-semibold text-base">Limited Access</p>
-          {sortedDays.map(({ id, day, from, to }) => (
-            <div
-              key={id}
-              className="grid grid-cols-3 items-center gap-3 space-y-1"
-            >
-              <div className="flex col-span-1  gap-3">
-                <i
-                  className="text-base text-primary fa fa-plus cursor-pointer"
-                  onClick={() => handleAdd(day)}
-                ></i>
-                <p className="my-auto capitalize">{day}</p>
-              </div>
-              <div className="flex col-span-2 items-center gap-2 ">
-                <Input
-                  type="time"
-                  value={from}
-                  onChange={(e) => handleTimeChange(id, "from", e.target.value)}
-                  id="time"
-                  aria-label="Choose time"
-                  className="w-full h-7 "
-                />
-                <p>till</p>
-                <Input
-                  type="time"
-                  value={to}
-                  onChange={(e) => handleTimeChange(id, "to", e.target.value)}
-                  id="time"
-                  aria-label="Choose time"
-                  className="w-full h-7 "
-                />
-                <i
-                  className="fa-regular fa-trash-can cursor-pointer"
-                  onClick={() => handleDelete(id)}
-                ></i>
-              </div>
+          {sortedDays.map((day) => (
+            <div key={day} className="">
+              {limitedAccessDays[day].map(({ from_time, to_time }, index) => (
+                <div key={index} className="space-y-1 grid grid-cols-3 items-center gap-3 ">
+
+                  <div className="flex items-center gap-3">
+                    <i
+                      className="text-base text-primary fa fa-plus cursor-pointer"
+                      onClick={() => handleAdd(day)}
+                    ></i>
+                    <p className="my-auto capitalize">{day}</p>
+                  </div>
+
+                  <div className="flex col-span-2 items-center gap-2">
+                    <Input
+                      type="time"
+                      value={from_time}
+                      onChange={(e) => handleTimeChange(day, index, "from_time", e.target.value)}
+                      aria-label="Choose from time"
+                      className="w-full h-7"
+                    />
+                    <p>till</p>
+                    <Input
+                      type="time"
+                      value={to_time}
+                      onChange={(e) => handleTimeChange(day, index, "to_time", e.target.value)}
+                      aria-label="Choose to time"
+                      className="w-full h-7"
+                    />
+                    <i
+                      className="fa-regular fa-trash-can cursor-pointer"
+                      onClick={() => handleDelete(day, index)}
+                    ></i>
+                  </div>
+                </div>
+              ))}
             </div>
           ))}
         </div>
@@ -529,70 +468,3 @@ const BasicInfoForm = () => {
 };
 
 export default BasicInfoForm;
-
-interface comboboxType {
-  list?: {
-    label: string;
-    value: string;
-  }[];
-  setFilter?: any;
-  name?: string;
-}
-
-function Combobox({ list, setFilter, name }: comboboxType) {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
-  console.log({ value, list });
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between font-normal"
-        >
-          {value
-            ? list && list?.find((list) => list.label === value)?.label
-            : "Select " + name + "..."}
-          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[330px] p-0">
-        <Command>
-          <CommandInput placeholder={`Search ${name}`} />
-          <CommandEmpty>No list found.</CommandEmpty>
-          <CommandList>
-            <CommandGroup>
-              {list &&
-                list?.map((item) => (
-                  <CommandItem
-                    key={item.value}
-                    value={item.value}
-                    onSelect={(currentValue) => {
-                      console.log({ currentValue, value });
-                      setValue(currentValue == value ? "" : currentValue);
-                      setFilter(
-                        list &&
-                        list?.find((list) => list.label === currentValue)
-                          ?.value
-                      );
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        value === item.value ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    {item.label}
-                  </CommandItem>
-                ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
-}

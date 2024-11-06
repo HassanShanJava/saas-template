@@ -16,7 +16,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  
+
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
@@ -98,7 +98,14 @@ const initialValue = {
 };
 
 export default function FoodsTableView() {
-  const { food } = JSON.parse(localStorage.getItem("accessLevels") as string);
+  const food = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).food ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
+  
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -476,7 +483,7 @@ export default function FoodsTableView() {
       return newFilter;
     });
   };
-  
+
   const filterDisplay = [
     {
       type: "select",
@@ -551,9 +558,9 @@ export default function FoodsTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

@@ -91,9 +91,13 @@ const initialValue = {
 };
 
 export default function CounterTableView() {
-  const { pos_count } = JSON.parse(
-    localStorage.getItem("accessLevels") as string
-  );
+  const pos_count = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).pos_count ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -580,25 +584,25 @@ export default function CounterTableView() {
                     ))}
                   </TableRow>
                 ))
-              ) :  isLoading ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No data found.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No records found.
-                    </TableCell>
-                  </TableRow>
-                )}
+              ) : isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No data found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No records found.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </ScrollArea>

@@ -34,7 +34,13 @@ import { useGetResourcesQuery, useGetRolesQuery } from "@/services/rolesApi";
 import { RoleForm } from "./../../roleform/form";
 
 export default function RoleTableView() {
-  const { role } = JSON.parse(localStorage.getItem("accessLevels") as string)
+  const role = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).role ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;

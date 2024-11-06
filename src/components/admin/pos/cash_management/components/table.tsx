@@ -67,9 +67,6 @@ export default function CashregisterViewTable() {
   const counter_number =
     useSelector((state: RootState) => state.counter?.counter_number) || 0;
 
-  const { pos_cash_management } = JSON.parse(
-    localStorage.getItem("accessLevels") as string
-  );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [inputValue, setInputValue] = useState("");

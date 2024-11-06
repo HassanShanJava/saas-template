@@ -95,9 +95,13 @@ interface SearchCriteriaType {
 }
 
 export default function IncomeCategoryTableView() {
-  const { inc_cat } = JSON.parse(
-    localStorage.getItem("accessLevels") as string
-  );
+  const inc_cat = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).inc_cat ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -390,9 +394,9 @@ export default function IncomeCategoryTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -658,7 +662,7 @@ const IncomeCategoryForm = ({
                           label="Category Name*"
                           value={value ?? ""}
                           onChange={handleOnChange}
-                          // error={error?.message??""}
+                        // error={error?.message??""}
                         />
                         {/* {watcher.name ? <></> : <FormMessage />} */}
                         <FormMessage />

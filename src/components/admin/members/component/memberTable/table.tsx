@@ -94,7 +94,13 @@ const status = [
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
 export default function MemberTableView() {
-  const { member } = JSON.parse(localStorage.getItem("accessLevels") as string);
+  const member = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).member ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
   const [action, setAction] = useState<"add" | "edit">("add");
   const [open, setOpen] = useState<boolean>(false);
   const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
@@ -102,7 +108,7 @@ export default function MemberTableView() {
   );
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  
+
   const [searchCriteria, setSearchCriteria] =
     useState<SearchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
@@ -369,9 +375,9 @@ export default function MemberTableView() {
                         `${row.original.first_name} ${row.original.last_name}`
                           .length > 12
                           ? `${row.original.first_name} ${row.original.last_name}`.substring(
-                              0,
-                              12
-                            ) + "..."
+                            0,
+                            12
+                          ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -416,20 +422,20 @@ export default function MemberTableView() {
                   <p className="capitalize cursor-pointer">
                     {/* Display the truncated name */}
                     {!row.original.is_business &&
-                    row.original.business_id == undefined
+                      row.original.business_id == undefined
                       ? "N/A"
                       : displayValue(
-                          `${row.original.business_name}`.length > 15
-                            ? `${row.original.business_name}`.substring(0, 15) +
-                                "..."
-                            : `${row.original.business_name}`
-                        )}
+                        `${row.original.business_name}`.length > 15
+                          ? `${row.original.business_name}`.substring(0, 15) +
+                          "..."
+                          : `${row.original.business_name}`
+                      )}
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="capitalize text-sm">
                     {!row.original.is_business &&
-                    row.original.business_id == undefined
+                      row.original.business_id == undefined
                       ? "N/A"
                       : displayValue(`${row.original.business_name}`)}
                   </p>
@@ -690,9 +696,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

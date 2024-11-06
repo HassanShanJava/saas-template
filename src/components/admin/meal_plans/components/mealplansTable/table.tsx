@@ -71,9 +71,13 @@ const initialValue = {
 };
 
 export default function MealPlansTableView() {
-  const { meal_plan } = JSON.parse(
-    localStorage.getItem("accessLevels") as string
-  );
+  const meal_plan = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).meal_plan ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
   const { toast } = useToast();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -470,9 +474,9 @@ export default function MealPlansTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

@@ -81,9 +81,13 @@ interface SearchCriteriaType {
 }
 
 export default function SaleTaxesTableView() {
-  const { sale_tax } = JSON.parse(
-    localStorage.getItem("accessLevels") as string
-  );
+  const sale_tax = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).sale_tax ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -440,9 +444,9 @@ export default function SaleTaxesTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

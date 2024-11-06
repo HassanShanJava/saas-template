@@ -67,8 +67,8 @@ const initialValue = {
 
 const durationLabels = {
   week: "Weeks",
-  bi_annual:'Bi Annually',
-  quarter:'Quaterly',
+  bi_annual: 'Bi Annually',
+  quarter: 'Quaterly',
   month: "Months",
   year: "Years",
 } as const;
@@ -82,9 +82,13 @@ interface SearchCriteriaType {
 }
 
 export default function MembershipsTableView() {
-  const { membership } = JSON.parse(
-    localStorage.getItem("accessLevels") as string
-  );
+  const membership = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).membership ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;

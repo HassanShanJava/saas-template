@@ -11,16 +11,20 @@ import { CounterDataType } from "@/app/types/pos/counter";
 import { ErrorType } from "@/app/types";
 import { toast } from '@/components/ui/use-toast'
 const CounterSelection = () => {
-    const { pos_count } = JSON.parse(
-        localStorage.getItem("accessLevels") as string
-    );
+    const pos_count = (() => {
+        try {
+            return JSON.parse(localStorage.getItem("accessLevels") as string).pos_count ?? "no_access";
+        } catch {
+            return "no_access";
+        }
+    })();
 
     const { userInfo } = useSelector((state: RootState) => state.auth);
     const { counter_number } = useSelector((state: RootState) => state.counter);
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    const { data: assignedCounter, isLoading } = useGetCountersQuery({ query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}`:""}` })
+    const { data: assignedCounter, isLoading } = useGetCountersQuery({ query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}` : ""}` })
 
     const [assignCounter, { isLoading: isUpdating, isError }] = useUpdateCountersMutation()
 

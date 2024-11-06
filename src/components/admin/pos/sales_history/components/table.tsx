@@ -97,9 +97,13 @@ export default function SaleshistoryRegisterViewTable() {
   const counter_number =
     useSelector((state: RootState) => state.counter?.counter_number) || 0;
 
-  const { pos_sale_report } = JSON.parse(
-    localStorage.getItem("accessLevels") as string
-  );
+  const pos_sale_report = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).pos_sale_report ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -511,7 +515,7 @@ export default function SaleshistoryRegisterViewTable() {
                         {displayValue(
                           `${row.original.staff_name}`.length > 15
                             ? `${row.original.staff_name}`.substring(0, 15) +
-                                "..."
+                            "..."
                             : `${row.original.staff_name}`
                         )}
                       </span>
@@ -793,9 +797,9 @@ export default function SaleshistoryRegisterViewTable() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -909,9 +913,9 @@ export default function SaleshistoryRegisterViewTable() {
                                                     `${row.original.notes}`
                                                       .length > 15
                                                       ? `${row.original.notes}`.substring(
-                                                          0,
-                                                          15
-                                                        ) + "..."
+                                                        0,
+                                                        15
+                                                      ) + "..."
                                                       : `${row.original.notes}`
                                                   )}
                                                 </span>
@@ -1032,9 +1036,9 @@ export default function SaleshistoryRegisterViewTable() {
                                                     `${row.original.notes}`
                                                       .length > 15
                                                       ? `${row.original.notes}`.substring(
-                                                          0,
-                                                          15
-                                                        ) + "..."
+                                                        0,
+                                                        15
+                                                      ) + "..."
                                                       : `${row.original.notes}`
                                                   )}
                                                 </span>

@@ -104,9 +104,13 @@ interface SearchCriteriaType {
 }
 
 export default function FacilitiesTableView() {
-  const { facilities } = JSON.parse(
-    localStorage.getItem("accessLevels") as string
-  );
+  const facilities = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).facilities ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -481,9 +485,9 @@ export default function FacilitiesTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}
@@ -801,7 +805,7 @@ const CreditForm = ({
                             label="Min Requred Limit*"
                             value={value}
                             onChange={handleOnChange}
-                            // error={error?.message??""}
+                          // error={error?.message??""}
                           />
                           <FormMessage />
                         </FormItem>
@@ -826,11 +830,10 @@ const CreditForm = ({
                                 <SelectValue placeholder="">
                                   <span className="flex gap-2 items-center">
                                     <span
-                                      className={`w-2 h-2 rounded-full ${
-                                        field.value == "active"
+                                      className={`w-2 h-2 rounded-full ${field.value == "active"
                                           ? "bg-green-500"
                                           : "bg-blue-500"
-                                      }`}
+                                        }`}
                                     ></span>
                                     {field.value == "active"
                                       ? "Active"

@@ -961,12 +961,10 @@ const MealPlanForm = ({
 
             <AddMeal
               isOpen={openFood}
-              // setSearchCretiria={setSearchCretiria}
               setOpen={setOpenFood}
               foodList={foodList}
               categories={categories}
               setFoodAction={setFoodAction}
-              // setInputValue={setInputValue}
               handleAddFood={handleAddFood}
               action={foodAction}
               data={foodActionData}

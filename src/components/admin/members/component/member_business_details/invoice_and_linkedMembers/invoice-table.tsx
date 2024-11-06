@@ -3,26 +3,17 @@ import { DataTable } from "@/components/ui/table/data-table";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useNavigate } from "react-router-dom";
 import { displayValue, displayDate } from "@/utils/helper";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { DataTableColumnHeader } from "@/components/ui/table/data-table-column-header";
 
 const InvoiceTableForMember: React.FC = () => {
-  const { member } = JSON.parse(localStorage.getItem("accessLevels") as string);
+  const member = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).member ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
   const [data, setData] = useState<any[]>([]);
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -107,7 +98,7 @@ const InvoiceTableForMember: React.FC = () => {
           <p className="text-nowrap">Price</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            // onClick={() => toggleSortOrder("activated_on")}
+          // onClick={() => toggleSortOrder("activated_on")}
           >
             $
             {/* {searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"} */}
@@ -133,7 +124,7 @@ const InvoiceTableForMember: React.FC = () => {
           <p className="text-nowrap">Last Check In</p>
           <button
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-            // onClick={() => toggleSortOrder("check_in")}
+          // onClick={() => toggleSortOrder("check_in")}
           >
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 `}

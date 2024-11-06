@@ -92,9 +92,13 @@ const initialValue = {
 };
 
 export default function ExerciseTableView() {
-  const { exercise } = JSON.parse(
-    localStorage.getItem("accessLevels") as string
-  );
+  const exercise = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).exercise ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isOpen, setOpen] = useState(false);
   const orgId =
@@ -305,7 +309,7 @@ export default function ExerciseTableView() {
                     {displayValue(
                       `${row.original.exercise_name}`.length > 8
                         ? `${row.original.exercise_name}`.substring(0, 8) +
-                            "..."
+                        "..."
                         : `${row.original.exercise_name}`
                     )}
                   </p>
@@ -583,9 +587,9 @@ export default function ExerciseTableView() {
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                         </TableHead>
                       );
                     })}

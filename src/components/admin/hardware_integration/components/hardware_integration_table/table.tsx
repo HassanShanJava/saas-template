@@ -59,9 +59,13 @@ const initialValue = {
 };
 
 export default function HardwareIntegrationTable() {
-  const { hard_int } = JSON.parse(
-    localStorage.getItem("accessLevels") as string
-  );
+  const hard_int = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).hard_int ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -301,7 +305,7 @@ export default function HardwareIntegrationTable() {
                       {displayValue(
                         `${row.original.description}`.length > 15
                           ? `${row.original.description}`.substring(0, 15) +
-                              "..."
+                          "..."
                           : `${row.original.description}`
                       )}
                     </span>
@@ -377,7 +381,7 @@ export default function HardwareIntegrationTable() {
                       {displayValue(
                         `${row.original.connection_key}`.length > 15
                           ? `${row.original.connection_key}`.substring(0, 15) +
-                              "..."
+                          "..."
                           : `${row.original.connection_key}`
                       )}
                     </span>
@@ -514,9 +518,9 @@ export default function HardwareIntegrationTable() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

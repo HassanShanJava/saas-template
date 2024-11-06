@@ -33,9 +33,13 @@ import { toast } from "../use-toast";
 const DashboardLayout: React.FC = () => {
   const { pathname } = useLocation();
   const { userInfo } = useSelector((state: RootState) => state.auth);
-  const { pos_count } = JSON.parse(
-    localStorage.getItem("accessLevels") as string
-  );
+  const pos_count = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).pos_count ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
   const { data: assignedCounter } = useGetCountersQuery({
     query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}` : ""}`,
   });

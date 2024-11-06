@@ -42,7 +42,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
@@ -81,10 +80,16 @@ const initialValue = {
   sort_key: "id",
 };
 export default function StaffTableView() {
-  const { staff } = JSON.parse(localStorage.getItem("accessLevels") as string);
+  const staff = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).staff ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
+
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const navigate = useNavigate();
   const {
     data: rolesData,
     isLoading: rolesLoading,
@@ -158,13 +163,8 @@ export default function StaffTableView() {
   }, [staffData]);
   const { toast } = useToast();
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [filterID, setFilterID] = useState({});
-
-  const [filters, setFilters] = useState<"">();
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [isClear, setIsClear] = useState(false);
-  const [clearValue, setIsClearValue] = useState({});
 
   const handleExportSelected = () => {
     const selectedRows = table
@@ -339,9 +339,9 @@ export default function StaffTableView() {
                         `${row.original.first_name ?? ""} ${row.original.last_name ?? ""}`
                           .length > 8
                           ? `${row.original.first_name ?? ""} ${row.original.last_name ?? ""}`.substring(
-                              0,
-                              8
-                            ) + "..."
+                            0,
+                            8
+                          ) + "..."
                           : `${row.original.first_name ?? ""} ${row.original.last_name ?? ""}`
                       )}
                     </p>
@@ -661,9 +661,9 @@ export default function StaffTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

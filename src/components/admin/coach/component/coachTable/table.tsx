@@ -98,7 +98,13 @@ const initialValue = {
 };
 
 export default function CoachTableView() {
-  const { coach } = JSON.parse(localStorage.getItem("accessLevels") as string);
+  const coach = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("accessLevels") as string).coach ?? "no_access";
+    } catch {
+      return "no_access";
+    }
+  })();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const orgName = useSelector(
@@ -341,9 +347,9 @@ export default function CoachTableView() {
                         `${row.original.first_name} ${row.original.last_name}`
                           .length > 8
                           ? `${row.original.first_name} ${row.original.last_name}`.substring(
-                              0,
-                              8
-                            ) + "..."
+                            0,
+                            8
+                          ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -607,9 +613,9 @@ export default function CoachTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

@@ -1,4 +1,4 @@
-import { GenderEnum } from "../shared_enums/enums";
+import { Gender } from "../shared_enums/enums";
 
 export interface MembershipPlanIds {
   id: number; // id of the data
@@ -14,7 +14,7 @@ export interface MemberInput {
   own_member_id?: string;
   first_name?: string;
   last_name?: string;
-  gender?: GenderEnum;
+  gender?: Gender;
   dob?: Date | string;
   email?: string;
   phone?: string;

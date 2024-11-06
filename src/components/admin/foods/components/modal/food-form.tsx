@@ -33,7 +33,7 @@ import {
   FormProvider,
   useForm,
 } from "react-hook-form";
-import { CreateFoodTypes, ErrorType } from "@/app/types";
+import { ErrorType } from "@/app/types";
 import uploadimg from "@/assets/upload.svg";
 
 import {
@@ -51,6 +51,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import { UploadCognitoImage, deleteCognitoImage } from "@/utils/lib/s3Service";
+import { CreateFoodTypes } from "@/app/types/foods";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 interface FoodForm {
   isOpen: boolean;

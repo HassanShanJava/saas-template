@@ -73,7 +73,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import uploadimg from "@/assets/upload.svg";
-import { CreateFoodTypes, ErrorType } from "@/app/types";
+import { ErrorType } from "@/app/types";
+import { CreateFoodTypes } from "@/app/types/foods";
 import { useToast } from "@/components/ui/use-toast";
 import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { RootState } from "@/app/store";

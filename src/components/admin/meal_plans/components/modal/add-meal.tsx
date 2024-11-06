@@ -1,4 +1,4 @@
-import { CreateFoodTypes } from "@/app/types";
+import { CreateFoodTypes } from "@/app/types/foods";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {

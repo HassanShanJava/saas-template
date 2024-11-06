@@ -19,7 +19,8 @@ import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import React from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { CreateFoodTypes, createMembershipType, ErrorType } from "@/app/types";
+import { ErrorType } from "@/app/types";
+import { CreateFoodTypes } from "@/app/types/foods";
 import warning from "@/assets/warning.svg";
 import { useDeleteFoodsMutation } from "@/services/foodsApi";
 

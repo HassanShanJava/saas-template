@@ -10,16 +10,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-const displayValue = (value: any) =>
-  value === null || value === "" ? "N/A" : value;
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
 import {
   Table,
   TableBody,
@@ -28,58 +24,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ChevronRightIcon, PlusIcon, Search } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { CreateFoodTypes, ErrorType } from "@/app/types";
+import { PlusIcon, Search } from "lucide-react";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
-import Papa from "papaparse";
 import FoodForm from "../modal/food-form";
 import { useGetFoodsQuery } from "@/services/foodsApi";
 import { useDebounce } from "@/hooks/use-debounce";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
-import { Separator } from "@/components/ui/separator";
-import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import { ChevronLeftIcon } from "lucide-react";
 import TableFilters from "@/components/ui/table/data-table-filter";
-import { visibleFor, categories, weights } from "@/constants/food";
+import { categories } from "@/constants/food";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
+import { CreateFoodTypes } from "@/app/types/foods";
+import { displayValue } from "@/utils/helper";
 const { VITE_VIEW_S3_URL } = import.meta.env;
-
-// removed for enum changes
-// const categoryMap = Object.fromEntries(
-//   categories.map((cat) => [cat.label, cat.value])
-// );
-// const visibleForMap = Object.fromEntries(
-//   visibleFor.map((vf) => [vf.label, vf.value])
-// );
-// const weightsMap = Object.fromEntries(weights.map((w) => [w.label, w.value]));
-
-const downloadCSV = (data: CreateFoodTypes[], fileName: string) => {
-  const csv = Papa.unparse(data);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.setAttribute("download", fileName);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
 interface SearchCriteriaType {
   limit: number;
   offset: number;
@@ -105,7 +66,7 @@ export default function FoodsTableView() {
       return "no_access";
     }
   })();
-  
+
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
 
@@ -130,8 +91,6 @@ export default function FoodsTableView() {
         newCriteria.search_key = debouncedInputValue;
         newCriteria.offset = 0;
         newCriteria.sort_key = "id";
-        // newCriteria.sort_key = "created_at";
-
         newCriteria.sort_order = "desc";
       } else {
         delete newCriteria.search_key;
@@ -185,31 +144,13 @@ export default function FoodsTableView() {
     }
   );
 
-  const handleCloseDailog = () => setIsDialogOpen(false);
-
   const foodstableData = React.useMemo(() => {
     return Array.isArray(foodData?.data) ? foodData?.data : [];
   }, [foodData]);
 
-  const { toast } = useToast();
-
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-
-  const handleExportSelected = () => {
-    const selectedRows = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original);
-    if (selectedRows.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Please select one or more records to perform this action.",
-      });
-      return;
-    }
-    downloadCSV(selectedRows, "selected_data.csv");
-  };
 
   const actionsColumn: ColumnDef<CreateFoodTypes> = {
     accessorKey: "action",

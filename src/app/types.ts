@@ -1178,6 +1178,7 @@ export enum difficultyEnum {
   Advanced = "Advanced",
   Expert = "Expert",
 }
+
 export enum IntensityEnum {
   max_intensity = "Max Intensity",
   irm = "irm",

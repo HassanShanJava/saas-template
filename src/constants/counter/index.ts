@@ -1,6 +1,7 @@
-import { counterTableType } from "@/app/types";
+import { CounterTableType } from "@/app/types/pos/counter";
 
-export const counterList:counterTableType = {
+
+export const counterList: CounterTableType = {
     "data": [
         {
             "id": 101,

@@ -21,7 +21,7 @@ export type LimitedAccessTime = {
   [day: string]: TimeSlot[];
 };
 
-export interface sellItem {
+export interface SellItem {
   item_id: number;
   item_type: string;
   description: string;
@@ -42,7 +42,7 @@ export interface Payments {
   amount: number;
 }
 
-export interface sellForm {
+export interface SellForm {
   id?: number;
   counter_id: number;
   discount_amt?: number;
@@ -65,17 +65,17 @@ export interface sellForm {
   status?: "Unpaid" | "Paid" | "Partially Paid";
   transaction_type?: "Refund" | "Sale";
   transaction_date?: Date;
-  items?: sellItem[];
-  membership_plans?: sellItem[];
-  events?: sellItem[];
-  products?: sellItem[];
+  items?: SellItem[];
+  membership_plans?: SellItem[];
+  events?: SellItem[];
+  products?: SellItem[];
   payments?: Payments[];
   created_by: number;
   updated_at?: number;
 }
 
 export interface TransactionTable {
-  data: sellForm[];
+  data: SellForm[];
   filtered_counts: number;
   total_counts: number;
 }
@@ -85,7 +85,7 @@ export enum statusEnum {
   active = "active",
   inactive = "inactive",
 }
-export interface createTransaction {
+export interface CreateTransaction {
   batch_id: number;
   member_id: number;
   member_name: string;

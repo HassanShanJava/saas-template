@@ -1,4 +1,4 @@
-import { sellForm, TransactionTable } from "@/app/types";
+import { SellForm, TransactionTable } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 interface transactionInput {
   query: string;
@@ -8,7 +8,7 @@ interface transactionInput {
 export const Transaction = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      createTransaction: builder.mutation<any, sellForm>({
+      createTransaction: builder.mutation<any, SellForm>({
         query: (transactionbody) => ({
           url: `/pos/registers/${transactionbody.batch_id}/transactions`,
           method: "POST",
@@ -29,7 +29,7 @@ export const Transaction = apiSlice.injectEndpoints({
         }),
         providesTags: ["Transaction"],
       }),
-      getTransactionById: builder.query<sellForm, { counter_id: number, transaction_id: number }>({
+      getTransactionById: builder.query<SellForm, { counter_id: number, transaction_id: number }>({
         query: (payload) => ({
           url: `/pos/transactions/${payload.transaction_id}`,
           method: "GET",

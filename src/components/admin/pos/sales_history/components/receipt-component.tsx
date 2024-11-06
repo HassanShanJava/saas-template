@@ -1,7 +1,7 @@
 import {
   lineItems,
   salesReportInterface,
-  sellForm,
+  SellForm,
   statusEnum,
   statusEnumGrid,
 } from "@/app/types";
@@ -98,7 +98,7 @@ const Receipt: React.FC<ReceiptProps> = ({ salesReport }) => {
 
 export default Receipt;
 
-export function ReceiptExport(salesReport: salesReportInterface | sellForm) {
+export function ReceiptExport(salesReport: salesReportInterface | SellForm) {
   const { user } = JSON.parse(localStorage.getItem("userInfo") as string);
 
   return user && salesReport && `<!DOCTYPE html>

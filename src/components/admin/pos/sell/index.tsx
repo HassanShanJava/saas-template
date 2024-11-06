@@ -36,7 +36,7 @@ import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
 import { displayDate, roundToTwoDecimals } from "@/utils/helper";
 import { useDebounce } from "@/hooks/use-debounce";
-import { ErrorType, MemberTableDatatypes, sellForm, sellItem } from "@/app/types";
+import { ErrorType, MemberTableDatatypes, SellForm, SellItem } from "@/app/types";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { FormProvider, useForm } from "react-hook-form";
@@ -77,7 +77,7 @@ const Sell = () => {
   const { data: lastSession, refetch: lastSessionRefetch, isFetching } = useGetlastRegisterSessionQuery(counter_number as number, { refetchOnMountOrArgChange: true })
 
   // initial value before sale is parked or sold
-   const initialValues: sellForm = {
+   const initialValues: SellForm = {
     staff_id: userInfo?.user.id,
     counter_id: counter_number as number, //counter id
     staff_name: userInfo?.user.first_name,
@@ -103,7 +103,7 @@ const Sell = () => {
     payments: [],
     created_by: userInfo?.user.id as number
   }
-  const form = useForm<sellForm>({
+  const form = useForm<SellForm>({
     mode: "all",
     defaultValues: initialValues,
   });
@@ -116,7 +116,7 @@ const Sell = () => {
   } = form;
   const watcher = watch();
 
-  const [productPayload, setProductPayload] = useState<sellItem[]>([])
+  const [productPayload, setProductPayload] = useState<SellItem[]>([])
   const [showCheckout, setShowCheckout] = useState<boolean>(false)
   const [dayExceeded, setDayExceeded] = useState<boolean>(false)
 
@@ -177,7 +177,7 @@ const Sell = () => {
   // if navigating back to sell page, the checkout scren must reset
   useEffect(() => {
     if (!id) {
-      reset(initialValues as sellForm)
+      reset(initialValues as SellForm)
       setCustomer(null)
       setProductPayload([])
       setShowCheckout(false)
@@ -503,7 +503,7 @@ const Sell = () => {
           setProductPayload([])
           setCustomer(null)
           transactionRefetch()
-          reset(initialValues as sellForm)
+          reset(initialValues as SellForm)
         }
       } else if (watcher.id && watcher.status === "Unpaid") {
         const resp = await updateTransaction({ id: watcher.id, status: "Paid" }).unwrap();
@@ -515,7 +515,7 @@ const Sell = () => {
           setProductPayload([])
           setCustomer(null)
           transactionRefetch()
-          reset(initialValues as sellForm)
+          reset(initialValues as SellForm)
         }
       }
     } catch (error: unknown) {
@@ -572,7 +572,7 @@ const Sell = () => {
         payload.payments = []
       }
       setCustomer(memberListData?.find(member => member.id == payload.member_id) as MemberTableDatatypes)
-      setProductPayload(retriveSaleData.items as sellItem[])
+      setProductPayload(retriveSaleData.items as SellItem[])
       reset(payload)
     }
   }, [retriveSaleData])
@@ -892,7 +892,7 @@ export function DayExceeded({
 }
 
 interface customerComboboxTypes {
-  list?: sellForm[];
+  list?: SellForm[];
   customerList?: MemberTableDatatypes[];
   setCustomer: any;
   setTransactionId?: any;
@@ -1007,7 +1007,7 @@ export function RetriveSaleCombobox({ list, setCustomer, customer, label, custom
                     <div>
                       <div className="flex gap-1">
 
-                        {modCustomer.items.slice(0, 1).map((list: sellItem, index: number) => (
+                        {modCustomer.items.slice(0, 1).map((list: SellItem, index: number) => (
                           <div key={index}>
                             <span>{list.quantity}</span> x{" "}
                             <span className="capitalize">{list.description}</span>

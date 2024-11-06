@@ -1,4 +1,4 @@
-import { sellForm } from "@/app/types";
+import { SellForm } from "@/app/types";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -34,7 +34,7 @@ export default function ParkReceipt({
         trigger,
         watch,
         reset,
-    } = useFormContext<sellForm>();
+    } = useFormContext<SellForm>();
 
 
     return (

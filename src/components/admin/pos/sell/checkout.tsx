@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 
 // apis and types
-import { ErrorType, Payments, sellForm, sellItem } from "@/app/types";
+import { ErrorType, Payments, SellForm, SellItem } from "@/app/types";
 import { useFormContext } from "react-hook-form";
 import { useCreateTransactionMutation, useGetTransactionByIdQuery, usePatchTransactionMutation } from "@/services/transactionApi";
 import { ReceiptExport } from "../sales_history/components/receipt-component";
@@ -46,7 +46,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         trigger,
         watch,
         reset,
-    } = useFormContext<sellForm>();
+    } = useFormContext<SellForm>();
 
     const {
         data: transactionData,
@@ -191,7 +191,6 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             if (!payload.id) {
                 // for new complete sale or refund 
                 payload.status = "Paid"
-                console.log({ payload }, "create checkout completed")
                 const resp = await createTransaction(payload).unwrap();
                 if (resp) {
                     toast({
@@ -242,7 +241,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
     }
 
     const handleReset = () => {
-        reset(initialValues as sellForm)
+        reset(initialValues as SellForm)
         setCustomer(null)
         setProductPayload([])
         setShowCheckout(false)

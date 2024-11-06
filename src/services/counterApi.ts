@@ -1,16 +1,10 @@
-import { counterTableType, CreateCounter } from "@/app/types";
+import { CounterInput, CounterTableType, CreateCounter } from "@/app/types/pos/counter";
 import { apiSlice } from "@/features/api/apiSlice";
-
-interface counterInput {
-    query: string;
-    org_id?: number;
-}
-
 
 export const Counter = apiSlice.injectEndpoints({
     endpoints(builder) {
         return {
-            getCounters: builder.query<counterTableType, counterInput>({
+            getCounters: builder.query<CounterTableType, CounterInput>({
                 query: (searchCretiria) => ({
                     url: `/pos/counters?${searchCretiria.query}`,
                     method: "GET",
@@ -19,7 +13,7 @@ export const Counter = apiSlice.injectEndpoints({
                     },
                 }),
                 providesTags: ["Counter"],
-                transformResponse: (resp: counterTableType) => {
+                transformResponse: (resp: CounterTableType) => {
                     const { data, ...rest } = resp;
 
                     const updatedData = data.map(item => ({

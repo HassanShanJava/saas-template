@@ -134,7 +134,9 @@ interface ExerciseFilter {
 }
 
 const WorkoutStep2: React.FC = () => {
-  const [selectedDay, setSelectedDay] = useState<SelectedDay | null>(null);
+  const [selectedDay, setSelectedDay] = useState<SelectedDay | undefined>(
+    undefined
+  );
   const {
     data: exercises,
     isLoading: exerciseLoadingforday,
@@ -540,8 +542,9 @@ const WorkoutStep2: React.FC = () => {
   }
 
   function handleDaySelect(day: WorkoutDay) {
+    console.log("day id on", day.id);
     if (day.id) {
-      setSelectedDay((prevDay) => (prevDay?.id === day.id ? null : day));
+      setSelectedDay((prevDay) => (prevDay?.id === day.id ? undefined : day));
     }
   }
 

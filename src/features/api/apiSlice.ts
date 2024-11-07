@@ -10,7 +10,9 @@ import { logout, tokenReceived } from "../auth/authSlice";
 import { setCode, setCounter } from "../counter/counterSlice";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-
+interface FastApiError {
+  detail?: string | string[]; // FastAPI's detail field can be a string or an array of strings
+}
 const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
@@ -48,6 +50,26 @@ const baseQueryWithReauth: BaseQueryFn<
       api.dispatch(logout());
     }
   }
+
+   if (result.error) {
+     const { status, data } = result.error as FetchBaseQueryError & {
+       data?: FastApiError;
+     };
+
+     // Check for a 422 Unprocessable Entity or other specific errors
+     if (status === 422 && data && typeof data === "object") {
+       const errorDetail = Array.isArray(data.detail)
+         ? data.detail.join(", ")
+         : data.detail || "Unprocessable entity";
+       result.error.data = { message: errorDetail };
+     } else {
+       // For other errors, keep the default behavior
+       result.error.data = {
+         message:
+           (data as FastApiError)?.detail || "An unexpected error occurred",
+       };
+     }
+   }
   return result;
 };
 
@@ -58,7 +80,7 @@ const baseQuery = fetchBaseQuery({
 
     if (token) headers.set("Authorization", `Bearer ${token}`);
     headers.set("Access-Control-Allow-Origin", `*`);
-    headers.set('Accept', 'application/json');
+    headers.set("Accept", "application/json");
     return headers;
   },
 });

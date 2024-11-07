@@ -27,7 +27,7 @@ export const Counter = apiSlice.injectEndpoints({
                     };
                 }
             }),
-            createCounters: builder.mutation<unknown, CreateCounter>({
+            createCounters: builder.mutation<any, CreateCounter>({
                 query: (counter) => ({
                     url: `/pos/counters`,
                     method: "POST",
@@ -38,7 +38,7 @@ export const Counter = apiSlice.injectEndpoints({
                 }),
                 invalidatesTags: ["Counter"],
             }),
-            updateCounters: builder.mutation<unknown, CreateCounter>({
+            updateCounters: builder.mutation<any, CreateCounter>({
                 query: (counter) => ({
                     url: `/pos/counters/${counter.id}`,
                     method: "PUT",
@@ -49,7 +49,7 @@ export const Counter = apiSlice.injectEndpoints({
                 }),
                 invalidatesTags: ["Counter"],
             }),
-            deleteCounter: builder.mutation<unknown, number>({
+            deleteCounter: builder.mutation<any, number>({
                 query: (id) => ({
                     url: `/pos/counters/${id}`,
                     method: "DELETE",
@@ -59,7 +59,7 @@ export const Counter = apiSlice.injectEndpoints({
                 }),
                 invalidatesTags: ["Counter"],
             }),
-            getCounterById: builder.query<unknown, number>({
+            getCounterById: builder.query<any, number>({
                 query: (id) => ({
                     url: `/pos/counters/${id}`,
                     method: "GET",

@@ -66,7 +66,7 @@ export const Roles = apiSlice.injectEndpoints({
       }),
       updateCoach: builder.mutation<any, CoachInputTypes & { id: number }>({
         query: (coachdata) => ({
-          url: "/coach",
+          url: `/coach/${coachdata.id}`,
           method: "PUT",
           body: coachdata,
           headers: {

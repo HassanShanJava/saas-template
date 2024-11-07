@@ -19,7 +19,7 @@ export const Transaction = apiSlice.injectEndpoints({
             Accept: "application/json",
           },
         }),
-        providesTags: ["user"],
+        providesTags: ["User"],
       }),
     };
   },

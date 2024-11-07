@@ -173,6 +173,11 @@ const MembershipForm = ({
       };
 
       payload.facilities.forEach((item) => {
+        if (!item.credit_type) {
+          validate.check = true;
+          validate.reason = "Credit type is required";
+        }
+        
         if (item.credit_type === "amount" && item.validity.type === "contract_duration") {
           item.validity.duration = 0;
         }

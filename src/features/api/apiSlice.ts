@@ -55,8 +55,10 @@ const baseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.userToken;
+
     if (token) headers.set("Authorization", `Bearer ${token}`);
     headers.set("Access-Control-Allow-Origin", `*`);
+    headers.set('Accept', 'application/json');
     return headers;
   },
 });
@@ -86,6 +88,6 @@ export const apiSlice = createApi({
     "Organization",
     "Hardware",
     "PaymentMethods",
-    "user",
+    "User",
   ],
 });

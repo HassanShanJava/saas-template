@@ -9,21 +9,38 @@ import { PaymentMethodPlugin } from "@/app/types";
 import { useUpdatePaymentMethodMutation } from "@/services/paymentMethodsApi";
 
 const PaymentMethods = () => {
+  const payments = (() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem("accessLevels") as string).payment ??
+        "no_access"
+      );
+    } catch {
+      return "no_access";
+    }
+  })();
   const pluginStore = usePluginStore();
   const [plugins, setPlugins] = useState<PaymentMethodPlugin[]>();
   const [updatePaymentMethod] = useUpdatePaymentMethodMutation();
 
   useEffect(() => {
-    (async () => 
-      setPlugins(await pluginStore.executeFunction(`PaymentMethods.getPlugins`))
-    )();
+    (async () =>
+      setPlugins(
+        await pluginStore.executeFunction(`PaymentMethods.getPlugins`)
+      ))();
   }, [pluginStore]);
 
-  async function handlePluginChange(id: number, payment_method_id: number, enabled: boolean) {
-    if (!plugins)
-      return 
+  async function handlePluginChange(
+    id: number,
+    payment_method_id: number,
+    enabled: boolean
+  ) {
+    if (!plugins) return;
     if (!enabled) {
-      const pluginsEnabled = plugins.reduce((sum, plug) => plug.status ? sum + 1 : sum, 0);
+      const pluginsEnabled = plugins.reduce(
+        (sum, plug) => (plug.status ? sum + 1 : sum),
+        0
+      );
       if (pluginsEnabled <= 1) {
         toast({
           variant: "destructive",
@@ -34,19 +51,25 @@ const PaymentMethods = () => {
     }
 
     const resp = await updatePaymentMethod({
-      id, 
-      data: { payment_method_id, status: enabled }, 
-    })
+      id,
+      data: { payment_method_id, status: enabled },
+    });
     if (resp.error) {
       toast({
-          variant: "destructive",
-          title: "Failed to update payment method",
+        variant: "destructive",
+        title: "Failed to update payment method",
       });
       console.error(resp.error);
-      return
+      return;
     }
 
-    setPlugins(plugins => plugins && plugins.map(plugin => plugin.id === id ? { ...plugin, status: enabled } : plugin));
+    setPlugins(
+      (plugins) =>
+        plugins &&
+        plugins.map((plugin) =>
+          plugin.id === id ? { ...plugin, status: enabled } : plugin
+        )
+    );
   }
 
   return (
@@ -54,15 +77,33 @@ const PaymentMethods = () => {
       <Card className="space-y-2 px-5 py-4">
         <h1 className="font-semibold text-xl">Payment Methods</h1>
         <Separator />
-        {plugins && plugins.map(plugin => (
-          <div className="w-full flex justify-between items-center bg-secondary py-3 px-5 rounded-2xl">
-            <Label htmlFor={"" + plugin.id}>{plugin.name}</Label>
-            <Switch id={"" + plugin.id} checked={plugin.status} onCheckedChange={enabled => handlePluginChange(plugin.id, plugin.payment_method_id, enabled)} />
-          </div>
-        ))}
+        {plugins &&
+          plugins.map((plugin) => (
+            <div className="w-full flex justify-between items-center bg-secondary py-3 px-5 rounded-2xl">
+              <Label htmlFor={"" + plugin.id}>{plugin.name}</Label>
+              <Switch
+                disabled={payments == "read"}
+                id={"" + plugin.id}
+                checked={plugin.status}
+                onCheckedChange={(enabled) =>
+                  handlePluginChange(
+                    plugin.id,
+                    plugin.payment_method_id,
+                    enabled
+                  )
+                }
+              />
+            </div>
+          ))}
 
         <div className="pt-10">
-          <p className="text-gray-400 text-center">For more payment method options <br/> you can search and install a plugin from <a className="text-blue-500 underline hover:text-blue-700">FitnFi Marketplace</a></p>
+          <p className="text-gray-400 text-center">
+            For more payment method options <br /> you can search and install a
+            plugin from{" "}
+            <a className="text-blue-500 underline hover:text-blue-700">
+              FitnFi Marketplace
+            </a>
+          </p>
         </div>
       </Card>
     </div>

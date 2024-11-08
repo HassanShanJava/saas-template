@@ -171,7 +171,6 @@ const WorkoutStep2: React.FC = () => {
   const [currExercise, setCurrExercise] = useState<Exercise | null>(null);
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
   const [filterData, setFilter] = useState<ExerciseFilter>({});
-  const [uid, setUid] = useState<number>(1e4);
 
   const { data: WorkoutDays } = useGetAllWorkoutDayQuery(workoutId as string);
   const { data: CategoryData } = useGetAllCategoryQuery();
@@ -310,13 +309,12 @@ const WorkoutStep2: React.FC = () => {
 
     addWorkoutDay(newDay)
       .unwrap()
-      .then(() => {
+      .then((resp) => {
         setDays((days) =>
           days.map((day, i) =>
-            i === idx ? { ...day, day_name: day_name, id: uid } : day
+            i === idx ? { ...day, day_name: day_name, id: resp.id } : day
           )
         );
-        setUid((uid) => uid + 1);
         toast({
           variant: "success",
           description: "Workout Day Added",
@@ -504,7 +502,7 @@ const WorkoutStep2: React.FC = () => {
       speed: exercise.speed,
       met_id: exercise.met_id,
     };
-
+    console.log("select day", exerciseData, selectedDay);
     addExerciseInWorkout({
       ...exerciseData,
       exercise_type: exerciseData.exercise_type ?? ExerciseTypeEnum.time_based,

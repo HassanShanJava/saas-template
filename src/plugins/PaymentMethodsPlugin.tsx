@@ -9,15 +9,16 @@ class PaymentMethodsPlugin implements IPlugin {
   plugins: PaymentMethodPlugin[] = [];
 
   async getPlugins(): Promise<PaymentMethodPlugin[]> {
-    if(this.plugins.length === 0) {
-      const promise = store.dispatch(PaymentMethodsApi.endpoints.getAllEnabledPaymentMethods.initiate({}));
+    if (this.plugins.length === 0) {
+      const promise = store.dispatch(
+        PaymentMethodsApi.endpoints.getAllPaymentMethods.initiate({})
+      );
       const { refetch } = promise;
-      const {data: paymentMethods, error, isLoading} = await promise;
-        if (!paymentMethods)
-          return []
-        this.plugins = paymentMethods;
+      const { data: paymentMethods, error, isLoading } = await promise;
+      if (!paymentMethods) return [];
+      this.plugins = paymentMethods;
     }
-    return this.plugins
+    return this.plugins;
   }
 
   getPluginName(): string {
@@ -33,7 +34,10 @@ class PaymentMethodsPlugin implements IPlugin {
   }
 
   activate() {
-    this.pluginStore.addFunction(`${this.namespace}.getPlugins`, this.getPlugins.bind(this));
+    this.pluginStore.addFunction(
+      `${this.namespace}.getPlugins`,
+      this.getPlugins.bind(this)
+    );
   }
 
   deactivate() {

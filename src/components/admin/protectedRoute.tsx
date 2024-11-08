@@ -28,7 +28,7 @@ const ProtectedRoute = () => {
 
   const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const location = useLocation();
-  
+  console.log("isAuthenticated", isAuthenticated);
   // Redirect to login if not authenticated and trying to access a protected route
   if (!isAuthenticated && location.pathname !== "/") {
     return <Navigate to="/" />;

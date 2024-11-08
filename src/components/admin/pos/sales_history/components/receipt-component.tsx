@@ -89,7 +89,7 @@ const Receipt: React.FC<ReceiptProps> = ({ salesReport }) => {
             {salesReport.total.toFixed(2)}
           </span>
         </h4>
- 
+
         <p>Notes: {capitalizeFirstLetter(salesReport.notes)}</p>
       </div>
     </div>
@@ -205,6 +205,7 @@ export function ReceiptExport(salesReport: salesReportInterface | SellForm) {
             <p><span>Transaction ID:</span> ${salesReport.receipt_number}</p>
             <p><span>Date:</span> ${displayDate(salesReport.transaction_date)}</p>
             <p><span>Name:</span> <span style="font-weight:normal; text-transform:uppercase;">${salesReport.member_name}</span></p>
+            <p><span>Transaction Type:</span> <span style="font-weight:normal; text-transform:uppercase;">${salesReport.transaction_type == "Sale" ? "Receipt" : salesReport.transaction_type}</span></p>
             <p><span>Status:</span> <span style="text-transform:uppercase;">${salesReport.status}</span></p>
         </div>
 
@@ -217,13 +218,13 @@ export function ReceiptExport(salesReport: salesReportInterface | SellForm) {
             </tr>
             
             ${salesReport?.items?.map((item) => item
-              ? `<tr>
+    ? `<tr>
                   <td style="text-transform: capitalize;">${item.description}</td>
                   <td>${item.quantity}</td>
                   <td class="price">${formatToPKR(item.sub_total)}</td>
               </tr>`
-              : ''
-          ).join('')}
+    : ''
+  ).join('')}
         </table>
 
         <!-- Summary Section -->
@@ -245,7 +246,7 @@ export function ReceiptExport(salesReport: salesReportInterface | SellForm) {
                 <td class="price">${formatToPKR(salesReport.total as number)}</td>
             </tr>
             ${salesReport?.payments?.map((payment, i) => payment.payment_method
-                ? `<tr>  
+    ? `<tr>  
                     <td class="price" style="${i == salesReport?.payments?.length as number - 1 ? "border:none;" : ""} text-transform:capitalize">
                         ${payment.payment_method}
                     </td>
@@ -253,8 +254,8 @@ export function ReceiptExport(salesReport: salesReportInterface | SellForm) {
                         ${formatToPKR(payment.amount as number)}
                     </td>
                 </tr>`
-                : ''
-            ).join('')}
+    : ''
+  ).join('')}
         </table>
     </div>
 </body>

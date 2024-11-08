@@ -432,21 +432,20 @@ const MealPlanForm = ({
     },
     foodAction: "add" | "edit"
   ) => {
-    const { label, food_id, quantity, calories, carbs, protein, fat } =
-      mealType;
-
+    const { label, food_id, quantity, calories, carbs, protein, fat } = mealType;
+  
     setMeals((prevMeals) => {
       const mealList = prevMeals[label as string];
       const existingFoodIndex = mealList.findIndex(
         (food) => food.food_id === food_id
       );
-
+  
       const updatedFoods = [...mealList];
-
+  
       if (existingFoodIndex !== -1) {
         // Update the existing food item based on the action
         const existingFood = updatedFoods[existingFoodIndex];
-
+  
         updatedFoods[existingFoodIndex] = {
           ...existingFood,
           quantity:
@@ -473,22 +472,22 @@ const MealPlanForm = ({
         updatedFoods.push({
           name: mealType.name,
           quantity: mealType.quantity,
-          calories: Math.floor((+carbs * 100) / 100),
+          calories: Math.floor((+calories * 100) / 100),
           carbs: Math.floor((+carbs * 100) / 100),
           protein: Math.floor((+protein * 100) / 100),
           fat: Math.floor((+fat * 100) / 100),
           food_id,
         });
       }
-
+  
       const updatedMeals = {
         ...prevMeals,
         [label]: updatedFoods,
       };
-
+  
       // Recalculate the percentages after the update
       const percentages = calculatePercentages(updatedMeals);
-
+  
       // Update the pie chart data
       setPieChart([
         {
@@ -507,32 +506,38 @@ const MealPlanForm = ({
           fill: "#DD4664",
         },
       ]);
-
+  
       // Update the watcher meals state as an array
       const currentMeals = getValues("meals") as {
         food_id: number;
         quantity: number;
         meal_time: string;
       }[];
-
+  
+      // Filter out the existing item with the same food_id for the current meal time
+      const filteredMeals = currentMeals.filter(
+        (meal) => !(meal.food_id === food_id && meal.meal_time === label)
+      );
+  
+      // Add or update the new meal entry
       setValue("meals", [
-        ...currentMeals.filter((meal) => meal.food_id !== food_id),
+        ...filteredMeals,
         {
           food_id: food_id as number,
           quantity: quantity,
           meal_time: label,
         },
       ]);
-
+  
       // Update individual macronutrient values
       setValue("fats", percentages.fat);
       setValue("protein", percentages.protein);
       setValue("carbs", percentages.carbs);
-
+  
       return updatedMeals;
     });
   };
-
+  
   const handleEditFood = (data: any, mealType?: string) => {
     console.log("edit");
     setFoodAction("edit");

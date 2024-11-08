@@ -432,8 +432,7 @@ const MealPlanForm = ({
     },
     foodAction: "add" | "edit"
   ) => {
-    const { label, food_id, quantity, calories, carbs, protein, fat } =
-      mealType;
+    const { label, food_id, quantity, calories, carbs, protein, fat } = mealType;
 
     setMeals((prevMeals) => {
       const mealList = prevMeals[label as string];
@@ -473,7 +472,7 @@ const MealPlanForm = ({
         updatedFoods.push({
           name: mealType.name,
           quantity: mealType.quantity,
-          calories: Math.floor((+carbs * 100) / 100),
+          calories: Math.floor((+calories * 100) / 100),
           carbs: Math.floor((+carbs * 100) / 100),
           protein: Math.floor((+protein * 100) / 100),
           fat: Math.floor((+fat * 100) / 100),
@@ -515,8 +514,14 @@ const MealPlanForm = ({
         meal_time: string;
       }[];
 
+      // Filter out the existing item with the same food_id for the current meal time
+      const filteredMeals = currentMeals.filter(
+        (meal) => !(meal.food_id === food_id && meal.meal_time === label)
+      );
+
+      // Add or update the new meal entry
       setValue("meals", [
-        ...currentMeals.filter((meal) => meal.food_id !== food_id),
+        ...filteredMeals,
         {
           food_id: food_id as number,
           quantity: quantity,
@@ -545,15 +550,10 @@ const MealPlanForm = ({
     }
     setOpenFood(true);
   };
-  const handleDeleteFood = (id: number, mealType?: string) => {
-    const newMeals = [
-      ...(getValues("meals") as {
-        food_id: number;
-        quantity: number;
-        meal_time: string;
-      }[]),
-    ];
 
+  const handleDeleteFood = (id: number, mealType?: string) => {
+    const newMeals = watcher.meals;
+    
     setMeals((prevMeals) => {
       // Update the meals state by removing the food item from the specified meal type
       const updatedMeals = {
@@ -585,13 +585,16 @@ const MealPlanForm = ({
         },
       ]);
 
+
       return updatedMeals;
     });
 
     // Update the form's meals state as an array by removing the food item
     setValue(
       "meals",
-      newMeals.filter((meal) => meal.food_id !== id)
+      newMeals?.filter(
+        (meal) => !(meal.food_id === id && meal.meal_time === mealType)
+      )
     );
   };
   const renderTableRow = (mealType: string) => {
@@ -752,10 +755,10 @@ const MealPlanForm = ({
                                   <img
                                     src={
                                       watcher?.profile_img !== "" &&
-                                      watcher?.profile_img
+                                        watcher?.profile_img
                                         ? watcher.profile_img.includes(
-                                            VITE_VIEW_S3_URL
-                                          )
+                                          VITE_VIEW_S3_URL
+                                        )
                                           ? watcher.profile_img
                                           : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
                                         : ""

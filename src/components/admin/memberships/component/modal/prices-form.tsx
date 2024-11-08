@@ -262,7 +262,7 @@ const PriceDiscountTaxForm = () => {
                   <SelectItem value={"weekly"}>Weekly</SelectItem>
                   <SelectItem value={"monthly"}>Monthly</SelectItem>
                   <SelectItem value={"quarterly"}>Quarterly</SelectItem>
-                  <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem>
+                  {/* <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem> */}
                   <SelectItem value={"yearly"}>Yearly</SelectItem>
                 </SelectContent>
               </Select>

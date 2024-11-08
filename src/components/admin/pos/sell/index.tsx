@@ -75,10 +75,10 @@ const Sell = () => {
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
 
-  const { data: lastSession, refetch: lastSessionRefetch, isFetching } = useGetlastRegisterSessionQuery(counter_number as number, { refetchOnMountOrArgChange: true })
+  const { data: lastSession, refetch: lastSessionRefetch, isError, error: lastSessionError } = useGetlastRegisterSessionQuery(counter_number as number, { refetchOnMountOrArgChange: true })
 
   // initial value before sale is parked or sold
-   const initialValues: SellForm = {
+  const initialValues: SellForm = {
     staff_id: userInfo?.user.id,
     counter_id: counter_number as number, //counter id
     staff_name: userInfo?.user.first_name,
@@ -183,21 +183,28 @@ const Sell = () => {
       setProductPayload([])
       setShowCheckout(false)
     }
-    if(lastSession){
-       setValue("batch_id", lastSession.id as number) 
+    if (lastSession) {
+      setValue("batch_id", lastSession.id as number)
     }
-  }, [id,lastSession])
+  }, [id, lastSession])
 
   // for past 24 hour validation
   useEffect(() => {
     lastSessionRefetch()
-    if (!isFetching && lastSession?.closing_time !== null) {
-      toast({
-        variant: "success",
-        title: "No active register session found.",
-      })
-      navigate(`/admin/pos/register`)
-      return;
+    if (isError) {
+      const errorCode =
+        typeof lastSessionError === "object" &&
+        "status" in lastSessionError &&
+        (lastSessionError as ErrorType).status;
+
+      if (errorCode == 404) {
+        toast({
+          variant: "success",
+          title: "No active register session found.",
+        })
+        navigate(`/admin/pos/register`)
+        return;
+      }
     } else {
       const opening_time = new Date(lastSession?.opening_time as string)
       // 
@@ -208,7 +215,7 @@ const Sell = () => {
       }
     }
 
-  }, [lastSession, lastSessionRefetch])
+  }, [lastSession, isError, lastSessionError, lastSessionRefetch])
 
   // for search products
   useEffect(() => {
@@ -293,17 +300,17 @@ const Sell = () => {
       (item) => item.id === incomeCat?.sale_tax_id
     );
     const taxRate = saleTax?.percentage || 0;
-  
+
     // Calculate discount
     const discountPercentage = product.discount || 0;
     const discountAmount = Math.round((product.net_price * discountPercentage) / 100 * 100) / 100;
     const discountedPrice = Math.round((product.net_price - discountAmount) * 100) / 100;
-  
+
     // Initialize subtotal, tax, and total calculations
     let subTotal = product.net_price; // Subtotal without discount
     let taxAmount = 0;
     let total = 0;
-  
+
     // Apply tax based on tax inclusivity type
     if (orgTaxType?.tax_type === "inclusive") {
       // Tax-inclusive calculation, adjust for tax within discounted price
@@ -314,7 +321,7 @@ const Sell = () => {
       taxAmount = Math.round((discountedPrice * taxRate) / 100 * 100) / 100;
       total = Math.round((discountedPrice + taxAmount) * 100) / 100;
     }
-  
+
     // Construct the new product payload
     const newProductPayload = {
       item_id: product.id,
@@ -330,37 +337,37 @@ const Sell = () => {
       total,
       tax_amount: taxAmount,
     };
-  
+
     // Update the product payload to ensure unique entries and recalculate totals
     setProductPayload((prevPayload) => {
       const existingProduct = prevPayload.find((prod) => prod.item_id === product.id);
-  
+
       let updatedPayload;
       if (existingProduct) {
         // Update existing product in payload
         updatedPayload = prevPayload.map((prod) =>
           prod.item_id === product.id
             ? {
-                ...prod,
-                quantity: prod.quantity + 1,
-                sub_total: Math.round((prod.sub_total + subTotal) * 100) / 100,
-                discount: Math.round((prod.discount + discountAmount) * 100) / 100,
-                total: Math.round((prod.total + total) * 100) / 100,
-                tax_amount: Math.round((prod.tax_amount + taxAmount) * 100) / 100,
-              }
+              ...prod,
+              quantity: prod.quantity + 1,
+              sub_total: Math.round((prod.sub_total + subTotal) * 100) / 100,
+              discount: Math.round((prod.discount + discountAmount) * 100) / 100,
+              total: Math.round((prod.total + total) * 100) / 100,
+              tax_amount: Math.round((prod.tax_amount + taxAmount) * 100) / 100,
+            }
             : prod
         );
       } else {
         // Add new product to payload
         updatedPayload = [...prevPayload, newProductPayload];
       }
-  
+
       updateFormValues(updatedPayload);
-  
+
       return updatedPayload;
     });
   };
-  
+
 
 
 
@@ -371,27 +378,27 @@ const Sell = () => {
           if (product.item_id === productId) {
             // New quantity based on action
             const newQuantity = action === 'increment' ? product.quantity + 1 : product.quantity - 1;
-  
+
             // Remove product if quantity reaches zero
             if (newQuantity <= 0) return null;
-  
+
             // Calculate discount amount based on the new quantity
             const discountAmount = roundToTwoDecimals((product.discount / product.quantity) * newQuantity);
-            
+
             // Calculate new subTotal without applying the discount
             const subTotal = roundToTwoDecimals(product.price * newQuantity);
-  
+
             // Calculate tax and total after applying the discount
             const discountedPrice = roundToTwoDecimals(subTotal - discountAmount);
             const taxAmount = product.tax_type === "inclusive"
               ? roundToTwoDecimals(discountedPrice - discountedPrice / (1 + product.tax_rate / 100))
               : roundToTwoDecimals(discountedPrice * (product.tax_rate / 100));
-            
+
             // Calculate the final total based on tax inclusivity
             const total = product.tax_type === "inclusive"
               ? discountedPrice
               : roundToTwoDecimals(discountedPrice + taxAmount);
-  
+
             return {
               ...product,
               quantity: newQuantity,
@@ -404,7 +411,7 @@ const Sell = () => {
           return product;
         })
         .filter((product) => product !== null) as typeof prevPayload;
-  
+
       // Reset values if payload is empty
       if (newPayload.length === 0) {
         setValue("discount_amt", 0);
@@ -412,13 +419,13 @@ const Sell = () => {
         setValue("tax_amt", 0);
         setValue("total", 0);
       }
-      
+
       updateFormValues(newPayload);
-  
+
       return newPayload;
     });
   };
-  
+
 
 
   const discountAmt = watch("discount_amt")

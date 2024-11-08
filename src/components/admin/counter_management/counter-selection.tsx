@@ -38,6 +38,10 @@ const CounterSelection = () => {
     query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}` : ""}`,
   });
 
+  const assignedCounterData = useMemo(() => {
+    return Array.isArray(assignedCounter?.data) ? assignedCounter?.data : [];
+  }, [assignedCounter]);
+
   const [assignCounter, { isLoading: isUpdating, isError }] =
     useUpdateCountersMutation();
 
@@ -48,7 +52,7 @@ const CounterSelection = () => {
     if (counter.staff) {
       // staff array
       const singleCounter = counter.staff[0];
-      console.log({ singleCounter }, "assignedCounter.data");
+      console.log({ singleCounter }, counter.staff, "counter.staff");
 
       try {
         const payload = {
@@ -56,7 +60,7 @@ const CounterSelection = () => {
           is_open: true,
         };
         const resp = await assignCounter(payload).unwrap();
-        if (!resp) {
+        if (!resp.error) {
           console.log({ resp });
           toast({
             variant: "success",
@@ -66,7 +70,7 @@ const CounterSelection = () => {
           dispatch(setCode("pos"));
           navigate("/admin/pos/sell/");
         } else {
-          throw resp;
+          throw resp.error;
         }
       } catch (error) {
         console.error("Error", { error });
@@ -89,14 +93,16 @@ const CounterSelection = () => {
   };
 
   useEffect(() => {
-    if (counter_number == null && assignedCounter?.data?.length === 1) {
+    if (counter_number == null && assignedCounterData?.length === 1) {
       assignSingleCounter(
-        assignedCounter?.data[0],
+        assignedCounterData[0],
         "Counter Opened Successfully"
       );
     }
-  }, [assignedCounter?.data, assignCounter, dispatch, navigate, userInfo]);
+  }, [assignedCounterData, assignCounter, dispatch, navigate, userInfo]);
 
+
+  console.log({assignedCounterData})
   return (
     <div className="min-h-screen bg-outletcolor p-5">
       {!isLoading && (
@@ -119,18 +125,17 @@ const CounterSelection = () => {
                 </Link>
               </div>
               <div className="grid grid-cols-3 gap-10 w-fit mx-auto justify-center items-center">
-                {assignedCounter?.data.map((item: any, i: number) => (
+                {assignedCounterData.map((item: CounterDataType, i: number) => (
                   <button
                     key={i}
                     onClick={() =>
                       assignSingleCounter(item, "Counter Opened Successfully")
                     }
                     className={`relative 
-                                            ${item.is_open && item.staff_id !== userInfo?.user.id && "!bg-lightwarning border border-lightwarningborder"}
-                                            ${item.is_open && item.staff_id == userInfo?.user.id && "!bg-lightprimary border border-lightprimaryborder"}
-                                             cursor-pointer rounded-md size-52 flex flex-col justify-center items-center  ${
-                                               !item.is_open && "bg-outletcolor"
-                                             }`}
+                      ${item.is_open && item.staff_id !== userInfo?.user.id && "!bg-lightwarning border border-lightwarningborder"}
+                      ${item.is_open && item.staff_id == userInfo?.user.id && "!bg-lightprimary border border-lightprimaryborder"}
+                      cursor-pointer rounded-md size-52 flex flex-col justify-center items-center  ${!item.is_open && "bg-outletcolor"
+                      }`}
                   >
                     {item.is_open && (
                       <p className="absolute top-4 ">
@@ -150,7 +155,7 @@ const CounterSelection = () => {
               </div>
             </Card>
           ) : (
-            assignedCounter?.data.length === 0 && (
+            assignedCounterData.length === 0 && (
               <Card className="w-full p-5 space-y-4 max-w-2xl mx-auto">
                 <div className="flex justify-end items-center">
                   <Link
@@ -177,7 +182,7 @@ const CounterSelection = () => {
         </>
       )}
 
-      {assignedCounter?.data.length === 1 && !isError && (
+      {assignedCounterData.length === 1 && !isError && (
         <div className="fixed top-0 left-0 z-40 w-full h-screen flex justify-center items-center bg-black/40">
           <i className="animate-spin text-primary text-3xl font-bold text-main fas fa-spinner"></i>
         </div>

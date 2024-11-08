@@ -75,7 +75,7 @@ const Sell = () => {
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const counter_number = (localStorage.getItem("counter_number") as string) == "" ? null : Number((localStorage.getItem("counter_number") as string));
 
-  const { data: lastSession, refetch: lastSessionRefetch, isError, error: lastSessionError } = useGetlastRegisterSessionQuery(counter_number as number, { refetchOnMountOrArgChange: true })
+  const { data: lastSession, refetch: lastSessionRefetch, isError, isFetching, error: lastSessionError } = useGetlastRegisterSessionQuery(counter_number as number, { refetchOnMountOrArgChange: true })
 
   // initial value before sale is parked or sold
   const initialValues: SellForm = {
@@ -191,6 +191,7 @@ const Sell = () => {
   // for past 24 hour validation
   useEffect(() => {
     lastSessionRefetch()
+    console.log(lastSession?.closing_balance, "check ehre")
     if (isError) {
       const errorCode =
         typeof lastSessionError === "object" &&
@@ -205,6 +206,13 @@ const Sell = () => {
         navigate(`/admin/pos/register`)
         return;
       }
+    } else if (!isFetching && lastSession?.closing_time !== null) {
+      toast({
+        variant: "success",
+        title: "No active register session found.",
+      })
+      navigate(`/admin/pos/register`)
+      return;
     } else {
       const opening_time = new Date(lastSession?.opening_time as string)
       // 
@@ -663,7 +671,7 @@ const Sell = () => {
                         customerList={memberListData}
                         setCustomer={setCustomer}
                         customer={customer}
-
+                        disable={id && watcher.transaction_type == "Refund" ? true : false}
                       />
                       <Button onClick={handleOpenForm} className=" text-white justify-center items-center gap-2">
                         <i className="fa-regular fa-plus"></i>
@@ -688,7 +696,7 @@ const Sell = () => {
 
                             <div className="inline-flex items-center ">
                               <button
-                                disabled={Number(watcher.id) ? true : false}
+                                disabled={Number(watcher.id) || (id && watcher.transaction_type == "Refund") ? true : false}
                                 onClick={() => updateProductQuantity(product.item_id, "decrement")}
                                 className="disabled:cursor-not-allowed disabled:hover:bg-transparent bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
                                 <i className="fa fa-minus"></i>
@@ -698,7 +706,7 @@ const Sell = () => {
                                 {product.quantity}
                               </div>
                               <button
-                                disabled={Number(watcher.id) ? true : false}
+                                disabled={Number(watcher.id) || (id && watcher.transaction_type == "Refund") ? true : false}
                                 onClick={() => updateProductQuantity(product.item_id, "increment")}
                                 className="disabled:cursor-not-allowed disabled:hover:bg-transparent bg-white rounded-l border text-gray-600 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50 inline-flex items-center px-2 py-1 border-r border-gray-200">
                                 <i className="fa fa-plus"></i>
@@ -750,7 +758,7 @@ const Sell = () => {
                       </div>
                       <Separator className="my-2" />
                       <div className="w-full flex gap-2 items-center justify-between font-bold">
-                        <p>Sold By</p>
+                        <p>Processed By</p>
                         <div>
                           <Popover open={openStaffDropdown} onOpenChange={setStaffDropdown} >
                             <PopoverTrigger asChild>
@@ -906,9 +914,10 @@ interface customerComboboxTypes {
   setTransactionId?: any;
   customer: any;
   label?: string
+  disable?: boolean;
 }
 
-export function CustomerCombobox({ customerList, setCustomer, customer, label }: customerComboboxTypes) {
+export function CustomerCombobox({ customerList, setCustomer, customer, label, disable }: customerComboboxTypes) {
   const modifiedList = customerList?.map((item: any) => ({ value: item.id, label: item.first_name + " " + item.last_name }))
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState('')
@@ -927,6 +936,7 @@ export function CustomerCombobox({ customerList, setCustomer, customer, label }:
         <Button
           variant="outline"
           role="combobox"
+          disabled={disable}
           aria-expanded={open}
           className="capitalize w-full justify-between bg-white rounded-sm border-[1px]"
         >
@@ -981,7 +991,7 @@ export function RetriveSaleCombobox({ list, setCustomer, customer, label, custom
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className=" capitalize w-full justify-center items-center gap-2  bg-white rounded-sm border-[1px]"
+          className="disabled:cursor-not-allowed capitalize w-full justify-center items-center gap-2  bg-white rounded-sm border-[1px]"
         >
           <i className="fa fa-share"></i>
           {label}

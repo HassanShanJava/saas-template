@@ -838,257 +838,135 @@ export default function SaleshistoryRegisterViewTable() {
                     </TableRow>
                     {row.getIsExpanded() && (
                       <>
-                        {row.original.transaction_type === "Sale" ? (
-                          <TableRow>
-                            <TableCell colSpan={12}>
-                              <div className="py-4">
-                                <h3 className="text-lg font-bold mb-4">
-                                  Sale Details
-                                </h3>
-                                {/* Line items */}
-                                <div className="grid grid-cols-12 py-2 gap-4 font-semibold">
-                                  <span className="col-span-2">Item Type</span>
-                                  <span className="col-span-1">Name</span>
-                                  <span className="col-span-1">Qty</span>
-                                  <span className="col-span-1">Price</span>
-                                  <span className="col-span-1">Discount</span>
-                                  <span className="col-span-1">Tax (Rate)</span>
-                                  <span className="col-span-1">Tax Type</span>
-                                  <span className="col-span-1">Tax Name</span>
-                                  <span className="col-span-1">Sub Total</span>
-                                  <span className="col-span-1">Total</span>
-                                  <span className="col-span-1">Notes</span>
-                                </div>
-                                {row.original.items?.map(
-                                  (item: lineItems, i: number) => (
-                                    <div
-                                      key={i}
-                                      className="grid grid-cols-12 py-2 gap-4 border-b last:border-b-0"
-                                    >
-                                      <span className="col-span-2 text-nowrap">
-                                        {capitalizeFirstLetter(
-                                          replaceUnderscoreWithSpace(
-                                            item.item_type
-                                          )
-                                        )}
-                                      </span>
-                                      <span className="col-span-1">
-                                        {item.description}
-                                      </span>
-                                      <span className="col-span-1">
-                                        {item.quantity}
-                                      </span>
-                                      <span className="col-span-1">
-                                        {item.price?.toFixed(2)}
-                                      </span>
-                                      <span className="col-span-1">
-                                        {item.discount?.toFixed(2)}
-                                      </span>
-                                      <span className="col-span-1  ">
-                                        {item.tax_amount?.toFixed(2)}
-                                        <span className="pl-2">
-                                          {item.tax_rate?.toFixed(2)}%
-                                        </span>
-                                      </span>
 
-                                      <span className="col-span-1 w-20">
-                                        {item.tax_type}
-                                      </span>
-                                      <span className="col-span-1 w-20">
-                                        {item.tax_name}
-                                      </span>
-                                      <span className="col-span-1">
-                                        {item.sub_total?.toFixed(2)}
-                                      </span>
-                                      <span className="col-span-1">
-                                        {item.total?.toFixed(2)}
-                                      </span>
-                                      <div className="col-span-1">
-                                        <TooltipProvider>
-                                          <Tooltip>
-                                            <TooltipTrigger asChild>
-                                              <p>
-                                                <span className="capitalize cursor-pointer">
-                                                  {displayValue(
-                                                    `${row.original.notes}`
-                                                      .length > 15
-                                                      ? `${row.original.notes}`.substring(
-                                                        0,
-                                                        15
-                                                      ) + "..."
-                                                      : `${row.original.notes}`
-                                                  )}
-                                                </span>
-                                              </p>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              <p className="capitalize text-sm">
-                                                {displayValue(
-                                                  `${row?.original?.notes}`
-                                                )}
-                                              </p>
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        </TooltipProvider>
-                                      </div>
-                                    </div>
-                                  )
-                                )}
-                                {/* Subtotal, Tax, and Total */}
-                                <div className="grid grid-cols-12  mt-4"></div>
-                              </div>
-                              {/* Payments Section */}
-                              <h4 className="text-lg font-semibold mb-2">
-                                Payment Details
-                              </h4>
+
+                        <TableRow>
+                          <TableCell colSpan={12}>
+                            <div className="py-4">
+                              <h3 className="text-lg font-bold mb-4">
+                                {row.original.transaction_type} Details
+                              </h3>
+                              {/* Line items */}
                               <div className="grid grid-cols-12 py-2 gap-4 font-semibold">
-                                <span className="col-span-2  text-nowrap">
-                                  Payment Method
-                                </span>
-                                <span className="col-span-1">Amount</span>
+                                <span className="col-span-1">Name</span>
+                                <span className="col-span-2">Type</span>
+                                <span className="col-span-1">Qty</span>
+                                <span className="col-span-1">Price</span>
+                                <span className="col-span-1">Discount</span>
+                                <span className="col-span-1">Tax Amount</span>
+                                <span className="col-span-1">Tax Type</span>
+                                <span className="col-span-1">Tax (Rate)</span>
+                                <span className="col-span-1">Sub Total</span>
+                                <span className="col-span-1">Total</span>
+                                <span className="col-span-1">Notes</span>
                               </div>
-                              {row.original.payments?.map(
-                                (payment: paymentOptions, i: number) => (
+                              {row.original.items?.map(
+                                (item: lineItems, i: number) => (
                                   <div
                                     key={i}
                                     className="grid grid-cols-12 py-2 gap-4 border-b last:border-b-0"
                                   >
-                                    <span className="col-span-2">
-                                      {displayValue(payment.payment_method)}
+
+                                    <span className="capitalize col-span-1">
+                                      {item.description}
                                     </span>
-                                    <span>
-                                      {" "}
-                                      {displayValue(payment.amount?.toFixed(2))}
+
+                                    <span className="col-span-2 text-nowrap">
+                                      {capitalizeFirstLetter(
+                                        replaceUnderscoreWithSpace(
+                                          item.item_type
+                                        )
+                                      )}
                                     </span>
+
+                                    <span className="col-span-1">
+                                      {item.quantity}
+                                    </span>
+                                    <span className="col-span-1">
+                                      {item.price?.toFixed(2)}
+                                    </span>
+                                    <span className="col-span-1">
+                                      {item.discount?.toFixed(2)}
+                                    </span>
+                                    <span className="col-span-1  ">
+                                      {item.tax_amount?.toFixed(2)}
+
+                                    </span>
+
+                                    <span className="col-span-1 w-20">
+                                      {item.tax_type}
+                                    </span>
+                                    <span className="capitalize col-span-1 w-20 text-nowrap">
+                                      {`${item.tax_name} (${item.tax_rate.toFixed(2)})%`}
+                                    </span>
+                                    <span className="col-span-1">
+                                      {item.sub_total?.toFixed(2)}
+                                    </span>
+                                    <span className="col-span-1">
+                                      {item.total?.toFixed(2)}
+                                    </span>
+                                    <div className="col-span-1">
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <p>
+                                              <span className="capitalize cursor-pointer">
+                                                {displayValue(
+                                                  `${row.original.notes}`
+                                                    .length > 15
+                                                    ? `${row.original.notes}`.substring(
+                                                      0,
+                                                      15
+                                                    ) + "..."
+                                                    : `${row.original.notes}`
+                                                )}
+                                              </span>
+                                            </p>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p className="capitalize text-sm">
+                                              {displayValue(
+                                                `${row?.original?.notes}`
+                                              )}
+                                            </p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    </div>
                                   </div>
                                 )
                               )}
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          <TableRow>
-                            <TableCell colSpan={12}>
-                              <div className="py-4">
-                                <h3 className="text-lg font-bold">
-                                  Refund Details
-                                </h3>
-                                {/* Line items */}
-                                <div className="grid grid-cols-12 py-2 gap-4 font-semibold">
-                                  <span className="col-span-2">Item Type</span>
-                                  <span className="col-span-1">Name</span>
-                                  <span className="col-span-1">Qty</span>
-                                  <span className="col-span-1">Price</span>
-                                  <span className="col-span-1">Discount</span>
-                                  <span className="col-span-1">Tax (Rate)</span>
-                                  <span className="col-span-1">Tax Type</span>
-                                  <span className="col-span-1">Sub Total</span>
-                                  <span className="col-span-1">Total</span>
-                                  <span className="col-span-1">Notes</span>
+                              {/* Subtotal, Tax, and Total */}
+                              <div className="grid grid-cols-12  mt-4"></div>
+                            </div>
+                            {/* Payments Section */}
+                            <h4 className="text-lg font-semibold mb-2">
+                              Payment Details
+                            </h4>
+                            <div className="grid grid-cols-12 py-2 gap-4 font-semibold">
+                              <span className="col-span-2  text-nowrap">
+                                Payment Method
+                              </span>
+                              <span className="col-span-1">Amount</span>
+                            </div>
+                            {row.original.payments?.map(
+                              (payment: paymentOptions, i: number) => (
+                                <div
+                                  key={i}
+                                  className="grid grid-cols-12 py-2 gap-4 border-b last:border-b-0"
+                                >
+                                  <span className="col-span-2">
+                                    {displayValue(payment.payment_method)}
+                                  </span>
+                                  <span>
+                                    {" "}
+                                    {displayValue(payment.amount?.toFixed(2))}
+                                  </span>
                                 </div>
-                                {row.original.items?.map(
-                                  (item: lineItems, i: number) => (
-                                    <div
-                                      key={i}
-                                      className="grid grid-cols-12 py-2 gap-4 border-b last:border-b-0"
-                                    >
-                                      <span className="col-span-2 text-nowrap">
-                                        {capitalizeFirstLetter(
-                                          replaceUnderscoreWithSpace(
-                                            item.item_type
-                                          )
-                                        )}
-                                      </span>
-                                      <span className="col-span-1">
-                                        {item.description}
-                                      </span>
-                                      <span className="col-span-1">
-                                        {item.quantity}
-                                      </span>
-                                      <span className="col-span-1">
-                                        {item.price?.toFixed(2)}
-                                      </span>
-                                      <span className="col-span-1">
-                                        {item.discount?.toFixed(2)}
-                                      </span>
-                                      <span className="col-span-1  ">
-                                        {item.tax_amount?.toFixed(2)}
-                                        <span className="pl-2">
-                                          {item.tax_rate?.toFixed(2)}%
-                                        </span>
-                                      </span>
-
-                                      <span className="col-span-1">
-                                        {item.tax_type}
-                                      </span>
-                                      <span className="col-span-1">
-                                        {item.sub_total?.toFixed(2)}
-                                      </span>
-                                      <span className="col-span-1">
-                                        {item.total?.toFixed(2)}
-                                      </span>
-                                      <div className="col-span-1">
-                                        <TooltipProvider>
-                                          <Tooltip>
-                                            <TooltipTrigger asChild>
-                                              <p>
-                                                <span className="capitalize cursor-pointer">
-                                                  {displayValue(
-                                                    `${row.original.notes}`
-                                                      .length > 15
-                                                      ? `${row.original.notes}`.substring(
-                                                        0,
-                                                        15
-                                                      ) + "..."
-                                                      : `${row.original.notes}`
-                                                  )}
-                                                </span>
-                                              </p>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              <p className="capitalize text-sm">
-                                                {displayValue(
-                                                  `${row?.original?.notes}`
-                                                )}
-                                              </p>
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        </TooltipProvider>
-                                      </div>
-                                    </div>
-                                  )
-                                )}
-
-                                {/* Payments Section */}
-                                <div className="py-4 border-t mt-4">
-                                  <h4 className="text-lg font-semibold mb-2">
-                                    Payment Details
-                                  </h4>
-                                  <div className="grid grid-cols-12 py-2 gap-4 font-semibold">
-                                    <span className="col-span-5">
-                                      Payment Method
-                                    </span>
-                                    <span className="col-span-5">Amount</span>
-                                  </div>
-                                  {row.original.payments?.map(
-                                    (payment: paymentOptions, i: number) => (
-                                      <div
-                                        key={i}
-                                        className="grid grid-cols-12 py-2 gap-4 border-b last:border-b-0"
-                                      >
-                                        <span className="col-span-5">
-                                          {payment.payment_method}
-                                        </span>
-                                        <span className="col-span-5 text-right">
-                                          {payment.amount?.toFixed(2)}
-                                        </span>
-                                      </div>
-                                    )
-                                  )}
-                                </div>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        )}
+                              )
+                            )}
+                          </TableCell>
+                        </TableRow>
                       </>
                     )}
                   </>

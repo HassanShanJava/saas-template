@@ -132,14 +132,15 @@ const CounterForm = ({
           ...payload,
           id: data?.id as number,
         }).unwrap();
-        if (!resp) {
+        
+        if (!resp.error) {
           toast({
             variant: "success",
             title: "Counter updated successfully",
           });
           refetch();
         } else {
-          throw resp;
+          throw resp.error;
         }
       }
       handleClose();

@@ -40,6 +40,7 @@ const DashboardLayout: React.FC = () => {
       return "no_access";
     }
   })();
+  
   const { data: assignedCounter } = useGetCountersQuery({
     query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}` : ""}`,
   });

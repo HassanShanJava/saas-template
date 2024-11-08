@@ -375,6 +375,7 @@ export interface CountryTypes {
 export interface ErrorType {
   status?: number;
   data?: {
+    message?: string;
     detail?: string;
   };
 }

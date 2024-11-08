@@ -12,6 +12,7 @@ const ProtectedRoute = () => {
     (state: RootState) => state.auth.userInfo?.user?.org_id
   );
 
+
   useEffect(() => {
     if (sidepanel) {
       try {
@@ -27,7 +28,7 @@ const ProtectedRoute = () => {
 
   const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const location = useLocation();
-
+  
   // Redirect to login if not authenticated and trying to access a protected route
   if (!isAuthenticated && location.pathname !== "/") {
     return <Navigate to="/" />;
@@ -40,7 +41,7 @@ const ProtectedRoute = () => {
     // }
 
     // return <Navigate to={sidePanel[0]} />;
-    return window.innerWidth < 500 ? (
+     return window.innerWidth < 500 ? (
       <Navigate to="/qr-code" />
     ) : (
       <Navigate to={sidePanel[0]} />

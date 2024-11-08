@@ -840,7 +840,7 @@ const MealPlanForm = ({
                 <div className="flex flex-col gap-2">
                   <Controller
                     name={"member_id" as keyof MealPlanDataType}
-                    rules={{ required: "Required" }}
+                    // rules={{ required: "Required" }}
                     control={control}
                     render={({
                       field: { onChange, value, onBlur },
@@ -848,7 +848,7 @@ const MealPlanForm = ({
                     }) => (
                       <div>
                         <MultiSelect
-                          floatingLabel={"Assgin to*"}
+                          floatingLabel={"Assgin to"}
                           options={
                             membersData as {
                               value: number;

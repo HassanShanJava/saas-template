@@ -34,9 +34,7 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import {
-  ErrorType,
-} from "@/app/types";
+import { ErrorType } from "@/app/types";
 import {
   MemberInputTypes,
   MemberTableDatatypes,
@@ -96,10 +94,17 @@ const status = [
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
   { value: "pending", label: "Pending", color: "bg-orange-500", hide: true },
 ];
+interface FilterDataType {
+  [key: string]: string | number | boolean; // Define the types you expect for your filters
+}
+
 export default function MemberTableView() {
   const member = (() => {
     try {
-      return JSON.parse(localStorage.getItem("accessLevels") as string).member ?? "no_access";
+      return (
+        JSON.parse(localStorage.getItem("accessLevels") as string).member ??
+        "no_access"
+      );
     } catch {
       return "no_access";
     }
@@ -120,7 +125,8 @@ export default function MemberTableView() {
   const [inputValue, setInputValue] = useState("");
   const [openFilter, setOpenFilter] = useState(false);
   const debouncedInputValue = useDebounce(inputValue, 500);
-  const [filterData, setFilter] = useState({});
+  // const [filterData, setFilter] = useState({});
+  const [filterData, setFilter] = useState<FilterDataType>({}); // Use the defined type for active filters
 
   useEffect(() => {
     setSearchCriteria((prev) => {
@@ -378,9 +384,9 @@ export default function MemberTableView() {
                         `${row.original.first_name} ${row.original.last_name}`
                           .length > 12
                           ? `${row.original.first_name} ${row.original.last_name}`.substring(
-                            0,
-                            12
-                          ) + "..."
+                              0,
+                              12
+                            ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -425,20 +431,20 @@ export default function MemberTableView() {
                   <p className="capitalize cursor-pointer">
                     {/* Display the truncated name */}
                     {!row.original.is_business &&
-                      row.original.business_id == undefined
+                    row.original.business_id == undefined
                       ? "N/A"
                       : displayValue(
-                        `${row.original.business_name}`.length > 15
-                          ? `${row.original.business_name}`.substring(0, 15) +
-                          "..."
-                          : `${row.original.business_name}`
-                      )}
+                          `${row.original.business_name}`.length > 15
+                            ? `${row.original.business_name}`.substring(0, 15) +
+                                "..."
+                            : `${row.original.business_name}`
+                        )}
                   </p>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="capitalize text-sm">
                     {!row.original.is_business &&
-                      row.original.business_id == undefined
+                    row.original.business_id == undefined
                       ? "N/A"
                       : displayValue(`${row.original.business_name}`)}
                   </p>
@@ -647,6 +653,30 @@ export default function MemberTableView() {
     searchCriteria,
     setSearchCriteria,
   });
+
+  const displayAppliedFilters = () => {
+    return Object.entries(filterData).map(([key, value]) => (
+      <div key={key} className="filter-item">
+        <span>
+          {key}: {value}
+        </span>
+        <button onClick={() => removeFilter(key)}>Remove</button>
+      </div>
+    ));
+  };
+
+  const removeFilter = (filterName: string) => {
+    const newFilters = { ...filterData };
+    delete newFilters[filterName]; // Remove the specified filter
+    setFilter(newFilters); // Update the state
+    setSearchCriteria((prev: any) => ({
+      ...prev,
+      ...newFilters,
+      offset: 0,
+      sort_key: "id",
+      sort_order: "desc",
+    }));
+  };
   return (
     <div className="w-full space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3">
@@ -682,7 +712,19 @@ export default function MemberTableView() {
           </button>
         </div>
       </div>
-
+      <div className="py-2 space-y-4">
+        {/* Render applied filters */}
+        <div className="applied-filters">
+          {Object.keys(filterData).map((filterName) => (
+            <div key={filterName} className="filter-item">
+              <span>
+                {filterName}: {filterData[filterName]}
+              </span>
+              <button onClick={() => removeFilter(filterName)}>Remove</button>
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="rounded-none border border-border ">
         <ScrollArea className="w-full relative">
           <ScrollBar
@@ -699,9 +741,9 @@ export default function MemberTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

@@ -372,7 +372,6 @@ export default function MealPlansTableView() {
       ...data,
       visible_for: visibleForMap[data.visible_for!],
     };
-    setData(payload);
     setAction("edit");
     setData(payload);
     setIsDialogOpen(true);

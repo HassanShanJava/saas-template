@@ -433,19 +433,19 @@ const MealPlanForm = ({
     foodAction: "add" | "edit"
   ) => {
     const { label, food_id, quantity, calories, carbs, protein, fat } = mealType;
-  
+
     setMeals((prevMeals) => {
       const mealList = prevMeals[label as string];
       const existingFoodIndex = mealList.findIndex(
         (food) => food.food_id === food_id
       );
-  
+
       const updatedFoods = [...mealList];
-  
+
       if (existingFoodIndex !== -1) {
         // Update the existing food item based on the action
         const existingFood = updatedFoods[existingFoodIndex];
-  
+
         updatedFoods[existingFoodIndex] = {
           ...existingFood,
           quantity:
@@ -479,15 +479,15 @@ const MealPlanForm = ({
           food_id,
         });
       }
-  
+
       const updatedMeals = {
         ...prevMeals,
         [label]: updatedFoods,
       };
-  
+
       // Recalculate the percentages after the update
       const percentages = calculatePercentages(updatedMeals);
-  
+
       // Update the pie chart data
       setPieChart([
         {
@@ -506,19 +506,19 @@ const MealPlanForm = ({
           fill: "#DD4664",
         },
       ]);
-  
+
       // Update the watcher meals state as an array
       const currentMeals = getValues("meals") as {
         food_id: number;
         quantity: number;
         meal_time: string;
       }[];
-  
+
       // Filter out the existing item with the same food_id for the current meal time
       const filteredMeals = currentMeals.filter(
         (meal) => !(meal.food_id === food_id && meal.meal_time === label)
       );
-  
+
       // Add or update the new meal entry
       setValue("meals", [
         ...filteredMeals,
@@ -528,16 +528,16 @@ const MealPlanForm = ({
           meal_time: label,
         },
       ]);
-  
+
       // Update individual macronutrient values
       setValue("fats", percentages.fat);
       setValue("protein", percentages.protein);
       setValue("carbs", percentages.carbs);
-  
+
       return updatedMeals;
     });
   };
-  
+
   const handleEditFood = (data: any, mealType?: string) => {
     console.log("edit");
     setFoodAction("edit");
@@ -550,15 +550,10 @@ const MealPlanForm = ({
     }
     setOpenFood(true);
   };
-  const handleDeleteFood = (id: number, mealType?: string) => {
-    const newMeals = [
-      ...(getValues("meals") as {
-        food_id: number;
-        quantity: number;
-        meal_time: string;
-      }[]),
-    ];
 
+  const handleDeleteFood = (id: number, mealType?: string) => {
+    const newMeals = watcher.meals;
+    
     setMeals((prevMeals) => {
       // Update the meals state by removing the food item from the specified meal type
       const updatedMeals = {
@@ -590,13 +585,16 @@ const MealPlanForm = ({
         },
       ]);
 
+
       return updatedMeals;
     });
 
     // Update the form's meals state as an array by removing the food item
     setValue(
       "meals",
-      newMeals.filter((meal) => meal.food_id !== id)
+      newMeals?.filter(
+        (meal) => !(meal.food_id === id && meal.meal_time === mealType)
+      )
     );
   };
   const renderTableRow = (mealType: string) => {
@@ -757,10 +755,10 @@ const MealPlanForm = ({
                                   <img
                                     src={
                                       watcher?.profile_img !== "" &&
-                                      watcher?.profile_img
+                                        watcher?.profile_img
                                         ? watcher.profile_img.includes(
-                                            VITE_VIEW_S3_URL
-                                          )
+                                          VITE_VIEW_S3_URL
+                                        )
                                           ? watcher.profile_img
                                           : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
                                         : ""

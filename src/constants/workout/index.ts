@@ -97,7 +97,7 @@ export function useGetAllWorkoutDayQuery(workoutId: string): {
       include_days_and_exercises: false,
     },
     {
-      skip: workoutId == undefined,
+      skip: workoutId == undefined || workoutId == null,
     }
   );
 

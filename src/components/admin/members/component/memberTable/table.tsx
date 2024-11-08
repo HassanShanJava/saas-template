@@ -712,8 +712,7 @@ export default function MemberTableView() {
           </button>
         </div>
       </div>
-      <div className="py-2 space-y-4">
-        {/* Render applied filters */}
+      {/* <div className="py-2 space-y-4">
         <div className="applied-filters">
           {Object.keys(filterData).map((filterName) => (
             <div key={filterName} className="filter-item">
@@ -724,7 +723,7 @@ export default function MemberTableView() {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
       <div className="rounded-none border border-border ">
         <ScrollArea className="w-full relative">
           <ScrollBar

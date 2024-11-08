@@ -9,7 +9,11 @@ export const has24HoursPassed = (storedTime: number) => {
   console.log(currentTime, storedTime, VITE_REGISTER_MAX_HOUR * 60 * 60 * 1000);
   return currentTime - storedTime > VITE_REGISTER_MAX_HOUR * 60 * 60 * 1000;
 };
-
+type RegisterError = {
+  data?: {
+    detail?: string;
+  };
+};
 export function useGetRegisterData(counter_id: number): {
   data: registerSessionStorage | null;
   isRegisterOpen: boolean;
@@ -94,24 +98,38 @@ export function useGetRegisterData(counter_id: number): {
       setIsDayExceed(false); // Reset day exceed if register is open
     }
 
+    // if (
+    //   error &&
+    //   "data" in error &&
+    //   (error as any).data?.detail === "Last session not found"
+    // ) {
+    //   setIsRegisterOpen(false);
+    //   setIsLoading(false);
+    //   setIsDayExceed(false); // Reset day exceed since we are forcing register open
+    // } else {
+    //   console.log("Falling in register here");
+    //   // Stop loading when everything is processed
+    //   setIsLoading(
+    //     isDataLoading ||
+    //       (!!error &&
+    //         !(
+    //           "data" in error &&
+    //           (error as any).data?.detail === "Last session not found"
+    //         ))
+    //   );
+    // }
     if (
       error &&
-      "data" in error &&
-      (error as any).data?.detail === "Last session not found"
+      (error as RegisterError).data?.detail === "Last session not found"
     ) {
       setIsRegisterOpen(false);
       setIsLoading(false);
-      setIsDayExceed(false); // Reset day exceed since we are forcing register open
+      setIsDayExceed(false);
+    } else if (error) {
+      console.error("Unexpected error:", error);
+      setIsLoading(false);
     } else {
-      // Stop loading when everything is processed
-      setIsLoading(
-        isDataLoading ||
-          (!!error &&
-            !(
-              "data" in error &&
-              (error as any).data?.detail === "Last session not found"
-            ))
-      );
+      setIsLoading(isDataLoading);
     }
     // Stop loading when everything is processed
     // setIsLoading(isDataLoading || error ? true : false);

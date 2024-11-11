@@ -897,7 +897,7 @@ export default function SaleshistoryRegisterViewTable() {
                                       {item.tax_type}
                                     </span>
                                     <span className="capitalize col-span-1 w-20 text-nowrap">
-                                      {`${item.tax_name} (${item.tax_rate.toFixed(2)})%`}
+                                      {`${item.tax_name} (${item.tax_rate.toFixed(2)}%)`}
                                     </span>
                                     <span className="col-span-1">
                                       {item.sub_total?.toFixed(2)}

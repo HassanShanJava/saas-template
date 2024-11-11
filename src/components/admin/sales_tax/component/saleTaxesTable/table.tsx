@@ -717,6 +717,7 @@ const SaleTaxesForm = ({
                           id="name"
                           name="name"
                           label="Tax/VAT Name*"
+                          className="capitalize"
                           value={value ?? ""}
                           onChange={handleOnChange}
                         />

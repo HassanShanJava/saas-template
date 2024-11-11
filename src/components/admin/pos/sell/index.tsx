@@ -66,7 +66,6 @@ const Sell = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   // register session info
-  // const { sessionId } = JSON.parse(localStorage.getItem("registerSession") as string) ?? { sessionId: null };
   // register continue today?
   const isContinue = JSON.parse(localStorage.getItem("isContinue") as string) || null
   console.log({ isContinue }, "isContinue")
@@ -627,13 +626,13 @@ const Sell = () => {
                             {category.products.map((product: Record<string, any>, i) => (
                               <button
                                 key={i}
-                                disabled={watcher.id ? true : false}
+                                disabled={Number(watcher.id) || (id && watcher.transaction_type == "Refund") ? true : false}
                                 onClick={() => addProduct(product, category?.type)}
-                                className={`relative group ${!watcher.id && "hover:bg-primary/20 hover:text-black/60 cursor-pointer"} size-28 text-sm  flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm `}>
+                                className={`relative group ${!watcher.id || (id && watcher.transaction_type == "Refund") && "hover:bg-primary/20 hover:text-black/60 cursor-pointer"} size-28 text-sm  flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm `}>
                                 <span className="capitalize">{product.name}</span>
                                 <span>Rs. {product.net_price}</span>
 
-                                {!watcher.id && <span className="absolute invisible group-hover:visible  bottom-0   text-black/80 text-sm z-20 p-1">Add</span>}
+                                {!watcher.id || (id && watcher.transaction_type == "Refund") && <span className="absolute invisible group-hover:visible  bottom-0   text-black/80 text-sm z-20 p-1">Add</span>}
                               </button>
                             ))}
                           </div>
@@ -949,7 +948,7 @@ export function CustomerCombobox({ customerList, setCustomer, customer, label, d
       <PopoverContent className=" w-[330px] p-0">
         <Command>
           <CommandInput placeholder={label} />
-          <CommandList className="w-[328px] custom-scrollbar">
+          <CommandList className="capitalize w-[328px] custom-scrollbar">
             <CommandEmpty>No customer found.</CommandEmpty>
             <CommandGroup className="">
               {modifiedList?.map((customer: any) => (
@@ -997,22 +996,27 @@ export function RetriveSaleCombobox({ list, setCustomer, customer, label, custom
           {label}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className=" w-[25rem] p-0" side="bottom">
+      <PopoverContent className=" min-w-[25rem] p-0" side="bottom">
         <Command>
           <CommandList className="">
             <CommandEmpty>No customer found.</CommandEmpty>
-            <div className="flex justify-between gap-3 px-3 py-1 items-center font-semibold">
-              <p>Items</p>
-              <p>Customer</p>
-            </div>
-            <Separator className="mx-2 w-96" />
+            {modifiedList && modifiedList.length > 0 && (
+              <>
+                <div className="flex justify-between gap-3 px-3 py-1 items-center font-semibold">
+                  <p>Items</p>
+                  <p>Customer</p>
+                </div>
+                <Separator className="mx-2 w-96" />
+              </>
+            )}
             <CommandGroup className="">
               {modifiedList?.map((modCustomer) => (
                 <CommandItem
                   key={modCustomer.value + ""}
-                  value={modCustomer.value + ""}
+                  value={modCustomer.transactionId + ""}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
+                    const customerId = modifiedList.find((item) => item.transactionId == currentValue).member_id
+                    setValue(currentValue == customerId ? "" : currentValue)
                     const customer = customerList?.find((item: any) => item.id == currentValue)
                     setCustomer(customer)
                     setTransactionId(modCustomer.transactionId)

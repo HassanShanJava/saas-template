@@ -382,7 +382,6 @@ export interface ErrorType {
   data?: {
     message?: string;
     detail?: string;
-    message?: string;
   };
 }
 export interface sourceTypes {

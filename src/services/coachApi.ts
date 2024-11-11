@@ -7,10 +7,12 @@ import {
   coachUpdateInput,
   ServerResponseById,
 } from "@/app/types";
+import { CoachInput, CoachUpdate } from "@/app/types/coach";
+import { ApiResponse } from "@/app/types/shared_types";
 
 import { apiSlice } from "@/features/api/apiSlice";
 
-interface coachInput {
+interface CoachQuery {
   query: string;
   org_id: number;
 }
@@ -18,7 +20,7 @@ interface coachInput {
 export const Roles = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      AddCoach: builder.mutation<addCoachResponseType, CoachInputTypes>({
+      AddCoach: builder.mutation<ApiResponse, CoachInput>({
         query: (coachdata) => ({
           url: "/coach",
           method: "POST",
@@ -40,7 +42,7 @@ export const Roles = apiSlice.injectEndpoints({
         }),
         providesTags: ["Coaches"],
       }),
-      getCoaches: builder.query<CoachTypes, coachInput>({
+      getCoaches: builder.query<CoachTypes, CoachQuery>({
         query: (searchCretiria) => ({
           url: `/coach?org_id=${searchCretiria.org_id}&${searchCretiria.query}`,
           method: "GET",
@@ -64,7 +66,7 @@ export const Roles = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Coaches"],
       }),
-      updateCoach: builder.mutation<any, CoachInputTypes & { id: number }>({
+      updateCoach: builder.mutation<any, CoachUpdate & { id: number }>({
         query: (coachdata) => ({
           url: `/coach/${coachdata.id}`,
           method: "PUT",

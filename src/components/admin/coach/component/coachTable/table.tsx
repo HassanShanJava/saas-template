@@ -75,6 +75,8 @@ import {
 } from "@/components/ui/tooltip";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
+import { CoachUpdate } from "@/app/types/coach";
+import { UserStatus } from "@/app/shared_enums/enums";
 const status = [
   { value: "active", label: "Active", color: "bg-green-500" },
   { value: "inactive", label: "Inactive", color: "bg-blue-500" },
@@ -100,7 +102,10 @@ const initialValue = {
 export default function CoachTableView() {
   const coach = (() => {
     try {
-      return JSON.parse(localStorage.getItem("accessLevels") as string).coach ?? "no_access";
+      return (
+        JSON.parse(localStorage.getItem("accessLevels") as string).coach ??
+        "no_access"
+      );
     } catch {
       return "no_access";
     }
@@ -196,7 +201,7 @@ export default function CoachTableView() {
   };
 
   const handleStatusChange = async (payload: {
-    coach_status: "pending" | "active" | "inactive" | undefined;
+    coach_status: UserStatus | undefined;
     id: number;
     org_id: number;
   }) => {
@@ -347,9 +352,9 @@ export default function CoachTableView() {
                         `${row.original.first_name} ${row.original.last_name}`
                           .length > 8
                           ? `${row.original.first_name} ${row.original.last_name}`.substring(
-                            0,
-                            8
-                          ) + "..."
+                              0,
+                              8
+                            ) + "..."
                           : `${row.original.first_name} ${row.original.last_name}`
                       )}
                     </p>
@@ -554,13 +559,13 @@ export default function CoachTableView() {
     setSearchCriteria,
   });
 
-  const handleOpenForm = (coachData: coachUpdateInput | null = null) => {
+  const handleOpenForm = (coachData: CoachUpdate | null = null) => {
     setEditCoach(coachData);
     setOpen(true);
   };
 
   const [open, setOpen] = useState<boolean>(false);
-  const [editCoach, setEditCoach] = useState<coachUpdateInput | null>(null);
+  const [editCoach, setEditCoach] = useState<CoachUpdate | null>(null);
   return (
     <div className="w-full space-y-4 ">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3 ">
@@ -613,9 +618,9 @@ export default function CoachTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

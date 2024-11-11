@@ -30,16 +30,17 @@ import { useDeleteCoachMutation } from "@/services/coachApi";
 import { useNavigate } from "react-router-dom";
 import { CoachInputTypes } from "@/app/types";
 import warning from "@/assets/warning.svg";
+import { CoachUpdate } from "@/app/types/coach";
 export function DataTableRowActions({
   data,
   refetch,
   handleEdit,
-  access
+  access,
 }: {
   data: CoachTableDataTypes;
   refetch: () => void;
-  handleEdit: (coachData: coachUpdateInput) => void;
-  access:string
+  handleEdit: (coachData: CoachUpdate) => void;
+  access: string;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const [deleteCoach, { isLoading: deleteLoading }] = useDeleteCoachMutation();
@@ -105,7 +106,7 @@ export function DataTableRowActions({
                   const coachData = {
                     ...rest,
                     member_ids: data.members,
-                  } as coachUpdateInput;
+                  } as CoachUpdate;
                   handleEdit(coachData);
                 }}
               >
@@ -113,10 +114,12 @@ export function DataTableRowActions({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            {access=="full_access"&&<DropdownMenuItem onClick={() => setIsDelete(true)}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>}
+            {access == "full_access" && (
+              <DropdownMenuItem onClick={() => setIsDelete(true)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </Dialog>

@@ -419,11 +419,15 @@ const WorkoutPlanForm = () => {
       console.error("Verification error:", error);
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
+
+        const displayMessage =
+          typedError.data?.message ||
+          typedError.data?.detail ||
+          "An error occurred during verification. Please try again.";
+
         toast({
           variant: "destructive",
-          description:
-            typedError.data?.detail ||
-            "An error occurred during verification. Please try again.",
+          description: displayMessage,
         });
       } else {
         toast({

@@ -1,7 +1,14 @@
 import { JSONObject } from "@/types/hook-stepper";
 import { Gender } from "./shared_enums/enums";
 
-export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+export type DayOfWeek =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
 
 export type TimeSlot = {
   from_time: string;
@@ -134,8 +141,6 @@ export interface ResetPasswordType {
   token: string;
 }
 
-
-
 export interface renewalData extends JSONObject {
   days_before: number | null;
   next_invoice: number | null;
@@ -144,7 +149,7 @@ export interface renewalData extends JSONObject {
 export interface facilitiesData extends JSONObject {
   facility_id: number;
   total_credits: number | null;
-  credit_type: string
+  credit_type: string;
   validity: {
     type?: string | undefined | null;
     duration?: number | null;

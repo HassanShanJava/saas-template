@@ -95,7 +95,8 @@ import { PhoneInput } from "react-international-phone";
 import { RxCross2 } from "react-icons/rx";
 import { formatNIC } from "@/utils/helper";
 import { BaseQueryFn } from "@reduxjs/toolkit/query";
-import { Gender } from "@/app/shared_enums/enums";
+import { Gender, UserStatus } from "@/app/shared_enums/enums";
+import { CoachInput, CoachUpdate } from "@/app/types/coach";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 type RefetchType = ReturnType<typeof useGetCoachesQuery>["refetch"];
@@ -103,8 +104,8 @@ type RefetchType = ReturnType<typeof useGetCoachesQuery>["refetch"];
 interface CoachFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   open: boolean;
-  coachData: coachUpdateInput | null;
-  setCoachData: React.Dispatch<React.SetStateAction<coachUpdateInput | null>>;
+  coachData: CoachUpdate | null;
+  setCoachData: React.Dispatch<React.SetStateAction<CoachUpdate | null>>;
   refetch?: RefetchType;
 }
 
@@ -128,7 +129,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
   const membersSchema = z.number();
   const phoneUtil = PhoneNumberUtil.getInstance();
 
-  const initialState: CoachInputTypes = {
+  const initialState: CoachInput = {
     profile_img: "",
     own_coach_id: "",
     first_name: "",
@@ -139,22 +140,56 @@ const CoachForm: React.FC<CoachFormProps> = ({
     phone: "",
     mobile_number: "",
     notes: "",
-    nic:"",
+    nic: "",
     source_id: 0,
     country_id: 0,
     city: "",
-    coach_status: "pending",
+    coach_status: UserStatus.Pending,
     zipcode: "",
     address_1: "",
     address_2: "",
-    bank_name: "",
-    iban_no: "",
-    acc_holder_name: "",
-    swift_code: "",
+    bank_detail: {
+      bank_name: "",
+      iban_no: "",
+      acc_holder_name: "",
+      swift_code: "",
+    },
     org_id: orgId,
     member_ids: [] as z.infer<typeof membersSchema>[], // Correct placement of brackets
   };
 
+  const BankDetailsSchema = z
+    .object({
+      bank_name: z
+        .string()
+        .trim()
+        .max(40, {
+          message: "Should be 40 characters or less",
+        })
+        .optional(),
+      iban_no: z
+        .string()
+        .trim()
+        .max(34, {
+          message: "Should be 34 characters or less",
+        })
+        .optional(),
+      swift_code: z
+        .string()
+        .trim()
+        .max(11, {
+          message: "Should be 11 characters or less",
+        })
+        .optional(),
+      acc_holder_name: z
+        .string()
+        .trim()
+        .max(50, {
+          message: "Should be 50 characters or less",
+        })
+        .optional(),
+    })
+    .optional();
   const FormSchema = z.object({
     profile_img: z.string().trim().default("").optional(),
     own_coach_id: z.string({
@@ -238,11 +273,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
         }
       ),
     member_ids: z.array(membersSchema).optional(),
-    coach_status: z
-      .enum(["pending", "active", "inactive"], {
-        required_error: "You need to select status.",
-      })
-      .default("pending"),
+    coach_status: z.nativeEnum(UserStatus, {
+      required_error: "You need to select a status type.",
+    }),
     notes: z
       .string()
       .max(200, {
@@ -275,34 +308,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
         message: "Zipcode must be 15 characters or less",
       })
       .optional(),
-    bank_name: z
-      .string()
-      .trim()
-      .max(40, {
-        message: "Should be 40 characters or less",
-      })
-      .optional(),
-    iban_no: z
-      .string()
-      .trim()
-      .max(34, {
-        message: "Should be 34 characters or less",
-      })
-      .optional(),
-    swift_code: z
-      .string()
-      .trim()
-      .max(11, {
-        message: "Should be 11 characters or less",
-      })
-      .optional(),
-    acc_holder_name: z
-      .string()
-      .trim()
-      .max(50, {
-        message: "Should be 50 characters or less",
-      })
-      .optional(),
+
     country_id: z.coerce
       .number({
         required_error: "Required",
@@ -332,6 +338,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
       .refine((value) => !value || /^\d{5}-\d{7}-\d$/.test(value), {
         message: "CNIC must follow #####-#######-#",
       }),
+    bank_detail: BankDetailsSchema,
   });
 
   const orgName = useSelector(
@@ -584,9 +591,10 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
   useEffect(() => {
     if (!open || coachData == null) return;
-    const payloadCoach = { ...coachData,
-        nic: coachData?.nic !== null ? coachData?.nic : ""
-     };
+    const payloadCoach = {
+      ...coachData,
+      nic: coachData?.nic !== null ? coachData?.nic : "",
+    };
     console.log("Member_ids before that", payloadCoach.member_ids);
     type Member = { id: number; name: string } | number;
 
@@ -614,7 +622,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
     form.reset(payloadCoach);
     console.log("Member_ids", payloadCoach.member_ids);
     if (payloadCoach?.nic?.length) {
-      setValue("nic", formatNIC(payloadCoach?.nic)??"");
+      setValue("nic", formatNIC(payloadCoach?.nic) ?? "");
     }
     // setAvatar(coachData?.profile_img as string);
   }, [open, coachData]);
@@ -636,7 +644,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
       const defaultedPayload = {
         ...payload,
         own_coach_id: watcher.own_coach_id,
-        coach_status: "pending" as "pending" | "active" | "inactive", // Add type assertion here
+        coach_status: UserStatus.Pending, // Add type assertion here
         member_ids: [],
         members: [],
 
@@ -1050,9 +1058,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
                       <FormItem>
                         <Select
                           disabled={field.value == "pending"}
-                          onValueChange={(
-                            value: "pending" | "active" | "inactive"
-                          ) => form.setValue("coach_status", value)}
+                          onValueChange={(value: UserStatus) =>
+                            form.setValue("coach_status", value)
+                          }
                           value={field.value}
                         >
                           <FormControl>
@@ -1341,7 +1349,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="bank_name"
+                    name="bank_detail.bank_name"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
@@ -1357,7 +1365,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="iban_no"
+                    name="bank_detail.iban_no"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
@@ -1373,7 +1381,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="swift_code"
+                    name="bank_detail.swift_code"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
@@ -1389,7 +1397,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                 <div className="relative ">
                   <FormField
                     control={form.control}
-                    name="acc_holder_name"
+                    name="bank_detail.acc_holder_name"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput

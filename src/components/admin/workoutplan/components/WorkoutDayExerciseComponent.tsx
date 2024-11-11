@@ -49,52 +49,54 @@ export default function WorkoutDayExerciseComponent({
         selected && "border-primary"
       )}
     >
-      <div className="flex justify-between items-center relative space-x-1">
-        <div className="grid grid-cols-[40px_auto] w-4/5">
-          <img
-            id="avatar"
-            src={
-              exercise.gif_url
-                ? exercise.gif_url.includes(VITE_VIEW_S3_URL)
-                  ? exercise.gif_url
-                  : `${VITE_VIEW_S3_URL}/${exercise.gif_url}`
-                : `${VITE_VIEW_S3_URL}/download.png`
-            }
-            alt="Exercise Image"
-            className="h-[20px] w-[40px] object-contain relative"
-          />
-          <span className="text-sm truncate">
-            {exercise.exercise_name}
-            {/* -{" "} */}
-            {/* {exercise.equipments.map((e) => e.name).join(", ")} */}
-          </span>
-        </div>
-        <div className="flex gap-x-4 align-center ">
-          <Button onClick={onClick} className="h-auto p-0" variant="ghost">
-            <i className="fa fa-pencil" aria-hidden="true"></i>
-          </Button>
-          <Button
-            onClick={() => {
-              onDuplicate(exercise, exercise?.id || 0);
-            }}
-            className="h-auto p-0"
-            variant="ghost"
-          >
-            <i className="fa-regular fa-clone"></i>
-          </Button>
-          <Button
-            onClick={() => {
-              onDelete(exercise?.id || 0);
-            }}
-            className="h-auto p-0"
-            variant="ghost"
-          >
-            {selected && isDeleteLoading ? (
-              <Spinner className="h-4 w-4" /> // Show spinner when deleting
-            ) : (
-              <i className="fa-regular fa-trash-can"></i>
-            )}
-          </Button>
+      <div onClick={onClick}>
+        <div className="flex justify-between items-center relative space-x-1">
+          <div className="grid grid-cols-[40px_auto] w-4/5">
+            <img
+              id="avatar"
+              src={
+                exercise.gif_url
+                  ? exercise.gif_url.includes(VITE_VIEW_S3_URL)
+                    ? exercise.gif_url
+                    : `${VITE_VIEW_S3_URL}/${exercise.gif_url}`
+                  : `${VITE_VIEW_S3_URL}/download.png`
+              }
+              alt="Exercise Image"
+              className="h-[20px] w-[40px] object-contain relative"
+            />
+            <span className="text-sm truncate">
+              {exercise.exercise_name}
+              {/* -{" "} */}
+              {/* {exercise.equipments.map((e) => e.name).join(", ")} */}
+            </span>
+          </div>
+          <div className="flex gap-x-4 align-center ">
+            <Button onClick={onClick} className="h-auto p-0" variant="ghost">
+              <i className="fa fa-pencil" aria-hidden="true"></i>
+            </Button>
+            <Button
+              onClick={() => {
+                onDuplicate(exercise, exercise?.id || 0);
+              }}
+              className="h-auto p-0"
+              variant="ghost"
+            >
+              <i className="fa-regular fa-clone"></i>
+            </Button>
+            <Button
+              onClick={() => {
+                onDelete(exercise?.id || 0);
+              }}
+              className="h-auto p-0"
+              variant="ghost"
+            >
+              {selected && isDeleteLoading ? (
+                <Spinner className="h-4 w-4" /> // Show spinner when deleting
+              ) : (
+                <i className="fa-regular fa-trash-can"></i>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

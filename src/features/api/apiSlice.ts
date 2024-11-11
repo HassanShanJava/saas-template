@@ -12,6 +12,7 @@ import { setCode, setCounter } from "../counter/counterSlice";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 interface FastApiError {
   detail?: string | string[]; // FastAPI's detail field can be a string or an array of strings
+  message?  : string | string[]; // FastAPI's detail field can be a string or an array of strings
 }
 const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,

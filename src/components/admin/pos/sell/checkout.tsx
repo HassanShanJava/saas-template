@@ -43,6 +43,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         setValue,
         getValues,
         register,
+        handleSubmit,
         trigger,
         watch,
         reset,
@@ -312,7 +313,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                     </div>
                 </div>
 
-                <div className="flex flex-col justify-start gap-5">
+                <form noValidate onSubmit={handleSubmit(placeOrder)} className="flex flex-col justify-start gap-5">
                     <div>
                         <h2 className="text-2xl font-bold ">Payment</h2>
                         <div className="mt-5 h-full flex flex-col   justify-start gap-6">
@@ -396,7 +397,9 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                 <LoadingButton
                                     loading={isSubmitting}
                                     disabled={isSubmitting}
-                                    onClick={placeOrder}>
+                                    type="submit"
+                                    className="disabled:cursor-not-allowed"
+                                >
 
                                     {!isSubmitting && (
                                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
@@ -417,7 +420,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                             </div>
                         )}
                     </div>
-                </div>
+                </form>
             </div>
         </div >
     )

@@ -412,22 +412,25 @@ export default function CounterTableView() {
     console.log({ payload });
     try {
       const resp = await updateCounter(payload).unwrap();
-      if (resp) {
+      if (!resp.error) {
         console.log({ resp });
         refetch();
         toast({
           variant: "success",
           title: "Counter Updated Successfully",
         });
+      } else {
+        throw resp.error
       }
     } catch (error) {
-      console.error("Error", { error });
-      if (error && typeof error === "object" && "data" in error) {
-        const typedError = error as ErrorType;
+       console.error("Error", error );
+       if (error && typeof error === "object" && "data" in error) {
+         const typedError = error as ErrorType;
+         console.error("Error",  typedError );
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: typedError.data?.detail,
+          description: typedError.data?.detail || typedError.data?.message,
         });
       } else {
         toast({

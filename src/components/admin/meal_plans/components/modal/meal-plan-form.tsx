@@ -851,7 +851,7 @@ const MealPlanForm = ({
                     }) => (
                       <div>
                         <MultiSelect
-                          floatingLabel={"Assgin to"}
+                          floatingLabel={"Assign to"}
                           options={
                             membersData as {
                               value: number;

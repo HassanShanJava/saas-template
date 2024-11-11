@@ -1012,7 +1012,7 @@ export function RetriveSaleCombobox({ list, setCustomer, customer, label, custom
             <CommandGroup className="">
               {modifiedList?.map((modCustomer) => (
                 <CommandItem
-                  key={modCustomer.value + ""}
+                  key={modCustomer.transactionId + ""}
                   value={modCustomer.transactionId + ""}
                   onSelect={(currentValue) => {
                     const customerId = modifiedList.find((item) => item.transactionId == currentValue).member_id

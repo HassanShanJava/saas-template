@@ -296,41 +296,53 @@ export default function CounterTableView() {
       enableSorting: false,
       enableHiding: false,
     },
-    // {
-    //   accessorKey: "is_open",
-    //   meta: "Status",
-    //   header: () => <p className="text-nowrap">Currently Opened</p>,
-    //   cell: ({ row }) => {
-    //     return (
-    //       <div className="flex justify-center ">
-    //         <Badge
-    //           className={`${row.original?.is_open ? "bg-blue-600" : "bg-red-500"} text-white font-medium`}
-    //         >
-    //           {row.original?.is_open ? "Open" : "Close"}
-    //         </Badge>
-    //       </div>
-    //     );
-    //   },
-    //   enableSorting: false,
-    //   enableHiding: false,
-    // },
-    // {
-    //   accessorKey: "staff_id",
-    //   meta: "Used By",
-    //   header: () => <p className="text-nowrap">Used By</p>,
-    //   cell: ({ row }) => {
-    //     const staff = staffDataList.find((staff) => staff.id === row.original.staff_id)
-    //     return (
-    //       row.original.staff_id ? <div className="flex flex-col items-left text-ellipsis whitespace-nowrap overflow-hidden">
-    //         <p className="capitalize text-xs">{(staff?.first_name + " " + staff?.last_name)}</p>
-    //         <p className="text-xs text-gray-400">{(staff?.email)}</p>
-    //       </div> : <p>N/A
-    //       </p>
-    //     );
-    //   },
-    //   enableSorting: false,
-    //   enableHiding: false,
-    // },
+    {
+      accessorKey: "is_open",
+      meta: "Status",
+      header: () => (
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Open/ Close Status</p>
+          {/* <button
+            className=" size-5 transition-transform duration-1000 text-gray-400 p-0 flex items-center justify-center"
+            onClick={() => toggleSortOrder("staff_id")}
+          >
+            <i
+              className={`fa fa-sort   ${searchCriteria.sort_order == "desc" ? "rotate-0" : "rotate-180"}`}
+            ></i>
+          </button> */}
+        </div>
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="flex justify-center ">
+            <Badge
+              className={`${row.original?.is_open ? "bg-blue-600" : "bg-red-500"} text-white font-medium`}
+            >
+              {row.original?.is_open ? "Open" : "Close"}
+            </Badge>
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "staff_id",
+      meta: "Used By",
+      header: () => <p className="text-nowrap">Staff</p>,
+      cell: ({ row }) => {
+        const staff = staffDataList.find((staff) => staff.id === row.original.staff_id)
+        return (
+          row.original.staff_id ? <div className="flex flex-col items-left text-ellipsis whitespace-nowrap overflow-hidden">
+            <p className="capitalize text-xs">{(staff?.first_name + " " + (staff?.last_name ?? ""))}</p>
+            <p className="text-xs text-gray-400">{(staff?.email)}</p>
+          </div> : <p>N/A
+          </p>
+        );
+      },
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: "status",
       meta: "Status",
@@ -423,10 +435,10 @@ export default function CounterTableView() {
         throw resp.error
       }
     } catch (error) {
-       console.error("Error", error );
-       if (error && typeof error === "object" && "data" in error) {
-         const typedError = error as ErrorType;
-         console.error("Error",  typedError );
+      console.error("Error", error);
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        console.error("Error", typedError);
         toast({
           variant: "destructive",
           title: "Error in form Submission",

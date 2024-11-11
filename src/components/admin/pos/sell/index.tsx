@@ -737,7 +737,7 @@ const Sell = () => {
                           step={"1"}
                           disabled={Number(id) ? true : false}
                           placeholder="Enter discount amount"
-                          className="w-fit text-gray-400 rounded-sm"
+                          className="w-fit text-black rounded-sm"
                           {...register("discount_amt", {
                             valueAsNumber: true,
                             min: 0,

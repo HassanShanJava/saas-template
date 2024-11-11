@@ -23,6 +23,18 @@ const CloseRegister: React.FC = () => {
   const { code, counter_number } = useSelector(
     (state: RootState) => state.counter
   );
+
+  const pos_register = (() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem("accessLevels") as string).pos_register ??
+        "no_access"
+      );
+    } catch {
+      return "no_access";
+    }
+  })();
+
   const [isAlertOpen, setAlertOpen] = useState(false);
   const [discrepancy, setDiscrepancy] = useState<number | null>(null);
   const [data, setData] = useState<CloseRegisterFormInputs | null>();
@@ -161,7 +173,7 @@ const CloseRegister: React.FC = () => {
           </div>
 
           {/* Open Register Form */}
-          <div className="w-full slg:w-[50%]  flex flex-col items-center rounded-lg shadow-md ">
+          {pos_register !== "read" && (<div className="w-full slg:w-[50%]  flex flex-col items-center rounded-lg shadow-md ">
             <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
               Close Register
             </h2>
@@ -209,7 +221,7 @@ const CloseRegister: React.FC = () => {
                 </LoadingButton>
               </div>
             </div>
-          </div>
+          </div>)}
         </div>
       </form>
       <AlertDiscrepancy

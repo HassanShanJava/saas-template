@@ -350,7 +350,7 @@ export default function CashregisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {roundToTwoDecimals(row.original.closing_balance as number)}
+                  {row.original.closing_balance > 0 ? roundToTwoDecimals(row.original.closing_balance as number) : "N/A"}
                 </span>
               </p>
             </div>
@@ -384,7 +384,7 @@ export default function CashregisterViewTable() {
                 <span
                   className={`${row.original.discrepancy !== 0 ? "text-red-500" : "text-black"}`}
                 >
-                  {roundToTwoDecimals(row.original.discrepancy as number)}
+                  {row.original.discrepancy as number > 0 ? roundToTwoDecimals(row.original.discrepancy as number) : "N/A"}
                 </span>
               </p>
             </div>
@@ -496,7 +496,7 @@ export default function CashregisterViewTable() {
                         {displayValue(
                           `${row.original.created_by}`.length > 15
                             ? `${row.original.created_by}`.substring(0, 15) +
-                                "..."
+                            "..."
                             : `${row.original.created_by}`
                         )}
                       </span>
@@ -686,9 +686,9 @@ export default function CashregisterViewTable() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

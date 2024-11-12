@@ -27,7 +27,7 @@ export default function BusinessDetailProfile() {
             <h3 className="font-semibold">Annette Black</h3>
             <a
               href="#"
-              className="text-sm text-nowrap text-blue-500 underline hover:text-blue-600 transition-colors"
+              className="text-sm text-nowrap text-blue-400 underline hover:text-blue-600 transition-colors"
             >
               View Member Profile
             </a>

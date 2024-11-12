@@ -716,6 +716,7 @@ export interface StaffInputType {
   status: statusEnum;
   role_id: number;
   country_id: number;
+  nic?: string;
   city?: string;
   zipcode?: string;
   address_1?: string;
@@ -737,6 +738,7 @@ export interface StaffResponseType {
   source_id: number;
   org_id: number;
   role_id: number;
+  nic?: string;
   country_id: number;
   city?: string;
   zipcode?: string;
@@ -773,6 +775,7 @@ export interface staffTypesResponseList {
   city?: string;
   zipcode?: string;
   address_1?: string;
+  nic?: string;
   address_2?: string;
   status?: statusEnum;
   send_invitation?: boolean;

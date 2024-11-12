@@ -194,6 +194,7 @@ const HardwareIntegrationForm = ({
             ? ""
             : data?.description?.toLowerCase(),
         org_id: orgId as number,
+        facility_id: data.use_facility ? data.facility_id : null,
       };
       try {
         if (action === "add") {

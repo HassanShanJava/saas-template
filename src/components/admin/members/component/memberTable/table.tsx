@@ -641,6 +641,7 @@ export default function MemberTableView() {
   ];
 
   const totalRecords = memberData?.filtered_counts || 0;
+  
   const {
     handleLimitChange,
     handleNextPage,
@@ -677,6 +678,7 @@ export default function MemberTableView() {
       sort_order: "desc",
     }));
   };
+
   return (
     <div className="w-full space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-3">

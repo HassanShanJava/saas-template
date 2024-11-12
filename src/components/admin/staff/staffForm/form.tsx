@@ -83,6 +83,7 @@ import { PhoneInput } from "react-international-phone";
 import { PhoneNumberUtil } from "google-libphonenumber";
 import { Info } from "lucide-react";
 import { Gender } from "@/app/shared_enums/enums";
+import { formatNIC } from "@/utils/helper";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
 export enum statusEnum {
@@ -133,6 +134,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
     zipcode: "",
     mobile_number: "",
     city: "",
+    nic: "",
     status: statusEnum.pending,
   };
 
@@ -289,6 +291,12 @@ const StaffForm: React.FC<StaffFormProps> = ({
       .refine((value) => value !== 0, {
         message: "Required",
       }),
+    nic: z
+      .string()
+      .optional() // Makes the field optional
+      .refine((value) => !value || /^\d{5}-\d{7}-\d$/.test(value), {
+        message: "CNIC must follow #####-#######-#",
+      }),
     send_invitation: z.boolean().default(true).optional(),
   });
 
@@ -383,6 +391,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
       last_name: data.last_name.toLowerCase(),
       dob: format(new Date(data.dob!), "yyyy-MM-dd"),
       email: data.email.toLowerCase(),
+      nic: data.nic?.length ? data.nic?.replace(/-/g, "") : undefined,
     };
     console.log("Updated data with only date:", updatedData);
     console.log("only once", data);
@@ -466,9 +475,16 @@ const StaffForm: React.FC<StaffFormProps> = ({
       updatedStaffData?.mobile_number &&
       [0, 2, 3, 4].includes(updatedStaffData?.mobile_number?.length)
     ) {
-      updatedStaffData.mobile_number = `+1`;
+      updatedStaffData.mobile_number = `+92`;
     }
-    form.reset(updatedStaffData);
+    const dataPayload = {
+      ...updatedStaffData,
+      nic: updatedStaffData?.nic !== null ? updatedStaffData?.nic : "",
+    };
+    form.reset(dataPayload);
+    if (dataPayload?.nic?.length) {
+      setValue("nic", formatNIC(dataPayload?.nic) ?? "");
+    }
   }, [open, staffData]);
 
   useEffect(() => {
@@ -1001,6 +1017,32 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           </SelectContent>
                         </Select>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="relative">
+                  <FormField
+                    control={form.control}
+                    rules={{
+                      pattern: {
+                        value: /^\d{5}-\d{7}-\d$/,
+                        message: "CNIC must follow #####-#######-#",
+                      },
+                    }}
+                    name="nic"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FloatingLabelInput
+                          {...field}
+                          id="nic"
+                          label="CNIC"
+                          value={String(field.value ?? "")} // Convert to string explicitly
+                          onChange={(e) =>
+                            field.onChange(formatNIC(e.target.value))
+                          }
+                        />
+                        {<FormMessage />}
                       </FormItem>
                     )}
                   />

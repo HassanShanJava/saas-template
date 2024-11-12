@@ -443,7 +443,7 @@ const WorkoutPlanForm = () => {
     <>
       <Sheet open={true}>
         <SheetContent
-          className="lg:!max-w-[1050px] py-0 custom-scrollbar h-full w-[85%] sm:w-full sm:max-w-3xl"
+          className="lg:!max-w-[1050px]  py-0 custom-scrollbar h-full w-[85%] sm:w-full sm:max-w-3xl"
           hideCloseButton
         >
           <SheetHeader className="sticky z-40 top-0 py-4 bg-white">
@@ -455,12 +455,15 @@ const WorkoutPlanForm = () => {
                 <div className="flex justify-center space-x-[20px]">
                   <LoadingButton
                     type="button"
-                    className="w-[100px] text-center flex items-center gap-2 border-primary"
+                    className="w-[130px]  text-black text-center flex items-center gap-2 border-primary"
                     variant={"outline"}
                     onClick={handleClose}
                     loading={isDeleting}
                     disabled={
-                      isSubmittedcode || AddworkoutLoading || updateLoading
+                      isSubmittedcode ||
+                      AddworkoutLoading ||
+                      updateLoading ||
+                      isDeleting
                     }
                   >
                     <i className="fa fa-xmark "></i>

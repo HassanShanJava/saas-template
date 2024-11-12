@@ -20,8 +20,12 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { ScrollArea, ScrollBar } from "../scroll-area";
-import { toast } from "@/components/ui/use-toast";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 const multiSelectVariants = cva(
   "m-1 transition ease-in-out delay-150 duration-300",
   {
@@ -203,7 +207,23 @@ export const MultiSelect = React.forwardRef<
                               "max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap"
                             )}
                           >
-                            {option?.label}
+                            {/* {option?.label && option?.label?.length > 7
+                              ? `${option?.label?.slice(0, 5)}...`
+                              : option?.label} */}
+                            {option?.label && option.label.length > 7 ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span>{`${option.label.slice(0, 5)}...`}</span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <span>{option.label}</span>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              <span>{option?.label}</span>
+                            )}
                           </span>
 
                           <XCircle

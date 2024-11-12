@@ -69,10 +69,10 @@ function App() {
             <Route element={<DashboardLayout />}>
               <Route path="/admin/dashboard" element={<Dashboard />} />
               <Route path="/admin/members" element={<MemberPage />} />
-              {/* <Route
-                path="/admin/members/detail"
+              <Route
+                path="/admin/members/detail/:memberId?"
                 element={<BusinessDetail />}
-              /> */}
+              />
               {/* <Route path="/admin/system_settings" element={<SystemSettings />} /> */}
               {/* <Route path="/admin/leads"  element={<Leads />} /> */}
               {/* <Route path="/admin/leads/addlead"  element={<LeadForm />} /> */}

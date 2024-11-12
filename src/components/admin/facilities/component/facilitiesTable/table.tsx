@@ -530,7 +530,7 @@ export default function FacilitiesTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center  "
                   >
-                    No data found.
+                    No facility found.
                   </TableCell>
                 </TableRow>
               ) : (

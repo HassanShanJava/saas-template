@@ -605,7 +605,7 @@ export default function CounterTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No data found.
+                    No counter found.
                   </TableCell>
                 </TableRow>
               ) : (

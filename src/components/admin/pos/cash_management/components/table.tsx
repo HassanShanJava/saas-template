@@ -623,7 +623,7 @@ export default function CashregisterViewTable() {
               onValueChange={(dates) => {
                 handleDateRange(dates);
               }}
-              label={"Select date range "}
+              label={"Select date range"}
               className="w-full" // Ensure full width
             />
           </div>

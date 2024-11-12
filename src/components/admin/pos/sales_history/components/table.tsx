@@ -699,7 +699,7 @@ export default function SaleshistoryRegisterViewTable() {
               onValueChange={(dates) => {
                 handleDateRange(dates);
               }}
-              label={"Select date range "}
+              label={"Select date range"}
               className="w-full" // Ensure full width
             />
           </div>
@@ -977,7 +977,7 @@ export default function SaleshistoryRegisterViewTable() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No data found.
+                    No sale history found.
                   </TableCell>
                 </TableRow>
               ) : (

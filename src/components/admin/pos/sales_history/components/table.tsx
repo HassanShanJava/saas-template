@@ -56,6 +56,7 @@ import {
   displayValue,
   formatDate,
   formatNIC,
+  formatToPKR,
   replaceUnderscoreWithSpace,
   saleHistoryMapper,
 } from "@/utils/helper";
@@ -314,7 +315,8 @@ export default function SaleshistoryRegisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.tax_number)}
+            {/* {displayValue(row?.original.tax_number)} */}
+            {displayValue(undefined)}
           </div>
         );
       },
@@ -447,7 +449,7 @@ export default function SaleshistoryRegisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(row.original.total?.toFixed(2).toString())}
+                  {formatToPKR((row.original.transaction_type=="Refund"? -Number(row.original.total):row.original.total) as number)}
                 </span>
               </p>
             </div>
@@ -689,7 +691,7 @@ export default function SaleshistoryRegisterViewTable() {
         {/* Buttons Container */}
 
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <div className="text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2">
+          <div className="text-sm  text-black flex items-center gap-1  lg:mb-0 h-8">
             <DatePickerWithRange
               name={"Date Range"}
               value={{
@@ -699,7 +701,7 @@ export default function SaleshistoryRegisterViewTable() {
               onValueChange={(dates) => {
                 handleDateRange(dates);
               }}
-              label={"Select date range "}
+              label={"Select date range"}
               className="w-full" // Ensure full width
             />
           </div>
@@ -903,7 +905,7 @@ export default function SaleshistoryRegisterViewTable() {
                                       {item.sub_total?.toFixed(2)}
                                     </span>
                                     <span className="col-span-1">
-                                      {item.total?.toFixed(2)}
+                                      {formatToPKR((row.original.transaction_type=="Refund"? -Number(item.total):item.total) as number)}
                                     </span>
                                     <div className="col-span-1">
                                       <TooltipProvider>
@@ -977,7 +979,7 @@ export default function SaleshistoryRegisterViewTable() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No data found.
+                    No sale history found.
                   </TableCell>
                 </TableRow>
               ) : (

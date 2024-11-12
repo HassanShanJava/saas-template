@@ -29,6 +29,7 @@ import {
   useUpdateCountersMutation,
 } from "@/services/counterApi";
 import { toast } from "../use-toast";
+import { LoadingButton } from "../loadingButton/loadingButton";
 
 const DashboardLayout: React.FC = () => {
   const { pathname } = useLocation();
@@ -40,7 +41,7 @@ const DashboardLayout: React.FC = () => {
       return "no_access";
     }
   })();
-  
+
   const { data: assignedCounter } = useGetCountersQuery({
     query: `status=active${pos_count !== "full_access" ? `&staff_id=${userInfo?.user?.id}` : ""}`,
   });
@@ -107,7 +108,7 @@ const DashboardLayout: React.FC = () => {
     return currentPath === targetPath;
   };
 
-  const [assignCounter] = useUpdateCountersMutation();
+  const [assignCounter, result] = useUpdateCountersMutation();
 
   const closeCounter = async () => {
     try {
@@ -127,22 +128,20 @@ const DashboardLayout: React.FC = () => {
           variant: "success",
           title: "Counter Closed Successfully",
         });
+
+        localStorage.removeItem("code");
+        if (assignedCounterData.length > 1) {
+          navigate("/counter-selection");
+        } else {
+          navigate("/");
+        }
       }
     } catch (error) {
       console.error("Error assigning counter:", error);
     }
   };
 
-  const closePOSPanel = () => {
-    localStorage.removeItem("code");
-    if (assignedCounterData.length > 1) {
-      closeCounter();
-      navigate("/counter-selection");
-    } else {
-      closeCounter();
-      navigate("/");
-    }
-  };
+
 
   return (
     <div className="font-poppins flex h-full w-full relative ">
@@ -312,15 +311,19 @@ const DashboardLayout: React.FC = () => {
                   <Separator />
                 </div>
                 <div className="flex justify-center">
-                  <Button
-                    onClick={closePOSPanel}
+                  <LoadingButton
                     className={`flex items-center w-40 gap-2 rounded-md p-1 text-gray-900 transition-colors    hover:bg-primary  `}
+                    loading={result.isLoading}
+                    disabled={result.isLoading}
+                    onClick={closeCounter}
                   >
-                    <i className="fa-solid fa-arrow-up-from-bracket -rotate-90"></i>
+                    {!result.isLoading && (
+                      <i className="fa-solid fa-arrow-up-from-bracket -rotate-90"></i>
+                    )}
                     <span className={`text-sm ${!isSidebarOpen && "hidden"}`}>
                       Close Counter
                     </span>
-                  </Button>
+                  </LoadingButton>
                 </div>
               </div>
             </>

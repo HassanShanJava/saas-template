@@ -518,7 +518,7 @@ export default function MealPlansTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No data found.
+                    No meal plan found.
                   </TableCell>
                 </TableRow>
               ) : (

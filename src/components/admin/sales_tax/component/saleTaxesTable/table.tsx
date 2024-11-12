@@ -489,7 +489,7 @@ export default function SaleTaxesTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No data found.
+                    No sale tax found.
                   </TableCell>
                 </TableRow>
               ) : (

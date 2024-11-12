@@ -544,7 +544,7 @@ export default function FoodsTableView() {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No data found.
+                    No food found.
                   </TableCell>
                 </TableRow>
               ) : (

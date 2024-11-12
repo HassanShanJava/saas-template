@@ -737,7 +737,7 @@ const Sell = () => {
                           step={"1"}
                           disabled={Number(id) ? true : false}
                           placeholder="Enter discount amount"
-                          className="w-fit text-gray-400 rounded-sm"
+                          className="w-fit text-black rounded-sm"
                           {...register("discount_amt", {
                             valueAsNumber: true,
                             min: 0,
@@ -1012,7 +1012,7 @@ export function RetriveSaleCombobox({ list, setCustomer, customer, label, custom
             <CommandGroup className="">
               {modifiedList?.map((modCustomer) => (
                 <CommandItem
-                  key={modCustomer.value + ""}
+                  key={modCustomer.transactionId + ""}
                   value={modCustomer.transactionId + ""}
                   onSelect={(currentValue) => {
                     const customerId = modifiedList.find((item) => item.transactionId == currentValue).member_id

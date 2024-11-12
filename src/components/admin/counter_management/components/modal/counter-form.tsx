@@ -93,12 +93,10 @@ const CounterForm = ({
 
   useEffect(() => {
     if (action == "edit" && data) {
-      console.log({ data }, "edit");
       const payload = { ...data };
       payload.staff_ids = payload.staff.map((staff: any) => staff.id);
       reset(payload as CreateCounter);
-    } else if (action == "add" && data == undefined) {
-      console.log({ initialValues }, "add");
+    } else if (action == "add") {
       reset(initialValues, { keepIsSubmitted: false, keepSubmitCount: false });
     }
   }, [action, data, reset]);

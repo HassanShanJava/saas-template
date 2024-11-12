@@ -37,7 +37,7 @@ const pageTitles = [
   { targetPath: "/admin/roles", title: "Roles & Access Management" },
   { targetPath: "/admin/staff", title: "Staff" },
   { targetPath: "/admin/mealplans", title: "Meal Plans" },
-  { targetPath: "/admin/foods", title: "Foods & Nutritions" },
+  { targetPath: "/admin/foods", title: "Food & Nutritions" },
   {
     targetPath: "/admin/hardware_integration",
     title: "System Settings",

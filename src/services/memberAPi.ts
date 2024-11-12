@@ -102,7 +102,7 @@ export const MemberAPi = apiSlice.injectEndpoints({
       MemberInputTypes & { id: number }
     >({
       query: (memberdata) => ({
-        url: `/member`,
+        url: `/member/${memberdata.id}`,
         method: "PUT",
         body: memberdata,
         headers: {

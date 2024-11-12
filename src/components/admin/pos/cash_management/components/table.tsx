@@ -350,7 +350,7 @@ export default function CashregisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {roundToTwoDecimals(row.original.closing_balance as number)}
+                  {row.original.closing_balance > 0 ? roundToTwoDecimals(row.original.closing_balance as number) : "N/A"}
                 </span>
               </p>
             </div>
@@ -384,7 +384,7 @@ export default function CashregisterViewTable() {
                 <span
                   className={`${row.original.discrepancy !== 0 ? "text-red-500" : "text-black"}`}
                 >
-                  {roundToTwoDecimals(row.original.discrepancy as number)}
+                  {row.original.discrepancy as number > 0 ? roundToTwoDecimals(row.original.discrepancy as number) : "N/A"}
                 </span>
               </p>
             </div>
@@ -496,7 +496,7 @@ export default function CashregisterViewTable() {
                         {displayValue(
                           `${row.original.created_by}`.length > 15
                             ? `${row.original.created_by}`.substring(0, 15) +
-                                "..."
+                            "..."
                             : `${row.original.created_by}`
                         )}
                       </span>
@@ -613,7 +613,7 @@ export default function CashregisterViewTable() {
         {/* Buttons Container */}
 
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <div className="text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2">
+          <div className="text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 ">
             <DatePickerWithRange
               name={"Date Range"}
               value={{
@@ -623,7 +623,7 @@ export default function CashregisterViewTable() {
               onValueChange={(dates) => {
                 handleDateRange(dates);
               }}
-              label={"Select date range "}
+              label={"Select date range"}
               className="w-full" // Ensure full width
             />
           </div>
@@ -686,9 +686,9 @@ export default function CashregisterViewTable() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                       </TableHead>
                     );
                   })}

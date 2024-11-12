@@ -35,8 +35,8 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
     const [amounts, setAmounts] = useState<{ [key: string]: string }>({});
 
     const [createTransaction] = useCreateTransactionMutation()
-    const [updateTransaction] = usePatchTransactionMutation()
-
+    const [updateTransaction, result] = usePatchTransactionMutation()
+    console.log({ result })
     const {
         control,
         formState: { errors, isSubmitting },
@@ -207,9 +207,9 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                 if (resp) {
                     toast({
                         variant: "success",
-                        title: "Transaction successful",
+                        title: "Receipt created successful",
                     })
-                    setInvoiceId(resp.id)
+                    setInvoiceId(payload.id)
                 }
             }
         } catch (error: unknown) {
@@ -284,14 +284,6 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
 
                             </div>
                             <Separator />
-                            <p className="text-xl font-bold mb-4">Payment Method</p>
-                            {watcher.payments.map((payment: Payments) => (
-                                <div className="flex justify-between items-center">
-                                    <div>{payment.payment_method}</div>
-                                    <div className="font-bold">{payment.amount}</div>
-                                </div>
-                            ))}
-                            <Separator />
                             <div className="flex justify-between items-center">
                                 <div>Subtotal</div>
                                 <div className="font-bold">{roundToTwoDecimals(watcher.subtotal)}</div>
@@ -305,10 +297,20 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                 <div className="font-bold">{roundToTwoDecimals(watcher.tax_amt)}</div>
                             </div>
                             <Separator />
+
                             <div className="flex justify-between items-center">
                                 <div className="text-xl font-bold">Total</div>
-                                <div className="text-xl font-bold">{id && watcher.transaction_type == "Refund" && "- "}{Math.round(watcher.total)}</div>
+                                <div className="text-xl font-bold">{id && watcher.transaction_type == "Refund" ? "- " : ""}{Math.round(watcher.total)}</div>
                             </div>
+                            <Separator />
+
+                            <p className="text-xl font-bold mb-4">Payment Method</p>
+                            {watcher.payments.map((payment: Payments) => (
+                                <div className="flex justify-between items-center">
+                                    <div>{payment.payment_method}</div>
+                                    <div className="font-bold">{payment.amount}</div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -389,7 +391,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                     </div>
 
                     <div className="flex justify-end ">
-                        {invoiceId == null ? (
+                        {invoiceId == null || !result.isSuccess ? (
                             <div className="flex justify-end gap-3">
                                 <Button variant={"ghost"} onClick={() => setShowCheckout(false)}>
                                     Back

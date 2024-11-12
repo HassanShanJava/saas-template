@@ -10,7 +10,7 @@ import React, { ReactNode } from "react";
 interface ReceiptProps {
   salesReport: salesReportInterface;
 }
-import { capitalizeFirstLetter, displayDate, displayValue, formatToPKR } from "@/utils/helper";
+import { capitalizeFirstLetter, displayDate, formatToPKR } from "@/utils/helper";
 
 const Receipt: React.FC<ReceiptProps> = ({ salesReport }) => {
   const isRefund = salesReport.transaction_type === statusEnumGrid.Refund;
@@ -243,7 +243,7 @@ export function ReceiptExport(salesReport: salesReportInterface | SellForm) {
             </tr>
             <tr>
                 <td class="price">Grand Total:</td>
-                <td class="price">${formatToPKR(salesReport.total as number)}</td>
+                <td class="price">${formatToPKR((salesReport.transaction_type=="Refund"? -Number(salesReport.total):salesReport.total) as number)}</td>
             </tr>
             ${salesReport?.payments?.map((payment, i) => payment.payment_method
     ? `<tr>  

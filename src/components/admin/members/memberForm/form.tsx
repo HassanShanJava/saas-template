@@ -87,15 +87,11 @@ import {
   CountryTypes,
   ErrorType,
   membershipplanTypes,
-
   membeshipsTableType,
   renewalData,
   sourceTypes,
 } from "@/app/types";
-import {
-  MemberInputTypes,
-  MemberTableDatatypes,
-} from "@/app/types/member";
+import { MemberInputTypes, MemberTableDatatypes } from "@/app/types/member";
 
 import "react-international-phone/style.css"; // Import the default styles for the phone input
 
@@ -328,7 +324,22 @@ const MemberForm = ({
     const updatedPlans = [...membershipPlansdata];
     updatedPlans[index] = { ...updatedPlans[index], [field]: value };
 
+    // Update the plan with the new value
+    updatedPlans[index] = { ...updatedPlans[index], [field]: value };
+
     if (field === "membership_plan_id") {
+      // Check for duplicates across all plans
+      const isDuplicate = updatedPlans.some(
+        (plan, idx) => idx !== index && plan.membership_plan_id === value
+      );
+      if (isDuplicate) {
+        toast({
+          variant: "destructive",
+          title: "Duplicate Selection",
+          description: "You have already selected this membership plan.",
+        });
+        return; // Exit the function to prevent further processing
+      }
       const selectedPlan = membershipPlans.find(
         (item: any) => item.id === value
       );
@@ -443,15 +454,15 @@ const MemberForm = ({
     if (action == "edit") {
       const memberpayload = {
         ...memberData,
-        nic: memberData?.nic !== null ? memberData?.nic : ""
+        nic: memberData?.nic !== null ? memberData?.nic : "",
       };
       memberpayload.coach_ids = memberData?.coaches.every(
         (item) => item.id === 0 && item.name?.trim() === ""
       )
         ? []
         : memberData?.coaches
-          .filter((item) => item.id !== 0 && item.name?.trim() !== "") // Filter out invalid entries
-          .map((item) => item.id);
+            .filter((item) => item.id !== 0 && item.name?.trim() !== "") // Filter out invalid entries
+            .map((item) => item.id);
 
       if (
         memberpayload?.mobile_number &&
@@ -810,8 +821,8 @@ const MemberForm = ({
                     </div>
                     <div className="relative ">
                       {action == "add" ||
-                        (action == "edit" &&
-                          watcher.client_status == "pending") ? (
+                      (action == "edit" &&
+                        watcher.client_status == "pending") ? (
                         <FloatingLabelInput
                           id="email"
                           className=""
@@ -1253,10 +1264,11 @@ const MemberForm = ({
                         }) => (
                           <div className="relative">
                             <label
-                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${value
-                                ? "text-xs -top-2.5"
-                                : "text-xs text-black"
-                                }`}
+                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${
+                                value
+                                  ? "text-xs -top-2.5"
+                                  : "text-xs text-black"
+                              }`}
                             >
                               Business
                             </label>
@@ -1271,8 +1283,8 @@ const MemberForm = ({
                                     <span className="w-full text-left font-normal text-black">
                                       {value
                                         ? business?.find(
-                                          (business) => business.id === value
-                                        )?.full_name
+                                            (business) => business.id === value
+                                          )?.full_name
                                         : "Select Business"}
                                     </span>
                                     <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -1431,10 +1443,11 @@ const MemberForm = ({
                         }) => (
                           <div className="flex flex-col w-full relative">
                             <label
-                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${value
-                                ? "text-xs -top-2.5"
-                                : "text-xs text-black"
-                                }`}
+                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${
+                                value
+                                  ? "text-xs -top-2.5"
+                                  : "text-xs text-black"
+                              }`}
                             >
                               Country
                             </label>
@@ -1451,9 +1464,9 @@ const MemberForm = ({
                                   >
                                     {value
                                       ? countries?.find(
-                                        (country: CountryTypes) =>
-                                          country.id === value // Compare with numeric value
-                                      )?.country // Display country name if selected
+                                          (country: CountryTypes) =>
+                                            country.id === value // Compare with numeric value
+                                        )?.country // Display country name if selected
                                       : "Select country*"}
                                     <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                   </Button>
@@ -1573,7 +1586,7 @@ const MemberForm = ({
                                 </FormControl>
                                 <SelectContent className="capitalize max-h-52">
                                   {membershipPlans &&
-                                    membershipPlans.length > 0 ? (
+                                  membershipPlans.length > 0 ? (
                                     membershipPlans.map(
                                       (sourceval: membeshipsTableType) => (
                                         <SelectItem
@@ -1690,7 +1703,7 @@ const MemberForm = ({
                                         membershipPlansdata.some(
                                           (plan) =>
                                             plan.membership_plan_id ===
-                                            undefined ||
+                                              undefined ||
                                             plan.membership_plan_id === null
                                         )
                                       }

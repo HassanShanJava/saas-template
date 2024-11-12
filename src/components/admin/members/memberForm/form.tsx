@@ -1638,7 +1638,7 @@ const MemberForm = ({
                                       handleMembershipPlanChange(
                                         index,
                                         "prolongation_period",
-                                        e.target.value
+                                        Number(e.target.value)
                                       )
                                     }
                                   />
@@ -1660,7 +1660,7 @@ const MemberForm = ({
                                       handleMembershipPlanChange(
                                         index,
                                         "auto_renew_days",
-                                        e.target.value
+                                        Number(e.target.value)
                                       )
                                     }
                                   />
@@ -1686,7 +1686,7 @@ const MemberForm = ({
                                       handleMembershipPlanChange(
                                         index,
                                         "inv_days_cycle",
-                                        e.target.value
+                                        Number(e.target.value)
                                       )
                                     }
                                   />

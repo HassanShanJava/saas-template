@@ -689,7 +689,7 @@ export default function SaleshistoryRegisterViewTable() {
         {/* Buttons Container */}
 
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          <div className="text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2">
+          <div className="text-sm  text-black flex items-center gap-1  lg:mb-0 h-8">
             <DatePickerWithRange
               name={"Date Range"}
               value={{

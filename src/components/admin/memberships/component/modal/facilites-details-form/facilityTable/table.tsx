@@ -292,7 +292,7 @@ export default function FacilityTableView({
       accessorKey: "name",
       header: ({ table }) => <p>Name</p>,
       cell: ({ row }) => {
-        return <p>{row.original.name}</p>;
+        return <p className="text-nowrap capitalize">{row.original.name}</p>;
       },
       enableSorting: false,
       enableHiding: false,

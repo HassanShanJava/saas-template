@@ -141,7 +141,7 @@ const DashboardLayout: React.FC = () => {
     }
   };
 
-  console.log(closeCounterLoading,"ceck")
+
 
   return (
     <div className="font-poppins flex h-full w-full relative ">
@@ -313,13 +313,11 @@ const DashboardLayout: React.FC = () => {
                 <div className="flex justify-center">
                   <LoadingButton
                     className={`flex items-center w-40 gap-2 rounded-md p-1 text-gray-900 transition-colors    hover:bg-primary  `}
-                    loading={closeCounterLoading}
-                    disabled={closeCounterLoading}
+                    loading={result.isLoading}
+                    disabled={result.isLoading}
                     onClick={closeCounter}
                   >
-                    {!closeCounterLoading ? (
-                      <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
-                    ) : (
+                    {!result.isLoading && (
                       <i className="fa-solid fa-arrow-up-from-bracket -rotate-90"></i>
                     )}
                     <span className={`text-sm ${!isSidebarOpen && "hidden"}`}>

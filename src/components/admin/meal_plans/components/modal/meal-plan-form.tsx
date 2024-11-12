@@ -152,7 +152,6 @@ const initialMeal = {
 
 const initialFoodValue = {
   sort_order: "desc",
-  // sort_key: "created_at",
   sort_key: "id",
 };
 
@@ -228,6 +227,16 @@ const MealPlanForm = ({
 
   const [createMealplan] = useCreateMealPlansMutation();
   const [updateMealplan] = useUpdateMealPlansMutation();
+
+  // Optimized state update
+  const updatePieChartData = (data: { protein: number, fats: number, carbs: number }) => {
+    setPieChart((prevData) =>
+      prevData.map((item) => ({
+        ...item,
+        percentage: data[item.food_component as keyof typeof data] ?? item.percentage,
+      }))
+    );
+  };
 
   const dropzone = {
     accept: {
@@ -316,23 +325,7 @@ const MealPlanForm = ({
       const mealsState = createMealsState();
       setMeals(mealsState);
       reset(data as MealPlanDataType);
-      setPieChart([
-        {
-          food_component: "protein",
-          percentage: data.protein as number,
-          fill: "#8BB738",
-        },
-        {
-          food_component: "fats",
-          percentage: data.fats as number,
-          fill: "#E8A239",
-        },
-        {
-          food_component: "carbs",
-          percentage: data.carbs as number,
-          fill: "#DD4664",
-        },
-      ]);
+      updatePieChartData({ protein: data.protein as number, fats: data.fats as number, carbs: data.carbs as number })
     } else if (action == "add" && data == undefined) {
       console.log({ initialValue }, "add");
       reset(initialValue, { keepIsSubmitted: false, keepSubmitCount: false });
@@ -489,23 +482,7 @@ const MealPlanForm = ({
       const percentages = calculatePercentages(updatedMeals);
 
       // Update the pie chart data
-      setPieChart([
-        {
-          food_component: "protein",
-          percentage: percentages.protein,
-          fill: "#8BB738",
-        },
-        {
-          food_component: "fats",
-          percentage: percentages.fat,
-          fill: "#E8A239",
-        },
-        {
-          food_component: "carbs",
-          percentage: percentages.carbs,
-          fill: "#DD4664",
-        },
-      ]);
+      updatePieChartData({ protein: percentages.protein as number, fats: percentages.fat as number, carbs: percentages.carbs as number })
 
       // Update the watcher meals state as an array
       const currentMeals = getValues("meals") as {
@@ -553,7 +530,7 @@ const MealPlanForm = ({
 
   const handleDeleteFood = (id: number, mealType?: string) => {
     const newMeals = watcher.meals;
-    
+
     setMeals((prevMeals) => {
       // Update the meals state by removing the food item from the specified meal type
       const updatedMeals = {
@@ -567,23 +544,7 @@ const MealPlanForm = ({
       const percentages = calculatePercentages(updatedMeals);
 
       // Update the pie chart data
-      setPieChart([
-        {
-          food_component: "protein",
-          percentage: percentages.protein,
-          fill: "#8BB738",
-        },
-        {
-          food_component: "fats",
-          percentage: percentages.fat,
-          fill: "#E8A239",
-        },
-        {
-          food_component: "carbs",
-          percentage: percentages.carbs,
-          fill: "#DD4664",
-        },
-      ]);
+      updatePieChartData({ protein: percentages.protein as number, fats: percentages.fat as number, carbs: percentages.carbs as number })
 
 
       return updatedMeals;
@@ -637,6 +598,7 @@ const MealPlanForm = ({
     setLabel(label);
     setOpenFood(true);
   };
+
   console.log({ watcher, errors, meals }, action);
   return (
     <Sheet open={isOpen} onOpenChange={() => setOpen(false)}>

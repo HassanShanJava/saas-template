@@ -183,8 +183,7 @@ const FoodForm = ({
     }
     handleClose();
   };
-  // console.log({ files,watcher,errors });
-  console.log({ data, watcher }, "edit");
+  
   return (
     <Sheet open={isOpen}>
       <SheetContent

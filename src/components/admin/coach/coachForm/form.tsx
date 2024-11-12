@@ -630,6 +630,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
   console.log("watcher", form.watch());
 
   const onError = () => {
+    console.log("errors", errors);
     toast({
       variant: "destructive",
       description: "Please fill all the mandatory fields",
@@ -647,17 +648,19 @@ const CoachForm: React.FC<CoachFormProps> = ({
         coach_status: UserStatus.Pending, // Add type assertion here
         member_ids: [],
         members: [],
-
+        profile_img: payload.profile_img ?? "",
         // Set empty strings for optional fields if they're null/undefined
         phone: payload.phone ?? "",
         notes: payload.notes ?? "",
         address_1: payload.address_1 ?? "",
         address_2: payload.address_2 ?? "",
         nic: payload.nic ?? "",
-        bank_name: payload.bank_name ?? "",
-        iban_no: payload.iban_no ?? "",
-        acc_holder_name: payload.acc_holder_name ?? "",
-        swift_code: payload.swift_code ?? "",
+        bank_detail: {
+          bank_name: payload.bank_detail?.bank_name ?? "",
+          iban_no: payload.bank_detail?.iban_no ?? "",
+          acc_holder_name: payload.bank_detail?.acc_holder_name ?? "",
+          swift_code: payload.bank_detail?.swift_code ?? "",
+        },
         city: payload.city ?? "",
         mobile_number:
           !payload.mobile_number ||

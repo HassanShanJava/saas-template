@@ -6,8 +6,15 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { MobileIcon } from "@radix-ui/react-icons";
 import MemberInvoice from "./invoice_and_linkedMembers/member-invoices";
+import { TransactionData } from "@/app/types/pos/transactions";
+import { useGetTransactionByMemberIdQuery } from "@/services/transactionApi";
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
+
 
 export default function BusinessDetailTabs() {
+  
   return (
     <Card className=" w-[100%] sxl:w-[70%]  p-4">
       <Tabs defaultValue="member-data" className="w-full">
@@ -25,6 +32,12 @@ export default function BusinessDetailTabs() {
               Member Data
             </TabsTrigger>
             <TabsTrigger
+              value="invoices"
+              className="border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-auto pb-2 px-4 text-muted-foreground"
+            >
+              Invoices & Linked Members
+            </TabsTrigger>
+            <TabsTrigger
               value="coaching"
               className="border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-auto pb-2 px-4 text-muted-foreground"
             >
@@ -34,20 +47,15 @@ export default function BusinessDetailTabs() {
               value="fitness"
               className="border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-auto pb-2 px-4 text-muted-foreground"
             >
-              Fitness Data and Progress
+              Fitness Data & Progress
             </TabsTrigger>
             <TabsTrigger
               value="membership"
               className="border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-auto pb-2 px-4 text-muted-foreground"
             >
-              Membership Plan and Facilities
+              Membership Plan & Facilities
             </TabsTrigger>
-            <TabsTrigger
-              value="invoices"
-              className="border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-auto pb-2 px-4 text-muted-foreground"
-            >
-              Invoices and Linked Members
-            </TabsTrigger>
+
           </TabsList>
         </ScrollArea>
 
@@ -148,7 +156,7 @@ export default function BusinessDetailTabs() {
               </div>
               <Separator />
               <div className="space-y-4">
-                <h3 className="font-semibold">Membership and Auto Renewal</h3>
+                <h3 className="font-semibold">Membership & Auto Renewal</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex gap-4">
                     <div>

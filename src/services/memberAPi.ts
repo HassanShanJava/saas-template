@@ -75,9 +75,9 @@ export const MemberAPi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Members"],
     }),
-    getMemberById: builder.query<MemberInputTypes, { org_id: number, id: number }>({
+    getMemberById: builder.query<MemberTableDatatypes, { org_id: number, id: number }>({
       query: (member) => ({
-        url: `/member/${member.id}??org_id=${member.org_id}`,
+        url: `/member/${member.id}?org_id=${member.org_id}`,
         method: "GET",
         headers: {
           Accept: "application/json",

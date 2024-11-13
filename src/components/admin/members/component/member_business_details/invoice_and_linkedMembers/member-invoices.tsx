@@ -1,23 +1,18 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import InvoiceTableForMember from "./invoice-table";
+import { useParams } from "react-router-dom";
+import { useGetTransactionByMemberIdQuery } from "@/services/transactionApi";
+
 const MemberInvoice = () => {
+  const { memberId } = useParams()
+  const { data: memberInvoiceInfo } = useGetTransactionByMemberIdQuery(Number(memberId), {
+    skip: !memberId
+  })
   return (
     <div>
       <Tabs defaultValue="invoice" className="w-full">
-        <TabsList className="grid w-[400px] grid-cols-2">
+        <TabsList className="grid w-fit grid-cols-2">
           <TabsTrigger variant={"primary"} value="invoice">
             Invoices
           </TabsTrigger>
@@ -26,31 +21,12 @@ const MemberInvoice = () => {
           </TabsTrigger>
         </TabsList>
         <Separator className="mt-3 w-full" />
+
         <TabsContent className="w-full" value="invoice">
-          <InvoiceTableForMember />
+          <InvoiceTableForMember memberInvoiceInfo={memberInvoiceInfo}/>
         </TabsContent>
         <TabsContent value="linked-members">
-          <Card>
-            <CardHeader>
-              <CardTitle>Password</CardTitle>
-              <CardDescription>
-                Change your password here. After saving, you'll be logged out.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="space-y-1">
-                <Label htmlFor="current">Current password</Label>
-                <Input id="current" type="password" />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="new">New password</Label>
-                <Input id="new" type="password" />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button>Save password</Button>
-            </CardFooter>
-          </Card>
+
         </TabsContent>
       </Tabs>
     </div>

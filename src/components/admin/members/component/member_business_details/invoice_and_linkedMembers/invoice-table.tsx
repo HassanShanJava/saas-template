@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { DataTable } from "@/components/ui/table/data-table";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import { ColumnDef } from "@tanstack/react-table";
-import { displayValue, displayDate } from "@/utils/helper";
+import { displayValue, displayDate, formatToPKR } from "@/utils/helper";
 import { DataTableColumnHeader } from "@/components/ui/table/data-table-column-header";
-
-const InvoiceTableForMember: React.FC = () => {
+import { Transaction, TransactionData } from "@/app/types/pos/transactions";
+type MemberInvoiceProps = {
+  memberInvoiceInfo: TransactionData | undefined
+}
+const InvoiceTableForMember = ({ memberInvoiceInfo }: MemberInvoiceProps) => {
   const member = (() => {
     try {
       return JSON.parse(localStorage.getItem("accessLevels") as string).member ?? "no_access";
@@ -14,10 +17,16 @@ const InvoiceTableForMember: React.FC = () => {
       return "no_access";
     }
   })();
-  const [data, setData] = useState<any[]>([]);
+  
+  
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const actionsColumn: ColumnDef<any> = {
+
+    const memberInvoiceInfoTableData=useMemo(() => {
+      return Array.isArray(memberInvoiceInfo?.data) ? memberInvoiceInfo.data : [];
+    }, [memberInvoiceInfo]);
+
+  const actionsColumn: ColumnDef<Transaction> = {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
@@ -31,7 +40,7 @@ const InvoiceTableForMember: React.FC = () => {
       <></>
     ),
   };
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<Transaction>[] = [
     {
       accessorKey: "date",
       meta: "transaction date",
@@ -46,7 +55,7 @@ const InvoiceTableForMember: React.FC = () => {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayDate(row?.original.date)}
+            {displayDate(row?.original.transaction_date)}
           </div>
         );
       },
@@ -65,7 +74,7 @@ const InvoiceTableForMember: React.FC = () => {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.reciept_no)}
+            {displayValue(row?.original.receipt_number)}
           </div>
         );
       },
@@ -85,7 +94,7 @@ const InvoiceTableForMember: React.FC = () => {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.quantity)}
+            {displayValue(row?.original.total_quantity)}
           </div>
         );
       },
@@ -100,7 +109,7 @@ const InvoiceTableForMember: React.FC = () => {
             className=" size-5 text-gray-400 p-0 flex items-center justify-center"
           // onClick={() => toggleSortOrder("activated_on")}
           >
-            $
+           
             {/* {searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"} */}
             <i
               className={`fa fa-sort transition-all ease-in-out duration-200 `}
@@ -111,43 +120,18 @@ const InvoiceTableForMember: React.FC = () => {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {/* {displayDate(row?.original.activated_on)} */}
+            {formatToPKR(row?.original.total_amount)}
           </div>
         );
       },
     },
-    {
-      accessorKey: "check_in",
-      meta: "Last Check In",
-      header: () => (
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Last Check In</p>
-          <button
-            className=" size-5 text-gray-400 p-0 flex items-center justify-center"
-          // onClick={() => toggleSortOrder("check_in")}
-          >
-            <i
-              className={`fa fa-sort transition-all ease-in-out duration-200 `}
-            ></i>
-            {/* $ */}
-            {/* {searchCriteria.sort_order == "desc" ? "rotate-180" : "-rotate-180"} */}
-          </button>
-        </div>
-      ),
-      cell: ({ row }) => {
-        return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden text-black">
-            {/* {displayDateTime(row?.original?.check_in)} */}
-          </div>
-        );
-      },
-    },
+    
 
     ...(member !== "read" ? [actionsColumn] : []),
   ];
 
-  console.log({ data });
-  return <DataTable columns={columns} data={data} isLoading={false} />;
+  
+  return <DataTable columns={columns} data={memberInvoiceInfoTableData} isLoading={false} />;
 };
 
 export default InvoiceTableForMember;

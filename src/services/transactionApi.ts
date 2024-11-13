@@ -1,4 +1,5 @@
 import { SellForm, TransactionTable } from "@/app/types";
+import { TransactionData } from "@/app/types/pos/transactions";
 import { apiSlice } from "@/features/api/apiSlice";
 interface transactionInput {
   query: string;
@@ -50,6 +51,16 @@ export const Transaction = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["Transaction"],
       }),
+      getTransactionByMemberId:builder.query<TransactionData, number>({
+        query: (memberId) => ({
+          url: `/pos/invoices/${memberId}`,
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        }),
+        providesTags: ["Transaction"],
+      }),
     };
   },
 });
@@ -59,4 +70,5 @@ export const {
   useGetTransactionQuery,
   useGetTransactionByIdQuery,
   usePatchTransactionMutation,
+  useGetTransactionByMemberIdQuery
 } = Transaction;

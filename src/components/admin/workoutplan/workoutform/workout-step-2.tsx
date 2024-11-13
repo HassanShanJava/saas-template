@@ -703,7 +703,7 @@ const WorkoutStep2: React.FC = () => {
             </div>
           ) : (
             <>
-              <div className="sticky z-30 top-0 p-3 bg-[#EEE] space-y-2 custom-scrollbar">
+              <div className="sticky z-30 top-0 p-5 bg-[#EEE] space-y-2 custom-scrollbar ">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold">Search Exercise</span>
                   <Button
@@ -826,7 +826,7 @@ const WorkoutStep2: React.FC = () => {
                   </Button>
                 </div>
               </div>
-              <div className="px-3 pb-6 space-y-3">
+              <div className="px-3 pb-6 space-y-3 py-3 ">
                 {isWorkoutQueryLoading ? (
                   <Spinner />
                 ) : (

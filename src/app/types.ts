@@ -1,6 +1,13 @@
 import { JSONObject } from "@/types/hook-stepper";
 import { Gender } from "./shared_enums/enums";
-
+export interface VerifyTokenResponse {
+  status: number;
+  id?: number;
+  org_id?: number;
+  data: {
+    message: string;
+  };
+}
 export type DayOfWeek =
   | "monday"
   | "tuesday"

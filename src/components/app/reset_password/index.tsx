@@ -59,7 +59,7 @@ const ResetPassword = () => {
         variant: "success",
         title: `Please loggout first`,
       });
-      navigate("/")
+      navigate("/");
       return;
     }
 
@@ -72,10 +72,11 @@ const ResetPassword = () => {
       });
     } else if (error && typeof error === "object" && "data" in error) {
       const typedError = error as ErrorType;
+      console.log("Error type", typedError.data?.detail, error);
       toast({
         variant: "destructive",
         title: "Error in form Submission",
-        description: `${typedError.data?.detail}`,
+        description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
       });
     } else {
       toast({
@@ -141,7 +142,9 @@ const ResetPassword = () => {
           });
         }
       }
-    }, []);
+    },
+    []
+  );
 
   return (
     <div className="loginpage-image">

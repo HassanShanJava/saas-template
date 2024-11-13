@@ -6,14 +6,23 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import logomainsvg from "@/assets/logo-main.svg";
 import PasswordStrengthIndicator from "./password-strength-indicator.tsx";
 import { isStrongPassword, ValidatePassword } from "./password-strength.ts";
-import { SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { toast } from "@/components/ui/use-toast.ts";
 import { ErrorType } from "@/app/types.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { inValidToken } from "@/utils/helper.ts";
 import { passwordPattern } from "@/utils/constants.ts";
-import { useResetPasswordMutation, useVerifyTokenQuery } from "@/services/resetPassApi.ts";
+import {
+  useResetPasswordMutation,
+  useVerifyTokenQuery,
+} from "@/services/resetPassApi.ts";
 
 const CreatePassword = () => {
   const { token } = useParams();
@@ -27,7 +36,7 @@ const CreatePassword = () => {
   const {
     data: verifyToken,
     isLoading,
-    error
+    error,
   } = useVerifyTokenQuery(token as string);
   const [resetPassword] = useResetPasswordMutation();
 
@@ -46,7 +55,6 @@ const CreatePassword = () => {
   });
 
   useEffect(() => {
-
     if (verifyToken !== undefined && !error) {
       form.reset({
         id: verifyToken.id,
@@ -55,7 +63,6 @@ const CreatePassword = () => {
         confirm_password: "",
       });
     } else if (error && typeof error === "object" && "data" in error) {
-
       const typedError = error as ErrorType;
       toast({
         variant: "destructive",
@@ -69,7 +76,6 @@ const CreatePassword = () => {
         description: `Something Went Wrong.`,
       });
     }
-
   }, [verifyToken, error]);
 
   const {
@@ -311,8 +317,7 @@ const CreatePassword = () => {
                       >
                         Forgot Password
                       </span>{" "}
-                      page, Or go to the 
-                      {" "}
+                      page, Or go to the{" "}
                       <span
                         onClick={() => {
                           navigate("/");
@@ -320,7 +325,8 @@ const CreatePassword = () => {
                         className="cursor-pointer underline font-semibold text-textprimary pr-1"
                       >
                         Login
-                      </span>page.
+                      </span>
+                      page.
                     </p>
                   </div>
                 </div>

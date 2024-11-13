@@ -594,6 +594,12 @@ const CoachForm: React.FC<CoachFormProps> = ({
     const payloadCoach = {
       ...coachData,
       nic: coachData?.nic !== null ? coachData?.nic : "",
+      bank_detail: {
+        bank_name: coachData.bank_detail?.bank_name ?? "",
+        iban_no: coachData.bank_detail?.iban_no ?? "",
+        acc_holder_name: coachData.bank_detail?.acc_holder_name ?? "",
+        swift_code: coachData.bank_detail?.swift_code ?? "",
+      },
     };
     console.log("Member_ids before that", payloadCoach.member_ids);
     type Member = { id: number; name: string } | number;

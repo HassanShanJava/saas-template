@@ -6,56 +6,31 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { MobileIcon } from "@radix-ui/react-icons";
 import MemberInvoice from "./invoice_and_linkedMembers/member-invoices";
-import { TransactionData } from "@/app/types/pos/transactions";
-import { useGetTransactionByMemberIdQuery } from "@/services/transactionApi";
-import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/store";
-
 
 export default function BusinessDetailTabs() {
-  
+  const tabs = [
+    { value: "member-data", label: "Member Data" },
+    { value: "invoices", label: "Invoices & Linked Members" },
+    { value: "coaching", label: "Coaching" },
+    { value: "fitness", label: "Fitness Data & Progress" },
+    { value: "membership", label: "Membership Plan & Facilities" }
+  ];
+
   return (
     <Card className=" w-[100%] sxl:w-[70%]  p-4">
       <Tabs defaultValue="member-data" className="w-full">
         <ScrollArea className="w-full">
           <ScrollBar orientation="horizontal" className="h-2 cursor-grabbing" />
-          <TabsList
-            className="border-b
-              
-              rounded-none w-full justify-start h-auto p-0 bg-transparent"
-          >
-            <TabsTrigger
-              value="member-data"
-              className="border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-auto pb-2 px-4"
-            >
-              Member Data
-            </TabsTrigger>
-            <TabsTrigger
-              value="invoices"
-              className="border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-auto pb-2 px-4 text-muted-foreground"
-            >
-              Invoices & Linked Members
-            </TabsTrigger>
-            <TabsTrigger
-              value="coaching"
-              className="border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-auto pb-2 px-4 text-muted-foreground"
-            >
-              Coaching
-            </TabsTrigger>
-            <TabsTrigger
-              value="fitness"
-              className="border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-auto pb-2 px-4 text-muted-foreground"
-            >
-              Fitness Data & Progress
-            </TabsTrigger>
-            <TabsTrigger
-              value="membership"
-              className="border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-auto pb-2 px-4 text-muted-foreground"
-            >
-              Membership Plan & Facilities
-            </TabsTrigger>
-
+          <TabsList className="border-b rounded-none w-full justify-start h-auto p-0 bg-transparent">
+            {tabs.map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="border-b-2 border-transparent data-[state=active]:border-primary rounded-none h-auto pb-2 px-4 text-muted-foreground"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
         </ScrollArea>
 

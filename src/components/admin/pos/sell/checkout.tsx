@@ -138,7 +138,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                     {
                         payment_method_id: id,
                         payment_method: method_code,
-                        amount: Math.round(numAmount),
+                        amount: numAmount,
                     },
                 ];
 
@@ -163,7 +163,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             0
         );
 
-        if (totalPayments > Math.round(watcher.total)) {
+        if (totalPayments > watcher.total) {
             toast({
                 variant: "destructive",
                 title: "Amount exceeds total due.",
@@ -300,7 +300,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
 
                             <div className="flex justify-between items-center">
                                 <div className="text-xl font-bold">Total</div>
-                                <div className="text-xl font-bold">{id && watcher.transaction_type == "Refund" ? "- " : ""}{Math.round(watcher.total)}</div>
+                                <div className="text-xl font-bold">{id && watcher.transaction_type == "Refund" ? "- " : ""}{watcher.total}</div>
                             </div>
                             <Separator />
 

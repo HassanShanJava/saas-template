@@ -65,6 +65,7 @@ import {
   coachMapper,
   displayDate,
   displayDateTime,
+  displayValue,
   downloadCSV,
 } from "@/utils/helper";
 import {
@@ -240,10 +241,7 @@ export default function CoachTableView() {
       }
     }
   };
-
-  const displayValue = (value: string | undefined | null) =>
-    value == null || value == "" ? "N/A" : value;
-
+  
   const toggleSortOrder = (key: string) => {
     setSearchCriteria((prev) => {
       const newSortOrder =

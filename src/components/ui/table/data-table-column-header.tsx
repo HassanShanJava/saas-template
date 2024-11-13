@@ -62,7 +62,7 @@ export function DataTableColumnHeader<TData, TValue>({
         <DropdownMenuContent align="start">
           <DropdownMenuItem
             aria-label="Sort ascending"
-            onClick={() => column.toggleSorting(false)}
+            onClick={() => toggleSortOrder(sortKey)}
           >
             <ArrowUpIcon
               className="mr-2 h-3.5 w-3.5 text-muted-foreground/70"
@@ -72,7 +72,7 @@ export function DataTableColumnHeader<TData, TValue>({
           </DropdownMenuItem>
           <DropdownMenuItem
             aria-label="Sort descending"
-            onClick={() => column.toggleSorting(true)}
+            onClick={() => toggleSortOrder(sortKey)}
           >
             <ArrowDownIcon
               className="mr-2 h-3.5 w-3.5 text-muted-foreground/70"

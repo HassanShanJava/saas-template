@@ -4,7 +4,6 @@ import BusinessDetailProfile from "./business-card-profile";
 import { useGetMemberByIdQuery } from "@/services/memberAPi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { useGetTransactionByMemberIdQuery } from "@/services/transactionApi";
 
 export default function BusinessDetail() {
 

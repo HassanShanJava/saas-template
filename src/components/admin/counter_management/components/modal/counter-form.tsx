@@ -130,7 +130,7 @@ const CounterForm = ({
           ...payload,
           id: data?.id as number,
         }).unwrap();
-        
+
         if (!resp.error) {
           toast({
             variant: "success",

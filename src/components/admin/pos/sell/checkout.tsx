@@ -193,6 +193,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                 // for new complete sale or refund 
                 payload.status = "Paid"
                 const resp = await createTransaction(payload).unwrap();
+                console.log({resp})
                 if (resp) {
                     toast({
                         variant: "success",
@@ -248,7 +249,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         setShowCheckout(false)
     }
 
-
+    console.log({invoiceId},"invoiceId")
     return (
 
         <div className=" ">
@@ -391,7 +392,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                     </div>
 
                     <div className="flex justify-end ">
-                        {invoiceId == null || !result.isSuccess ? (
+                        {invoiceId == null  ? (
                             <div className="flex justify-end gap-3">
                                 <Button variant={"ghost"} onClick={() => setShowCheckout(false)}>
                                     Back

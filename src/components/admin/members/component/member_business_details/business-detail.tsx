@@ -16,12 +16,12 @@ export default function BusinessDetail() {
 
 
 
-  return memberInfo&&(
+  return memberInfo && (
     <div
       className=" p-5 flex flex-col gap-3  justify-start items-start sxl:flex-row "
     >
       <BusinessDetailProfile memberInfo={memberInfo} />
-      <BusinessDetailTabs />
+      <BusinessDetailTabs memberInfo={memberInfo} />
     </div>
   );
 }

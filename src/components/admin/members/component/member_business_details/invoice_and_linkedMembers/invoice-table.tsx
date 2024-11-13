@@ -14,7 +14,11 @@ import Pagination from "@/components/ui/table/pagination-table";
 import { useParams } from "react-router-dom";
 import { useGetTransactionByMemberIdQuery } from "@/services/invoiceApi";
 import LinkedMembers from "./linked-members";
-import { Underline } from "lucide-react";
+import { MemberTableDatatypes } from "@/app/types/member";
+
+type BusinessDetailProps = {
+  memberInfo: MemberTableDatatypes | undefined;
+};
 
 const initialValue = {
   limit: 10,
@@ -22,7 +26,7 @@ const initialValue = {
   sort_order: "desc",
   sort_key: "id",
 };
-const InvoiceTableForMember = () => {
+const InvoiceTableForMember = ({ memberInfo }: BusinessDetailProps) => {
   const member = (() => {
     try {
       return JSON.parse(localStorage.getItem("accessLevels") as string).member ?? "no_access";
@@ -31,9 +35,6 @@ const InvoiceTableForMember = () => {
     }
   })();
   const { memberId } = useParams()
-
-
-
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCriteria, setSearchCriteria] =
@@ -79,6 +80,20 @@ const InvoiceTableForMember = () => {
       };
     });
   };
+
+  const actionsColumn: ColumnDef<Transaction> = {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <DataTableRowActions
+        access={member}
+        data={row?.original}
+        openLinkedMembers={setOpenLinkedMembers}
+        selectTransactions={setSelectTransaction}
+      />
+    ),
+  };
+
 
   const columns: ColumnDef<Transaction>[] = [
     {
@@ -159,18 +174,7 @@ const InvoiceTableForMember = () => {
         );
       },
     },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <DataTableRowActions
-          access={member}
-          data={row?.original}
-          openLinkedMembers={setOpenLinkedMembers}
-          // selectT
-        />
-      ),
-    }
+    ...(memberInfo?.business_id!==null || memberInfo?.is_business  ? [actionsColumn] : []),
   ];
 
   const totalRecords = memberInvoiceInfo?.filtered_counts || 0;
@@ -213,6 +217,7 @@ const InvoiceTableForMember = () => {
         isOpen={openLinkedMembers}
         setOpen={setOpenLinkedMembers}
         selectTransaction={selectTransaction}
+        setSelectedTransaction={setSelectTransaction}
       />
     </>
   );

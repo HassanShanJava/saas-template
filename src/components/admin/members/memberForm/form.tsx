@@ -208,6 +208,7 @@ const MemberForm = ({
   const [emailAutoFill, setEmailAutoFill] = React.useState<string>("");
   const [openAutoFill, setAutoFill] = useState(false);
   const [country, setCountry] = useState(false);
+  const [openBusiness, setOpenBusiness] = useState(false);
   const [dob, setDob] = useState(false);
 
   // conditional fetching
@@ -1260,13 +1261,13 @@ const MemberForm = ({
                             >
                               Business
                             </label>
-                            <Popover>
+                            <Popover open={openBusiness} onOpenChange={setOpenBusiness}>
                               <PopoverTrigger asChild>
                                 <FormControl>
                                   <Button
                                     variant="outline"
                                     role="combobox"
-                                    className="w-full hover:bg-transparent border-[1px] shadow-sm"
+                                    className="capitalize w-full hover:bg-transparent border-[1px] shadow-sm"
                                   >
                                     <span className="w-full text-left font-normal text-black">
                                       {value
@@ -1296,11 +1297,13 @@ const MemberForm = ({
                                             <CommandItem
                                               value={business.full_name}
                                               key={business.id}
+                                              className="capitalize"
                                               onSelect={() => {
                                                 setValue(
                                                   "business_id",
                                                   business.id
-                                                );
+                                                  );
+                                                  setOpenBusiness(false)    
                                               }}
                                             >
                                               <Check

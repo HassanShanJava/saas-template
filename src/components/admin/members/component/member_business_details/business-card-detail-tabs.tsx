@@ -6,11 +6,16 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { MobileIcon } from "@radix-ui/react-icons";
 import MemberInvoice from "./invoice_and_linkedMembers/member-invoices";
+import { MemberTableDatatypes } from "@/app/types/member";
 
-export default function BusinessDetailTabs() {
+type BusinessDetailProps = {
+  memberInfo: MemberTableDatatypes | undefined;
+};
+
+export default function BusinessDetailTabs({memberInfo}:BusinessDetailProps) {
   const tabs = [
     { value: "member-data", label: "Member Data" },
-    { value: "invoices", label: "Invoices & Linked Members" },
+    { value: "invoices", label: `Invoices ${memberInfo?.business_id!==null || memberInfo?.is_business?"& Linked Members":""}` },
     { value: "coaching", label: "Coaching" },
     { value: "fitness", label: "Fitness Data & Progress" },
     { value: "membership", label: "Membership Plan & Facilities" }
@@ -175,7 +180,7 @@ export default function BusinessDetailTabs() {
         </TabsContent>
 
         <TabsContent value="invoices" className="w-full mt-3">
-          <MemberInvoice />
+          <MemberInvoice memberInfo={memberInfo}/>
         </TabsContent>
       </Tabs>
     </Card>

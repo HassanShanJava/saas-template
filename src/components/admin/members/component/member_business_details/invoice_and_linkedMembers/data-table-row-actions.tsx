@@ -15,11 +15,13 @@ import { Transaction } from "@/app/types/pos/transactions";
 export function DataTableRowActions({
   data,
   access,
-  openLinkedMembers
+  openLinkedMembers,
+  selectTransactions
 }: {
   data: Transaction;
   access: string;
   openLinkedMembers: Dispatch<SetStateAction<boolean>>;
+  selectTransactions: Dispatch<SetStateAction<Transaction | undefined>>;
 }) {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -39,7 +41,10 @@ export function DataTableRowActions({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-fit">
             <DialogTrigger asChild>
-              <DropdownMenuItem onClick={()=>openLinkedMembers(true)} className="text-nowrap">
+              <DropdownMenuItem onClick={() => {
+                openLinkedMembers(true)
+                selectTransactions(data)
+              }} className="text-nowrap">
                 <Eye className="mr-2 h-4 w-4" />
                 View Linked Members
               </DropdownMenuItem>

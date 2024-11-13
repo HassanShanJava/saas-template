@@ -95,7 +95,7 @@ const DashboardLayout: React.FC = () => {
     if (pathname.includes("pos") && counter_number == null) {
       dispatch(setCode("pos"));
       navigate("/counter-selection", { replace: true });
-    } else if (!pathname.includes("pos")) {
+    } else if (!pathname.includes("pos") && pathname !=='/counter-selection') {
       localStorage.removeItem("code");
       dispatch(setCode(null));
       dispatch(setCounter(null));

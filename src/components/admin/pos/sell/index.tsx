@@ -487,10 +487,10 @@ const Sell = () => {
       return false;
     }
 
-    if ((watcher.discount_amt as number) > (watcher.total as number)) {
+    if ((watcher.discount_amt as number) > (watcher.subtotal as number)) {
       toast({
         variant: "destructive",
-        title: "Discount cannot be more than total amount",
+        title: "Discount cannot be more than subtotal amount",
       })
       return false
     }

@@ -54,6 +54,7 @@ import { useSelector } from "react-redux";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import {
+  useGetAllBusinessesQuery,
   useGetAllMemberQuery,
   useUpdateMemberMutation,
 } from "@/services/memberAPi";
@@ -127,7 +128,7 @@ export default function MemberTableView() {
   const debouncedInputValue = useDebounce(inputValue, 500);
   // const [filterData, setFilter] = useState({});
   const [filterData, setFilter] = useState<FilterDataType>({}); // Use the defined type for active filters
-
+  const { data: business, refetch: refetchBusiness } = useGetAllBusinessesQuery(orgId);
   useEffect(() => {
     setSearchCriteria((prev) => {
       const newCriteria = { ...prev };
@@ -637,6 +638,13 @@ export default function MemberTableView() {
         { id: "active", name: "Active" },
       ],
       function: (value: string) => handleFilterChange("status", value),
+    },
+    {
+      type: "combobox",
+      name: "business_id",
+      label: "Business Name",
+      options: business?.map(item=>({value:item.id, label:item.full_name})),
+      function: (value: string) => handleFilterChange("business_id", value),
     },
   ];
 

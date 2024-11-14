@@ -77,8 +77,8 @@ export function DataTableRowActions<TData>({
     }
   };
 
-  const handleNavigate = () => {
-    navigate("/admin/members/detail"); // Replace with your path
+  const handleNavigate = (data: MemberTableDatatypes) => {
+    navigate(`/admin/members/detail/${data.id}`); // Replace with your path
   };
 
   return (
@@ -107,15 +107,15 @@ export function DataTableRowActions<TData>({
                 Delete
               </DropdownMenuItem>
             )}
-            {/* {access === "full_access" && (
-              <DropdownMenuItem
-                className="text-nowrap"
-                onClick={handleNavigate}
-              >
-                <i className="fa-regular fa-eye mr-2 h-4 w-4"></i>
-                View Member Detail
-              </DropdownMenuItem>
-            )} */}
+
+            <DropdownMenuItem
+              className="text-nowrap"
+              onClick={()=>handleNavigate(data)}
+            >
+              <i className="fa-regular fa-eye mr-2 h-4 w-4"></i>
+              View Member Detail
+            </DropdownMenuItem>
+
           </DropdownMenuContent>
         </DropdownMenu>
         {isdelete && (

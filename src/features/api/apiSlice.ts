@@ -112,5 +112,6 @@ export const apiSlice = createApi({
     "Hardware",
     "PaymentMethods",
     "User",
+    "Invoice"
   ],
 });

@@ -63,12 +63,12 @@ const TableFilters = ({
   return (
     <div>
       <Sheet open={isOpen} onOpenChange={() => setOpen(false)}>
-        <SheetContent>
+        <SheetContent className="!h-screen">
           <SheetHeader>
             <SheetTitle>Filters</SheetTitle>
           </SheetHeader>
           <Separator className=" h-[1px] rounded-full my-2" />
-          <div className="py-2 space-y-4">
+          <div className="py-2 space-y-4 ">
             {filterDisplay &&
               filterDisplay?.map((element: any) => {
                 if (element.type == "select") {
@@ -178,7 +178,7 @@ const TableFilters = ({
                   );
                 }
               })}
-            <div className="gap-3 flex">
+            <div className="gap-3 flex ">
               <Button
                 type="submit"
                 variant={"outline"}
@@ -250,7 +250,7 @@ const TableFilters = ({
   );
 };
 
-interface comboboxType {
+interface ComboboxType {
   list?: {
     label: string;
     value: string;
@@ -267,7 +267,7 @@ function Combobox({
   name,
   defaultValue,
   label,
-}: comboboxType) {
+}: ComboboxType) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(
     list?.find((list) => list.value == defaultValue)?.label ?? ""

@@ -66,7 +66,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="rounded-none border border-border  ">
+    <div className="rounded-none border border-border ">
       <ScrollArea className="w-full relative">
         <ScrollBar
           orientation="horizontal"

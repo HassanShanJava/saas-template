@@ -109,7 +109,6 @@ export const Roles = apiSlice.injectEndpoints({
           },
         }),
         transformResponse: (response: { id: number; name: string }[]) => {
-          console.log("Original Response:", response);
           return response.map((item) => ({
             value: item.id,
             label: item.name,

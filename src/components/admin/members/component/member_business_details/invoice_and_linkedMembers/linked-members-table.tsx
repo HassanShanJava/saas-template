@@ -14,11 +14,6 @@ import Pagination from "@/components/ui/table/pagination-table";
 import { useParams } from "react-router-dom";
 import { useGetTransactionByMemberIdQuery } from "@/services/invoiceApi";
 import LinkedMembers from "./linked-members";
-import { MemberTableDatatypes } from "@/app/types/member";
-
-type BusinessDetailProps = {
-  memberInfo: MemberTableDatatypes | undefined;
-};
 
 const initialValue = {
   limit: 10,
@@ -26,21 +21,17 @@ const initialValue = {
   sort_order: "desc",
   sort_key: "id",
 };
-const InvoiceTableForMember = ({ memberInfo }: BusinessDetailProps) => {
-  const member = (() => {
-    try {
-      return JSON.parse(localStorage.getItem("accessLevels") as string).member ?? "no_access";
-    } catch {
-      return "no_access";
-    }
-  })();
+const LinkedMembersTable = () => {
+  
   const { memberId } = useParams()
+
+
+
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCriteria, setSearchCriteria] =
     useState<SearchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
-  const [selectTransaction, setSelectTransaction] = useState<Transaction | undefined>(undefined)
 
   const { data: memberInvoiceInfo, isLoading } = useGetTransactionByMemberIdQuery({ id: Number(memberId), query: query }, {
     skip: !memberId
@@ -62,7 +53,6 @@ const InvoiceTableForMember = ({ memberInfo }: BusinessDetailProps) => {
     return Array.isArray(memberInvoiceInfo?.data) ? memberInvoiceInfo.data : [];
   }, [memberInvoiceInfo]);
 
-  const [openLinkedMembers, setOpenLinkedMembers] = useState(false);
 
   const toggleSortOrder = (key: string) => {
     setSearchCriteria((prev) => {
@@ -80,20 +70,6 @@ const InvoiceTableForMember = ({ memberInfo }: BusinessDetailProps) => {
       };
     });
   };
-
-  const actionsColumn: ColumnDef<Transaction> = {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <DataTableRowActions
-        access={member}
-        data={row?.original}
-        openLinkedMembers={setOpenLinkedMembers}
-        selectTransactions={setSelectTransaction}
-      />
-    ),
-  };
-
 
   const columns: ColumnDef<Transaction>[] = [
     {
@@ -154,27 +130,7 @@ const InvoiceTableForMember = ({ memberInfo }: BusinessDetailProps) => {
         );
       },
     },
-    {
-      accessorKey: "price",
-      meta: "price",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title=" Price"
-          sortKey="key"
-          className="text-nowrap"
-          toggleSortOrder={() => toggleSortOrder("total_amount")}
-        />
-      ),
-      cell: ({ row }) => {
-        return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {formatToPKR(row?.original.total_amount)}
-          </div>
-        );
-      },
-    },
-    ...(memberInfo?.is_business ? [actionsColumn] : []),
+
   ];
 
   const totalRecords = memberInvoiceInfo?.filtered_counts || 0;
@@ -213,14 +169,8 @@ const InvoiceTableForMember = ({ memberInfo }: BusinessDetailProps) => {
         />
       )}
 
-      <LinkedMembers
-        isOpen={openLinkedMembers}
-        setOpen={setOpenLinkedMembers}
-        selectTransaction={selectTransaction}
-        setSelectedTransaction={setSelectTransaction}
-      />
     </>
   );
 };
 
-export default InvoiceTableForMember;
+export default LinkedMembersTable;

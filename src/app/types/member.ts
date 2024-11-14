@@ -8,6 +8,12 @@ interface MembershipPlanIds {
   inv_days_cycle?: number;
 }
 
+export interface LinkedMember {
+  member_id: number;
+  membership_plan_id: number;
+  transition_id: number;
+}
+
 export interface MemberInput {
   query: string;
   org_id: number;

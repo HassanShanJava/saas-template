@@ -8,6 +8,17 @@ export interface VerifyTokenResponse {
     message: string;
   };
 }
+
+export interface CoreSearchCriteria {
+  limit: number;
+  offset: number;
+  sort_order: string;
+  sort_key: string;
+  search_key?: string;
+}
+
+export type SearchCriteriaType = CoreSearchCriteria | (CoreSearchCriteria & Record<string, string>);
+
 export type DayOfWeek =
   | "monday"
   | "tuesday"

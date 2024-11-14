@@ -3,10 +3,19 @@ import { Separator } from "@/components/ui/separator";
 import forwardinbox from "@/assets/forward_to_inbox.svg";
 import calender from "@/assets/calendar-vector-detail.svg";
 import lastlogin from "@/assets/login_svgrepo.com.svg";
+import profileimg from "@/assets/profile-image.svg";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-export default function BusinessDetailProfile() {
-  return (
+import { MemberTableDatatypes } from "@/app/types/member";
+const { VITE_VIEW_S3_URL } = import.meta.env;
+
+
+type BusinessDetailProps = {
+  memberInfo: MemberTableDatatypes | undefined;
+};
+
+export default function BusinessDetailProfile({ memberInfo }: BusinessDetailProps) {
+  console.log({ memberInfo })
+  return memberInfo&&(
     <Card className="w-[100%] slg:w-[50%] sxl:max-w-xs ">
       <CardHeader>
         <h2 className="text-lg font-semibold">Member Details</h2>
@@ -17,14 +26,19 @@ export default function BusinessDetailProfile() {
           <Avatar className="h-10 w-10 !rounded-lg">
             <AvatarImage
               src={
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwRPWpO-12m19irKlg8znjldmcZs5PO97B6A&s"
+                memberInfo?.profile_img
+                  ? memberInfo?.profile_img.includes(VITE_VIEW_S3_URL)
+                    ? memberInfo?.profile_img
+                    : `${VITE_VIEW_S3_URL}/${memberInfo?.profile_img}` : ""
               }
               alt="Member profile picture"
             />
-            <AvatarFallback>AB</AvatarFallback>
+            <AvatarFallback className="uppercase">
+              {(memberInfo.first_name as string).slice(0, 1) + (memberInfo.last_name as string).slice(0, 1)}
+            </AvatarFallback>
           </Avatar>
           <div className="grid gap-1">
-            <h3 className="font-semibold">Annette Black</h3>
+            <h3 className="font-semibold capitalize">{`${memberInfo?.first_name + " " + memberInfo?.last_name}`}</h3>
             <a
               href="#"
               className="text-sm text-nowrap text-blue-400 underline hover:text-blue-600 transition-colors"

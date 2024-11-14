@@ -97,7 +97,10 @@ interface SearchCriteriaType {
 export default function IncomeCategoryTableView() {
   const inc_cat = (() => {
     try {
-      return JSON.parse(localStorage.getItem("accessLevels") as string).inc_cat ?? "no_access";
+      return (
+        JSON.parse(localStorage.getItem("accessLevels") as string).inc_cat ??
+        "no_access"
+      );
     } catch {
       return "no_access";
     }
@@ -296,7 +299,11 @@ export default function IncomeCategoryTableView() {
         const sales: any = salesTaxData?.filter(
           (item) => item.id == row.original.sale_tax_id
         )[0];
-        return <span className="capitalize">{sales?.name + " (" + sales?.percentage + "%)"}</span>;
+        return (
+          <span className="capitalize">
+            {sales?.name + " (" + sales?.percentage + "%)"}
+          </span>
+        );
       },
       enableSorting: false,
       enableHiding: false,
@@ -394,9 +401,9 @@ export default function IncomeCategoryTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -659,10 +666,11 @@ const IncomeCategoryForm = ({
                           id="name"
                           name="name"
                           className="capitalize"
-                          label="Category Name*"
+                          label="Category Name"
+                          text="*"
                           value={value ?? ""}
                           onChange={handleOnChange}
-                        // error={error?.message??""}
+                          // error={error?.message??""}
                         />
                         {/* {watcher.name ? <></> : <FormMessage />} */}
                         <FormMessage />
@@ -685,13 +693,13 @@ const IncomeCategoryForm = ({
                           <FormControl>
                             <SelectTrigger
                               className="capitalize"
-                              floatingLabel="Default Tax/VAT*">
+                              floatingLabel="Default Tax/VAT"
+                              text="*"
+                            >
                               <SelectValue placeholder="Select Tax/VAT" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent
-                            className="capitalize"
-                          >
+                          <SelectContent className="capitalize">
                             {salesTaxData && salesTaxData?.length > 0 ? (
                               salesTaxData.map((saleTax: any, i: any) => (
                                 <SelectItem

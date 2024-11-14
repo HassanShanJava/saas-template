@@ -64,6 +64,7 @@ interface MultiSelectProps extends VariantProps<typeof multiSelectVariants> {
   floatingLabel?: string; // Add this line
   labelClassname?: string; // Add this line
   dotruncate?: boolean;
+  text?: string;
 }
 
 export const MultiSelect = React.forwardRef<
@@ -86,6 +87,7 @@ export const MultiSelect = React.forwardRef<
       floatingLabel,
       labelClassname,
       dotruncate = false,
+      text,
       ...props
     },
     ref
@@ -163,7 +165,7 @@ export const MultiSelect = React.forwardRef<
               labelClassname
             )}
           >
-            {floatingLabel}
+            {floatingLabel} <span className="text-red-500">{text}</span>
           </label>
         )}
         <Popover

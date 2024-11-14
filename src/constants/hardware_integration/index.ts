@@ -38,10 +38,10 @@ export function validateHardwareSettings(settings: HardwareSettings): boolean {
   } = settings;
 
   return (
-    has_no_active_membership &&
-    has_no_required_credits &&
+    !has_no_active_membership &&
+    !has_no_required_credits &&
     // min_credits_required &&
-    has_outstanding_invoices_enabled &&
-    membership_expiry_enabled
+    !has_outstanding_invoices_enabled &&
+    !membership_expiry_enabled
   );
 }

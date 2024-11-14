@@ -15,9 +15,8 @@ export const categories = [
   { value: "other", label: "Other" },
 ];
 
-
-export const visibleFor = [ 
-  { value: "Only Myself", label: "Only Myself" },
+export const visibleFor = [
+  // { value: "Only Myself", label: "Only Myself" },
   { value: "Coaches Of My Gym", label: "Coaches Of My Gym" },
   { value: "Members Of My Gym", label: "Members Of My Gym" },
   { value: "Everyone In My Gym", label: "Everyone In My Gym" },
@@ -29,8 +28,6 @@ export const weights = [
   { value: "g_ml", label: "Gram/ML" },
 ];
 
-
-
 //   form info
 
 export const basicInfo = [
@@ -38,6 +35,7 @@ export const basicInfo = [
     type: "text",
     name: "name",
     label: "Name",
+    text: "*",
     required: true,
   },
   {
@@ -273,18 +271,17 @@ export const nutrientsInfo = [
     label: "Trans fat (g)",
     required: false,
   },
-
 ];
 
 export const initialValue = {
   // basic
-  img_url:null,
+  img_url: null,
   name: "",
   brand: "",
-  category: '',
+  category: "",
   description: "",
   other_name: "",
-  visible_for: '',
+  visible_for: "",
   // nutritions
   total_nutrition: null,
   kcal: null,
@@ -320,5 +317,5 @@ export const initialValue = {
   alchohol_poly: null,
   trans_fat: null,
   weight: null,
-  weight_unit: '',
+  weight_unit: "",
 };

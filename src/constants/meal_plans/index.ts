@@ -1,5 +1,5 @@
-export const visibleFor = [ 
-  { value: "Only Myself", label: "Only Myself" },
+export const visibleFor = [
+  // { value: "Only Myself", label: "Only Myself" },
   { value: "Coaches Of My Gym", label: "Coaches Of My Gym" },
   { value: "Members Of My Gym", label: "Members Of My Gym" },
   { value: "Everyone In My Gym", label: "Everyone In My Gym" },
@@ -13,7 +13,6 @@ export const planFor = [
   { value: "dinner", label: "Dinner" },
   { value: "evening_snack", label: "Evening Snack" },
 ];
-
 
 export const mealTypes = [
   // made same for backend mapping according to enums

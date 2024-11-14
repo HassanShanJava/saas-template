@@ -9,7 +9,7 @@ import { Difficulty } from "@/components/admin/exercise/component/difficultySlid
 import { deleteCognitoImage, UploadCognitoImage } from "@/utils/lib/s3Service";
 
 export const visibilityOptions = [
-  { value: "Only Myself", label: "Only myself" },
+  // { value: "Only Myself", label: "Only myself" },
   { value: "Coaches Of My Gym", label: "Coaches of my gym" },
   { value: "Members Of My Gym", label: "Members of my gym" },
   {
@@ -173,6 +173,7 @@ export type ExerciseItem = {
   options?: Array<{ value: number | string; label: string }>; // Define options here
   maxlength?: number;
   pattern?: string;
+  text?: string;
 };
 
 export function combinePayload(input: any, updatedData: any) {

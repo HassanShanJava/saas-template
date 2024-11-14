@@ -46,10 +46,9 @@ const BasicInfoForm = () => {
   const [access, setAccess] = useState<string | undefined>("");
   const [groupList, setGroupList] = useState<groupList[]>([]);
 
-  const [limitedAccessDays, setLimitedAccessDays] = useState<
-    LimitedAccessTime
-  >(
-    Object.keys(getValues("limited_access_time") as LimitedAccessTime).length > 0
+  const [limitedAccessDays, setLimitedAccessDays] = useState<LimitedAccessTime>(
+    Object.keys(getValues("limited_access_time") as LimitedAccessTime).length >
+      0
       ? (getValues("limited_access_time") as LimitedAccessTime)
       : initialDaysOfWeek
   );
@@ -76,10 +75,7 @@ const BasicInfoForm = () => {
 
     setLimitedAccessDays((prev) => ({
       ...prev,
-      [day]: [
-        ...dayIntervals,
-        { from_time: "", to_time: "" },
-      ],
+      [day]: [...dayIntervals, { from_time: "", to_time: "" }],
     }));
   };
 
@@ -103,7 +99,12 @@ const BasicInfoForm = () => {
     });
   };
 
-  const handleTimeChange = (day: string, index: number, field: "from_time" | "to_time", value: string) => {
+  const handleTimeChange = (
+    day: string,
+    index: number,
+    field: "from_time" | "to_time",
+    value: string
+  ) => {
     setLimitedAccessDays((prev) => ({
       ...prev,
       [day]: prev[day].map((interval, i) =>
@@ -112,9 +113,9 @@ const BasicInfoForm = () => {
     }));
   };
 
-
   const sortedDays = Object.keys(limitedAccessDays).sort(
-    (a, b) => daysOrder.indexOf(a as DayOfWeek) - daysOrder.indexOf(b as DayOfWeek)
+    (a, b) =>
+      daysOrder.indexOf(a as DayOfWeek) - daysOrder.indexOf(b as DayOfWeek)
   );
 
   useEffect(() => {
@@ -144,8 +145,8 @@ const BasicInfoForm = () => {
     if (inputValue.length > 15) {
       toast({
         variant: "destructive",
-        title: "Group name cannot be too large"
-      })
+        title: "Group name cannot be too large",
+      });
       return;
     }
 
@@ -184,7 +185,8 @@ const BasicInfoForm = () => {
         <div className="flex flex-col gap-4 col-span-1">
           <FloatingLabelInput
             id="membership_name"
-            label="Name*"
+            label="Name"
+            text="*"
             {...register("name", {
               required: "Required",
               setValueAs: (value) => value.toLowerCase(),
@@ -212,7 +214,12 @@ const BasicInfoForm = () => {
                   defaultValue={value ? value + "" : undefined}
                   disabled={isFetching}
                 >
-                  <SelectTrigger name="group_id" className="capitalize" floatingLabel="Group*">
+                  <SelectTrigger
+                    name="group_id"
+                    className="capitalize"
+                    floatingLabel="Group"
+                    text="*"
+                  >
                     <SelectValue placeholder="Select group" />
                   </SelectTrigger>
                   {invalid && (
@@ -299,7 +306,7 @@ const BasicInfoForm = () => {
                 onValueChange={(value) => onChange(value)}
                 defaultValue={value}
               >
-                <SelectTrigger floatingLabel="Status*">
+                <SelectTrigger floatingLabel="Status" text="*">
                   <SelectValue
                     placeholder="Select status"
                     className="text-gray-400"
@@ -328,7 +335,9 @@ const BasicInfoForm = () => {
       <h1 className="font-semibold text-[#2D374] text-xl">Membership Scope</h1>
       <div className="flex items-center gap-6  ">
         <div className="flex items-center gap-4">
-          <Label className="font-semibold ">Access times*</Label>
+          <Label className="font-semibold ">
+            Access times<span className="text-red-500">*</span>
+          </Label>
           <Controller
             name="access_type"
             rules={{ required: "Required" }}
@@ -351,10 +360,7 @@ const BasicInfoForm = () => {
                     <Label htmlFor="no_restriction">No Restriction</Label>
                   </div>
                   <div className="flex items-center space-x-2 cursor-pointer">
-                    <RadioGroupItem
-                      value="limited"
-                      id="limited"
-                    />
+                    <RadioGroupItem value="limited" id="limited" />
                     <Label htmlFor="limited">Limited Access</Label>
                   </div>
                 </RadioGroup>
@@ -363,7 +369,9 @@ const BasicInfoForm = () => {
           />
         </div>
         <div className="flex items-center gap-4">
-          <Label className="font-semibold">Duration*</Label>
+          <Label className="font-semibold">
+            Duration<span className="text-red-500">*</span>
+          </Label>
           <Controller
             name="duration_period"
             rules={{ required: "Required" }}
@@ -426,8 +434,10 @@ const BasicInfoForm = () => {
           {sortedDays.map((day) => (
             <div key={day} className="">
               {limitedAccessDays[day].map(({ from_time, to_time }, index) => (
-                <div key={index} className="space-y-1 grid grid-cols-3 items-center gap-3 ">
-
+                <div
+                  key={index}
+                  className="space-y-1 grid grid-cols-3 items-center gap-3 "
+                >
                   <div className="flex items-center gap-3">
                     <i
                       className="text-base text-primary fa fa-plus cursor-pointer"
@@ -440,7 +450,14 @@ const BasicInfoForm = () => {
                     <Input
                       type="time"
                       value={from_time}
-                      onChange={(e) => handleTimeChange(day, index, "from_time", e.target.value)}
+                      onChange={(e) =>
+                        handleTimeChange(
+                          day,
+                          index,
+                          "from_time",
+                          e.target.value
+                        )
+                      }
                       aria-label="Choose from time"
                       className="w-full h-7"
                     />
@@ -448,7 +465,9 @@ const BasicInfoForm = () => {
                     <Input
                       type="time"
                       value={to_time}
-                      onChange={(e) => handleTimeChange(day, index, "to_time", e.target.value)}
+                      onChange={(e) =>
+                        handleTimeChange(day, index, "to_time", e.target.value)
+                      }
                       aria-label="Choose to time"
                       className="w-full h-7"
                     />

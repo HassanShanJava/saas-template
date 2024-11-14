@@ -809,7 +809,8 @@ const MemberForm = ({
                     <div className="relative">
                       <FloatingLabelInput
                         id="own_member_id"
-                        label="Member Id*"
+                        label="Member Id"
+                        text="*"
                         className="disabled:!opacity-100 disabled:text-gray-800 placeholder:text-gray-800"
                         disabled
                         {...register("own_member_id")}
@@ -827,7 +828,8 @@ const MemberForm = ({
                           id="email"
                           className=""
                           type="email"
-                          label="Email Address*"
+                          label="Email Address"
+                          text="*"
                           {...register("email", {
                             required: "Required",
                             setValueAs: (value) => value.toLowerCase(),
@@ -851,7 +853,8 @@ const MemberForm = ({
                                 id="email"
                                 className=""
                                 type="email"
-                                label="Email Address*"
+                                label="Email Address"
+                                text="*"
                                 disabled={
                                   action == "edit" &&
                                   watcher.client_status != "pending"
@@ -883,7 +886,8 @@ const MemberForm = ({
                     <div className="relative ">
                       <FloatingLabelInput
                         id="first_name"
-                        label="First Name*"
+                        label="First Name"
+                        text="*"
                         {...register("first_name", {
                           required: "Required",
                           setValueAs: (value) => value.toLowerCase(),
@@ -906,7 +910,8 @@ const MemberForm = ({
                     <div className="relative ">
                       <FloatingLabelInput
                         id="last_name"
-                        label="Last Name*"
+                        label="Last Name"
+                        text="*"
                         {...register("last_name", {
                           required: "Required",
                           setValueAs: (value) => value.toLowerCase(),
@@ -942,7 +947,8 @@ const MemberForm = ({
                             value={value as Gender}
                           >
                             <SelectTrigger
-                              floatingLabel="Gender*"
+                              floatingLabel="Gender"
+                              text="*"
                               className={`text-black`}
                             >
                               <SelectValue placeholder="Select Gender" />
@@ -977,8 +983,9 @@ const MemberForm = ({
                             <PopoverTrigger asChild>
                               <FormControl>
                                 <div className="relative">
-                                  <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">
-                                    Date of brith*
+                                  <span className="absolute p-0 text-xs text-black left-2 -top-1.5 px-1 bg-white">
+                                    Date of brith
+                                    <span className="text-red-500">*</span>
                                   </span>
                                   <Button
                                     variant={"outline"}
@@ -1126,7 +1133,8 @@ const MemberForm = ({
                             disabled={value === "pending"}
                           >
                             <SelectTrigger
-                              floatingLabel="Status*"
+                              floatingLabel="Status"
+                              text="*"
                               className={`text-black`}
                             >
                               <SelectValue placeholder="Select Status" />
@@ -1166,7 +1174,8 @@ const MemberForm = ({
                             value={value?.toString()}
                           >
                             <SelectTrigger
-                              floatingLabel="Source*"
+                              floatingLabel="Source"
+                              text="*"
                               className="font-normal capitalize text-gray-800"
                             >
                               <SelectValue placeholder="Select Source" />
@@ -1449,7 +1458,7 @@ const MemberForm = ({
                                   : "text-xs text-black"
                               }`}
                             >
-                              Country
+                              Country <span className="text-red-500">*</span>
                             </label>
                             <Popover open={country} onOpenChange={setCountry}>
                               <PopoverTrigger asChild>
@@ -1467,7 +1476,7 @@ const MemberForm = ({
                                           (country: CountryTypes) =>
                                             country.id === value // Compare with numeric value
                                         )?.country // Display country name if selected
-                                      : "Select country*"}
+                                      : "Select country"}
                                     <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                   </Button>
                                 </FormControl>
@@ -1625,7 +1634,8 @@ const MemberForm = ({
                                 {/* Row for Prolongation Period */}
                                 <div className="relative col-span-6 flex items-center gap-3">
                                   <Label className="text-base">
-                                    Prolongation period*
+                                    Prolongation period{" "}
+                                    <span className="text-red-500">*</span>
                                   </Label>
                                   <FloatingLabelInput
                                     id="prolongation_period"
@@ -1647,7 +1657,8 @@ const MemberForm = ({
                                 {/* Row for Auto Renewal Days */}
                                 <div className="relative col-span-6 flex items-center gap-3">
                                   <Label className="text-base">
-                                    Auto renewal takes place*
+                                    Auto renewal takes place{" "}
+                                    <span className="text-red-500">*</span>
                                   </Label>
                                   <FloatingLabelInput
                                     id="auto_renew_days"
@@ -1673,7 +1684,8 @@ const MemberForm = ({
                                 <div className="relative col-span-6 flex items-center gap-3">
                                   <Label className="text-base pr-4">
                                     Next invoice will be <br />
-                                    created*
+                                    created{" "}
+                                    <span className="text-red-500">*</span>
                                   </Label>
                                   <FloatingLabelInput
                                     id="inv_days_cycle"
@@ -1696,7 +1708,7 @@ const MemberForm = ({
                                   {membershipPlansdata?.length && (
                                     <Button
                                       type="button"
-                                      className="text-red-500"
+                                      className="text-red-500 disabled:cursor-none"
                                       variant={"ghost"}
                                       disabled={
                                         membershipPlansdata.length === 0 ||
@@ -1729,7 +1741,7 @@ const MemberForm = ({
                               membershipPlansdata?.length && (
                                 <Button
                                   type="button"
-                                  className="text-red-500 px-2"
+                                  className="text-red-500 px-2 disabled:cursor-none"
                                   variant={"ghost"}
                                   disabled={
                                     membershipPlansdata.length === 0 ||

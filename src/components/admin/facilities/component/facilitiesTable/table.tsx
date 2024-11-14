@@ -95,7 +95,6 @@ const downloadCSV = (data: creditTablestypes[], fileName: string) => {
   document.body.removeChild(link);
 };
 
-
 interface SearchCriteriaType {
   limit: number;
   offset: number;
@@ -106,7 +105,10 @@ interface SearchCriteriaType {
 export default function FacilitiesTableView() {
   const facilities = (() => {
     try {
-      return JSON.parse(localStorage.getItem("accessLevels") as string).facilities ?? "no_access";
+      return (
+        JSON.parse(localStorage.getItem("accessLevels") as string).facilities ??
+        "no_access"
+      );
     } catch {
       return "no_access";
     }
@@ -485,9 +487,9 @@ export default function FacilitiesTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -767,7 +769,8 @@ const CreditForm = ({
                           <FloatingLabelInput
                             id="name"
                             name="name"
-                            label="Facility Name*"
+                            label="Facility Name"
+                            text="*"
                             value={value ?? ""}
                             className="capitalize"
                             // error={error?.message??""}
@@ -802,10 +805,11 @@ const CreditForm = ({
                             name="min_limit"
                             type="number"
                             className=""
-                            label="Min Requred Limit*"
+                            label="Min Requred Limit"
+                            text="*"
                             value={value}
                             onChange={handleOnChange}
-                          // error={error?.message??""}
+                            // error={error?.message??""}
                           />
                           <FormMessage />
                         </FormItem>
@@ -826,14 +830,15 @@ const CreditForm = ({
                                 handleStatusOnChange(value);
                               }}
                             >
-                              <SelectTrigger floatingLabel="Status*">
+                              <SelectTrigger floatingLabel="Status" text="*">
                                 <SelectValue placeholder="">
                                   <span className="flex gap-2 items-center">
                                     <span
-                                      className={`w-2 h-2 rounded-full ${field.value == "active"
+                                      className={`w-2 h-2 rounded-full ${
+                                        field.value == "active"
                                           ? "bg-green-500"
                                           : "bg-blue-500"
-                                        }`}
+                                      }`}
                                     ></span>
                                     {field.value == "active"
                                       ? "Active"

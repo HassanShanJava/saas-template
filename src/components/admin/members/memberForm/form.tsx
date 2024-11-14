@@ -91,7 +91,7 @@ import {
   renewalData,
   sourceTypes,
 } from "@/app/types";
-import { MemberInputTypes, MemberTableDatatypes } from "@/app/types/member";
+import { MemberInputTypes, MembershipPlans, MemberTableDatatypes } from "@/app/types/member";
 
 import "react-international-phone/style.css"; // Import the default styles for the phone input
 
@@ -141,6 +141,7 @@ interface membership_planids {
   prolongation_period?: number;
   auto_renew_days?: number;
   inv_days_cycle?: number;
+  expiry_date: string;
 }
 
 const initialValues: MemberInputTypes = {
@@ -279,6 +280,7 @@ const MemberForm = ({
       prolongation_period: undefined,
       auto_renew_days: undefined,
       inv_days_cycle: undefined,
+      expiry_date: "",
     },
   ]);
 
@@ -292,6 +294,7 @@ const MemberForm = ({
         prolongation_period: undefined,
         auto_renew_days: undefined,
         inv_days_cycle: undefined,
+        expiry_date: "",
       },
     ]);
   };
@@ -310,6 +313,7 @@ const MemberForm = ({
           prolongation_period: undefined,
           auto_renew_days: undefined,
           inv_days_cycle: undefined,
+          expiry_date: "",
         },
       ]);
     } else {
@@ -341,7 +345,7 @@ const MemberForm = ({
         });
         return; // Exit the function to prevent further processing
       }
-      const selectedPlan = membershipPlans.find(
+      const selectedPlan = membershipPlans?.find(
         (item: any) => item.id === value
       );
 
@@ -354,6 +358,7 @@ const MemberForm = ({
           prolongation_period: renewalDetails?.prolongation_period || undefined,
           auto_renew_days: renewalDetails?.days_before || undefined,
           inv_days_cycle: renewalDetails?.next_invoice || undefined,
+          expiry_date: selectedPlan?.expiry_date,
         };
       }
     }
@@ -368,7 +373,7 @@ const MemberForm = ({
           // inv_days_cycle: undefined,
         };
       } else {
-        const selectedPlan = membershipPlans.find(
+        const selectedPlan = membershipPlans?.find(
           (item: any) => item.id === updatedPlans[index].membership_plan_id
         );
 
@@ -382,6 +387,7 @@ const MemberForm = ({
               renewalDetails?.prolongation_period || undefined,
             auto_renew_days: renewalDetails?.days_before || undefined,
             inv_days_cycle: renewalDetails?.next_invoice || undefined,
+            expiry_date: selectedPlan?.expiry_date,
           };
         }
       }
@@ -500,6 +506,7 @@ const MemberForm = ({
           prolongation_period: undefined,
           auto_renew_days: undefined,
           inv_days_cycle: undefined,
+          expiry_date: "",
         },
       ]);
     }
@@ -1282,7 +1289,10 @@ const MemberForm = ({
                             >
                               Business
                             </label>
-                            <Popover open={openBusiness} onOpenChange={setOpenBusiness}>
+                            <Popover
+                              open={openBusiness}
+                              onOpenChange={setOpenBusiness}
+                            >
                               <PopoverTrigger asChild>
                                 <FormControl>
                                   <Button
@@ -1323,8 +1333,8 @@ const MemberForm = ({
                                                 setValue(
                                                   "business_id",
                                                   business.id
-                                                  );
-                                                  setOpenBusiness(false)    
+                                                );
+                                                setOpenBusiness(false);
                                               }}
                                             >
                                               <Check
@@ -1600,7 +1610,7 @@ const MemberForm = ({
                                   {membershipPlans &&
                                   membershipPlans.length > 0 ? (
                                     membershipPlans.map(
-                                      (sourceval: membeshipsTableType) => (
+                                      (sourceval: MembershipPlans) => (
                                         <SelectItem
                                           key={sourceval.id}
                                           value={sourceval.id?.toString()}

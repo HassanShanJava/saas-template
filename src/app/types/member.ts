@@ -6,6 +6,7 @@ interface MembershipPlanIds {
   prolongation_period?: number;
   auto_renew_days?: number;
   inv_days_cycle?: number;
+  expiry_date: string;
 }
 
 export interface LinkedMember {
@@ -169,4 +170,17 @@ export interface MemberTableResponseDatatypes {
   }[];
   last_online?: string | null;
   business_name?: string | null;
+}
+
+export interface AutoRenewalForMembershipPlan {
+  days_before?: number;
+  next_invoice?: number;
+  prolongation_period?: number;
+}
+export interface MembershipPlans {
+  id: number;
+  name: string;
+  auto_renewal: boolean;
+  expiry_date: string;
+  renewal_details: AutoRenewalForMembershipPlan;
 }

@@ -132,7 +132,7 @@ export default function AuthenticationPage() {
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto xs:mx-0">
-        <div className="flex mx-16 justify-center sm:justify-between items-center h-dvh xs:mx-0 ">
+        <div className="flex sm:mx-16 justify-center sm:justify-between items-center h-dvh xs:mx-0 ">
           <div className=" flex flex-col gap-2 xs:gap-0"></div>
           <div>
             <Card className="px-16 max-w-md bg-transparent bg-opacity-10 backdrop-blur-sm custom-gradient-bg rounded-3xl border-checkboxborder shadow-lg p-2">
@@ -287,11 +287,17 @@ export default function AuthenticationPage() {
               <div>
                 <p className="Poppins text-textgray text-sm">
                   <span className="text-primary mr-2 text-lg">FitnFi</span>
-                  <Link className="text-primary underline" to={"#"}>
+                  <Link
+                    className="text-primary underline"
+                    to="/privacy-statement"
+                  >
                     Privacy Statement
                   </Link>{" "}
                   -{" "}
-                  <Link className="text-primary underline" to={"#"}>
+                  <Link
+                    className="text-primary underline"
+                    to="/terms-and-conditions"
+                  >
                     Terms & condition{" "}
                   </Link>
                 </p>

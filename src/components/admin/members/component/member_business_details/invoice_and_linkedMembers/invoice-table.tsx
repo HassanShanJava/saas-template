@@ -174,7 +174,7 @@ const InvoiceTableForMember = ({ memberInfo }: BusinessDetailProps) => {
         );
       },
     },
-    ...(memberInfo?.business_id!==null || memberInfo?.is_business  ? [actionsColumn] : []),
+    ...(memberInfo?.is_business ? [actionsColumn] : []),
   ];
 
   const totalRecords = memberInvoiceInfo?.filtered_counts || 0;

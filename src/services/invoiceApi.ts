@@ -54,5 +54,8 @@ export const Invoice = apiSlice.injectEndpoints({
 });
 
 export const {
-    useGetTransactionByMemberIdQuery
+    useGetTransactionByMemberIdQuery,
+    useAddLinkedMembersMutation,
+    useDeleteLinkedMemberMutation,
+    useGetLinkedMebersQuery
 } = Invoice;

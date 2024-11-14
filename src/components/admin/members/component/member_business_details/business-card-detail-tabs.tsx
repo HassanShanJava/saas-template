@@ -12,10 +12,10 @@ type BusinessDetailProps = {
   memberInfo: MemberTableDatatypes | undefined;
 };
 
-export default function BusinessDetailTabs({memberInfo}:BusinessDetailProps) {
+export default function BusinessDetailTabs({ memberInfo }: BusinessDetailProps) {
   const tabs = [
     { value: "member-data", label: "Member Data" },
-    { value: "invoices", label: `Invoices ${memberInfo?.business_id!==null || memberInfo?.is_business?"& Linked Members":""}` },
+    { value: "invoices", label: `Invoices ${memberInfo?.is_business ? "& Linked Members" : ""}` },
     { value: "coaching", label: "Coaching" },
     { value: "fitness", label: "Fitness Data & Progress" },
     { value: "membership", label: "Membership Plan & Facilities" }
@@ -180,7 +180,7 @@ export default function BusinessDetailTabs({memberInfo}:BusinessDetailProps) {
         </TabsContent>
 
         <TabsContent value="invoices" className="w-full mt-3">
-          <MemberInvoice memberInfo={memberInfo}/>
+          <MemberInvoice memberInfo={memberInfo} />
         </TabsContent>
       </Tabs>
     </Card>

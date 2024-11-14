@@ -250,7 +250,7 @@ const TableFilters = ({
   );
 };
 
-interface comboboxType {
+interface ComboboxType {
   list?: {
     label: string;
     value: string;
@@ -267,7 +267,7 @@ function Combobox({
   name,
   defaultValue,
   label,
-}: comboboxType) {
+}: ComboboxType) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(
     list?.find((list) => list.value == defaultValue)?.label ?? ""

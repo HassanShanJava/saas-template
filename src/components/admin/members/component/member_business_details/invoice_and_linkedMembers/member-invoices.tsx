@@ -11,7 +11,7 @@ const MemberInvoice = ({ memberInfo }: BusinessDetailProps) => {
   return (
     <div>
       <Tabs defaultValue="invoice" className="w-full">
-        {memberInfo?.business_id!==null || memberInfo?.is_business &&
+        {memberInfo?.is_business &&
           <>
             <TabsList className="grid w-fit grid-cols-2">
               <TabsTrigger variant={"primary"} value="invoice">

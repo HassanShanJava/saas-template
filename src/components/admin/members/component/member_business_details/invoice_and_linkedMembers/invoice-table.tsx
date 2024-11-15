@@ -15,6 +15,7 @@ import { useParams } from "react-router-dom";
 import { useGetTransactionByMemberIdQuery } from "@/services/invoiceApi";
 import LinkedMembers from "./linked-members";
 import { MemberTableDatatypes } from "@/app/types/member";
+import { identity } from "@fullcalendar/core/internal";
 
 type BusinessDetailProps = {
   memberInfo: MemberTableDatatypes | undefined;
@@ -35,28 +36,16 @@ const InvoiceTableForMember = ({ memberInfo }: BusinessDetailProps) => {
     }
   })();
   const { memberId } = useParams()
-  const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
+  
   const [searchCriteria, setSearchCriteria] =
     useState<SearchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
   const [selectTransaction, setSelectTransaction] = useState<Transaction | undefined>(undefined)
 
-  const { data: memberInvoiceInfo, isLoading } = useGetTransactionByMemberIdQuery({ id: Number(memberId), query: query }, {
+  const { data: memberInvoiceInfo, isLoading, refetch } = useGetTransactionByMemberIdQuery({ id: Number(memberId), query: query }, {
     skip: !memberId
   })
-  useEffect(() => {
-    const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(searchCriteria)) {
-      console.log({ key, value });
-      if (value !== undefined && value !== null) {
-        params.append(key, value);
-      }
-    }
-    const newQuery = params.toString();
-    console.log({ newQuery });
-    setQuery(newQuery);
-  }, [searchCriteria]);
+  
 
   const memberInvoiceInfoTableData = useMemo(() => {
     return Array.isArray(memberInvoiceInfo?.data) ? memberInvoiceInfo.data : [];
@@ -79,7 +68,14 @@ const InvoiceTableForMember = ({ memberInfo }: BusinessDetailProps) => {
         sort_order: newSortOrder,
       };
     });
+
   };
+
+  useEffect(()=>{
+    if(selectTransaction){
+        setSelectTransaction((prev)=>memberInvoiceInfoTableData.find(selectTransaction=>selectTransaction.member_id==prev?.member_id))
+    }
+  },[refetch])
 
   const actionsColumn: ColumnDef<Transaction> = {
     id: "actions",
@@ -218,6 +214,7 @@ const InvoiceTableForMember = ({ memberInfo }: BusinessDetailProps) => {
         setOpen={setOpenLinkedMembers}
         selectTransaction={selectTransaction}
         setSelectedTransaction={setSelectTransaction}
+        refetch={refetch}
       />
     </>
   );

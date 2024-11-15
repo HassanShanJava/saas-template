@@ -16,9 +16,9 @@ export const Invoice = apiSlice.injectEndpoints({
                 providesTags: ["Invoice"],
             }),
             
-            getLinkedMebers: builder.query<LinkedMembersInvoiceDataResponse, { id: number, query: string }>({
+            getLinkedMembers: builder.query<LinkedMembersInvoiceDataResponse, { id: number, query: string }>({
                 query: ({ id, query }) => ({
-                    url: `/pos/members/transaction?member_id=${id}${query !== "" ? "&" + query : ""}`,
+                    url: `/pos/members/transaction/${id}${query !== "" ? "?" + query : ""}`,
                     method: "GET",
                     headers: {
                         Accept: "application/json",
@@ -57,5 +57,5 @@ export const {
     useGetTransactionByMemberIdQuery,
     useAddLinkedMembersMutation,
     useDeleteLinkedMemberMutation,
-    useGetLinkedMebersQuery
+    useGetLinkedMembersQuery
 } = Invoice;

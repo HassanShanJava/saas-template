@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import InvoiceTableForMember from "./invoice-table";
 import { MemberTableDatatypes } from "@/app/types/member";
+import LinkedMembersTable from "./linked-members-table";
 type BusinessDetailProps = {
   memberInfo: MemberTableDatatypes | undefined;
 };
@@ -27,8 +28,9 @@ const MemberInvoice = ({ memberInfo }: BusinessDetailProps) => {
         <TabsContent className="w-full " value="invoice">
           <InvoiceTableForMember memberInfo={memberInfo} />
         </TabsContent>
-        <TabsContent value="linked-members">
 
+        <TabsContent value="linked-members">
+          <LinkedMembersTable memberInfo={memberInfo} />
         </TabsContent>
       </Tabs>
     </div>

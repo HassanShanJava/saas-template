@@ -468,7 +468,7 @@ export default function MembershipsTableView() {
       cell: ({ row }) => {
         const value =
           row.original?.status != null ? row.original?.status + "" : "false";
-        const statusLabel = status.filter((r) => r.value === value)[0];
+        const statusLabel = status.find((r) => r.value === value);
         const id = Number(row.original.id);
         const org_id = Number(row.original.org_id);
 

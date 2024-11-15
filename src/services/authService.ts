@@ -37,3 +37,22 @@ export async function getUserResource(role_id: number, token: string) {
     }
   );
 }
+
+
+export async function closeCounter(counter_id: number, token: string) {
+  return await client.put(
+    `/pos/counters/${counter_id}`,
+    { id: counter_id, is_open: false },
+    {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    }
+  );
+}
+

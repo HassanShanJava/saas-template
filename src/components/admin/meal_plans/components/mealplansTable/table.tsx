@@ -169,7 +169,7 @@ export default function MealPlansTableView() {
     }
   );
 
-  const { data: membersData } = useGetMembersListQuery(orgId);
+  const { data: membersData } = useGetMembersListQuery({ id: Number(orgId), query: "" });
 
   const mealstableData = React.useMemo(() => {
     return Array.isArray(mealsData?.data) ? mealsData?.data : [];

@@ -789,7 +789,7 @@ const Sell = () => {
                                     {staffList &&
                                       staffList.map((staff: any) => (
                                         <CommandItem
-                                          value={staff.value}
+                                          value={staff.label}
                                           key={staff.value}
                                           className="font-normal"
                                           onSelect={() => {
@@ -954,7 +954,7 @@ export function CustomerCombobox({ customerList, setCustomer, customer, label, d
               {modifiedList?.map((customer: any) => (
                 <CommandItem
                   key={customer.value + ""}
-                  value={customer.value + ""}
+                  value={customer.value+ ""}
                   onSelect={(currentValue) => {
                     setValue(currentValue == value ? "" : currentValue)
                     const customer = customerList?.find((item: MemberTableDatatypes) => item.id == +currentValue)

@@ -44,6 +44,9 @@ const authSlice = createSlice({
       state.userToken = action.payload;
     },
     logout: (state) => {
+(async () => {
+        await getUserResource(Number(localStorage.getItem("counter_number" as string)), state.userToken!);
+      })();
       localStorage.removeItem("userToken");
       localStorage.removeItem("userInfo");
       localStorage.removeItem("sidepanel");
@@ -70,14 +73,13 @@ const authSlice = createSlice({
     builder.addCase(login.fulfilled, (state, { payload }) => {
       state.loading = false;
       state.isLoggedIn = true;
-      state.userInfo = { user: payload.user, sidepanel: payload.sidepanel, accessLevels: payload.accessLevels, pospanel:payload.pospanel };
+      state.userInfo = { user: payload.user, sidepanel: payload.sidepanel, accessLevels: payload.accessLevels, pospanel: payload.pospanel };
       state.userToken = payload.token.access_token;
       state.error = null;
-      console.log({payload},"payload")
-      localStorage.setItem("userInfo", JSON.stringify({ user: payload.user })); 
-      localStorage.setItem("sidepanel", payload.sidepanel); 
-      localStorage.setItem("posPanel", payload.pospanel); 
-      localStorage.setItem("accessLevels", JSON.stringify(payload.accessLevels)); 
+      localStorage.setItem("userInfo", JSON.stringify({ user: payload.user }));
+      localStorage.setItem("sidepanel", payload.sidepanel);
+      localStorage.setItem("posPanel", payload.pospanel);
+      localStorage.setItem("accessLevels", JSON.stringify(payload.accessLevels));
       localStorage.setItem("userToken", payload.token.access_token);
     });
     builder.addCase(login.rejected, (state, { payload }) => {
@@ -145,19 +147,19 @@ export const login = createAsyncThunk(
 
         // 3. extract the pos sidepanel if possible
         const posPanel = filterUserResource.find((item: ResourceTypes) => item.is_root && item.code == "pos")
-        
+
         // 4. set sidepanel in localstorage as base64 encoded 
         const stringifiedData = JSON.stringify(filterUserResource);
         const encodedData = btoa(stringifiedData);
         localStorage.setItem("sidepanel", encodedData);
-        
+
         // 5. set pos sidepanel in localstorage as base64 encoded
         const posPanelStringified = JSON.stringify(posPanel)
         const encodedPosPanel = btoa(posPanelStringified);
         localStorage.setItem("posPanel", encodedPosPanel);
 
         // 6. set accessLevels in local storage
-        localStorage.setItem("accessLevels", JSON.stringify(accessLevels)); 
+        localStorage.setItem("accessLevels", JSON.stringify(accessLevels));
 
         // 7. set pospanel and sidepanel in redux state
         payload.sidepanel = encodedData;

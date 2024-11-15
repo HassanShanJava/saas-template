@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { MobileIcon } from "@radix-ui/react-icons";
 import MemberInvoice from "./invoice_and_linkedMembers/member-invoices";
 import { MemberTableDatatypes } from "@/app/types/member";
+import { displayAddress, displayDate, displayValue } from "@/utils/helper";
 
 type BusinessDetailProps = {
   memberInfo: MemberTableDatatypes | undefined;
@@ -53,15 +54,15 @@ export default function BusinessDetailTabs({ memberInfo }: BusinessDetailProps) 
                 <h3 className="font-semibold">Basic Information</h3>
                 <div className="space-y-2">
                   <div className="text-sm text-muted-foreground">
-                    Member Id: 40475322
+                    Member Id: {memberInfo?.own_member_id}
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col gap-1">
-                      <div className="font-medium">Annette Black</div>
-                      <div className="text-sm text-muted-foreground">
-                        MCB Private Ltd
+                      <div className="font-medium capitalize">{memberInfo?.first_name + " " + memberInfo?.last_name}</div>
+                      <div className="text-sm text-muted-foreground capitalize">
+                        {memberInfo?.business_name}
                       </div>
-                      <div className="text-sm">Coach: John Doe</div>
+                      {/* <div className="text-sm">Coach: John Doe</div> */}
                     </div>
                     <div className="flex gap-2 flex-col">
                       <div className="w-full justify-end flex">
@@ -77,11 +78,11 @@ export default function BusinessDetailTabs({ memberInfo }: BusinessDetailProps) 
                       </div>
 
                       <div className="flex items-center gap-6 text-sm">
-                        <div className="text-muted-foreground">
-                          Gender: Male
+                        <div className="text-muted-foreground capitalize">
+                          Gender: {memberInfo?.gender}
                         </div>
                         <div className="text-muted-foreground">
-                          Date of Birth: 28/Oct/2024
+                          Date of Birth: {displayDate(memberInfo?.dob)}
                         </div>
                       </div>
                     </div>
@@ -92,15 +93,15 @@ export default function BusinessDetailTabs({ memberInfo }: BusinessDetailProps) 
                 <div className="flex flex-col xlg:flex-row gap-4">
                   <div className="flex items-center gap-2">
                     <Mail className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm">Annetta@gmail.com</span>
+                    <span className="text-sm">{memberInfo?.email}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm">42201-7110037-9</span>
+                    <span className="text-sm">{displayValue(memberInfo?.nic)}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MobileIcon className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm">0323-2260460</span>
+                    <span className="text-sm">{displayValue(memberInfo?.phone)}</span>
                   </div>
                 </div>
               </div>
@@ -111,25 +112,24 @@ export default function BusinessDetailTabs({ memberInfo }: BusinessDetailProps) 
                   <div>
                     <div className="text-sm font-medium">Street Address:</div>
                     <div className="text-sm text-muted-foreground">
-                      House No.3223, Blk-1, Metrovill3, Abdul Hassan Isfahani
-                      Rd. Gulshan-e-Iqbal.
+                      {displayAddress(memberInfo?.address_1, memberInfo?.address_2)}
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-8 text-sm">
                     <div>
                       <span className="font-medium">Zip Code:</span>{" "}
-                      <span className="text-muted-foreground">773287</span>
+                      <span className="text-muted-foreground">{memberInfo?.zipcode}</span>
                     </div>
                     <Separator orientation="vertical" />
                     <div>
                       <span className="font-medium">Country:</span>{" "}
-                      <span className="text-muted-foreground">Pakistan</span>
+                      <span className="text-muted-foreground">{memberInfo?.country_id}</span>
                     </div>
                     <Separator orientation="vertical" />
 
                     <div>
                       <span className="font-medium">City:</span>{" "}
-                      <span className="text-muted-foreground">Karachi</span>
+                      <span className="text-muted-foreground">{memberInfo?.city}</span>
                     </div>
                   </div>
                 </div>
@@ -182,8 +182,8 @@ export default function BusinessDetailTabs({ memberInfo }: BusinessDetailProps) 
         <TabsContent value="invoices" className="w-full mt-3">
           <MemberInvoice memberInfo={memberInfo} />
         </TabsContent>
-        
-        
+
+
       </Tabs>
     </Card>
   );

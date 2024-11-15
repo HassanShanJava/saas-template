@@ -21,6 +21,7 @@ import { Badge } from "../badge";
 const pageTitles = [
   { targetPath: "/admin/dashboard", title: "Dashboard" },
   { targetPath: "/admin/members", title: "Members" },
+  { targetPath: "/admin/members/detail/", title: "Member Detail" },
   { targetPath: "/admin/coach", title: "Coach" },
   { targetPath: "/admin/workoutplans", title: "Workout Plans" },
   { targetPath: "/admin/exercise", title: "Exercises" },
@@ -147,8 +148,13 @@ const PageTitle = ({
   return <p className="text-lg">{title}</p>;
 };
 
-const isActiveLink = (currentPath: string, targetPath: string) =>
-  currentPath === targetPath;
+const isActiveLink = (currentPath: string, targetPath: string) =>{
+  if (currentPath === targetPath) return true; // Exact match
+  if (targetPath.endsWith("/") && currentPath.startsWith(targetPath)) {
+    return true; // Prefix match for paths ending with "/"
+  }
+  return false;
+};
 
 export const Header = () => {
   const location = useLocation();

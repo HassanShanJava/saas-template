@@ -95,7 +95,7 @@ const DashboardLayout: React.FC = () => {
     if (pathname.includes("pos") && counter_number == null) {
       dispatch(setCode("pos"));
       navigate("/counter-selection", { replace: true });
-    } else if (!pathname.includes("pos") && pathname !=='/counter-selection') {
+    } else if (!pathname.includes("pos") && pathname !== '/counter-selection') {
       localStorage.removeItem("code");
       dispatch(setCode(null));
       dispatch(setCounter(null));
@@ -103,10 +103,24 @@ const DashboardLayout: React.FC = () => {
     }
   }, [pathname, counter_number]);
 
-  const isActiveLink = (targetPath: string): boolean => {
-    const currentPath = pathname;
-    return currentPath === targetPath;
+
+  const isActiveLink = (targetPath: string) => {
+    // Exact match
+    if (pathname === targetPath) {
+      return true;
+    }
+
+    // Match `/admin/members` with sub-paths like `/admin/members/detail/48`
+    if (pathname.startsWith(targetPath)) {
+      const remainingPath = pathname.slice(targetPath.length);
+      // Ensure the remaining path starts with "/" or is empty
+      return remainingPath === "" || remainingPath.startsWith("/");
+    }
+
+    // Default case: No match
+    return false;
   };
+
 
   const [assignCounter, result] = useUpdateCountersMutation();
 

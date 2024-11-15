@@ -36,6 +36,22 @@ export const displayDateTime = (value: any) => {
   return formatInTimeZone(localTime, "Asia/Karachi", "dd-MMM-yyyy hh:mma");
 };
 
+export const displayAddress = (
+  address_1?: string | null,
+  address_2?: string | null,
+  zipCode?: string | null,
+  country?: string | null
+): string => {
+  const parts = [address_1, address_2, zipCode, country];
+
+  // Filter out null, undefined, or empty strings
+  const filteredParts = parts.filter(part => part && part.trim());
+
+  // If no valid parts, return "N/A"
+  return filteredParts.length > 0 ? filteredParts.join(", ") : "N/A";
+};
+
+
 export const downloadCSV = <T>(
   data: T[],
   fileName: string,

@@ -1,14 +1,16 @@
 import React, { useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { useNavigate } from "react-router-dom";
-import { extractLinks } from "@/utils/helper";
-
+import { createJWT, extractLinks } from "@/utils/helper";
+import logomainsvg from "@/assets/logo-main.svg";
 import { useGetValidateUserQuery } from "@/services/userApi";
 import { toast } from "@/components/ui/use-toast";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 
 const QRCodePage: React.FC = () => {
+  const [token, setToken] = React.useState<string | null>(null);
+
   const navigate = useNavigate();
   const userToken = localStorage.getItem("userToken");
   // Redirect to `/` if `userToken` is missing
@@ -29,9 +31,32 @@ const QRCodePage: React.FC = () => {
     console.error("Error parsing sidepanel:", error);
     links = [];
   }
-  // const sidepanel = localStorage.getItem("sidepanel");
-  // const decodedSidepanel = JSON.parse(atob(sidepanel as string));
-  // const links = extractLinks(decodedSidepanel);
+  // Extract user info from localStorage and set JWT payload
+  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+  const payload = {
+    id: userInfo.user?.id,
+    user_type: "staff",
+    org_id: userInfo.user?.org_id,
+    created_on: new Date().toISOString(),
+  };
+
+  useEffect(() => {
+    const generateAndSetToken = async () => {
+      const jwt = await createJWT(payload);
+      setToken(jwt);
+    };
+
+    // Call once immediately to generate the initial token
+    generateAndSetToken();
+
+    // Set an interval to regenerate the token every 15 seconds
+    const intervalId = setInterval(() => {
+      generateAndSetToken();
+    }, 15000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
   const [isChecking, setIsChecking] = React.useState(true);
   const userId = useSelector(
     (state: RootState) => state.auth.userInfo?.user.id
@@ -86,11 +111,22 @@ const QRCodePage: React.FC = () => {
       return () => clearInterval(interval);
     }
   }, [staffvalidation, isChecking, refetch, userId]);
-
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h2 className="text-lg font-bold mb-4">Scan the QR Code</h2>
-      <QRCodeSVG value={userToken ?? ""} size={256} />
+      <QRCodeSVG
+        value={token ?? ""}
+        size={256}
+        imageSettings={{
+          src: logomainsvg,
+          x: undefined,
+          y: undefined,
+          height: 48,
+          width: 48,
+          opacity: 1,
+          excavate: true,
+        }}
+      />
       <p className="mt-4 text-center text-gray-600">
         Use this QR code for secure access.
       </p>

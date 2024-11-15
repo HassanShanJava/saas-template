@@ -1,7 +1,6 @@
 import {
   CoachTableDataTypes,
   LimitedAccessTime,
-  
   RegisterSession,
   salesReportInterface,
   staffTypesResponseList,
@@ -9,6 +8,23 @@ import {
 import { MemberTableDatatypes } from "@/app/types/member";
 import Papa from "papaparse";
 import { formatInTimeZone } from "date-fns-tz";
+import { JwtPayload } from "@/app/types/shared_types";
+import { SignJWT } from "jose";
+const { VITE_JWT_EXPIRATION, VITE_JWT_Secret_Key } = import.meta.env;
+
+// Your secret key as a TextEncoder-encoded Uint8Array for the browser
+const secret = new TextEncoder().encode(VITE_JWT_Secret_Key);
+
+// Function to create a JWT with strict typing
+export async function createJWT(
+  payload: JwtPayload,
+  expiration = VITE_JWT_EXPIRATION
+): Promise<string> {
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setExpirationTime(expiration)
+    .sign(secret);
+}
 
 export const daysOrder = [
   "monday",
@@ -229,21 +245,22 @@ export const inValidToken = (token: string | undefined) => {
   return token !== undefined && token.trim().length > 0;
 };
 
-
 export const formatToPKR = (amount: number) => {
-  return new Intl.NumberFormat('en-PK', {
-    style: 'currency',
-    currency: 'PKR',
-    minimumFractionDigits: 2
-  }).format(amount).replace("PKR", "Rs. ");
-}
+  return new Intl.NumberFormat("en-PK", {
+    style: "currency",
+    currency: "PKR",
+    minimumFractionDigits: 2,
+  })
+    .format(amount)
+    .replace("PKR", "Rs. ");
+};
 
-
-export function cleanLimitedAccessTime(limitedAccessTime: LimitedAccessTime): LimitedAccessTime {
+export function cleanLimitedAccessTime(
+  limitedAccessTime: LimitedAccessTime
+): LimitedAccessTime {
   const cleanedAccessTime: LimitedAccessTime = {};
 
   for (const [day, timeSlots] of Object.entries(limitedAccessTime)) {
-
     const filteredSlots = timeSlots.filter(
       (slot) => slot.from_time !== "" || slot.to_time !== ""
     );
@@ -256,11 +273,13 @@ export function cleanLimitedAccessTime(limitedAccessTime: LimitedAccessTime): Li
   return cleanedAccessTime;
 }
 
-
-
-
-export const replaceNullWithDefaults = (data: LimitedAccessTime): LimitedAccessTime =>
-  daysOrder.reduce((acc, day) => ({
-    ...acc,
-    [day]: data[day] ?? [{ from_time: "", to_time: "" }],
-  }), {} as LimitedAccessTime);
+export const replaceNullWithDefaults = (
+  data: LimitedAccessTime
+): LimitedAccessTime =>
+  daysOrder.reduce(
+    (acc, day) => ({
+      ...acc,
+      [day]: data[day] ?? [{ from_time: "", to_time: "" }],
+    }),
+    {} as LimitedAccessTime
+  );

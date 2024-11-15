@@ -1,19 +1,20 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DataTable } from "@/components/ui/table/data-table";
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/store";
 import { ColumnDef } from "@tanstack/react-table";
-import { displayValue, displayDate, formatToPKR } from "@/utils/helper";
+import { displayValue } from "@/utils/helper";
 import { DataTableColumnHeader } from "@/components/ui/table/data-table-column-header";
-import { Transaction, TransactionData } from "@/app/types/pos/transactions";
-import { DataTableRowActions } from "./data-table-row-actions";
-import { useDebounce } from "@/hooks/use-debounce";
 import { SearchCriteriaType } from "@/app/types";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
 import { useParams } from "react-router-dom";
-import { useGetTransactionByMemberIdQuery } from "@/services/invoiceApi";
-import LinkedMembers from "./linked-members";
+import { useGetLinkedMembersQuery } from "@/services/invoiceApi";
+import { MemberTableDatatypes } from "@/app/types/member";
+import { LinkedMembersInvoiceItem } from "@/app/types/pos/invoice";
+import { status } from "@/constants/global";
+import { Badge } from "@/components/ui/badge";
+type BusinessDetailProps = {
+  memberInfo: MemberTableDatatypes | undefined;
+};
 
 const initialValue = {
   limit: 10,
@@ -21,19 +22,14 @@ const initialValue = {
   sort_order: "desc",
   sort_key: "id",
 };
-const LinkedMembersTable = () => {
-  
+const LinkedMembersTable = ({ memberInfo }: BusinessDetailProps) => {
+  // invoice table for linked members
   const { memberId } = useParams()
-
-
-
-  const orgId =
-    useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
   const [searchCriteria, setSearchCriteria] =
     useState<SearchCriteriaType>(initialValue);
   const [query, setQuery] = useState("");
 
-  const { data: memberInvoiceInfo, isLoading } = useGetTransactionByMemberIdQuery({ id: Number(memberId), query: query }, {
+  const { data: linkedMembers, isLoading } = useGetLinkedMembersQuery({ id: Number(memberId), query: query }, {
     skip: !memberId
   })
   useEffect(() => {
@@ -49,11 +45,12 @@ const LinkedMembersTable = () => {
     setQuery(newQuery);
   }, [searchCriteria]);
 
-  const memberInvoiceInfoTableData = useMemo(() => {
-    return Array.isArray(memberInvoiceInfo?.data) ? memberInvoiceInfo.data : [];
-  }, [memberInvoiceInfo]);
+  const linkedMembersTableData = useMemo(() => {
+    return Array.isArray(linkedMembers?.data) ? linkedMembers?.data : [];
+  }, [linkedMembers]);
 
 
+  console.log({ linkedMembers, linkedMembersTableData })
   const toggleSortOrder = (key: string) => {
     setSearchCriteria((prev) => {
       const newSortOrder =
@@ -71,69 +68,74 @@ const LinkedMembersTable = () => {
     });
   };
 
-  const columns: ColumnDef<Transaction>[] = [
+  const columns: ColumnDef<LinkedMembersInvoiceItem>[] = [
     {
-      accessorKey: "date",
-      meta: "transaction date",
+      accessorKey: "member_name",
+      meta: "member_name",
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Date"
+          title="Member Name"
           sortKey="key"
-          toggleSortOrder={() => toggleSortOrder("transaction_date")}
+          toggleSortOrder={() => toggleSortOrder("name")}
         />
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayDate(row?.original.transaction_date)}
+          <div className="capitalize flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
+            {displayValue(row?.original?.member_name)}
           </div>
         );
       },
     },
     {
-      accessorKey: "receipt_number",
-      meta: "Receipt No",
+      accessorKey: "membership_plan_name",
+      meta: "Membership Plan Name",
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Receipt No"
+          title="Membership Plan Name"
           sortKey="key"
-          toggleSortOrder={() => toggleSortOrder("receipt_number")}
+          toggleSortOrder={() => toggleSortOrder("plan_name")}
         />
       ),
       cell: ({ row }) => {
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.receipt_number)}
-          </div>
+          <Badge className="text-yellow-600 bg-yellow-100 font-normal capitalize">
+            {displayValue(row?.original?.membership_plan_name)}
+          </Badge>
         );
       },
     },
     {
-      accessorKey: "quantity",
-      meta: "quantity",
+      accessorKey: "Status",
+      meta: "Status",
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="Quantity"
+          title="Status"
           sortKey="key"
           className="text-nowrap"
-          toggleSortOrder={() => toggleSortOrder("quantity")}
+          toggleSortOrder={() => toggleSortOrder("plan_status")}
         />
       ),
       cell: ({ row }) => {
+        const statusLabel = status.find((r) => r.value === row?.original?.membership_plan_status);
+
         return (
-          <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.total_quantity)}
-          </div>
+          <span className="flex gap-2 items-center">
+            <span
+              className={`${statusLabel?.color} rounded-[50%] size-2`}
+            ></span>
+            <span>{statusLabel?.label}</span>
+          </span>
         );
       },
     },
 
   ];
 
-  const totalRecords = memberInvoiceInfo?.filtered_counts || 0;
+  const totalRecords = linkedMembers?.filtered_counts || 0;
   const {
     handleLimitChange,
     handleNextPage,
@@ -152,10 +154,10 @@ const LinkedMembersTable = () => {
     <>
       {/* search bar */}
       <div className="m-2 ">
-        <DataTable columns={columns} data={memberInvoiceInfoTableData} isLoading={isLoading} />
+        <DataTable columns={columns} data={linkedMembersTableData} isLoading={isLoading} />
       </div>
       {/* pagination */}
-      {memberInvoiceInfoTableData.length > 0 && (
+      {linkedMembersTableData.length > 0 && (
         <Pagination
           limit={searchCriteria.limit}
           offset={searchCriteria.offset}

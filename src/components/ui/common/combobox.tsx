@@ -23,7 +23,7 @@ interface ComboboxType {
         label: string;
         value: string;
     }[];
-    defaultValue?: string;
+    defaultValue?: string | number;
     setFilter?: any;
     name?: string;
     label?: string;
@@ -35,8 +35,8 @@ export default function Combobox({
     label,
 }: ComboboxType) {
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(
-        list?.find((list) => list.value == defaultValue)?.label ?? ""
+    const [value, setValue] = useState<string | undefined>(
+        defaultValue ? defaultValue+"" : '',
     );
     return (
         <Popover open={open} onOpenChange={setOpen} modal={true}>
@@ -49,10 +49,10 @@ export default function Combobox({
                         variant="outline"
                         role="combobox"
                         aria-expanded={open}
-                        className="border-[1px] hover:bg-transparent w-full justify-between font-normal capitalize"
+                        className="border-[1px] hover:bg-transparent w-[330px] justify-between font-normal capitalize"
                     >
                         {value
-                            ? list && list?.find((list) => list.value == value)?.label
+                            ? list?.find((list) => list.value == value)?.label
                             : "Select " + label?.toLowerCase()}
                         <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>

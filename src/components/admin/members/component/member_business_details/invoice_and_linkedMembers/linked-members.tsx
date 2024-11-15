@@ -35,12 +35,13 @@ import { RootState } from "@/app/store";
 import Combobox from "@/components/ui/common/combobox";
 import { toast } from "@/components/ui/use-toast";
 import { ErrorType } from "@/app/types";
-import { useAddLinkedMembersMutation } from "@/services/invoiceApi";
+import { useAddLinkedMembersMutation, useDeleteLinkedMemberMutation } from "@/services/invoiceApi";
 import { LinkedMembers } from "@/app/types/pos/invoice";
 
 interface LinkedMembersProps {
   isOpen: boolean;
   setOpen: any;
+  refetch: any;
   selectTransaction: Transaction | undefined;
   setSelectedTransaction: Dispatch<SetStateAction<Transaction | undefined>>,
 }
@@ -49,14 +50,17 @@ const LinkedMembersPage = ({
   isOpen,
   setOpen,
   selectTransaction,
-  setSelectedTransaction
+  setSelectedTransaction,
+  refetch
 }: LinkedMembersProps) => {
 
   console.log({ selectTransaction })
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const { data: memberTableList, refetch: memberRefetch } = useGetAllMemberQuery({ org_id: orgId, query: `sort_key=id&sort_order=desc&business_id=${selectTransaction?.member_id}` })
+  const { data: memberTableList, refetch: memberRefetch } = useGetAllMemberQuery({ org_id: orgId, query: `sort_key=id&sort_order=desc&business_id=${selectTransaction?.member_id}` }, {
+    skip: !selectTransaction?.member_id
+  })
   const [action, setAction] = useState<"add" | "edit">("add")
   const [openMemberForm, setOpenMemberForm] = useState<boolean>(false)
   const [editMember, setEditMember] = useState<MemberTableDatatypes | null>(
@@ -70,7 +74,8 @@ const LinkedMembersPage = ({
   // payload
   const [payloadLinkedMembers, setPayloadLinkedMembers] = useState<LinkedMembers[]>([])
   const [addLinkedMember, result] = useAddLinkedMembersMutation()
-  console.log({ result,payloadLinkedMembers })
+  const [deleteMember, deleteResult] = useDeleteLinkedMemberMutation()
+  console.log({ selectTransaction },"selectTransaction")
   function handleOpenForm() {
     setAction("add");
     setEditMember(null);
@@ -83,6 +88,13 @@ const LinkedMembersPage = ({
   };
 
   const handleSelectMember = (id: string, plan_id: number, transaction_id: number) => {
+    if (payloadLinkedMembers.find(member => member.member_id == Number(id))) {
+      toast({
+        variant: "destructive",
+        title: "Member already selected, please select another member"
+      })
+      return;
+    }
     setPayloadLinkedMembers((prev) => ([
       ...prev,
       {
@@ -97,21 +109,28 @@ const LinkedMembersPage = ({
   const memberCombobox = memberList.map((member) => ({ value: member.id + "", label: member.first_name + " " + member.last_name }))
 
   const onSave = async () => {
-    console.log("issue")
+    if (!payloadLinkedMembers.length) {
+      toast({
+        variant: "destructive",
+        title: "No members to link.",
+      });
+      return;
+    }
+
     try {
       const resp = await addLinkedMember(payloadLinkedMembers).unwrap();
-      console.log({ resp })
-      if (resp) {
-        toast({
-          variant: "success",
-          title: "Members Linked Successfully",
-        });
-
-      }
-    } catch (error) {
+      console.log("Save response:", resp);
+      toast({
+        variant: "success",
+        title: "Members Linked Successfully",
+      });
+      refetch()
+      handleClose()
+    } catch (error: unknown) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
         const typedError = error as ErrorType;
+
         toast({
           variant: "destructive",
           title: "Error in Submission",
@@ -125,12 +144,52 @@ const LinkedMembersPage = ({
         });
       }
     }
+  };
+
+
+  const onDelete = async (id: number) => {
+    // if(!id){
+    //   setPayloadLinkedMembers((prev) => )
+    // }
+    try {
+      const resp = await deleteMember(id).unwrap();
+      console.log("Save response:", resp);
+      toast({
+        variant: "success",
+        title: "Members Removed Successfully",
+      });
+      setPayloadLinkedMembers((prev) => prev.filter(member => member.member_id !== id))
+      handleClose()
+    } catch (error: unknown) {
+      console.error("Error", { error });
+      if (error && typeof error === "object" && "data" in error) {
+        const typedError = error as ErrorType;
+        if (typedError.status == 404) {
+          setPayloadLinkedMembers((prev) => prev.filter(member => member.member_id !== id))
+          return;
+        }
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `${typedError.data?.detail}`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error in Submission",
+          description: `Something Went Wrong.`,
+        });
+      }
+    }
+    refetch()
+    handleClose()
+
   }
 
   return (
     <Sheet open={isOpen} onOpenChange={handleClose}>
       <SheetContent hideCloseButton className="w-full !max-w-[500px] flex flex-col custom-scrollbar p-0 bg-[#F8F9FA]">
-        <SheetHeader className="  p-4 bg-white flex flex-row gap-1 items-center justify-between  sticky top-0 border border-b-1 ">
+        <SheetHeader className="  p-4 bg-white flex flex-row gap-1 items-center justify-between  sticky top-0 border border-b-1 z-20">
           <div className="flex gap-2">
 
             <Button onClick={handleClose} className="border-transparent hover:bg-transparent p-0 pr-2 m-0 bg-transparent">
@@ -147,7 +206,7 @@ const LinkedMembersPage = ({
             <Button onClick={handleOpenForm} className="w-[60px] text-black h-9 ">
               Add
             </Button>
-            <Button onClick={() => onSave} className="w-[60px] text-black h-9 ">
+            <Button onClick={onSave} className="w-[60px] text-black h-9 ">
               Save
             </Button>
           </div>
@@ -157,7 +216,7 @@ const LinkedMembersPage = ({
           <Accordion type="multiple" className="w-full space-y-4">
             {selectTransaction?.transaction_details.map((transaction, i) => (
               <AccordionItem key={transaction.description} value={transaction.description} className="">
-                <AccordionTrigger className="!bg-white no-underline px-4 hover:no-underline !rounded-t-md ">
+                <AccordionTrigger className="!bg-white no-underline px-4 hover:no-underline !rounded-t-md [&[data-state=closed]]:!rounded-md">
                   <div className="flex flex-row w-full justify-between items-start !bg-white">
                     <p className="capitalize text-sm">{transaction.description}</p>
                     <p className="text-sm font-normal">
@@ -175,14 +234,14 @@ const LinkedMembersPage = ({
                       <div className="flex gap-2 items-center  py-2" key={`${transaction.transaction_id}-${num}`} >
                         <p>{num}.</p>
                         <Combobox
-                          defaultValue={transaction.assigned_members[i] + ""}
+                          defaultValue={transaction.assigned_members[num - 1]}
                           setFilter={(value: string) => handleSelectMember(value, transaction.item_id, transaction.transaction_id)}
                           list={memberCombobox}
                           label={"Member"}
                         />
                         <i
                           className="fa-regular fa-trash-can cursor-pointer text-red-500"
-                        // onClick={() => handleDelete(day, index)}
+                          onClick={() => onDelete(transaction.assigned_members[num - 1])}
                         ></i>
                       </div>
                     ))}

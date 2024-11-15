@@ -182,6 +182,8 @@ export default function BusinessDetailTabs({ memberInfo }: BusinessDetailProps) 
         <TabsContent value="invoices" className="w-full mt-3">
           <MemberInvoice memberInfo={memberInfo} />
         </TabsContent>
+        
+        
       </Tabs>
     </Card>
   );

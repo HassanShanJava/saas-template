@@ -1,4 +1,5 @@
 import { Gender } from "@/app/shared_enums/enums";
+import type { JWTPayload } from "jose";
 
 export interface BankDetail {
   bank_name?: string;
@@ -43,4 +44,11 @@ export interface TableResponse<T> {
   data: T[];
   total_counts: number;
   filtered_counts: number;
+}
+
+export interface JwtPayload extends JWTPayload {
+  id: number;
+  user_type: string;
+  org_id: number;
+  created_on: string;
 }

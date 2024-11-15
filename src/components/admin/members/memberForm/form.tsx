@@ -91,7 +91,11 @@ import {
   renewalData,
   sourceTypes,
 } from "@/app/types";
-import { MemberInputTypes, MembershipPlans, MemberTableDatatypes } from "@/app/types/member";
+import {
+  MemberInputTypes,
+  MembershipPlans,
+  MemberTableDatatypes,
+} from "@/app/types/member";
 
 import "react-international-phone/style.css"; // Import the default styles for the phone input
 
@@ -661,7 +665,9 @@ const MemberForm = ({
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: typedError.data?.detail,
+          description:
+            typedError.data?.detail ||
+            (typedError.data as { message?: string }).message,
         });
       } else {
         toast({

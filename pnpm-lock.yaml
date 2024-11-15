@@ -161,6 +161,9 @@ importers:
       google-libphonenumber:
         specifier: ^3.2.38
         version: 3.2.38
+      jose:
+        specifier: ^5.9.6
+        version: 5.9.6
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
@@ -2801,6 +2804,9 @@ packages:
   jmespath@0.16.0:
     resolution: {integrity: sha512-9FzQjJ7MATs1tSpnco1K6ayiYE3figslrXA72G2HQ/n76RzvYlofyi5QM+iX4YRs/pu3yzxlVQSST23+dMDknw==}
     engines: {node: '>= 0.6.0'}
+
+  jose@5.9.6:
+    resolution: {integrity: sha512-AMlnetc9+CV9asI19zHmrgS/WYsWUwCn2R7RzlbJWD7F9eWYUTGyBmU9o6PxngtLGOiDGPRu+Uc4fhKzbpteZQ==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -6832,6 +6838,8 @@ snapshots:
   jiti@1.21.6: {}
 
   jmespath@0.16.0: {}
+
+  jose@5.9.6: {}
 
   js-tokens@4.0.0: {}
 

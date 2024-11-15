@@ -13,8 +13,8 @@ type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 type CommonProps = Omit<InputProps, "onAbort"> &
   Omit<TextareaProps, "onAbort"> & {
     onAbort?:
-    | ((event: React.SyntheticEvent<Element, Event>) => void)
-    | undefined;
+      | ((event: React.SyntheticEvent<Element, Event>) => void)
+      | undefined;
   };
 
 export interface FloatingLabelInputProps extends CommonProps {
@@ -23,6 +23,7 @@ export interface FloatingLabelInputProps extends CommonProps {
   autoComplete?: string;
   labelClassname?: string;
   icon?: React.ReactNode;
+  text?: string;
 }
 
 const FloatingInput = React.forwardRef<
@@ -77,7 +78,8 @@ const FloatingLabel = React.forwardRef<
   React.ElementRef<typeof Label>,
   FloatingLabelProps
 >(({ className, isTextarea, children, ...props }, ref) => {
-  const labelContent = typeof children === "string" ? children.split("*") : [children];
+  const labelContent =
+    typeof children === "string" ? children.split("*") : [children];
   return (
     <Label
       className={cn(
@@ -93,7 +95,9 @@ const FloatingLabel = React.forwardRef<
       {labelContent.map((part, index) => (
         <React.Fragment key={index}>
           {part}
-          {index < labelContent.length - 1 && <span className="text-red-500">*</span>}
+          {index < labelContent.length - 1 && (
+            <span className="text-red-500">*</span>
+          )}
         </React.Fragment>
       ))}
     </Label>
@@ -106,7 +110,7 @@ const FloatingLabelInput = React.forwardRef<
   React.PropsWithoutRef<FloatingLabelInputProps>
 >(
   (
-    { id, label, error, type, rows, icon, labelClassname = "", ...props },
+    { id, label, error, text, type, rows, icon, labelClassname = "", ...props },
     ref
   ) => {
     const isTextarea = type === "textarea";
@@ -124,7 +128,7 @@ const FloatingLabelInput = React.forwardRef<
             isTextarea={isTextarea}
             className={labelClassname}
           >
-            {label}
+            {label} <span className="text-red-500">{text}</span>
           </FloatingLabel>
         </div>
         {error && (

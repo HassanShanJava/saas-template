@@ -149,7 +149,7 @@ const CounterForm = ({
         toast({
           variant: "destructive",
           title: "Error in Submission",
-          description: `${typedError.data?.detail|| typedError.data?.message}`,
+          description: `${typedError.data?.detail || typedError.data?.message}`,
         });
       } else {
         toast({
@@ -192,6 +192,7 @@ const CounterForm = ({
                     <FloatingLabelInput
                       id="name"
                       label="Counter Name"
+                      text="*"
                       className="capitalize"
                       {...register("name", {
                         maxLength: {
@@ -222,7 +223,7 @@ const CounterForm = ({
                             onValueChange={(value) => onChange(value)}
                             defaultValue={value}
                           >
-                            <SelectTrigger floatingLabel="Status*">
+                            <SelectTrigger floatingLabel="Status" text="*">
                               <SelectValue
                                 placeholder="Select status"
                                 className="text-gray-400"

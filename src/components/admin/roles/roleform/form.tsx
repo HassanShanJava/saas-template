@@ -394,7 +394,8 @@ export const RoleForm = ({
                           {...field}
                           id="name"
                           name="name"
-                          label="Role Name*"
+                          label="Role Name"
+                          text="*"
                           value={field.value}
                           defaultValue={field.value}
                         />
@@ -414,7 +415,7 @@ export const RoleForm = ({
                           value={field.value} // Ensure value is a string
                         >
                           <FormControl>
-                            <SelectTrigger floatingLabel="Status">
+                            <SelectTrigger floatingLabel="Status" text="*">
                               <SelectValue placeholder="Select status">
                                 <span className="flex gap-2 items-center">
                                   <span

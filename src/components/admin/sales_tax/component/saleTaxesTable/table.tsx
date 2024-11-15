@@ -61,7 +61,6 @@ import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
 import { status } from "@/constants/global";
 
-
 const downloadCSV = (data: saleTaxesTableType[], fileName: string) => {
   const csv = Papa.unparse(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -83,7 +82,10 @@ interface SearchCriteriaType {
 export default function SaleTaxesTableView() {
   const sale_tax = (() => {
     try {
-      return JSON.parse(localStorage.getItem("accessLevels") as string).sale_tax ?? "no_access";
+      return (
+        JSON.parse(localStorage.getItem("accessLevels") as string).sale_tax ??
+        "no_access"
+      );
     } catch {
       return "no_access";
     }
@@ -444,9 +446,9 @@ export default function SaleTaxesTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}
@@ -716,7 +718,8 @@ const SaleTaxesForm = ({
                         <FloatingLabelInput
                           id="name"
                           name="name"
-                          label="Tax/VAT Name*"
+                          label="Tax/VAT Name"
+                          text="*"
                           className="capitalize"
                           value={value ?? ""}
                           onChange={handleOnChange}
@@ -751,7 +754,8 @@ const SaleTaxesForm = ({
                           name="percentage"
                           step={".1"}
                           className=""
-                          label="Percentage*"
+                          label="Percentage"
+                          text="*"
                           value={value}
                           onChange={handleOnChange}
                         />

@@ -322,35 +322,42 @@ const ExerciseForm = ({
     {
       type: "text",
       name: "exercise_name",
-      label: "Exercise Name*",
+      label: "Exercise Name",
       maxlength: 41,
       required: true,
+      text: "*",
     },
     {
       type: "select",
       name: "visible_for",
-      label: "Visible For*",
+      label: "Visible For",
+      text: "*",
       required: true,
       options: visibilityOptions,
     },
     {
       type: "select",
       name: "category_id",
-      label: "Exercise Category*",
+      label: "Exercise Category",
+      text: "*",
       required: true,
       options: CategoryData,
     },
     {
       type: "multiselect",
       name: "equipment_ids",
-      label: "Equipments*",
+      label: "Equipments",
+      text: "*",
+
       required: true,
       options: EquipmentData,
     },
     {
       type: "multiselect",
       name: "primary_muscle_ids",
-      label: "Primary Muscle*",
+      label: "Primary Muscle",
+      text: "*",
+
       required: true,
       options: MuscleData,
     },
@@ -364,7 +371,9 @@ const ExerciseForm = ({
     {
       type: "multiselect",
       name: "primary_joint_ids",
-      label: "Primary Joints*",
+      label: "Primary Joints",
+      text: "*",
+
       required: true,
       options: JointsData,
     },
@@ -490,6 +499,7 @@ const ExerciseForm = ({
                       <FloatingLabelInput
                         id={item.name}
                         label={item.label}
+                        text={item.text}
                         {...register(
                           item.name as keyof createExerciseInputTypes,
                           {
@@ -530,6 +540,7 @@ const ExerciseForm = ({
                         render={({ field: { onChange, value } }) => (
                           <MultiSelect
                             floatingLabel={item.label}
+                            text={item.text}
                             options={
                               item.options as {
                                 label: string;
@@ -592,6 +603,7 @@ const ExerciseForm = ({
                                 <SelectTrigger
                                   floatingLabel={item.label}
                                   name={item.name}
+                                  text={item.text}
                                 >
                                   <SelectValue
                                     placeholder={
@@ -681,7 +693,11 @@ const ExerciseForm = ({
                                 <img
                                   src={
                                     existingMaleImage
-                                      ? (existingMaleImage.includes(VITE_VIEW_S3_URL) ? existingMaleImage : `${VITE_VIEW_S3_URL}/${existingMaleImage}`)
+                                      ? existingMaleImage.includes(
+                                          VITE_VIEW_S3_URL
+                                        )
+                                        ? existingMaleImage
+                                        : `${VITE_VIEW_S3_URL}/${existingMaleImage}`
                                       : ""
                                   }
                                   alt="Existing Male Image"
@@ -771,7 +787,11 @@ const ExerciseForm = ({
                                 <img
                                   src={
                                     existingFemaleImage
-                                      ? (existingFemaleImage.includes(VITE_VIEW_S3_URL) ? existingFemaleImage : `${VITE_VIEW_S3_URL}/${existingFemaleImage}`)
+                                      ? existingFemaleImage.includes(
+                                          VITE_VIEW_S3_URL
+                                        )
+                                        ? existingFemaleImage
+                                        : `${VITE_VIEW_S3_URL}/${existingFemaleImage}`
                                       : ""
                                   }
                                   alt="Existing Female Image"
@@ -813,7 +833,9 @@ const ExerciseForm = ({
                 />
               </div>
               <div className="w-[33%]">
-                <h1 className="m-2 font-semibold">Upload Gif*</h1>
+                <h1 className="m-2 font-semibold">
+                  Upload Gif <span className="text-red-500">*</span>
+                </h1>
                 <Controller
                   name="gif"
                   control={control}
@@ -860,7 +882,9 @@ const ExerciseForm = ({
                                 <img
                                   src={
                                     existingGIf
-                                      ? (existingGIf.includes(VITE_VIEW_S3_URL) ? existingGIf : `${VITE_VIEW_S3_URL}/${existingGIf}`)
+                                      ? existingGIf.includes(VITE_VIEW_S3_URL)
+                                        ? existingGIf
+                                        : `${VITE_VIEW_S3_URL}/${existingGIf}`
                                       : ""
                                   }
                                   alt="Existing GIF"
@@ -988,7 +1012,8 @@ const ExerciseForm = ({
                           render={({ field }) => (
                             <div>
                               <FloatingLabelInput
-                                label={"Time(s)*"}
+                                label={"Time(s)"}
+                                text="*"
                                 type="number"
                                 id={`time-${index}`}
                                 {...field}
@@ -1036,9 +1061,10 @@ const ExerciseForm = ({
                           render={({ field }) => (
                             <div>
                               <FloatingLabelInput
-                                label={"Rest Time (s)*"}
+                                label={"Rest Time (s)"}
                                 id={`rest-time-${index}`}
                                 type="number"
+                                text="*"
                                 {...field}
                                 className={`border${
                                   errors?.restPerSet?.[index]
@@ -1127,7 +1153,8 @@ const ExerciseForm = ({
                             <div>
                               <FloatingLabelInput
                                 type="number"
-                                label="Repetitions(x)*"
+                                label="Repetitions(x)"
+                                text="*"
                                 id={`repitition-time-${index}`}
                                 {...field}
                                 className={`border ${
@@ -1177,7 +1204,8 @@ const ExerciseForm = ({
                           render={({ field }) => (
                             <div>
                               <FloatingLabelInput
-                                label={"Rest Time (s)*"}
+                                label={"Rest Time (s)"}
+                                text="*"
                                 type="number"
                                 id={`rest-time-${index}`}
                                 {...field}

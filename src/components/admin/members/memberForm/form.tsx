@@ -87,15 +87,11 @@ import {
   CountryTypes,
   ErrorType,
   membershipplanTypes,
-
   membeshipsTableType,
   renewalData,
   sourceTypes,
 } from "@/app/types";
-import {
-  MemberInputTypes,
-  MemberTableDatatypes,
-} from "@/app/types/member";
+import { MemberInputTypes, MembershipPlans, MemberTableDatatypes } from "@/app/types/member";
 
 import "react-international-phone/style.css"; // Import the default styles for the phone input
 
@@ -145,6 +141,7 @@ interface membership_planids {
   prolongation_period?: number;
   auto_renew_days?: number;
   inv_days_cycle?: number;
+  expiry_date: string;
 }
 
 const initialValues: MemberInputTypes = {
@@ -283,6 +280,7 @@ const MemberForm = ({
       prolongation_period: undefined,
       auto_renew_days: undefined,
       inv_days_cycle: undefined,
+      expiry_date: "",
     },
   ]);
 
@@ -296,6 +294,7 @@ const MemberForm = ({
         prolongation_period: undefined,
         auto_renew_days: undefined,
         inv_days_cycle: undefined,
+        expiry_date: "",
       },
     ]);
   };
@@ -314,6 +313,7 @@ const MemberForm = ({
           prolongation_period: undefined,
           auto_renew_days: undefined,
           inv_days_cycle: undefined,
+          expiry_date: "",
         },
       ]);
     } else {
@@ -329,8 +329,23 @@ const MemberForm = ({
     const updatedPlans = [...membershipPlansdata];
     updatedPlans[index] = { ...updatedPlans[index], [field]: value };
 
+    // Update the plan with the new value
+    updatedPlans[index] = { ...updatedPlans[index], [field]: value };
+
     if (field === "membership_plan_id") {
-      const selectedPlan = membershipPlans.find(
+      // Check for duplicates across all plans
+      const isDuplicate = updatedPlans.some(
+        (plan, idx) => idx !== index && plan.membership_plan_id === value
+      );
+      if (isDuplicate) {
+        toast({
+          variant: "destructive",
+          title: "Duplicate Selection",
+          description: "You have already selected this membership plan.",
+        });
+        return; // Exit the function to prevent further processing
+      }
+      const selectedPlan = membershipPlans?.find(
         (item: any) => item.id === value
       );
 
@@ -343,6 +358,7 @@ const MemberForm = ({
           prolongation_period: renewalDetails?.prolongation_period || undefined,
           auto_renew_days: renewalDetails?.days_before || undefined,
           inv_days_cycle: renewalDetails?.next_invoice || undefined,
+          expiry_date: selectedPlan?.expiry_date,
         };
       }
     }
@@ -357,7 +373,7 @@ const MemberForm = ({
           // inv_days_cycle: undefined,
         };
       } else {
-        const selectedPlan = membershipPlans.find(
+        const selectedPlan = membershipPlans?.find(
           (item: any) => item.id === updatedPlans[index].membership_plan_id
         );
 
@@ -371,6 +387,7 @@ const MemberForm = ({
               renewalDetails?.prolongation_period || undefined,
             auto_renew_days: renewalDetails?.days_before || undefined,
             inv_days_cycle: renewalDetails?.next_invoice || undefined,
+            expiry_date: selectedPlan?.expiry_date,
           };
         }
       }
@@ -444,15 +461,15 @@ const MemberForm = ({
     if (action == "edit") {
       const memberpayload = {
         ...memberData,
-        nic: memberData?.nic !== null ? memberData?.nic : ""
+        nic: memberData?.nic !== null ? memberData?.nic : "",
       };
       memberpayload.coach_ids = memberData?.coaches.every(
         (item) => item.id === 0 && item.name?.trim() === ""
       )
         ? []
         : memberData?.coaches
-          .filter((item) => item.id !== 0 && item.name?.trim() !== "") // Filter out invalid entries
-          .map((item) => item.id);
+            .filter((item) => item.id !== 0 && item.name?.trim() !== "") // Filter out invalid entries
+            .map((item) => item.id);
 
       if (
         memberpayload?.mobile_number &&
@@ -489,6 +506,7 @@ const MemberForm = ({
           prolongation_period: undefined,
           auto_renew_days: undefined,
           inv_days_cycle: undefined,
+          expiry_date: "",
         },
       ]);
     }
@@ -799,7 +817,8 @@ const MemberForm = ({
                     <div className="relative">
                       <FloatingLabelInput
                         id="own_member_id"
-                        label="Member Id*"
+                        label="Member Id"
+                        text="*"
                         className="disabled:!opacity-100 disabled:text-gray-800 placeholder:text-gray-800"
                         disabled
                         {...register("own_member_id")}
@@ -811,13 +830,14 @@ const MemberForm = ({
                     </div>
                     <div className="relative ">
                       {action == "add" ||
-                        (action == "edit" &&
-                          watcher.client_status == "pending") ? (
+                      (action == "edit" &&
+                        watcher.client_status == "pending") ? (
                         <FloatingLabelInput
                           id="email"
                           className=""
                           type="email"
-                          label="Email Address*"
+                          label="Email Address"
+                          text="*"
                           {...register("email", {
                             required: "Required",
                             setValueAs: (value) => value.toLowerCase(),
@@ -841,7 +861,8 @@ const MemberForm = ({
                                 id="email"
                                 className=""
                                 type="email"
-                                label="Email Address*"
+                                label="Email Address"
+                                text="*"
                                 disabled={
                                   action == "edit" &&
                                   watcher.client_status != "pending"
@@ -873,7 +894,8 @@ const MemberForm = ({
                     <div className="relative ">
                       <FloatingLabelInput
                         id="first_name"
-                        label="First Name*"
+                        label="First Name"
+                        text="*"
                         {...register("first_name", {
                           required: "Required",
                           setValueAs: (value) => value.toLowerCase(),
@@ -896,7 +918,8 @@ const MemberForm = ({
                     <div className="relative ">
                       <FloatingLabelInput
                         id="last_name"
-                        label="Last Name*"
+                        label="Last Name"
+                        text="*"
                         {...register("last_name", {
                           required: "Required",
                           setValueAs: (value) => value.toLowerCase(),
@@ -932,7 +955,8 @@ const MemberForm = ({
                             value={value as Gender}
                           >
                             <SelectTrigger
-                              floatingLabel="Gender*"
+                              floatingLabel="Gender"
+                              text="*"
                               className={`text-black`}
                             >
                               <SelectValue placeholder="Select Gender" />
@@ -967,8 +991,9 @@ const MemberForm = ({
                             <PopoverTrigger asChild>
                               <FormControl>
                                 <div className="relative">
-                                  <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">
-                                    Date of brith*
+                                  <span className="absolute p-0 text-xs text-black left-2 -top-1.5 px-1 bg-white">
+                                    Date of brith
+                                    <span className="text-red-500">*</span>
                                   </span>
                                   <Button
                                     variant={"outline"}
@@ -1116,7 +1141,8 @@ const MemberForm = ({
                             disabled={value === "pending"}
                           >
                             <SelectTrigger
-                              floatingLabel="Status*"
+                              floatingLabel="Status"
+                              text="*"
                               className={`text-black`}
                             >
                               <SelectValue placeholder="Select Status" />
@@ -1156,7 +1182,8 @@ const MemberForm = ({
                             value={value?.toString()}
                           >
                             <SelectTrigger
-                              floatingLabel="Source*"
+                              floatingLabel="Source"
+                              text="*"
                               className="font-normal capitalize text-gray-800"
                             >
                               <SelectValue placeholder="Select Source" />
@@ -1254,14 +1281,18 @@ const MemberForm = ({
                         }) => (
                           <div className="relative">
                             <label
-                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${value
-                                ? "text-xs -top-2.5"
-                                : "text-xs text-black"
-                                }`}
+                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${
+                                value
+                                  ? "text-xs -top-2.5"
+                                  : "text-xs text-black"
+                              }`}
                             >
                               Business
                             </label>
-                            <Popover open={openBusiness} onOpenChange={setOpenBusiness}>
+                            <Popover
+                              open={openBusiness}
+                              onOpenChange={setOpenBusiness}
+                            >
                               <PopoverTrigger asChild>
                                 <FormControl>
                                   <Button
@@ -1272,8 +1303,8 @@ const MemberForm = ({
                                     <span className="w-full text-left font-normal text-black">
                                       {value
                                         ? business?.find(
-                                          (business) => business.id === value
-                                        )?.full_name
+                                            (business) => business.id === value
+                                          )?.full_name
                                         : "Select Business"}
                                     </span>
                                     <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -1302,8 +1333,8 @@ const MemberForm = ({
                                                 setValue(
                                                   "business_id",
                                                   business.id
-                                                  );
-                                                  setOpenBusiness(false)    
+                                                );
+                                                setOpenBusiness(false);
                                               }}
                                             >
                                               <Check
@@ -1434,12 +1465,13 @@ const MemberForm = ({
                         }) => (
                           <div className="flex flex-col w-full relative">
                             <label
-                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${value
-                                ? "text-xs -top-2.5"
-                                : "text-xs text-black"
-                                }`}
+                              className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${
+                                value
+                                  ? "text-xs -top-2.5"
+                                  : "text-xs text-black"
+                              }`}
                             >
-                              Country
+                              Country <span className="text-red-500">*</span>
                             </label>
                             <Popover open={country} onOpenChange={setCountry}>
                               <PopoverTrigger asChild>
@@ -1454,10 +1486,10 @@ const MemberForm = ({
                                   >
                                     {value
                                       ? countries?.find(
-                                        (country: CountryTypes) =>
-                                          country.id === value // Compare with numeric value
-                                      )?.country // Display country name if selected
-                                      : "Select country*"}
+                                          (country: CountryTypes) =>
+                                            country.id === value // Compare with numeric value
+                                        )?.country // Display country name if selected
+                                      : "Select country"}
                                     <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                   </Button>
                                 </FormControl>
@@ -1576,9 +1608,9 @@ const MemberForm = ({
                                 </FormControl>
                                 <SelectContent className="capitalize max-h-52">
                                   {membershipPlans &&
-                                    membershipPlans.length > 0 ? (
+                                  membershipPlans.length > 0 ? (
                                     membershipPlans.map(
-                                      (sourceval: membeshipsTableType) => (
+                                      (sourceval: MembershipPlans) => (
                                         <SelectItem
                                           key={sourceval.id}
                                           value={sourceval.id?.toString()}
@@ -1615,7 +1647,8 @@ const MemberForm = ({
                                 {/* Row for Prolongation Period */}
                                 <div className="relative col-span-6 flex items-center gap-3">
                                   <Label className="text-base">
-                                    Prolongation period*
+                                    Prolongation period{" "}
+                                    <span className="text-red-500">*</span>
                                   </Label>
                                   <FloatingLabelInput
                                     id="prolongation_period"
@@ -1628,7 +1661,7 @@ const MemberForm = ({
                                       handleMembershipPlanChange(
                                         index,
                                         "prolongation_period",
-                                        e.target.value
+                                        Number(e.target.value)
                                       )
                                     }
                                   />
@@ -1637,7 +1670,8 @@ const MemberForm = ({
                                 {/* Row for Auto Renewal Days */}
                                 <div className="relative col-span-6 flex items-center gap-3">
                                   <Label className="text-base">
-                                    Auto renewal takes place*
+                                    Auto renewal takes place{" "}
+                                    <span className="text-red-500">*</span>
                                   </Label>
                                   <FloatingLabelInput
                                     id="auto_renew_days"
@@ -1650,7 +1684,7 @@ const MemberForm = ({
                                       handleMembershipPlanChange(
                                         index,
                                         "auto_renew_days",
-                                        e.target.value
+                                        Number(e.target.value)
                                       )
                                     }
                                   />
@@ -1663,7 +1697,8 @@ const MemberForm = ({
                                 <div className="relative col-span-6 flex items-center gap-3">
                                   <Label className="text-base pr-4">
                                     Next invoice will be <br />
-                                    created*
+                                    created{" "}
+                                    <span className="text-red-500">*</span>
                                   </Label>
                                   <FloatingLabelInput
                                     id="inv_days_cycle"
@@ -1676,7 +1711,7 @@ const MemberForm = ({
                                       handleMembershipPlanChange(
                                         index,
                                         "inv_days_cycle",
-                                        e.target.value
+                                        Number(e.target.value)
                                       )
                                     }
                                   />
@@ -1686,14 +1721,14 @@ const MemberForm = ({
                                   {membershipPlansdata?.length && (
                                     <Button
                                       type="button"
-                                      className="text-red-500"
+                                      className="text-red-500 disabled:cursor-none"
                                       variant={"ghost"}
                                       disabled={
                                         membershipPlansdata.length === 0 ||
                                         membershipPlansdata.some(
                                           (plan) =>
                                             plan.membership_plan_id ===
-                                            undefined ||
+                                              undefined ||
                                             plan.membership_plan_id === null
                                         )
                                       }
@@ -1719,7 +1754,7 @@ const MemberForm = ({
                               membershipPlansdata?.length && (
                                 <Button
                                   type="button"
-                                  className="text-red-500 px-2"
+                                  className="text-red-500 px-2 disabled:cursor-none"
                                   variant={"ghost"}
                                   disabled={
                                     membershipPlansdata.length === 0 ||

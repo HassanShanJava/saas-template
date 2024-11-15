@@ -594,6 +594,12 @@ const CoachForm: React.FC<CoachFormProps> = ({
     const payloadCoach = {
       ...coachData,
       nic: coachData?.nic !== null ? coachData?.nic : "",
+      bank_detail: {
+        bank_name: coachData.bank_detail?.bank_name ?? "",
+        iban_no: coachData.bank_detail?.iban_no ?? "",
+        acc_holder_name: coachData.bank_detail?.acc_holder_name ?? "",
+        swift_code: coachData.bank_detail?.swift_code ?? "",
+      },
     };
     console.log("Member_ids before that", payloadCoach.member_ids);
     type Member = { id: number; name: string } | number;
@@ -630,6 +636,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
   console.log("watcher", form.watch());
 
   const onError = () => {
+    console.log("errors", errors);
     toast({
       variant: "destructive",
       description: "Please fill all the mandatory fields",
@@ -647,17 +654,19 @@ const CoachForm: React.FC<CoachFormProps> = ({
         coach_status: UserStatus.Pending, // Add type assertion here
         member_ids: [],
         members: [],
-
+        profile_img: payload.profile_img ?? "",
         // Set empty strings for optional fields if they're null/undefined
         phone: payload.phone ?? "",
         notes: payload.notes ?? "",
         address_1: payload.address_1 ?? "",
         address_2: payload.address_2 ?? "",
         nic: payload.nic ?? "",
-        bank_name: payload.bank_name ?? "",
-        iban_no: payload.iban_no ?? "",
-        acc_holder_name: payload.acc_holder_name ?? "",
-        swift_code: payload.swift_code ?? "",
+        bank_detail: {
+          bank_name: payload.bank_detail?.bank_name ?? "",
+          iban_no: payload.bank_detail?.iban_no ?? "",
+          acc_holder_name: payload.bank_detail?.acc_holder_name ?? "",
+          swift_code: payload.bank_detail?.swift_code ?? "",
+        },
         city: payload.city ?? "",
         mobile_number:
           !payload.mobile_number ||
@@ -776,7 +785,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           {...field}
                           id="own_coach_id"
                           className="disabled:!opacity-100 disabled:text-gray-800 placeholder:text-gray-800"
-                          label="Coach Id*"
+                          label="Coach Id"
+                          text="*"
                           disabled
                         />
                         {watcher.own_coach_id ? <></> : <FormMessage />}
@@ -796,7 +806,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                           <FloatingLabelInput
                             {...field}
                             id="email"
-                            label="Email Address*"
+                            text="*"
+                            label="Email Address"
                           />
                         ) : (
                           <TooltipProvider>
@@ -805,7 +816,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 <FloatingLabelInput
                                   {...field}
                                   id="email"
-                                  label="Email Address*"
+                                  label="Email Address"
+                                  text="*"
                                   disabled={
                                     coachData != null &&
                                     watcher.coach_status != "pending"
@@ -834,7 +846,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                         <FloatingLabelInput
                           {...field}
                           id="first_name"
-                          label="First Name*"
+                          label="First Name"
+                          text="*"
                           className="capitalize"
                         />
                         <FormMessage>
@@ -853,7 +866,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                         <FloatingLabelInput
                           {...field}
                           id="last_name"
-                          label="Last Name*"
+                          label="Last Name"
+                          text="*"
                           className="capitalize"
                         />
                         <FormMessage>
@@ -877,7 +891,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                         >
                           <FormControl>
                             <SelectTrigger
-                              floatingLabel="Gender*"
+                              floatingLabel="Gender"
+                              text="*"
                               className={`${watcher.gender ? "text-black" : ""}`}
                             >
                               <SelectValue placeholder="Select Gender" />
@@ -908,7 +923,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                             <FormControl>
                               <div className="relative">
                                 <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">
-                                  Date of brith*
+                                  Date of brith{" "}
+                                  <span className="text-red-500">*</span>
                                 </span>
 
                                 <Button
@@ -1065,7 +1081,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                         >
                           <FormControl>
                             <SelectTrigger
-                              floatingLabel="Status*"
+                              floatingLabel="Status"
+                              text="*"
                               className={"font-medium text-gray-400"}
                             >
                               <SelectValue placeholder="Select Coach status" />
@@ -1123,15 +1140,16 @@ const CoachForm: React.FC<CoachFormProps> = ({
                         >
                           <FormControl>
                             <SelectTrigger
-                              floatingLabel="Source*"
+                              floatingLabel="Source"
+                              text="*"
                               className={"font-base text-gray-800"}
                             >
                               <SelectValue>
                                 {field.value === 0
-                                  ? "Source*"
+                                  ? "Source"
                                   : sources?.find(
                                       (source) => source.id === field.value
-                                    )?.source || "Source*"}
+                                    )?.source || "Source"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -1255,7 +1273,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 : "text-xs text-black"
                             }`}
                           >
-                            Country
+                            Country <span className="text-red-500">*</span>
                           </label>
                           <Popover open={country} onOpenChange={setCountry}>
                             <PopoverTrigger asChild>
@@ -1273,7 +1291,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                         (country: CountryTypes) =>
                                           country.id === field.value // Compare with numeric value
                                       )?.country // Display country name if selected
-                                    : "Select country*"}
+                                    : "Select country"}
                                   <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                               </FormControl>

@@ -180,7 +180,7 @@ const HardwareIntegrationForm = ({
     if (validateHardwareSettings(data.settings)) {
       toast({
         variant: "destructive",
-        description: "Please disable atleaset one toggle in Check-In Control",
+        description: "Please Enable atleaset one toggle in Check-In Control",
       });
       return;
     }

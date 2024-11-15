@@ -1,4 +1,4 @@
-import { ResetPasswordType } from "@/app/types";
+import { ResetPasswordType, VerifyTokenResponse } from "@/app/types";
 import { apiSlice } from "@/features/api/apiSlice";
 
 export const ResetPassword = apiSlice.injectEndpoints({
@@ -15,7 +15,7 @@ export const ResetPassword = apiSlice.injectEndpoints({
           invalidateTags: ["Reset"],
         }),
       }),
-      verifyToken: builder.query<any, string>({
+      verifyToken: builder.query<VerifyTokenResponse, string>({
         query: (token) => ({
           url: `/reset_password/${token}`,
           method: "GET",

@@ -69,7 +69,9 @@ const AutoRenewalForm = () => {
         />
         {autoRenewal && (
           <div className="flex items-center gap-3 text-sm">
-            <Label className="font-semibold ">Prolongation period*</Label>
+            <Label className="font-semibold ">
+              Prolongation period<span className="text-red-500">*</span>
+            </Label>
             <FloatingLabelInput
               id="prolongation_period"
               type="number"
@@ -87,7 +89,9 @@ const AutoRenewalForm = () => {
       {autoRenewal && (
         <div className="space-y-3 text-sm">
           <div className="flex items-center gap-4">
-            <Label className="font-semibold ">Auto renewal takes place*</Label>
+            <Label className="font-semibold ">
+              Auto renewal takes place<span className="text-red-500">*</span>
+            </Label>
             <FloatingLabelInput
               id="days_before"
               type="number"
@@ -112,7 +116,8 @@ const AutoRenewalForm = () => {
           </div>
           <div className="flex items-center gap-4">
             <Label className="font-semibold ">
-              Next invoice will be created *
+              Next invoice will be created{" "}
+              <span className="text-red-500">*</span>
             </Label>
             <FloatingLabelInput
               id="next_invoice"

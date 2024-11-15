@@ -105,7 +105,8 @@ const WorkoutStep1: React.FC = () => {
             <div className="h-min">
               <FloatingLabelInput
                 id="name"
-                label="Name*"
+                label="Name"
+                text="*"
                 error={errors.workout_name?.message}
                 maxLength={41}
                 {...register("workout_name", {
@@ -192,7 +193,7 @@ const WorkoutStep1: React.FC = () => {
                     onValueChange={(value) => onChange(value)}
                     value={value}
                   >
-                    <SelectTrigger floatingLabel="Goal*" name="goals">
+                    <SelectTrigger floatingLabel="Goal" text="*" name="goals">
                       <SelectValue placeholder="Select Goal" />
                     </SelectTrigger>
                     <SelectContent>
@@ -224,7 +225,7 @@ const WorkoutStep1: React.FC = () => {
                     onValueChange={(value) => onChange(value)}
                     value={value}
                   >
-                    <SelectTrigger floatingLabel="Level*" name="level">
+                    <SelectTrigger floatingLabel="Level" text="*" name="level">
                       <SelectValue placeholder="Select Level" />
                     </SelectTrigger>
                     <SelectContent>
@@ -257,7 +258,8 @@ const WorkoutStep1: React.FC = () => {
                     value={value}
                   >
                     <SelectTrigger
-                      floatingLabel="Visible For*"
+                      floatingLabel="Visible For"
+                      text="*"
                       name="visible_for"
                     >
                       <SelectValue placeholder="Select Visible For" />
@@ -296,7 +298,8 @@ const WorkoutStep1: React.FC = () => {
                 render={({ field: { onChange, value, ref } }) => (
                   <FloatingLabelInput
                     id="weeks"
-                    label="Weeks*"
+                    label="Weeks"
+                    text="*"
                     type="number"
                     inputMode="numeric"
                     min={1}

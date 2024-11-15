@@ -42,7 +42,6 @@ const PriceDiscountTaxForm = () => {
     setValue("income_category_id", value);
   };
 
-
   console.log({ salesTaxData });
 
   useEffect(() => {
@@ -86,7 +85,8 @@ const PriceDiscountTaxForm = () => {
       <div className="grid grid-cols-3 gap-4 items-start mt-3">
         <FloatingLabelInput
           id="net_price"
-          label="Net Price*"
+          label="Net Price"
+          text="*"
           type="number"
           min={0}
           {...register("net_price", {
@@ -132,7 +132,8 @@ const PriceDiscountTaxForm = () => {
               >
                 <SelectTrigger
                   name="income_category_id"
-                  floatingLabel="Income Category*"
+                  floatingLabel="Income Category"
+                  text="*"
                   className="capitalize"
                 >
                   <SelectValue placeholder="Select income category" />
@@ -160,7 +161,8 @@ const PriceDiscountTaxForm = () => {
         <FloatingLabelInput
           id="tax_rate"
           disabled={true}
-          label="Tax/VAT Rate*"
+          label="Tax/VAT Rate"
+          text="*"
           value={
             getValues("tax_rate")
               ? "Sales Tax " + getValues("tax_rate") + "%"
@@ -171,7 +173,8 @@ const PriceDiscountTaxForm = () => {
         <FloatingLabelInput
           id="tax_amount"
           disabled={true}
-          label="Tax/VAT Amount*"
+          label="Tax/VAT Amount"
+          text="*"
           type="number"
           min={0}
           {...register("tax_amount", {
@@ -181,7 +184,8 @@ const PriceDiscountTaxForm = () => {
         />
         <FloatingLabelInput
           id="total_price"
-          label="Total Amount*"
+          label="Total Amount"
+          text="*"
           disabled={true}
           type="number"
           min={0}
@@ -207,7 +211,8 @@ const PriceDiscountTaxForm = () => {
               >
                 <SelectTrigger
                   name="payment_method"
-                  floatingLabel="Payment Method*"
+                  floatingLabel="Payment Method"
+                  text="*"
                 >
                   <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
@@ -249,7 +254,8 @@ const PriceDiscountTaxForm = () => {
               >
                 <SelectTrigger
                   name="billing_cycle"
-                  floatingLabel="Billing Cycle*"
+                  floatingLabel="Billing Cycle"
+                  text="*"
                 >
                   <SelectValue placeholder="Select billing cycle" />
                 </SelectTrigger>

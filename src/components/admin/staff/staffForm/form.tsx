@@ -612,6 +612,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           id="own_staff_id"
                           className="disabled:!opacity-100 disabled:text-gray-800 placeholder:text-gray-800"
                           label="Staff Id"
+                          text="*"
                           disabled
                         />
                         {watcher.own_staff_id ? <></> : <FormMessage />}
@@ -628,7 +629,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                         <FloatingLabelInput
                           {...field}
                           id="email"
-                          label="Email Address*"
+                          label="Email Address"
+                          text="*"
                         />
                         <FormMessage />
                       </FormItem>
@@ -644,7 +646,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                         <FloatingLabelInput
                           {...field}
                           id="first_name"
-                          label="First Name*"
+                          label="First Name"
+                          text="*"
                           className="capitalize"
                         />
                         <FormMessage />
@@ -661,7 +664,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                         <FloatingLabelInput
                           {...field}
                           id="last_name"
-                          label="Last Name*"
+                          label="Last Name"
+                          text="*"
                           className="capitalize"
                         />
                         <FormMessage />
@@ -683,7 +687,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                         >
                           <FormControl>
                             <SelectTrigger
-                              floatingLabel="Gender*"
+                              floatingLabel="Gender"
+                              text="*"
                               className={`text-black`}
                             >
                               <SelectValue placeholder="Select Gender" />
@@ -714,7 +719,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                             <FormControl>
                               <div className="relative">
                                 <span className="absolute p-0 text-xs left-2 -top-1.5 px-1 bg-white">
-                                  Date of brith*
+                                  Date of brith{" "}
+                                  <span className="text-red-500">*</span>
                                 </span>
                                 <Button
                                   type="button"
@@ -859,15 +865,16 @@ const StaffForm: React.FC<StaffFormProps> = ({
                         >
                           <FormControl>
                             <SelectTrigger
-                              floatingLabel="Source*"
+                              floatingLabel="Source"
+                              text="*"
                               className={`${watcher.source_id ? "text-black" : "text-gray-500"}`}
                             >
                               <SelectValue>
                                 {field.value === 0
-                                  ? "Select Source*"
+                                  ? "Select Source"
                                   : sources?.find(
                                       (source) => source.id === field.value
-                                    )?.source || "Select Source*"}
+                                    )?.source || "Select Source"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -902,7 +909,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     }) => (
                       <div className="relative w-full">
                         <span className="absolute p-0 text-xs font-light text-gray-900 left-3 -top-1.5  px-1 bg-white">
-                          Role Name*
+                          Role Name <span className="text-red-500">*</span>
                         </span>
                         <FormItem className=" w-full">
                           <Popover>
@@ -919,7 +926,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                       ? roleData?.find(
                                           (role) => role.id === value
                                         )?.name
-                                      : "Select Role*"}
+                                      : "Select Role"}
                                   </span>
                                   <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
@@ -999,7 +1006,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           <FormControl>
                             <SelectTrigger
                               disabled={field.value === "pending"}
-                              floatingLabel="Status*"
+                              floatingLabel="Status"
+                              text="*"
                               className={`text-black`}
                             >
                               <SelectValue placeholder="Select Status*" />
@@ -1117,7 +1125,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                 : "text-xs text-black"
                             }`}
                           >
-                            Country
+                            Country <span className="text-red-500">*</span>
                           </label>
                           <Popover open={country} onOpenChange={setCountry}>
                             <PopoverTrigger asChild>
@@ -1135,7 +1143,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                                         (country: CountryTypes) =>
                                           country.id === field.value // Compare with numeric value
                                       )?.country // Display country name if selected
-                                    : "Select country*"}
+                                    : "Select country"}
                                   <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                               </FormControl>

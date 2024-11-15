@@ -29,7 +29,7 @@ interface DataTableRowActionsProps<TData> {
   data: createExerciseInputTypes;
   refetch: any;
   hanleEditExercise: any;
-  access: string
+  access: string;
 }
 
 export function DataTableRowActions<TData>({
@@ -37,7 +37,7 @@ export function DataTableRowActions<TData>({
   data,
   refetch,
   hanleEditExercise,
-  access
+  access,
 }: DataTableRowActionsProps<TData>) {
   const [isdelete, setIsDelete] = React.useState(false);
   const [deleteExercise] = useDeleteExerciseMutation();
@@ -61,7 +61,9 @@ export function DataTableRowActions<TData>({
         toast({
           variant: "destructive",
           title: "Error in Submission",
-          description: typedError.data?.detail,
+          description:
+            typedError.data?.detail ||
+            (typedError.data as { message?: string }).message,
         });
       } else {
         toast({
@@ -93,10 +95,12 @@ export function DataTableRowActions<TData>({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            {access == "full_access" && <DropdownMenuItem onClick={() => setIsDelete(true)}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>}
+            {access == "full_access" && (
+              <DropdownMenuItem onClick={() => setIsDelete(true)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
         {isdelete && (

@@ -7,7 +7,7 @@ import {
   coachUpdateInput,
   ServerResponseById,
 } from "@/app/types";
-import { CoachInput, CoachUpdate } from "@/app/types/coach";
+import { CoachAutoFill, CoachInput, CoachUpdate } from "@/app/types/coach";
 import { ApiResponse } from "@/app/types/shared_types";
 
 import { apiSlice } from "@/features/api/apiSlice";
@@ -117,7 +117,7 @@ export const Roles = apiSlice.injectEndpoints({
         providesTags: ["Coaches"],
       }),
       getCoachAutoFill: builder.query<
-        CoachTableDataTypes,
+        CoachAutoFill,
         { org_id: number; email: string }
       >({
         query: (coach) => ({

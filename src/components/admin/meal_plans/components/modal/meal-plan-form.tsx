@@ -425,7 +425,8 @@ const MealPlanForm = ({
     },
     foodAction: "add" | "edit"
   ) => {
-    const { label, food_id, quantity, calories, carbs, protein, fat } = mealType;
+    const { label, food_id, quantity, calories, carbs, protein, fat } =
+      mealType;
 
     setMeals((prevMeals) => {
       const mealList = prevMeals[label as string];
@@ -546,7 +547,6 @@ const MealPlanForm = ({
       // Update the pie chart data
       updatePieChartData({ protein: percentages.protein as number, fats: percentages.fat as number, carbs: percentages.carbs as number })
 
-
       return updatedMeals;
     });
 
@@ -657,7 +657,8 @@ const MealPlanForm = ({
                 <div className="flex flex-col gap-2">
                   <FloatingLabelInput
                     id="male_name"
-                    label="Name*"
+                    label="Name"
+                    text="*"
                     className="capitalize"
                     {...register("name", {
                       required: "  Required",
@@ -717,10 +718,10 @@ const MealPlanForm = ({
                                   <img
                                     src={
                                       watcher?.profile_img !== "" &&
-                                        watcher?.profile_img
+                                      watcher?.profile_img
                                         ? watcher.profile_img.includes(
-                                          VITE_VIEW_S3_URL
-                                        )
+                                            VITE_VIEW_S3_URL
+                                          )
                                           ? watcher.profile_img
                                           : `${VITE_VIEW_S3_URL}/${watcher.profile_img}`
                                         : ""
@@ -766,7 +767,7 @@ const MealPlanForm = ({
                           value={value}
                           onValueChange={(value) => onChange(value)}
                         >
-                          <SelectTrigger floatingLabel="Visible for*">
+                          <SelectTrigger floatingLabel="Visible for" text="*">
                             <SelectValue placeholder="Select visiblity for" />
                           </SelectTrigger>
                           <SelectContent>

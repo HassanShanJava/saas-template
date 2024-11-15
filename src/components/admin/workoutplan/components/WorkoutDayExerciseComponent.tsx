@@ -76,7 +76,7 @@ export default function WorkoutDayExerciseComponent({
                 e.stopPropagation(); // Prevent the parent div's onClick from triggering
                 onClick();
               }}
-              className="h-auto p-0"
+              className="h-6 w-6 p-0"
               variant="ghost"
             >
               <i className="fa fa-pencil" aria-hidden="true"></i>
@@ -86,7 +86,7 @@ export default function WorkoutDayExerciseComponent({
                 e.stopPropagation();
                 onDuplicate(exercise, exercise?.id || 0);
               }}
-              className="h-auto p-0"
+              className="h-6 w-6 p-0"
               variant="ghost"
             >
               <i className="fa-regular fa-clone"></i>

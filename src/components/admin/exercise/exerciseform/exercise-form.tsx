@@ -261,7 +261,7 @@ const ExerciseForm = ({
         toast({
           variant: "destructive",
           title: "Error in Submission",
-          description: `${typedError.data?.detail ?? "Internal Server Error"}`,
+          description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({
@@ -942,7 +942,16 @@ const ExerciseForm = ({
                         }) => (
                           <div>
                             <RadioGroup
-                              onValueChange={onChange}
+                              onValueChange={(newValue) => {
+                                onChange(newValue);
+                                if (newValue === "Repetition Based") {
+                                  setValue(
+                                    "exercise_intensity",
+                                    data?.exercise_intensity ??
+                                      IntensityEnum.max_intensity
+                                  );
+                                }
+                              }}
                               defaultValue={
                                 value != null ? String(value) : undefined
                               }

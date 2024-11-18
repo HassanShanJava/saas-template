@@ -31,7 +31,12 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import Papa from "papaparse";
-import { displayDate, displayDateTime, displayValue, roundToTwoDecimals } from "@/utils/helper";
+import {
+  displayDate,
+  displayDateTime,
+  displayValue,
+  roundToTwoDecimals,
+} from "@/utils/helper";
 import Pagination from "@/components/ui/table/pagination-table";
 import usePagination from "@/hooks/use-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
@@ -163,7 +168,8 @@ export default function CashregisterViewTable() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: typedError.data?.detail ?? "Internal Server Errors",
+        // description: typedError.data?.detail ?? "Internal Server Errors",
+        description: typedError.data?.detail || typedError.data?.message,
       });
     }
   }, [isError]);
@@ -350,7 +356,9 @@ export default function CashregisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {row.original.closing_balance > 0 ? roundToTwoDecimals(row.original.closing_balance as number) : "N/A"}
+                  {row.original.closing_balance > 0
+                    ? roundToTwoDecimals(row.original.closing_balance as number)
+                    : "N/A"}
                 </span>
               </p>
             </div>
@@ -377,14 +385,24 @@ export default function CashregisterViewTable() {
         </div>
       ),
       cell: ({ row }) => {
+        const Discrepancy = row.original.discrepancy;
         return (
           <div className="flex gap-2 items-center justify-between w-fit">
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span
-                  className={`${row.original.discrepancy !== 0 ? "text-red-500" : "text-black"}`}
+                  // className={`${row.original.discrepancy !== 0 ? "text-red-500" : "text-black"}`}
+                  className={`${
+                    Discrepancy && Discrepancy > 0
+                      ? "text-green-500"
+                      : Discrepancy && Discrepancy < 0
+                        ? "text-red-500"
+                        : "text-black"
+                  }`}
                 >
-                  {row.original.discrepancy as number > 0 ? roundToTwoDecimals(row.original.discrepancy as number) : "N/A"}
+                  {row.original?.discrepancy != null
+                    ? roundToTwoDecimals(row.original.discrepancy)
+                    : "N/A"}
                 </span>
               </p>
             </div>
@@ -496,7 +514,7 @@ export default function CashregisterViewTable() {
                         {displayValue(
                           `${row.original.created_by}`.length > 15
                             ? `${row.original.created_by}`.substring(0, 15) +
-                            "..."
+                                "..."
                             : `${row.original.created_by}`
                         )}
                       </span>
@@ -686,9 +704,9 @@ export default function CashregisterViewTable() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

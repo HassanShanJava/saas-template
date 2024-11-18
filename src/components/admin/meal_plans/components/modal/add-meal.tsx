@@ -46,15 +46,15 @@ const FoodForm = ({
   data,
   label,
   setFoodAction,
-  setLabel
+  setLabel,
 }: FoodForm) => {
-  const [inputError, setInputError] = useState<boolean>(false)
+  const [inputError, setInputError] = useState<boolean>(false);
   const [selectedFood, setSelectedFood] = useState<Record<string, any>>({});
   const [searchInput, setSearchInput] = useState<string>("");
   const [quantity, setQuantity] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectPlan, setSelectPlan] = useState<string | undefined>(label);
-  console.log({ selectPlan, label })
+  console.log({ selectPlan, label });
   useEffect(() => {
     if (action == "edit") {
       setSelectPlan(data.mealType);
@@ -97,16 +97,18 @@ const FoodForm = ({
   };
 
   const handleAddMeal = () => {
-
     if (quantity !== null && quantity <= 20) {
-      setInputError(false)
+      setInputError(false);
       const mealType = {
         label: selectPlan,
         name: selectedFood.name,
         quantity: quantity,
-        calories: Math.floor(((+quantity as number) * selectedFood.kcal) * 100) / 100,
-        carbs: Math.floor(((+quantity as number) * selectedFood.kcal) * 100) / 100,
-        protein: Math.floor((+quantity as number) * selectedFood.protein * 100) / 100,
+        calories:
+          Math.floor((+quantity as number) * selectedFood.kcal * 100) / 100,
+        carbs:
+          Math.floor((+quantity as number) * selectedFood.kcal * 100) / 100,
+        protein:
+          Math.floor((+quantity as number) * selectedFood.protein * 100) / 100,
         fat: Math.floor((+quantity as number) * selectedFood.fat * 100) / 100,
         food_id: selectedFood.id,
       };
@@ -136,7 +138,6 @@ const FoodForm = ({
           <Separator className=" h-[1px] rounded-full my-2" />
         </SheetHeader>
         <SheetDescription className="px-4 pb-4">
-
           {Object.entries(selectedFood).length == 0 && (
             <div>
               <div className="flex justify-between items-center gap-2">
@@ -181,7 +182,12 @@ const FoodForm = ({
                     >
                       <div key={food.id} className="flex items-center gap-2">
                         <img
-                          src={(food?.img_url && food?.img_url.includes(VITE_VIEW_S3_URL) ? food?.img_url : `${VITE_VIEW_S3_URL}/${food.img_url}`)}
+                          src={
+                            food?.img_url &&
+                            food?.img_url.includes(VITE_VIEW_S3_URL)
+                              ? food?.img_url
+                              : `${VITE_VIEW_S3_URL}/${food.img_url}`
+                          }
                           className="size-9 rounded-sm object-contain"
                         />
                         <div>
@@ -211,11 +217,15 @@ const FoodForm = ({
           )}
 
           {Object.entries(selectedFood).length > 0 && (
-            <form noValidate className="flex flex-col gap-3" >
+            <form noValidate className="flex flex-col gap-3">
               {/* image */}
               <div className="flex items-center gap-2">
                 <img
-                  src={(selectedFood.img_url.includes(VITE_VIEW_S3_URL) ? selectedFood.img_url : `${VITE_VIEW_S3_URL}/${selectedFood.img_url}`)}
+                  src={
+                    selectedFood.img_url?.includes(VITE_VIEW_S3_URL)
+                      ? selectedFood.img_url
+                      : `${VITE_VIEW_S3_URL}/${selectedFood.img_url}`
+                  }
                   className="size-9 rounded-sm object-contain"
                 />
                 <div>
@@ -233,7 +243,7 @@ const FoodForm = ({
 
               {/* planFor */}
               <Select
-                disabled={action == 'edit'}
+                disabled={action == "edit"}
                 onValueChange={(value) => setSelectPlan(value)}
                 defaultValue={selectPlan}
               >
@@ -261,7 +271,7 @@ const FoodForm = ({
                   min={1}
                   max={20}
                   onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                    if (e.key == '.' || e.key == '+' || e.key == '-') {
+                    if (e.key == "." || e.key == "+" || e.key == "-") {
                       e.preventDefault();
                       return;
                     }
@@ -270,12 +280,18 @@ const FoodForm = ({
                 />
                 {inputError && (
                   <span className="text-red-500 text-xs mt-[5px]">
-                    {quantity as number > 20 ? "Quantity cannot be more than 20" : "Quantity is required"}
+                    {(quantity as number) > 20
+                      ? "Quantity cannot be more than 20"
+                      : "Quantity is required"}
                   </span>
                 )}
               </div>
 
-              <Button type="button" className="text-black space-x-2" onClick={handleAddMeal}>
+              <Button
+                type="button"
+                className="text-black space-x-2"
+                onClick={handleAddMeal}
+              >
                 <i className="fa fa-plus"></i>
                 <span>Add</span>
               </Button>

@@ -27,8 +27,8 @@ const CloseRegister: React.FC = () => {
   const pos_register = (() => {
     try {
       return (
-        JSON.parse(localStorage.getItem("accessLevels") as string).pos_register ??
-        "no_access"
+        JSON.parse(localStorage.getItem("accessLevels") as string)
+          .pos_register ?? "no_access"
       );
     } catch {
       return "no_access";
@@ -63,12 +63,15 @@ const CloseRegister: React.FC = () => {
 
   const onSubmit: SubmitHandler<CloseRegisterFormInputs> = (data) => {
     setData(data);
+
+    const expectedClosingAmount =
+      Number(counterData?.opening_balance) + Number(counterData?.total_amount);
+
     const calculatedDiscrepancy =
-      Number(counterData?.total_amount) +
-      Number(counterData?.opening_balance) -
-      Number(data.closing_balance);
+      Number(data.closing_balance) - expectedClosingAmount;
 
     setDiscrepancy(calculatedDiscrepancy);
+
     setAlertOpen(true); // Open the alert regardless of the discrepancy value
   };
 
@@ -83,7 +86,7 @@ const CloseRegister: React.FC = () => {
         };
         const resp = await closeRegister(payload).unwrap();
         if (resp) {
-          localStorage.removeItem("isContinue")
+          localStorage.removeItem("isContinue");
           toast({
             variant: "success",
             title: "Store closed successfully",
@@ -97,7 +100,7 @@ const CloseRegister: React.FC = () => {
           toast({
             variant: "destructive",
             title: "Error in form Submission",
-            description: `${typedError.data?.detail}`,
+            description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
           });
         } else {
           toast({
@@ -173,55 +176,57 @@ const CloseRegister: React.FC = () => {
           </div>
 
           {/* Open Register Form */}
-          {pos_register !== "read" && (<div className="w-full slg:w-[50%]  flex flex-col items-center rounded-lg shadow-md ">
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-              Close Register
-            </h2>
-            <p className="text-center text-gray-600 mb-6">
-              Please provide a closing balance to close the register
-            </p>
-            <div className="w-[80%] p-6 rounded-md  flex flex-col justify-between gap-3">
-              <FloatingLabelInput
-                id="closingBalance"
-                type="number"
-                label="Closing Balance*"
-                {...register("closing_balance", {
-                  required: "Please provide closing balance.",
-                  min: {
-                    value: 0,
-                    message: "Closing balance must be 0 or greater.",
-                  },
-                  max: {
-                    value: Number.MAX_SAFE_INTEGER,
-                    message:
-                      "Closing balance exceeds the maximum allowed value.",
-                  },
-                })}
-                error={errors.closing_balance?.message}
-              />{" "}
-              <FloatingLabelInput
-                id="notes"
-                type="textarea"
-                label="Notes (optional)"
-                {...register("notes", {
-                  maxLength: {
-                    value: 350,
-                    message: "Notes cannot exceed 350 characters",
-                  },
-                })}
-              />
-              <div className="flex justify-center items-center">
-                <LoadingButton
-                  type="submit"
-                  className="bg-primary text-sm mt-6 w-40   text-white transition flex items-center gap-1  lg:mb-0 h-8 px-2 duration-300"
-                  loading={closeRegisterLoading}
-                  disabled={closeRegisterLoading}
-                >
-                  {closeRegisterLoading ? `Closing...` : `Close Register`}
-                </LoadingButton>
+          {pos_register !== "read" && (
+            <div className="w-full slg:w-[50%]  flex flex-col items-center rounded-lg shadow-md ">
+              <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+                Close Register
+              </h2>
+              <p className="text-center text-gray-600 mb-6">
+                Please provide a closing balance to close the register
+              </p>
+              <div className="w-[80%] p-6 rounded-md  flex flex-col justify-between gap-3">
+                <FloatingLabelInput
+                  id="closingBalance"
+                  type="number"
+                  label="Closing Balance*"
+                  {...register("closing_balance", {
+                    required: "Please provide closing balance.",
+                    min: {
+                      value: 0,
+                      message: "Closing balance must be 0 or greater.",
+                    },
+                    max: {
+                      value: Number.MAX_SAFE_INTEGER,
+                      message:
+                        "Closing balance exceeds the maximum allowed value.",
+                    },
+                  })}
+                  error={errors.closing_balance?.message}
+                />{" "}
+                <FloatingLabelInput
+                  id="notes"
+                  type="textarea"
+                  label="Notes (optional)"
+                  {...register("notes", {
+                    maxLength: {
+                      value: 350,
+                      message: "Notes cannot exceed 350 characters",
+                    },
+                  })}
+                />
+                <div className="flex justify-center items-center">
+                  <LoadingButton
+                    type="submit"
+                    className="bg-primary text-sm mt-6 w-40   text-white transition flex items-center gap-1  lg:mb-0 h-8 px-2 duration-300"
+                    loading={closeRegisterLoading}
+                    disabled={closeRegisterLoading}
+                  >
+                    {closeRegisterLoading ? `Closing...` : `Close Register`}
+                  </LoadingButton>
+                </div>
               </div>
             </div>
-          </div>)}
+          )}
         </div>
       </form>
       <AlertDiscrepancy

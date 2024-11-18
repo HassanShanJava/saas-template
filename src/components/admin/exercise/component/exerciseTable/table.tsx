@@ -94,7 +94,10 @@ const initialValue = {
 export default function ExerciseTableView() {
   const exercise = (() => {
     try {
-      return JSON.parse(localStorage.getItem("accessLevels") as string).exercise ?? "no_access";
+      return (
+        JSON.parse(localStorage.getItem("accessLevels") as string).exercise ??
+        "no_access"
+      );
     } catch {
       return "no_access";
     }
@@ -198,7 +201,8 @@ export default function ExerciseTableView() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: typedError.data?.detail ?? "Internal Server Errors",
+        description: typedError.data?.detail || typedError.data?.message,
+        // description: typedError.data?.detail ?? "Internal Server Errors",
       });
     }
   }, [isError]);
@@ -309,7 +313,7 @@ export default function ExerciseTableView() {
                     {displayValue(
                       `${row.original.exercise_name}`.length > 8
                         ? `${row.original.exercise_name}`.substring(0, 8) +
-                        "..."
+                            "..."
                         : `${row.original.exercise_name}`
                     )}
                   </p>
@@ -587,9 +591,9 @@ export default function ExerciseTableView() {
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
                         </TableHead>
                       );
                     })}

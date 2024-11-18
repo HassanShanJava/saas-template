@@ -27,18 +27,18 @@ const ForgotPasword = () => {
   const [isCaptchaError, setCaptchaError] = useState(false);
   const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const [sendRestEmail] = useSendResetEmailMutation();
-  
+
   useEffect(() => {
     if (isAuthenticated) {
       toast({
         variant: "success",
         title: `Please loggout first`,
       });
-      navigate("/")
+      navigate("/");
       return;
     }
-  }, [isAuthenticated])
-  
+  }, [isAuthenticated]);
+
   const form = useForm<{ email: string }>({
     mode: "onChange",
     defaultValues: {
@@ -88,7 +88,7 @@ const ForgotPasword = () => {
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({

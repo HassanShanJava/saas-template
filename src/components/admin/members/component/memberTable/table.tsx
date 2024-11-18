@@ -128,7 +128,8 @@ export default function MemberTableView() {
   const debouncedInputValue = useDebounce(inputValue, 500);
   // const [filterData, setFilter] = useState({});
   const [filterData, setFilter] = useState<FilterDataType>({}); // Use the defined type for active filters
-  const { data: business, refetch: refetchBusiness } = useGetAllBusinessesQuery(orgId);
+  const { data: business, refetch: refetchBusiness } =
+    useGetAllBusinessesQuery(orgId);
   useEffect(() => {
     setSearchCriteria((prev) => {
       const newCriteria = { ...prev };
@@ -198,7 +199,8 @@ export default function MemberTableView() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: typedError.data?.detail ?? "Internal Server Errors",
+        // description: typedError.data?.detail ?? "Internal Server Errors",
+        description: typedError.data?.detail || typedError.data?.message,
       });
     }
   }, [isError]);
@@ -279,7 +281,7 @@ export default function MemberTableView() {
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: typedError.data?.detail,
+          description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({
@@ -643,13 +645,16 @@ export default function MemberTableView() {
       type: "combobox",
       name: "business_id",
       label: "Business Name",
-      options: business?.map(item=>({value:item.id, label:item.full_name})),
+      options: business?.map((item) => ({
+        value: item.id,
+        label: item.full_name,
+      })),
       function: (value: string) => handleFilterChange("business_id", value),
     },
   ];
 
   const totalRecords = memberData?.filtered_counts || 0;
-  
+
   const {
     handleLimitChange,
     handleNextPage,

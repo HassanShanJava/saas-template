@@ -231,7 +231,8 @@ const HardwareIntegrationForm = ({
           toast({
             variant: "destructive",
             title: "Error in Submission",
-            description: `${typedError.data?.detail ?? "Internal Server Error"}`,
+            // description: `${typedError.data?.detail ?? "Internal Server Error"}`,
+            description: typedError.data?.detail || typedError.data?.message,
           });
         } else {
           toast({

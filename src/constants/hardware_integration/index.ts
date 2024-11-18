@@ -8,7 +8,7 @@ export const initialHardwareIntegrationInput: HardwareIntegrationInput = {
   description: "",
   org_id: 0,
   connection_key: "",
-  use_facility: false,
+  use_facility: true,
   facility_id: null,
   settings: {
     show_remaining_credits_enabled: false,

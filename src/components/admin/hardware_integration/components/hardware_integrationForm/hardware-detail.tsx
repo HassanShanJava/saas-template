@@ -96,19 +96,6 @@ const HardwareDetailsSection = ({
                     placeholder="Enter Connection Key"
                     {...field}
                   />
-                  <Controller
-                    control={control}
-                    name="use_facility"
-                    render={({ field }) => (
-                      <div className="flex gap-2 h-full">
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                        <span className="text-nowrap">Use Facility</span>
-                      </div>
-                    )}
-                  />
                 </div>
               )}
             />
@@ -119,31 +106,7 @@ const HardwareDetailsSection = ({
               </p>
             )}
           </div>
-        </div>
-        <div className="mt-3 flex flex-row gap-3">
-          <div className="w-[50%]">
-            <div>
-              <p className="text-base font-normal">Description</p>
-            </div>
-            <Controller
-              control={control}
-              name="description"
-              rules={{
-                maxLength: {
-                  value: 200,
-                  message: "Description cannot exceed 200 characters",
-                },
-              }}
-              render={({ field }) => (
-                <Textarea
-                  placeholder="Type your Description here"
-                  className="resize-none"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              )}
-            />
-          </div>
+
           {watcher.use_facility && (
             <div className="w-[30%]">
               <Controller
@@ -176,7 +139,9 @@ const HardwareDetailsSection = ({
                                 key={facility.id}
                                 value={String(facility.id)}
                               >
-                                {facility.name}
+                                {facility.name.length > 27
+                                  ? `${facility.name.slice(0, 27)}...`
+                                  : facility.name}
                               </SelectItem>
                             )
                           )}
@@ -193,6 +158,31 @@ const HardwareDetailsSection = ({
               />
             </div>
           )}
+        </div>
+        <div className="mt-3 flex flex-row gap-3">
+          <div className="w-[55%]">
+            <div>
+              <p className="text-base font-normal">Description</p>
+            </div>
+            <Controller
+              control={control}
+              name="description"
+              rules={{
+                maxLength: {
+                  value: 200,
+                  message: "Description cannot exceed 200 characters",
+                },
+              }}
+              render={({ field }) => (
+                <Textarea
+                  placeholder="Type your Description here"
+                  className="resize-none"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              )}
+            />
+          </div>
         </div>
       </CustomCollapsible>
     </div>

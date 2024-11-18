@@ -71,23 +71,32 @@ export default function WorkoutDayExerciseComponent({
             </span>
           </div>
           <div className="flex gap-x-4 align-center ">
-            <Button onClick={onClick} className="h-auto p-0" variant="ghost">
+            <Button
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent the parent div's onClick from triggering
+                onClick();
+              }}
+              className="h-6 w-6 p-0"
+              variant="ghost"
+            >
               <i className="fa fa-pencil" aria-hidden="true"></i>
             </Button>
             <Button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 onDuplicate(exercise, exercise?.id || 0);
               }}
-              className="h-auto p-0"
+              className="h-6 w-6 p-0"
               variant="ghost"
             >
               <i className="fa-regular fa-clone"></i>
             </Button>
             <Button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 onDelete(exercise?.id || 0);
               }}
-              className="h-auto p-0"
+              className="h-6 w-6 p-0"
               variant="ghost"
             >
               {selected && isDeleteLoading ? (

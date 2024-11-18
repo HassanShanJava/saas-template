@@ -74,7 +74,7 @@ const WorkoutStep1: React.FC = () => {
   const { form } = useOutletContext<ContextProps>();
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
-  const { data: memberList } = useGetMembersListQuery(orgId);
+  const { data: memberList } = useGetMembersListQuery({ id: Number(orgId), query: "" });
   const fileInput = form.getValues("file");
   const [files, setFiles] = useState<File[] | null>(fileInput ?? []);
 

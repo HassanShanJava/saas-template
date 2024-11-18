@@ -25,12 +25,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 import { GetRolesType, ResourceTypes } from "@/app/types/roles";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { useGetResourcesQuery, useGetRolesQuery } from "@/services/rolesApi";
 import { RoleForm } from "./../../roleform/form";
+
+
 
 export default function RoleTableView() {
   const role = (() => {
@@ -52,6 +61,7 @@ export default function RoleTableView() {
     isLoading: rolesLoading,
     refetch: rolesRefetch,
     error: rolesError,
+    isSuccess
   } = useGetRolesQuery(orgId);
 
   const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(undefined);
@@ -61,9 +71,18 @@ export default function RoleTableView() {
     isLoading,
     refetch,
     error,
+    isSuccess:resourceSuccess
   } = useGetResourcesQuery(selectedRoleId, {
     skip: selectedRoleId == undefined,
   });
+
+
+  useEffect(() => {
+    if (isSuccess && rolesData) {
+      setSelectedRoleId(rolesData[0].id);
+    }
+  }, [isSuccess, rolesData]);
+  console.log({ selectedRoleId }, "selectedRoleId")
 
   const permissionTableData = React.useMemo(() => {
     return Array.isArray(resourceData) ? convertToTableData(resourceData) : [];
@@ -99,13 +118,34 @@ export default function RoleTableView() {
             <span className="text-gray-500">
               {row?.original?.name}
             </span>
+
+
           </div>
         );
       },
     },
     {
       id: "no_access",
-      header: "No Access",
+      header: () => {
+        return (
+          <div className="flex gap-1">
+            <p className="text-nowrap">No Access</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger
+                  asChild
+                  className="hover:cursor-pointer"
+                >
+                  <Info className="size-5" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-52 ">
+                  User with this permission cannot access the module at all.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )
+      },
       cell: ({ row }) =>
         row.original.subRows?.length == 0 && (
           <Checkbox
@@ -119,7 +159,26 @@ export default function RoleTableView() {
     },
     {
       id: "read",
-      header: "Read",
+      header: () => {
+        return (
+          <div className="flex gap-1">
+            <p className="text-nowrap">Read</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger
+                  asChild
+                  className="hover:cursor-pointer"
+                >
+                  <Info className="size-5" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-52 ">
+                  User with this permission can view the module and its data but cannot make any changes.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )
+      },
       cell: ({ row }) =>
         row.original.subRows?.length == 0 && (
           <Checkbox
@@ -133,7 +192,26 @@ export default function RoleTableView() {
     },
     {
       id: "write",
-      header: "Write",
+      header: () => {
+        return (
+          <div className="flex gap-1">
+            <p className="text-nowrap">Write</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger
+                  asChild
+                  className="hover:cursor-pointer"
+                >
+                  <Info className="size-5" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-52 ">
+                  User with this permission can view, create, and edit data within the module but cannot delete it.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )
+      },
       cell: ({ row }) =>
         row.original.subRows?.length == 0 && (
           <Checkbox
@@ -147,7 +225,26 @@ export default function RoleTableView() {
     },
     {
       id: "full_access",
-      header: "Full Access",
+      header: () => {
+        return (
+          <div className="flex gap-1">
+            <p className="text-nowrap">Full Access</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger
+                  asChild
+                  className="hover:cursor-pointer"
+                >
+                  <Info className="size-5" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-52 ">
+                  User with this permission can view, create, edit, and delete data within the module.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )
+      },
       cell: ({ row }) =>
         row.original.subRows?.length == 0 && (
           <Checkbox
@@ -226,14 +323,14 @@ export default function RoleTableView() {
     setIsDialogOpen(true);
   };
 
-  return (
+  return resourceSuccess && (
     <div className="w-full ">
       <div className="flex items-center justify-between px-3 py-4 ">
         <div className="flex flex-1 items-center space-x-2">
           <div className="flex items-center  relative">
-            <Select
+            {<Select
               onValueChange={(value) => setSelectedRoleId(Number(value))}
-              defaultValue={undefined}
+              defaultValue={selectedRoleId + ""}
             >
               <SelectTrigger className="w-[220px] h-8 ">
                 <SelectValue placeholder="Select a Role" />
@@ -257,7 +354,7 @@ export default function RoleTableView() {
                   </>
                 )}
               </SelectContent>
-            </Select>
+            </Select>}
           </div>
           <div className="">
             {role !== "read" && <Button
@@ -279,12 +376,12 @@ export default function RoleTableView() {
           Create New
         </Button>}
       </div>
-      {isRoleFound ? (
+      
         <div className="rounded-none border border-border pb-4">
           <ScrollArea className="w-full relative  space-y-0">
             <ScrollBar orientation="vertical" />
             <Table className="w-full h-full max-h-96 overflow-y-auto relative custom-scrollbar">
-              <TableHeader className="bg-outletcolor sticky top-0 z-40">
+              <TableHeader className="bg-outletcolor sticky top-0 z-20">
                 {table?.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
@@ -353,13 +450,7 @@ export default function RoleTableView() {
             </Table>
           </ScrollArea>
         </div>
-      ) : (
-        <div className="h-[31rem] flex justify-center items-center">
-          <p className="text-lg font-semibold text-gray-400">
-            Please select a role from above to view his access
-          </p>
-        </div>
-      )}
+      
       {/* form data for create RoleForm */}
       <RoleForm
         data={formData}

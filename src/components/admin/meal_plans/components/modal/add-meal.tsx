@@ -181,15 +181,12 @@ const FoodForm = ({
                       className="flex justify-between items-center border border-transparent rounded-sm hover:border-primary px-2 py-1 hover:cursor-pointer"
                     >
                       <div key={food.id} className="flex items-center gap-2">
-                        <img
-                          src={
-                            food?.img_url &&
-                            food?.img_url.includes(VITE_VIEW_S3_URL)
-                              ? food?.img_url
-                              : `${VITE_VIEW_S3_URL}/${food.img_url}`
-                          }
+                        {food.img_url ? <img
+                          src={(food?.img_url && food?.img_url.includes(VITE_VIEW_S3_URL) ? food?.img_url : `${VITE_VIEW_S3_URL}/${food.img_url}`)}
                           className="size-9 rounded-sm object-contain"
-                        />
+                        /> : (
+                          <div className="size-8 bg-gray-100 rounded-sm"></div>
+                        )}
                         <div>
                           <p className="text-sm font-semibold text-gray-900 capitalize">
                             {food.name}
@@ -220,14 +217,12 @@ const FoodForm = ({
             <form noValidate className="flex flex-col gap-3">
               {/* image */}
               <div className="flex items-center gap-2">
-                <img
-                  src={
-                    selectedFood.img_url?.includes(VITE_VIEW_S3_URL)
-                      ? selectedFood.img_url
-                      : `${VITE_VIEW_S3_URL}/${selectedFood.img_url}`
-                  }
+                {selectedFood.img_url ? <img
+                  src={(selectedFood.img_url.includes(VITE_VIEW_S3_URL) ? selectedFood.img_url : `${VITE_VIEW_S3_URL}/${selectedFood.img_url}`)}
                   className="size-9 rounded-sm object-contain"
-                />
+                /> : (
+                  <div className="size-8 bg-gray-100 rounded-sm"></div>
+                )}
                 <div>
                   <p className="capitalize text-sm font-semibold text-gray-900">
                     {selectedFood.name}

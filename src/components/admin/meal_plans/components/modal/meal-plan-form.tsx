@@ -170,7 +170,7 @@ const MealPlanForm = ({
   const [openFood, setOpenFood] = useState(false);
   const [pieChartData, setPieChart] = useState(chartData);
   const [files, setFiles] = useState<File[] | null>([]);
-  const { data: membersData } = useGetMembersListQuery(orgId);
+  const { data: membersData } = useGetMembersListQuery({ id: Number(orgId), query: "" });
   const [foodList, setFoodList] = useState<CreateFoodTypes[] | []>([]);
   const [searchCretiria, setSearchCretiria] =
     useState<searchCretiriaType>(initialFoodValue);

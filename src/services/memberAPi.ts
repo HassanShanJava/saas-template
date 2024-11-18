@@ -123,9 +123,9 @@ export const MemberAPi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Members"],
     }),
-    getMembersList: builder.query<{ value: number; label: string }[], number>({
-      query: (org_id) => ({
-        url: `/member/list/${org_id}`,
+    getMembersList: builder.query<{ value: number; label: string }[], { id: number, query: string }>({
+      query: ({ id, query }) => ({
+        url: `/member/list/${id}${query !== "" ? "?" + query : ""}`,
         headers: {
           Accept: "application/json",
         },

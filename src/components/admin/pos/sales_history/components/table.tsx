@@ -131,7 +131,7 @@ export default function SaleshistoryRegisterViewTable() {
       skip: query == "",
     }
   );
-  const { data: membersData } = useGetMembersListQuery(orgId);
+  const { data: membersData } = useGetMembersListQuery({ id: Number(orgId), query: "" });
 
   useEffect(() => {
     setSearchCriteria((prev) => {

@@ -111,6 +111,8 @@ const QRCodePage: React.FC = () => {
       return () => clearInterval(interval);
     }
   }, [staffvalidation, isChecking, refetch, userId]);
+
+  console.log("qrcode-code", token);
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h2 className="text-lg font-bold mb-4">Scan the QR Code</h2>

@@ -153,7 +153,7 @@ const LeadForm: React.FC = () => {
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: typedError.data?.detail,
+          description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({

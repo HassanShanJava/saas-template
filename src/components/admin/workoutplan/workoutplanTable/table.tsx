@@ -64,7 +64,10 @@ import { Badge } from "@/components/ui/badge";
 export default function WorkoutPlansTableView() {
   const workout = (() => {
     try {
-      return JSON.parse(localStorage.getItem("accessLevels") as string).workout ?? "no_access";
+      return (
+        JSON.parse(localStorage.getItem("accessLevels") as string).workout ??
+        "no_access"
+      );
     } catch {
       return "no_access";
     }
@@ -158,7 +161,8 @@ export default function WorkoutPlansTableView() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: typedError.data?.detail ?? "Internal Server Error",
+        // description: typedError.data?.detail ?? "Internal Server Error",
+        description: typedError.data?.detail || typedError.data?.message,
       });
     }
   }, [isError]);
@@ -183,15 +187,15 @@ export default function WorkoutPlansTableView() {
       const resp =
         updateType === "level"
           ? await updateGrid({
-            level: payload.level!,
-            id: payload.id,
-            weeks: payload.weeks,
-          }).unwrap()
+              level: payload.level!,
+              id: payload.id,
+              weeks: payload.weeks,
+            }).unwrap()
           : await updateGrid({
-            goals: payload.goals!,
-            id: payload.id,
-            weeks: payload.weeks,
-          }).unwrap();
+              goals: payload.goals!,
+              id: payload.id,
+              weeks: payload.weeks,
+            }).unwrap();
 
       refetch();
 
@@ -491,19 +495,19 @@ export default function WorkoutPlansTableView() {
 
   type FilterDisplayItem =
     | {
-      type: "select";
-      name: "visible_for" | "level" | "is_published";
-      label: string;
-      options?: Option[];
-      function: (value: string) => void;
-    }
+        type: "select";
+        name: "visible_for" | "level" | "is_published";
+        label: string;
+        options?: Option[];
+        function: (value: string) => void;
+      }
     | {
-      type: "multiselect";
-      name: "goals";
-      label: string;
-      options?: { value: string; label: string }[];
-      function: (value: string[]) => void;
-    };
+        type: "multiselect";
+        name: "goals";
+        label: string;
+        options?: { value: string; label: string }[];
+        function: (value: string[]) => void;
+      };
 
   const handleFilterChange = <T extends keyof Filter>(
     key: T,
@@ -617,9 +621,9 @@ export default function WorkoutPlansTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

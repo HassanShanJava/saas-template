@@ -56,7 +56,6 @@ import Pagination from "@/components/ui/table/pagination-table";
 import { displayValue, formatToPKR, roundToTwoDecimals } from "@/utils/helper";
 import { status } from "@/constants/global";
 
-
 const initialValue = {
   limit: 10,
   offset: 0,
@@ -67,8 +66,8 @@ const initialValue = {
 
 const durationLabels = {
   week: "Weeks",
-  bi_annual: 'Bi Annually',
-  quarter: 'Quaterly',
+  bi_annual: "Bi Annually",
+  quarter: "Quaterly",
   month: "Months",
   year: "Years",
 } as const;
@@ -84,7 +83,10 @@ interface SearchCriteriaType {
 export default function MembershipsTableView() {
   const membership = (() => {
     try {
-      return JSON.parse(localStorage.getItem("accessLevels") as string).membership ?? "no_access";
+      return (
+        JSON.parse(localStorage.getItem("accessLevels") as string).membership ??
+        "no_access"
+      );
     } catch {
       return "no_access";
     }
@@ -184,7 +186,6 @@ export default function MembershipsTableView() {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-
   const handleStatusChange = async (payload: {
     status: string;
     id: number;
@@ -208,7 +209,7 @@ export default function MembershipsTableView() {
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: typedError.data?.detail,
+          description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({
@@ -522,7 +523,6 @@ export default function MembershipsTableView() {
     },
   });
 
-
   const handleOpen = () => {
     setAction("add");
     setIsDialogOpen(true);
@@ -662,9 +662,9 @@ export default function MembershipsTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

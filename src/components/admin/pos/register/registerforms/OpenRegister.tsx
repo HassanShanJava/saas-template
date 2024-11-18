@@ -37,8 +37,8 @@ const OpenRegister: React.FC = () => {
   const pos_register = (() => {
     try {
       return (
-        JSON.parse(localStorage.getItem("accessLevels") as string).pos_register ??
-        "no_access"
+        JSON.parse(localStorage.getItem("accessLevels") as string)
+          .pos_register ?? "no_access"
       );
     } catch {
       return "no_access";
@@ -90,7 +90,7 @@ const OpenRegister: React.FC = () => {
         };
 
         if (resp) {
-          refetch()
+          refetch();
 
           toast({
             variant: "success",
@@ -107,7 +107,7 @@ const OpenRegister: React.FC = () => {
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: `${typedError.data?.detail}`,
+          description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({
@@ -214,38 +214,43 @@ const OpenRegister: React.FC = () => {
           )}
         </div>
         {/* Open Register Form */}
-        {pos_register !== "read" && <div className="w-full slg:w-[50%]  flex flex-col items-center rounded-lg shadow-md ">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-            Open Register
-          </h2>
-          <p className="text-center text-gray-600 mb-6">
-            Please open register with opening balance
-          </p>
-          <div className="w-[80%] p-6 rounded-md  flex flex-col justify-between gap-3">
-            <FloatingLabelInput
-              id="openingBalance"
-              type="number"
-              label="Opening Balance*"
-              step="0"
-              {...register("opening_balance", {
-                required: "Please provide opening balance",
-                min: { value: 0, message: "Opening balance must be positive" },
-              })}
-              error={errors.opening_balance?.message}
-            />
+        {pos_register !== "read" && (
+          <div className="w-full slg:w-[50%]  flex flex-col items-center rounded-lg shadow-md ">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+              Open Register
+            </h2>
+            <p className="text-center text-gray-600 mb-6">
+              Please open register with opening balance
+            </p>
+            <div className="w-[80%] p-6 rounded-md  flex flex-col justify-between gap-3">
+              <FloatingLabelInput
+                id="openingBalance"
+                type="number"
+                label="Opening Balance*"
+                step="0"
+                {...register("opening_balance", {
+                  required: "Please provide opening balance",
+                  min: {
+                    value: 0,
+                    message: "Opening balance must be positive",
+                  },
+                })}
+                error={errors.opening_balance?.message}
+              />
 
-            <div className="flex justify-center items-center">
-              <LoadingButton
-                type="submit"
-                className="bg-primary text-sm mt-6 w-40   text-white transition flex items-center gap-1  lg:mb-0 h-8 px-2 duration-300"
-                loading={openRegisterLoading}
-                disabled={openRegisterLoading}
-              >
-                {openRegisterLoading ? `Opening...` : `Open Register`}
-              </LoadingButton>
+              <div className="flex justify-center items-center">
+                <LoadingButton
+                  type="submit"
+                  className="bg-primary text-sm mt-6 w-40   text-white transition flex items-center gap-1  lg:mb-0 h-8 px-2 duration-300"
+                  loading={openRegisterLoading}
+                  disabled={openRegisterLoading}
+                >
+                  {openRegisterLoading ? `Opening...` : `Open Register`}
+                </LoadingButton>
+              </div>
             </div>
           </div>
-        </div>}
+        )}
       </div>
     </form>
   );

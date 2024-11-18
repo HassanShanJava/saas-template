@@ -183,7 +183,7 @@ const FoodForm = ({
     }
     handleClose();
   };
-  
+
   return (
     <Sheet open={isOpen}>
       <SheetContent
@@ -226,14 +226,14 @@ const FoodForm = ({
 
                     <LoadingButton
                       type="submit"
-                      className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
+                      className="w-[120px] bg-primary text-black text-center flex items-center gap-2"
                       loading={isSubmitting}
                       disabled={isSubmitting}
                     >
                       {!isSubmitting && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
-                      Save
+                      {action == "add" ? "Save " : "Update "}
                     </LoadingButton>
                   </div>
                 </div>

@@ -65,7 +65,7 @@ export function DataTableRowActions<TData>({
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: typedError.data?.detail,
+          description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({
@@ -110,12 +110,11 @@ export function DataTableRowActions<TData>({
 
             <DropdownMenuItem
               className="text-nowrap"
-              onClick={()=>handleNavigate(data)}
+              onClick={() => handleNavigate(data)}
             >
               <i className="fa-regular fa-eye mr-2 h-4 w-4"></i>
               View Member Detail
             </DropdownMenuItem>
-
           </DropdownMenuContent>
         </DropdownMenu>
         {isdelete && (

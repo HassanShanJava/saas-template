@@ -28,12 +28,12 @@ export function DataTableRowActions({
   data,
   refetch,
   handleEdit,
-  access
+  access,
 }: {
   data: CreateFoodTypes;
   refetch?: any;
   handleEdit?: any;
-  access:string
+  access: string;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const [deleteFoods] = useDeleteFoodsMutation();
@@ -57,7 +57,7 @@ export function DataTableRowActions({
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: typedError.data?.detail,
+          description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({
@@ -89,10 +89,12 @@ export function DataTableRowActions({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            {access=="full_access"&&<DropdownMenuItem onClick={() => setIsDelete(true)}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>}
+            {access == "full_access" && (
+              <DropdownMenuItem onClick={() => setIsDelete(true)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </Dialog>

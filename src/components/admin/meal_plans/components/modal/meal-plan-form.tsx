@@ -229,11 +229,16 @@ const MealPlanForm = ({
   const [updateMealplan] = useUpdateMealPlansMutation();
 
   // Optimized state update
-  const updatePieChartData = (data: { protein: number, fats: number, carbs: number }) => {
+  const updatePieChartData = (data: {
+    protein: number;
+    fats: number;
+    carbs: number;
+  }) => {
     setPieChart((prevData) =>
       prevData.map((item) => ({
         ...item,
-        percentage: data[item.food_component as keyof typeof data] ?? item.percentage,
+        percentage:
+          data[item.food_component as keyof typeof data] ?? item.percentage,
       }))
     );
   };
@@ -325,7 +330,11 @@ const MealPlanForm = ({
       const mealsState = createMealsState();
       setMeals(mealsState);
       reset(data as MealPlanDataType);
-      updatePieChartData({ protein: data.protein as number, fats: data.fats as number, carbs: data.carbs as number })
+      updatePieChartData({
+        protein: data.protein as number,
+        fats: data.fats as number,
+        carbs: data.carbs as number,
+      });
     } else if (action == "add" && data == undefined) {
       console.log({ initialValue }, "add");
       reset(initialValue, { keepIsSubmitted: false, keepSubmitCount: false });
@@ -376,7 +385,7 @@ const MealPlanForm = ({
         toast({
           variant: "destructive",
           title: "Error in Submission",
-          description: `${typedError.data?.detail}`,
+          description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({
@@ -483,7 +492,11 @@ const MealPlanForm = ({
       const percentages = calculatePercentages(updatedMeals);
 
       // Update the pie chart data
-      updatePieChartData({ protein: percentages.protein as number, fats: percentages.fat as number, carbs: percentages.carbs as number })
+      updatePieChartData({
+        protein: percentages.protein as number,
+        fats: percentages.fat as number,
+        carbs: percentages.carbs as number,
+      });
 
       // Update the watcher meals state as an array
       const currentMeals = getValues("meals") as {
@@ -545,7 +558,11 @@ const MealPlanForm = ({
       const percentages = calculatePercentages(updatedMeals);
 
       // Update the pie chart data
-      updatePieChartData({ protein: percentages.protein as number, fats: percentages.fat as number, carbs: percentages.carbs as number })
+      updatePieChartData({
+        protein: percentages.protein as number,
+        fats: percentages.fat as number,
+        carbs: percentages.carbs as number,
+      });
 
       return updatedMeals;
     });
@@ -636,7 +653,7 @@ const MealPlanForm = ({
 
                     <LoadingButton
                       type="submit"
-                      className="w-[100px] bg-primary text-black text-center flex items-center gap-2"
+                      className="w-[120px] bg-primary text-black text-center flex items-center gap-2"
                       onClick={handleSubmit(onSubmit, onError)}
                       loading={isSubmitting}
                       disabled={isSubmitting}
@@ -644,7 +661,7 @@ const MealPlanForm = ({
                       {!isSubmitting && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
-                      Save
+                      {data ? "Update" : "Save"}
                     </LoadingButton>
                   </div>
                 </div>
@@ -719,7 +736,7 @@ const MealPlanForm = ({
                                     src={
                                       watcher?.profile_img !== "" &&
                                       watcher?.profile_img
-                                        ? watcher.profile_img.includes(
+                                        ? watcher.profile_img?.includes(
                                             VITE_VIEW_S3_URL
                                           )
                                           ? watcher.profile_img

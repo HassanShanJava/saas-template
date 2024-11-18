@@ -163,7 +163,8 @@ export default function CashregisterViewTable() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: typedError.data?.detail ?? "Internal Server Errors",
+        // description: typedError.data?.detail ?? "Internal Server Errors",
+        description: typedError.data?.detail || typedError.data?.message,
       });
     }
   }, [isError]);
@@ -377,12 +378,20 @@ export default function CashregisterViewTable() {
         </div>
       ),
       cell: ({ row }) => {
+        const Discrepancy = row.original.discrepancy;
         return (
           <div className="flex gap-2 items-center justify-between w-fit">
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span
-                  className={`${row.original.discrepancy !== 0 ? "text-red-500" : "text-black"}`}
+                  // className={`${row.original.discrepancy !== 0 ? "text-red-500" : "text-black"}`}
+                  className={`${
+                    Discrepancy && Discrepancy > 0
+                      ? "text-green-500"
+                      : Discrepancy && Discrepancy < 0
+                        ? "text-red-500"
+                        : "text-black"
+                  }`}
                 >
                   {row.original.discrepancy as number > 0 ? formatToPKR(row.original.discrepancy) : "N/A"}
                 </span>
@@ -496,7 +505,7 @@ export default function CashregisterViewTable() {
                         {displayValue(
                           `${row.original.created_by}`.length > 15
                             ? `${row.original.created_by}`.substring(0, 15) +
-                            "..."
+                                "..."
                             : `${row.original.created_by}`
                         )}
                       </span>
@@ -686,9 +695,9 @@ export default function CashregisterViewTable() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

@@ -37,18 +37,24 @@ const AssignCounter = ({
 }: AssignCounterForm) => {
   const { toast } = useToast();
   const [cashiers, setCashiers] = useState<any[]>([]);
-  console.log({ data })
+  console.log({ data });
   useEffect(() => {
     if (data) {
-      setCashiers(data.staff)
+      setCashiers(data.staff);
     }
-  }, [data, setData])
+  }, [data, setData]);
 
-
-  const [updateCounter] = useUpdateCountersMutation()
+  const [updateCounter] = useUpdateCountersMutation();
   const unassignCashier = async (id: number) => {
-    const newCashierList = cashiers.filter((user) => user.id != id).map((user) =>user.id)
-    const payload = { id: data?.id, name: data?.name, status: data?.status, staff_ids: newCashierList }
+    const newCashierList = cashiers
+      .filter((user) => user.id != id)
+      .map((user) => user.id);
+    const payload = {
+      id: data?.id,
+      name: data?.name,
+      status: data?.status,
+      staff_ids: newCashierList,
+    };
 
     try {
       const resp = await updateCounter(payload).unwrap();
@@ -60,7 +66,7 @@ const AssignCounter = ({
           title: "Counter Updated Successfully",
         });
       }
-      setOpen(false)
+      setOpen(false);
     } catch (error) {
       console.error("Error", { error });
       if (error && typeof error === "object" && "data" in error) {
@@ -68,7 +74,7 @@ const AssignCounter = ({
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: typedError.data?.detail,
+          description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({
@@ -78,18 +84,16 @@ const AssignCounter = ({
         });
       }
     }
-  }
+  };
 
   return (
     <div>
-      <Sheet
-        open={isOpen}
-        onOpenChange={setOpen}
-      >
+      <Sheet open={isOpen} onOpenChange={setOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle >
-              Assigned Cashiers for <span className="capitalize">{data?.name}</span>
+            <SheetTitle>
+              Assigned Cashiers for{" "}
+              <span className="capitalize">{data?.name}</span>
             </SheetTitle>
             <SheetDescription>
               <Separator className=" h-[1px] font-thin rounded-full" />
@@ -101,20 +105,30 @@ const AssignCounter = ({
                 noValidate
               >
                 <div className="flex flex-col justify-between items-center gap-2">
-                  {cashiers.length > 0 ? cashiers?.map((item: any) => (
-                    <div onClick={() => unassignCashier(item.id)} className="cursor-pointer flex items-center justify-between w-full p-2 border border-transparent hover:border-primary rounded-md">
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="remove_cashier" className="capitalize">{item.name}</Label>
-                        <span className="text-blue-400">{data?.staff_id==item.id&&"In Use"}</span>
+                  {cashiers.length > 0 ? (
+                    cashiers?.map((item: any) => (
+                      <div
+                        onClick={() => unassignCashier(item.id)}
+                        className="cursor-pointer flex items-center justify-between w-full p-2 border border-transparent hover:border-primary rounded-md"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Label
+                            htmlFor="remove_cashier"
+                            className="capitalize"
+                          >
+                            {item.name}
+                          </Label>
+                          <span className="text-blue-400">
+                            {data?.staff_id == item.id && "In Use"}
+                          </span>
+                        </div>
+                        <i className="fa fa-xmark"></i>
                       </div>
-                      <i className="fa fa-xmark"></i>
-                    </div>
-                  )) : (
+                    ))
+                  ) : (
                     <p>No Cashiers assigned</p>
                   )}
                 </div>
-
-
               </form>
               {/* </Form> */}
             </SheetDescription>
@@ -125,5 +139,4 @@ const AssignCounter = ({
   );
 };
 
-
-export default AssignCounter
+export default AssignCounter;

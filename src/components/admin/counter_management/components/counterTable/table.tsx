@@ -11,8 +11,6 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 
-
-
 import {
   Tooltip,
   TooltipContent,
@@ -93,7 +91,10 @@ const initialValue = {
 export default function CounterTableView() {
   const pos_count = (() => {
     try {
-      return JSON.parse(localStorage.getItem("accessLevels") as string).pos_count ?? "no_access";
+      return (
+        JSON.parse(localStorage.getItem("accessLevels") as string).pos_count ??
+        "no_access"
+      );
     } catch {
       return "no_access";
     }
@@ -103,7 +104,7 @@ export default function CounterTableView() {
 
   const [action, setAction] = useState<"add" | "edit">("add");
   const { data: staffList } = useGetStaffListQuery(orgId);
-  const { data: staffData } = useGetStaffsQuery({ org_id: orgId, query: '' });
+  const { data: staffData } = useGetStaffsQuery({ org_id: orgId, query: "" });
 
   // counter form
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
@@ -331,13 +332,18 @@ export default function CounterTableView() {
       meta: "Used By",
       header: () => <p className="text-nowrap">Staff</p>,
       cell: ({ row }) => {
-        const staff = staffDataList.find((staff) => staff.id === row.original.staff_id)
-        return (
-          row.original.staff_id ? <div className="flex flex-col items-left text-ellipsis whitespace-nowrap overflow-hidden">
-            <p className="capitalize text-xs">{(staff?.first_name + " " + (staff?.last_name ?? ""))}</p>
-            <p className="text-xs text-gray-400">{(staff?.email)}</p>
-          </div> : <p>N/A
-          </p>
+        const staff = staffDataList.find(
+          (staff) => staff.id === row.original.staff_id
+        );
+        return row.original.staff_id ? (
+          <div className="flex flex-col items-left text-ellipsis whitespace-nowrap overflow-hidden">
+            <p className="capitalize text-xs">
+              {staff?.first_name + " " + (staff?.last_name ?? "")}
+            </p>
+            <p className="text-xs text-gray-400">{staff?.email}</p>
+          </div>
+        ) : (
+          <p>N/A</p>
         );
       },
       enableSorting: false,
@@ -432,7 +438,7 @@ export default function CounterTableView() {
           title: "Counter Updated Successfully",
         });
       } else {
-        throw resp.error
+        throw resp.error;
       }
     } catch (error) {
       console.error("Error", error);
@@ -559,9 +565,9 @@ export default function CounterTableView() {
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                       </TableHead>
                     );
                   })}

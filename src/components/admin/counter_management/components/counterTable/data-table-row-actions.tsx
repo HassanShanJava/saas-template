@@ -27,19 +27,18 @@ export function DataTableRowActions({
   data,
   refetch,
   handleEdit,
-  access
+  access,
 }: {
   data: CounterDataType;
   refetch?: any;
   handleEdit?: any;
-  access: string
+  access: string;
 }) {
   const [isdelete, setIsDelete] = React.useState(false);
   const { toast } = useToast();
-  const [deleteCounter] = useDeleteCounterMutation()
+  const [deleteCounter] = useDeleteCounterMutation();
   const deleteRow = async () => {
     try {
-
       const resp = await deleteCounter(data?.id as number).unwrap();
       if (resp) {
         refetch();
@@ -56,7 +55,7 @@ export function DataTableRowActions({
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: typedError.data?.detail,
+          description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({
@@ -88,10 +87,12 @@ export function DataTableRowActions({
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            {access == "full_access" && <DropdownMenuItem onClick={() => setIsDelete(true)}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>}
+            {access == "full_access" && (
+              <DropdownMenuItem onClick={() => setIsDelete(true)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </Dialog>
@@ -103,7 +104,8 @@ export function DataTableRowActions({
                 <div className="flex flex-col items-center  justify-center gap-4">
                   <img src={warning} alt="warning" className="w-18 h-18" />
                   <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Are you sure you want to delete this counter? This action cannot be undone.
+                    Are you sure you want to delete this counter? This action
+                    cannot be undone.
                   </AlertDialogTitle>
                 </div>
                 <div className="w-full flex justify-between items-center gap-3 mt-4">

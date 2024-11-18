@@ -1,12 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 
 import { StepperFormValues } from "@/types/hook-stepper";
@@ -25,7 +20,10 @@ import {
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { ErrorType, LimitedAccessTime, membeshipsTableType } from "@/app/types";
-import { cleanLimitedAccessTime, replaceNullWithDefaults } from "@/utils/helper";
+import {
+  cleanLimitedAccessTime,
+  replaceNullWithDefaults,
+} from "@/utils/helper";
 // import { motion, AnimatePresence } from 'framer-motion';
 interface membershipFormTypes {
   isOpen: boolean;
@@ -127,9 +125,8 @@ const MembershipForm = ({
       const updatedObject = {
         ...data,
         ...data?.renewal_details,
-        limited_access_time:replaceNullWithDefaults(data?.limited_access_time)
+        limited_access_time: replaceNullWithDefaults(data?.limited_access_time),
       };
-
 
       console.log({ updatedObject }, "edit");
       reset(updatedObject as StepperFormValues);
@@ -148,12 +145,12 @@ const MembershipForm = ({
     payload.created_by = userId;
     payload.renewal_details = {};
 
-
-
     if (payload.access_type == "no_restriction") {
       payload.limited_access_time = {};
     } else {
-      payload.limited_access_time = cleanLimitedAccessTime(payload?.limited_access_time as LimitedAccessTime)
+      payload.limited_access_time = cleanLimitedAccessTime(
+        payload?.limited_access_time as LimitedAccessTime
+      );
     }
 
     if (payload.auto_renewal) {
@@ -177,8 +174,11 @@ const MembershipForm = ({
           validate.check = true;
           validate.reason = "Credit type is required";
         }
-        
-        if (item.credit_type === "amount" && item.validity.type === "contract_duration") {
+
+        if (
+          item.credit_type === "amount" &&
+          item.validity.type === "contract_duration"
+        ) {
           item.validity.duration = 0;
         }
 
@@ -283,7 +283,7 @@ const MembershipForm = ({
         toast({
           variant: "destructive",
           title: "Error in form Submission",
-          description: typedError.data?.detail,
+          description: `${typedError.data?.detail || (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({
@@ -300,7 +300,9 @@ const MembershipForm = ({
 
   const handleNext = async () => {
     const isStepValid = await trigger(undefined, { shouldFocus: true });
-    const limitedAccessData = getValues("limited_access_time") as LimitedAccessTime;
+    const limitedAccessData = getValues(
+      "limited_access_time"
+    ) as LimitedAccessTime;
 
     if (activeStep === 1 && access_type === "limited-access") {
       console.log("inside step 1");
@@ -310,9 +312,16 @@ const MembershipForm = ({
         const slots = limitedAccessData[day];
         return slots.some((currentSlot, index) => {
           // Check each slot against the subsequent slots in the same day
-          return slots.slice(index + 1).some((otherSlot) =>
-            isTimeOverlap(currentSlot.from_time, currentSlot.to_time, otherSlot.from_time, otherSlot.to_time)
-          );
+          return slots
+            .slice(index + 1)
+            .some((otherSlot) =>
+              isTimeOverlap(
+                currentSlot.from_time,
+                currentSlot.to_time,
+                otherSlot.from_time,
+                otherSlot.to_time
+              )
+            );
         });
       });
 
@@ -380,7 +389,6 @@ const MembershipForm = ({
   };
 
   console.log({ watcher, errors });
-
 
   return (
     <Sheet open={isOpen}>

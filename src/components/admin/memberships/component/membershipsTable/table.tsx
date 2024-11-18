@@ -53,7 +53,7 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { useDebounce } from "@/hooks/use-debounce";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
-import { displayValue, roundToTwoDecimals } from "@/utils/helper";
+import { displayValue, formatToPKR, roundToTwoDecimals } from "@/utils/helper";
 import { status } from "@/constants/global";
 
 
@@ -368,7 +368,7 @@ export default function MembershipsTableView() {
       ),
       cell: ({ row }) => {
         const { net_price } = row.original;
-        return <span>{`Rs. ${net_price}`}</span>;
+        return <span>{formatToPKR(net_price)}</span>;
       },
       enableSorting: false,
       enableHiding: false,
@@ -445,7 +445,7 @@ export default function MembershipsTableView() {
       ),
       cell: ({ row }) => {
         const { total_price } = row.original;
-        return <span className="text-nowrap">{`Rs. ${total_price}`}</span>;
+        return <span className="text-nowrap">{formatToPKR(total_price)}</span>;
       },
       enableSorting: false,
       enableHiding: false,

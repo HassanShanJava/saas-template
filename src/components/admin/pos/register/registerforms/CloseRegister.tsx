@@ -9,7 +9,7 @@ import {
   useCloseRegisterMutation,
   useGetlastRegisterSessionQuery,
 } from "@/services/registerApi";
-import { displayDateTime, displayValue } from "@/utils/helper";
+import { displayDateTime, displayValue, formatToPKR } from "@/utils/helper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorType } from "@/app/types";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
@@ -159,13 +159,13 @@ const CloseRegister: React.FC = () => {
                     <span className="text-sm font-semibold">
                       Total Cash Recieved:
                     </span>{" "}
-                    {displayValue(counterData?.total_amount?.toString())}
+                    {formatToPKR(counterData?.total_amount)}
                   </p>
                   <p className="text-sm flex gap-2">
                     <span className="text-sm font-semibold">
                       Total Refund Amount:
                     </span>{" "}
-                    {displayValue(counterData?.refund_amount?.toString())}
+                    {formatToPKR(counterData?.refund_amount)}
                   </p>
                 </div>
               </div>

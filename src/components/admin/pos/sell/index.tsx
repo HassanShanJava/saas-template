@@ -34,7 +34,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useGetMembershipsQuery } from "@/services/membershipsApi";
 import { Separator } from "@/components/ui/separator";
-import { displayDate, roundToTwoDecimals } from "@/utils/helper";
+import { displayDate, formatToPKR, roundToTwoDecimals } from "@/utils/helper";
 import { useDebounce } from "@/hooks/use-debounce";
 import { ErrorType, SellForm, SellItem } from "@/app/types";
 import { MemberTableDatatypes } from "@/app/types/member";
@@ -630,7 +630,7 @@ const Sell = () => {
                                 onClick={() => addProduct(product, category?.type)}
                                 className={`relative group ${!watcher.id || (id && watcher.transaction_type == "Refund") && "hover:bg-primary/20 hover:text-black/60 cursor-pointer"} size-28 text-sm  flex flex-col gap-2 bg-primary/30 justify-center items-center p-2 rounded-sm `}>
                                 <span className="capitalize">{product.name}</span>
-                                <span>Rs. {product.net_price}</span>
+                                <span>{formatToPKR(product.net_price)}</span>
 
                                 {!watcher.id || (id && watcher.transaction_type == "Refund") && <span className="absolute invisible group-hover:visible  bottom-0   text-black/80 text-sm z-20 p-1">Add</span>}
                               </button>
@@ -685,10 +685,10 @@ const Sell = () => {
                             <div>
                               <p className="capitalize">{product.description}</p>
                               {product.discount > 0 && <p className="line-through text-sm text-gray-500 text-left">
-                                Rs. {roundToTwoDecimals(product.sub_total)}
+                                {formatToPKR(product.sub_total)}
 
                               </p>}
-                              <p className="text-sm">Rs. {product.sub_total - product.discount}
+                              <p className="text-sm">{formatToPKR(product.sub_total - product.discount)}
                                 <span className="text-xs"> ({product.tax_rate}%)</span>
                               </p>
                             </div>
@@ -725,7 +725,7 @@ const Sell = () => {
                     <div className="space-y-2 px-2 bg-gray-100 pt-2 ">
                       <div className="w-full flex gap-2  items-center justify-between">
                         <p>Subtotal</p>
-                        <p>Rs. {watcher.subtotal}</p> {/* Display Subtotal */}
+                        <p>{formatToPKR(watcher.subtotal)}</p> {/* Display Subtotal */}
                       </div>
 
                       <div className="w-full flex gap-2 items-center justify-between">
@@ -747,13 +747,13 @@ const Sell = () => {
 
                       <div className="w-full flex gap-2 items-center justify-between">
                         <p>Tax</p>
-                        <p>Rs. {watcher.tax_amt}</p> {/* Display Tax */}
+                        <p>{formatToPKR(watcher.tax_amt)}</p> {/* Display Tax */}
                       </div>
 
 
                       <div className="w-full flex gap-2 items-center justify-between font-bold">
                         <p>Total</p>
-                        <p>Rs. {id && watcher.status == "Paid" && "-"} {watcher.total}</p> {/* Display Total */}
+                        <p>{formatToPKR((id && watcher.transaction_type == "Refund" ? -Number(watcher.total) : watcher.total) as number)}</p> {/* Display Total */}
                       </div>
                       <Separator className="my-2" />
                       <div className="w-full flex gap-2 items-center justify-between font-bold">
@@ -954,7 +954,7 @@ export function CustomerCombobox({ customerList, setCustomer, customer, label, d
               {modifiedList?.map((customer: any) => (
                 <CommandItem
                   key={customer.value + ""}
-                  value={customer.value+ ""}
+                  value={customer.value + ""}
                   onSelect={(currentValue) => {
                     setValue(currentValue == value ? "" : currentValue)
                     const customer = customerList?.find((item: MemberTableDatatypes) => item.id == +currentValue)

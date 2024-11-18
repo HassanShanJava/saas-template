@@ -10,6 +10,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { formatToPKR } from "@/utils/helper";
 
 interface AlertDiscrepancyProps {
   isOpen: boolean;
@@ -30,7 +31,7 @@ export function AlertDiscrepancy({
         <AlertDialogHeader>
           <AlertDialogTitle>Discrepancy Detected</AlertDialogTitle>
           <AlertDialogDescription className="bg-yellow-100 p-4 rounded text-yellow-800 text-sm">
-            Warning: There's a discrepancy of {discrepancy} in the closing
+            Warning: There's a discrepancy of {formatToPKR(discrepancy)} in the closing
             balance. Do you want to proceed?
           </AlertDialogDescription>
         </AlertDialogHeader>

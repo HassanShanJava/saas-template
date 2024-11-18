@@ -4,7 +4,7 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import { roundToTwoDecimals } from "@/utils/helper";
+import { formatToPKR, roundToTwoDecimals } from "@/utils/helper";
 import { toast } from "@/components/ui/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -162,6 +162,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
             (acc: number, payment: Payments) => acc + payment.amount,
             0
         );
+        console.log({ totalPayments }, watcher.total)
 
         if (totalPayments > watcher.total) {
             toast({
@@ -193,7 +194,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                 // for new complete sale or refund 
                 payload.status = "Paid"
                 const resp = await createTransaction(payload).unwrap();
-                console.log({resp})
+                console.log({ resp })
                 if (resp) {
                     toast({
                         variant: "success",
@@ -249,7 +250,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
         setShowCheckout(false)
     }
 
-    console.log({invoiceId},"invoiceId")
+    console.log({ invoiceId }, "invoiceId")
     return (
 
         <div className=" ">
@@ -275,7 +276,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                                                 <p className="text-gray-500 ">Quantity: {product.quantity}</p>
                                             </div>
 
-                                            <div className="text-lg font-bold">Rs. {product.price}</div>
+                                            <div className="text-lg font-bold">{formatToPKR(product.price)}</div>
 
                                         </div >
                                     </>
@@ -291,17 +292,17 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                             </div>
                             <div className="flex justify-between items-center">
                                 <div>Discount</div>
-                                <div className="font-bold">{watcher.discount_amt > 0 ? "-" : ""} {roundToTwoDecimals(watcher.discount_amt)}</div>
+                                <div className="font-bold">{formatToPKR(watcher.discount_amt > 0 ? -Number(watcher.discount_amt) : watcher.discount_amt)}</div>
                             </div>
                             <div className="flex justify-between items-center">
                                 <div>Tax</div>
-                                <div className="font-bold">{roundToTwoDecimals(watcher.tax_amt)}</div>
+                                <div className="font-bold">{formatToPKR(watcher.tax_amt)}</div>
                             </div>
                             <Separator />
 
                             <div className="flex justify-between items-center">
                                 <div className="text-xl font-bold">Total</div>
-                                <div className="text-xl font-bold">{id && watcher.transaction_type == "Refund" ? "- " : ""}{watcher.total}</div>
+                                <div className="text-xl font-bold">{formatToPKR((id && watcher.transaction_type == "Refund" ? -Number(watcher.total) : watcher.total) as number)}</div>
                             </div>
                             <Separator />
 
@@ -309,7 +310,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                             {watcher.payments.map((payment: Payments) => (
                                 <div className="flex justify-between items-center">
                                     <div>{payment.payment_method}</div>
-                                    <div className="font-bold">{payment.amount}</div>
+                                    <div className="font-bold text-right">{formatToPKR(payment.amount)}</div>
                                 </div>
                             ))}
                         </div>
@@ -392,7 +393,7 @@ export default function Checkout({ setShowCheckout, watcher, productPayload, cus
                     </div>
 
                     <div className="flex justify-end ">
-                        {invoiceId == null  ? (
+                        {invoiceId == null ? (
                             <div className="flex justify-end gap-3">
                                 <Button variant={"ghost"} onClick={() => setShowCheckout(false)}>
                                     Back

@@ -20,6 +20,7 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import {
   displayDateTime,
   displayValue,
+  formatToPKR,
   saveToLocalStorage,
 } from "@/utils/helper";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -175,7 +176,7 @@ const OpenRegister: React.FC = () => {
                   <span className="text-sm font-semibold">
                     Opening Balance:
                   </span>{" "}
-                  {displayValue(counterData?.opening_balance?.toString())}
+                  {formatToPKR(counterData?.opening_balance)}
                 </p>
                 <p className="text-sm flex gap-2">
                   <span className="text-sm font-semibold">Closing Time:</span>{" "}
@@ -185,7 +186,7 @@ const OpenRegister: React.FC = () => {
                   <span className="text-sm font-semibold">
                     Closing Balance:
                   </span>{" "}
-                  {displayValue(counterData?.closing_balance?.toString())}
+                  {formatToPKR(counterData?.closing_balance)}
                 </p>
                 <p className="text-sm flex gap-2">
                   <span className="text-sm font-semibold">Notes:</span>{" "}

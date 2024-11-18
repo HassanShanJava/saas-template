@@ -31,7 +31,7 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import Papa from "papaparse";
-import { displayDate, displayDateTime, displayValue, roundToTwoDecimals } from "@/utils/helper";
+import { displayDate, displayDateTime, displayValue, formatToPKR, roundToTwoDecimals } from "@/utils/helper";
 import Pagination from "@/components/ui/table/pagination-table";
 import usePagination from "@/hooks/use-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
@@ -294,7 +294,7 @@ export default function CashregisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {roundToTwoDecimals(row.original.opening_balance as number)}
+                  {formatToPKR(row.original.opening_balance)}
                 </span>
               </p>
             </div>
@@ -350,7 +350,7 @@ export default function CashregisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {row.original.closing_balance > 0 ? roundToTwoDecimals(row.original.closing_balance as number) : "N/A"}
+                  {row.original.closing_balance > 0 ? formatToPKR(row.original.closing_balance) : "N/A"}
                 </span>
               </p>
             </div>
@@ -384,7 +384,7 @@ export default function CashregisterViewTable() {
                 <span
                   className={`${row.original.discrepancy !== 0 ? "text-red-500" : "text-black"}`}
                 >
-                  {row.original.discrepancy as number > 0 ? roundToTwoDecimals(row.original.discrepancy as number) : "N/A"}
+                  {row.original.discrepancy as number > 0 ? formatToPKR(row.original.discrepancy) : "N/A"}
                 </span>
               </p>
             </div>

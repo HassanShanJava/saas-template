@@ -2,7 +2,13 @@ import { Controller, useFormContext } from "react-hook-form";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { StepperFormValues } from "@/types/hook-stepper";
 import { useEffect, useState } from "react";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { RootState } from "@/app/store";
 import { useSelector } from "react-redux";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -48,7 +54,47 @@ const AutoRenewalForm = () => {
       <h1 className="font-semibold text-[#2D374] text-xl">
         Renewal and Billing Cycle
       </h1>
-      <div className="mt-6 flex gap-6 items-center">
+      <div className="grid grid-cols-3 mt-3 mb-4" >
+        <Controller
+          name="billing_cycle"
+          rules={{ required: "Required" }}
+          control={control}
+          render={({
+            field: { onChange, value, onBlur },
+            fieldState: { invalid, error },
+          }) => (
+            <div>
+              <Select
+                onValueChange={(value) => {
+                  onChange(value);
+                }}
+                value={value}
+              >
+                <SelectTrigger
+                  name="billing_cycle"
+                  floatingLabel="Billing Cycle"
+                  text="*"
+                >
+                  <SelectValue placeholder="Select billing cycle" />
+                </SelectTrigger>
+                {invalid && (
+                  <span className="text-destructive block !mt-[5px] text-[12px]">
+                    {error?.message}
+                  </span>
+                )}
+                <SelectContent>
+                  <SelectItem value={"weekly"}>Weekly</SelectItem>
+                  <SelectItem value={"monthly"}>Monthly</SelectItem>
+                  <SelectItem value={"quarterly"}>Quarterly</SelectItem>
+                  {/* <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem> */}
+                  <SelectItem value={"yearly"}>Yearly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        />
+      </div>
+      <div className=" flex gap-6 items-center">
         <Controller
           name="auto_renewal"
           control={control}

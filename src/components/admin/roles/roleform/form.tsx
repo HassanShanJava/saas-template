@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { ErrorType } from "@/app/types";
 import { ResourceTypes } from "@/app/types/roles";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 import {
   Sheet,
@@ -261,7 +268,26 @@ export const RoleForm = ({
     },
     {
       id: "no_access",
-      header: "No Access",
+      header: () => {
+        return (
+          <div className="flex gap-1">
+            <p className="text-nowrap">No Access</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger
+                  asChild
+                  className="hover:cursor-pointer"
+                >
+                  <Info className="size-5" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-52 ">
+                  User with this permission cannot access the module at all.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )
+      },
       cell: ({ row }) =>
         row.original.subRows?.length == 0 && (
           <Checkbox
@@ -278,7 +304,26 @@ export const RoleForm = ({
     },
     {
       id: "read",
-      header: "Read",
+      header: () => {
+        return (
+          <div className="flex gap-1">
+            <p className="text-nowrap">Read</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger
+                  asChild
+                  className="hover:cursor-pointer"
+                >
+                  <Info className="size-5" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-52 ">
+                  User with this permission can view the module and its data but cannot make any changes. 
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )
+      },
       cell: ({ row }) =>
         row.original.subRows?.length == 0 && (
           <Checkbox
@@ -293,7 +338,26 @@ export const RoleForm = ({
     },
     {
       id: "write",
-      header: "Write",
+      header: () => {
+        return (
+          <div className="flex gap-1">
+            <p className="text-nowrap">Write</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger
+                  asChild
+                  className="hover:cursor-pointer"
+                >
+                  <Info className="size-5" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-52 ">
+                  User with this permission can view, create, and edit data within the module but cannot delete it.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )
+      },
       cell: ({ row }) =>
         row.original.subRows?.length == 0 && (
           <Checkbox
@@ -308,7 +372,26 @@ export const RoleForm = ({
     },
     {
       id: "full_access",
-      header: "Full Access",
+      header: () => {
+        return (
+          <div className="flex gap-1">
+            <p className="text-nowrap">Full Access</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger
+                  asChild
+                  className="hover:cursor-pointer"
+                >
+                  <Info className="size-5" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-52 ">
+                  User with this permission can view, create, edit, and delete data within the module.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )
+      },
       cell: ({ row }) =>
         row.original.subRows?.length == 0 && (
           <Checkbox
@@ -419,11 +502,10 @@ export const RoleForm = ({
                               <SelectValue placeholder="Select status">
                                 <span className="flex gap-2 items-center">
                                   <span
-                                    className={`w-2 h-2 rounded-full ${
-                                      field.value == "active"
-                                        ? "bg-green-500"
-                                        : "bg-blue-500"
-                                    }`}
+                                    className={`w-2 h-2 rounded-full ${field.value == "active"
+                                      ? "bg-green-500"
+                                      : "bg-blue-500"
+                                      }`}
                                   ></span>
                                   {
                                     status.filter(
@@ -451,7 +533,7 @@ export const RoleForm = ({
                   <div className="rounded-none  ">
                     <ScrollArea className="w-full relative">
                       <ScrollBar orientation="horizontal" />
-                      <Table className="relative">
+                      <Table className="relative w-full">
                         <TableHeader className="bg-gray-100  !sticky !top-0  z-50">
                           {table?.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
@@ -468,9 +550,9 @@ export const RoleForm = ({
                                     {header.isPlaceholder
                                       ? null
                                       : flexRender(
-                                          header.column.columnDef.header,
-                                          header.getContext()
-                                        )}
+                                        header.column.columnDef.header,
+                                        header.getContext()
+                                      )}
                                   </TableHead>
                                 );
                               })}

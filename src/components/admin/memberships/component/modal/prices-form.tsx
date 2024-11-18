@@ -237,44 +237,7 @@ const PriceDiscountTaxForm = () => {
           {...register("reg_fee")}
           error={errors.reg_fee?.message}
         />
-        <Controller
-          name="billing_cycle"
-          rules={{ required: "Required" }}
-          control={control}
-          render={({
-            field: { onChange, value, onBlur },
-            fieldState: { invalid, error },
-          }) => (
-            <div>
-              <Select
-                onValueChange={(value) => {
-                  onChange(value);
-                }}
-                value={value}
-              >
-                <SelectTrigger
-                  name="billing_cycle"
-                  floatingLabel="Billing Cycle"
-                  text="*"
-                >
-                  <SelectValue placeholder="Select billing cycle" />
-                </SelectTrigger>
-                {invalid && (
-                  <span className="text-destructive block !mt-[5px] text-[12px]">
-                    {error?.message}
-                  </span>
-                )}
-                <SelectContent>
-                  <SelectItem value={"weekly"}>Weekly</SelectItem>
-                  <SelectItem value={"monthly"}>Monthly</SelectItem>
-                  <SelectItem value={"quarterly"}>Quarterly</SelectItem>
-                  {/* <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem> */}
-                  <SelectItem value={"yearly"}>Yearly</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        />
+        
       </div>
     </div>
   );

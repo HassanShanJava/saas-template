@@ -88,6 +88,7 @@ const LinkedMembersPage = ({
   };
 
   const handleSelectMember = (id: string, plan_id: number, transaction_id: number) => {
+    console.log({id,plan_id,transaction_id},"slected linked memner")
     if (payloadLinkedMembers.find(member => member.member_id == Number(id))) {
       toast({
         variant: "destructive",

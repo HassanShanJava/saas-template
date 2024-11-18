@@ -35,9 +35,10 @@ export default function Combobox({
     label,
 }: ComboboxType) {
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState<string | undefined>(
-        defaultValue ? defaultValue+"" : '',
+    const [value, setValue] = useState(
+        defaultValue ?? ""
     );
+    console.log({ value }, "slected linked memne r")
     return (
         <Popover open={open} onOpenChange={setOpen} modal={true}>
             <PopoverTrigger asChild>
@@ -71,6 +72,8 @@ export default function Combobox({
                                         key={item.value}
                                         value={item.value}
                                         onSelect={(currentValue) => {
+                                            console.log({ currentValue }, list?.find((list) => list.value === currentValue)
+                                                ?.value)
                                             setValue(currentValue == value ? "" : currentValue);
                                             setFilter(currentValue == value ? "" : currentValue);
                                             setOpen(false);

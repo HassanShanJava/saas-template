@@ -305,11 +305,12 @@ function Combobox({
                     key={item.value}
                     value={item.value}
                     onSelect={(currentValue) => {
+                      
                       setValue(currentValue == value ? "" : currentValue);
                       setFilter(
                         list &&
-                          list?.find((list) => list.label === currentValue)
-                            ?.value
+                        list?.find((list) => list.label === currentValue)
+                          ?.value
                       );
                       setOpen(false);
                     }}

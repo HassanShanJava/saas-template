@@ -100,7 +100,7 @@ export default {
       lg: "1024px",
       // => @media (min-width: 1024px) { ... }
       xlg: "1100px",
-
+      xbase: "1250px",
       xl: "1280px",
       // => @media (min-width: 1280px) { ... }
       sxl: "1350px",

@@ -29,7 +29,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { Webcam } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -58,13 +58,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import {
-  CoachInputTypes,
-  CountryTypes,
-  ErrorType,
-  coachUpdateInput,
-  sourceTypes,
-} from "@/app/types";
+import { CountryTypes, ErrorType, sourceTypes } from "@/app/types";
 import profileimg from "@/assets/profile-image.svg";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import {
@@ -94,7 +88,6 @@ import { MultiSelect } from "@/components/ui/multiselect/multiselectCheckbox";
 import { PhoneInput } from "react-international-phone";
 import { RxCross2 } from "react-icons/rx";
 import { formatNIC } from "@/utils/helper";
-import { BaseQueryFn } from "@reduxjs/toolkit/query";
 import { Gender, UserStatus } from "@/app/shared_enums/enums";
 import { CoachInput, CoachUpdate } from "@/app/types/coach";
 const { VITE_VIEW_S3_URL } = import.meta.env;

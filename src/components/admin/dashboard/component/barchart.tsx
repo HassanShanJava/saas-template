@@ -4,7 +4,6 @@ import walletimg from "@/assets/wallet.svg";
 import Rocketimg from "@/assets/rocket.svg";
 import Starimg from "@/assets/star.svg";
 import { Card, CardContent } from "@/components/ui/card";
-// Sample data array with metrics
 const data = [
   { name: "Page A", uv: 400 },
   { name: "Page B", uv: 300 },
@@ -57,7 +56,7 @@ const SimpleBarChart = () => {
     <Card className="p-2">
       <Card
         style={{ backgroundColor: "#200119", padding: "10px" }}
-        className="h-[20vh] max-w-xl max-h-[200px] slg:h-[40vh] slg:max-h-[300px] w-full slg:max-w-2xl rounded-xl"
+        className="h-[20vh]  max-h-[230px] slg:h-[50vh] slg:max-h-[200px] w-full  rounded-xl"
       >
         <CardContent className="p-0 justify-center flex items-center h-fit ">
           <BarChart
@@ -102,7 +101,7 @@ const SimpleBarChart = () => {
         <span className="text-green-400 text-sm font-semibold m-2">(+25)</span>
         more than last week
       </p>
-      <div className="flex flex-col slg:flex-row justify-between slg:items-center w-full">
+      <div className=" flex-col slg:flex-row grid-cols-2 grid xlg:grid-cols-4  justify-between slg:items-center w-full">
         <div className="w-24 p-2">
           <div className=" flex justify-between items-center">
             <div className=" flex justify-center items-center w-8 h-8 rounded-lg bg-primary">

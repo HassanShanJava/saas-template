@@ -6,10 +6,10 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { ResponsiveLine } from "@nivo/line";
-import {useMediaQuery} from "usehooks-ts"
+import { useMediaQuery } from "usehooks-ts";
 export default function SplineChart() {
   return (
-    <Card className=" w-full max-w-xl h-fit slg:max-w-2xl">
+    <Card className=" w-full max-w-xl h-fit slg:max-w-full">
       <CardHeader>
         <CardTitle className="font-bold text-black text-xl">
           Sales Overview

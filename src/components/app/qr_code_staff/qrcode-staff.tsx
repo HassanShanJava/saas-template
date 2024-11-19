@@ -7,6 +7,7 @@ import { useGetValidateUserQuery } from "@/services/userApi";
 import { toast } from "@/components/ui/use-toast";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
+import DocumentTitle from "@/components/ui/common/document-title";
 
 const QRCodePage: React.FC = () => {
   const [token, setToken] = React.useState<string | null>(null);
@@ -113,6 +114,7 @@ const QRCodePage: React.FC = () => {
   }, [staffvalidation, isChecking, refetch, userId]);
 
   console.log("qrcode-code", token);
+  DocumentTitle("QR Code")
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h2 className="text-lg font-bold mb-4">Scan the QR Code</h2>

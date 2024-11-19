@@ -7,6 +7,7 @@ import { GiRollingDices } from "react-icons/gi";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import DocumentTitle from "./ui/common/document-title";
 
 const NotFoundPage = () => {
   const orgId = useSelector(
@@ -16,6 +17,8 @@ const NotFoundPage = () => {
   const sidepanel = localStorage.getItem("sidepanel");
   const decodedSidepanel = JSON.parse(atob(sidepanel as string));
   const links = extractLinks(decodedSidepanel)
+  DocumentTitle("Page Not Found");
+  
   return (
     <div style={containerStyle}>
       <div style={iconContainerStyle}>

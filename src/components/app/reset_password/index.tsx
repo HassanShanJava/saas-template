@@ -21,6 +21,7 @@ import { toast } from "@/components/ui/use-toast.ts";
 import { ErrorType } from "@/app/types.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
+import DocumentTitle from "@/components/ui/common/document-title.tsx";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -145,7 +146,7 @@ const ResetPassword = () => {
     },
     []
   );
-
+  DocumentTitle("Reset Emailk")
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">

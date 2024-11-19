@@ -1,9 +1,9 @@
 import { useRef, useEffect } from 'react'
 
-function DocumentTitle(title:string) {
+function DocumentTitle(title: string) {
 
   useEffect(() => {
-    document.title = title;
+    document.title = title + " | FitnFi ";
   }, [title]);
 }
 export default DocumentTitle

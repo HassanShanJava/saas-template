@@ -368,7 +368,10 @@ const CoachForm: React.FC<CoachFormProps> = ({
   const [addCoach] = useAddCoachMutation();
   const [editCoach] = useUpdateCoachMutation();
 
-  const { data: transformedData } = useGetMembersListQuery({ id: Number(orgId), query: "" });
+  const { data: transformedData } = useGetMembersListQuery({
+    id: Number(orgId),
+    query: "",
+  });
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
@@ -599,16 +602,16 @@ const CoachForm: React.FC<CoachFormProps> = ({
 
     payloadCoach.member_ids = Array.isArray(coachData?.member_ids)
       ? coachData.member_ids.every(
-        (item: Member) =>
-          (typeof item === "object" &&
-            item.id === 0 &&
-            item.name.trim() === "") ||
-          (typeof item === "number" && item === 0)
-      )
+          (item: Member) =>
+            (typeof item === "object" &&
+              item.id === 0 &&
+              item.name.trim() === "") ||
+            (typeof item === "number" && item === 0)
+        )
         ? []
         : coachData.member_ids.map((item: Member) =>
-          typeof item === "object" ? item.id : item
-        )
+            typeof item === "object" ? item.id : item
+          )
       : [];
     if (
       payloadCoach?.mobile_number &&
@@ -663,7 +666,7 @@ const CoachForm: React.FC<CoachFormProps> = ({
         city: payload.city ?? "",
         mobile_number:
           !payload.mobile_number ||
-            [0, 2, 3, 4].includes(payload.mobile_number?.length)
+          [0, 2, 3, 4].includes(payload.mobile_number?.length)
             ? "+92"
             : payload.mobile_number,
       };
@@ -794,8 +797,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     render={({ field }) => (
                       <FormItem>
                         {coachData == null ||
-                          (coachData != null &&
-                            watcher.coach_status == "pending") ? (
+                        (coachData != null &&
+                          watcher.coach_status == "pending") ? (
                           <FloatingLabelInput
                             {...field}
                             id="email"
@@ -1097,28 +1100,34 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     )}
                   />
                 </div>
-                <div className="relative ">
+                <div className="relative">
                   <FormField
                     control={form.control}
                     rules={{
-                      maxLength: {
-                        value: 200,
-                        message: "Notes should not exceed 350 characters",
+                      pattern: {
+                        value: /^\d{5}-\d{7}-\d$/,
+                        message: "CNIC must follow #####-#######-#",
                       },
                     }}
-                    name="notes"
+                    name="nic"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="notes"
-                          label="Notes"
+                          id="nic"
+                          label="CNIC"
+                          value={field.value ? String(field.value) : ""} // Ensure value is a string or empty
+                          onChange={(e) => {
+                            const formattedValue = formatNIC(e.target.value);
+                            field.onChange(formattedValue || ""); // Default to empty string
+                          }}
                         />
-                        {watcher.notes ? <></> : <FormMessage />}
+                        {<FormMessage />}
                       </FormItem>
                     )}
                   />
                 </div>
+
                 <div className="relative ">
                   <FormField
                     control={form.control}
@@ -1141,8 +1150,8 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 {field.value === 0
                                   ? "Source"
                                   : sources?.find(
-                                    (source) => source.id === field.value
-                                  )?.source || "Source"}
+                                      (source) => source.id === field.value
+                                    )?.source || "Source"}
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -1168,28 +1177,27 @@ const CoachForm: React.FC<CoachFormProps> = ({
                     )}
                   />
                 </div>
-                <div className="relative">
+                <div className="relative ">
                   <FormField
                     control={form.control}
                     rules={{
-                      pattern: {
-                        value: /^\d{5}-\d{7}-\d$/,
-                        message: "CNIC must follow #####-#######-#",
+                      maxLength: {
+                        value: 200,
+                        message: "Notes should not exceed 350 characters",
                       },
                     }}
-                    name="nic"
+                    name="notes"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="nic"
-                          label="CNIC"
-                          value={String(field.value ?? "")} // Convert to string explicitly
-                          onChange={(e) =>
-                            field.onChange(formatNIC(e.target.value))
-                          }
+                          id="notes"
+                          type="textarea"
+                          rows={3}
+                          maxLength={200}
+                          label="Notes"
                         />
-                        {<FormMessage />}
+                        {watcher.notes ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -1260,10 +1268,11 @@ const CoachForm: React.FC<CoachFormProps> = ({
                       <FormItem className="flex flex-col w-full">
                         <div className="flex flex-col w-full">
                           <label
-                            className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${field.value
+                            className={`absolute left-3 top-0.5 bg-textwhite transform -translate-y-1/2 pointer-events-none transition-all duration-200 ${
+                              field.value
                                 ? "text-xs -top-2.5"
                                 : "text-xs text-black"
-                              }`}
+                            }`}
                           >
                             Country <span className="text-red-500">*</span>
                           </label>
@@ -1280,9 +1289,9 @@ const CoachForm: React.FC<CoachFormProps> = ({
                                 >
                                   {field.value
                                     ? countries?.find(
-                                      (country: CountryTypes) =>
-                                        country.id === field.value // Compare with numeric value
-                                    )?.country // Display country name if selected
+                                        (country: CountryTypes) =>
+                                          country.id === field.value // Compare with numeric value
+                                      )?.country // Display country name if selected
                                     : "Select country"}
                                   <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>

@@ -1,0 +1,34 @@
+.phone-input-wrapper {
+  position: relative;
+}
+
+.phone-input-label {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 10;
+  transform-origin: 0 0;
+  background: var(--background);
+  padding: 0 0.25rem;
+  font-size: 0.875rem;
+  color: var(--gray-400);
+  transition: all 0.3s ease;
+}
+
+.phone-input-wrapper .PhoneInputInput {
+  padding-top: 1.5rem; /* Adjust padding to avoid overlap */
+}
+
+.phone-input-wrapper .PhoneInputInput:focus ~ .phone-input-label,
+.phone-input-wrapper .PhoneInputInput:not(:placeholder-shown) ~ .phone-input-label {
+  top: -0.5rem;
+  left: 8px;
+  transform: scale(0.75);
+  color: #525167; /* Adjust color for focus state */
+}
+
+.phone-input-wrapper .PhoneInputInput:placeholder-shown ~ .phone-input-label {
+  top: 50%;
+  transform: translateY(-50%) scale(1);
+  color: var(--gray-400);
+}

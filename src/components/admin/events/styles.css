@@ -1,0 +1,13 @@
+:root {
+  --fc-border-color:  hsla(210, 11%, 96%, 1);
+}
+
+.fc-timegrid-slots table tbody tr {
+    height: 6em;
+    border-bottom: 0 !important;
+}
+
+.fc-day-today {
+	background: white !important;
+}
+

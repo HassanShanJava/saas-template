@@ -1,0 +1,43 @@
+/* Wrapper for the input and label */
+.floating-label-wrapper {
+  position: relative;
+  margin-top: 20px; /* Adjust as needed */
+  width: 100%;
+}
+
+/* Input styling */
+.phone-input {
+  padding-top: 20px; /* Space for the label */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Label styling */
+.floating-label {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  transition: all 0.2s ease-out;
+  color: #aaa;
+  pointer-events: none;
+  font-size: 16px;
+  background: white; /* Match input background */
+  padding: 0 4px; /* Prevent label overlap with border */
+}
+
+/* Focus and not-empty states */
+.phone-input:focus + .floating-label,
+.phone-input:not(:placeholder-shown) + .floating-label {
+  top: 0;
+  left: 10px;
+  font-size: 12px;
+  color: #000;
+  transform: translateY(-100%);
+}
+
+/* Optional: Remove default outline on focus */
+.phone-input:focus {
+  outline: none;
+  border-color: #000; /* Or any color */
+}

@@ -167,6 +167,7 @@ export const saleHistoryMapper = ({
   tax_amt,
   discount_amt,
   total,
+  member_nic,
   status,
   staff_name,
   transaction_date,
@@ -174,6 +175,7 @@ export const saleHistoryMapper = ({
   "TXN Number": receipt_number,
   "SRB Number": displayValue(tax_number) || "",
   "Member Name": capitalizeFirstLetter(member_name) || "",
+  "CNIC Number": displayValue(formatNIC(member_nic)) || "",
   "Tax Amount": displayValue(tax_amt) || "",
   "Discount Amount": displayValue(discount_amt) || "",
   "Total Amount": displayValue(total) || "",
@@ -261,7 +263,11 @@ export const inValidToken = (token: string | undefined) => {
   return token !== undefined && token.trim().length > 0;
 };
 
-export const formatToPKR = (amount: number) => {
+export const formatToPKR = (amount: number | null | undefined) => {
+  if (!amount) {
+    return "N/A"
+  }
+
   return new Intl.NumberFormat("en-PK", {
     style: "currency",
     currency: "PKR",

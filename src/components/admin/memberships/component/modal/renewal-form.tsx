@@ -83,11 +83,11 @@ const AutoRenewalForm = () => {
                   </span>
                 )}
                 <SelectContent>
-                  <SelectItem value={"weekly"}>Weekly</SelectItem>
-                  <SelectItem value={"monthly"}>Monthly</SelectItem>
-                  <SelectItem value={"quarterly"}>Quarterly</SelectItem>
-                  {/* <SelectItem value={"bi_annually"}>Bi-Annually</SelectItem> */}
-                  <SelectItem value={"yearly"}>Yearly</SelectItem>
+                  <SelectItem value={"once"}>Once</SelectItem>
+                  <SelectItem value={"week"}>Weekly</SelectItem>
+                  <SelectItem value={"month"}>Monthly</SelectItem>
+                  <SelectItem value={"quarter"}>Quarterly</SelectItem>
+                  <SelectItem value={"year"}>Yearly</SelectItem>
                 </SelectContent>
               </Select>
             </div>

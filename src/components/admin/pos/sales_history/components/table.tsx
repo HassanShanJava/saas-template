@@ -388,7 +388,7 @@ export default function SaleshistoryRegisterViewTable() {
       cell: ({ row }) => {
         return (
           <div className="flex items-center gap-4 text-ellipsis whitespace-nowrap overflow-hidden">
-            {displayValue(row?.original.tax_amt?.toFixed(2).toString())}
+            {formatToPKR(row?.original.tax_amt)}
           </div>
         );
       },
@@ -415,9 +415,7 @@ export default function SaleshistoryRegisterViewTable() {
             <div className="">
               <p className="capitalize cursor-pointer">
                 <span>
-                  {displayValue(
-                    row.original.discount_amt?.toFixed(2).toString()
-                  )}
+                  {formatToPKR(row.original.discount_amt)}
                 </span>
               </p>
             </div>
@@ -885,13 +883,13 @@ export default function SaleshistoryRegisterViewTable() {
                                       {item.quantity}
                                     </span>
                                     <span className="col-span-1">
-                                      {item.price?.toFixed(2)}
+                                      {formatToPKR(item.price)}
                                     </span>
                                     <span className="col-span-1">
-                                      {item.discount?.toFixed(2)}
+                                      {formatToPKR(item.discount)}
                                     </span>
                                     <span className="col-span-1  ">
-                                      {item.tax_amount?.toFixed(2)}
+                                      {formatToPKR(item.tax_amount)}
 
                                     </span>
 
@@ -902,7 +900,7 @@ export default function SaleshistoryRegisterViewTable() {
                                       {`${item.tax_name} (${item.tax_rate.toFixed(2)}%)`}
                                     </span>
                                     <span className="col-span-1">
-                                      {item.sub_total?.toFixed(2)}
+                                      {formatToPKR(item.sub_total)}
                                     </span>
                                     <span className="col-span-1">
                                       {formatToPKR((row.original.transaction_type=="Refund"? -Number(item.total):item.total) as number)}
@@ -960,9 +958,8 @@ export default function SaleshistoryRegisterViewTable() {
                                   <span className="col-span-2">
                                     {displayValue(payment.payment_method)}
                                   </span>
-                                  <span>
-                                    {" "}
-                                    {displayValue(payment.amount?.toFixed(2))}
+                                  <span className="text-right">
+                                    {formatToPKR(payment.amount)}
                                   </span>
                                 </div>
                               )

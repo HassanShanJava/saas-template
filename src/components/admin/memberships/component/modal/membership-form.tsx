@@ -511,16 +511,14 @@ function convertStringNumbersToObject(obj: any): void {
 function getDays(durationNo: number, durationType: string): number {
   console.log({ durationType, durationNo });
   switch (durationType) {
-    case "weekly":
+    case "week":
       return durationNo * 7; // 7 days per week
     case "monthly":
       return durationNo * 30; // Approximate average days in a month
-    case "quarterly":
+    case "quarter":
       return durationNo * 120; // Approximate average days in 4 months
-    case "yearly":
+    case "year":
       return durationNo * 365; // Approximate days in a year
-    case "bi_annually":
-      return durationNo * 182; // Approximate days in 6 months
     case "contract_duration":
       return durationNo * 0; // Approximate days in 6 months
     default:

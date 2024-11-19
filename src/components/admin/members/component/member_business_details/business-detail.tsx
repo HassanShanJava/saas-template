@@ -4,6 +4,7 @@ import BusinessDetailProfile from "./business-card-profile";
 import { useGetMemberByIdQuery } from "@/services/memberAPi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
+import DocumentTitle from "@/components/ui/common/document-title";
 
 export default function BusinessDetail() {
 
@@ -15,6 +16,7 @@ export default function BusinessDetail() {
   })
 
 
+  DocumentTitle("Member Details");
 
   return memberInfo && (
     <div

@@ -20,10 +20,12 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import {
   displayDateTime,
   displayValue,
+  formatToPKR,
   saveToLocalStorage,
 } from "@/utils/helper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
+import DocumentTitle from "@/components/ui/common/document-title";
 interface OpenRegisterFormInputs {
   opening_balance: number;
 }
@@ -117,6 +119,8 @@ const OpenRegister: React.FC = () => {
       }
     }
   };
+  
+  DocumentTitle("Open Register");
 
   return (
     <form
@@ -175,7 +179,7 @@ const OpenRegister: React.FC = () => {
                   <span className="text-sm font-semibold">
                     Opening Balance:
                   </span>{" "}
-                  {displayValue(counterData?.opening_balance?.toString())}
+                  {formatToPKR(counterData?.opening_balance)}
                 </p>
                 <p className="text-sm flex gap-2">
                   <span className="text-sm font-semibold">Closing Time:</span>{" "}
@@ -185,7 +189,7 @@ const OpenRegister: React.FC = () => {
                   <span className="text-sm font-semibold">
                     Closing Balance:
                   </span>{" "}
-                  {displayValue(counterData?.closing_balance?.toString())}
+                  {formatToPKR(counterData?.closing_balance)}
                 </p>
                 <p className="text-sm flex gap-2">
                   <span className="text-sm font-semibold">Notes:</span>{" "}

@@ -61,6 +61,7 @@ import {
 import { DropzoneOptions } from "react-dropzone";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 import uploadimg from "@/assets/upload.svg";
+import DocumentTitle from "@/components/ui/common/document-title";
 
 const WorkoutStep1: React.FC = () => {
   const dropzoneOptions = {
@@ -92,6 +93,7 @@ const WorkoutStep1: React.FC = () => {
     setFiles(fileArray);
     setValue("file", fileArray);
   };
+
   return (
     <FormProvider {...form}>
       <div className="mt-4 space-y-4">

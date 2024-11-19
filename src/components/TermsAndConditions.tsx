@@ -1,6 +1,8 @@
 import React from "react";
+import DocumentTitle from "./ui/common/document-title";
 
 const TermsAndConditions: React.FC = () => {
+  DocumentTitle("Terms & Conditions")
   return (
     <div style={{ padding: "2rem" }}>
       <h1>Terms & Conditions</h1>

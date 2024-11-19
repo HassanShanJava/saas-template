@@ -9,11 +9,12 @@ import {
   useCloseRegisterMutation,
   useGetlastRegisterSessionQuery,
 } from "@/services/registerApi";
-import { displayDateTime, displayValue } from "@/utils/helper";
+import { displayDateTime, displayValue, formatToPKR } from "@/utils/helper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorType } from "@/app/types";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { AlertDiscrepancy } from "./../components/close-register";
+import DocumentTitle from "@/components/ui/common/document-title";
 interface CloseRegisterFormInputs {
   closing_balance: number;
   notes?: string;
@@ -116,6 +117,8 @@ const CloseRegister: React.FC = () => {
   };
 
   console.log("data", counterData?.total_amount?.toString());
+  DocumentTitle("Close Register");
+  
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="space-x-3 p-1 w-full ">
@@ -162,13 +165,13 @@ const CloseRegister: React.FC = () => {
                     <span className="text-sm font-semibold">
                       Total Cash Recieved:
                     </span>{" "}
-                    {displayValue(counterData?.total_amount?.toString())}
+                    {formatToPKR(counterData?.total_amount)}
                   </p>
                   <p className="text-sm flex gap-2">
                     <span className="text-sm font-semibold">
                       Total Refund Amount:
                     </span>{" "}
-                    {displayValue(counterData?.refund_amount?.toString())}
+                    {formatToPKR(counterData?.refund_amount)}
                   </p>
                 </div>
               </div>

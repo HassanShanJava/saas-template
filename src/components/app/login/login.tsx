@@ -18,6 +18,7 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const { VITE_APP_SITEKEY } = import.meta.env;
 import logomainsvg from "@/assets/logo-main.svg";
 import { extractLinks } from "@/utils/helper";
+import DocumentTitle from "@/components/ui/common/document-title";
 
 export default function AuthenticationPage() {
   const navigate = useNavigate();
@@ -128,7 +129,7 @@ export default function AuthenticationPage() {
   function onChange(value: any) {
     setCaptchaError(false);
   }
-
+  DocumentTitle("Login")
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto xs:mx-0">

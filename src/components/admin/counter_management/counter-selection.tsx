@@ -17,6 +17,7 @@ import { useEffect, useMemo } from "react";
 import { CounterDataType } from "@/app/types/pos/counter";
 import { ErrorType } from "@/app/types";
 import { toast } from "@/components/ui/use-toast";
+import DocumentTitle from "@/components/ui/common/document-title";
 const CounterSelection = () => {
   const pos_count = (() => {
     try {
@@ -102,7 +103,9 @@ const CounterSelection = () => {
   }, [assignedCounterData, assignCounter, dispatch, navigate, userInfo]);
 
 
-  console.log({assignedCounterData})
+  console.log({ assignedCounterData })
+  DocumentTitle("Counter Management");
+
   return (
     <div className="min-h-screen bg-outletcolor p-5">
       {!isLoading && (

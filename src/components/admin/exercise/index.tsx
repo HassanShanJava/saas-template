@@ -1,8 +1,8 @@
 import { Card } from "@/components/ui/card";
 import ExerciseTableView from "./component/exerciseTable/table";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 export default function Exercise() {
-  DocumentTitle("Exercise");
+  useDocumentTitle("Exercise");
   
   return (
     <div className="w-full p-5">

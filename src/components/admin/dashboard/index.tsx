@@ -16,10 +16,10 @@ import {
 import SplineChart from "./component/spline-chart";
 import SimpleBarChart from "./component/barchart";
 import CardComponent from "./component/card-component";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 
 const Dashboard = () => {
-  DocumentTitle("Dashboard");
+  useDocumentTitle("Dashboard");
   return (
     <div className="grid gap-6 py-6 px-3 2xl:!max-w-[1400px] mx-auto ">
       {/* dashborad tiles */}

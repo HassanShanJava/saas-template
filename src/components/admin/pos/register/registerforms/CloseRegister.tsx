@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorType } from "@/app/types";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import { AlertDiscrepancy } from "./../components/close-register";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 interface CloseRegisterFormInputs {
   closing_balance: number;
   notes?: string;
@@ -117,7 +117,7 @@ const CloseRegister: React.FC = () => {
   };
 
   console.log("data", counterData?.total_amount?.toString());
-  DocumentTitle("Close Register");
+  useDocumentTitle("Close Register");
   
   return (
     <>

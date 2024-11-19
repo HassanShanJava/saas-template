@@ -1,9 +1,9 @@
 import { Card } from "@/components/ui/card";
 import CashregisterViewTable from "./components/table";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 
 const CashManagement = () => {
-  DocumentTitle("Cash Registry");
+  useDocumentTitle("Cash Registry");
   
   return (
     <div className="w-full p-5">

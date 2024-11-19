@@ -1,9 +1,9 @@
 import { Card } from "@/components/ui/card";
 import CounterTableView from "./components/counterTable/table"
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 
 const CounterManagement = () => {
-  DocumentTitle("Counter Management");
+  useDocumentTitle("Counter Management");
   
   return (
     <div className="w-full p-5">

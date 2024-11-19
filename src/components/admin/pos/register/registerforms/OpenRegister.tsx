@@ -25,7 +25,7 @@ import {
 } from "@/utils/helper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 interface OpenRegisterFormInputs {
   opening_balance: number;
 }
@@ -120,7 +120,7 @@ const OpenRegister: React.FC = () => {
     }
   };
   
-  DocumentTitle("Open Register");
+  useDocumentTitle("Open Register");
 
   return (
     <form

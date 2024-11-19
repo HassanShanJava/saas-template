@@ -1,9 +1,9 @@
 import { Card } from "@/components/ui/card";
 import MealPlansTableView from "./components/mealplansTable/table";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 
 const MealPlans = () => {
-  DocumentTitle("Meal Plans");
+  useDocumentTitle("Meal Plans");
   
   return (
     <div className="w-full p-5">

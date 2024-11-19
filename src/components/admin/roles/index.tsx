@@ -1,9 +1,9 @@
 import { Card } from "@/components/ui/card";
 import RoleTableView from "./component/roletable/table";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 
 const RolesAndAccess = () => {
-  DocumentTitle("Role & Access Management");
+  useDocumentTitle("Role & Access Management");
   
   return (
     <div className="w-full p-5">

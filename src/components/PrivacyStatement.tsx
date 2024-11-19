@@ -1,8 +1,8 @@
 import React from "react";
-import DocumentTitle from "./ui/common/document-title";
+import useDocumentTitle from "./ui/common/document-title";
 
 const PrivacyStatement: React.FC = () => {
-  DocumentTitle("Privacy Policy")
+  useDocumentTitle("Privacy Policy")
   return (
     <div style={{ padding: "2rem" }}>
       <h1>Privacy Statement</h1>

@@ -7,7 +7,7 @@ import { usePluginStore } from "react-pluggable";
 import { toast } from "../../ui/use-toast";
 import { PaymentMethodPlugin } from "@/app/types";
 import { useUpdatePaymentMethodMutation } from "@/services/paymentMethodsApi";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 
 const PaymentMethods = () => {
   const [updatingPluginId, setUpdatingPluginId] = useState<number | null>(null);
@@ -79,7 +79,7 @@ const PaymentMethods = () => {
     );
   }
 
-  DocumentTitle("Payment Methods");
+  useDocumentTitle("Payment Methods");
 
 
   return (

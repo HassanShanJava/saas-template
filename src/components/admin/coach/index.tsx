@@ -1,8 +1,8 @@
 import { Card } from "@/components/ui/card";
 import CoachTableView from "./component/coachTable/table";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 export default function Coach() {
-  DocumentTitle("Coaches");
+  useDocumentTitle("Coaches");
   
   return (
     <div className="w-full p-5">

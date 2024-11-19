@@ -50,7 +50,7 @@ import Checkout from "./checkout";
 import ParkReceipt from "./park-receipt";
 import { useGetStaffListQuery } from "@/services/staffsApi";
 import { useGetlastRegisterSessionQuery } from "@/services/registerApi";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 const { VITE_REGISTER_MAX_HOUR } = import.meta.env;
 
 interface SearchCriteriaType {
@@ -594,7 +594,7 @@ const Sell = () => {
   }, [retriveSaleData])
 
   console.log({ watcher, productPayload, transactionId })
-  DocumentTitle("Sell");
+  useDocumentTitle("Sell");
 
   return (
     <div>

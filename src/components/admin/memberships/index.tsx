@@ -1,9 +1,9 @@
 import { Card } from "@/components/ui/card";
 import MembershipsTableView from "./component/membershipsTable/table";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 
 const Memberships = () => {
-  DocumentTitle("Membership");
+  useDocumentTitle("Membership");
 
   return (
     <div className="w-full p-5">

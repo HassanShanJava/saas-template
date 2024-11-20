@@ -305,3 +305,53 @@ export const replaceNullWithDefaults = (
     }),
     {} as LimitedAccessTime
   );
+
+export function validateSchedule(schedule: LimitedAccessTime): { isValid: boolean; message: string } {
+  const invalidDays: string[] = [];
+
+  Object.entries(schedule).forEach(([day, slots]) => {
+    let totalMinutes = 0;
+
+    for (const slot of slots) {
+      const { from_time, to_time } = slot;
+
+      if (!from_time || !to_time) continue;
+
+      const [fromHours, fromMinutes] = from_time.split(":").map(Number);
+      let [toHours, toMinutes] = to_time.split(":").map(Number);
+
+      // Handle the case where to_time is midnight (00:00)
+      if (to_time === "00:00") {
+        toHours = 24; // Treat as 24:00 for calculation purposes
+      }
+
+      const fromTotalMinutes = fromHours * 60 + fromMinutes;
+      const toTotalMinutes = toHours * 60 + toMinutes;
+
+      let duration = toTotalMinutes - fromTotalMinutes;
+      if (duration < 0) {
+        // If duration is negative, it means the slot spans over midnight
+        duration += 24 * 60;
+      }
+
+      totalMinutes += duration;
+    }
+
+    // If total minutes exceed 24 hours, add the day to invalidDays
+    if (totalMinutes > 24 * 60) {
+      invalidDays.push(day);
+    }
+  });
+
+  const isValid = invalidDays.length === 0;
+
+  const message = isValid
+    ? "All days are valid."
+    : `${invalidDays.map(day => capitalize(day)).join(", ")} cannot have more than 24 hours.`;
+
+  return { isValid, message };
+}
+
+export function capitalize(word: string): string {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}

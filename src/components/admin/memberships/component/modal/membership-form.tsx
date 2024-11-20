@@ -23,6 +23,7 @@ import { ErrorType, LimitedAccessTime, membeshipsTableType } from "@/app/types";
 import {
   cleanLimitedAccessTime,
   replaceNullWithDefaults,
+  validateSchedule,
 } from "@/utils/helper";
 // import { motion, AnimatePresence } from 'framer-motion';
 interface membershipFormTypes {
@@ -303,6 +304,16 @@ const MembershipForm = ({
     const limitedAccessData = getValues(
       "limited_access_time"
     ) as LimitedAccessTime;
+
+    const timeSlots = validateSchedule(limitedAccessData)
+
+    if(!timeSlots.isValid){
+      toast({
+        variant: "destructive",
+        title: timeSlots.message,
+      }); 
+      return;
+    }
 
     if (activeStep === 1 && access_type === "limited-access") {
       console.log("inside step 1");

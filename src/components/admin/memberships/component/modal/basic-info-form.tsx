@@ -62,17 +62,7 @@ const BasicInfoForm = () => {
 
   const handleAdd = (day: string) => {
     const dayIntervals = limitedAccessDays[day as string] || [];
-
-    // Check if there are already 3 slots for the selected day
-    if (dayIntervals.length >= 3) {
-      toast({
-        variant: "destructive",
-        title: "Limit Reached",
-        description: `You cannot add more than 3 slots for ${day}.`,
-      });
-      return;
-    }
-
+    
     setLimitedAccessDays((prev) => ({
       ...prev,
       [day]: [...dayIntervals, { from_time: "", to_time: "" }],

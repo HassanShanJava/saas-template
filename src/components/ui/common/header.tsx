@@ -15,100 +15,19 @@ import { useToast } from "../use-toast";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import userimg from "@/assets/userSvg.svg";
-import { setCode, setCounter } from "@/features/counter/counterSlice";
 import { Badge } from "../badge";
 
 const pageTitles = [
   { targetPath: "/admin/dashboard", title: "Dashboard" },
-  { targetPath: "/admin/members", title: "Members" },
-  { targetPath: "/admin/members/detail/", title: "Member Detail" },
-  { targetPath: "/admin/coach", title: "Coach" },
-  { targetPath: "/admin/workoutplans", title: "Workout Plans" },
-  { targetPath: "/admin/exercise", title: "Exercises" },
-  { targetPath: "/admin/facilities", title: "System Settings" },
-  { targetPath: "/admin/saleTaxes", title: "System Settings" },
-  { targetPath: "/admin/incomeCategory", title: "System Settings" },
-  { targetPath: "/admin/memberships", title: "System Settings" },
-  { targetPath: "/admin/counter", title: "System Settings" },
-  { targetPath: "/admin/paymentMethods", title: "System Settings" },
-  { targetPath: "/admin/pos/sell/", title: "Point of Sale" },
-  { targetPath: "/admin/pos/register", title: "Point of Sale" },
-  { targetPath: "/admin/pos/salesReport", title: "Point of Sale" },
-  { targetPath: "/admin/pos/cash", title: "Point of Sale" },
   { targetPath: "/admin/roles", title: "Roles & Access Management" },
   { targetPath: "/admin/staff", title: "Staff" },
-  { targetPath: "/admin/mealplans", title: "Meal Plans" },
-  { targetPath: "/admin/foods", title: "Food & Nutritions" },
-  {
-    targetPath: "/admin/hardware_integration",
-    title: "System Settings",
-  },
-  {
-    targetPath: "/admin/members/detail",
-    title: "Members",
-  },
 ];
 
 const breadcrumbs = [
   {
-    targetPath: "/admin/facilities",
-    title: "Facilities",
+    targetPath: "/admin/roles",
+    title: "Roles & Access Management",
     pageSetting: "System Setting",
-  },
-  {
-    targetPath: "/admin/incomeCategory",
-    title: "Income Categories",
-    pageSetting: "System Setting",
-  },
-  {
-    targetPath: "/admin/saleTaxes",
-    title: "Sales Tax",
-    pageSetting: "System Setting",
-  },
-  {
-    targetPath: "/admin/memberships",
-    title: "Memberships",
-    pageSetting: "System Setting",
-  },
-  {
-    targetPath: "/admin/counter",
-    title: "Counter Management",
-    pageSetting: "System Setting",
-  },
-  {
-    targetPath: "/admin/paymentMethods",
-    title: "Payment Methods",
-    pageSetting: "System Setting",
-  },
-  {
-    targetPath: "/admin/pos/register",
-    title: "Register",
-    pageSetting: "Point of Sales",
-  },
-  {
-    targetPath: "/admin/pos/cash",
-    title: "Cash Management",
-    pageSetting: "Point of Sales",
-  },
-  {
-    targetPath: "/admin/pos/salesReport",
-    title: "Sales Report",
-    pageSetting: "Point of Sales",
-  },
-  {
-    targetPath: "/admin/pos/sell/",
-    title: "Sell",
-    pageSetting: "Point of Sales",
-  },
-  {
-    targetPath: "/admin/hardware_integration",
-    title: "Hardware Integration",
-    pageSetting: "System Setting",
-  },
-  {
-    targetPath: "/admin/members/detail",
-    title: "Hardware Integration",
-    pageSetting: "Member",
   },
 ];
 
@@ -169,8 +88,6 @@ export const Header = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleLogout = () => {
-    dispatch(setCode(null));
-    dispatch(setCounter(null));
     dispatch(logout());
     toast({
       variant: "success",

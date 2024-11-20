@@ -402,7 +402,7 @@ export interface ErrorType {
     detail?: string;
   };
 }
-export interface sourceTypes {
+export interface SourceTypes {
   id: number;
   source: string;
 }

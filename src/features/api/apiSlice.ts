@@ -7,12 +7,11 @@ import {
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
 import { logout, tokenReceived } from "../auth/authSlice";
-import { setCode, setCounter } from "../counter/counterSlice";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 interface FastApiError {
   detail?: string | string[]; // FastAPI's detail field can be a string or an array of strings
-  message?  : string | string[]; // FastAPI's detail field can be a string or an array of strings
+  message?: string | string[]; // FastAPI's detail field can be a string or an array of strings
 }
 const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
@@ -46,31 +45,29 @@ const baseQueryWithReauth: BaseQueryFn<
       localStorage.setItem("userToken", newAccessToken);
       result = await baseQuery(args, api, extraOptions);
     } else {
-      api.dispatch(setCode(null));
-      api.dispatch(setCounter(null));
       api.dispatch(logout());
     }
   }
 
-   if (result.error) {
-     const { status, data } = result.error as FetchBaseQueryError & {
-       data?: FastApiError;
-     };
+  if (result.error) {
+    const { status, data } = result.error as FetchBaseQueryError & {
+      data?: FastApiError;
+    };
 
-     // Check for a 422 Unprocessable Entity or other specific errors
-     if (status === 422 && data && typeof data === "object") {
-       const errorDetail = Array.isArray(data.detail)
-         ? data.detail.join(", ")
-         : data.detail || "Unprocessable entity";
-       result.error.data = { message: errorDetail };
-     } else {
-       // For other errors, keep the default behavior
-       result.error.data = {
-         message:
-           (data as FastApiError)?.detail || "An unexpected error occurred",
-       };
-     }
-   }
+    // Check for a 422 Unprocessable Entity or other specific errors
+    if (status === 422 && data && typeof data === "object") {
+      const errorDetail = Array.isArray(data.detail)
+        ? data.detail.join(", ")
+        : data.detail || "Unprocessable entity";
+      result.error.data = { message: errorDetail };
+    } else {
+      // For other errors, keep the default behavior
+      result.error.data = {
+        message:
+          (data as FastApiError)?.detail || "An unexpected error occurred",
+      };
+    }
+  }
   return result;
 };
 
@@ -91,27 +88,11 @@ export const apiSlice = createApi({
   baseQuery: baseQueryWithReauth,
   endpoints: () => ({}),
   tagTypes: [
-    "Credits",
-    "SalesTax",
-    "IncomeCategory",
-    "Memberships",
-    "Groups",
+    "Common",
     "Roles",
-    "Coaches",
     "Staffs",
-    "Exercise",
-    "Foods",
-    "MealPlans",
-    "Members",
     "Reset",
-    "Workout",
-    "Counter",
-    "Register",
-    "Transaction",
     "Organization",
-    "Hardware",
-    "PaymentMethods",
     "User",
-    "Invoice"
   ],
 });

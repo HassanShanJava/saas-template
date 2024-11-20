@@ -53,7 +53,7 @@ import { RootState } from "@/app/store";
 import {
   CountryTypes,
   ErrorType,
-  sourceTypes,
+  SourceTypes,
   StaffInputType,
   staffTypesResponseList,
 } from "@/app/types";
@@ -62,7 +62,7 @@ import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 import {
   useGetAllSourceQuery,
   useGetCountriesQuery,
-} from "@/services/memberAPi";
+} from "@/services/commonApi";
 import { useGetRolesQuery } from "@/services/rolesApi";
 import {
   useAddStaffMutation,
@@ -881,7 +881,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
                           <SelectContent>
                             {/* Placeholder option */}
                             {sources && sources.length ? (
-                              sources.map((sourceval: sourceTypes, i: any) => (
+                              sources.map((sourceval: SourceTypes, i: any) => (
                                 <SelectItem
                                   value={sourceval.id?.toString()}
                                   key={i}

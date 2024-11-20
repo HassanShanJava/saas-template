@@ -15,7 +15,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { AppDispatch, RootState } from "@/app/store";
 import { cn } from "@/lib/utils";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
-const { VITE_APP_SITEKEY } = import.meta.env;
+const { VITE_APP_SITEKEY, VITE_Domain_Name } = import.meta.env;
 import logomainsvg from "@/assets/logo-main.svg";
 import { extractLinks } from "@/utils/helper";
 import useDocumentTitle from "@/components/ui/common/document-title";
@@ -113,6 +113,7 @@ export default function AuthenticationPage() {
     const payload = {
       ...data,
       email: data.email.toLowerCase(),
+      website_url: VITE_Domain_Name,
     };
 
     console.log("Form data:", payload);
@@ -129,7 +130,7 @@ export default function AuthenticationPage() {
   function onChange(value: any) {
     setCaptchaError(false);
   }
-  useDocumentTitle("Login")
+  useDocumentTitle("Login");
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto xs:mx-0">

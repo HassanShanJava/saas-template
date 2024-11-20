@@ -13,7 +13,6 @@ const IdleLogoutHandler = () => {
     const isAuthenticated = Boolean(localStorage.getItem("userToken"));
 
     if (!isAuthenticated) return; // Do nothing if the user is not logged in
-
     dispatch(logout());
 
     toast({

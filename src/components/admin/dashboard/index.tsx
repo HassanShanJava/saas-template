@@ -16,17 +16,17 @@ import {
 import SplineChart from "./component/spline-chart";
 import SimpleBarChart from "./component/barchart";
 import CardComponent from "./component/card-component";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 
 const Dashboard = () => {
-  DocumentTitle("Dashboard");
+  useDocumentTitle("Dashboard");
   return (
     <div className="grid gap-6 py-6 px-3 2xl:!max-w-[1400px] mx-auto ">
       {/* dashborad tiles */}
       <CardComponent />
-      
-      <div className="grid grid-cols-2 gap-x-6 px-4 ">
-      {/* dashborad graphs  */}
+
+      <div className="grid xlg:grid-cols-2 xlg:gap-x-6 px-4 gap-y-4">
+        {/* dashborad graphs  */}
         <SimpleBarChart />
         <SplineChart />
       </div>
@@ -45,7 +45,7 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
+            <Table className="w-full">
               <TableHeader>
                 <TableRow>
                   <TableHead>Order</TableHead>

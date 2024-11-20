@@ -19,7 +19,7 @@ const { VITE_APP_SITEKEY } = import.meta.env;
 import logomainsvg from "@/assets/logo-main.svg";
 import { useSendResetEmailMutation } from "@/services/resetPassApi";
 import { ErrorType } from "@/app/types";
-import DocumentTitle from "@/components/ui/common/document-title";
+import useDocumentTitle from "@/components/ui/common/document-title";
 
 const ForgotPasword = () => {
   const { toast } = useToast();
@@ -109,7 +109,7 @@ const ForgotPasword = () => {
   function onChange(value: any) {
     setCaptchaError(false);
   }
-  DocumentTitle("Forgot Email")
+  useDocumentTitle("Forgot Email")
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">

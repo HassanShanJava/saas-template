@@ -25,7 +25,7 @@ import { LoadingButton } from "../loadingButton/loadingButton";
 const DashboardLayout: React.FC = () => {
   const { pathname } = useLocation();
   const { userInfo } = useSelector((state: RootState) => state.auth);
-  
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [seperatePanel, setSeperatePanel] = useState<ResourceTypes[]>([]);
@@ -34,7 +34,7 @@ const DashboardLayout: React.FC = () => {
   const orgName = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_name
   );
-  
+
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
@@ -83,25 +83,25 @@ const DashboardLayout: React.FC = () => {
           className="flex h-16 items-center justify-between px-4 border-gradient sticky top-0 z-30 bg-white "
         >
 
-            <Link
-              to="/"
-              className="flex items-center gap-2 font-semibold "
+          <Link
+            to="/"
+            className="flex items-center gap-2 font-semibold "
 
+          >
+            <img
+              src={dashboardsvg}
+              className={`h-8 w-9 ${!isSidebarOpen && "hidden"}`}
+              alt="Dashboard"
+            />
+            <span
+              className={`${!isSidebarOpen && "hidden"} text-2xl text-center font-extrabold`}
+              style={{ fontFamily: "Jockey One" }}
             >
-              <img
-                src={dashboardsvg}
-                className={`h-8 w-9 ${!isSidebarOpen && "hidden"}`}
-                alt="Dashboard"
-              />
-              <span
-                className={`${!isSidebarOpen && "hidden"} text-2xl text-center font-extrabold`}
-                style={{ fontFamily: "Jockey One" }}
-              >
-                {orgName?.split(" ")[0]}
-              </span>
-            </Link>
+              {orgName?.split(" ")[0]}
+            </span>
+          </Link>
 
-          
+
 
           {/* Uncomment the button if needed */}
           {/* <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
@@ -177,7 +177,7 @@ const DashboardLayout: React.FC = () => {
                 )}
               </>
             ))}
-          
+
         </div>
       </nav>
       <div className=" flex-1 overflow-y-auto h-screen   w-[calc(100%-275px)]">

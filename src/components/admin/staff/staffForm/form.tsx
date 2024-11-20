@@ -828,25 +828,29 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     )}
                   />
                 </div>
-                <div className="relative ">
+                <div className="relative">
                   <FormField
                     control={form.control}
-                    name="notes"
                     rules={{
-                      maxLength: {
-                        value: 200,
-                        message: "Notes should not exceed 200 characters",
+                      pattern: {
+                        value: /^\d{5}-\d{7}-\d$/,
+                        message: "CNIC must follow #####-#######-#",
                       },
                     }}
+                    name="nic"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="notes"
-                          label="Notes"
-                          // error={form.formState.errors.notes?.message}
+                          id="nic"
+                          label="CNIC"
+                          value={field.value ? String(field.value) : ""} // Ensure value is a string or empty
+                          onChange={(e) => {
+                            const formattedValue = formatNIC(e.target.value);
+                            field.onChange(formattedValue || ""); // Default to empty string
+                          }}
                         />
-                        <FormMessage />
+                        {<FormMessage />}
                       </FormItem>
                     )}
                   />
@@ -1029,28 +1033,28 @@ const StaffForm: React.FC<StaffFormProps> = ({
                     )}
                   />
                 </div>
-                <div className="relative">
+                <div className="relative ">
                   <FormField
                     control={form.control}
+                    name="notes"
                     rules={{
-                      pattern: {
-                        value: /^\d{5}-\d{7}-\d$/,
-                        message: "CNIC must follow #####-#######-#",
+                      maxLength: {
+                        value: 200,
+                        message: "Notes should not exceed 200 characters",
                       },
                     }}
-                    name="nic"
                     render={({ field }) => (
                       <FormItem>
                         <FloatingLabelInput
                           {...field}
-                          id="nic"
-                          label="CNIC"
-                          value={String(field.value ?? "")} // Convert to string explicitly
-                          onChange={(e) =>
-                            field.onChange(formatNIC(e.target.value))
-                          }
+                          id="notes"
+                          type="textarea"
+                          rows={3}
+                          maxLength={200}
+                          label="Notes"
+                          // error={form.formState.errors.notes?.message}
                         />
-                        {<FormMessage />}
+                        <FormMessage />
                       </FormItem>
                     )}
                   />

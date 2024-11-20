@@ -23,7 +23,7 @@ import {
   useResetPasswordMutation,
   useVerifyTokenQuery,
 } from "@/services/resetPassApi.ts";
-import DocumentTitle from "@/components/ui/common/document-title.tsx";
+import useDocumentTitle from "@/components/ui/common/document-title.tsx";
 
 const CreatePassword = () => {
   const { token } = useParams();
@@ -137,7 +137,7 @@ const CreatePassword = () => {
     },
     []
   );
-  DocumentTitle("Create Password");
+  useDocumentTitle("Create Password");
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">

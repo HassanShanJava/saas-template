@@ -714,7 +714,7 @@ const MemberForm = ({
     <Sheet open={open}>
       <SheetContent
         hideCloseButton
-        className="w-full !max-w-[1120px] py-0 custom-scrollbar"
+        className="w-[85%] mdx:w-[75%] !max-w-[1120px] py-0 custom-scrollbar"
       >
         <FormProvider {...form}>
           <form
@@ -1111,25 +1111,35 @@ const MemberForm = ({
                         </span>
                       )}
                     </div>
-                    <div className="relative ">
-                      <FloatingLabelInput
-                        id="notes"
-                        label="Notes"
-                        {...register("notes", {
-                          maxLength: {
-                            value: 200,
-                            message: "Notes should not exceed 200 characters",
-                          },
-                          pattern: {
-                            value: /^[A-Za-z0-9\.\,\-\_\s]+$/, // Adjust this regex based on your needs
-                            message:
-                              "Allowed: A-Z, a-z, 0-9, period (.), comma (,), hyphen (-), underscore (_), space ( )",
-                          },
-                        })}
-                        error={errors.notes?.message}
-                      />
-                    </div>
 
+                    <div className="relative">
+                      <Controller
+                        name={"nic" as keyof MemberInputTypes}
+                        control={control}
+                        rules={{
+                          pattern: {
+                            value: /^\d{5}-\d{7}-\d$/,
+                            message: "CNIC must follow #####-#######-#",
+                          },
+                        }}
+                        render={({ field: { onChange, value } }) => (
+                          <FloatingLabelInput
+                            label="CNIC"
+                            type="text"
+                            value={value ? String(value) : ""} // Ensure value is a string or empty
+                            onChange={(e) => {
+                              const formattedValue = formatNIC(e.target.value);
+                              onChange(formattedValue || ""); // Default to empty string
+                            }}
+                          />
+                        )}
+                      />
+                      {errors.nic?.message && (
+                        <span className="text-red-500 text-xs pt-2">
+                          {errors.nic?.message}
+                        </span>
+                      )}
+                    </div>
                     <div className="relative ">
                       <Controller
                         name={"client_status" as keyof MemberInputTypes}
@@ -1369,32 +1379,26 @@ const MemberForm = ({
                         </span>
                       )}
                     </div>
-                    <div className="relative">
-                      <Controller
-                        name={"nic" as keyof MemberInputTypes}
-                        control={control}
-                        rules={{
-                          pattern: {
-                            value: /^\d{5}-\d{7}-\d$/,
-                            message: "CNIC must follow #####-#######-#",
+                    <div className="relative row-span-2">
+                      <FloatingLabelInput
+                        id="notes"
+                        label="Notes"
+                        rows={2}
+                        maxLength={200}
+                        type="textarea"
+                        {...register("notes", {
+                          maxLength: {
+                            value: 200,
+                            message: "Notes should not exceed 200 characters",
                           },
-                        }}
-                        render={({ field: { onChange, value } }) => (
-                          <FloatingLabelInput
-                            label="CNIC"
-                            type="text"
-                            value={String(value ?? "")} // Convert to string explicitly
-                            onChange={(e) =>
-                              onChange(formatNIC(e.target.value))
-                            }
-                          />
-                        )}
+                          pattern: {
+                            value: /^[A-Za-z0-9\.\,\-\_\s]+$/, // Adjust this regex based on your needs
+                            message:
+                              "Allowed: A-Z, a-z, 0-9, period (.), comma (,), hyphen (-), underscore (_), space ( )",
+                          },
+                        })}
+                        error={errors.notes?.message}
                       />
-                      {errors.nic?.message && (
-                        <span className="text-red-500 text-xs pt-2">
-                          {errors.nic?.message}
-                        </span>
-                      )}
                     </div>
                   </div>
                 </div>

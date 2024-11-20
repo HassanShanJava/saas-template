@@ -90,7 +90,15 @@ const PaymentMethods = () => {
         {plugins &&
           plugins.map((plugin) => (
             <div className="w-full flex justify-between items-center bg-secondary py-3 px-5 rounded-2xl">
-              <Label htmlFor={"" + plugin.id}>{plugin.name}</Label>
+              <Label htmlFor={"" + plugin.id}>
+                {plugin.name === "Cash" && (
+                  <i className="fa-solid fa-money-bill mr-2"></i>
+                )}
+                {plugin.name === "Credit Card" && (
+                  <i className="fa-regular fa-credit-card mr-2"></i>
+                )}
+                {plugin.name}{" "}
+              </Label>
               <div className="flex gap-2 justify-center items-center">
                 {updatingPluginId === plugin.id && (
                   <div>

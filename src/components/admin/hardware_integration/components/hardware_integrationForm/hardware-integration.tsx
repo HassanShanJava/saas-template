@@ -1,65 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
-import { Separator } from "@/components/ui/separator";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import React, { useEffect, useRef, useState } from "react";
-import {
-  Controller,
-  FieldErrors,
-  FormProvider,
-  useFieldArray,
-  useForm,
-} from "react-hook-form";
+import React, { useEffect } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { useToast } from "@/components/ui/use-toast";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { cn } from "@/lib/utils";
-import CustomCollapsible from "@/components/ui/collapsibleCard/collapsible-card";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { useGetCreditsQuery } from "@/services/creditsApi";
 import {
   HardwareIntegrationInput,
   HardwareIntegrationRow,

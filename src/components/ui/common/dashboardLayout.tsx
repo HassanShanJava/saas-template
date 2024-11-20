@@ -4,7 +4,7 @@ import { Header } from "./header";
 import { Toaster } from "@/components/ui/toaster";
 import "./style.css";
 import { Separator } from "@/components/ui/separator";
-
+import { demoSidePanel } from "@/constants/dashboard";
 import dashboardsvg from "@/assets/dashboard-svg.svg";
 import {
   Accordion,
@@ -112,10 +112,9 @@ const DashboardLayout: React.FC = () => {
           style={{ direction: "ltr" }}
           className="flex flex-col gap-2 px-2 py-2 "
         >
-          {sidePanel &&
-            sidePanel?.map((item: any, i: number) => (
+          {demoSidePanel?.map((item: any, i: number) => (
               <>
-                {item.children && item.children?.length == 0 && (
+                {item.children?.length == 0 && (
                   <Link
                     key={i}
                     to={item.link}

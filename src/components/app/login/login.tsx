@@ -78,7 +78,7 @@ export default function AuthenticationPage() {
     if (userInfo) {
       const sidepanel = localStorage.getItem("sidepanel");
       const decodedSidepanel = JSON.parse(atob(sidepanel as string));
-      const links = extractLinks(decodedSidepanel);
+      const links =   extractLinks(decodedSidepanel);
       toast({
         variant: "success",
         title: "LogIn",

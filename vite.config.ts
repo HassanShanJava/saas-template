@@ -6,7 +6,7 @@ import { resolve } from "path";
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
+    port: 5180,
     proxy: {
       "/s3": {
         target: "https://uploads.fitnfi.com", // Replace with actual S3 bucket URL

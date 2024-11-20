@@ -125,13 +125,7 @@ export const Header = () => {
             </div>
           </div>
 
-          {counter_number && (
-            <Badge className=" text-white  mx-2">
-              <span className="text-nowrap">
-                Opened Counter: {counter_number}
-              </span>
-            </Badge>
-          )}
+          
         </div>
 
         <div className="w-full slg:max-w-[280px] flex flex-row justify-end slg:justify-center items-center gap-3 px-2 slg:px-0">

@@ -85,16 +85,18 @@ interface LoginParams {
   email: string;
   password: string;
   rememberme: boolean;
+  website_url: string;
+
 }
 export const login = createAsyncThunk(
   "auth/login",
-  async ({ email, password, rememberme }: LoginParams, { rejectWithValue }) => {
+  async ({ email, password, rememberme, website_url }: LoginParams, { rejectWithValue }) => {
     try {
 
       const {
         data,
       }: { data: { token: { access_token: string }; user?: any } } =
-        await loginUser(email, password);
+        await loginUser(email, password, website_url);
 
       const { data: userResource } = await getUserResource(data.user.role_id, data.token.access_token)
       const payload: Record<string, any> = { ...data }

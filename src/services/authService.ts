@@ -5,10 +5,10 @@ const client = axios.create({
   baseURL: VITE_API_URL,
 });
 
-export async function loginUser(email: string, password: string, persona?: string) {
+export async function loginUser(email: string, password: string,  website_url: string, persona?: string,) {
   return await client.post(
     "login",
-    { email, password, persona },
+    { email, password, persona, website_url },
     {
       headers: {
         Accept: "application/json",

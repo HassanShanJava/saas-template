@@ -42,11 +42,8 @@ function App() {
           <Route path="/" index element={<AuthenticationPage />} />
           <Route element={<DashboardLayout />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
-
-
             <Route path="/admin/roles" element={<RolesAndAccess />} />
             <Route path="/admin/staff" element={<Staff />} />
-
             <Route path="/notfound" element={<NotFoundPage />} />
             <Route path="*" element={<Navigate to="/notfound" replace />} />
           </Route>

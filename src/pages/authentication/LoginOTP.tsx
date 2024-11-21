@@ -8,8 +8,10 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { useNavigate } from "react-router-dom";
 
 const LoginOTP: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="loginpage-image bg-[#bebbbb]">
       <div className="max-w-[1800px] mx-auto xs:mx-0">
@@ -69,7 +71,11 @@ const LoginOTP: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <CommonButton title="Continue" type="button" />
+                  <CommonButton
+                    title="Continue"
+                    type="button"
+                    onClick={() => navigate("/dashboard")}
+                  />
                 </form>
               </CardContent>
             </Card>

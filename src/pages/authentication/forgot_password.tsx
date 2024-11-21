@@ -3,11 +3,9 @@ import { SubmitHandler, useForm, FormProvider } from "react-hook-form";
 import ReCAPTCHA from "react-google-recaptcha";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
-import { Button } from "../../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import "./style.css";
-import { login } from "../../../features/auth/authSlice";
+// import { login } from "../../../features/auth/authSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -20,6 +18,7 @@ import logomainsvg from "@/assets/logo-main.svg";
 import { useSendResetEmailMutation } from "@/services/resetPassApi";
 import { ErrorType } from "@/app/types";
 import useDocumentTitle from "@/components/ui/common/document-title";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const ForgotPasword = () => {
   const { toast } = useToast();
@@ -109,7 +108,7 @@ const ForgotPasword = () => {
   function onChange(value: any) {
     setCaptchaError(false);
   }
-  useDocumentTitle("Forgot Email")
+  useDocumentTitle("Forgot Email");
   return (
     <div className="loginpage-image">
       <div className="max-w-[1800px] mx-auto">

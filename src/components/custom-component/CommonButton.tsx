@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 interface Props {
   title: string;
   type?: "button" | "submit" | "reset";
-  onClick?: () => void;
+  onClick?: any;
 }
 
 const CommonButton: React.FC<Props> = ({ title, type = "button", onClick }) => {

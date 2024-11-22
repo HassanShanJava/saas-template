@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Card,
   CardContent,
@@ -12,36 +12,74 @@ import { Link, useNavigate } from "react-router-dom";
 import IMAGES from "@/assets/IMAGES";
 import CommonInput from "@/components/custom-component/CommonInput";
 import CommonButton from "@/components/custom-component/CommonButton";
+import { LoginFormSchema, loginSchema } from "@/schema/LoginSchema";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
-const initialFormData = {
+const initailValue = {
   email: "",
-  rememberMe: false,
+  rememberme: false,
 };
 
 const AuthenticationPage = () => {
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState(initialFormData);
+  const [otp, setOtp] = useState<string | null>(null);
 
-  const handleInputChange = (name: string, value: string | boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormSchema>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: initailValue,
+  });
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form Data:", formData);
-    navigate("/login-otp");
+  // const onSubmit = (data: LoginFormSchema) => {
+  //   console.log("Form Data:", data);
+
+  //   // Generate OTP
+  //   const generatedOtp = "642987";
+  //   setOtp(generatedOtp);
+
+  //   // Simulate an API response with the OTP
+  //   console.log(`OTP Generated for ${data.email}: ${generatedOtp}`);
+
+  //   alert("afsaf");
+  //   // Navigate to OTP page
+  //   navigate("/otp", { state: { email: data.email, otp: generatedOtp } });
+  // };
+
+  const onSubmit = (data: LoginFormSchema) => {
+    const generatedOtp = "642987";
+    setOtp(generatedOtp);
+
+    // Simulate an API response with the OTP
+    console.log(`OTP Generated for ${data.email}: ${generatedOtp}`);
+
+    // Navigate to OTP page
+    navigate("/login-otp", {
+      state: { email: data.email, otp: generatedOtp },
+    });
+
+    toast({
+      variant: "success",
+      title: "Login",
+      description: `${`Your OTP sent your register email`}`,
+    });
+    if (data.rememberMe) {
+      localStorage.setItem("userEmail", data.email);
+      console.log("Email stored in localStorage:", data.email);
+    }
   };
 
   return (
-    <div className="loginpage-image">
+    <div className="loginpage-image bg-slate-900">
       <div className="max-w-[1800px] mx-auto xs:mx-0">
         <div className="flex sm:mx-16 justify-center sm:justify-between items-center h-dvh xs:mx-0">
-          <div className=" flex flex-col gap-2 xs:gap-0"></div>
+          <div className="flex flex-col gap-2 xs:gap-0"></div>
           <div>
-            <Card className="px-16 max-w-md bg-white/30 backdrop-blur-lg rounded-3xl border border-white/40 shadow-lg p-2">
+            <Card className="px-16 max-w-md bg-white/5 backdrop-blur-lg rounded-3xl border border-white/40 shadow-lg p-2">
               <CardHeader>
                 <CardTitle>
                   <div className="gap-2 flex justify-center items-center">
@@ -54,9 +92,6 @@ const AuthenticationPage = () => {
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      {/* <h1 className="hero-topHeading italic tracking-wider leading-5 text-[1.3rem] text-QtextPrimary">
-                        Log In
-                      </h1> */}
                       <p className="text-QtextPrimary leading-5 italic font-semibold text-[1.8rem]">
                         Welcome Back 👋
                       </p>
@@ -69,28 +104,37 @@ const AuthenticationPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form className="space-y-4" onSubmit={onSubmit}>
+                <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                   <div>
-                    <CommonInput
+                    <Controller
                       name="email"
-                      placeholder="Enter Your Email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        handleInputChange(e.target.name, e.target.value)
-                      }
+                      control={control}
+                      render={({ field }) => (
+                        <CommonInput
+                          {...field}
+                          name="email"
+                          type="email"
+                          placeholder="Enter your email"
+                          error={errors.email?.message}
+                        />
+                      )}
                     />
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="rememberme"
-                      checked={formData.rememberMe}
-                      onCheckedChange={(checked) =>
-                        handleInputChange("rememberMe", checked as boolean)
-                      }
-                      className="text-white border-checkboxborder"
+                    <Controller
+                      name="rememberMe"
+                      control={control}
+                      render={({ field }) => (
+                        <Checkbox
+                          id="rememberme"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="text-white border-checkboxborder"
+                        />
+                      )}
                     />
+
                     <label
                       htmlFor="rememberme"
                       className="font-poppins text-textgray text-sm font-medium leading-none"
@@ -99,14 +143,6 @@ const AuthenticationPage = () => {
                     </label>
                   </div>
 
-                  <div>
-                    {/* ReCAPTCHA purely for UI */}
-                    <ReCAPTCHA
-                      theme="dark"
-                      sitekey="YOUR_SITE_KEY"
-                      size="normal"
-                    />
-                  </div>
                   <CommonButton title="Login" type="submit" />
                 </form>
               </CardContent>

@@ -8,10 +8,43 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Controller, useForm } from "react-hook-form";
+import { OTPFormValues, otpSchema } from "@/schema/LoginSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/components/ui/use-toast";
 
 const LoginOTP: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { toast } = useToast();
+  const { email, otp } = location.state;
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<OTPFormValues>({
+    resolver: zodResolver(otpSchema),
+    defaultValues: { otp: "" },
+  });
+
+  const onSubmit = (data: OTPFormValues) => {
+    if (data.otp == otp) {
+      console.log("OTP Entered: ", data.otp);
+      localStorage.setItem("userToken", "payload.token.access_token");
+      navigate("/admin/dashboard");
+      toast({
+        variant: "success",
+        title: "Login",
+        description: `${`Login Successfull`}`,
+      });
+    } else {
+      console.log("Please enter correct otp");
+    }
+  };
+
   return (
     <div className="loginpage-image bg-[#bebbbb]">
       <div className="max-w-[1800px] mx-auto xs:mx-0">
@@ -45,18 +78,26 @@ const LoginOTP: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                   <div className="flex my-3 flex-col justify-center items-center">
-                    <InputOTP maxLength={6}>
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
+                    <Controller
+                      name="otp"
+                      control={control}
+                      render={({ field }) => (
+                        <InputOTP maxLength={6} {...field}>
+                          <InputOTPGroup>
+                            {[...Array(6)].map((_, index) => (
+                              <InputOTPSlot key={index} index={index} />
+                            ))}
+                          </InputOTPGroup>
+                        </InputOTP>
+                      )}
+                    />
+                    {errors.otp && (
+                      <p className="text-red-500 text-sm mt-2">
+                        {errors.otp.message}
+                      </p>
+                    )}
                     <div className="flex items-center justify-between my-3 w-80">
                       <div>
                         <p className="text-[.8rem] text-textgray">
@@ -71,11 +112,7 @@ const LoginOTP: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <CommonButton
-                    title="Continue"
-                    type="button"
-                    onClick={() => navigate("/dashboard")}
-                  />
+                  <CommonButton title="Continue" type="submit" />
                 </form>
               </CardContent>
             </Card>

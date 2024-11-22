@@ -18,6 +18,7 @@ import PrivacyStatement from "./components/PrivacyStatement";
 import TermsAndConditions from "./components/TermsAndConditions";
 import LoginOTP from "./pages/authentication/LoginOTP";
 import ForgotPasword from "./pages/authentication/forgot_password";
+import LandingPage from "./pages/landing-page/LandingPage";
 
 function App() {
   const loading = useSelector((state: RootState) =>
@@ -36,9 +37,11 @@ function App() {
         <Route path="/qr-code" element={<QRCodePage />} />
         <Route path="/privacy-statement" element={<PrivacyStatement />} />
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login-otp" index element={<LoginOTP />} />
+        <Route path="/login" index element={<AuthenticationPage />} />
         <Route path="/" element={<ProtectedRoute />}>
-          <Route path="/" index element={<AuthenticationPage />} />
           <Route element={<DashboardLayout />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/roles" element={<RolesAndAccess />} />

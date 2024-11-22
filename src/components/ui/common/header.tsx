@@ -16,6 +16,7 @@ import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import userimg from "@/assets/userSvg.svg";
 import { Badge } from "../badge";
+import IMAGES from "@/assets/IMAGES";
 
 const pageTitles = [
   { targetPath: "/admin/dashboard", title: "Dashboard" },
@@ -67,7 +68,7 @@ const PageTitle = ({
   return <p className="text-lg">{title}</p>;
 };
 
-const isActiveLink = (currentPath: string, targetPath: string) =>{
+const isActiveLink = (currentPath: string, targetPath: string) => {
   if (currentPath === targetPath) return true; // Exact match
   if (targetPath.endsWith("/") && currentPath.startsWith(targetPath)) {
     return true; // Prefix match for paths ending with "/"
@@ -102,7 +103,7 @@ export const Header = () => {
       <div className="flex w-full justify-between items-start gap-4 flex-col slg:flex-row slg:items-center">
         <div className="w-full slg:!w-[calc(100%-280px)] flex flex-row h-full justify-between items-center ">
           <div className="w-full flex flex-col my-0">
-            <h1 className="text-2xl  font-bold  pl-7 ">
+            <h1 className="text-2xl  text-[#212529] font-semibold  pl-7 ">
               {pageTitles.map(({ targetPath, title }, index) => (
                 <PageTitle
                   key={index}
@@ -124,44 +125,53 @@ export const Header = () => {
               ))}
             </div>
           </div>
-
-          
         </div>
 
         <div className="w-full slg:max-w-[280px] flex flex-row justify-end slg:justify-center items-center gap-3 px-2 slg:px-0">
           <Separator orientation="vertical" className="h-10" />
-          <div className="flex flex-row justify-center items-center gap-4">
+          {/* <div className="flex flex-row justify-center items-center gap-4">
             <div className="w-8 h-8 border-[1px] border-gray-400 rounded-full justify-center flex items-center">
               <i className="fa-regular fa-envelope"></i>
             </div>
             <div className="w-8 h-8 border-[1px] border-gray-400 rounded-full justify-center flex items-center">
               <i className="fa-regular fa-bell"></i>
             </div>
+          </div> */}
+          <div className="flex hover:cursor-pointer">
+            <img src={IMAGES.notification_bell} className="size-6" alt="" />
           </div>
           <Separator orientation="vertical" className="h-10" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className="justify-center cursor-pointer items-center flex gap-3">
-                <img
-                  src={userimg}
-                  width="32"
-                  height="32"
-                  className="rounded-full"
-                  alt="Avatar"
-                />
-                <h1 className="text-base capitalize">
-                  {userInfo?.user?.first_name}
-                </h1>
-                <Button
+                <div>
+                  <img
+                    src={userimg}
+                    width="36"
+                    height="36"
+                    className="rounded-full"
+                    alt="Avatar"
+                  />
+                </div>
+                <div>
+                  <h1 className="text-[#212529] capitalize text-[1rem]">
+                    {/* {userInfo?.user?.first_name} */}
+                    austin robertson
+                  </h1>
+                  <p className="text-[#212529] capitalize text-[.8rem]">
+                    business portal
+                  </p>
+                </div>
+                {/* <Button
                   variant="ghost"
                   size="icon"
                   className="rounded-full w-2 px-2.5"
                 >
                   <i className="fa-solid fa-caret-down "></i>
-                </Button>
+                </Button> */}
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="center">
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>

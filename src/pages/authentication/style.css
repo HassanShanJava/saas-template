@@ -1,12 +1,12 @@
 .loginpage-image {
-  background-image: url(./../../assets/background.webp);
+  background-image: url(./../../assets/bg.png);
   background-position: center;
   background-repeat: no-repeat;
   /* width: 100vw;
   height: 100%; */
   margin: 0px;
   padding: 0px;
-  background-size: cover;
+  background-size: 100% 100%;
 }
 .recaptcha-container {
   display: inline-block;

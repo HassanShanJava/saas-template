@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./style.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import IMAGES from "@/assets/IMAGES";
@@ -44,6 +44,25 @@ const LoginOTP: React.FC = () => {
       console.log("Please enter correct otp");
     }
   };
+
+  const onResentOtp = async () => {
+    try {
+      const storedEmail = localStorage.getItem("userEmail");
+      console.log("Email from localStorage:", storedEmail);
+    } catch (error) {
+      console.log("onResentOTP error ==>", error);
+    }
+  };
+
+  // Fetch email from localStorage
+  // useEffect(() => {
+  //   const storedEmail = localStorage.getItem("userEmail");
+  //   if (storedEmail) {
+  //     console.log("Email from localStorage:", storedEmail);
+  //   } else {
+  //     console.log("No email found in localStorage.");
+  //   }
+  // }, []);
 
   return (
     <div className="loginpage-image bg-[#bebbbb]">
@@ -105,7 +124,7 @@ const LoginOTP: React.FC = () => {
                           <span className="text-QtextPrimary">00:59</span>
                         </p>
                       </div>
-                      <div>
+                      <div onClick={onResentOtp}>
                         <p className="text-[.8rem] text-QtextPrimary underline hover:cursor-pointer">
                           Resent OTP
                         </p>

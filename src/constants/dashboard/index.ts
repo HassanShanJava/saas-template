@@ -25,7 +25,7 @@ export const demoSidePanel = [
     index: 4,
     link: "/admin/staff",
     // icon: "fa fa-user",
-    icon: IMAGES.counter,
+    icon: IMAGES.staff_icon,
     access_type: "full_access",
     children: [],
   },

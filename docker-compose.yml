@@ -2,9 +2,9 @@ services:
   app:
     build:
       context: .
-      dockerfile: /Dockerfile  # Specify the relative path to your Dockerfile
+      dockerfile: /Dockerfile # Specify the relative path to your Dockerfile
     ports:
-      - "5173:5173"
+      - "${VITE_PORT}:5180"
     networks:
       - app-network
     env_file:

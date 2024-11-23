@@ -111,14 +111,12 @@ const DashboardLayout: React.FC = () => {
                 <Link
                   key={i}
                   to={item.link}
-                  className={`flex items-center gap-2 rounded-md p-1 transition-colors  ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-[#C53643]" : "hover:bg-hoverprimary  "}`}
+                  className={`group mb-1 flex items-center gap-2 rounded-md p-1 transition-colors ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-[#C53643]" : "hover:bg-[#eca8ad]"}`}
                 >
                   <div
-                    className={` w-7 h-7 ${isActiveLink(item.link) ? "bg-gradient-to-t from-[#E14746] to-[#C53643]" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
+                    className={`w-7 h-7 ${isActiveLink(item.link) ? "bg-gradient-to-t from-[#E14746] to-[#C53643]" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
                   >
-                    {/* <i
-                      className={`${item.icon} text-md ${isActiveLink(item.link) ? "text-[white]" : "text-gray-500 stroke-current"}`}
-                    ></i> */}
+                    {/* Icon */}
                     <img
                       src={item.icon}
                       alt=""
@@ -126,7 +124,7 @@ const DashboardLayout: React.FC = () => {
                     />
                   </div>
                   <span
-                    className={`${!isSidebarOpen && "hidden"} ${isActiveLink(item.link) ? "text-[white]" : "text-gray-500 stroke-current"}`}
+                    className={`${!isSidebarOpen && "hidden"} ${isActiveLink(item.link) ? "text-[white]" : "text-gray-500 group-hover:text-[white]"} `}
                   >
                     {item.name}
                   </span>
@@ -141,10 +139,10 @@ const DashboardLayout: React.FC = () => {
                     >
                       <div className="flex items-center gap-2">
                         <div
-                          className={`w-7 h-7 bg-gray-100 rounded-lg justify-center flex items-center`}
+                          className={`w-7 h-7  rounded-lg justify-center flex items-center`}
                         >
                           <i
-                            className={`${item.icon} w-4 h-4 text-gray-500 stroke-current`}
+                            className={`${item.icon}  w-4 h-4 text-gray-500 stroke-current`}
                           ></i>
                         </div>
                         <span
@@ -155,15 +153,22 @@ const DashboardLayout: React.FC = () => {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <div className="ml-7 flex flex-col  gap-1 mt-2 [data-state=closed]:animate-accordion-up [data-state=open]:animate-accordion-down ">
+                      <div className="ml-2 flex flex-col  gap-1 mt-2 [data-state=closed]:animate-accordion-up [data-state=open]:animate-accordion-down ">
                         {item.children &&
                           item.children?.map((child: any, index: number) => (
                             <Link
                               key={index}
                               to={child.link}
-                              className={`justify-start rounded-md px-3  py-1 ${isActiveLink(child.link) ? "bg-hoverprimary" : "hover:bg-muted"} ${!isSidebarOpen && "hidden"}`}
+                              className={`justify-start rounded-md px-3 flex gap-1 items-center py-1 ${isActiveLink(child.link) ? "bg-[#eca8ad] text-black" : "hover:bg-muted"}  ${!isSidebarOpen && "hidden"}`}
                             >
-                              {child.name}
+                              <span>
+                                <img
+                                  src={IMAGES.RBAC_icon}
+                                  alt=""
+                                  className={`size-6 ${isActiveLink(child.link) ? "brightness-0" : ""}`}
+                                />
+                              </span>
+                              <span className="pt-1">{child.name}</span>
                             </Link>
                           ))}
                       </div>

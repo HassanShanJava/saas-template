@@ -24,7 +24,7 @@ const LandingPage = () => {
             experiences as well as smoother, more efficient operations – every
             day and all around the world.
           </p>
-          <div className="mt-2">
+          <div className="mt-4 w-[10rem]">
             {/* <ShadButton
               title="Login"
               onClick={() => navigation('/login')}

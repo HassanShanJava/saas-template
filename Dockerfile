@@ -4,8 +4,14 @@ FROM node:18
 # Install pnpm globally
 RUN npm install -g pnpm
 
+# Accept a build argument for the port
+ARG PORT
+
+# Set the environment variable
+ENV PORT=${VITE_PORT}
+
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /frontend
 
 # Copy package.json and pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
@@ -17,7 +23,7 @@ RUN pnpm install
 COPY . .
 
 # Expose the port the app runs on
-EXPOSE 5173
+EXPOSE ${PORT}
 
 # Command to run the application
 CMD ["pnpm", "dev"]

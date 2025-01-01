@@ -12,10 +12,10 @@ const NotFoundPage = () => {
   const orgId = useSelector(
     (state: RootState) => state.auth.userInfo?.user?.org_id
   );
-  const dispatch = useDispatch();
-  const sidepanel = localStorage.getItem("sidepanel");
-  const decodedSidepanel = JSON.parse(atob(sidepanel as string));
-  const links = extractLinks(decodedSidepanel)
+  // const dispatch = useDispatch();
+  // const sidepanel = localStorage.getItem("sidepanel");
+  // const decodedSidepanel = JSON.parse(atob(sidepanel as string));
+  // const links = extractLinks(decodedSidepanel)
   useDocumentTitle("Page Not Found");
   
   return (
@@ -28,7 +28,7 @@ const NotFoundPage = () => {
       <p style={messageStyle}>
         It seems like the page you're looking for doesn't exist.
       </p>
-      <Link to={links[0]} style={linkStyle} className="text-primar">
+      <Link to={'/admin/dashboard'} style={linkStyle} className="text-primar">
         <FaHome style={homeIconStyle} className="text-primary" />{" "}
         <span className="text-primary">Go back to Home</span>
       </Link>

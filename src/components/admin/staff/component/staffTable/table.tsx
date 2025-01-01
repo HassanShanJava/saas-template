@@ -80,13 +80,13 @@ const initialValue = {
   sort_key: "id",
 };
 export default function StaffTableView() {
-  const staff = (() => {
-    try {
-      return JSON.parse(localStorage.getItem("accessLevels") as string).staff ?? "no_access";
-    } catch {
-      return "no_access";
-    }
-  })();
+  // const staff = (() => {
+  //   try {
+  //     return JSON.parse(localStorage.getItem("accessLevels") as string).staff ?? "no_access";
+  //   } catch {
+  //     return "no_access";
+  //   }
+  // })();
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -249,7 +249,7 @@ export default function StaffTableView() {
     header: "Actions",
     cell: ({ row }) => (
       <DataTableRowActions
-        access={staff}
+        access={"full_access"}
         handleEdit={handleOpenForm}
         data={row.original}
         refetch={refetch}
@@ -454,7 +454,7 @@ export default function StaffTableView() {
                 country_id: row.original?.country_id,
               })
             }
-            disabled={value == "pending" || staff == "read"}
+            disabled={value == "pending"}
           >
             <SelectTrigger className="h-8">
               <SelectValue placeholder="Status" className="text-gray-400">
@@ -528,7 +528,7 @@ export default function StaffTableView() {
         );
       },
     },
-    ...(staff !== "read" ? [actionsColumn] : []),
+    // ...(staff !== "read" ? [actionsColumn] : []),
   ];
 
   const table = useReactTable({
@@ -627,7 +627,7 @@ export default function StaffTableView() {
 
         {/* Buttons Container */}
         <div className="flex flex-row lg:flex-row lg:justify-center lg:items-center gap-2">
-          {staff !== "read" && (
+          {(
             <Button
               className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2"
               onClick={() => handleOpenForm()}

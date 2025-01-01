@@ -42,13 +42,13 @@ import { RoleForm } from "./../../roleform/form";
 
 
 export default function RoleTableView() {
-  const role = (() => {
-    try {
-      return JSON.parse(localStorage.getItem("accessLevels") as string).role ?? "no_access";
-    } catch {
-      return "no_access";
-    }
-  })();
+  // const role = (() => {
+  //   try {
+  //     return JSON.parse(localStorage.getItem("accessLevels") as string).role ?? "no_access";
+  //   } catch {
+  //     return "no_access";
+  //   }
+  // })();
 
   const orgId =
     useSelector((state: RootState) => state.auth.userInfo?.user?.org_id) || 0;
@@ -71,7 +71,7 @@ export default function RoleTableView() {
     isLoading,
     refetch,
     error,
-    isSuccess:resourceSuccess
+    isSuccess: resourceSuccess
   } = useGetResourcesQuery(selectedRoleId, {
     skip: selectedRoleId == undefined,
   });
@@ -357,7 +357,7 @@ export default function RoleTableView() {
             </Select>}
           </div>
           <div className="">
-            {role !== "read" && <Button
+            {<Button
               variant={"outline"}
               className={`h-8 gap-1 justify-center text-gray-500 font-normal border-primary items-center flex px-3 disabled:cursor-not-allowed`}
               disabled={!selectedRoleId}
@@ -368,7 +368,7 @@ export default function RoleTableView() {
             </Button>}
           </div>
         </div>
-        {role !== "read" && <Button
+        {<Button
           className="bg-primary text-sm  text-black flex items-center gap-1  lg:mb-0 h-8 px-2 "
           onClick={handleAddRole}
         >
@@ -376,81 +376,81 @@ export default function RoleTableView() {
           Create New
         </Button>}
       </div>
-      
-        <div className="rounded-none border border-border pb-4">
-          <ScrollArea className="w-full relative  space-y-0">
-            <ScrollBar orientation="vertical" />
-            <Table className="w-full h-full max-h-96 overflow-y-auto relative custom-scrollbar">
-              <TableHeader className="bg-outletcolor sticky top-0 z-20">
-                {table?.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id} className="font-bold">
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                      </TableHead>
+
+      <div className="rounded-none border border-border pb-4">
+        <ScrollArea className="w-full relative  space-y-0">
+          <ScrollBar orientation="vertical" />
+          <Table className="w-full h-full max-h-96 overflow-y-auto relative custom-scrollbar">
+            <TableHeader className="bg-outletcolor sticky top-0 z-20">
+              {table?.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="font-bold">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    <div className="flex space-x-2 justify-center items-center bg-white ">
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="size-3 bg-black rounded-full animate-bounce"></div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
                     ))}
                   </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      <div className="flex space-x-2 justify-center items-center bg-white ">
-                        <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                        <div className="size-3 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                        <div className="size-3 bg-black rounded-full animate-bounce"></div>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : table.getRowModel().rows.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : permissionTableData.length > 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No Module Found!.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No Module Found!.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </ScrollArea>
-        </div>
-      
+                ))
+              ) : permissionTableData.length > 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No Module Found!.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No Module Found!.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      </div>
+
       {/* form data for create RoleForm */}
       <RoleForm
         data={formData}

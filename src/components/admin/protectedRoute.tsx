@@ -13,18 +13,18 @@ const ProtectedRoute = () => {
   );
 
 
-  useEffect(() => {
-    if (sidepanel) {
-      try {
-        const decodedSidepanel = JSON.parse(atob(sidepanel));
-        console.log({ decodedSidepanel });
-        const links = extractLinks(decodedSidepanel);
-        setSidePanel(links);
-      } catch (error) {
-        console.error("Error decoding Base64 string sidepanel:", error);
-      }
-    }
-  }, [sidepanel]);
+  // useEffect(() => {
+  //   if (sidepanel) {
+  //     try {
+  //       const decodedSidepanel = JSON.parse(atob(sidepanel));
+  //       console.log({ decodedSidepanel });
+  //       const links = extractLinks(decodedSidepanel);
+  //       setSidePanel(links);
+  //     } catch (error) {
+  //       console.error("Error decoding Base64 string sidepanel:", error);
+  //     }
+  //   }
+  // }, [sidepanel]);
 
   const isAuthenticated = Boolean(localStorage.getItem("userToken"));
   const location = useLocation();
@@ -44,7 +44,7 @@ const ProtectedRoute = () => {
      return window.innerWidth < 500 ? (
       <Navigate to="/qr-code" />
     ) : (
-      <Navigate to={sidePanel[0]} />
+      <Navigate to={'/admin/dashboard'} />
     );
   }
 

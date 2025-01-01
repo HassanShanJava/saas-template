@@ -1,15 +1,8 @@
-import {
-  CoachTableDataTypes,
-  LimitedAccessTime,
-  RegisterSession,
-  salesReportInterface,
-  staffTypesResponseList,
-} from "@/app/types";
-import { MemberTableDatatypes } from "@/app/types/member";
 import Papa from "papaparse";
 import { formatInTimeZone } from "date-fns-tz";
 import { JwtPayload } from "@/app/types/shared_types";
 import { SignJWT } from "jose";
+import { LimitedAccessTime, staffTypesResponseList } from "@/app/types";
 const { VITE_JWT_EXPIRATION, VITE_JWT_Secret_Key } = import.meta.env;
 
 // Your secret key as a TextEncoder-encoded Uint8Array for the browser
@@ -90,99 +83,10 @@ export function replaceUnderscoreWithSpace(inputString: string) {
 }
 export const capitalizeFirstLetter = (str: string) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
-export const membersMapper = (member: MemberTableDatatypes) => ({
-  "Member Id": member.own_member_id,
-  "Member Name": `${capitalizeFirstLetter(member.first_name || "")} ${capitalizeFirstLetter(member.last_name || "")}`,
-  "Business Name": capitalizeFirstLetter(member.business_name || ""),
-  // "Membership Plan": capitalizeFirstLetter(
-  //   member.membership_plan_id?.toString() || ""
-  // ),
-  Status: capitalizeFirstLetter(member.client_status || ""),
-  "Activation Date": displayDate(member.activated_on) || "",
-  "Last Check In": displayDateTime(member.check_in) || "",
-  "Last Login": displayDateTime(member.last_online) || "",
-});
 
-export const staffMapper = ({
-  own_staff_id,
-  first_name,
-  last_name,
-  activated_on,
-  status,
-  role_name,
-  last_checkin,
-  last_online,
-}: staffTypesResponseList) => ({
-  "Staff Id": own_staff_id,
-  "Staff Name": `${capitalizeFirstLetter(first_name || "")} ${capitalizeFirstLetter(last_name || "")}`,
-  "Activation Date": displayDate(activated_on) || "",
-  Role: capitalizeFirstLetter(role_name || ""),
-  Status: capitalizeFirstLetter(status || "") || "",
-  "Last Check In": displayDateTime(last_checkin) || "",
-  "Last Login": displayDateTime(last_online) || "",
-});
-export const coachMapper = ({
-  own_coach_id,
-  first_name,
-  last_name,
-  activated_on,
-  coach_status,
-  check_in,
-  last_online,
-}: CoachTableDataTypes) => ({
-  "Coach Id": own_coach_id,
-  "Coach Name": `${capitalizeFirstLetter(first_name || "")} ${capitalizeFirstLetter(last_name || "")}`,
-  "Activation Date": displayDate(activated_on) || "",
-  Status: capitalizeFirstLetter(coach_status || ""),
-  "Last Check In": displayDateTime(check_in) || "",
-  "Last Login": displayDateTime(last_online) || "",
-});
 
-export const sessionMapper = ({
-  id,
-  opening_time,
-  opening_balance,
-  closing_time,
-  closing_balance,
-  discrepancy,
-  notes,
-  created_by,
-  created_date,
-}: RegisterSession) => ({
-  "Session ID": id,
-  "Opening Time": displayDateTime(opening_time) || "",
-  "Opening Balance": displayValue(opening_balance?.toString()) || "",
-  "Closing Time": displayDateTime(closing_time) || "",
-  "Closing Balance": displayValue(closing_balance?.toString()) || "",
-  Discrepancy: displayValue(discrepancy?.toString()) || "",
-  Notes: capitalizeFirstLetter(notes?.toString() || "N/A"),
-  "Created By": capitalizeFirstLetter(created_by),
-  "Created Date": displayDateTime(created_date) || "",
-});
 
-export const saleHistoryMapper = ({
-  receipt_number,
-  tax_number,
-  member_name,
-  tax_amt,
-  discount_amt,
-  total,
-  member_nic,
-  status,
-  staff_name,
-  transaction_date,
-}: salesReportInterface) => ({
-  "TXN Number": receipt_number,
-  "SRB Number": displayValue(tax_number) || "",
-  "Member Name": capitalizeFirstLetter(member_name) || "",
-  "CNIC Number": displayValue(formatNIC(member_nic)) || "",
-  "Tax Amount": displayValue(tax_amt) || "",
-  "Discount Amount": displayValue(discount_amt) || "",
-  "Total Amount": displayValue(total) || "",
-  Status: capitalizeFirstLetter(status),
-  "Created By": capitalizeFirstLetter(staff_name),
-  "Created Date": displayDateTime(transaction_date) || "",
-});
+
 
 export const initialValue = {
   limit: 10,
@@ -309,3 +213,23 @@ export const replaceNullWithDefaults = (
   export function capitalize(word: string): string {
     return word.charAt(0).toUpperCase() + word.slice(1);
   }
+
+  
+export const staffMapper = ({
+  own_staff_id,
+  first_name,
+  last_name,
+  activated_on,
+  status,
+  role_name,
+  last_checkin,
+  last_online,
+}: staffTypesResponseList) => ({
+  "Staff Id": own_staff_id,
+  "Staff Name": `${capitalizeFirstLetter(first_name || "")} ${capitalizeFirstLetter(last_name || "")}`,
+  "Activation Date": displayDate(activated_on) || "",
+  Role: capitalizeFirstLetter(role_name || ""),
+  Status: capitalizeFirstLetter(status || "") || "",
+  "Last Check In": displayDateTime(last_checkin) || "",
+  "Last Login": displayDateTime(last_online) || "",
+});

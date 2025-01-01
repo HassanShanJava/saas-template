@@ -14,7 +14,7 @@ import {
   useState,
 } from "react";
 import { toast } from "@/components/ui/use-toast.ts";
-import { ErrorType } from "@/app/types.ts";
+import { ErrorType } from "@/app/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { inValidToken } from "@/utils/helper.ts";

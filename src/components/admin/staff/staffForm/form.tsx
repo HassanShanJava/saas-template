@@ -82,15 +82,11 @@ import { Separator } from "@/components/ui/separator";
 import { PhoneInput } from "react-international-phone";
 import { PhoneNumberUtil } from "google-libphonenumber";
 import { Info } from "lucide-react";
-import { Gender } from "@/app/shared_enums/enums";
+import { Gender, UserStatus } from "@/app/shared_enums/enums";
 import { formatNIC } from "@/utils/helper";
 const { VITE_VIEW_S3_URL } = import.meta.env;
 
-export enum statusEnum {
-  pending = "pending",
-  active = "active",
-  inactive = "inactive",
-}
+
 interface StaffFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   open: boolean;
@@ -135,7 +131,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
     mobile_number: "",
     city: "",
     nic: "",
-    status: statusEnum.pending,
+    status: UserStatus.Pending,
   };
 
   const handleClose = () => {
@@ -251,7 +247,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
       .refine((value) => value !== 0, {
         message: "Required",
       }),
-    status: z.nativeEnum(statusEnum, {
+    status: z.nativeEnum(UserStatus, {
       required_error: "You need to select a status.",
     }),
     city: z
@@ -1002,10 +998,10 @@ const StaffForm: React.FC<StaffFormProps> = ({
                       <FormItem>
                         <Select
                           disabled={field.value === "pending"}
-                          onValueChange={(value: statusEnum) =>
+                          onValueChange={(value: UserStatus) =>
                             form.setValue("status", value)
                           }
-                          value={field.value as statusEnum}
+                          value={field.value as UserStatus}
                         >
                           <FormControl>
                             <SelectTrigger

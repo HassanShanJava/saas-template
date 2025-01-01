@@ -24,12 +24,13 @@ export interface UpdateRoleTypes extends CreateRoleTypes {
 export interface ResourceTypes {
     id: number;
     name: string;
-    code: string | undefined;
+    code: string;
     parent: string | undefined;
     subRows?: ResourceTypes[];
     access_type?: string;
     children?: ResourceTypes[];
     is_parent: boolean;
+    show_menu: boolean;
     index: number;
     is_root: boolean;
     link: string;

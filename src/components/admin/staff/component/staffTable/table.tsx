@@ -48,7 +48,7 @@ import {
   useGetStaffsQuery,
   useUpdateStaffMutation,
 } from "@/services/staffsApi";
-import StaffForm, { statusEnum } from "../../staffForm/form";
+import StaffForm from "../../staffForm/form";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useGetRolesQuery } from "@/services/rolesApi";
 import {
@@ -60,7 +60,7 @@ import {
 import TableFilters from "@/components/ui/table/data-table-filter";
 import usePagination from "@/hooks/use-pagination";
 import Pagination from "@/components/ui/table/pagination-table";
-import { Gender } from "@/app/shared_enums/enums";
+import { Gender, UserStatus } from "@/app/shared_enums/enums";
 import { userStatus } from "@/constants/global";
 
 interface SearchCriteriaType {
@@ -185,7 +185,7 @@ export default function StaffTableView() {
 
   const handleStatusChange = async (payload: {
     own_staff_id: string;
-    status: statusEnum;
+    status: UserStatus;
     id: number;
     org_id: number;
     first_name: string;
@@ -438,7 +438,7 @@ export default function StaffTableView() {
         return (
           <Select
             defaultValue={value}
-            onValueChange={(e: statusEnum) =>
+            onValueChange={(e: UserStatus) =>
               handleStatusChange({
                 status: e,
                 id: id,

@@ -106,49 +106,61 @@ export const login = createAsyncThunk(
         const sortByIndex = (a: ResourceTypes, b: ResourceTypes) =>
           a.index - b.index;
 
-        // Recursive sorting function for children
-        const sortResources = (resources: ResourceTypes[]): ResourceTypes[] =>
-          resources
-            .map((resource) => ({
-              ...resource,
-              children: resource.children
-                ? sortResources([...resource.children].sort(sortByIndex))
-                : undefined, // recursively sort children if present
-            }))
-            .sort(sortByIndex); // sort the main array by index
+        // Recursive sorting and filtering function
+        const sortAndFilterResources = (resources: ResourceTypes[]): ResourceTypes[] => {
+          return resources
+            .filter((resource) => {
+              // Step 1: Filter out resources where the code starts with "hide_"
+              if (resource.code.startsWith("hide_")) {
+                return false;
+              }
+        
+              // Step 2: Recursively filter children if they exist
+              if (resource.children && resource.children.length > 0) {
+                const filteredChildren = sortAndFilterResources(resource.children);
+        
+                // Assign the filtered children to the parent
+                resource.children = filteredChildren;
+        
+                // If all children are filtered out, evaluate the parent's `access_type`
+                if (filteredChildren.length === 0 && resource.access_type === "no_access") {
+                  return false;
+                }
+        
+                // If all filtered children have `access_type` as "no_access", remove the parent
+                if (
+                  filteredChildren.every((child) => child.access_type === "no_access") &&
+                  resource.access_type === "no_access"
+                ) {
+                  return false;
+                }
+              } else {
+                // Step 3: If no children and `access_type` is "no_access", remove the resource
+                if (resource.access_type === "no_access") {
+                  return false;
+                }
+              }
+        
+              return true; // Keep the resource if it passes all checks
+            })
+            .sort(sortByIndex); // Sort by index
+        };
+        
+        // 1. Sort and filter the side panel resources
+        const filteredSortedResources = sortAndFilterResources(userResource);
+        console.log({ userResource, filteredSortedResources });
 
-        // 1. sort the sidepanel based on the index field
-        const sortUserResource = sortResources(userResource)
 
-        // 2. filter any resources that have no_access
-        const filterUserResource = sortUserResource.filter((sidepanel: any) => {
-          // If the parent has no children, handle based on the parent's access_type
-          if (!sidepanel.children || sidepanel.children.length === 0) {
-            return sidepanel.access_type !== "no_access";
-          }
-
-          // If the parent has children, filter out the children with access_type == "no_access"
-          const filteredChildren = sidepanel.children.filter((child: any) => child.access_type !== "no_access");
-
-          // If after filtering, no children are left, we filter out the parent as well
-          if (filteredChildren.length === 0) {
-            return false; // Filter out the parent if all children have "no_access"
-          }
-
-          // Otherwise, keep the parent and assign the filtered children
-          sidepanel.children = filteredChildren;
-          return true;
-        })
-
-        // 3. set sidepanel in localstorage as base64 encoded 
-        const stringifiedData = JSON.stringify(filterUserResource);
+        // 2. set sidepanel in localstorage as base64 encoded
+        const stringifiedData = JSON.stringify(filteredSortedResources);
         const encodedData = btoa(stringifiedData);
         localStorage.setItem("sidepanel", encodedData);
 
-        // 4. set accessLevels in local storage
+
+        // 3. set accessLevels in local storage
         localStorage.setItem("accessLevels", JSON.stringify(accessLevels));
 
-        // 5. set pospanel and sidepanel in redux state
+        // 4. set pospanel and sidepanel and accessLevels in redux state
         payload.sidepanel = encodedData;
         payload.accessLevels = accessLevels;
       }

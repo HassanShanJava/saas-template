@@ -16,45 +16,44 @@ import {
 } from "@/components/ui/alert-dialog";
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import React from "react";
+import React, { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { ErrorType, staffTypesResponseList } from "@/app/types";
-import { useDeleteStaffMutation } from "@/services/staffsApi";
+import { ErrorType } from "@/app/types";
 import warning from "@/assets/warning.svg";
-import { RootState } from "@/app/store";
-import { useSelector } from "react-redux";
-
+import { useDeleteStaffMutation } from "@/services/staffsApi";
+import { Staff } from "@/app/types/staff";
 export function DataTableRowActions({
   data,
   refetch,
   handleEdit,
-  access
+  access,
 }: {
-  data: staffTypesResponseList & { id: number };
-  refetch: () => void;
-  handleEdit: (staffData: staffTypesResponseList | null) => void;
-  access: string
+  data: Staff;
+  refetch?: any;
+  handleEdit: (user:Staff)=>void;
+  access: string;
 }) {
-  const { userInfo } = useSelector((state: RootState) => state.auth);
-
-  const [isdelete, setIsDelete] = React.useState(false);
+  const [isdelete, setIsDelete] = useState(false);
   const { toast } = useToast();
+  const [deleteStaff] = useDeleteStaffMutation();
 
-  const [deleteCoach, { isLoading: deletingcoach }] = useDeleteStaffMutation();
   const deleteRow = async () => {
-    const payload = {
-      id: data.id,
-    };
     try {
-      const resp = await deleteCoach(data?.id).unwrap();
-      refetch();
-      if (resp) {
-        console.log({ resp });
-        toast({
-          variant: "success",
-          title: "Deleted Staff Successfully",
+      const resp = await deleteStaff(data?.id as number)
+        .unwrap()
+        .then((res) => {
+          refetch();
+          toast({
+            variant: "success",
+            title: "Staff Deleted Successfully",
+          });
+        })
+        .catch((error) => {
+          toast({
+            variant: "destructive",
+            title: `${error?.data?.detail || error?.data?.message}`,
+          });
         });
-      }
       return;
     } catch (error) {
       console.error("Error", { error });
@@ -62,20 +61,19 @@ export function DataTableRowActions({
         const typedError = error as ErrorType;
         toast({
           variant: "destructive",
-          title: "Error in Submission",
-          description: `${typedError.data?.detail}`,
+          title: "Error in form Submission",
+          description: `${typedError.data?.detail ?? (typedError.data as { message?: string }).message}`,
         });
       } else {
         toast({
           variant: "destructive",
-          title: "Error in Submission",
+          title: "Error in form Submission",
           description: `Something Went Wrong.`,
         });
       }
     }
   };
 
-  console.log(data, "edit row");
   return (
     <>
       <Dialog>
@@ -89,17 +87,19 @@ export function DataTableRowActions({
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-4">
+          <DropdownMenuContent align="end" className="">
             <DialogTrigger asChild>
               <DropdownMenuItem onClick={() => handleEdit(data)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
             </DialogTrigger>
-            {access == "full_access" && <DropdownMenuItem disabled={userInfo?.user?.id == data.id} className="disabled:cursor-not-allowed" onClick={() => setIsDelete(true)}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>}
+            {access == "write" && (
+              <DropdownMenuItem onClick={() => setIsDelete(true)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </Dialog>
@@ -107,25 +107,25 @@ export function DataTableRowActions({
         <AlertDialog open={isdelete} onOpenChange={() => setIsDelete(false)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              {/* <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle> */}
-              <AlertDialogDescription>
-                <div className="flex flex-col items-center  justify-center gap-4">
-                  <img src={warning} alt="warning" className="w-18 h-18" />
-                  <AlertDialogTitle className="text-xl font-semibold w-80 text-center">
-                    Please confirm if you want to delete this Staff
+            <AlertDialogDescription>
+                <div className="flex flex-col items-start  justify-start gap-4">
+                  <img src={warning} alt="warning" className="size-14" />
+                  <AlertDialogTitle className="text-lg font-medium">
+                  Are you sure you want to delete this staff? This action
+                  cannot be undone.
                   </AlertDialogTitle>
                 </div>
-                <div className="w-full flex justify-between items-center gap-3 mt-4">
+                <div className=" flex justify-end items-center gap-3 mt-4">
                   <AlertDialogCancel
                     onClick={() => setIsDelete(false)}
-                    className="w-full border border-primary font-semibold"
+                    className="w-[100px] border border-primary font-semibold"
                   >
                     <i className="fa fa-xmark text-base px-1 "></i>
                     Cancel
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={deleteRow}
-                    className="w-full bg-primary !text-black font-semibold"
+                    className="w-[100px] bg-primary !text-black font-semibold"
                   >
                     <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                     Delete

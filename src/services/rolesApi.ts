@@ -6,13 +6,14 @@ import {
   TranformedResourceRsp,
   UpdateRoleTypes,
 } from "@/app/types/roles";
+import { ApiResponse } from "@/app/types/shared_types";
 
 export const Roles = apiSlice.injectEndpoints({
   endpoints(builder) {
     return {
-      getRoles: builder.query<GetRolesType[], number>({
-        query: (org_id) => ({
-          url: `/role?org_id=${org_id}`,
+      getRoles: builder.query<GetRolesType[], void>({
+        query: () => ({
+          url: `/role`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -20,9 +21,9 @@ export const Roles = apiSlice.injectEndpoints({
           providesTags: ["Roles"],
         }),
       }),
-      getResources: builder.query<any, number | undefined>({
+      getResourceById: builder.query<ResourceTypes[], number>({
         query: (role_id) => ({
-          url: `/role?role_id=${role_id}`,
+          url: `/role/${role_id}`,
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -82,7 +83,7 @@ export const Roles = apiSlice.injectEndpoints({
           return { allResourceData, count };
         },
       }),
-      createRole: builder.mutation<any[], CreateRoleTypes>({
+      createRole: builder.mutation<ApiResponse, CreateRoleTypes>({
         query: (roledata) => ({
           url: `/role`,
           method: "POST",
@@ -93,14 +94,24 @@ export const Roles = apiSlice.injectEndpoints({
           invalidatesTags: ["Roles"],
         }),
       }),
-      updateRole: builder.mutation<any, UpdateRoleTypes>({
+      updateRole: builder.mutation<ApiResponse, UpdateRoleTypes>({
         query: (roledata) => ({
-          url: `/role`,
+          url: `/role/${roledata.id}`,
           method: "PUT",
           headers: {
             Accept: "application/json",
           },
           body: roledata,
+          invalidatesTags: ["Roles"],
+        }),
+      }),
+      deleteRole: builder.mutation<ApiResponse, number>({
+        query: (id) => ({
+          url: `/role/${id}`,
+          method: "DELETE",
+          headers: {
+            Accept: "application/json",
+          },
           invalidatesTags: ["Roles"],
         }),
       }),
@@ -110,8 +121,9 @@ export const Roles = apiSlice.injectEndpoints({
 
 export const {
   useGetRolesQuery,
-  useGetResourcesQuery,
+  useGetResourceByIdQuery,
   useGetAllResourcesQuery,
   useCreateRoleMutation,
   useUpdateRoleMutation,
+  useDeleteRoleMutation,
 } = Roles;

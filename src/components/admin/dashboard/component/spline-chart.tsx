@@ -99,7 +99,7 @@ function FilledtimeseriesChart(props: any) {
           { match: { id: "Desktop" }, id: "gradientA" },
           { match: { id: "Mobile" }, id: "gradientB" },
         ]}
-        colors={["#3ED13E", "#35092B5C"]}
+        colors={["#DE524C", "#35092B5C"]}
         theme={{
           tooltip: {
             chip: {

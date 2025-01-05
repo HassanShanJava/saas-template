@@ -9,16 +9,19 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-primary text-primary-foreground hover:bg-secondary",
 
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border-2 border-input bg-transparent hover:bg-accent hover:text-accent-foreground ",
+          "relative flex h-[2.5rem] w-full items-center justify-center space-x-2 text-[.9rem] font-normal bg-primary bg-clip-text text-transparent transition-transform duration-200 border border-primary",
+        // "border-2 border-[#C53643] bg-transparent hover:bg-[#e87983] hover:text-white",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        solid:
+          "relative flex h-[2.5rem] w-full items-center justify-center space-x-2 text-[.9rem] text-white transition-transform duration-200 bg-primary hover:scale-105",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -38,18 +41,32 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  access?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, type="button",...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      type = "button",
+      access = true,
+      ...props
+    },
+    ref
+  ) => {
     const Comp = asChild ? Slot : "button";
     return (
-      <Comp
-        type={type}
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
+      access && (
+        <Comp
+          type={type}
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          {...props}
+        />
+      )
     );
   }
 );

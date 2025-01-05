@@ -1,23 +1,5 @@
 import Papa from "papaparse";
 import { formatInTimeZone } from "date-fns-tz";
-import { JwtPayload } from "@/app/types/shared_types";
-import { SignJWT } from "jose";
-import { LimitedAccessTime, staffTypesResponseList } from "@/app/types";
-const { VITE_JWT_EXPIRATION, VITE_JWT_Secret_Key } = import.meta.env;
-
-// Your secret key as a TextEncoder-encoded Uint8Array for the browser
-const secret = new TextEncoder().encode(VITE_JWT_Secret_Key);
-
-// Function to create a JWT with strict typing
-export async function createJWT(
-  payload: JwtPayload,
-  expiration = VITE_JWT_EXPIRATION
-): Promise<string> {
-  return await new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime(expiration)
-    .sign(secret);
-}
 
 export const daysOrder = [
   "monday",
@@ -30,7 +12,7 @@ export const daysOrder = [
 ] as const;
 
 export const displayDate = (value: any) => {
-  if (!value) return "N/A";
+  if (!value) return "";
   const utcDate = new Date(value);
   const pkOffset = 5 * 60;
   const localTime = new Date(utcDate.getTime() + pkOffset * 60 * 1000);
@@ -38,7 +20,7 @@ export const displayDate = (value: any) => {
 };
 
 export const displayDateTime = (value: any) => {
-  if (!value) return "N/A";
+  if (!value) return "";
   const utcDate = new Date(value);
   const pkOffset = 5 * 60;
   const localTime = new Date(utcDate.getTime() + pkOffset * 60 * 1000);
@@ -54,12 +36,11 @@ export const displayAddress = (
   const parts = [address_1, address_2, zipCode, country];
 
   // Filter out null, undefined, or empty strings
-  const filteredParts = parts.filter(part => part && part.trim());
+  const filteredParts = parts.filter((part) => part && part.trim());
 
   // If no valid parts, return "N/A"
-  return filteredParts.length > 0 ? filteredParts.join(", ") : "N/A";
+  return filteredParts.length > 0 ? filteredParts.join(", ") : "";
 };
-
 
 export const downloadCSV = <T>(
   data: T[],
@@ -84,10 +65,6 @@ export function replaceUnderscoreWithSpace(inputString: string) {
 export const capitalizeFirstLetter = (str: string) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
 
-
-
-
-
 export const initialValue = {
   limit: 10,
   offset: 0,
@@ -99,7 +76,7 @@ export const displayValue = (value: string | number | undefined | null) => {
   return value === null ||
     value == undefined ||
     (typeof value == "string" && value.trim() == "")
-    ? "N/A"
+    ? ""
     : value;
 };
 
@@ -169,7 +146,7 @@ export const inValidToken = (token: string | undefined) => {
 
 export const formatToPKR = (amount: number | null | undefined) => {
   if (!amount) {
-    return "N/A"
+    return "";
   }
 
   return new Intl.NumberFormat("en-PK", {
@@ -181,55 +158,39 @@ export const formatToPKR = (amount: number | null | undefined) => {
     .replace("PKR", "Rs. ");
 };
 
-export function cleanLimitedAccessTime(
-  limitedAccessTime: LimitedAccessTime
-): LimitedAccessTime {
-  const cleanedAccessTime: LimitedAccessTime = {};
-
-  for (const [day, timeSlots] of Object.entries(limitedAccessTime)) {
-    const filteredSlots = timeSlots.filter(
-      (slot) => slot.from_time !== "" || slot.to_time !== ""
-    );
-
-    if (filteredSlots.length > 0) {
-      cleanedAccessTime[day] = filteredSlots;
-    }
-  }
-
-  return cleanedAccessTime;
+export function capitalize(word: string): string {
+  return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
-export const replaceNullWithDefaults = (
-  data: LimitedAccessTime
-): LimitedAccessTime =>
-  daysOrder.reduce(
-    (acc, day) => ({
-      ...acc,
-      [day]: data[day] ?? [{ from_time: "", to_time: "" }],
-    }),
-    {} as LimitedAccessTime
-  );
-
-  export function capitalize(word: string): string {
-    return word.charAt(0).toUpperCase() + word.slice(1);
+type SearchCriteria = Record<
+  string,
+  string | number | (string | number)[] | null | undefined
+>;
+export const generateQueryString = (criteria: SearchCriteria): string => {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(criteria)) {
+    if (value !== undefined && value !== null) {
+      if (Array.isArray(value)) {
+        value.forEach((val) => params.append(key, val.toString()));
+      } else {
+        params.append(key, value.toString());
+      }
+    }
   }
+  return params.toString();
+};
 
-  
-export const staffMapper = ({
-  own_staff_id,
-  first_name,
-  last_name,
-  activated_on,
-  status,
-  role_name,
-  last_checkin,
-  last_online,
-}: staffTypesResponseList) => ({
-  "Staff Id": own_staff_id,
-  "Staff Name": `${capitalizeFirstLetter(first_name || "")} ${capitalizeFirstLetter(last_name || "")}`,
-  "Activation Date": displayDate(activated_on) || "",
-  Role: capitalizeFirstLetter(role_name || ""),
-  Status: capitalizeFirstLetter(status || "") || "",
-  "Last Check In": displayDateTime(last_checkin) || "",
-  "Last Login": displayDateTime(last_online) || "",
-});
+export const getLinks = () => {
+  try {
+    const sidepanel = localStorage.getItem("sidePanel");
+    if (!sidepanel) return null;
+    const decodedSidepanel = JSON.parse(atob(sidepanel));
+    return extractLinks(decodedSidepanel);
+  } catch (error) {
+    console.error(
+      "Error retrieving or parsing sidePanel from localStorage",
+      error
+    );
+    return null;
+  }
+};

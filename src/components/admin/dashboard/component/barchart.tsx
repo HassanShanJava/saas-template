@@ -117,7 +117,7 @@ const SimpleBarChart = () => {
             <Progress
               className="h-1 w-full"
               value={67}
-              color={"#3ED13E"}
+              color={"#DE524C"}
               max={100}
             />
           </div>
@@ -136,7 +136,7 @@ const SimpleBarChart = () => {
             <Progress
               className="h-1 w-full"
               value={67}
-              color={"#3ED13E"}
+              color={"#DE524C"}
               max={100}
             />
           </div>
@@ -156,7 +156,7 @@ const SimpleBarChart = () => {
             <Progress
               className="h-1 w-full"
               value={67}
-              color={"#3ED13E"}
+              color={"#DE524C"}
               max={100}
             />
           </div>
@@ -175,7 +175,7 @@ const SimpleBarChart = () => {
             <Progress
               className="h-1 w-full"
               value={67}
-              color={"#3ED13E"}
+              color={"#DE524C"}
               max={100}
             />
           </div>

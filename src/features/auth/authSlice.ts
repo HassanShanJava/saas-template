@@ -2,37 +2,47 @@ import { ResourceTypes } from "@/app/types/roles";
 import { getUserResource, loginUser } from "@/services/authService";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface User {
-  id: number;
+  token_type: string;
+  id: string;
   first_name: string;
+  last_name: string;
+  org_name: string;
   email: string;
   org_id: number;
-  role_id: number;
-  org_name: string;
+  role_id?: number;
 }
+
 
 interface AuthState {
   userToken: string | null;
-  userInfo: {
-    user: User;
-    sidepanel: Array<any>;
-    accessLevels: Record<string, string>;
-  } | null;
+  userInfo: User | null;
+  accessLevels: Record<string, string>;
+  sidePanel: string;
   error: string | null;
   loading: boolean;
   isLoggedIn: boolean;
   lastRefetch: number | null;
+  isEmailVerify: boolean;
+  skipRequests: boolean;
 }
 
+// Extract values from localStorage
 const userToken = localStorage.getItem("userToken");
 const userInfo = localStorage.getItem("userInfo");
+const accessLevels = localStorage.getItem("accessLevels");
+const sidePanel = localStorage.getItem("sidePanel");
 
 const initialState: AuthState = {
   userToken,
   userInfo: userInfo ? JSON.parse(userInfo) : null,
+  accessLevels: accessLevels ? JSON.parse(accessLevels) : {},
+  sidePanel: sidePanel ?? "",
   error: null,
   loading: false,
-  isLoggedIn: userToken ? true : false,
+  isLoggedIn: Boolean(userToken),
   lastRefetch: null,
+  isEmailVerify: false,
+  skipRequests: false, // Add this line
 };
 
 const authSlice = createSlice({
@@ -45,8 +55,9 @@ const authSlice = createSlice({
     logout: (state) => {
       localStorage.removeItem("userToken");
       localStorage.removeItem("userInfo");
-      localStorage.removeItem("sidepanel");
+      localStorage.removeItem("sidePanel");
       localStorage.removeItem("accessLevels");
+      localStorage.removeItem("userType");
       state.userToken = null;
       state.userInfo = null;
       state.error = null;
@@ -64,15 +75,14 @@ const authSlice = createSlice({
       state.error = null;
     });
     builder.addCase(login.fulfilled, (state, { payload }) => {
-      state.loading = false;
-      state.isLoggedIn = true;
-      state.userInfo = { user: payload.user, sidepanel: payload.sidepanel, accessLevels: payload.accessLevels };
-      state.userToken = payload.token.access_token;
-      state.error = null;
-      localStorage.setItem("userInfo", JSON.stringify({ user: payload.user }));
-      localStorage.setItem("sidepanel", payload.sidepanel);
-      localStorage.setItem("accessLevels", JSON.stringify(payload.accessLevels));
-      localStorage.setItem("userToken", payload.token.access_token);
+      const { sidepanel, accessLevels, ...user } = payload.response;
+        state.loading = false;
+        state.error = null;
+        state.isLoggedIn = true;
+        state.userInfo = user;
+        state.userToken = user.access_token; // Save token
+        localStorage.setItem("userToken", payload.response.access_token);
+        localStorage.setItem("userInfo", JSON.stringify(payload.response));
     });
     builder.addCase(login.rejected, (state, { payload }) => {
       state.loading = false;

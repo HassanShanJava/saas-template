@@ -1,10 +1,10 @@
 import { Card } from "@/components/ui/card";
-import StaffTableView from "./component/staffTable/table";
-import useDocumentTitle from "@/components/ui/common/document-title";
+import StaffTableView from "./component/table";
+import useDocumentTitle from "@/hooks/use-document-title";
 
-export default function MemberPage() {
+export default function StaffManagement() {
   useDocumentTitle("Staff");
-  
+
   return (
     <div className="w-full p-5">
       <Card className="pt-4">

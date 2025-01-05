@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { LoadingButton } from "@/components/ui/loadingButton/loadingButton";
 const { VITE_APP_SITEKEY, VITE_Domain_Name } = import.meta.env;
 import logomainsvg from "@/assets/logo-main.svg";
-import { extractLinks } from "@/utils/helper";
+import { extractLinks, getLinks } from "@/utils/helper";
 import useDocumentTitle from "@/components/ui/common/document-title";
 
 export default function AuthenticationPage() {
@@ -76,15 +76,12 @@ export default function AuthenticationPage() {
     }
 
     if (userInfo) {
-      const sidepanel = localStorage.getItem("sidepanel");
-      const decodedSidepanel = JSON.parse(atob(sidepanel as string));
-      const links =   extractLinks(decodedSidepanel);
+      const links = getLinks() || ['/']; // Return landing page as default;
       toast({
         variant: "success",
         title: "LogIn",
         description: "You are successfully logged In",
       });
-      console.log("Screen width", window.innerWidth);
     }
   }, [loading]);
 

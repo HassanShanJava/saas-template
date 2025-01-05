@@ -39,7 +39,7 @@ const Pagination: React.FC<PaginationProps> = ({
   isLastPage,
 }) => {
   return (
-    <div className="text-sm font-normal flex items-center justify-between  mx-2 px-2  h-10 bg-gray-100 rounded-md">
+    <div className="text-sm font-normal flex items-center justify-between   px-2  h-10 bg-gray-100 rounded-md">
       <div className="flex items-center justify-center gap-2">
         <div className="flex items-center gap-2">
           <p className="">Items per page:</p>
@@ -63,7 +63,11 @@ const Pagination: React.FC<PaginationProps> = ({
           orientation="vertical"
           className="h-10 w-[1px] bg-gray-300"
         />
-        <span>{`${offset + 1} - ${Math.min(offset + limit, totalItems)} of ${totalItems} Items`}</span>
+        <span>
+          {totalItems === 0
+            ? "No items"
+            : `${Math.min(offset + 1, totalItems)} - ${Math.min(offset + limit, totalItems)} of ${totalItems} Items`}
+        </span>
       </div>
 
       <div className="flex items-center justify-center gap-2">
@@ -79,7 +83,7 @@ const Pagination: React.FC<PaginationProps> = ({
             onClick={onFirstPage}
             disabled={offset === 0}
           >
-            <DoubleArrowLeftIcon className="h-4 w-4" />
+            <DoubleArrowLeftIcon className="h-4 w-4 text-black" />
           </Button>
 
           <Separator
@@ -93,7 +97,7 @@ const Pagination: React.FC<PaginationProps> = ({
             onClick={onPrevPage}
             disabled={offset === 0}
           >
-            <ChevronLeftIcon className="h-4 w-4" />
+            <ChevronLeftIcon className="h-4 w-4 text-black" />
           </Button>
 
           <Separator
@@ -107,7 +111,7 @@ const Pagination: React.FC<PaginationProps> = ({
             onClick={onNextPage}
             disabled={isLastPage}
           >
-            <ChevronRightIcon className="h-4 w-4" />
+            <ChevronRightIcon className="h-4 w-4 text-black" />
           </Button>
 
           <Separator
@@ -121,7 +125,7 @@ const Pagination: React.FC<PaginationProps> = ({
             onClick={onLastPage}
             disabled={isLastPage}
           >
-            <DoubleArrowRightIcon className="h-4 w-4" />
+            <DoubleArrowRightIcon className="h-4 w-4 text-black" />
           </Button>
         </div>
       </div>

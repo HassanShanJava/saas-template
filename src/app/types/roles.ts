@@ -1,3 +1,5 @@
+import { Status } from "../shared_enums/enums";
+
 export interface TranformedResourceRsp {
     allResourceData: ResourceTypes[];
     count: number;
@@ -6,13 +8,13 @@ export interface TranformedResourceRsp {
 
 export interface GetRolesType {
     name: string;
-    status?: boolean;
+    status: Status;
     id: number;
 }
 
 export interface CreateRoleTypes {
-    org_id: number;
-    status: string;
+    id?: number;
+    status: Status;
     name: string;
     resource_id: Array<number>;
     access_type: Array<string>;

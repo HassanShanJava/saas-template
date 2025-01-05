@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
-import RoleTableView from "./component/roletable/table";
-import useDocumentTitle from "@/components/ui/common/document-title";
+import RoleTableView from "./component/table";
+import useDocumentTitle from "@/hooks/use-document-title";
 
 const RolesAndAccess = () => {
   useDocumentTitle("Role & Access Management");

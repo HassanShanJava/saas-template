@@ -1,5 +1,5 @@
 import DashboardLayout from "./components/ui/common/dashboardLayout";
-import AuthenticationPage from "./components/app/login/login";
+import AuthenticationPage from "./components/app/login";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Dashboard from "./components/admin/dashboard";
 import ProtectedRoute from "./components/admin/protectedRoute";
@@ -14,7 +14,6 @@ import ResetPassword from "./components/app/reset_password";
 import ForgotPasword from "./components/app/login/forgot_password";
 import CreatePassword from "./components/app/reset_password/create-password";
 
-import QRCodePage from "./components/app/qr_code_staff/qrcode-staff";
 import PrivacyStatement from "./components/PrivacyStatement";
 import TermsAndConditions from "./components/TermsAndConditions";
 
@@ -32,7 +31,6 @@ function App() {
         <Route path="/reset_password/:token" element={<ResetPassword />} />
         <Route path="/create_password/:token" element={<CreatePassword />} />
         <Route path="/forgot_password" element={<ForgotPasword />} />
-        <Route path="/qr-code" element={<QRCodePage />} />
         <Route path="/privacy-statement" element={<PrivacyStatement />} />
         <Route
           path="/terms-and-conditions"

@@ -26,14 +26,10 @@ const DashboardLayout: React.FC = () => {
   const { pathname } = useLocation();
   const { userInfo } = useSelector((state: RootState) => state.auth);
 
-  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [seperatePanel, setSeperatePanel] = useState<ResourceTypes[]>([]);
   const [backtogym, setBacktogym] = useState<string>("");
   const [sidePanel, setSidePanel] = useState<ResourceTypes[]>([]);
-  const orgName = useSelector(
-    (state: RootState) => state.auth.userInfo?.user?.org_name
-  );
+
 
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
@@ -97,7 +93,7 @@ const DashboardLayout: React.FC = () => {
               className={`${!isSidebarOpen && "hidden"} text-2xl text-center font-extrabold`}
               style={{ fontFamily: "Jockey One" }}
             >
-              {orgName?.split(" ")[0]}
+              {userInfo?.org_name?.split(" ")[0]}
             </span>
           </Link>
 
@@ -121,7 +117,7 @@ const DashboardLayout: React.FC = () => {
                     className={`flex items-center gap-2 rounded-md p-1 transition-colors  ${isSidebarOpen ? "justify-start text-sm" : "justify-center text-lg"} ${isActiveLink(item.link) ? "bg-primary hover:bg-primary" : "hover:bg-hoverprimary  "}`}
                   >
                     <div
-                      className={` w-7 h-7 ${isActiveLink(item.link) ? "bg-[#3ED13E]" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
+                      className={` w-7 h-7 ${isActiveLink(item.link) ? "bg-primary" : "bg-gray-100"} rounded-lg justify-center flex items-center`}
                     >
                       <i
                         className={`${item.icon} text-md ${isActiveLink(item.link) ? "" : "text-gray-500 stroke-current"}`}

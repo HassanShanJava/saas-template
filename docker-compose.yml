@@ -1,8 +1,8 @@
 services:
-  app:
+  frontend:
     build:
       context: .
-      dockerfile: /Dockerfile # Specify the relative path to your Dockerfile
+      dockerfile: ./Dockerfile # Specify the relative path to your Dockerfile
     ports:
       - "${VITE_PORT}:${VITE_PORT}"
     networks:
@@ -10,17 +10,10 @@ services:
     environment:
       - VITE_APP_SITEKEY=${VITE_APP_SITEKEY}
       - VITE_API_URL=${VITE_API_URL}
-      - VITE_VIEW_S3_URL=${VITE_VIEW_S3_URL}
-      - VITE_AWS_S3_REGION=${VITE_AWS_S3_REGION}
-      - VITE_AWS_S3_BUCKET_NAME=${VITE_AWS_S3_BUCKET_NAME}
-      - VITE_View_URL=${VITE_View_URL}
-      - VITE_POOl_id=${VITE_POOl_id}
-      - VITE_ROOl_ARN=${VITE_ROOl_ARN}
       - VITE_MAX_IDLE_TIME=${VITE_MAX_IDLE_TIME}
-      - VITE_REGISTER_MAX_HOUR=${VITE_REGISTER_MAX_HOUR}
-      - VITE_JWT_Secret_Key=${VITE_JWT_Secret_Key}
-      - VITE_JWT_EXPIRATION=${VITE_JWT_EXPIRATION}
-      - VITE_Domain_Name=${VITE_Domain_Name}
+      - VITE_S3_URL=${VITE_S3_URL}
+      - VITE_S3_DELETE_URL=${VITE_S3_DELETE_URL}
+
 networks:
   app-network:
     driver: bridge

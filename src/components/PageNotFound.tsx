@@ -1,5 +1,5 @@
 import { RootState } from "@/app/store";
-import { extractLinks } from "@/utils/helper";
+import { extractLinks, getLinks } from "@/utils/helper";
 import React from "react";
 import { FaHome, FaFrown } from "react-icons/fa";
 import { GiRollingDices } from "react-icons/gi";
@@ -10,13 +10,11 @@ import useDocumentTitle from "./ui/common/document-title";
 
 const NotFoundPage = () => {
   const orgId = useSelector(
-    (state: RootState) => state.auth.userInfo?.user?.org_id
+    (state: RootState) => state.auth.userInfo?.org_id
   );
-  // const dispatch = useDispatch();
-  // const sidepanel = localStorage.getItem("sidepanel");
-  // const decodedSidepanel = JSON.parse(atob(sidepanel as string));
-  // const links = extractLinks(decodedSidepanel)
   useDocumentTitle("Page Not Found");
+  const links = getLinks() || ['/']; // Return landing page as default;
+
   
   return (
     <div style={containerStyle}>

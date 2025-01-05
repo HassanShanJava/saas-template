@@ -40,6 +40,7 @@ import { FloatingLabelInput } from "@/components/ui/floatinglable/floating";
 import { MultiSelect } from "../multiselect/multiselectCheckbox";
 import { DatePickerWithRange } from "../date-range/date-rangePicker";
 import { toast } from "../use-toast";
+import { TimeOperatorSelector } from "./time-operator-selector";
 
 interface filtertypes {
   isOpen: boolean;
@@ -81,15 +82,15 @@ const TableFilters = ({
                       }}
                     >
                       <SelectTrigger
-                        className="capitalize"
+                        className="capitalize w-full"
                         floatingLabel={element.label}
                       >
                         <SelectValue placeholder={"Select " + element.label} />
                       </SelectTrigger>
                       <SelectContent className="capitalize">
                         {element.options?.map((st: any, index: number) => (
-                          <SelectItem key={index} value={String(st.id)}>
-                            {st.name}
+                          <SelectItem key={index} value={String(st.value)}>
+                            {st.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -173,7 +174,24 @@ const TableFilters = ({
                       placeholder={"Select " + element.label.replace(/_/g, " ")}
                       variant="inverted"
                       maxCount={1}
-                      className="capitalize focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                      className="capitalize border-checkboxborder border-[1px]"
+                    />
+                  );
+                }
+
+                if (element.type === "time_opt") {
+                  return (
+                    <TimeOperatorSelector
+                      key={element.name}
+                      name={element.name}
+                      label={element.label}
+                      value={
+                        filterData[element.name] || { operator: "", time: "" }
+                      }
+                      options={element.options}
+                      onChange={(value) => {
+                        element.function(value);
+                      }}
                     />
                   );
                 }
@@ -305,12 +323,11 @@ function Combobox({
                     key={item.value}
                     value={item.value}
                     onSelect={(currentValue) => {
-                      
                       setValue(currentValue == value ? "" : currentValue);
                       setFilter(
                         list &&
-                        list?.find((list) => list.label === currentValue)
-                          ?.value
+                          list?.find((list) => list.label === currentValue)
+                            ?.value
                       );
                       setOpen(false);
                     }}

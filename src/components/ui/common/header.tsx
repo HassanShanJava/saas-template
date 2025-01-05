@@ -150,7 +150,7 @@ export const Header = () => {
                   alt="Avatar"
                 />
                 <h1 className="text-base capitalize">
-                  {userInfo?.user?.first_name}
+                  {userInfo?.first_name}
                 </h1>
                 <Button
                   variant="ghost"

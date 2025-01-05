@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { ErrorType } from "@/app/types";
-import { ResourceTypes } from "@/app/types/roles";
+import { CreateRoleTypes, ResourceTypes } from "@/app/types/roles";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Info } from "lucide-react";
+import { Info, Regex } from "lucide-react";
 
 import {
   Sheet,
@@ -62,6 +62,7 @@ import {
   useUpdateRoleMutation,
 } from "@/services/rolesApi";
 import { status } from "@/constants/global";
+import { Status } from "@/app/shared_enums/enums";
 
 export const RoleForm = ({
   data: formData,
@@ -71,12 +72,16 @@ export const RoleForm = ({
   refetch,
   resourceRefetch,
 }: {
-  data: any;
+  data: CreateRoleTypes & { case: "add" | "edit"; tableAccess: Array<string> };
   isDialogOpen: boolean;
-  setIsDialogOpen: any;
-  setFormData?: any;
-  refetch?: any;
-  resourceRefetch?: any;
+  setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setFormData: React.Dispatch<
+    React.SetStateAction<
+      CreateRoleTypes & { case: "add" | "edit"; tableAccess: Array<string> }
+    >
+  >;
+  refetch: () => void;
+  resourceRefetch: () => void;
 }) => {
   const { toast } = useToast();
   const [tableAccess, setAccess] = useState<Record<number, string>>({});
@@ -94,7 +99,6 @@ export const RoleForm = ({
 
   const [expanded, setExpanded] = useState<ExpandedState>(true);
 
-  console.log({ formData });
 
   const createAccess = (array: ResourceTypes[]) => {
     const noAccessMap: Record<number, string> = {};
@@ -115,21 +119,19 @@ export const RoleForm = ({
     if (data?.allResourceData && formData.case == "add") {
       createAccess(data?.allResourceData);
     } else if (formData.case == "edit") {
-      console.log(formData.tableAccess, "formData.tableAccess");
       setAccess(formData.tableAccess);
-      form.reset(formData);
+      reset(formData);
     }
   }, [data, formData]);
 
-  console.log({ tableAccess });
+  const roleNameValidation = new RegExp(/^[A-Za-z\-\s]+$/)
   const RoleFormSchema = z.object({
-    org_id: z.number(),
-    name: z.string().min(1, { message: "Required" }),
+    name: z.string().min(1, { message: "Required" }).max(50, { message: "Should be less than 50 characters" }).regex(roleNameValidation, {
+      message: "Only alphabets, hyphen (-) and spaces are allowed"
+    }),
     status: z
-      .string({
-        required_error: "Required",
-      })
-      .default("active"),
+      .nativeEnum(Status)
+      .default(Status.Active),
   });
 
   const form = useForm<z.infer<typeof RoleFormSchema>>({
@@ -138,38 +140,46 @@ export const RoleForm = ({
     mode: "all",
   });
 
-  const watcher = form.watch();
+  const {
+    control,
+    watch,
+    handleSubmit,
+    clearErrors,
+    reset,
+    setValue,
+    register,
+    formState: { isSubmitting, errors },
+  } = form;
+  const watcher = watch();
 
   const resetFormAndCloseDialog = () => {
-    form.clearErrors();
+    clearErrors();
 
-    setFormData((prev: any) => ({
+    setFormData((prev: CreateRoleTypes & { case: "add" | "edit"; tableAccess: Array<string> }) => ({
       ...prev,
-      status: "active",
+      status: Status.Active,
       name: "",
     }));
-    form.reset({
-      org_id: formData.org_id,
-      status: "active",
+    reset({
+      status: Status.Active,
       name: "",
     });
     createAccess(data?.allResourceData as ResourceTypes[]);
   };
 
   const handleClose = () => {
-    form.clearErrors();
+    clearErrors();
 
-    setFormData((prev: any) => ({
+    setFormData((prev: CreateRoleTypes & { case: "add" | "edit"; tableAccess: Array<string> }) => ({
       ...prev,
-      status: "active",
+      status: Status.Active,
       name: "",
     }));
-    form.reset({
-      org_id: formData.org_id,
-      status: "active",
+    reset({
+      status: Status.Active,
       name: "",
     });
-    setIsDialogOpen();
+    setIsDialogOpen(false);
   };
 
   const handleAccessChange = (id: number, access: string) => {
@@ -182,11 +192,20 @@ export const RoleForm = ({
   const onSubmit = async (data: z.infer<typeof RoleFormSchema>) => {
     const payload = {
       ...data,
+      name: data.name.toLocaleLowerCase(),
       resource_id: Object.keys(tableAccess).map((item) => Number(item)),
       access_type: Object.values(tableAccess),
     };
 
-    console.log({ payload }, "payload");
+    if (payload.access_type.every((access) => access === "no_access")) {
+      toast({
+        variant: "destructive",
+        title: "At least one module must have access.",
+        description: "Please assign Read or Write access to at least one module.",
+      });
+      return; // Exit early if the condition is met
+    }
+
 
     try {
       if (formData.case == "add") {
@@ -201,7 +220,7 @@ export const RoleForm = ({
           setIsDialogOpen(false);
         }
       } else {
-        const resp = await updateRole({ ...payload, id: formData.id }).unwrap();
+        const resp = await updateRole({ ...payload, id: formData.id as number }).unwrap();
         if (resp) {
           console.log({ resp });
           refetch();
@@ -230,8 +249,6 @@ export const RoleForm = ({
           description: `Something Went Wrong.`,
         });
       }
-      resetFormAndCloseDialog();
-      setIsDialogOpen(false);
     }
   };
 
@@ -274,10 +291,7 @@ export const RoleForm = ({
             <p className="text-nowrap">No Access</p>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger
-                  asChild
-                  className="hover:cursor-pointer"
-                >
+                <TooltipTrigger asChild className="hover:cursor-pointer">
                   <Info className="size-5" />
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="max-w-52 ">
@@ -286,21 +300,24 @@ export const RoleForm = ({
               </Tooltip>
             </TooltipProvider>
           </div>
-        )
+        );
       },
-      cell: ({ row }) =>
-        row.original.subRows?.length == 0 && (
-          <Checkbox
-            defaultChecked={tableAccess[row.original.id] == "no_access"}
-            aria-label="No Access"
-            className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
-            value={"no_access"}
-            disabled={tableAccess[row.original.id] == "no_access"}
-            onCheckedChange={() =>
-              handleAccessChange(row.original.id, "no_access")
-            }
-          />
-        ),
+      cell: ({ row }) => {
+        return (
+          !(row.original.code == "sys_set") && (
+            <Checkbox
+              defaultChecked={tableAccess[row.original.id] == "no_access"}
+              aria-label="No Access"
+              className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
+              value={"no_access"}
+              disabled={tableAccess[row.original.id] == "no_access"}
+              onCheckedChange={() =>
+                handleAccessChange(row.original.id, "no_access")
+              }
+            />
+          )
+        );
+      },
     },
     {
       id: "read",
@@ -310,31 +327,34 @@ export const RoleForm = ({
             <p className="text-nowrap">Read</p>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger
-                  asChild
-                  className="hover:cursor-pointer"
-                >
+                <TooltipTrigger asChild className="hover:cursor-pointer">
                   <Info className="size-5" />
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="max-w-52 ">
-                  User with this permission can view the module and its data but cannot make any changes. 
+                  User with this permission can view the module and its data but
+                  cannot make any changes.
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
-        )
+        );
       },
-      cell: ({ row }) =>
-        row.original.subRows?.length == 0 && (
-          <Checkbox
-            defaultChecked={tableAccess[row.original.id] == "read"}
-            aria-label="Read Access"
-            className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
-            value={"read"}
-            disabled={tableAccess[row.original.id] == "read"}
-            onCheckedChange={() => handleAccessChange(row.original.id, "read")}
-          />
-        ),
+      cell: ({ row }) => {
+        return (
+          !(row.original.code == "sys_set") && (
+            <Checkbox
+              defaultChecked={tableAccess[row.original.id] == "read"}
+              aria-label="Read Access"
+              className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
+              value={"read"}
+              disabled={tableAccess[row.original.id] == "read"}
+              onCheckedChange={() =>
+                handleAccessChange(row.original.id, "read")
+              }
+            />
+          )
+        );
+      },
     },
     {
       id: "write",
@@ -344,67 +364,34 @@ export const RoleForm = ({
             <p className="text-nowrap">Write</p>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger
-                  asChild
-                  className="hover:cursor-pointer"
-                >
+                <TooltipTrigger asChild className="hover:cursor-pointer">
                   <Info className="size-5" />
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="max-w-52 ">
-                  User with this permission can view, create, and edit data within the module but cannot delete it.
+                  User with this permission can view, create, and edit data
+                  within the module but cannot delete it.
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
-        )
+        );
       },
-      cell: ({ row }) =>
-        row.original.subRows?.length == 0 && (
-          <Checkbox
-            defaultChecked={tableAccess[row.original.id] == "write"}
-            aria-label="Write Access"
-            className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
-            value={"write"}
-            disabled={tableAccess[row.original.id] == "write"}
-            onCheckedChange={() => handleAccessChange(row.original.id, "write")}
-          />
-        ),
-    },
-    {
-      id: "full_access",
-      header: () => {
+      cell: ({ row }) => {
         return (
-          <div className="flex gap-1">
-            <p className="text-nowrap">Full Access</p>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger
-                  asChild
-                  className="hover:cursor-pointer"
-                >
-                  <Info className="size-5" />
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-52 ">
-                  User with this permission can view, create, edit, and delete data within the module.
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        )
+          !(row.original.code == "sys_set") && (
+            <Checkbox
+              defaultChecked={tableAccess[row.original.id] == "write"}
+              aria-label="Write Access"
+              className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
+              value={"write"}
+              disabled={tableAccess[row.original.id] == "write"}
+              onCheckedChange={() =>
+                handleAccessChange(row.original.id, "write")
+              }
+            />
+          )
+        );
       },
-      cell: ({ row }) =>
-        row.original.subRows?.length == 0 && (
-          <Checkbox
-            defaultChecked={tableAccess[row.original.id] == "full_access"}
-            aria-label="Full Access"
-            className="translate-y-[2px] disabled:opacity-100 disabled:cursor-default"
-            value={"full_access"}
-            disabled={tableAccess[row.original.id] == "full_access"}
-            onCheckedChange={() =>
-              handleAccessChange(row.original.id, "full_access")
-            }
-          />
-        ),
     },
   ];
 
@@ -424,7 +411,7 @@ export const RoleForm = ({
     getExpandedRowModel: getExpandedRowModel(),
   });
 
-  console.log({ watcher }, "role form");
+  console.log({ watcher, errors }, "role form");
 
   return (
     <div>
@@ -435,7 +422,7 @@ export const RoleForm = ({
         >
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={handleSubmit(onSubmit)}
               className="flex flex-col  gap-4 pb-4"
             >
               <SheetHeader className="sticky top-0 pt-4 bg-white z-[100]">
@@ -453,12 +440,8 @@ export const RoleForm = ({
                       <i className="fa fa-xmark px-1 "></i>
                       Cancel
                     </Button>
-                    <LoadingButton
-                      type="submit"
-                      className="w-[100px] px-2 text-center flex items-center gap-2 border-primary text-black"
-                      loading={form.formState.isSubmitting}
-                    >
-                      {!form.formState.isSubmitting && (
+                    <LoadingButton type="submit" loading={isSubmitting}>
+                      {!isSubmitting && (
                         <i className="fa-regular fa-floppy-disk text-base px-1 "></i>
                       )}
                       Save
@@ -469,7 +452,15 @@ export const RoleForm = ({
               <SheetDescription>
                 <div className="flex gap-4 flex-row min-w-full">
                   <FormField
-                    control={form.control}
+                    control={control}
+                    rules={{
+                      required: "Required",
+                      maxLength: {
+                        value: 50,
+                        message: "Role name should not exceed 50 characters"
+                      }
+
+                    }}
                     name="name"
                     render={({ field }) => (
                       <FormItem className="w-1/2">
@@ -481,14 +472,15 @@ export const RoleForm = ({
                           text="*"
                           value={field.value}
                           defaultValue={field.value}
+                          className="capitalize"
+                          error={errors.name?.message}
                         />
-                        {watcher.name ? <></> : <FormMessage />}
                       </FormItem>
                     )}
                   />
 
                   <FormField
-                    control={form.control}
+                    control={control}
                     name="status"
                     render={({ field }) => (
                       <FormItem className="w-1/2">
@@ -498,7 +490,11 @@ export const RoleForm = ({
                           value={field.value} // Ensure value is a string
                         >
                           <FormControl>
-                            <SelectTrigger floatingLabel="Status" text="*">
+                            <SelectTrigger
+                              floatingLabel="Status"
+                              text="*"
+                              className="w-full"
+                            >
                               <SelectValue placeholder="Select status">
                                 <span className="flex gap-2 items-center">
                                   <span
